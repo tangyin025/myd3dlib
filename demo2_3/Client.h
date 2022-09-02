@@ -8,76 +8,11 @@
 #include "SoundContext.h"
 #include "myStateChart.h"
 #include <boost/intrusive/list.hpp>
+#include "SceneContext.h"
 
 class dtNavMesh;
 
 class dtNavMeshQuery;
-
-class SceneContext : public my::DeviceResourceBase
-{
-public:
-	my::Vector3 m_SkyLightCamEuler;
-	my::Vector4 m_SkyLightColor;
-	my::Vector4 m_AmbientColor;
-	my::Vector4 m_DofParams;
-	float m_LuminanceThreshold;
-	my::Vector3 m_BloomColor;
-	float m_BloomFactor;
-	float m_SsaoBias;
-	float m_SsaoIntensity;
-	float m_SsaoRadius;
-	float m_SsaoScale;
-	my::Vector4 m_FogColor;
-	float m_FogStartDistance;
-	float m_FogHeight;
-	float m_FogFalloff;
-	typedef std::vector<ActorPtr> ActorPtrList;
-	ActorPtrList m_ActorList;
-	typedef std::vector<my::DialogPtr> DialogPtrList;
-	DialogPtrList m_DialogList;
-
-public:
-	SceneContext(void)
-	{
-	}
-
-	void OnResetDevice(void)
-	{
-	}
-
-	void OnLostDevice(void)
-	{
-	}
-
-	void OnDestroyDevice(void)
-	{
-	}
-};
-
-typedef boost::shared_ptr<SceneContext> SceneContextPtr;
-
-class SceneContextRequest : public my::IORequest
-{
-protected:
-	friend class Client;
-
-	std::string m_path;
-
-	std::string m_prefix;
-
-	volatile LONG m_ActorProgress;
-
-	volatile LONG m_DialogProgress;
-
-public:
-	SceneContextRequest(const char* path, const char* prefix, int Priority);
-
-	virtual void LoadResource(void);
-
-	virtual void CreateResource(LPDIRECT3DDEVICE9 pd3dDevice);
-
-	static std::string BuildKey(const char* path);
-};
 
 struct PlayerData : public my::DeviceResourceBase
 {

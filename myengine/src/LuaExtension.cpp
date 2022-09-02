@@ -37,6 +37,7 @@ extern "C" {
 #include "SoundContext.h"
 #include "ActionTrack.h"
 #include "Steering.h"
+#include "SceneContext.h"
 //#include "noise.h"
 #include <boost/scope_exit.hpp>
 #include <boost/range/algorithm/transform.hpp>
@@ -2787,6 +2788,25 @@ void LuaContext::Init(void)
 			.def("Play", (void(Mp3::*)(const char *, bool))&Mp3::Play)
 			.def("StopAsync", &Mp3::StopAsync)
 			.def("Stop", &Mp3::Stop)
+
+		, class_<SceneContext, my::DeviceResourceBase, boost::shared_ptr<my::DeviceResourceBase> >("SceneContext")
+			.def_readonly("SkyLightCamEuler", &SceneContext::m_SkyLightCamEuler)
+			.def_readonly("SkyLightColor", &SceneContext::m_SkyLightColor)
+			.def_readonly("AmbientColor", &SceneContext::m_AmbientColor)
+			.def_readonly("DofParams", &SceneContext::m_DofParams)
+			.def_readonly("LuminanceThreshold", &SceneContext::m_LuminanceThreshold)
+			.def_readonly("BloomColor", &SceneContext::m_BloomColor)
+			.def_readonly("BloomFactor", &SceneContext::m_BloomFactor)
+			.def_readonly("SsaoBias", &SceneContext::m_SsaoBias)
+			.def_readonly("SsaoIntensity", &SceneContext::m_SsaoIntensity)
+			.def_readonly("SsaoRadius", &SceneContext::m_SsaoRadius)
+			.def_readonly("SsaoScale", &SceneContext::m_SsaoScale)
+			.def_readonly("FogColor", &SceneContext::m_FogColor)
+			.def_readonly("FogStartDistance", &SceneContext::m_FogStartDistance)
+			.def_readonly("FogHeight", &SceneContext::m_FogHeight)
+			.def_readonly("FogFalloff", &SceneContext::m_FogFalloff)
+			.def_readonly("ActorList", &SceneContext::m_ActorList, return_stl_iterator)
+			.def_readonly("DialogList", &SceneContext::m_DialogList, return_stl_iterator)
 	];
 
 	module(m_State)[

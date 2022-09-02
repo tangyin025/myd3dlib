@@ -147,6 +147,7 @@
     <ClInclude Include="include\NavigationSerialization.h" />
     <ClInclude Include="include\PhysxContext.h" />
     <ClInclude Include="include\RenderPipeline.h" />
+    <ClInclude Include="include\SceneContext.h" />
     <ClInclude Include="include\SoundContext.h" />
     <ClInclude Include="include\StaticEmitter.h" />
     <ClInclude Include="include\Steering.h" />
@@ -179,6 +180,7 @@
     <ClCompile Include="src\NavigationSerialization.cpp" />
     <ClCompile Include="src\PhysxContext.cpp" />
     <ClCompile Include="src\RenderPipeline.cpp" />
+    <ClCompile Include="src\SceneContext.cpp" />
     <ClCompile Include="src\SoundContext.cpp" />
     <ClCompile Include="src\StaticEmitter.cpp" />
     <ClCompile Include="src\Steering.cpp" />
