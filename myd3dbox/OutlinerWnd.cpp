@@ -104,6 +104,8 @@ void COutlinerWnd::OnDestroyItemList()
 
 void COutlinerWnd::OnNamedObjectAdded(my::EventArg* arg)
 {
+	ASSERT(GetCurrentThreadId() == my::D3DContext::getSingleton().m_d3dThreadId);
+
 	CMainApp::NamedObjectEventArgs* named_obj_arg = dynamic_cast<CMainApp::NamedObjectEventArgs*>(arg);
 	ASSERT(named_obj_arg);
 	m_Items.push_back(named_obj_arg->pObj);
@@ -112,6 +114,8 @@ void COutlinerWnd::OnNamedObjectAdded(my::EventArg* arg)
 
 void COutlinerWnd::OnNamedObjectRemoved(my::EventArg* arg)
 {
+	ASSERT(GetCurrentThreadId() == my::D3DContext::getSingleton().m_d3dThreadId);
+
 	CMainApp::NamedObjectEventArgs* named_obj_arg = dynamic_cast<CMainApp::NamedObjectEventArgs*>(arg);
 	ASSERT(named_obj_arg);
 	ItemSet::nth_index<1>::type& object_index = m_Items.get<1>();
