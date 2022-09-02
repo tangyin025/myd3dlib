@@ -134,7 +134,7 @@ static int luaL_loadfile(lua_State *L, const char *filename)
 	{
 		CMainFrame* pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 		ASSERT_VALID(pFrame);
-		lf.stream = theApp.OpenIStream((ts2ms((LPCTSTR)pFrame->m_ToolScriptDir) + "\\" + filename).c_str());
+		lf.stream = theApp.OpenIStream((pFrame->m_ToolScriptDir + "\\" + filename).c_str());
 	}
 	catch (const my::Exception & e)
 	{
@@ -346,7 +346,7 @@ CMainFrame::CMainFrame()
 	theApp.m_nAppLook = theApp.GetInt(_T("ApplicationLook"), ID_VIEW_APPLOOK_VS_2005);
 	m_PaintSpline.AddNode(0, 0, 1, 1);
 	m_PaintSpline.AddNode(1, 1, 1, 1);
-	m_ToolScripts.SetSize(ID_TOOLS_SCRIPT_LAST - ID_TOOLS_SCRIPT1);
+	m_ToolScripts.resize(ID_TOOLS_SCRIPT_LAST - ID_TOOLS_SCRIPT1);
 }
 
 CMainFrame::~CMainFrame()
@@ -2380,18 +2380,17 @@ BOOL CMainFrame::OnShowPopupMenu(CMFCPopupMenu* pMenuPopup)
 			if (pMenuBar->GetItemID(i) == ID_TOOLS_SCRIPT1)
 			{
 				const int first_script_index = i;
-				WIN32_FIND_DATA ffd;
+				WIN32_FIND_DATAA ffd;
 				HANDLE hFind = INVALID_HANDLE_VALUE;
-				std::basic_string<TCHAR> pattern = ms2ts(theApp.default_tool_scrpit_pattern);
-				boost::algorithm::replace_all(pattern, "/", "\\");
-				hFind = FindFirstFile(pattern.c_str(), &ffd);
+				hFind = FindFirstFileA(theApp.default_tool_scrpit_pattern.c_str(), &ffd);
 				if (hFind == INVALID_HANDLE_VALUE)
 				{
 					break;
 				}
-				m_ToolScriptDir = pattern.c_str();
-				PathRemoveFileSpec(m_ToolScriptDir.GetBuffer());
-				m_ToolScriptDir.ReleaseBuffer();
+				m_ToolScriptDir = theApp.default_tool_scrpit_pattern.c_str();
+				// ! c++11 contains a null-terminated, https://cplusplus.com/reference/string/string/data/
+				PathRemoveFileSpecA(const_cast<char*>(m_ToolScriptDir.data()));
+				m_ToolScriptDir.resize(strlen(m_ToolScriptDir.c_str()));
 				do
 				{
 					if (!(ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
@@ -2399,7 +2398,7 @@ BOOL CMainFrame::OnShowPopupMenu(CMFCPopupMenu* pMenuPopup)
 						m_ToolScripts[i - first_script_index] = ffd.cFileName;
 						CString strText;
 						const TCHAR* pref[] = { _T("&1 "), _T("&2 "), _T("&3 "), _T("&4 "), _T("&5 "), _T("&6 "), _T("&7 "), _T("&8 "), _T("&9 "), _T("1&0 ") };
-						strText.Format(_T("%s%S"), i - first_script_index < _countof(pref) ? pref[i - first_script_index] : _T(""), m_ToolScripts[i - first_script_index]);
+						strText.Format(_T("%s%s"), i - first_script_index < _countof(pref) ? pref[i - first_script_index] : _T(""), ms2ts(m_ToolScripts[i - first_script_index]).c_str());
 						if (i < pMenuBar->GetCount() && pMenuBar->GetButtonStyle(i) != TBBS_SEPARATOR && pMenuBar->GetItemID(i) < ID_TOOLS_SCRIPT_LAST)
 						{
 							pMenuBar->SetButtonText(i, strText);
@@ -2412,7 +2411,7 @@ BOOL CMainFrame::OnShowPopupMenu(CMFCPopupMenu* pMenuPopup)
 						}
 					}
 				}
-				while (FindNextFile(hFind, &ffd) && i - first_script_index < ID_TOOLS_SCRIPT_LAST - ID_TOOLS_SCRIPT1);
+				while (FindNextFileA(hFind, &ffd) && i - first_script_index < ID_TOOLS_SCRIPT_LAST - ID_TOOLS_SCRIPT1);
 				FindClose(hFind);
 				break;
 			}
@@ -2426,7 +2425,7 @@ BOOL CMainFrame::OnShowPopupMenu(CMFCPopupMenu* pMenuPopup)
 void CMainFrame::OnToolsScript1(UINT id)
 {
 	// TODO: Add your command handler code here
-	if (luaL_loadfile(m_State, ts2ms((LPCTSTR)m_ToolScripts[id - ID_TOOLS_SCRIPT1]).c_str()) || docall(0, 1))
+	if (luaL_loadfile(m_State, m_ToolScripts[id - ID_TOOLS_SCRIPT1].c_str()) || docall(0, 1))
 	{
 		if (!lua_isnil(m_State, -1))
 		{
@@ -2444,7 +2443,7 @@ void CMainFrame::OnToolsScript1(UINT id)
 void CMainFrame::OnUpdateToolsScript1(CCmdUI* pCmdUI)
 {
 	// TODO: Add your command update UI handler code here
-	pCmdUI->Enable(!m_ToolScripts[pCmdUI->m_nID - ID_TOOLS_SCRIPT1].IsEmpty());
+	pCmdUI->Enable(!m_ToolScripts[pCmdUI->m_nID - ID_TOOLS_SCRIPT1].empty());
 }
 
 

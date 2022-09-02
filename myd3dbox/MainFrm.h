@@ -102,8 +102,8 @@ public:
 	my::EventSignal m_EventPivotModeChanged;
 	my::EventSignal m_EventAttributeChanged;
 	my::EventSignal m_EventCameraPropChanged;
-	CString m_ToolScriptDir;
-	CStringArray m_ToolScripts;
+	std::string m_ToolScriptDir;
+	std::vector<std::string> m_ToolScripts;
 	CChildView* m_RenderingView;
 
 // Operations

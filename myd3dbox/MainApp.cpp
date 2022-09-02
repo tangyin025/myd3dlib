@@ -547,6 +547,8 @@ BOOL CMainApp::InitInstance()
 		}
 	}
 
+	boost::algorithm::replace_all(default_tool_scrpit_pattern, "/", "\\");
+
 	_ASSERT(GetCurrentThreadId() == D3DContext::getSingleton().m_d3dThreadId);
 
 	if (!PhysxSdk::Init())
