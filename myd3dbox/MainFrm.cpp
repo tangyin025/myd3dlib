@@ -132,7 +132,9 @@ static int luaL_loadfile(lua_State *L, const char *filename)
 	//ungetc(c, lf.f);
 	try
 	{
-		lf.stream = theApp.OpenIStream(filename);
+		CMainFrame* pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
+		ASSERT_VALID(pFrame);
+		lf.stream = theApp.OpenIStream((ts2ms((LPCTSTR)pFrame->m_ToolScriptDir) + "\\" + filename).c_str());
 	}
 	catch (const my::Exception & e)
 	{
@@ -2387,17 +2389,17 @@ BOOL CMainFrame::OnShowPopupMenu(CMFCPopupMenu* pMenuPopup)
 				{
 					break;
 				}
-				CString Dir = pattern.c_str();
-				PathRemoveFileSpec(Dir.GetBuffer());
-				Dir.ReleaseBuffer();
+				m_ToolScriptDir = pattern.c_str();
+				PathRemoveFileSpec(m_ToolScriptDir.GetBuffer());
+				m_ToolScriptDir.ReleaseBuffer();
 				do
 				{
 					if (!(ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
 					{
-						m_ToolScripts[i - first_script_index] = Dir + _T("\\") + ffd.cFileName;
+						m_ToolScripts[i - first_script_index] = ffd.cFileName;
 						CString strText;
 						const TCHAR* pref[] = { _T("&1 "), _T("&2 "), _T("&3 "), _T("&4 "), _T("&5 "), _T("&6 "), _T("&7 "), _T("&8 "), _T("&9 "), _T("1&0 ") };
-						strText.Format(_T("%s%s"), i - first_script_index < _countof(pref) ? pref[i - first_script_index] : _T(""), m_ToolScripts[i - first_script_index]);
+						strText.Format(_T("%s%S"), i - first_script_index < _countof(pref) ? pref[i - first_script_index] : _T(""), m_ToolScripts[i - first_script_index]);
 						if (i < pMenuBar->GetCount() && pMenuBar->GetButtonStyle(i) != TBBS_SEPARATOR && pMenuBar->GetItemID(i) < ID_TOOLS_SCRIPT_LAST)
 						{
 							pMenuBar->SetButtonText(i, strText);

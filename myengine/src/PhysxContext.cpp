@@ -308,6 +308,8 @@ bool PhysxScene::Advance(float dtime)
 
 void PhysxScene::AdvanceSync(float dtime)
 {
+	PhysxSdk::getSingleton().m_RenderTickMuted = true;
+
 	m_Timer.m_RemainingTime += my::Min(0.1f, dtime);
 
 	for (; m_Timer.Step(); )
@@ -320,6 +322,8 @@ void PhysxScene::AdvanceSync(float dtime)
 
 		m_EventPxThreadSubstep(m_Timer.m_Interval);
 	}
+
+	PhysxSdk::getSingleton().m_RenderTickMuted = false;
 }
 
 void PhysxScene::Substep(StepperTask & completionTask)
