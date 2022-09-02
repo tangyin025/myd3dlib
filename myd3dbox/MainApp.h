@@ -10,6 +10,7 @@
 #include "resource.h"       // main symbols
 #include "RenderPipeline.h"
 #include "PhysxContext.h"
+#include "SceneContext.h"
 
 // CMainApp:
 // See myd3dbox.cpp for the implementation of this class
@@ -218,6 +219,8 @@ public:
 	virtual CDocument* OpenDocumentFile(LPCTSTR lpszFileName);
 	virtual void OnNamedObjectCreate(my::NamedObject* Object);
 	virtual void OnNamedObjectDestroy(my::NamedObject* Object);
+public:
+	boost::shared_ptr<SceneContext> LoadScene(const char* path, const char* prefix);
 };
 
 extern CMainApp theApp;

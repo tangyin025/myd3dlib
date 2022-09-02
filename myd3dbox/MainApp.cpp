@@ -860,3 +860,12 @@ void CMainApp::OnNamedObjectDestroy(my::NamedObject* Object)
 	NamedObjectEventArgs arg(Object);
 	m_EventNamedObjectDestroy(&arg);
 }
+
+boost::shared_ptr<SceneContext> CMainApp::LoadScene(const char* path, const char* prefix)
+{
+	std::string key = SceneContextRequest::BuildKey(path);
+	my::SimpleResourceCallback cb;
+	my::IORequestPtr request(new SceneContextRequest(path, prefix, INT_MAX));
+	LoadIORequestAndWait(key, request, boost::bind(&my::SimpleResourceCallback::OnResourceReady, &cb, boost::placeholders::_1));
+	return boost::dynamic_pointer_cast<SceneContext>(cb.m_res);
+}

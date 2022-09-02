@@ -815,7 +815,12 @@ void CMainFrame::InitFileContext()
 		, luabind::class_<CChildView, luabind::bases<CWnd, my::DrawHelper> >("ChildView")
 			.def_readonly("Camera", &CChildView::m_Camera)
 
+		, luabind::class_<COutlinerWnd, luabind::bases<CWnd> >("COutlinerWnd")
+			.def("OnInitItemList", &COutlinerWnd::OnInitItemList)
+			.def("OnDestroyItemList", &COutlinerWnd::OnDestroyItemList)
+
 		, luabind::class_<CMainFrame, luabind::bases<CWnd, PhysxScene> >("MainFrame")
+			.def_readonly("wndOutliner", &CMainFrame::m_wndOutliner)
 			.def("InsertDlg", &CMainFrame::InsertDlg)
 			.def("RemoveDlg", &CMainFrame::RemoveDlg)
 			.def("RemoveAllDlg", &CMainFrame::RemoveAllDlg)
@@ -838,6 +843,7 @@ void CMainFrame::InitFileContext()
 			.def_readwrite("AmbientColor", &CMainApp::m_AmbientColor)
 			.def_readonly("UIRender", &CMainApp::m_UIRender)
 			.def_readonly("Font", &CMainApp::m_Font)
+			.def("LoadScene", &CMainApp::LoadScene)
 	];
 	luabind::globals(m_State)["theApp"] = &theApp;
 }
@@ -863,42 +869,35 @@ void CMainFrame::ClearFileContext()
 
 BOOL CMainFrame::OpenFileContext(LPCTSTR lpszFileName)
 {
-	my::IStreamBuff buff(my::FileIStream::Open(lpszFileName));
-	std::istream ifs(&buff);
-	LPCTSTR Ext = PathFindExtension(lpszFileName);
-	boost::shared_ptr<boost::archive::polymorphic_iarchive> ia = Actor::GetIArchive(ifs, ts2ms(Ext).c_str());
-	*ia >> boost::serialization::make_nvp("SkyLightCam.m_Euler", theApp.m_SkyLightCam->m_Euler);
-	*ia >> boost::serialization::make_nvp("SkyLightColor", theApp.m_SkyLightColor);
-	*ia >> boost::serialization::make_nvp("AmbientColor", theApp.m_AmbientColor);
-	*ia >> boost::serialization::make_nvp("DofParams", theApp.m_DofParams);
-	*ia >> boost::serialization::make_nvp("LuminanceThreshold", theApp.m_LuminanceThreshold);
-	*ia >> boost::serialization::make_nvp("BloomColor", theApp.m_BloomColor);
-	*ia >> boost::serialization::make_nvp("BloomFactor", theApp.m_BloomFactor);
-	*ia >> boost::serialization::make_nvp("SsaoBias", theApp.m_SsaoBias);
-	*ia >> boost::serialization::make_nvp("SsaoIntensity", theApp.m_SsaoIntensity);
-	*ia >> boost::serialization::make_nvp("SsaoRadius", theApp.m_SsaoRadius);
-	*ia >> boost::serialization::make_nvp("SsaoScale", theApp.m_SsaoScale);
-	*ia >> boost::serialization::make_nvp("FogColor", theApp.m_FogColor);
-	*ia >> boost::serialization::make_nvp("FogStartDistance", theApp.m_FogStartDistance);
-	*ia >> boost::serialization::make_nvp("FogHeight", theApp.m_FogHeight);
-	*ia >> boost::serialization::make_nvp("FogFalloff", theApp.m_FogFalloff);
+	SceneContextPtr scene = theApp.LoadScene(ts2ms(lpszFileName).c_str(), "");
+	theApp.m_SkyLightCam->m_Euler = scene->m_SkyLightCamEuler;
+	theApp.m_SkyLightColor = scene->m_SkyLightColor;
+	theApp.m_AmbientColor = scene->m_AmbientColor;
+	theApp.m_DofParams = scene->m_DofParams;
+	theApp.m_LuminanceThreshold = scene->m_LuminanceThreshold;
+	theApp.m_BloomColor = scene->m_BloomColor;
+	theApp.m_BloomFactor = scene->m_BloomFactor;
+	theApp.m_SsaoBias = scene->m_SsaoBias;
+	theApp.m_SsaoIntensity = scene->m_SsaoIntensity;
+	theApp.m_SsaoRadius = scene->m_SsaoRadius;
+	theApp.m_SsaoScale = scene->m_SsaoScale;
+	theApp.m_FogColor = scene->m_FogColor;
+	theApp.m_FogStartDistance = scene->m_FogStartDistance;
+	theApp.m_FogHeight = scene->m_FogHeight;
+	theApp.m_FogFalloff = scene->m_FogFalloff;
 
-	DWORD ActorListSize;
-	*ia >> BOOST_SERIALIZATION_NVP(ActorListSize);
-	m_ActorList.resize(ActorListSize);
-	for (int i = 0; i < ActorListSize; i++)
+	SceneContext::ActorPtrList::iterator act_iter = scene->m_ActorList.begin();
+	for (; act_iter != scene->m_ActorList.end(); act_iter++)
 	{
-		*ia >> boost::serialization::make_nvp(str_printf("Actor%d", i).c_str(), m_ActorList[i]);
-		AddEntity(m_ActorList[i].get(), m_ActorList[i]->m_aabb.transform(m_ActorList[i]->m_World), Actor::MinBlock, Actor::Threshold);
+		m_ActorList.push_back(*act_iter);
+		AddEntity(act_iter->get(), (*act_iter)->m_aabb.transform((*act_iter)->m_World), Actor::MinBlock, Actor::Threshold);
 	}
 
-	DWORD DialogListSize;
-	*ia >> BOOST_SERIALIZATION_NVP(DialogListSize);
-	m_DialogList.resize(DialogListSize);
-	for (int i = 0; i < DialogListSize; i++)
+	SceneContext::DialogPtrList::iterator dlg_iter = scene->m_DialogList.begin();
+	for (; dlg_iter != scene->m_DialogList.end(); dlg_iter++)
 	{
-		*ia >> boost::serialization::make_nvp(str_printf("Dialog%d", i).c_str(), m_DialogList[i]);
-		InsertDlg(m_DialogList[i].get());
+		m_DialogList.push_back(*dlg_iter);
+		InsertDlg(dlg_iter->get());
 	}
 
 	theApp.m_EventLog(str_printf("CMainFrame::OpenFileContext: %Iu actors, %Iu dialogs", m_ActorList.size(), m_DialogList.size()).c_str());

@@ -493,6 +493,17 @@ namespace my
 		boost::shared_ptr<Wav> LoadWav(const char * path);
 	};
 
+	class SimpleResourceCallback
+	{
+	public:
+		DeviceResourceBasePtr m_res;
+
+		void OnResourceReady(DeviceResourceBasePtr res)
+		{
+			m_res = res;
+		}
+	};
+
 	class TextureIORequest : public IORequest
 	{
 	protected:

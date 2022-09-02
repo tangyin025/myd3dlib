@@ -1864,17 +1864,6 @@ void Client::SetTranslation(const std::string& key, const std::wstring& text)
 	m_TranslationMap[key] = text;
 }
 
-class SimpleResourceCallback
-{
-public:
-	DeviceResourceBasePtr m_res;
-
-	void OnResourceReady(DeviceResourceBasePtr res)
-	{
-		m_res = res;
-	}
-};
-
 boost::shared_ptr<SceneContext> Client::LoadScene(const char * path, const char * prefix)
 {
 	std::string key = SceneContextRequest::BuildKey(path);

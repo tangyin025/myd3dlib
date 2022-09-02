@@ -820,17 +820,6 @@ void ResourceMgr::OnIORequestCallback(IORequestPtr request)
 	}
 }
 
-class SimpleResourceCallback
-{
-public:
-	DeviceResourceBasePtr m_res;
-
-	void OnResourceReady(DeviceResourceBasePtr res)
-	{
-		m_res = res;
-	}
-};
-
 boost::shared_ptr<BaseTexture> ResourceMgr::LoadTexture(const char * path)
 {
 	SimpleResourceCallback cb;
