@@ -344,14 +344,14 @@ public:
 	template <typename T>
 	void LoadSceneAsync(const char * path, const char * prefix, const T & callback, int Priority = 0)
 	{
-		std::string key = SceneContextRequest::BuildKey(path);
+		std::string key = SceneContextRequest::BuildKey(path, prefix);
 		IORequestPtr request(new SceneContextRequest(path, prefix, Priority));
 		LoadIORequestAsync(key, request, callback);
 	}
 
 	boost::shared_ptr<SceneContext> LoadScene(const char * path, const char * prefix);
 
-	void GetLoadSceneProgress(const char * path, int & ActorProgress, int & DialogProgress);
+	void GetLoadSceneProgress(const char * path, const char * prefix, int & ActorProgress, int & DialogProgress);
 
 	boost::shared_ptr<PlayerData> LoadPlayerData(const char * path);
 

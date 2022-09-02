@@ -1128,7 +1128,7 @@ HRESULT Client::OnCreateDevice(
 			.def("Play", (SoundEventPtr(SoundContext::*)(my::WavPtr, bool, const my::Vector3&, const my::Vector3&, float, float)) & Client::Play)
 			.def("LoadSceneAsync", &Client::LoadSceneAsync<luabind::object>)
 			.def("LoadScene", &Client::LoadScene)
-			.def("GetLoadSceneProgress", &Client::GetLoadSceneProgress, luabind::pure_out_value(boost::placeholders::_3) + luabind::pure_out_value(boost::placeholders::_4))
+			.def("GetLoadSceneProgress", &Client::GetLoadSceneProgress, luabind::pure_out_value(boost::placeholders::_4) + luabind::pure_out_value(boost::placeholders::_5))
 			.def("LoadPlayerData", &Client::LoadPlayerData)
 			.def("SavePlayerDataAsync", &Client::SavePlayerDataAsync<luabind::object>)
 			.def("SavePlayerData", &Client::SavePlayerData)
@@ -1866,18 +1866,18 @@ void Client::SetTranslation(const std::string& key, const std::wstring& text)
 
 boost::shared_ptr<SceneContext> Client::LoadScene(const char * path, const char * prefix)
 {
-	std::string key = SceneContextRequest::BuildKey(path);
+	std::string key = SceneContextRequest::BuildKey(path, prefix);
 	SimpleResourceCallback cb;
 	IORequestPtr request(new SceneContextRequest(path, prefix, INT_MAX));
 	LoadIORequestAndWait(key, request, boost::bind(&SimpleResourceCallback::OnResourceReady, &cb, boost::placeholders::_1));
 	return boost::dynamic_pointer_cast<SceneContext>(cb.m_res);
 }
 
-void Client::GetLoadSceneProgress(const char * path, int & ActorProgress, int & DialogProgress)
+void Client::GetLoadSceneProgress(const char * path, const char * prefix, int & ActorProgress, int & DialogProgress)
 {
 	_ASSERT(IsMainThread());
 
-	std::string key = SceneContextRequest::BuildKey(path);
+	std::string key = SceneContextRequest::BuildKey(path, prefix);
 
 	MutexLock lock(m_IORequestListMutex);
 

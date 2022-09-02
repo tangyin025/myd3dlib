@@ -66,7 +66,7 @@ void SceneContextRequest::CreateResource(LPDIRECT3DDEVICE9 pd3dDevice)
 	}
 }
 
-std::string SceneContextRequest::BuildKey(const char* path)
+std::string SceneContextRequest::BuildKey(const char* path, const char* prefix)
 {
-	return path;
+	return str_printf("%s %s", path, prefix);
 }

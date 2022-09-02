@@ -82,5 +82,5 @@ public:
 
 	virtual void CreateResource(LPDIRECT3DDEVICE9 pd3dDevice);
 
-	static std::string BuildKey(const char* path);
+	static std::string BuildKey(const char* path, const char* prefix);
 };
