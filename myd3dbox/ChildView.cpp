@@ -11,6 +11,7 @@
 #include "NavigationSerialization.h"
 #include "StaticEmitter.h"
 #include <boost/scope_exit.hpp>
+#include <boost/range/algorithm/find_if.hpp>
 #include "DebugDraw.h"
 
 #ifdef _DEBUG
@@ -603,18 +604,22 @@ bool CChildView::OverlapTestFrustumAndActor(const my::Frustum & frustum, Actor *
 {
 	if (actor->m_Cmps.empty())
 	{
+		m_raycmp = NULL;
 		my::IntersectionTests::IntersectionType intersect_type = my::IntersectionTests::IntersectAABBAndFrustum(*actor->m_OctAabb, frustum);
 		if (intersect_type != my::IntersectionTests::IntersectionTypeOutside)
 		{
 			return true;
 		}
+		return false;
 	}
+	m_raycmp = NULL;
 	my::Frustum local_ftm = frustum.transform(actor->m_World.transpose());
 	Actor::ComponentPtrList::iterator cmp_iter = actor->m_Cmps.begin();
 	for (; cmp_iter != actor->m_Cmps.end(); cmp_iter++)
 	{
 		if (OverlapTestFrustumAndComponent(frustum, local_ftm, cmp_iter->get()))
 		{
+			m_raycmp = cmp_iter->get();
 			return true;
 		}
 	}
@@ -1732,10 +1737,12 @@ ctrl_handle_end:
 		struct Callback : public my::OctNode::QueryCallback
 		{
 			CMainFrame::ActorList selacts;
+			Component* selcmp;
 			const my::Frustum& ftm;
 			CChildView* pView;
 			Callback(const my::Frustum& _ftm, CChildView* _pView)
-				: ftm(_ftm)
+				: selcmp(NULL)
+				, ftm(_ftm)
 				, pView(_pView)
 			{
 			}
@@ -1746,6 +1753,10 @@ ctrl_handle_end:
 				if (pView->OverlapTestFrustumAndActor(ftm, actor))
 				{
 					selacts.push_back(actor);
+					if (!selcmp)
+					{
+						selcmp = pView->m_raycmp;
+					}
 				}
 				return true;
 			}
@@ -1755,10 +1766,20 @@ ctrl_handle_end:
 		if (nFlags & MK_CONTROL)
 		{
 			my::intersection_remove(pFrame->m_selactors, cb.selacts.begin(), cb.selacts.end());
+			CMainFrame::ActorList::iterator sel_iter = cb.selacts.begin();
+			for (; sel_iter != cb.selacts.end(); sel_iter++)
+			{
+				if ((*sel_iter)->m_Cmps.end() != boost::find_if((*sel_iter)->m_Cmps,
+					boost::bind(std::equal_to<Component*>(), pFrame->m_selcmp, boost::bind(&ComponentPtr::get, boost::placeholders::_1))))
+				{
+					pFrame->m_selcmp = NULL;
+				}
+			}
 		}
 		else
 		{
 			my::union_insert(pFrame->m_selactors, cb.selacts.begin(), cb.selacts.end());
+			pFrame->m_selcmp = cb.selcmp;
 		}
 		if (!pFrame->m_selcmp && !pFrame->m_selactors.empty() && pFrame->m_selactors.front()->GetComponentNum() > 0)
 		{
