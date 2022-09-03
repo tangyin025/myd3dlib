@@ -232,6 +232,7 @@
     <ClCompile Include="OutlinerWnd.cpp" />
     <ClCompile Include="OutputWnd.cpp" />
     <ClCompile Include="Pivot.cpp" />
+    <ClCompile Include="PlayerAgent.cpp" />
     <ClCompile Include="PropertiesWnd.cpp" />
     <ClCompile Include="ScriptWnd.cpp" />
     <ClCompile Include="ShapeDlg.cpp" />
@@ -259,6 +260,7 @@
     <ClInclude Include="OutlinerWnd.h" />
     <ClInclude Include="OutputWnd.h" />
     <ClInclude Include="Pivot.h" />
+    <ClInclude Include="PlayerAgent.h" />
     <ClInclude Include="PropertiesWnd.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="ScriptWnd.h" />

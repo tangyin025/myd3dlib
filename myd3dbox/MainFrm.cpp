@@ -39,6 +39,7 @@
 #include <boost/algorithm/string.hpp>
 #include "DeleteCmpsDlg.h"
 #include "SnapshotDlg.h"
+#include "PlayerAgent.h"
 #include <lualib.h>
 
 #ifdef _DEBUG
@@ -376,44 +377,6 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 	m_Player.reset(new Actor(NULL, my::Vector3(0, 0, 0), my::Quaternion::Identity(), my::Vector3(1, 1, 1), my::AABB(-1, 1)));
 	m_Player->InsertComponent(ComponentPtr(new Controller(NULL, 1.0f, 0.5f, 0.1f, 0.5f)));
-	class PlayerAgent : public Component
-	{
-	public:
-		PlayerAgent(const char* Name)
-			: Component(Name)
-		{
-		}
-
-		virtual ~PlayerAgent(void)
-		{
-			_ASSERT(!IsRequested());
-		}
-
-		virtual DWORD GetComponentType(void) const
-		{
-			return ComponentTypeScript;
-		}
-
-		virtual void RequestResource(void)
-		{
-			Component::RequestResource();
-		}
-
-		virtual void ReleaseResource(void)
-		{
-			Component::ReleaseResource();
-		}
-
-		virtual void Update(float fElapsedTime)
-		{
-			;
-		}
-
-		virtual void OnPxThreadSubstep(float dtime)
-		{
-			;
-		}
-	};
 	m_Player->InsertComponent(ComponentPtr(new PlayerAgent(NULL)));
 
 	BOOL bNameValid;
