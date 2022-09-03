@@ -2495,7 +2495,9 @@ void CMainFrame::OnToolsPlaying()
 	// TODO: Add your command handler code here
 	if (!m_Player->m_Node)
 	{
-		m_Player->UpdateWorld();
+		CChildView* pView = DYNAMIC_DOWNCAST(CChildView, GetActiveView());
+		ASSERT_VALID(pView);
+		m_Player->SetPose(boost::dynamic_pointer_cast<my::ModelViewerCamera>(pView->m_Camera)->m_LookAt);
 		AddEntity(m_Player.get(), m_Player->m_aabb.transform(m_Player->m_World), Actor::MinBlock, Actor::Threshold);
 	}
 	else

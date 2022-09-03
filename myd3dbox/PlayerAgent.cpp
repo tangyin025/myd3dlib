@@ -53,13 +53,15 @@ void PlayerAgent::Update(float fElapsedTime)
 	}
 
 	const Vector3 pos = m_Controller->GetPosition();
+	const Quaternion rot = m_Steering->m_Speed > 0 ?
+		Quaternion::RotationFromToSafe(Vector3(0, 0, 1), m_Steering->m_Forward) : m_Actor->m_Rotation;
 	if (pos.y > m_Actor->m_Position.y + EPSILON_E3)
 	{
-		m_Actor->SetPose(Vector3(pos.x, Lerp(m_Actor->m_Position.y, pos.y, pow(0.7, 30 * fElapsedTime)), pos.z));
+		m_Actor->SetPose(Vector3(pos.x, Lerp(m_Actor->m_Position.y, pos.y, 1.0f - pow(0.7, 30 * fElapsedTime)), pos.z), rot);
 	}
 	else
 	{
-		m_Actor->SetPose(pos);
+		m_Actor->SetPose(pos, rot);
 	}
 
 	CMainFrame* pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
@@ -87,6 +89,7 @@ void PlayerAgent::Update(float fElapsedTime)
 	}
 
 	model_view_camera->m_LookAt = m_Actor->m_World.getRow<3>().xyz + Vector3(0, 0.85, 0);
+	model_view_camera->m_Distance = Lerp(model_view_camera->m_Distance, 4.0f, 1.0 - pow(0.5f, 30 * fElapsedTime));
 	model_view_camera->UpdateViewProj();
 }
 
@@ -96,11 +99,18 @@ void PlayerAgent::OnPxThreadSubstep(float dtime)
 	if (m_Actor->TickActionAndGetDisplacement(dtime, disp))
 	{
 		Vector3 vel = disp / dtime;
+		m_VerticalSpeed = vel.y;
 		m_Steering->m_Speed = vel.magnitude2D();
 		if (m_Steering->m_Speed > 0)
 		{
 			m_Steering->m_Forward = Vector3(vel.xz(), 0) / m_Steering->m_Speed;
 		}
+	}
+	else if (m_Jumping)
+	{
+		m_VerticalSpeed += theApp.default_physx_scene_gravity.y * dtime;
+		Vector3 vel((m_Steering->m_Forward * m_Steering->m_Speed).xz(), m_VerticalSpeed);
+		disp = vel * dtime;
 	}
 	else
 	{
@@ -108,5 +118,18 @@ void PlayerAgent::OnPxThreadSubstep(float dtime)
 		disp = vel * dtime;
 	}
 
-	m_Controller->Move(disp, 0.001f, dtime, 0x01);
+	physx::PxControllerCollisionFlags moveFlags =
+		(physx::PxControllerCollisionFlags)m_Controller->Move(disp, 0.001f, dtime, 0x01);
+	if (moveFlags & physx::PxControllerCollisionFlag::eCOLLISION_DOWN)
+	{
+		m_VerticalSpeed = 0;
+		if (m_Jumping)
+		{
+			m_Jumping = false;
+		}
+	}
+	else
+	{
+		m_Jumping = true;
+	}
 }

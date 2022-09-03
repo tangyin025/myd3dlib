@@ -19,9 +19,15 @@ public:
 
 	my::Vector3 m_MoveDir;
 
+	float m_VerticalSpeed;
+
+	bool m_Jumping;
+
 	PlayerAgent(const char* Name)
 		: Component(Name)
 		, m_MoveDir(0, 0, 0)
+		, m_VerticalSpeed(0)
+		, m_Jumping(true)
 	{
 	}
 
