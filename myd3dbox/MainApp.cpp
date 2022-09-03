@@ -33,6 +33,7 @@ END_MESSAGE_MAP()
 // CMainApp construction
 
 CMainApp::CMainApp()
+	: InputMgr(0)
 {
 	m_bNeedDraw = FALSE;
 	m_bHiColorIcons = TRUE;
@@ -606,6 +607,8 @@ HRESULT CMainApp::OnCreateDevice(
 {
 	D3DContext::OnCreateDevice(pd3dDevice, pBackBufferSurfaceDesc);
 
+	InputMgr::Create(m_hInstance, m_pMainWnd->m_hWnd);
+
 	if(FAILED(hr = my::ResourceMgr::OnCreateDevice(m_d3dDevice, &m_BackBufferSurfaceDesc)))
 	{
 		TRACE(my::D3DException::Translate(hr));
@@ -691,6 +694,8 @@ void CMainApp::OnDestroyDevice(void)
 	ResourceMgr::OnDestroyDevice();
 
 	RenderPipeline::OnDestroyDevice();
+
+	InputMgr::Destroy();
 
 	D3DContext::OnDestroyDevice();
 
@@ -779,6 +784,8 @@ BOOL CMainApp::OnIdle(LONG lCount)
 	{
 		m_bNeedDraw = TRUE;
 	}
+
+	my::InputMgr::Capture(m_fTotalTime, m_fElapsedTime);
 
 	BOOL bContinue = FALSE;
 	if (my::ResourceMgr::CheckIORequests(0))

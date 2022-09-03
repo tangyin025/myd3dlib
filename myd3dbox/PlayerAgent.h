@@ -4,40 +4,24 @@
 
 class PlayerAgent : public Component
 {
+protected:
+
 public:
 	PlayerAgent(const char* Name)
 		: Component(Name)
 	{
 	}
 
-	virtual ~PlayerAgent(void)
-	{
-		_ASSERT(!IsRequested());
-	}
+	virtual ~PlayerAgent(void);
 
-	virtual DWORD GetComponentType(void) const
-	{
-		return ComponentTypeScript;
-	}
+	virtual DWORD GetComponentType(void) const;
 
-	virtual void RequestResource(void)
-	{
-		Component::RequestResource();
-	}
+	virtual void RequestResource(void);
 
-	virtual void ReleaseResource(void)
-	{
-		Component::ReleaseResource();
-	}
+	virtual void ReleaseResource(void);
 
-	virtual void Update(float fElapsedTime)
-	{
-		;
-	}
+	virtual void Update(float fElapsedTime);
 
-	virtual void OnPxThreadSubstep(float dtime)
-	{
-		;
-	}
+	virtual void OnPxThreadSubstep(float dtime);
 };
 

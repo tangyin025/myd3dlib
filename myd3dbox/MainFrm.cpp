@@ -753,6 +753,11 @@ void CMainFrame::OnFrameTick(float fElapsedTime)
 		}
 	}
 
+	if (m_Player->IsRequested())
+	{
+		m_Player->Update(fElapsedTime);
+	}
+
 	PhysxScene::AdvanceSync(fElapsedTime);
 
 	bool haveSelActors = false;

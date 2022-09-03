@@ -19,6 +19,7 @@
 class CMainApp : public CWinAppEx
 	, public my::D3DContext
 	, public my::FontLibrary
+	, public my::InputMgr
 	, public my::ResourceMgr
 	, public my::ParallelTaskManager
 	, public RenderPipeline
