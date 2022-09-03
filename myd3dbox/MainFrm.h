@@ -105,6 +105,7 @@ public:
 	std::string m_ToolScriptDir;
 	std::vector<std::string> m_ToolScripts;
 	CChildView* m_RenderingView;
+	ActorPtr m_Player;
 
 // Operations
 public:
@@ -215,6 +216,8 @@ public:
 	afx_msg void OnUpdateToolsScript1(CCmdUI* pCmdUI);
 	afx_msg void OnToolsSnapshot();
 	afx_msg void OnUpdateIndicatorCoord(CCmdUI* pCmdUI);
+	afx_msg void OnToolsPlaying();
+	afx_msg void OnUpdateToolsPlaying(CCmdUI* pCmdUI);
 };
 
 

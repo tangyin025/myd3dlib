@@ -311,6 +311,8 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_UPDATE_COMMAND_UI_RANGE(ID_TOOLS_SCRIPT1, ID_TOOLS_SCRIPT_LAST, &CMainFrame::OnUpdateToolsScript1)
 	ON_COMMAND(ID_TOOLS_SNAPSHOT, &CMainFrame::OnToolsSnapshot)
 	ON_UPDATE_COMMAND_UI(ID_INDICATOR_COORD, &CMainFrame::OnUpdateIndicatorCoord)
+	ON_COMMAND(ID_TOOLS_PLAYING, &CMainFrame::OnToolsPlaying)
+	ON_UPDATE_COMMAND_UI(ID_TOOLS_PLAYING, &CMainFrame::OnUpdateToolsPlaying)
 END_MESSAGE_MAP()
 
 static UINT indicators[] =
@@ -371,6 +373,48 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	m_PxScene->setVisualizationParameter(physx::PxVisualizationParameter::eCOLLISION_AABBS, 1);
 	m_PxScene->setVisualizationParameter(physx::PxVisualizationParameter::eJOINT_LOCAL_FRAMES, 1);
 	m_PxScene->setVisualizationParameter(physx::PxVisualizationParameter::eJOINT_LIMITS, 1);
+
+	m_Player.reset(new Actor(NULL, my::Vector3(0, 0, 0), my::Quaternion::Identity(), my::Vector3(1, 1, 1), my::AABB(-1, 1)));
+	m_Player->InsertComponent(ComponentPtr(new Controller(NULL, 1.0f, 0.5f, 0.1f, 0.5f)));
+	class PlayerAgent : public Component
+	{
+	public:
+		PlayerAgent(const char* Name)
+			: Component(Name)
+		{
+		}
+
+		virtual ~PlayerAgent(void)
+		{
+			_ASSERT(!IsRequested());
+		}
+
+		virtual DWORD GetComponentType(void) const
+		{
+			return ComponentTypeScript;
+		}
+
+		virtual void RequestResource(void)
+		{
+			Component::RequestResource();
+		}
+
+		virtual void ReleaseResource(void)
+		{
+			Component::ReleaseResource();
+		}
+
+		virtual void Update(float fElapsedTime)
+		{
+			;
+		}
+
+		virtual void OnPxThreadSubstep(float dtime)
+		{
+			;
+		}
+	};
+	m_Player->InsertComponent(ComponentPtr(new PlayerAgent(NULL)));
 
 	BOOL bNameValid;
 	// set the visual manager and style based on persisted value
@@ -2472,4 +2516,26 @@ void CMainFrame::OnUpdateIndicatorCoord(CCmdUI* pCmdUI)
 		text.Format(_T("%f, %f, %f"), pos.x, pos.y, pos.z);
 		pCmdUI->SetText(text);
 	}
+}
+
+
+void CMainFrame::OnToolsPlaying()
+{
+	// TODO: Add your command handler code here
+	if (!m_Player->m_Node)
+	{
+		m_Player->UpdateWorld();
+		AddEntity(m_Player.get(), m_Player->m_aabb.transform(m_Player->m_World), Actor::MinBlock, Actor::Threshold);
+	}
+	else
+	{
+		RemoveEntity(m_Player.get());
+	}
+}
+
+
+void CMainFrame::OnUpdateToolsPlaying(CCmdUI* pCmdUI)
+{
+	// TODO: Add your command update UI handler code here
+	pCmdUI->SetCheck(m_Player->m_Node != NULL);
 }

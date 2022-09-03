@@ -63,12 +63,18 @@ NamedObject::NamedObject(const char * Name)
 {
 	SetName(Name);
 
-	D3DContext::getSingleton().OnNamedObjectCreate(this);
+	if (m_Name && m_Name[0] != '\0')
+	{
+		D3DContext::getSingleton().OnNamedObjectCreate(this);
+	}
 }
 
 NamedObject::~NamedObject(void)
 {
-	D3DContext::getSingleton().OnNamedObjectDestroy(this);
+	if (m_Name && m_Name[0] != '\0')
+	{
+		D3DContext::getSingleton().OnNamedObjectDestroy(this);
+	}
 
 	SetName(NULL);
 }

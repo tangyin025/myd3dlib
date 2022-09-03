@@ -510,6 +510,7 @@ BEGIN
         MENUITEM SEPARATOR
         MENUITEM "&Clear Shader",               ID_TOOLS_CLEARSHADER
         MENUITEM "&Snapshot...",                ID_TOOLS_SNAPSHOT
+        MENUITEM "&Playing",                    ID_TOOLS_PLAYING
     END
     POPUP "&View"
     BEGIN
@@ -676,6 +677,7 @@ BEGIN
     BUTTON      ID_PAINT_TERRAINCOLOR
     BUTTON      ID_PAINT_EMITTERINSTANCE
     SEPARATOR
+    BUTTON      ID_TOOLS_PLAYING
     BUTTON      ID_TOOLS_SNAPSHOT
     BUTTON      ID_APP_ABOUT
 END
