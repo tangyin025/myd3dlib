@@ -40,6 +40,7 @@
 #include "DeleteCmpsDlg.h"
 #include "SnapshotDlg.h"
 #include "PlayerAgent.h"
+#include "Steering.h"
 #include <lualib.h>
 
 #ifdef _DEBUG
@@ -377,7 +378,9 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 	m_Player.reset(new Actor(NULL, my::Vector3(0, 0, 0), my::Quaternion::Identity(), my::Vector3(1, 1, 1), my::AABB(-1, 1)));
 	m_Player->InsertComponent(ComponentPtr(new Controller(NULL, 1.0f, 0.5f, 0.1f, 0.5f)));
+	m_Player->InsertComponent(ComponentPtr(new Steering(NULL, 5.0f, 20.0f, 0.0f)));
 	m_Player->InsertComponent(ComponentPtr(new PlayerAgent(NULL)));
+	m_Player->InsertComponent(ComponentPtr(new Animator(NULL)));
 
 	BOOL bNameValid;
 	// set the visual manager and style based on persisted value

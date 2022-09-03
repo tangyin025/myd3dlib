@@ -2,13 +2,26 @@
 
 #include "Component.h"
 
+class Controller;
+
+class Steering;
+
+class Animator;
+
 class PlayerAgent : public Component
 {
-protected:
-
 public:
+	Controller* m_Controller;
+
+	Steering* m_Steering;
+
+	Animator* m_Animator;
+
+	my::Vector3 m_MoveDir;
+
 	PlayerAgent(const char* Name)
 		: Component(Name)
+		, m_MoveDir(0, 0, 0)
 	{
 	}
 

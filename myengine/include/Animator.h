@@ -414,9 +414,9 @@ protected:
 	}
 
 public:
-	Animator(const char* Name)
+	Animator(const char * Name)
 		: Component(Name)
-		, AnimationNode(Name, 1)
+		, AnimationNode(Name ? Name : "unknown", 1)
 	{
 	}
 

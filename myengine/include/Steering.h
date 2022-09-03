@@ -68,7 +68,7 @@ public:
 	int m_ncorners;
 
 public:
-	Steering(const char * Name, float BrakingSpeed, float MaxSpeed, float MaxAdjustedSpeed);
+	Steering(const char * Name, float MaxSpeed, float BrakingSpeed, float MaxAdjustedSpeed);
 
 	~Steering(void);
 
