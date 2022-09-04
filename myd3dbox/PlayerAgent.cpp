@@ -67,7 +67,7 @@ public:
 
 	virtual void Tick(float fElapsedTime, float fTotalWeight)
 	{
-		if (m_Agent->m_Jumping)
+		if (m_Agent->m_Suspending <= 0.0f)
 		{
 			if (GetTargetWeight(0) < 0.5f)
 			{
@@ -171,6 +171,11 @@ void PlayerAgent::Update(float fElapsedTime)
 		m_Actor->SetPose(pos, rot);
 	}
 
+	if (m_Suspending > 0.0f)
+	{
+		m_Suspending -= fElapsedTime;
+	}
+
 	CMainFrame* pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
 	CChildView* pView = DYNAMIC_DOWNCAST(CChildView, pFrame->GetActiveView());
@@ -204,6 +209,7 @@ void PlayerAgent::Update(float fElapsedTime)
 		boost::dynamic_pointer_cast<ActionTrackVelocity>(ActionTbl::getSingleton().Jump->m_TrackList[0])->m_ParamVelocity =
 			Vector3((lensq > 0 ? m_MoveDir * m_Steering->m_MaxSpeed : m_Steering->m_Forward * m_Steering->m_Speed).xz(), sqrt(-1.0f * 2.0f * theApp.default_physx_scene_gravity.y));
 		m_Actor->PlayAction(ActionTbl::getSingleton().Jump.get(), 0.5f);
+		m_Suspending = 0.0f;
 	}
 
 	for (int i = 0; i < theApp.default_player_mesh_list.size(); i++)
@@ -253,7 +259,7 @@ void PlayerAgent::OnPxThreadSubstep(float dtime)
 			m_Steering->m_Forward = Vector3(vel.xz(), 0) / m_Steering->m_Speed;
 		}
 	}
-	else if (m_Jumping)
+	else if (m_Suspending <= 0.0f)
 	{
 		m_VerticalSpeed += theApp.default_physx_scene_gravity.y * dtime;
 		Vector3 vel((m_Steering->m_Forward * m_Steering->m_Speed).xz(), m_VerticalSpeed);
@@ -271,13 +277,6 @@ void PlayerAgent::OnPxThreadSubstep(float dtime)
 	if (moveFlags & physx::PxControllerCollisionFlag::eCOLLISION_DOWN)
 	{
 		m_VerticalSpeed = 0;
-		if (m_Jumping)
-		{
-			m_Jumping = false;
-		}
-	}
-	else
-	{
-		m_Jumping = true;
+		m_Suspending = 0.2f;
 	}
 }

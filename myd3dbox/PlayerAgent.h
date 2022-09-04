@@ -21,7 +21,7 @@ public:
 
 	float m_VerticalSpeed;
 
-	bool m_Jumping;
+	float m_Suspending;
 
 	std::vector<MeshComponentPtr> m_Meshes;
 
@@ -29,7 +29,7 @@ public:
 		: Component(Name)
 		, m_MoveDir(0, 0, 0)
 		, m_VerticalSpeed(0)
-		, m_Jumping(true)
+		, m_Suspending(0.0f)
 	{
 	}
 
