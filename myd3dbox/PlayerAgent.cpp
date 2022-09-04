@@ -8,6 +8,8 @@
 #include "Animator.h"
 #include "ActionTrack.h"
 #include "Material.h"
+#include <boost/regex.hpp>
+#include <boost/lexical_cast.hpp>
 
 using namespace my;
 
@@ -125,17 +127,30 @@ void PlayerAgent::Update(float fElapsedTime)
 	{
 		if (i >= m_Meshes.size())
 		{
-			MaterialPtr mtl(new Material());
-			mtl->m_Shader = "shader/mtl_BlinnPhong.fx";
-			mtl->m_PassMask = Material::PassMaskShadowNormalOpaque;
-			mtl->SetParameter("g_DiffuseTexture", std::string("texture/Checker.bmp"));
-			mtl->SetParameter("g_NormalTexture", std::string("texture/Normal.dds"));
-			mtl->SetParameter("g_SpecularTexture", std::string("texture/White.dds"));
+			boost::regex reg("([^;]+);(\\w*);(\\d+)");
+			boost::match_results<std::string::iterator> what;
+			std::string::iterator start = theApp.default_player_mesh_list[i].begin();
+			std::string::iterator end = theApp.default_player_mesh_list[i].end();
+			if (boost::regex_search(start, end, what, reg, boost::match_default))
+			{
+				MaterialPtr mtl(new Material());
+				mtl->m_Shader = "shader/mtl_BlinnPhong.fx";
+				mtl->m_PassMask = Material::PassMaskShadowNormalOpaque;
+				start = what[0].second;
+				boost::regex reg_param(";(\\w+),([^;]+)");
+				boost::match_results<std::string::iterator> what2;
+				for (; boost::regex_search(start, end, what2, reg_param, boost::match_default); start = what2[0].second)
+				{
+					mtl->AddParameter(what2[1].str().c_str(), what2[2].str());
+				}
 
-			m_Meshes.push_back(MeshComponentPtr(new MeshComponent(NULL)));
-			m_Meshes[i]->m_MeshPath = theApp.default_player_mesh_list[i];
-			m_Meshes[i]->SetMaterial(mtl);
-			m_Actor->InsertComponent(m_Meshes[i]);
+				m_Meshes.push_back(MeshComponentPtr(new MeshComponent(NULL)));
+				m_Meshes[i]->m_MeshPath = what[1];
+				m_Meshes[i]->m_MeshSubMeshName = what[2];
+				m_Meshes[i]->m_MeshSubMeshId = boost::lexical_cast<int>(what[3]);
+				m_Meshes[i]->SetMaterial(mtl);
+				m_Actor->InsertComponent(m_Meshes[i]);
+			}
 		}
 	}
 }
