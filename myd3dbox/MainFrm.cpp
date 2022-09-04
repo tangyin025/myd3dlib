@@ -2498,7 +2498,20 @@ void CMainFrame::OnToolsPlaying()
 	{
 		CChildView* pView = DYNAMIC_DOWNCAST(CChildView, GetActiveView());
 		ASSERT_VALID(pView);
-		m_Player->SetPose(boost::dynamic_pointer_cast<my::ModelViewerCamera>(pView->m_Camera)->m_LookAt);
+		physx::PxRaycastBuffer hit;
+		physx::PxQueryFilterData filterData = physx::PxQueryFilterData(
+			physx::PxFilterData(0x01, 0, 0, 0), physx::PxQueryFlag::eDYNAMIC | physx::PxQueryFlag::eSTATIC /*| physx::PxQueryFlag::ePREFILTER | physx::PxQueryFlag::eANY_HIT*/);
+		if (m_PxScene->raycast((physx::PxVec3&)(boost::dynamic_pointer_cast<my::ModelViewerCamera>(pView->m_Camera)->m_LookAt + my::Vector3(0, 1000, 0)),
+			physx::PxVec3(0, -1, 0), 1000, hit, physx::PxHitFlag::eDEFAULT, filterData, NULL, NULL))
+		{
+			Controller * controller = m_Player->GetFirstComponent<Controller>();
+			ASSERT(controller);
+			m_Player->SetPose((my::Vector3&)hit.block.position + controller->GetFootOffset());
+		}
+		else
+		{
+			m_Player->SetPose(boost::dynamic_pointer_cast<my::ModelViewerCamera>(pView->m_Camera)->m_LookAt);
+		}
 		AddEntity(m_Player.get(), m_Player->m_aabb.transform(m_Player->m_World), Actor::MinBlock, Actor::Threshold);
 	}
 	else

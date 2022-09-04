@@ -298,12 +298,22 @@ unsigned int Controller::GetShapeFlags(void) const
 
 void Controller::SetUpDirection(const my::Vector3 & Up)
 {
-	m_PxController->setUpDirection((physx::PxVec3&)Up);
+	m_desc.upDirection = (physx::PxVec3&)Up;
+
+	if (m_PxController)
+	{
+		m_PxController->setUpDirection((physx::PxVec3&)Up);
+	}
 }
 
 my::Vector3 Controller::GetUpDirection(void) const
 {
-	return (my::Vector3&)m_PxController->getUpDirection();
+	if (m_PxController)
+	{
+		return (my::Vector3&)m_PxController->getUpDirection();
+	}
+
+	return (my::Vector3&)m_desc.upDirection;
 }
 
 void Controller::SetPosition(const my::Vector3 & Pos)
