@@ -175,7 +175,10 @@ public:
 	my::Rectangle default_listbox_scrollbar_img_rect;
 	my::Vector4 default_listbox_scrollbar_img_border;
 	float default_player_scale;
+	float default_player_height;
+	float default_player_radius;
 	std::vector<std::string> default_player_mesh_list;
+	std::string default_player_skeleton;
 	BOOL m_bNeedDraw;
 	my::EventSignal m_EventNamedObjectCreate;
 	my::EventSignal m_EventNamedObjectDestroy;

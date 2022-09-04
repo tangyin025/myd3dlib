@@ -18,12 +18,80 @@ class ActionTbl : public my::Singleton<ActionTbl>
 public:
 	boost::shared_ptr<Action> Jump;
 
+	OgreSkeletonAnimationPtr Skel;
+
 	ActionTbl(void)
 		: Jump(new Action)
 	{
 		boost::shared_ptr<ActionTrackVelocity> JumpVel(new ActionTrackVelocity);
 		JumpVel->AddKeyFrame(0.0f, 0.1f);
 		Jump->AddTrack(JumpVel);
+
+		// ! TODO: do it offline
+		Skel = theApp.LoadSkeleton(theApp.default_player_skeleton.c_str());
+		Skel->AddOgreSkeletonAnimationFromFile("character/jack_run.skeleton.xml");
+		Skel->AddOgreSkeletonAnimationFromFile("character/jack_jump.skeleton.xml");
+		Skel->AddOgreSkeletonAnimationFromFile("character/jack_drop.skeleton.xml");
+		Skel->AddOgreSkeletonAnimationFromFile("character/jack_land.skeleton.xml");
+		Skel->AddOgreSkeletonAnimationFromFile("character/jack_lock_stand.skeleton.xml");
+		Skel->AddOgreSkeletonAnimationFromFile("character/jack_lock_run_back.skeleton.xml");
+		Skel->AddOgreSkeletonAnimationFromFile("character/jack_lock_run_left.skeleton.xml");
+		Skel->AddOgreSkeletonAnimationFromFile("character/jack_lock_run_right.skeleton.xml");
+		Skel->AddOgreSkeletonAnimationFromFile("character/jack_lock_stand_aim.skeleton.xml");
+		Skel->AddOgreSkeletonAnimationFromFile("character/jack_aim.skeleton.xml");
+		Skel->AddOgreSkeletonAnimationFromFile("character/jack_aim_attack.skeleton.xml");
+		Skel->AddOgreSkeletonAnimationFromFile("character/jack_aim_up.skeleton.xml");
+		Skel->AddOgreSkeletonAnimationFromFile("character/jack_aim_attack_up.skeleton.xml");
+		Skel->AddOgreSkeletonAnimationFromFile("character/jack_aim_down.skeleton.xml");
+		Skel->AddOgreSkeletonAnimationFromFile("character/jack_aim_attack_down.skeleton.xml");
+		Skel->AddOgreSkeletonAnimationFromFile("character/jack_attack_sword.skeleton.xml");
+		Skel->AddOgreSkeletonAnimationFromFile("character/jack_attack2_sword.skeleton.xml");
+		Skel->Transform(Matrix4::Compose(Vector3(1, 1, 1), Quaternion::Identity(), Vector3(0, -(0.65 + 0.1 + 0.1) / theApp.default_player_scale, 0)));
+	}
+};
+
+class NodeRunBlendList : public AnimationNodeBlendList
+{
+public:
+	PlayerAgent* m_Agent;
+
+	float m_Rate;
+
+	NodeRunBlendList(const char* Name, PlayerAgent* Agent)
+		: AnimationNodeBlendList(Name, 3)
+		, m_Agent(Agent)
+		, m_Rate(1.0f)
+	{
+	}
+
+
+	virtual void Tick(float fElapsedTime, float fTotalWeight)
+	{
+		if (m_Agent->m_Jumping)
+		{
+			if (GetTargetWeight(0) < 0.5f)
+			{
+				SetActiveChild(0, 0.5f);
+				m_Rate = 1.0f;
+			}
+		}
+		else if (m_Agent->m_Steering->m_Speed < 0.1f)
+		{
+			if (GetTargetWeight(1) < 0.5f)
+			{
+				SetActiveChild(1, 0.1f);
+				m_Rate = 1.0f;
+			}
+		}
+		else
+		{
+			if (GetTargetWeight(2) < 0.5f)
+			{
+				SetActiveChild(2, 0.1f);
+			}
+			m_Rate = m_Agent->m_Steering->m_Speed / 2.6f;
+		}
+		AnimationNodeBlendList::Tick(fElapsedTime * m_Rate, fTotalWeight);
 	}
 };
 
@@ -50,6 +118,19 @@ void PlayerAgent::RequestResource(void)
 	VERIFY(m_Controller = m_Actor->GetFirstComponent<Controller>());
 	VERIFY(m_Steering = m_Actor->GetFirstComponent<Steering>());
 	VERIFY(m_Animator = m_Actor->GetFirstComponent<Animator>());
+
+	AnimationNodePtr node_run_blend_list(new NodeRunBlendList("node_run_blend_list", this));
+	node_run_blend_list->SetChild(0, AnimationNodePtr(new AnimationNodeSequence("clip_drop")));
+	node_run_blend_list->SetChild(1, AnimationNodePtr(new AnimationNodeSequence("clip_stand")));
+	node_run_blend_list->SetChild(2, AnimationNodePtr(new AnimationNodeSequence("clip_run", 1.0f, true, "move")));
+
+	AnimationNodeSlotPtr node_run_blend_list_slot(new AnimationNodeSlot("node_run_blend_list_slot"));
+	node_run_blend_list_slot->SetChild(0, node_run_blend_list);
+
+	m_Animator->SetChild(0, node_run_blend_list_slot);
+	m_Animator->ReloadSequenceGroup();
+
+	ActionTbl::getSingleton();
 }
 
 void PlayerAgent::ReleaseResource(void)
@@ -67,6 +148,8 @@ void PlayerAgent::ReleaseResource(void)
 		m_Actor->RemoveComponent(m_Meshes[i]->GetSiblingId());
 	}
 	m_Meshes.clear();
+
+	m_Animator->RemoveChild(0);
 }
 
 void PlayerAgent::Update(float fElapsedTime)
@@ -153,6 +236,8 @@ void PlayerAgent::Update(float fElapsedTime)
 			}
 		}
 	}
+
+	m_Animator->Tick(fElapsedTime, 1.0f);
 }
 
 void PlayerAgent::OnPxThreadSubstep(float dtime)
@@ -176,7 +261,8 @@ void PlayerAgent::OnPxThreadSubstep(float dtime)
 	}
 	else
 	{
-		Vector3 vel = m_Steering->SeekDir(m_MoveDir * 50.0f, dtime);
+		m_VerticalSpeed += theApp.default_physx_scene_gravity.y * dtime;
+		Vector3 vel(m_Steering->SeekDir(m_MoveDir * 50.0f, dtime).xz(), m_VerticalSpeed);
 		disp = vel * dtime;
 	}
 

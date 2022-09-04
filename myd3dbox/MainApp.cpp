@@ -530,7 +530,10 @@ BOOL CMainApp::InitInstance()
 		("default_listbox_scrollbar_img_rect", boost::program_options::value<my::Rectangle>(&default_listbox_scrollbar_img_rect)->default_value(my::Rectangle::LeftTop(1,1,2,2), ""), "Default listbox scrollbar img rect")
 		("default_listbox_scrollbar_img_border", boost::program_options::value<my::Vector4>(&default_listbox_scrollbar_img_border)->default_value(my::Vector4(0,0,0,0), ""), "Default listbox scrollbar img border")
 		("default_player_scale", boost::program_options::value(&default_player_scale)->default_value(1.0f), "Default player scale")
+		("default_player_height", boost::program_options::value(&default_player_height)->default_value(1.0f), "Default player height")
+		("default_player_radius", boost::program_options::value(&default_player_radius)->default_value(0.5f), "Default player radius")
 		("default_player_mesh_list", boost::program_options::value(&default_player_mesh_list), "Default player mesh list")
+		("default_player_skeleton", boost::program_options::value(&default_player_skeleton), "Default player skeleton")
 		;
 	boost::program_options::variables_map vm;
 	boost::program_options::store(boost::program_options::parse_config_file<char>((cfg_file + ".cfg").c_str(), desc, true), vm);
