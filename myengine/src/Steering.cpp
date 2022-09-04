@@ -71,7 +71,7 @@ my::Vector3 Steering::SeekDir(my::Vector3 Force, float dtime)
 			const Vector3 perp = Force - m_Forward * Force.dot(m_Forward);
 
 			// normalize that perpendicular
-			const Vector3 unitPerp = perp.normalize();
+			const Vector3 unitPerp = perp.normalizeSafe();
 
 			// construct a new vector whose length equals the source vector,
 			// and lies on the intersection of a plane (formed the source and
