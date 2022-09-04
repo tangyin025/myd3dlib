@@ -18,35 +18,12 @@ class ActionTbl : public my::Singleton<ActionTbl>
 public:
 	boost::shared_ptr<Action> Jump;
 
-	OgreSkeletonAnimationPtr Skel;
-
 	ActionTbl(void)
 		: Jump(new Action)
 	{
 		boost::shared_ptr<ActionTrackVelocity> JumpVel(new ActionTrackVelocity);
 		JumpVel->AddKeyFrame(0.0f, 0.1f);
 		Jump->AddTrack(JumpVel);
-
-		// ! TODO: do it offline
-		Skel = theApp.LoadSkeleton(theApp.default_player_skeleton.c_str());
-		Skel->AddOgreSkeletonAnimationFromFile("character/jack_run.skeleton.xml");
-		Skel->AddOgreSkeletonAnimationFromFile("character/jack_jump.skeleton.xml");
-		Skel->AddOgreSkeletonAnimationFromFile("character/jack_drop.skeleton.xml");
-		Skel->AddOgreSkeletonAnimationFromFile("character/jack_land.skeleton.xml");
-		Skel->AddOgreSkeletonAnimationFromFile("character/jack_lock_stand.skeleton.xml");
-		Skel->AddOgreSkeletonAnimationFromFile("character/jack_lock_run_back.skeleton.xml");
-		Skel->AddOgreSkeletonAnimationFromFile("character/jack_lock_run_left.skeleton.xml");
-		Skel->AddOgreSkeletonAnimationFromFile("character/jack_lock_run_right.skeleton.xml");
-		Skel->AddOgreSkeletonAnimationFromFile("character/jack_lock_stand_aim.skeleton.xml");
-		Skel->AddOgreSkeletonAnimationFromFile("character/jack_aim.skeleton.xml");
-		Skel->AddOgreSkeletonAnimationFromFile("character/jack_aim_attack.skeleton.xml");
-		Skel->AddOgreSkeletonAnimationFromFile("character/jack_aim_up.skeleton.xml");
-		Skel->AddOgreSkeletonAnimationFromFile("character/jack_aim_attack_up.skeleton.xml");
-		Skel->AddOgreSkeletonAnimationFromFile("character/jack_aim_down.skeleton.xml");
-		Skel->AddOgreSkeletonAnimationFromFile("character/jack_aim_attack_down.skeleton.xml");
-		Skel->AddOgreSkeletonAnimationFromFile("character/jack_attack_sword.skeleton.xml");
-		Skel->AddOgreSkeletonAnimationFromFile("character/jack_attack2_sword.skeleton.xml");
-		Skel->Transform(Matrix4::Compose(Vector3(1, 1, 1), Quaternion::Identity(), Vector3(0, -(0.65 + 0.1 + 0.1) / theApp.default_player_scale, 0)));
 	}
 };
 
@@ -130,7 +107,29 @@ void PlayerAgent::RequestResource(void)
 	m_Animator->SetChild(0, node_run_blend_list_slot);
 	m_Animator->ReloadSequenceGroup();
 
-	ActionTbl::getSingleton();
+	if (!m_Skel)
+	{
+		// ! TODO: do it offline
+		m_Skel = theApp.LoadSkeleton(theApp.default_player_skeleton.c_str());
+		m_Skel->AddOgreSkeletonAnimationFromFile("character/jack_run.skeleton.xml");
+		m_Skel->AddOgreSkeletonAnimationFromFile("character/jack_jump.skeleton.xml");
+		m_Skel->AddOgreSkeletonAnimationFromFile("character/jack_drop.skeleton.xml");
+		m_Skel->AddOgreSkeletonAnimationFromFile("character/jack_land.skeleton.xml");
+		m_Skel->AddOgreSkeletonAnimationFromFile("character/jack_lock_stand.skeleton.xml");
+		m_Skel->AddOgreSkeletonAnimationFromFile("character/jack_lock_run_back.skeleton.xml");
+		m_Skel->AddOgreSkeletonAnimationFromFile("character/jack_lock_run_left.skeleton.xml");
+		m_Skel->AddOgreSkeletonAnimationFromFile("character/jack_lock_run_right.skeleton.xml");
+		m_Skel->AddOgreSkeletonAnimationFromFile("character/jack_lock_stand_aim.skeleton.xml");
+		m_Skel->AddOgreSkeletonAnimationFromFile("character/jack_aim.skeleton.xml");
+		m_Skel->AddOgreSkeletonAnimationFromFile("character/jack_aim_attack.skeleton.xml");
+		m_Skel->AddOgreSkeletonAnimationFromFile("character/jack_aim_up.skeleton.xml");
+		m_Skel->AddOgreSkeletonAnimationFromFile("character/jack_aim_attack_up.skeleton.xml");
+		m_Skel->AddOgreSkeletonAnimationFromFile("character/jack_aim_down.skeleton.xml");
+		m_Skel->AddOgreSkeletonAnimationFromFile("character/jack_aim_attack_down.skeleton.xml");
+		m_Skel->AddOgreSkeletonAnimationFromFile("character/jack_attack_sword.skeleton.xml");
+		m_Skel->AddOgreSkeletonAnimationFromFile("character/jack_attack2_sword.skeleton.xml");
+		m_Skel->Transform(Matrix4::Compose(Vector3(1, 1, 1), Quaternion::Identity(), Vector3(0, -(0.65 + 0.1 + 0.1) / theApp.default_player_scale, 0)));
+	}
 }
 
 void PlayerAgent::ReleaseResource(void)

@@ -25,6 +25,8 @@ public:
 
 	std::vector<MeshComponentPtr> m_Meshes;
 
+	my::OgreSkeletonAnimationPtr m_Skel;
+
 	PlayerAgent(const char* Name)
 		: Component(Name)
 		, m_MoveDir(0, 0, 0)
