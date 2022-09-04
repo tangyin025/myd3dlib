@@ -535,6 +535,7 @@ BOOL CMainApp::InitInstance()
 		("default_player_max_speed", boost::program_options::value(&default_player_max_speed)->default_value(5.0f), "Default player max speed")
 		("default_player_breaking_speed", boost::program_options::value(&default_player_breaking_speed)->default_value(20.0f), "Default player breaking speed")
 		("default_player_seek_force", boost::program_options::value(&default_player_seek_force)->default_value(50.0f), "Default player seek force")
+		("default_player_look_distance", boost::program_options::value(&default_player_look_distance)->default_value(4.0f), "Default player look distance")
 		("default_player_mesh_list", boost::program_options::value(&default_player_mesh_list), "Default player mesh list")
 		("default_player_skeleton", boost::program_options::value(&default_player_skeleton), "Default player skeleton")
 		;

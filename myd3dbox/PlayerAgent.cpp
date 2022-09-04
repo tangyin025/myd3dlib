@@ -201,7 +201,7 @@ void PlayerAgent::Update(float fElapsedTime)
 	}
 
 	model_view_camera->m_LookAt = m_Actor->m_World.getRow<3>().xyz + Vector3(0, 0.85, 0);
-	model_view_camera->m_Distance = Lerp(model_view_camera->m_Distance, 4.0f, 1.0 - pow(0.5f, 30 * fElapsedTime));
+	model_view_camera->m_Distance = Lerp(model_view_camera->m_Distance, theApp.default_player_look_distance, 1.0 - pow(0.5f, 30 * fElapsedTime));
 	model_view_camera->UpdateViewProj();
 
 	if (theApp.m_keyboard->IsKeyPress(KeyCode::KC_SPACE))
