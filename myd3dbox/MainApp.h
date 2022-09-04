@@ -177,6 +177,9 @@ public:
 	float default_player_scale;
 	float default_player_height;
 	float default_player_radius;
+	float default_player_max_speed;
+	float default_player_breaking_speed;
+	float default_player_seek_force;
 	std::vector<std::string> default_player_mesh_list;
 	std::string default_player_skeleton;
 	BOOL m_bNeedDraw;

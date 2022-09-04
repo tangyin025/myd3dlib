@@ -262,7 +262,7 @@ void PlayerAgent::OnPxThreadSubstep(float dtime)
 	else
 	{
 		m_VerticalSpeed += theApp.default_physx_scene_gravity.y * dtime;
-		Vector3 vel(m_Steering->SeekDir(m_MoveDir * 50.0f, dtime).xz(), m_VerticalSpeed);
+		Vector3 vel(m_Steering->SeekDir(m_MoveDir * theApp.default_player_seek_force, dtime).xz(), m_VerticalSpeed);
 		disp = vel * dtime;
 	}
 
