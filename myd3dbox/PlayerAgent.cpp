@@ -6,8 +6,23 @@
 #include "Controller.h"
 #include "Steering.h"
 #include "Animator.h"
+#include "ActionTrack.h"
 
 using namespace my;
+
+class ActionTbl : public my::Singleton<ActionTbl>
+{
+public:
+	boost::shared_ptr<Action> Jump;
+
+	ActionTbl(void)
+		: Jump(new Action)
+	{
+		boost::shared_ptr<ActionTrackVelocity> JumpVel(new ActionTrackVelocity);
+		JumpVel->AddKeyFrame(0.0f, 0.1f);
+		Jump->AddTrack(JumpVel);
+	}
+};
 
 PlayerAgent::~PlayerAgent(void)
 {
@@ -65,9 +80,9 @@ void PlayerAgent::Update(float fElapsedTime)
 	}
 
 	CMainFrame* pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
-	ASSERT(pFrame);
+	ASSERT_VALID(pFrame);
 	CChildView* pView = DYNAMIC_DOWNCAST(CChildView, pFrame->GetActiveView());
-	ASSERT(pView);
+	ASSERT_VALID(pView);
 
 	ModelViewerCamera* model_view_camera = dynamic_cast<ModelViewerCamera*>(pView->m_Camera.get());
 	model_view_camera->m_Euler.y -= D3DXToRadian(theApp.m_mouse->GetX()) * 0.5;
@@ -91,6 +106,13 @@ void PlayerAgent::Update(float fElapsedTime)
 	model_view_camera->m_LookAt = m_Actor->m_World.getRow<3>().xyz + Vector3(0, 0.85, 0);
 	model_view_camera->m_Distance = Lerp(model_view_camera->m_Distance, 4.0f, 1.0 - pow(0.5f, 30 * fElapsedTime));
 	model_view_camera->UpdateViewProj();
+
+	if (theApp.m_keyboard->IsKeyPress(KeyCode::KC_SPACE))
+	{
+		boost::dynamic_pointer_cast<ActionTrackVelocity>(ActionTbl::getSingleton().Jump->m_TrackList[0])->m_ParamVelocity =
+			Vector3((lensq > 0 ? m_MoveDir * m_Steering->m_MaxSpeed : m_Steering->m_Forward * m_Steering->m_Speed).xz(), sqrt(-1.0f * 2.0f * theApp.default_physx_scene_gravity.y));
+		m_Actor->PlayAction(ActionTbl::getSingleton().Jump.get(), 0.5f);
+	}
 }
 
 void PlayerAgent::OnPxThreadSubstep(float dtime)
