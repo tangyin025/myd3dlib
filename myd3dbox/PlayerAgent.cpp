@@ -7,6 +7,7 @@
 #include "Steering.h"
 #include "Animator.h"
 #include "ActionTrack.h"
+#include "Material.h"
 
 using namespace my;
 
@@ -58,6 +59,12 @@ void PlayerAgent::ReleaseResource(void)
 
 	theApp.m_mouse->Unacquire();
 	theApp.m_mouse->SetCooperativeLevel(AfxGetMainWnd()->GetSafeHwnd(), DISCL_FOREGROUND | DISCL_NONEXCLUSIVE);
+
+	for (int i = 0; i < m_Meshes.size(); i++)
+	{
+		m_Actor->RemoveComponent(m_Meshes[i]->GetSiblingId());
+	}
+	m_Meshes.clear();
 }
 
 void PlayerAgent::Update(float fElapsedTime)
@@ -112,6 +119,24 @@ void PlayerAgent::Update(float fElapsedTime)
 		boost::dynamic_pointer_cast<ActionTrackVelocity>(ActionTbl::getSingleton().Jump->m_TrackList[0])->m_ParamVelocity =
 			Vector3((lensq > 0 ? m_MoveDir * m_Steering->m_MaxSpeed : m_Steering->m_Forward * m_Steering->m_Speed).xz(), sqrt(-1.0f * 2.0f * theApp.default_physx_scene_gravity.y));
 		m_Actor->PlayAction(ActionTbl::getSingleton().Jump.get(), 0.5f);
+	}
+
+	for (int i = 0; i < theApp.default_player_mesh_list.size(); i++)
+	{
+		if (i >= m_Meshes.size())
+		{
+			MaterialPtr mtl(new Material());
+			mtl->m_Shader = "shader/mtl_BlinnPhong.fx";
+			mtl->m_PassMask = Material::PassMaskShadowNormalOpaque;
+			mtl->SetParameter("g_DiffuseTexture", std::string("texture/Checker.bmp"));
+			mtl->SetParameter("g_NormalTexture", std::string("texture/Normal.dds"));
+			mtl->SetParameter("g_SpecularTexture", std::string("texture/White.dds"));
+
+			m_Meshes.push_back(MeshComponentPtr(new MeshComponent(NULL)));
+			m_Meshes[i]->m_MeshPath = theApp.default_player_mesh_list[i];
+			m_Meshes[i]->SetMaterial(mtl);
+			m_Actor->InsertComponent(m_Meshes[i]);
+		}
 	}
 }
 

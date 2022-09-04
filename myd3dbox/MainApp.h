@@ -174,6 +174,7 @@ public:
 	std::string default_listbox_scrollbar_img;
 	my::Rectangle default_listbox_scrollbar_img_rect;
 	my::Vector4 default_listbox_scrollbar_img_border;
+	std::vector<std::string> default_player_mesh_list;
 	BOOL m_bNeedDraw;
 	my::EventSignal m_EventNamedObjectCreate;
 	my::EventSignal m_EventNamedObjectDestroy;

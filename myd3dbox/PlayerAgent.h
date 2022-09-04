@@ -23,6 +23,8 @@ public:
 
 	bool m_Jumping;
 
+	std::vector<MeshComponentPtr> m_Meshes;
+
 	PlayerAgent(const char* Name)
 		: Component(Name)
 		, m_MoveDir(0, 0, 0)
