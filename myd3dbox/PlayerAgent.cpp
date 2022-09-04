@@ -129,6 +129,9 @@ void PlayerAgent::RequestResource(void)
 		m_Skel->AddOgreSkeletonAnimationFromFile("character/jack_attack_sword.skeleton.xml");
 		m_Skel->AddOgreSkeletonAnimationFromFile("character/jack_attack2_sword.skeleton.xml");
 		m_Skel->Transform(Matrix4::Compose(Vector3(1, 1, 1), Quaternion::Identity(), Vector3(0, -(0.65 + 0.1 + 0.1) / theApp.default_player_scale, 0)));
+
+		m_Animator->AddIK(m_Skel->GetBoneIndex("joint1"), m_Skel->m_boneHierarchy, 0.08f, 0x01);
+		m_Animator->AddIK(m_Skel->GetBoneIndex("joint82"), m_Skel->m_boneHierarchy, 0.08f, 0x01);
 	}
 }
 
@@ -163,7 +166,7 @@ void PlayerAgent::Update(float fElapsedTime)
 		Quaternion::RotationFromToSafe(Vector3(0, 0, 1), m_Steering->m_Forward) : m_Actor->m_Rotation;
 	if (pos.y > m_Actor->m_Position.y + EPSILON_E3)
 	{
-		m_Actor->SetPose(Vector3(pos.x, Lerp(m_Actor->m_Position.y, pos.y, 1.0f - pow(0.7, 30 * fElapsedTime)), pos.z), rot);
+		m_Actor->SetPose(Vector3(pos.x, Lerp(Max(m_Actor->m_Position.y, pos.y - m_Controller->GetStepOffset()), pos.y, 1.0f - pow(0.7, 30 * fElapsedTime)), pos.z), rot);
 	}
 	else
 	{
