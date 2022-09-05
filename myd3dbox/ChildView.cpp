@@ -2264,7 +2264,7 @@ void CChildView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 	case VK_DELETE:
 		if (!pFrame->m_selactors.empty() || !pFrame->m_selctls.empty())
 		{
-			pFrame->OnCmdMsg(ID_EDIT_DELETE, 0, NULL, NULL);
+			pFrame->SendMessage(WM_COMMAND, ID_EDIT_DELETE);
 		}
 		return;
 	}
