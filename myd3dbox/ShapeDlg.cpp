@@ -20,7 +20,6 @@ CShapeDlg::CShapeDlg(CWnd* pParent, Component * m_cmp, int type)
 	, m_pos(0,0,0)
 	, m_angle(0, 0, 0)
 	, m_param(1,1,1)
-	, m_filterWord0(1)
 	, m_InflateConvex(FALSE)
 	, m_AssetPath(_T(""))
 {
@@ -44,7 +43,7 @@ void CShapeDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_EDIT7, m_param.x);
 	DDX_Text(pDX, IDC_EDIT8, m_param.y);
 	DDX_Text(pDX, IDC_EDIT9, m_param.z);
-	DDX_Text(pDX, IDC_EDIT10, m_filterWord0);
+	DDX_Text(pDX, IDC_EDIT10, theApp.default_physx_shape_filterword0);
 	DDX_Check(pDX, IDC_CHECK1, m_InflateConvex);
 	DDX_Text(pDX, IDC_EDIT11, m_AssetPath);
 }
@@ -99,31 +98,31 @@ void CShapeDlg::OnOK()
 	{
 	case physx::PxGeometryType::eSPHERE:
 		m_cmp->CreateSphereShape(m_pos, rot, m_param.x);
-		m_cmp->SetSimulationFilterWord0(m_filterWord0);
-		m_cmp->SetQueryFilterWord0(m_filterWord0);
+		m_cmp->SetSimulationFilterWord0(theApp.default_physx_shape_filterword0);
+		m_cmp->SetQueryFilterWord0(theApp.default_physx_shape_filterword0);
 		break;
 	case physx::PxGeometryType::ePLANE:
 		m_cmp->CreatePlaneShape(m_pos, rot);
-		m_cmp->SetSimulationFilterWord0(m_filterWord0);
-		m_cmp->SetQueryFilterWord0(m_filterWord0);
+		m_cmp->SetSimulationFilterWord0(theApp.default_physx_shape_filterword0);
+		m_cmp->SetQueryFilterWord0(theApp.default_physx_shape_filterword0);
 		break;
 	case physx::PxGeometryType::eCAPSULE:
 		m_cmp->CreateCapsuleShape(m_pos, rot, m_param.x, m_param.y);
-		m_cmp->SetSimulationFilterWord0(m_filterWord0);
-		m_cmp->SetQueryFilterWord0(m_filterWord0);
+		m_cmp->SetSimulationFilterWord0(theApp.default_physx_shape_filterword0);
+		m_cmp->SetQueryFilterWord0(theApp.default_physx_shape_filterword0);
 		break;
 	case physx::PxGeometryType::eBOX:
 		m_cmp->CreateBoxShape(m_pos, rot, m_param.x, m_param.y, m_param.z);
-		m_cmp->SetSimulationFilterWord0(m_filterWord0);
-		m_cmp->SetQueryFilterWord0(m_filterWord0);
+		m_cmp->SetSimulationFilterWord0(theApp.default_physx_shape_filterword0);
+		m_cmp->SetQueryFilterWord0(theApp.default_physx_shape_filterword0);
 		break;
 	case physx::PxGeometryType::eCONVEXMESH:
 		if (m_cmp->GetComponentType() == Component::ComponentTypeMesh)
 		{
 			MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>(m_cmp);
 			mesh_cmp->CreateConvexMeshShape(ts2ms((LPCTSTR)m_AssetPath).c_str(), m_InflateConvex != FALSE);
-			mesh_cmp->SetSimulationFilterWord0(m_filterWord0);
-			mesh_cmp->SetQueryFilterWord0(m_filterWord0);
+			mesh_cmp->SetSimulationFilterWord0(theApp.default_physx_shape_filterword0);
+			mesh_cmp->SetQueryFilterWord0(theApp.default_physx_shape_filterword0);
 		}
 		break;
 	case physx::PxGeometryType::eTRIANGLEMESH:
@@ -131,8 +130,8 @@ void CShapeDlg::OnOK()
 		{
 			MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>(m_cmp);
 			mesh_cmp->CreateTriangleMeshShape(ts2ms((LPCTSTR)m_AssetPath).c_str());
-			mesh_cmp->SetSimulationFilterWord0(m_filterWord0);
-			mesh_cmp->SetQueryFilterWord0(m_filterWord0);
+			mesh_cmp->SetSimulationFilterWord0(theApp.default_physx_shape_filterword0);
+			mesh_cmp->SetQueryFilterWord0(theApp.default_physx_shape_filterword0);
 		}
 		break;
 	case physx::PxGeometryType::eHEIGHTFIELD:
@@ -140,8 +139,8 @@ void CShapeDlg::OnOK()
 		{
 			Terrain * terrain = dynamic_cast<Terrain *>(m_cmp);
 			terrain->CreateHeightFieldShape(ts2ms((LPCTSTR)m_AssetPath).c_str(), terrain->m_Actor->m_Scale);
-			terrain->SetSimulationFilterWord0(m_filterWord0);
-			terrain->SetQueryFilterWord0(m_filterWord0);
+			terrain->SetSimulationFilterWord0(theApp.default_physx_shape_filterword0);
+			terrain->SetQueryFilterWord0(theApp.default_physx_shape_filterword0);
 		}
 		break;
 	}

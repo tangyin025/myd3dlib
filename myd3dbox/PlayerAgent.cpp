@@ -116,8 +116,8 @@ void PlayerAgent::RequestResource(void)
 		}
 		m_Skel->Transform(Matrix4::Compose(Vector3(1, 1, 1), Quaternion::Identity(), -m_Controller->GetFootOffset() / theApp.default_player_scale));
 
-		m_Animator->AddIK(m_Skel->GetBoneIndex("joint1"), m_Skel->m_boneHierarchy, 0.08f, 0x01);
-		m_Animator->AddIK(m_Skel->GetBoneIndex("joint82"), m_Skel->m_boneHierarchy, 0.08f, 0x01);
+		m_Animator->AddIK(m_Skel->GetBoneIndex("joint1"), m_Skel->m_boneHierarchy, 0.08f, theApp.default_physx_shape_filterword0);
+		m_Animator->AddIK(m_Skel->GetBoneIndex("joint82"), m_Skel->m_boneHierarchy, 0.08f, theApp.default_physx_shape_filterword0);
 	}
 }
 
@@ -263,7 +263,7 @@ void PlayerAgent::OnPxThreadSubstep(float dtime)
 	}
 
 	physx::PxControllerCollisionFlags moveFlags =
-		(physx::PxControllerCollisionFlags)m_Controller->Move(disp, 0.001f, dtime, 0x01);
+		(physx::PxControllerCollisionFlags)m_Controller->Move(disp, 0.001f, dtime, theApp.default_physx_shape_filterword0);
 	if (moveFlags & physx::PxControllerCollisionFlag::eCOLLISION_DOWN)
 	{
 		m_VerticalSpeed = 0;

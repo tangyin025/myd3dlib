@@ -24,7 +24,6 @@ protected:
 	my::Vector3 m_pos;
 	my::Vector3 m_angle;
 	my::Vector3 m_param;
-	unsigned int m_filterWord0;
 	virtual BOOL OnInitDialog();
 	virtual void OnOK();
 public:

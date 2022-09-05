@@ -37,6 +37,7 @@ public:
 	float default_fov;
 	unsigned int default_physx_scene_flags;
 	my::Vector3 default_physx_scene_gravity;
+	unsigned int default_physx_shape_filterword0;
 	int default_io_thread_num;
 	bool default_load_shader_cache;
 	std::string default_tool_scrpit_pattern;
