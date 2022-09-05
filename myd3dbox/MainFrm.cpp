@@ -2501,6 +2501,7 @@ void CMainFrame::OnToolsPlaying()
 	{
 		CChildView* pView = DYNAMIC_DOWNCAST(CChildView, GetActiveView());
 		ASSERT_VALID(pView);
+		pView->SetFocus();
 		physx::PxRaycastBuffer hit;
 		physx::PxQueryFilterData filterData = physx::PxQueryFilterData(
 			physx::PxFilterData(0x01, 0, 0, 0), physx::PxQueryFlag::eDYNAMIC | physx::PxQueryFlag::eSTATIC /*| physx::PxQueryFlag::ePREFILTER | physx::PxQueryFlag::eANY_HIT*/);
