@@ -454,9 +454,10 @@ void ActionTrackPoseInst::UpdateTime(float LastTime, float Time)
 	{
 		_ASSERT(Time >= key_inst_iter->m_Time);
 
-		if (Time < key_inst_iter->m_Time + key_inst_iter->m_Length)
+		if (LastTime < key_inst_iter->m_Time + key_inst_iter->m_Length)
 		{
-			const my::Bone pose = key_inst_iter->m_StartPose.Lerp(m_Pose, m_Template->m_Interpolation.Interpolate((Time - key_inst_iter->m_Time) / key_inst_iter->m_Length, 0));
+			const my::Bone pose = key_inst_iter->m_StartPose.Lerp(m_Pose,
+				m_Template->m_Interpolation.Interpolate(Min(1.0f, (Time - key_inst_iter->m_Time) / key_inst_iter->m_Length), 0));
 
 			m_Actor->SetPose(pose);
 

@@ -13,19 +13,18 @@
 
 using namespace my;
 
-class ActionTbl : public my::Singleton<ActionTbl>
+ActionTbl::ActionTbl(void)
+	: Jump(new Action)
+	, Climb(new Action)
 {
-public:
-	boost::shared_ptr<Action> Jump;
+	boost::shared_ptr<ActionTrackVelocity> JumpVel(new ActionTrackVelocity);
+	JumpVel->AddKeyFrame(0.0f, 0.1f);
+	Jump->AddTrack(JumpVel);
 
-	ActionTbl(void)
-		: Jump(new Action)
-	{
-		boost::shared_ptr<ActionTrackVelocity> JumpVel(new ActionTrackVelocity);
-		JumpVel->AddKeyFrame(0.0f, 0.1f);
-		Jump->AddTrack(JumpVel);
-	}
-};
+	boost::shared_ptr<ActionTrackPose> ClimbPos(new ActionTrackPose);
+	ClimbPos->AddKeyFrame(0.0f, 0.5f);
+	Climb->AddTrack(ClimbPos);
+}
 
 class NodeRunBlendList : public AnimationNodeBlendList
 {
