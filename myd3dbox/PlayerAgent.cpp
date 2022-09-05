@@ -107,28 +107,14 @@ void PlayerAgent::RequestResource(void)
 	m_Animator->SetChild(0, node_run_blend_list_slot);
 	m_Animator->ReloadSequenceGroup();
 
-	if (!m_Skel)
+	if (!m_Skel && !theApp.default_player_anim_list.empty())
 	{
-		// ! TODO: do it offline
-		m_Skel = theApp.LoadSkeleton(theApp.default_player_skeleton.c_str());
-		m_Skel->AddOgreSkeletonAnimationFromFile("character/jack_run.skeleton.xml");
-		m_Skel->AddOgreSkeletonAnimationFromFile("character/jack_jump.skeleton.xml");
-		m_Skel->AddOgreSkeletonAnimationFromFile("character/jack_drop.skeleton.xml");
-		m_Skel->AddOgreSkeletonAnimationFromFile("character/jack_land.skeleton.xml");
-		m_Skel->AddOgreSkeletonAnimationFromFile("character/jack_lock_stand.skeleton.xml");
-		m_Skel->AddOgreSkeletonAnimationFromFile("character/jack_lock_run_back.skeleton.xml");
-		m_Skel->AddOgreSkeletonAnimationFromFile("character/jack_lock_run_left.skeleton.xml");
-		m_Skel->AddOgreSkeletonAnimationFromFile("character/jack_lock_run_right.skeleton.xml");
-		m_Skel->AddOgreSkeletonAnimationFromFile("character/jack_lock_stand_aim.skeleton.xml");
-		m_Skel->AddOgreSkeletonAnimationFromFile("character/jack_aim.skeleton.xml");
-		m_Skel->AddOgreSkeletonAnimationFromFile("character/jack_aim_attack.skeleton.xml");
-		m_Skel->AddOgreSkeletonAnimationFromFile("character/jack_aim_up.skeleton.xml");
-		m_Skel->AddOgreSkeletonAnimationFromFile("character/jack_aim_attack_up.skeleton.xml");
-		m_Skel->AddOgreSkeletonAnimationFromFile("character/jack_aim_down.skeleton.xml");
-		m_Skel->AddOgreSkeletonAnimationFromFile("character/jack_aim_attack_down.skeleton.xml");
-		m_Skel->AddOgreSkeletonAnimationFromFile("character/jack_attack_sword.skeleton.xml");
-		m_Skel->AddOgreSkeletonAnimationFromFile("character/jack_attack2_sword.skeleton.xml");
-		m_Skel->Transform(Matrix4::Compose(Vector3(1, 1, 1), Quaternion::Identity(), Vector3(0, -(0.65 + 0.1 + 0.1) / theApp.default_player_scale, 0)));
+		m_Skel = theApp.LoadSkeleton(theApp.default_player_anim_list.front().c_str());
+		for (int i = 1; i < theApp.default_player_anim_list.size(); i++)
+		{
+			m_Skel->AddOgreSkeletonAnimationFromFile(theApp.default_player_anim_list[i].c_str());
+		}
+		m_Skel->Transform(Matrix4::Compose(Vector3(1, 1, 1), Quaternion::Identity(), -m_Controller->GetFootOffset() / theApp.default_player_scale));
 
 		m_Animator->AddIK(m_Skel->GetBoneIndex("joint1"), m_Skel->m_boneHierarchy, 0.08f, 0x01);
 		m_Animator->AddIK(m_Skel->GetBoneIndex("joint82"), m_Skel->m_boneHierarchy, 0.08f, 0x01);

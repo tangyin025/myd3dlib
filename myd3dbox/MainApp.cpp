@@ -537,7 +537,7 @@ BOOL CMainApp::InitInstance()
 		("default_player_seek_force", boost::program_options::value(&default_player_seek_force)->default_value(50.0f), "Default player seek force")
 		("default_player_look_distance", boost::program_options::value(&default_player_look_distance)->default_value(4.0f), "Default player look distance")
 		("default_player_mesh_list", boost::program_options::value(&default_player_mesh_list), "Default player mesh list")
-		("default_player_skeleton", boost::program_options::value(&default_player_skeleton), "Default player skeleton")
+		("default_player_anim_list", boost::program_options::value(&default_player_anim_list), "Default player anim list")
 		;
 	boost::program_options::variables_map vm;
 	boost::program_options::store(boost::program_options::parse_config_file<char>((cfg_file + ".cfg").c_str(), desc, true), vm);

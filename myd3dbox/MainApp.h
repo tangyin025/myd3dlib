@@ -182,7 +182,7 @@ public:
 	float default_player_seek_force;
 	float default_player_look_distance;
 	std::vector<std::string> default_player_mesh_list;
-	std::string default_player_skeleton;
+	std::vector<std::string> default_player_anim_list;
 	BOOL m_bNeedDraw;
 	my::EventSignal m_EventNamedObjectCreate;
 	my::EventSignal m_EventNamedObjectDestroy;

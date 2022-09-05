@@ -381,7 +381,10 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	m_Player->InsertComponent(ComponentPtr(new Steering(NULL, theApp.default_player_max_speed, theApp.default_player_breaking_speed, 0.0f)));
 	m_Player->InsertComponent(ComponentPtr(new PlayerAgent(NULL)));
 	m_Player->InsertComponent(ComponentPtr(new Animator(NULL)));
-	m_Player->GetFirstComponent<Animator>()->m_SkeletonPath = theApp.default_player_skeleton;
+	if (!theApp.default_player_anim_list.empty())
+	{
+		m_Player->GetFirstComponent<Animator>()->m_SkeletonPath = theApp.default_player_anim_list.front();
+	}
 
 	BOOL bNameValid;
 	// set the visual manager and style based on persisted value
