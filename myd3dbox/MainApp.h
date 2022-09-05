@@ -182,6 +182,7 @@ public:
 	float default_player_breaking_speed;
 	float default_player_seek_force;
 	float default_player_look_distance;
+	float default_player_collision_height;
 	std::vector<std::string> default_player_mesh_list;
 	std::vector<std::string> default_player_anim_list;
 	BOOL m_bNeedDraw;

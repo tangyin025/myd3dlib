@@ -2506,14 +2506,14 @@ void CMainFrame::OnToolsPlaying()
 		m_Player->SetPose(boost::dynamic_pointer_cast<my::ModelViewerCamera>(pView->m_Camera)->m_LookAt);
 		AddEntity(m_Player.get(), m_Player->m_aabb.transform(m_Player->m_World), Actor::MinBlock, Actor::Threshold);
 
+		Controller* controller = m_Player->GetFirstComponent<Controller>();
+		ASSERT(controller);
 		physx::PxRaycastBuffer hit;
 		physx::PxQueryFilterData filterData = physx::PxQueryFilterData(
 			physx::PxFilterData(0x01, 0, 0, 0), physx::PxQueryFlag::eDYNAMIC | physx::PxQueryFlag::eSTATIC /*| physx::PxQueryFlag::ePREFILTER | physx::PxQueryFlag::eANY_HIT*/);
-		if (m_PxScene->raycast((physx::PxVec3&)(m_Player->m_Position + my::Vector3(0, 1000, 0)),
-			physx::PxVec3(0, -1, 0), 1000, hit, physx::PxHitFlag::eDEFAULT, filterData, NULL, NULL))
+		if (m_PxScene->raycast((physx::PxVec3&)(m_Player->m_Position - controller->GetFootOffset() + my::Vector3(0, theApp.default_player_collision_height, 0)),
+			physx::PxVec3(0, -1, 0), theApp.default_player_collision_height, hit, physx::PxHitFlag::eDEFAULT, filterData, NULL, NULL))
 		{
-			Controller * controller = m_Player->GetFirstComponent<Controller>();
-			ASSERT(controller);
 			boost::dynamic_pointer_cast<ActionTrackPose>(ActionTbl::getSingleton().Climb->m_TrackList[0])->m_ParamPose =
 				my::Bone((my::Vector3&)hit.block.position + controller->GetFootOffset(), m_Player->m_Rotation);
 			m_Player->PlayAction(ActionTbl::getSingleton().Climb.get(), 0.5f);
