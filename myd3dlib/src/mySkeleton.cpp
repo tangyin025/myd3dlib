@@ -842,10 +842,8 @@ void OgreSkeletonAnimation::SaveOgreSkeletonAnimation(const char * path)
 	ofs << "</skeleton>\n";
 }
 
-void OgreSkeletonAnimation::Transform(const my::Matrix4 & trans)
+void OgreSkeletonAnimation::AdjustAnimationRoot(const Bone & pose)
 {
-	Vector3 pos, scale; Quaternion rot;
-	trans.Decompose(scale, rot, pos);
 	OgreAnimationMap::iterator anim_iter = m_animationMap.begin();
 	for (; anim_iter != m_animationMap.end(); anim_iter++)
 	{
@@ -856,8 +854,7 @@ void OgreSkeletonAnimation::Transform(const my::Matrix4 & trans)
 			for (; id_iter != m_boneRootSet.end(); id_iter++)
 			{
 				Bone& bone = pose_iter->second[*id_iter];
-				bone.m_position = bone.m_position.transformCoord(trans);
-				bone.m_rotation = rot * bone.m_rotation;
+				bone.TransformSelf(pose);
 			}
 		}
 	}

@@ -1349,7 +1349,7 @@ void LuaContext::Init(void)
 			.def("GetBindPoseBone", &ogreskeletonanimation_get_bind_pose_bone)
 			.def("AddOgreSkeletonAnimationFromFile", &my::OgreSkeletonAnimation::AddOgreSkeletonAnimationFromFile)
 			.def("SaveOgreSkeletonAnimation", &my::OgreSkeletonAnimation::SaveOgreSkeletonAnimation)
-			.def("Transform", &my::OgreSkeletonAnimation::Transform)
+			.def("AdjustAnimationRoot", &my::OgreSkeletonAnimation::AdjustAnimationRoot)
 
 		// ! many methods of my::BaseEffect, my::Effect cannot be use in lua
 		, class_<my::BaseEffect, my::DeviceResourceBase, boost::shared_ptr<my::DeviceResourceBase> >("BaseEffect")

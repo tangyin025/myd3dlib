@@ -113,7 +113,7 @@ void PlayerAgent::RequestResource(void)
 		{
 			m_Skel->AddOgreSkeletonAnimationFromFile(theApp.default_player_anim_list[i].c_str());
 		}
-		m_Skel->Transform(Matrix4::Compose(Vector3(1, 1, 1), Quaternion::Identity(), -m_Controller->GetFootOffset() / theApp.default_player_scale));
+		m_Skel->AdjustAnimationRoot(Bone(-m_Controller->GetFootOffset() / theApp.default_player_scale));
 
 		m_Animator->AddIK(m_Skel->GetBoneIndex("joint1"), m_Skel->m_boneHierarchy, 0.08f, theApp.default_physx_shape_filterword0);
 		m_Animator->AddIK(m_Skel->GetBoneIndex("joint82"), m_Skel->m_boneHierarchy, 0.08f, theApp.default_physx_shape_filterword0);

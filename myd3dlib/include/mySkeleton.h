@@ -263,7 +263,7 @@ namespace my
 
 		void SaveOgreSkeletonAnimation(const char * path);
 
-		void Transform(const my::Matrix4 & trans);
+		void AdjustAnimationRoot(const Bone & pose);
 
 		void Clear(void);
 
