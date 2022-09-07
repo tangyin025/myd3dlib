@@ -149,7 +149,7 @@ void PlayerAgent::Update(float fElapsedTime)
 	const Vector3 pos = m_Controller->GetPosition();
 	const Quaternion rot = m_Steering->m_Speed > 0 ?
 		Quaternion::RotationFromToSafe(Vector3(0, 0, 1), m_Steering->m_Forward) : m_Actor->m_Rotation;
-	if (pos.y > m_Actor->m_Position.y + EPSILON_E3)
+	if (m_Suspending > 0.0f && pos.y > m_Actor->m_Position.y + EPSILON_E3)
 	{
 		m_Actor->SetPose(Vector3(pos.x, Lerp(Max(m_Actor->m_Position.y, pos.y - m_Controller->GetStepOffset()), pos.y, 1.0f - pow(0.7, 30 * fElapsedTime)), pos.z), rot);
 	}
