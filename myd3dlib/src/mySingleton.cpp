@@ -63,18 +63,12 @@ NamedObject::NamedObject(const char * Name)
 {
 	SetName(Name);
 
-	if (m_Name && m_Name[0] != '\0')
-	{
-		D3DContext::getSingleton().OnNamedObjectCreate(this);
-	}
+	D3DContext::getSingleton().OnNamedObjectCreate(this);
 }
 
 NamedObject::~NamedObject(void)
 {
-	if (m_Name && m_Name[0] != '\0')
-	{
-		D3DContext::getSingleton().OnNamedObjectDestroy(this);
-	}
+	D3DContext::getSingleton().OnNamedObjectDestroy(this);
 
 	SetName(NULL);
 }
@@ -121,6 +115,11 @@ void NamedObject::SetName(const char * Name)
 	{
 		BOOST_VERIFY(D3DContext::getSingleton().RegisterNamedObject(Name, this));
 	}
+}
+
+const char * NamedObject::GetName(void) const
+{
+	return m_Name ? m_Name : "";
 }
 
 template<class Archive>

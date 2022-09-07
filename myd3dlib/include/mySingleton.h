@@ -207,10 +207,7 @@ namespace my
 
 		void SetName(const char * Name);
 
-		const char * GetName(void) const
-		{
-			return m_Name;
-		}
+		const char * GetName(void) const;
 
 		friend class boost::serialization::access;
 
