@@ -21,7 +21,7 @@ void SceneContextRequest::LoadResource(void)
 		LPCSTR Ext = PathFindExtensionA(m_path.c_str());
 		boost::shared_ptr<boost::archive::polymorphic_iarchive> ia = Actor::GetIArchive(ifs, Ext);
 		boost::dynamic_pointer_cast<NamedObjectSerializationContext>(ia)->prefix = m_prefix;
-		SceneContextPtr scene = boost::dynamic_pointer_cast<SceneContext>(m_res);
+		SceneContextPtr scene(new SceneContext);
 		*ia >> boost::serialization::make_nvp("SkyLightCam.m_Euler", scene->m_SkyLightCamEuler);
 		*ia >> boost::serialization::make_nvp("SkyLightColor", scene->m_SkyLightColor);
 		*ia >> boost::serialization::make_nvp("AmbientColor", scene->m_AmbientColor);
@@ -53,15 +53,15 @@ void SceneContextRequest::LoadResource(void)
 		{
 			*ia >> boost::serialization::make_nvp(str_printf("Dialog%d", i).c_str(), scene->m_DialogList[i]);
 		}
+
+		m_res = scene;
 	}
 }
 
 void SceneContextRequest::CreateResource(LPDIRECT3DDEVICE9 pd3dDevice)
 {
-	if (boost::dynamic_pointer_cast<SceneContext>(m_res)->m_ActorList.empty()
-		&& boost::dynamic_pointer_cast<SceneContext>(m_res)->m_DialogList.empty())
+	if (!m_res)
 	{
-		m_res.reset();
 		THROW_CUSEXCEPTION(str_printf("failed open %s", m_path.c_str()));
 	}
 }

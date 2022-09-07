@@ -75,7 +75,6 @@ public:
 		, m_ActorProgress(0)
 		, m_DialogProgress(0)
 	{
-		m_res.reset(new SceneContext());
 	}
 
 	virtual void LoadResource(void);
