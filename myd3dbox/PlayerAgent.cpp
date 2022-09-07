@@ -151,7 +151,7 @@ void PlayerAgent::Update(float fElapsedTime)
 		Quaternion::RotationFromToSafe(Vector3(0, 0, 1), m_Steering->m_Forward) : m_Actor->m_Rotation;
 	if (m_Suspending > 0.0f && pos.y > m_Actor->m_Position.y + EPSILON_E3)
 	{
-		m_Actor->SetPose(Vector3(pos.x, Lerp(Max(m_Actor->m_Position.y, pos.y - m_Controller->GetStepOffset()), pos.y, 1.0f - pow(0.7, 30 * fElapsedTime)), pos.z), rot);
+		m_Actor->SetPose(Vector3(pos.x, Lerp(Max(m_Actor->m_Position.y, pos.y - m_Controller->GetStepOffset()), pos.y, 1.0f - pow(0.7f, 30 * fElapsedTime)), pos.z), rot);
 	}
 	else
 	{
@@ -265,7 +265,7 @@ void PlayerAgent::OnPxThreadSubstep(float dtime)
 		(physx::PxControllerCollisionFlags)m_Controller->Move(disp, 0.001f, dtime, theApp.default_physx_shape_filterword0);
 	if (moveFlags & physx::PxControllerCollisionFlag::eCOLLISION_DOWN)
 	{
-		m_VerticalSpeed = 0;
+		m_VerticalSpeed = Lerp(m_VerticalSpeed, 0.0f, 1.0f - pow(0.5f, 30 * dtime));
 		m_Suspending = 0.2f;
 	}
 }
