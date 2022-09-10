@@ -258,7 +258,7 @@ Plane Plane::NormalPosition(const Vector3 & normal, const Vector3 & pos)
 
 Plane Plane::FromTriangle(const Vector3 & v0, const Vector3 & v1, const Vector3 & v2)
 {
-	return NormalPosition((v1 - v0).cross(v2 - v0).normalize(), v0);
+	return NormalPosition((v1 - v0).cross(v2 - v0).normalizeSafe(), v0);
 }
 
 Plane Plane::transform(const Matrix4 & InverseTranspose) const
