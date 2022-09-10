@@ -15,7 +15,7 @@ IMPLEMENT_DYNAMIC(CSnapshotDlg, CDialogEx)
 
 CSnapshotDlg::CSnapshotDlg(CWnd* pParent /*=nullptr*/)
 	: CDialogEx(IDD_DIALOG7, pParent)
-	, m_TexPath(_T("aaa.bmp"))
+	, m_TexPath(_T("aaa.png"))
 	, m_TexWidth(1024)
 	, m_TexHeight(1024)
 	, m_SnapPos(0, 0)
@@ -158,7 +158,8 @@ void CSnapshotDlg::OnOK()
 
 	D3DVIEWPORT9 vp = { 0, 0, desc.Width, desc.Height, 0.0, 1.0f };
 	theApp.OnRender(theApp.m_d3dDevice, rtsurf, DepthStencil.m_ptr, &vp, &rc, 0, 0);
-	V(D3DXSaveTextureToFile(m_TexPath, D3DXIFF_BMP, rt.m_ptr, NULL));
+	CString ext(PathFindExtension(m_TexPath));
+	V(D3DXSaveTextureToFile(m_TexPath, ext.CompareNoCase(_T(".png")) == 0 ? D3DXIFF_PNG : D3DXIFF_BMP, rt.m_ptr, NULL));
 
 	CDialogEx::OnOK();
 }
