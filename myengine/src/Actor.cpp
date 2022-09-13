@@ -86,7 +86,7 @@ void Actor::save(Archive & ar, const unsigned int version) const
 	ar << BOOST_SERIALIZATION_NVP(m_LodFactor);
 	ar << BOOST_SERIALIZATION_NVP(m_CullingDistSq);
 
-	physx::PxActorType::Enum ActorType = m_PxActor ? m_PxActor->getType() : physx::PxActorType::eACTOR_COUNT;
+	physx::PxActorType::Enum ActorType = GetRigidActorType();
 	ar << BOOST_SERIALIZATION_NVP(ActorType);
 	switch (ActorType)
 	{
@@ -610,6 +610,11 @@ void Actor::CreateRigidActor(physx::PxActorType::Enum ActorType)
 
 		BOOST_VERIFY(m_Base->m_Aggregate->addActor(*m_PxActor));
 	}
+}
+
+physx::PxActorType::Enum Actor::GetRigidActorType(void) const
+{
+	return m_PxActor ? m_PxActor->getType() : physx::PxActorType::eACTOR_COUNT;
 }
 
 void Actor::SetRigidBodyFlag(physx::PxRigidBodyFlag::Enum Flag, bool Value)

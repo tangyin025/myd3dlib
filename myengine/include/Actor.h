@@ -311,6 +311,8 @@ public:
 
 	void CreateRigidActor(physx::PxActorType::Enum ActorType);
 
+	physx::PxActorType::Enum GetRigidActorType(void) const;
+
 	void SetRigidBodyFlag(physx::PxRigidBodyFlag::Enum Flag, bool Value);
 
 	bool GetRigidBodyFlag(physx::PxRigidBodyFlag::Enum Flag) const;

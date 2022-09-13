@@ -2518,6 +2518,7 @@ void LuaContext::Init(void)
 				value("eRIGID_DYNAMIC", physx::PxActorType::eRIGID_DYNAMIC)
 			]
 			.def("CreateRigidActor", &Actor::CreateRigidActor)
+			.property("RigidActorType", &Actor::GetRigidActorType)
 			.enum_("RigidBodyFlag")
 			[
 				value("eKINEMATIC", physx::PxRigidBodyFlag::eKINEMATIC),
