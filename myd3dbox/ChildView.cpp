@@ -2108,7 +2108,7 @@ void CChildView::OnMouseMove(UINT nFlags, CPoint point)
 			switch (pFrame->m_Pivot.m_Mode)
 			{
 			case Pivot::PivotModeMove:
-				(*sel_iter)->m_Position += pFrame->m_Pivot.m_DragDeltaPos;
+				(*sel_iter)->m_Position = pFrame->m_Pivot.m_Pos;
 				(*sel_iter)->UpdateWorld();
 				break;
 			case Pivot::PivotModeRot:

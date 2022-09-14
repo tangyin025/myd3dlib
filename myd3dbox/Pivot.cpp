@@ -236,6 +236,7 @@ bool Pivot::OnMoveControllerLButtonDown(const my::Ray & ray, float Scale)
 		(Transform[0] * World).inverse(), (Transform[1] * World).inverse(), (Transform[2] * World).inverse() };
 	float minT = FLT_MAX;
 	m_DragAxis = PivotDragNone;
+	m_DragRot.xyz = m_Pos;
 	for (unsigned int i = 0; i < _countof(trans); i++)
 	{
 		const Ray local_ray = ray.transform(trans[i]);
@@ -357,33 +358,27 @@ bool Pivot::OnMoveControllerMouseMove(const my::Ray & ray, float Scale)
 		{
 		case PivotDragAxisX:
 			m_DragDeltaPos = Vector3(pt.x - m_DragPt.x, 0, 0);
-			m_Pos += m_DragDeltaPos;
-			m_DragPt = pt;
+			m_Pos = m_DragRot.xyz + m_DragDeltaPos;
 			return true;
 		case PivotDragAxisY:
 			m_DragDeltaPos = Vector3(0, pt.y - m_DragPt.y, 0);
-			m_Pos += m_DragDeltaPos;
-			m_DragPt = pt;
+			m_Pos = m_DragRot.xyz + m_DragDeltaPos;
 			return true;
 		case PivotDragAxisZ:
 			m_DragDeltaPos = Vector3(0, 0, pt.z - m_DragPt.z);
-			m_Pos += m_DragDeltaPos;
-			m_DragPt = pt;
+			m_Pos = m_DragRot.xyz + m_DragDeltaPos;
 			return true;
 		case PivotDragPlanX:
 			m_DragDeltaPos = Vector3(0, pt.y - m_DragPt.y, pt.z - m_DragPt.z);
-			m_Pos += m_DragDeltaPos;
-			m_DragPt = pt;
+			m_Pos = m_DragRot.xyz + m_DragDeltaPos;
 			return true;
 		case PivotDragPlanY:
 			m_DragDeltaPos = Vector3(pt.x - m_DragPt.x, 0, pt.z - m_DragPt.z);
-			m_Pos += m_DragDeltaPos;
-			m_DragPt = pt;
+			m_Pos = m_DragRot.xyz + m_DragDeltaPos;
 			return true;
 		case PivotDragPlanZ:
 			m_DragDeltaPos = Vector3(pt.x - m_DragPt.x, pt.y - m_DragPt.y, 0);
-			m_Pos += m_DragDeltaPos;
-			m_DragPt = pt;
+			m_Pos = m_DragRot.xyz + m_DragDeltaPos;
 			return true;
 		}
 	}
