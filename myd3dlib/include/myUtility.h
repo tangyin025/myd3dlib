@@ -92,11 +92,11 @@ namespace my
 		{
 		}
 
-		Vector3 ScreenToWorld(const Vector2 & pt, const Vector2 & dim, float z);
+		Vector3 ScreenToWorld(const Vector2 & pt, const Vector2 & dim, float z) const;
 
-		Vector3 WorldToScreen(const Vector3 & pos, const Vector2 & dim);
+		Vector3 WorldToScreen(const Vector3 & pos, const Vector2 & dim) const;
 
-		Frustum RectangleToFrustum(const Rectangle & rc, const Vector2 & dim);
+		Frustum RectangleToFrustum(const Rectangle & rc, const Vector2 & dim) const;
 	};
 
 	typedef boost::shared_ptr<BaseCamera> BaseCameraPtr;

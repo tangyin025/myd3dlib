@@ -114,19 +114,19 @@ bool Timer::Step(void)
 	return false;
 }
 
-Vector3 BaseCamera::ScreenToWorld(const Vector2 & pt, const Vector2 & dim, float z)
+Vector3 BaseCamera::ScreenToWorld(const Vector2 & pt, const Vector2 & dim, float z) const
 {
 	return Vector3(Lerp(-1.0f, 1.0f, pt.x / dim.x), Lerp(1.0f, -1.0f, pt.y / dim.y), z).transformCoord(m_InverseViewProj);
 }
 
-Vector3 BaseCamera::WorldToScreen(const Vector3 & pos, const Vector2 & dim)
+Vector3 BaseCamera::WorldToScreen(const Vector3 & pos, const Vector2 & dim) const
 {
 	const Vector3 ptProj = pos.transformCoordSafe(m_ViewProj);
 
 	return Vector3(Lerp(0.0f, dim.x, (ptProj.x + 1) / 2), Lerp(0.0f, dim.y, (1 - ptProj.y) / 2), ptProj.z);
 }
 
-Frustum BaseCamera::RectangleToFrustum(const my::Rectangle & rc, const Vector2 & dim)
+Frustum BaseCamera::RectangleToFrustum(const my::Rectangle & rc, const Vector2 & dim) const
 {
 	Vector3 nlt = ScreenToWorld(rc.LeftTop(), dim, 1.0f);
 	Vector3 nrt = ScreenToWorld(rc.RightTop(), dim, 1.0f);

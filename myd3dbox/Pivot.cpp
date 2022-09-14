@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "Pivot.h"
+#include "MainApp.h"
 
 using namespace my;
 
@@ -42,6 +43,36 @@ void Pivot::Draw(IDirect3DDevice9 * pd3dDevice, const my::BaseCamera * camera, c
 	case PivotModeRot:
 		DrawRotController(pd3dDevice, Scale);
 		break;
+	}
+
+	if (m_DragAxis != Pivot::PivotDragNone)
+	{
+		switch (m_Mode)
+		{
+		case Pivot::PivotModeMove:
+		{
+			my::Vector3 pt = camera->WorldToScreen(m_Pos, my::Vector2((float)desc->Width, (float)desc->Height));
+			if (pt.z > 0.0f && pt.z < 1.0f)
+			{
+				wchar_t buff[256];
+				swprintf_s(buff, _countof(buff), L"%f, %f, %f", m_Pos.x, m_Pos.y, m_Pos.z);
+				theApp.m_UIRender->PushString(my::Rectangle::LeftTop(floorf(pt.x), floorf(pt.y), 1, 1), buff, D3DCOLOR_ARGB(255, 255, 0, 255), my::Font::AlignLeftTop, theApp.m_Font.get());
+			}
+			break;
+		}
+		case Pivot::PivotModeRot:
+		{
+			my::Vector3 pt = camera->WorldToScreen(m_Pos, my::Vector2((float)desc->Width, (float)desc->Height));
+			if (pt.z > 0.0f && pt.z < 1.0f)
+			{
+				my::Vector3 angle = m_Rot.toEulerAngles();
+				wchar_t buff[256];
+				swprintf_s(buff, _countof(buff), L"%f, %f, %f", D3DXToDegree(angle.x), D3DXToDegree(angle.y), D3DXToDegree(angle.z));
+				theApp.m_UIRender->PushString(my::Rectangle::LeftTop(floorf(pt.x), floorf(pt.y), 1, 1), buff, D3DCOLOR_ARGB(255, 255, 0, 255), my::Font::AlignLeftTop, theApp.m_Font.get());
+			}
+			break;
+		}
+		}
 	}
 }
 

@@ -391,7 +391,7 @@ void CChildView::RenderSelectedActor(IDirect3DDevice9 * pd3dDevice, Actor * acto
 	my::Vector3 pt = m_Camera->WorldToScreen(actor->m_World.getRow<3>().xyz, my::Vector2((float)m_SwapChainBufferDesc.Width, (float)m_SwapChainBufferDesc.Height));
 	if (pt.z > 0.0f && pt.z < 1.0f)
 	{
-		theApp.m_UIRender->PushString(my::Rectangle::LeftTop(floorf(pt.x), floorf(pt.y), 1, 1), ms2ts(actor->GetName()).c_str(), D3DCOLOR_ARGB(255, 255, 255, 0), my::Font::AlignLeftTop, theApp.m_Font.get());
+		theApp.m_UIRender->PushString(my::Rectangle::RightBottom(floorf(pt.x), floorf(pt.y), 1, 1), ms2ts(actor->GetName()).c_str(), D3DCOLOR_ARGB(255, 255, 255, 0), my::Font::AlignRightBottom, theApp.m_Font.get());
 	}
 
 	Actor::ActorList::iterator att_iter = actor->m_Attaches.begin();
