@@ -1232,7 +1232,7 @@ void CChildView::OnPaint()
 		{
 			if (m_bShowGrid)
 			{
-				PushLineGrid(theApp.default_grid_length, theApp.default_grid_lines, theApp.default_grid_subdivisions,
+				PushLineGrid(theApp.default_grid_length, theApp.default_grid_lines_every, theApp.default_grid_subdivisions,
 					theApp.default_grid_color, theApp.default_grid_axis_color, my::Matrix4::RotationX(D3DXToRadian(-90)));
 			}
 

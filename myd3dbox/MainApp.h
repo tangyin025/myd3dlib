@@ -43,7 +43,7 @@ public:
 	std::string default_tool_scrpit_pattern;
 	float default_emitter_chunk_width;
 	float default_grid_length;
-	float default_grid_lines;
+	float default_grid_lines_every;
 	unsigned int default_grid_subdivisions;
 	D3DCOLOR default_grid_color;
 	D3DCOLOR default_grid_axis_color;

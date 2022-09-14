@@ -72,6 +72,12 @@ namespace my
 	T Wrap(T v, T min, T max);
 
 	template <typename T>
+	T Align(T v, T align)
+	{
+		return (T)(align * roundf(v / (float)align));
+	}
+
+	template <typename T>
 	T Random(T range);
 
 	template <typename T>
