@@ -42,6 +42,11 @@ public:
 	bool default_load_shader_cache;
 	std::string default_tool_scrpit_pattern;
 	float default_emitter_chunk_width;
+	float default_grid_length;
+	float default_grid_lines;
+	unsigned int default_grid_subdivisions;
+	D3DCOLOR default_grid_color;
+	D3DCOLOR default_grid_axis_color;
 	std::string default_font_path;
 	int default_font_height;
 	int default_font_face_index;

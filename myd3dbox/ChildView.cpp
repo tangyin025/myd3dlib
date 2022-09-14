@@ -1232,7 +1232,8 @@ void CChildView::OnPaint()
 		{
 			if (m_bShowGrid)
 			{
-				PushLineGrid(12, 5, 5, D3DCOLOR_ARGB(255,127,127,127), D3DCOLOR_ARGB(255,0,0,0), my::Matrix4::RotationX(D3DXToRadian(-90)));
+				PushLineGrid(theApp.default_grid_length, theApp.default_grid_lines, theApp.default_grid_subdivisions,
+					theApp.default_grid_color, theApp.default_grid_axis_color, my::Matrix4::RotationX(D3DXToRadian(-90)));
 			}
 
 			CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
