@@ -359,7 +359,7 @@ bool Pivot::OnMoveControllerMouseMove(const my::Ray & ray, float Scale)
 		case PivotDragAxisX:
 			m_DragDeltaPos = Vector3(pt.x - m_DragPt.x, 0, 0);
 			m_Pos = m_DragRot.xyz + m_DragDeltaPos;
-			if (GetKeyState('X') & 0x8000)
+			if ((GetKeyState('X') & 0x8000) ? !theApp.default_tool_snap_to_grid : theApp.default_tool_snap_to_grid)
 			{
 				m_Pos.x = Align(m_Pos.x, theApp.default_grid_lines_every / theApp.default_grid_subdivisions);
 			}
@@ -367,7 +367,7 @@ bool Pivot::OnMoveControllerMouseMove(const my::Ray & ray, float Scale)
 		case PivotDragAxisY:
 			m_DragDeltaPos = Vector3(0, pt.y - m_DragPt.y, 0);
 			m_Pos = m_DragRot.xyz + m_DragDeltaPos;
-			if (GetKeyState('X') & 0x8000)
+			if ((GetKeyState('X') & 0x8000) ? !theApp.default_tool_snap_to_grid : theApp.default_tool_snap_to_grid)
 			{
 				m_Pos.y = Align(m_Pos.y, theApp.default_grid_lines_every / theApp.default_grid_subdivisions);
 			}
@@ -375,7 +375,7 @@ bool Pivot::OnMoveControllerMouseMove(const my::Ray & ray, float Scale)
 		case PivotDragAxisZ:
 			m_DragDeltaPos = Vector3(0, 0, pt.z - m_DragPt.z);
 			m_Pos = m_DragRot.xyz + m_DragDeltaPos;
-			if (GetKeyState('X') & 0x8000)
+			if ((GetKeyState('X') & 0x8000) ? !theApp.default_tool_snap_to_grid : theApp.default_tool_snap_to_grid)
 			{
 				m_Pos.z = Align(m_Pos.z, theApp.default_grid_lines_every / theApp.default_grid_subdivisions);
 			}
@@ -383,7 +383,7 @@ bool Pivot::OnMoveControllerMouseMove(const my::Ray & ray, float Scale)
 		case PivotDragPlanX:
 			m_DragDeltaPos = Vector3(0, pt.y - m_DragPt.y, pt.z - m_DragPt.z);
 			m_Pos = m_DragRot.xyz + m_DragDeltaPos;
-			if (GetKeyState('X') & 0x8000)
+			if ((GetKeyState('X') & 0x8000) ? !theApp.default_tool_snap_to_grid : theApp.default_tool_snap_to_grid)
 			{
 				m_Pos.y = Align(m_Pos.y, theApp.default_grid_lines_every / theApp.default_grid_subdivisions);
 				m_Pos.z = Align(m_Pos.z, theApp.default_grid_lines_every / theApp.default_grid_subdivisions);
@@ -392,7 +392,7 @@ bool Pivot::OnMoveControllerMouseMove(const my::Ray & ray, float Scale)
 		case PivotDragPlanY:
 			m_DragDeltaPos = Vector3(pt.x - m_DragPt.x, 0, pt.z - m_DragPt.z);
 			m_Pos = m_DragRot.xyz + m_DragDeltaPos;
-			if (GetKeyState('X') & 0x8000)
+			if ((GetKeyState('X') & 0x8000) ? !theApp.default_tool_snap_to_grid : theApp.default_tool_snap_to_grid)
 			{
 				m_Pos.x = Align(m_Pos.x, theApp.default_grid_lines_every / theApp.default_grid_subdivisions);
 				m_Pos.z = Align(m_Pos.z, theApp.default_grid_lines_every / theApp.default_grid_subdivisions);
@@ -401,7 +401,7 @@ bool Pivot::OnMoveControllerMouseMove(const my::Ray & ray, float Scale)
 		case PivotDragPlanZ:
 			m_DragDeltaPos = Vector3(pt.x - m_DragPt.x, pt.y - m_DragPt.y, 0);
 			m_Pos = m_DragRot.xyz + m_DragDeltaPos;
-			if (GetKeyState('X') & 0x8000)
+			if ((GetKeyState('X') & 0x8000) ? !theApp.default_tool_snap_to_grid : theApp.default_tool_snap_to_grid)
 			{
 				m_Pos.x = Align(m_Pos.x, theApp.default_grid_lines_every / theApp.default_grid_subdivisions);
 				m_Pos.y = Align(m_Pos.y, theApp.default_grid_lines_every / theApp.default_grid_subdivisions);

@@ -218,6 +218,8 @@ public:
 	afx_msg void OnUpdateIndicatorCoord(CCmdUI* pCmdUI);
 	afx_msg void OnToolsPlaying();
 	afx_msg void OnUpdateToolsPlaying(CCmdUI* pCmdUI);
+	afx_msg void OnToolsSnapToGrid();
+	afx_msg void OnUpdateToolsSnapToGrid(CCmdUI* pCmdUI);
 };
 
 

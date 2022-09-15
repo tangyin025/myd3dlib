@@ -316,6 +316,8 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_UPDATE_COMMAND_UI(ID_INDICATOR_COORD, &CMainFrame::OnUpdateIndicatorCoord)
 	ON_COMMAND(ID_TOOLS_PLAYING, &CMainFrame::OnToolsPlaying)
 	ON_UPDATE_COMMAND_UI(ID_TOOLS_PLAYING, &CMainFrame::OnUpdateToolsPlaying)
+	ON_COMMAND(ID_TOOLS_SNAP_TO_GRID, &CMainFrame::OnToolsSnapToGrid)
+	ON_UPDATE_COMMAND_UI(ID_TOOLS_SNAP_TO_GRID, &CMainFrame::OnUpdateToolsSnapToGrid)
 END_MESSAGE_MAP()
 
 static UINT indicators[] =
@@ -2530,4 +2532,18 @@ void CMainFrame::OnUpdateToolsPlaying(CCmdUI* pCmdUI)
 {
 	// TODO: Add your command update UI handler code here
 	pCmdUI->SetCheck(m_Player->m_Node != NULL);
+}
+
+
+void CMainFrame::OnToolsSnapToGrid()
+{
+	// TODO: Add your command handler code here
+	theApp.default_tool_snap_to_grid = !theApp.default_tool_snap_to_grid;
+}
+
+
+void CMainFrame::OnUpdateToolsSnapToGrid(CCmdUI* pCmdUI)
+{
+	// TODO: Add your command update UI handler code here
+	pCmdUI->SetCheck((GetKeyState('X') & 0x8000) ? !theApp.default_tool_snap_to_grid : theApp.default_tool_snap_to_grid);
 }

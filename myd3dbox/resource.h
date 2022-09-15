@@ -32,6 +32,7 @@
 #define IDR_POPUP_VIEW                  309
 #define IDD_DIALOG1                     310
 #define ID_INDICATOR_COORD              310
+#define ID_TOOLS_SNAP_TO_GRID           311
 #define IDD_DIALOG2                     312
 #define IDD_DIALOG3                     313
 #define IDD_DIALOG4                     314
@@ -147,6 +148,6 @@
 #define _APS_NEXT_RESOURCE_VALUE        321
 #define _APS_NEXT_COMMAND_VALUE         32834
 #define _APS_NEXT_CONTROL_VALUE         1033
-#define _APS_NEXT_SYMED_VALUE           311
+#define _APS_NEXT_SYMED_VALUE           312
 #endif
 #endif
