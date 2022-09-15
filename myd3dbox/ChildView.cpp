@@ -1501,8 +1501,8 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 				pFrame->m_ctlhandle = CMainFrame::ControlHandleLeftTop;
 				pFrame->m_ctlhandleoff.x = pt.x - (*ctrl_iter)->m_x.offset;
 				pFrame->m_ctlhandleoff.y = pt.y - (*ctrl_iter)->m_y.offset;
-				pFrame->m_ctlhandlesz.x = (*ctrl_iter)->m_Width.offset + pt.x;
-				pFrame->m_ctlhandlesz.y = (*ctrl_iter)->m_Height.offset + pt.y;
+				pFrame->m_ctlhandlesz.x = (*ctrl_iter)->m_Width.offset + (*ctrl_iter)->m_x.offset;
+				pFrame->m_ctlhandlesz.y = (*ctrl_iter)->m_Height.offset + (*ctrl_iter)->m_y.offset;
 				SetCapture();
 				Invalidate();
 				return;
@@ -1519,10 +1519,8 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 				pFrame->m_selchunkid.SetPoint(0, 0);
 				pFrame->m_selinstid = 0;
 				pFrame->m_ctlhandle = CMainFrame::ControlHandleCenterTop;
-				pFrame->m_ctlhandleoff.x = pt.x - (*ctrl_iter)->m_x.offset;
 				pFrame->m_ctlhandleoff.y = pt.y - (*ctrl_iter)->m_y.offset;
-				pFrame->m_ctlhandlesz.x = (*ctrl_iter)->m_Width.offset + pt.x;
-				pFrame->m_ctlhandlesz.y = (*ctrl_iter)->m_Height.offset + pt.y;
+				pFrame->m_ctlhandlesz.y = (*ctrl_iter)->m_Height.offset + (*ctrl_iter)->m_y.offset;
 				SetCapture();
 				Invalidate();
 				return;
@@ -1539,10 +1537,9 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 				pFrame->m_selchunkid.SetPoint(0, 0);
 				pFrame->m_selinstid = 0;
 				pFrame->m_ctlhandle = CMainFrame::ControlHandleRightTop;
-				pFrame->m_ctlhandleoff.x = pt.x - (*ctrl_iter)->m_x.offset;
 				pFrame->m_ctlhandleoff.y = pt.y - (*ctrl_iter)->m_y.offset;
 				pFrame->m_ctlhandlesz.x = (*ctrl_iter)->m_Width.offset - pt.x;
-				pFrame->m_ctlhandlesz.y = (*ctrl_iter)->m_Height.offset + pt.y;
+				pFrame->m_ctlhandlesz.y = (*ctrl_iter)->m_Height.offset + (*ctrl_iter)->m_y.offset;
 				SetCapture();
 				Invalidate();
 				return;
@@ -1560,9 +1557,7 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 				pFrame->m_selinstid = 0;
 				pFrame->m_ctlhandle = CMainFrame::ControlHandleLeftMiddle;
 				pFrame->m_ctlhandleoff.x = pt.x - (*ctrl_iter)->m_x.offset;
-				pFrame->m_ctlhandleoff.y = pt.y - (*ctrl_iter)->m_y.offset;
-				pFrame->m_ctlhandlesz.x = (*ctrl_iter)->m_Width.offset + pt.x;
-				pFrame->m_ctlhandlesz.y = (*ctrl_iter)->m_Height.offset + pt.y;
+				pFrame->m_ctlhandlesz.x = (*ctrl_iter)->m_Width.offset + (*ctrl_iter)->m_x.offset;
 				SetCapture();
 				Invalidate();
 				return;
@@ -1598,8 +1593,6 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 				pFrame->m_ctlhandle = CMainFrame::ControlHandleCenterMiddle;
 				pFrame->m_ctlhandleoff.x = pt.x - (*ctrl_iter)->m_x.offset;
 				pFrame->m_ctlhandleoff.y = pt.y - (*ctrl_iter)->m_y.offset;
-				pFrame->m_ctlhandlesz.x = pt.x - (*ctrl_iter)->m_Width.offset;
-				pFrame->m_ctlhandlesz.y = pt.y - (*ctrl_iter)->m_Height.offset;
 				SetCapture();
 				Invalidate();
 				return;
@@ -1616,10 +1609,7 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 				pFrame->m_selchunkid.SetPoint(0, 0);
 				pFrame->m_selinstid = 0;
 				pFrame->m_ctlhandle = CMainFrame::ControlHandleRightMiddle;
-				pFrame->m_ctlhandleoff.x = pt.x - (*ctrl_iter)->m_x.offset;
-				pFrame->m_ctlhandleoff.y = pt.y - (*ctrl_iter)->m_y.offset;
 				pFrame->m_ctlhandlesz.x = (*ctrl_iter)->m_Width.offset - pt.x;
-				pFrame->m_ctlhandlesz.y = (*ctrl_iter)->m_Height.offset + pt.y;
 				SetCapture();
 				Invalidate();
 				return;
@@ -1637,8 +1627,7 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 				pFrame->m_selinstid = 0;
 				pFrame->m_ctlhandle = CMainFrame::ControlHandleLeftBottom;
 				pFrame->m_ctlhandleoff.x = pt.x - (*ctrl_iter)->m_x.offset;
-				pFrame->m_ctlhandleoff.y = pt.y - (*ctrl_iter)->m_y.offset;
-				pFrame->m_ctlhandlesz.x = (*ctrl_iter)->m_Width.offset + pt.x;
+				pFrame->m_ctlhandlesz.x = (*ctrl_iter)->m_Width.offset + (*ctrl_iter)->m_x.offset;
 				pFrame->m_ctlhandlesz.y = (*ctrl_iter)->m_Height.offset - pt.y;
 				SetCapture();
 				Invalidate();
@@ -1656,9 +1645,6 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 				pFrame->m_selchunkid.SetPoint(0, 0);
 				pFrame->m_selinstid = 0;
 				pFrame->m_ctlhandle = CMainFrame::ControlHandleCenterBottom;
-				pFrame->m_ctlhandleoff.x = pt.x - (*ctrl_iter)->m_x.offset;
-				pFrame->m_ctlhandleoff.y = pt.y - (*ctrl_iter)->m_y.offset;
-				pFrame->m_ctlhandlesz.x = (*ctrl_iter)->m_Width.offset + pt.x;
 				pFrame->m_ctlhandlesz.y = (*ctrl_iter)->m_Height.offset - pt.y;
 				SetCapture();
 				Invalidate();
@@ -1676,8 +1662,6 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 				pFrame->m_selchunkid.SetPoint(0, 0);
 				pFrame->m_selinstid = 0;
 				pFrame->m_ctlhandle = CMainFrame::ControlHandleRightBottom;
-				pFrame->m_ctlhandleoff.x = pt.x - (*ctrl_iter)->m_x.offset;
-				pFrame->m_ctlhandleoff.y = pt.y - (*ctrl_iter)->m_y.offset;
 				pFrame->m_ctlhandlesz.x = (*ctrl_iter)->m_Width.offset - pt.x;
 				pFrame->m_ctlhandlesz.y = (*ctrl_iter)->m_Height.offset - pt.y;
 				SetCapture();
@@ -2030,47 +2014,88 @@ void CChildView::OnMouseMove(UINT nFlags, CPoint point)
 			case CMainFrame::ControlHandleLeftTop:
 				(*ctrl_iter)->m_x.offset = pt.x - pFrame->m_ctlhandleoff.x;
 				(*ctrl_iter)->m_y.offset = pt.y - pFrame->m_ctlhandleoff.y;
-				(*ctrl_iter)->m_Width.offset = pFrame->m_ctlhandlesz.x - pt.x;
-				(*ctrl_iter)->m_Height.offset = pFrame->m_ctlhandlesz.y - pt.y;
+				if ((GetKeyState('X') & 0x8000) ? !theApp.default_tool_snap_to_grid : theApp.default_tool_snap_to_grid)
+				{
+					(*ctrl_iter)->m_x.offset = my::Align((*ctrl_iter)->m_x.offset, theApp.default_grid_lines_every / theApp.default_grid_subdivisions);
+					(*ctrl_iter)->m_y.offset = my::Align((*ctrl_iter)->m_y.offset, theApp.default_grid_lines_every / theApp.default_grid_subdivisions);
+				}
+				(*ctrl_iter)->m_Width.offset = pFrame->m_ctlhandlesz.x - (*ctrl_iter)->m_x.offset;
+				(*ctrl_iter)->m_Height.offset = pFrame->m_ctlhandlesz.y - (*ctrl_iter)->m_y.offset;
 				(*ctrl_iter)->OnLayout();
 				break;
 			case CMainFrame::ControlHandleCenterTop:
 				(*ctrl_iter)->m_y.offset = pt.y - pFrame->m_ctlhandleoff.y;
-				(*ctrl_iter)->m_Height.offset = pFrame->m_ctlhandlesz.y - pt.y;
+				if ((GetKeyState('X') & 0x8000) ? !theApp.default_tool_snap_to_grid : theApp.default_tool_snap_to_grid)
+				{
+					(*ctrl_iter)->m_y.offset = my::Align((*ctrl_iter)->m_y.offset, theApp.default_grid_lines_every / theApp.default_grid_subdivisions);
+				}
+				(*ctrl_iter)->m_Height.offset = pFrame->m_ctlhandlesz.y - (*ctrl_iter)->m_y.offset;
 				(*ctrl_iter)->OnLayout();
 				break;
 			case CMainFrame::ControlHandleRightTop:
 				(*ctrl_iter)->m_y.offset = pt.y - pFrame->m_ctlhandleoff.y;
 				(*ctrl_iter)->m_Width.offset = pFrame->m_ctlhandlesz.x + pt.x;
-				(*ctrl_iter)->m_Height.offset = pFrame->m_ctlhandlesz.y - pt.y;
+				if ((GetKeyState('X') & 0x8000) ? !theApp.default_tool_snap_to_grid : theApp.default_tool_snap_to_grid)
+				{
+					(*ctrl_iter)->m_y.offset = my::Align((*ctrl_iter)->m_y.offset, theApp.default_grid_lines_every / theApp.default_grid_subdivisions);
+					(*ctrl_iter)->m_Width.offset = my::Align((*ctrl_iter)->m_Width.offset, theApp.default_grid_lines_every / theApp.default_grid_subdivisions);
+				}
+				(*ctrl_iter)->m_Height.offset = pFrame->m_ctlhandlesz.y - (*ctrl_iter)->m_y.offset;
 				(*ctrl_iter)->OnLayout();
 				break;
 			case CMainFrame::ControlHandleLeftMiddle:
 				(*ctrl_iter)->m_x.offset = pt.x - pFrame->m_ctlhandleoff.x;
-				(*ctrl_iter)->m_Width.offset = pFrame->m_ctlhandlesz.x - pt.x;
+				if ((GetKeyState('X') & 0x8000) ? !theApp.default_tool_snap_to_grid : theApp.default_tool_snap_to_grid)
+				{
+					(*ctrl_iter)->m_x.offset = my::Align((*ctrl_iter)->m_x.offset, theApp.default_grid_lines_every / theApp.default_grid_subdivisions);
+				}
+				(*ctrl_iter)->m_Width.offset = pFrame->m_ctlhandlesz.x - (*ctrl_iter)->m_x.offset;
 				(*ctrl_iter)->OnLayout();
 				break;
 			case CMainFrame::ControlHandleCenterMiddle:
 				(*ctrl_iter)->m_x.offset = pt.x - pFrame->m_ctlhandleoff.x;
 				(*ctrl_iter)->m_y.offset = pt.y - pFrame->m_ctlhandleoff.y;
+				if ((GetKeyState('X') & 0x8000) ? !theApp.default_tool_snap_to_grid : theApp.default_tool_snap_to_grid)
+				{
+					(*ctrl_iter)->m_x.offset = my::Align((*ctrl_iter)->m_x.offset, theApp.default_grid_lines_every / theApp.default_grid_subdivisions);
+					(*ctrl_iter)->m_y.offset = my::Align((*ctrl_iter)->m_y.offset, theApp.default_grid_lines_every / theApp.default_grid_subdivisions);
+				}
 				break;
 			case CMainFrame::ControlHandleRightMiddle:
 				(*ctrl_iter)->m_Width.offset = pFrame->m_ctlhandlesz.x + pt.x;
+				if ((GetKeyState('X') & 0x8000) ? !theApp.default_tool_snap_to_grid : theApp.default_tool_snap_to_grid)
+				{
+					(*ctrl_iter)->m_Width.offset = my::Align((*ctrl_iter)->m_Width.offset, theApp.default_grid_lines_every / theApp.default_grid_subdivisions);
+				}
 				(*ctrl_iter)->OnLayout();
 				break;
 			case CMainFrame::ControlHandleLeftBottom:
 				(*ctrl_iter)->m_x.offset = pt.x - pFrame->m_ctlhandleoff.x;
-				(*ctrl_iter)->m_Width.offset = pFrame->m_ctlhandlesz.x - pt.x;
 				(*ctrl_iter)->m_Height.offset = pFrame->m_ctlhandlesz.y + pt.y;
+				if ((GetKeyState('X') & 0x8000) ? !theApp.default_tool_snap_to_grid : theApp.default_tool_snap_to_grid)
+				{
+					(*ctrl_iter)->m_x.offset = my::Align((*ctrl_iter)->m_x.offset, theApp.default_grid_lines_every / theApp.default_grid_subdivisions);
+					(*ctrl_iter)->m_Height.offset = my::Align((*ctrl_iter)->m_Height.offset, theApp.default_grid_lines_every / theApp.default_grid_subdivisions);
+				}
+				(*ctrl_iter)->m_Width.offset = pFrame->m_ctlhandlesz.x - (*ctrl_iter)->m_x.offset;
 				(*ctrl_iter)->OnLayout();
 				break;
 			case CMainFrame::ControlHandleCenterBottom:
 				(*ctrl_iter)->m_Height.offset = pFrame->m_ctlhandlesz.y + pt.y;
+				if ((GetKeyState('X') & 0x8000) ? !theApp.default_tool_snap_to_grid : theApp.default_tool_snap_to_grid)
+				{
+					(*ctrl_iter)->m_Height.offset = my::Align((*ctrl_iter)->m_Height.offset, theApp.default_grid_lines_every / theApp.default_grid_subdivisions);
+				}
 				(*ctrl_iter)->OnLayout();
 				break;
 			case CMainFrame::ControlHandleRightBottom:
 				(*ctrl_iter)->m_Width.offset = pFrame->m_ctlhandlesz.x + pt.x;
 				(*ctrl_iter)->m_Height.offset = pFrame->m_ctlhandlesz.y + pt.y;
+				if ((GetKeyState('X') & 0x8000) ? !theApp.default_tool_snap_to_grid : theApp.default_tool_snap_to_grid)
+				{
+					(*ctrl_iter)->m_Width.offset = my::Align((*ctrl_iter)->m_Width.offset, theApp.default_grid_lines_every / theApp.default_grid_subdivisions);
+					(*ctrl_iter)->m_Height.offset = my::Align((*ctrl_iter)->m_Height.offset, theApp.default_grid_lines_every / theApp.default_grid_subdivisions);
+				}
 				(*ctrl_iter)->OnLayout();
 				break;
 			}
