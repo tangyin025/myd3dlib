@@ -56,6 +56,7 @@ public:
 	ControlList m_selctls;
 	typedef boost::intrusive::list<Actor, boost::intrusive::base_hook<boost::intrusive::list_base_hook<boost::intrusive::tag<ViewedActorTag> > > > ViewedActorSet;
 	ViewedActorSet m_ViewedActors;
+	bool m_ctlcaptured;
 	enum ControlHandleType
 	{
 		ControlHandleNone = 0,

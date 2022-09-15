@@ -498,50 +498,50 @@ void CChildView::RenderSelectedControl(IDirect3DDevice9 * pd3dDevice, my::Contro
 	ASSERT(dlg);
 
 	Vertex v[] = {
-		{ctl->m_Rect.l + (subhandle ? ctl_handle_size : 0), ctl->m_Rect.t, 0, color},
-		{ctl->m_Rect.r - (subhandle ? ctl_handle_size : 0), ctl->m_Rect.t, 0, color},
-		{ctl->m_Rect.r, ctl->m_Rect.t + (subhandle ? ctl_handle_size : 0), 0, color},
-		{ctl->m_Rect.r, ctl->m_Rect.b - (subhandle ? ctl_handle_size : 0), 0, color},
-		{ctl->m_Rect.r - (subhandle ? ctl_handle_size : 0), ctl->m_Rect.b, 0, color},
-		{ctl->m_Rect.l + (subhandle ? ctl_handle_size : 0), ctl->m_Rect.b, 0, color},
-		{ctl->m_Rect.l, ctl->m_Rect.b - (subhandle ? ctl_handle_size : 0), 0, color},
-		{ctl->m_Rect.l, ctl->m_Rect.t + (subhandle ? ctl_handle_size : 0), 0, color},
+		{ctl->m_Rect.l + (subhandle ? ctl_handle_size : 0), ctl->m_Rect.t, 0, subhandle && pFrame->m_ctlhandle == CMainFrame::ControlHandleCenterTop ? D3DCOLOR_ARGB(255,255,255,0) : color},
+		{ctl->m_Rect.r - (subhandle ? ctl_handle_size : 0), ctl->m_Rect.t, 0, subhandle && pFrame->m_ctlhandle == CMainFrame::ControlHandleCenterTop ? D3DCOLOR_ARGB(255,255,255,0) : color},
+		{ctl->m_Rect.r, ctl->m_Rect.t + (subhandle ? ctl_handle_size : 0), 0, subhandle && pFrame->m_ctlhandle == CMainFrame::ControlHandleRightMiddle ? D3DCOLOR_ARGB(255,255,255,0) : color},
+		{ctl->m_Rect.r, ctl->m_Rect.b - (subhandle ? ctl_handle_size : 0), 0, subhandle && pFrame->m_ctlhandle == CMainFrame::ControlHandleRightMiddle ? D3DCOLOR_ARGB(255,255,255,0) : color},
+		{ctl->m_Rect.r - (subhandle ? ctl_handle_size : 0), ctl->m_Rect.b, 0, subhandle && pFrame->m_ctlhandle == CMainFrame::ControlHandleCenterBottom ? D3DCOLOR_ARGB(255,255,255,0) : color},
+		{ctl->m_Rect.l + (subhandle ? ctl_handle_size : 0), ctl->m_Rect.b, 0, subhandle && pFrame->m_ctlhandle == CMainFrame::ControlHandleCenterBottom ? D3DCOLOR_ARGB(255,255,255,0) : color},
+		{ctl->m_Rect.l, ctl->m_Rect.b - (subhandle ? ctl_handle_size : 0), 0, subhandle && pFrame->m_ctlhandle == CMainFrame::ControlHandleLeftMiddle ? D3DCOLOR_ARGB(255,255,255,0) : color},
+		{ctl->m_Rect.l, ctl->m_Rect.t + (subhandle ? ctl_handle_size : 0), 0, subhandle && pFrame->m_ctlhandle == CMainFrame::ControlHandleLeftMiddle ? D3DCOLOR_ARGB(255,255,255,0) : color},
 
-		{ctl->m_Rect.l - ctl_handle_size, ctl->m_Rect.t - ctl_handle_size, 0, color},
-		{ctl->m_Rect.l + ctl_handle_size, ctl->m_Rect.t - ctl_handle_size, 0, color},
-		{ctl->m_Rect.l + ctl_handle_size, ctl->m_Rect.t - ctl_handle_size, 0, color},
-		{ctl->m_Rect.l + ctl_handle_size, ctl->m_Rect.t + ctl_handle_size, 0, color},
-		{ctl->m_Rect.l + ctl_handle_size, ctl->m_Rect.t + ctl_handle_size, 0, color},
-		{ctl->m_Rect.l - ctl_handle_size, ctl->m_Rect.t + ctl_handle_size, 0, color},
-		{ctl->m_Rect.l - ctl_handle_size, ctl->m_Rect.t + ctl_handle_size, 0, color},
-		{ctl->m_Rect.l - ctl_handle_size, ctl->m_Rect.t - ctl_handle_size, 0, color},
+		{ctl->m_Rect.l - ctl_handle_size, ctl->m_Rect.t - ctl_handle_size, 0, subhandle && pFrame->m_ctlhandle == CMainFrame::ControlHandleLeftTop ? D3DCOLOR_ARGB(255,255,255,0) : color},
+		{ctl->m_Rect.l + ctl_handle_size, ctl->m_Rect.t - ctl_handle_size, 0, subhandle && pFrame->m_ctlhandle == CMainFrame::ControlHandleLeftTop ? D3DCOLOR_ARGB(255,255,255,0) : color},
+		{ctl->m_Rect.l + ctl_handle_size, ctl->m_Rect.t - ctl_handle_size, 0, subhandle && pFrame->m_ctlhandle == CMainFrame::ControlHandleLeftTop ? D3DCOLOR_ARGB(255,255,255,0) : color},
+		{ctl->m_Rect.l + ctl_handle_size, ctl->m_Rect.t + ctl_handle_size, 0, subhandle && pFrame->m_ctlhandle == CMainFrame::ControlHandleLeftTop ? D3DCOLOR_ARGB(255,255,255,0) : color},
+		{ctl->m_Rect.l + ctl_handle_size, ctl->m_Rect.t + ctl_handle_size, 0, subhandle && pFrame->m_ctlhandle == CMainFrame::ControlHandleLeftTop ? D3DCOLOR_ARGB(255,255,255,0) : color},
+		{ctl->m_Rect.l - ctl_handle_size, ctl->m_Rect.t + ctl_handle_size, 0, subhandle && pFrame->m_ctlhandle == CMainFrame::ControlHandleLeftTop ? D3DCOLOR_ARGB(255,255,255,0) : color},
+		{ctl->m_Rect.l - ctl_handle_size, ctl->m_Rect.t + ctl_handle_size, 0, subhandle && pFrame->m_ctlhandle == CMainFrame::ControlHandleLeftTop ? D3DCOLOR_ARGB(255,255,255,0) : color},
+		{ctl->m_Rect.l - ctl_handle_size, ctl->m_Rect.t - ctl_handle_size, 0, subhandle && pFrame->m_ctlhandle == CMainFrame::ControlHandleLeftTop ? D3DCOLOR_ARGB(255,255,255,0) : color},
 
-		{ctl->m_Rect.r - ctl_handle_size, ctl->m_Rect.t - ctl_handle_size, 0, color},
-		{ctl->m_Rect.r + ctl_handle_size, ctl->m_Rect.t - ctl_handle_size, 0, color},
-		{ctl->m_Rect.r + ctl_handle_size, ctl->m_Rect.t - ctl_handle_size, 0, color},
-		{ctl->m_Rect.r + ctl_handle_size, ctl->m_Rect.t + ctl_handle_size, 0, color},
-		{ctl->m_Rect.r + ctl_handle_size, ctl->m_Rect.t + ctl_handle_size, 0, color},
-		{ctl->m_Rect.r - ctl_handle_size, ctl->m_Rect.t + ctl_handle_size, 0, color},
-		{ctl->m_Rect.r - ctl_handle_size, ctl->m_Rect.t + ctl_handle_size, 0, color},
-		{ctl->m_Rect.r - ctl_handle_size, ctl->m_Rect.t - ctl_handle_size, 0, color},
+		{ctl->m_Rect.r - ctl_handle_size, ctl->m_Rect.t - ctl_handle_size, 0, subhandle && pFrame->m_ctlhandle == CMainFrame::ControlHandleRightTop ? D3DCOLOR_ARGB(255,255,255,0) : color},
+		{ctl->m_Rect.r + ctl_handle_size, ctl->m_Rect.t - ctl_handle_size, 0, subhandle && pFrame->m_ctlhandle == CMainFrame::ControlHandleRightTop ? D3DCOLOR_ARGB(255,255,255,0) : color},
+		{ctl->m_Rect.r + ctl_handle_size, ctl->m_Rect.t - ctl_handle_size, 0, subhandle && pFrame->m_ctlhandle == CMainFrame::ControlHandleRightTop ? D3DCOLOR_ARGB(255,255,255,0) : color},
+		{ctl->m_Rect.r + ctl_handle_size, ctl->m_Rect.t + ctl_handle_size, 0, subhandle && pFrame->m_ctlhandle == CMainFrame::ControlHandleRightTop ? D3DCOLOR_ARGB(255,255,255,0) : color},
+		{ctl->m_Rect.r + ctl_handle_size, ctl->m_Rect.t + ctl_handle_size, 0, subhandle && pFrame->m_ctlhandle == CMainFrame::ControlHandleRightTop ? D3DCOLOR_ARGB(255,255,255,0) : color},
+		{ctl->m_Rect.r - ctl_handle_size, ctl->m_Rect.t + ctl_handle_size, 0, subhandle && pFrame->m_ctlhandle == CMainFrame::ControlHandleRightTop ? D3DCOLOR_ARGB(255,255,255,0) : color},
+		{ctl->m_Rect.r - ctl_handle_size, ctl->m_Rect.t + ctl_handle_size, 0, subhandle && pFrame->m_ctlhandle == CMainFrame::ControlHandleRightTop ? D3DCOLOR_ARGB(255,255,255,0) : color},
+		{ctl->m_Rect.r - ctl_handle_size, ctl->m_Rect.t - ctl_handle_size, 0, subhandle && pFrame->m_ctlhandle == CMainFrame::ControlHandleRightTop ? D3DCOLOR_ARGB(255,255,255,0) : color},
 
-		{ctl->m_Rect.r - ctl_handle_size, ctl->m_Rect.b - ctl_handle_size, 0, color},
-		{ctl->m_Rect.r + ctl_handle_size, ctl->m_Rect.b - ctl_handle_size, 0, color},
-		{ctl->m_Rect.r + ctl_handle_size, ctl->m_Rect.b - ctl_handle_size, 0, color},
-		{ctl->m_Rect.r + ctl_handle_size, ctl->m_Rect.b + ctl_handle_size, 0, color},
-		{ctl->m_Rect.r + ctl_handle_size, ctl->m_Rect.b + ctl_handle_size, 0, color},
-		{ctl->m_Rect.r - ctl_handle_size, ctl->m_Rect.b + ctl_handle_size, 0, color},
-		{ctl->m_Rect.r - ctl_handle_size, ctl->m_Rect.b + ctl_handle_size, 0, color},
-		{ctl->m_Rect.r - ctl_handle_size, ctl->m_Rect.b - ctl_handle_size, 0, color},
+		{ctl->m_Rect.r - ctl_handle_size, ctl->m_Rect.b - ctl_handle_size, 0, subhandle && pFrame->m_ctlhandle == CMainFrame::ControlHandleRightBottom ? D3DCOLOR_ARGB(255,255,255,0) : color},
+		{ctl->m_Rect.r + ctl_handle_size, ctl->m_Rect.b - ctl_handle_size, 0, subhandle && pFrame->m_ctlhandle == CMainFrame::ControlHandleRightBottom ? D3DCOLOR_ARGB(255,255,255,0) : color},
+		{ctl->m_Rect.r + ctl_handle_size, ctl->m_Rect.b - ctl_handle_size, 0, subhandle && pFrame->m_ctlhandle == CMainFrame::ControlHandleRightBottom ? D3DCOLOR_ARGB(255,255,255,0) : color},
+		{ctl->m_Rect.r + ctl_handle_size, ctl->m_Rect.b + ctl_handle_size, 0, subhandle && pFrame->m_ctlhandle == CMainFrame::ControlHandleRightBottom ? D3DCOLOR_ARGB(255,255,255,0) : color},
+		{ctl->m_Rect.r + ctl_handle_size, ctl->m_Rect.b + ctl_handle_size, 0, subhandle && pFrame->m_ctlhandle == CMainFrame::ControlHandleRightBottom ? D3DCOLOR_ARGB(255,255,255,0) : color},
+		{ctl->m_Rect.r - ctl_handle_size, ctl->m_Rect.b + ctl_handle_size, 0, subhandle && pFrame->m_ctlhandle == CMainFrame::ControlHandleRightBottom ? D3DCOLOR_ARGB(255,255,255,0) : color},
+		{ctl->m_Rect.r - ctl_handle_size, ctl->m_Rect.b + ctl_handle_size, 0, subhandle && pFrame->m_ctlhandle == CMainFrame::ControlHandleRightBottom ? D3DCOLOR_ARGB(255,255,255,0) : color},
+		{ctl->m_Rect.r - ctl_handle_size, ctl->m_Rect.b - ctl_handle_size, 0, subhandle && pFrame->m_ctlhandle == CMainFrame::ControlHandleRightBottom ? D3DCOLOR_ARGB(255,255,255,0) : color},
 
-		{ctl->m_Rect.l - ctl_handle_size, ctl->m_Rect.b - ctl_handle_size, 0, color},
-		{ctl->m_Rect.l + ctl_handle_size, ctl->m_Rect.b - ctl_handle_size, 0, color},
-		{ctl->m_Rect.l + ctl_handle_size, ctl->m_Rect.b - ctl_handle_size, 0, color},
-		{ctl->m_Rect.l + ctl_handle_size, ctl->m_Rect.b + ctl_handle_size, 0, color},
-		{ctl->m_Rect.l + ctl_handle_size, ctl->m_Rect.b + ctl_handle_size, 0, color},
-		{ctl->m_Rect.l - ctl_handle_size, ctl->m_Rect.b + ctl_handle_size, 0, color},
-		{ctl->m_Rect.l - ctl_handle_size, ctl->m_Rect.b + ctl_handle_size, 0, color},
-		{ctl->m_Rect.l - ctl_handle_size, ctl->m_Rect.b - ctl_handle_size, 0, color},
+		{ctl->m_Rect.l - ctl_handle_size, ctl->m_Rect.b - ctl_handle_size, 0, subhandle && pFrame->m_ctlhandle == CMainFrame::ControlHandleLeftBottom ? D3DCOLOR_ARGB(255,255,255,0) : color},
+		{ctl->m_Rect.l + ctl_handle_size, ctl->m_Rect.b - ctl_handle_size, 0, subhandle && pFrame->m_ctlhandle == CMainFrame::ControlHandleLeftBottom ? D3DCOLOR_ARGB(255,255,255,0) : color},
+		{ctl->m_Rect.l + ctl_handle_size, ctl->m_Rect.b - ctl_handle_size, 0, subhandle && pFrame->m_ctlhandle == CMainFrame::ControlHandleLeftBottom ? D3DCOLOR_ARGB(255,255,255,0) : color},
+		{ctl->m_Rect.l + ctl_handle_size, ctl->m_Rect.b + ctl_handle_size, 0, subhandle && pFrame->m_ctlhandle == CMainFrame::ControlHandleLeftBottom ? D3DCOLOR_ARGB(255,255,255,0) : color},
+		{ctl->m_Rect.l + ctl_handle_size, ctl->m_Rect.b + ctl_handle_size, 0, subhandle && pFrame->m_ctlhandle == CMainFrame::ControlHandleLeftBottom ? D3DCOLOR_ARGB(255,255,255,0) : color},
+		{ctl->m_Rect.l - ctl_handle_size, ctl->m_Rect.b + ctl_handle_size, 0, subhandle && pFrame->m_ctlhandle == CMainFrame::ControlHandleLeftBottom ? D3DCOLOR_ARGB(255,255,255,0) : color},
+		{ctl->m_Rect.l - ctl_handle_size, ctl->m_Rect.b + ctl_handle_size, 0, subhandle && pFrame->m_ctlhandle == CMainFrame::ControlHandleLeftBottom ? D3DCOLOR_ARGB(255,255,255,0) : color},
+		{ctl->m_Rect.l - ctl_handle_size, ctl->m_Rect.b - ctl_handle_size, 0, subhandle && pFrame->m_ctlhandle == CMainFrame::ControlHandleLeftBottom ? D3DCOLOR_ARGB(255,255,255,0) : color},
 	};
 
 	V(pd3dDevice->SetTransform(D3DTS_WORLD, (D3DMATRIX *)&dlg->m_World));
@@ -1498,6 +1498,7 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 				pFrame->m_selcmp = NULL;
 				pFrame->m_selchunkid.SetPoint(0, 0);
 				pFrame->m_selinstid = 0;
+				pFrame->m_ctlcaptured = true;
 				pFrame->m_ctlhandle = CMainFrame::ControlHandleLeftTop;
 				pFrame->m_ctlhandleoff.x = pt.x - (*ctrl_iter)->m_x.offset;
 				pFrame->m_ctlhandleoff.y = pt.y - (*ctrl_iter)->m_y.offset;
@@ -1518,6 +1519,7 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 				pFrame->m_selcmp = NULL;
 				pFrame->m_selchunkid.SetPoint(0, 0);
 				pFrame->m_selinstid = 0;
+				pFrame->m_ctlcaptured = true;
 				pFrame->m_ctlhandle = CMainFrame::ControlHandleCenterTop;
 				pFrame->m_ctlhandleoff.y = pt.y - (*ctrl_iter)->m_y.offset;
 				pFrame->m_ctlhandlesz.y = (*ctrl_iter)->m_Height.offset + (*ctrl_iter)->m_y.offset;
@@ -1536,6 +1538,7 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 				pFrame->m_selcmp = NULL;
 				pFrame->m_selchunkid.SetPoint(0, 0);
 				pFrame->m_selinstid = 0;
+				pFrame->m_ctlcaptured = true;
 				pFrame->m_ctlhandle = CMainFrame::ControlHandleRightTop;
 				pFrame->m_ctlhandleoff.y = pt.y - (*ctrl_iter)->m_y.offset;
 				pFrame->m_ctlhandlesz.x = (*ctrl_iter)->m_Width.offset - pt.x;
@@ -1555,6 +1558,7 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 				pFrame->m_selcmp = NULL;
 				pFrame->m_selchunkid.SetPoint(0, 0);
 				pFrame->m_selinstid = 0;
+				pFrame->m_ctlcaptured = true;
 				pFrame->m_ctlhandle = CMainFrame::ControlHandleLeftMiddle;
 				pFrame->m_ctlhandleoff.x = pt.x - (*ctrl_iter)->m_x.offset;
 				pFrame->m_ctlhandlesz.x = (*ctrl_iter)->m_Width.offset + (*ctrl_iter)->m_x.offset;
@@ -1590,6 +1594,7 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 				pFrame->m_selcmp = NULL;
 				pFrame->m_selchunkid.SetPoint(0, 0);
 				pFrame->m_selinstid = 0;
+				pFrame->m_ctlcaptured = true;
 				pFrame->m_ctlhandle = CMainFrame::ControlHandleCenterMiddle;
 				pFrame->m_ctlhandleoff.x = pt.x - (*ctrl_iter)->m_x.offset;
 				pFrame->m_ctlhandleoff.y = pt.y - (*ctrl_iter)->m_y.offset;
@@ -1608,6 +1613,7 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 				pFrame->m_selcmp = NULL;
 				pFrame->m_selchunkid.SetPoint(0, 0);
 				pFrame->m_selinstid = 0;
+				pFrame->m_ctlcaptured = true;
 				pFrame->m_ctlhandle = CMainFrame::ControlHandleRightMiddle;
 				pFrame->m_ctlhandlesz.x = (*ctrl_iter)->m_Width.offset - pt.x;
 				SetCapture();
@@ -1625,6 +1631,7 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 				pFrame->m_selcmp = NULL;
 				pFrame->m_selchunkid.SetPoint(0, 0);
 				pFrame->m_selinstid = 0;
+				pFrame->m_ctlcaptured = true;
 				pFrame->m_ctlhandle = CMainFrame::ControlHandleLeftBottom;
 				pFrame->m_ctlhandleoff.x = pt.x - (*ctrl_iter)->m_x.offset;
 				pFrame->m_ctlhandlesz.x = (*ctrl_iter)->m_Width.offset + (*ctrl_iter)->m_x.offset;
@@ -1644,6 +1651,7 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 				pFrame->m_selcmp = NULL;
 				pFrame->m_selchunkid.SetPoint(0, 0);
 				pFrame->m_selinstid = 0;
+				pFrame->m_ctlcaptured = true;
 				pFrame->m_ctlhandle = CMainFrame::ControlHandleCenterBottom;
 				pFrame->m_ctlhandlesz.y = (*ctrl_iter)->m_Height.offset - pt.y;
 				SetCapture();
@@ -1661,6 +1669,7 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 				pFrame->m_selcmp = NULL;
 				pFrame->m_selchunkid.SetPoint(0, 0);
 				pFrame->m_selinstid = 0;
+				pFrame->m_ctlcaptured = true;
 				pFrame->m_ctlhandle = CMainFrame::ControlHandleRightBottom;
 				pFrame->m_ctlhandlesz.x = (*ctrl_iter)->m_Width.offset - pt.x;
 				pFrame->m_ctlhandlesz.y = (*ctrl_iter)->m_Height.offset - pt.y;
@@ -1912,10 +1921,10 @@ void CChildView::OnLButtonUp(UINT nFlags, CPoint point)
 		return;
 	}
 
-	if (pFrame->m_ctlhandle != CMainFrame::ControlHandleNone)
+	if (pFrame->m_ctlcaptured)
 	{
 		ASSERT(!pFrame->m_selctls.empty());
-		pFrame->m_ctlhandle = CMainFrame::ControlHandleNone;
+		pFrame->m_ctlcaptured = false;
 		ReleaseCapture();
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
@@ -2001,7 +2010,7 @@ void CChildView::OnMouseMove(UINT nFlags, CPoint point)
 		return;
 	}
 
-	if (pFrame->m_ctlhandle != CMainFrame::ControlHandleNone)
+	if (pFrame->m_ctlcaptured)
 	{
 		ASSERT(!pFrame->m_selctls.empty());
 		CMainFrame::ControlList::iterator ctrl_iter = pFrame->m_selctls.begin();
