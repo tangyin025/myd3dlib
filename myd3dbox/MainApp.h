@@ -242,3 +242,5 @@ public:
 };
 
 extern CMainApp theApp;
+
+#define ALIGN_TO_GRID(v) if ((GetKeyState('X') & 0x8000) ? !theApp.default_tool_snap_to_grid : theApp.default_tool_snap_to_grid) (v) = my::Align((v), theApp.default_grid_lines_every / theApp.default_grid_subdivisions);
