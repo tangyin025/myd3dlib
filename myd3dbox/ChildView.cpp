@@ -20,6 +20,8 @@
 
 static const float ctl_handle_size = 3;
 
+#define ALIGN_TO_GRID(v) if ((GetKeyState('X') & 0x8000) ? !theApp.default_tool_snap_to_grid : theApp.default_tool_snap_to_grid) (v) = my::Align((v), theApp.default_grid_lines_every / theApp.default_grid_subdivisions);
+
 // CChildView
 
 IMPLEMENT_DYNCREATE(CChildView, CView)
@@ -77,6 +79,7 @@ CChildView::CChildView()
 	, m_bShowCmpHandle(TRUE)
 	, m_bShowNavigation(TRUE)
 	, m_bCopyActors(FALSE)
+	, m_bDragActors(FALSE)
 	, m_UICamera(D3DXToRadian(theApp.default_fov), 1.333333f, 0.1, 3000.0f)
 	, m_raycmp(NULL)
 	, m_raychunkid(0, 0)
@@ -1475,6 +1478,7 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 			}
 		}
 		m_bCopyActors = (nFlags & MK_SHIFT) ? TRUE : FALSE;
+		m_bDragActors = TRUE;
 		SetCapture();
 		Invalidate();
 		return;
@@ -1938,16 +1942,6 @@ void CChildView::OnLButtonUp(UINT nFlags, CPoint point)
 		CMainFrame::ActorList::iterator sel_iter = pFrame->m_selactors.begin();
 		for (; sel_iter != pFrame->m_selactors.end(); sel_iter++)
 		{
-			switch (pFrame->m_Pivot.m_Mode)
-			{
-			case Pivot::PivotModeMove:
-				(*sel_iter)->m_Position = (*sel_iter)->m_Position + pFrame->m_Pivot.m_Pos - pFrame->m_Pivot.m_DragRot.xyz;
-				break;
-			case Pivot::PivotModeRot:
-				(*sel_iter)->m_World.Decompose((*sel_iter)->m_Scale, (*sel_iter)->m_Rotation, (*sel_iter)->m_Position);
-				break;
-			}
-
 			(*sel_iter)->UpdateOctNode();
 
 			physx::PxRigidBody * body = NULL;
@@ -2117,26 +2111,65 @@ void CChildView::OnMouseMove(UINT nFlags, CPoint point)
 			pFrame->m_selchunkid.SetPoint(0, 0);
 			pFrame->m_selctls.clear();
 		}
+
+		__declspec(thread) static std::vector<my::Bone> selactposes;
+		if (m_bDragActors)
+		{
+			m_bDragActors = FALSE;
+			selactposes.clear();
+			CMainFrame::ActorList::iterator sel_iter = pFrame->m_selactors.begin();
+			for (; sel_iter != pFrame->m_selactors.end(); sel_iter++)
+			{
+				selactposes.push_back(my::Bone((*sel_iter)->m_Position, (*sel_iter)->m_Rotation));
+			}
+		}
+
 		StartPerformanceCount();
+
 		CMainFrame::ActorList::iterator sel_iter = pFrame->m_selactors.begin();
 		for (; sel_iter != pFrame->m_selactors.end(); sel_iter++)
 		{
 			my::Matrix4 trans = my::Matrix4::Identity();
+			const my::Bone& pose = selactposes[std::distance(pFrame->m_selactors.begin(), sel_iter)];
 			switch (pFrame->m_Pivot.m_Mode)
 			{
 			case Pivot::PivotModeMove:
-				(*sel_iter)->m_World = my::Matrix4::Compose((*sel_iter)->m_Scale, (*sel_iter)->m_Rotation, (*sel_iter)->m_Position + pFrame->m_Pivot.m_Pos - pFrame->m_Pivot.m_DragRot.xyz);
+				(*sel_iter)->m_Position = pose.m_position + pFrame->m_Pivot.m_Pos - pFrame->m_Pivot.m_DragRot.xyz;
+				switch (pFrame->m_Pivot.m_DragAxis)
+				{
+				case Pivot::PivotDragAxisX:
+					ALIGN_TO_GRID((*sel_iter)->m_Position.x);
+					break;
+				case Pivot::PivotDragAxisY:
+					ALIGN_TO_GRID((*sel_iter)->m_Position.y);
+					break;
+				case Pivot::PivotDragAxisZ:
+					ALIGN_TO_GRID((*sel_iter)->m_Position.z);
+					break;
+				case Pivot::PivotDragPlanX:
+					ALIGN_TO_GRID((*sel_iter)->m_Position.y);
+					ALIGN_TO_GRID((*sel_iter)->m_Position.z);
+					break;
+				case Pivot::PivotDragPlanY:
+					ALIGN_TO_GRID((*sel_iter)->m_Position.x);
+					ALIGN_TO_GRID((*sel_iter)->m_Position.z);
+					break;
+				case Pivot::PivotDragPlanZ:
+					ALIGN_TO_GRID((*sel_iter)->m_Position.x);
+					ALIGN_TO_GRID((*sel_iter)->m_Position.y);
+					break;
+				}
+				(*sel_iter)->UpdateWorld();
 				break;
 			case Pivot::PivotModeRot:
 				trans = my::Matrix4::AffineTransformation(1,
 					pFrame->m_Pivot.m_Pos, pFrame->m_Pivot.m_Rot.inverse() * pFrame->m_Pivot.m_DragDeltaRot * pFrame->m_Pivot.m_Rot, my::Vector3(0, 0, 0));
 				(*sel_iter)->m_World *= trans;
+				(*sel_iter)->m_World.Decompose((*sel_iter)->m_Scale, (*sel_iter)->m_Rotation, (*sel_iter)->m_Position);
 				break;
 			}
 
-			my::Vector3 Pos, Scale; my::Quaternion Rot;
-			(*sel_iter)->m_World.Decompose(Scale, Rot, Pos);
-			(*sel_iter)->SetPxPoseOrbyPxThread(Pos, Rot, NULL);
+			(*sel_iter)->SetPxPoseOrbyPxThread((*sel_iter)->m_Position, (*sel_iter)->m_Rotation, NULL);
 		}
 		Invalidate();
 		UpdateWindow();

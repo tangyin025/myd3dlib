@@ -39,6 +39,7 @@ public:
 	BOOL m_bShowCmpHandle;
 	BOOL m_bShowNavigation;
 	BOOL m_bCopyActors;
+	BOOL m_bDragActors;
 	boost::shared_ptr<TerrainStream> m_PaintTerrainCaptured;
 	boost::shared_ptr<StaticEmitterStream> m_PaintEmitterCaptured;
 protected:

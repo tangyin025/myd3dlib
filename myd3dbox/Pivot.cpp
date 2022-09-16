@@ -363,35 +363,26 @@ bool Pivot::OnMoveControllerMouseMove(const my::Ray & ray, float Scale)
 		case PivotDragAxisX:
 			m_DragDeltaPos = Vector3(pt.x - m_DragPt.x, 0, 0);
 			m_Pos = m_DragRot.xyz + m_DragDeltaPos;
-			ALIGN_TO_GRID(m_Pos.x);
 			return true;
 		case PivotDragAxisY:
 			m_DragDeltaPos = Vector3(0, pt.y - m_DragPt.y, 0);
 			m_Pos = m_DragRot.xyz + m_DragDeltaPos;
-			ALIGN_TO_GRID(m_Pos.y);
 			return true;
 		case PivotDragAxisZ:
 			m_DragDeltaPos = Vector3(0, 0, pt.z - m_DragPt.z);
 			m_Pos = m_DragRot.xyz + m_DragDeltaPos;
-			ALIGN_TO_GRID(m_Pos.z);
 			return true;
 		case PivotDragPlanX:
 			m_DragDeltaPos = Vector3(0, pt.y - m_DragPt.y, pt.z - m_DragPt.z);
 			m_Pos = m_DragRot.xyz + m_DragDeltaPos;
-			ALIGN_TO_GRID(m_Pos.y);
-			ALIGN_TO_GRID(m_Pos.z);
 			return true;
 		case PivotDragPlanY:
 			m_DragDeltaPos = Vector3(pt.x - m_DragPt.x, 0, pt.z - m_DragPt.z);
 			m_Pos = m_DragRot.xyz + m_DragDeltaPos;
-			ALIGN_TO_GRID(m_Pos.x);
-			ALIGN_TO_GRID(m_Pos.z);
 			return true;
 		case PivotDragPlanZ:
 			m_DragDeltaPos = Vector3(pt.x - m_DragPt.x, pt.y - m_DragPt.y, 0);
 			m_Pos = m_DragRot.xyz + m_DragDeltaPos;
-			ALIGN_TO_GRID(m_Pos.x);
-			ALIGN_TO_GRID(m_Pos.y);
 			return true;
 		}
 	}
