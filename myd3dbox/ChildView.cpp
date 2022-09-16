@@ -2156,27 +2156,35 @@ void CChildView::OnMouseMove(UINT nFlags, CPoint point)
 			switch (pFrame->m_Pivot.m_Mode)
 			{
 			case Pivot::PivotModeMove:
-				(*sel_iter)->m_Position = pose.m_position + pFrame->m_Pivot.m_Pos - pFrame->m_Pivot.m_DragRot.xyz;
 				switch (pFrame->m_Pivot.m_DragAxis)
 				{
 				case Pivot::PivotDragAxisX:
+					(*sel_iter)->m_Position.x = pose.m_position.x + pFrame->m_Pivot.m_Pos.x - pFrame->m_Pivot.m_DragRot.x;
 					ALIGN_TO_GRID((*sel_iter)->m_Position.x);
 					break;
 				case Pivot::PivotDragAxisY:
+					(*sel_iter)->m_Position.y = pose.m_position.y + pFrame->m_Pivot.m_Pos.y - pFrame->m_Pivot.m_DragRot.y;
 					ALIGN_TO_GRID((*sel_iter)->m_Position.y);
 					break;
 				case Pivot::PivotDragAxisZ:
+					(*sel_iter)->m_Position.z = pose.m_position.z + pFrame->m_Pivot.m_Pos.z - pFrame->m_Pivot.m_DragRot.z;
 					ALIGN_TO_GRID((*sel_iter)->m_Position.z);
 					break;
 				case Pivot::PivotDragPlanX:
+					(*sel_iter)->m_Position.y = pose.m_position.y + pFrame->m_Pivot.m_Pos.y - pFrame->m_Pivot.m_DragRot.y;
+					(*sel_iter)->m_Position.z = pose.m_position.z + pFrame->m_Pivot.m_Pos.z - pFrame->m_Pivot.m_DragRot.z;
 					ALIGN_TO_GRID((*sel_iter)->m_Position.y);
 					ALIGN_TO_GRID((*sel_iter)->m_Position.z);
 					break;
 				case Pivot::PivotDragPlanY:
+					(*sel_iter)->m_Position.x = pose.m_position.x + pFrame->m_Pivot.m_Pos.x - pFrame->m_Pivot.m_DragRot.x;
+					(*sel_iter)->m_Position.z = pose.m_position.z + pFrame->m_Pivot.m_Pos.z - pFrame->m_Pivot.m_DragRot.z;
 					ALIGN_TO_GRID((*sel_iter)->m_Position.x);
 					ALIGN_TO_GRID((*sel_iter)->m_Position.z);
 					break;
 				case Pivot::PivotDragPlanZ:
+					(*sel_iter)->m_Position.x = pose.m_position.x + pFrame->m_Pivot.m_Pos.x - pFrame->m_Pivot.m_DragRot.x;
+					(*sel_iter)->m_Position.y = pose.m_position.y + pFrame->m_Pivot.m_Pos.y - pFrame->m_Pivot.m_DragRot.y;
 					ALIGN_TO_GRID((*sel_iter)->m_Position.x);
 					ALIGN_TO_GRID((*sel_iter)->m_Position.y);
 					break;
