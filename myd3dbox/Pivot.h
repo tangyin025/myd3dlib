@@ -36,7 +36,7 @@ public:
 
 	my::Vector3 m_DragDeltaPos;
 
-	my::Quaternion m_DragDeltaRot;
+	my::Vector3 m_DragDeltaRot;
 
 	bool m_Captured;
 

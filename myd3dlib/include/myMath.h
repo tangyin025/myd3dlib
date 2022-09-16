@@ -741,16 +741,11 @@ namespace my
 			return Vector3(length, asinf(y / length), atan2f(z, x));
 		}
 
-		float angle(const Vector3 & rhs) const
-		{
-			return acosf(cosTheta(rhs));
-		}
-
 		float cosTheta(const Vector3 & rhs) const
 		{
 			float determinantSq = magnitudeSq() * rhs.magnitudeSq(); // |v0|*|v1|*Cos(Angle)
 
-			_ASSERT(determinantSq > EPSILON_E12 * EPSILON_E12);
+			_ASSERT(determinantSq != 0);
 
 			return Min(dot(rhs) / sqrtf(determinantSq), 1.0f);
 		}
@@ -758,9 +753,24 @@ namespace my
 		//float sinTheta(const Vector3 & rhs) const
 		//{
 		//	float determinantSq = magnitudeSq() * rhs.magnitudeSq(); // |v0|*|v1|*Sin(Angle)
+
 		//	_ASSERT(determinantSq != 0);
+
 		//	return sqrtf(cross(rhs).magnitudeSq() / determinantSq);
 		//}
+
+		float angle(const Vector3 & rhs) const
+		{
+			return acosf(cosTheta(rhs));
+		}
+
+		float signedAngle(const Vector3 & rhs, const Vector3 & axis) const
+		{
+			_ASSERT(IS_NORMALIZED(axis));
+
+			// ! https://stackoverflow.com/questions/5188561/signed-angle-between-two-3d-vectors-with-same-origin-within-the-same-plane
+			return atan2f(cross(rhs).dot(axis), dot(rhs));
+		}
 
 		static float Cosine(float a, float b, float c)
 		{

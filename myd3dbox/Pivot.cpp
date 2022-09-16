@@ -24,7 +24,7 @@ Pivot::Pivot(void)
 	, m_DragRot(Quaternion::Identity())
 	, m_DragPlane(Plane::NormalDistance(Vector3(1, 0, 0), 0))
 	, m_DragDeltaPos(0, 0, 0)
-	, m_DragDeltaRot(Quaternion::Identity())
+	, m_DragDeltaRot(0, 0, 0)
 {
 }
 
@@ -280,7 +280,7 @@ bool Pivot::OnRotControllerLButtonDown(const my::Ray & ray, float Scale)
 			m_DragAxis = PivotDragAxisX;
 			m_DragPt = k;
 			m_DragRot = m_Rot;
-			m_DragDeltaRot = Quaternion::Identity();
+			m_DragDeltaRot = Vector3(0, 0, 0);
 			m_Captured = true;
 			return true;
 		}
@@ -289,7 +289,7 @@ bool Pivot::OnRotControllerLButtonDown(const my::Ray & ray, float Scale)
 			m_DragAxis = PivotDragAxisY;
 			m_DragPt = k;
 			m_DragRot = m_Rot;
-			m_DragDeltaRot = Quaternion::Identity();
+			m_DragDeltaRot = Vector3(0, 0, 0);
 			m_Captured = true;
 			return true;
 		}
@@ -298,7 +298,7 @@ bool Pivot::OnRotControllerLButtonDown(const my::Ray & ray, float Scale)
 			m_DragAxis = PivotDragAxisZ;
 			m_DragPt = k;
 			m_DragRot = m_Rot;
-			m_DragDeltaRot = Quaternion::Identity();
+			m_DragDeltaRot = Vector3(0, 0, 0);
 			m_Captured = true;
 			return true;
 		}
@@ -376,20 +376,17 @@ bool Pivot::OnRotControllerMouseMove(const my::Ray & ray, float Scale)
     switch(m_DragAxis)
     {
     case PivotDragAxisX:
-		rot = Quaternion::RotationFromTo(Vector3(0, m_DragPt.y, m_DragPt.z).normalize(), Vector3(0, k.y, k.z).normalize(), Vector3(1, 0, 0)) * m_DragRot;
-		m_DragDeltaRot = rot / m_Rot;
-		m_Rot = rot;
+		m_DragDeltaRot.x = Vector3(0, m_DragPt.y, m_DragPt.z).signedAngle(Vector3(0, k.y, k.z), Vector3(1, 0, 0));
+		m_Rot = Quaternion::RotationEulerAngles(m_DragDeltaRot.x, 0, 0) * m_DragRot;
         return true;
     case PivotDragAxisY:
-		rot = Quaternion::RotationFromTo(Vector3(m_DragPt.x, 0, m_DragPt.z).normalize(), Vector3(k.x, 0, k.z).normalize(), Vector3(0, 1, 0)) * m_DragRot;
-		m_DragDeltaRot = rot / m_Rot;
-		m_Rot = rot;
+		m_DragDeltaRot.y = Vector3(m_DragPt.x, 0, m_DragPt.z).signedAngle(Vector3(k.x, 0, k.z), Vector3(0, 1, 0));
+		m_Rot = Quaternion::RotationEulerAngles(0, m_DragDeltaRot.y, 0) * m_DragRot;
 		return true;
     case PivotDragAxisZ:
-		rot = Quaternion::RotationFromTo(Vector3(m_DragPt.x, m_DragPt.y, 0).normalize(), Vector3(k.x, k.y, 0).normalize(), Vector3(0, 0, 1)) * m_DragRot;
-		m_DragDeltaRot = rot / m_Rot;
-		m_Rot = rot;
-        return true;
+		m_DragDeltaRot.z = Vector3(m_DragPt.x, m_DragPt.y, 0).signedAngle(Vector3(k.x, k.y, 0), Vector3(0, 0, 1));
+		m_Rot = Quaternion::RotationEulerAngles(0, 0, m_DragDeltaRot.z) * m_DragRot;
+		return true;
     }
     return false;
 }
