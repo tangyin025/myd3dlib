@@ -571,6 +571,13 @@ void CChildView::RenderSelectedControl(IDirect3DDevice9 * pd3dDevice, my::Contro
 	V(pd3dDevice->SetTexture(0, NULL));
 	V(pd3dDevice->SetFVF(D3DFVF_XYZ | D3DFVF_DIFFUSE));
 	V(pd3dDevice->DrawPrimitiveUP(D3DPT_LINELIST, subhandle ? _countof(v) / 2 : 4, v, sizeof(v[0])));
+
+	if (subhandle && pFrame->m_ctlhandle != CMainFrame::ControlHandleNone)
+	{
+		wchar_t buff[256];
+		swprintf_s(buff, _countof(buff), L"%f, %f, %f, %f", ctl->m_Rect.l, ctl->m_Rect.t, ctl->m_Rect.Width(), ctl->m_Rect.Height());
+		theApp.m_UIRender->PushString(my::Rectangle::LeftTop(floorf(ctl->m_Rect.l), floorf(ctl->m_Rect.t), 1, 1), buff, D3DCOLOR_ARGB(255, 255, 0, 255), my::Font::AlignLeftTop, theApp.m_Font.get());
+	}
 }
 
 void CChildView::StartPerformanceCount(void)
