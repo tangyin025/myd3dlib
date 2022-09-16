@@ -20,8 +20,6 @@
 
 static const float ctl_handle_size = 3;
 
-#define ALIGN_TO_GRID(v) if ((GetKeyState('X') & 0x8000) ? !theApp.default_tool_snap_to_grid : theApp.default_tool_snap_to_grid) (v) = my::Align((v), theApp.default_grid_lines_every / theApp.default_grid_subdivisions);
-
 // CChildView
 
 IMPLEMENT_DYNCREATE(CChildView, CView)
@@ -395,6 +393,28 @@ void CChildView::RenderSelectedActor(IDirect3DDevice9 * pd3dDevice, Actor * acto
 	if (pt.z > 0.0f && pt.z < 1.0f)
 	{
 		theApp.m_UIRender->PushString(my::Rectangle::RightBottom(floorf(pt.x), floorf(pt.y), 1, 1), ms2ts(actor->GetName()).c_str(), D3DCOLOR_ARGB(255, 255, 255, 0), my::Font::AlignRightBottom, theApp.m_Font.get());
+
+		if (pFrame->m_Pivot.m_DragAxis != Pivot::PivotDragNone)
+		{
+			switch (pFrame->m_Pivot.m_Mode)
+			{
+			case Pivot::PivotModeMove:
+			{
+				wchar_t buff[256];
+				swprintf_s(buff, _countof(buff), L"%f, %f, %f", actor->m_Position.x, actor->m_Position.y, actor->m_Position.z);
+				theApp.m_UIRender->PushString(my::Rectangle::LeftTop(floorf(pt.x), floorf(pt.y), 1, 1), buff, D3DCOLOR_ARGB(255, 255, 0, 255), my::Font::AlignLeftTop, theApp.m_Font.get());
+				break;
+			}
+			case Pivot::PivotModeRot:
+			{
+				my::Vector3 angle = actor->m_Rotation.toEulerAngles();
+				wchar_t buff[256];
+				swprintf_s(buff, _countof(buff), L"%f, %f, %f", D3DXToDegree(angle.x), D3DXToDegree(angle.y), D3DXToDegree(angle.z));
+				theApp.m_UIRender->PushString(my::Rectangle::LeftTop(floorf(pt.x), floorf(pt.y), 1, 1), buff, D3DCOLOR_ARGB(255, 255, 0, 255), my::Font::AlignLeftTop, theApp.m_Font.get());
+				break;
+			}
+			}
+		}
 	}
 
 	Actor::ActorList::iterator att_iter = actor->m_Attaches.begin();
@@ -1982,6 +2002,8 @@ void CChildView::OnLButtonDblClk(UINT nFlags, CPoint point)
 
 	__super::OnLButtonDblClk(nFlags, point);
 }
+
+#define ALIGN_TO_GRID(v) if ((GetKeyState('X') & 0x8000) ? !theApp.default_tool_snap_to_grid : theApp.default_tool_snap_to_grid) (v) = my::Align((v), theApp.default_grid_lines_every / theApp.default_grid_subdivisions);
 
 void CChildView::OnMouseMove(UINT nFlags, CPoint point)
 {
