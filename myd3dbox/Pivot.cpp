@@ -237,6 +237,7 @@ bool Pivot::OnMoveControllerLButtonDown(const my::Ray & ray, float Scale)
 	float minT = FLT_MAX;
 	m_DragAxis = PivotDragNone;
 	m_DragRot.xyz = m_Pos;
+	m_DragDeltaPos = Vector3(0, 0, 0);
 	for (unsigned int i = 0; i < _countof(trans); i++)
 	{
 		const Ray local_ray = ray.transform(trans[i]);
@@ -310,6 +311,7 @@ bool Pivot::OnRotControllerLButtonDown(const my::Ray & ray, float Scale)
 			m_DragAxis = PivotDragAxisX;
 			m_DragPt = k;
 			m_DragRot = m_Rot;
+			m_DragDeltaRot = Quaternion::Identity();
 			m_Captured = true;
 			return true;
 		}
@@ -318,6 +320,7 @@ bool Pivot::OnRotControllerLButtonDown(const my::Ray & ray, float Scale)
 			m_DragAxis = PivotDragAxisY;
 			m_DragPt = k;
 			m_DragRot = m_Rot;
+			m_DragDeltaRot = Quaternion::Identity();
 			m_Captured = true;
 			return true;
 		}
@@ -326,6 +329,7 @@ bool Pivot::OnRotControllerLButtonDown(const my::Ray & ray, float Scale)
 			m_DragAxis = PivotDragAxisZ;
 			m_DragPt = k;
 			m_DragRot = m_Rot;
+			m_DragDeltaRot = Quaternion::Identity();
 			m_Captured = true;
 			return true;
 		}
@@ -441,8 +445,6 @@ bool Pivot::OnLButtonUp(const my::Ray & ray)
 	case PivotDragPlanY:
 	case PivotDragPlanZ:
 		m_Captured = false;
-		m_DragDeltaPos = Vector3(0,0,0);
-		m_DragDeltaRot = Quaternion::Identity();
 		return true;
 	}
 	return false;

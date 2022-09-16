@@ -1938,6 +1938,16 @@ void CChildView::OnLButtonUp(UINT nFlags, CPoint point)
 		CMainFrame::ActorList::iterator sel_iter = pFrame->m_selactors.begin();
 		for (; sel_iter != pFrame->m_selactors.end(); sel_iter++)
 		{
+			switch (pFrame->m_Pivot.m_Mode)
+			{
+			case Pivot::PivotModeMove:
+				(*sel_iter)->m_Position = (*sel_iter)->m_Position + pFrame->m_Pivot.m_Pos - pFrame->m_Pivot.m_DragRot.xyz;
+				break;
+			case Pivot::PivotModeRot:
+				(*sel_iter)->m_World.Decompose((*sel_iter)->m_Scale, (*sel_iter)->m_Rotation, (*sel_iter)->m_Position);
+				break;
+			}
+
 			(*sel_iter)->UpdateOctNode();
 
 			physx::PxRigidBody * body = NULL;
@@ -2115,18 +2125,18 @@ void CChildView::OnMouseMove(UINT nFlags, CPoint point)
 			switch (pFrame->m_Pivot.m_Mode)
 			{
 			case Pivot::PivotModeMove:
-				(*sel_iter)->m_Position = pFrame->m_Pivot.m_Pos;
-				(*sel_iter)->UpdateWorld();
+				(*sel_iter)->m_World = my::Matrix4::Compose((*sel_iter)->m_Scale, (*sel_iter)->m_Rotation, (*sel_iter)->m_Position + pFrame->m_Pivot.m_Pos - pFrame->m_Pivot.m_DragRot.xyz);
 				break;
 			case Pivot::PivotModeRot:
 				trans = my::Matrix4::AffineTransformation(1,
 					pFrame->m_Pivot.m_Pos, pFrame->m_Pivot.m_Rot.inverse() * pFrame->m_Pivot.m_DragDeltaRot * pFrame->m_Pivot.m_Rot, my::Vector3(0, 0, 0));
 				(*sel_iter)->m_World *= trans;
-				(*sel_iter)->m_World.Decompose((*sel_iter)->m_Scale, (*sel_iter)->m_Rotation, (*sel_iter)->m_Position);
 				break;
 			}
 
-			(*sel_iter)->SetPxPoseOrbyPxThread((*sel_iter)->m_Position, (*sel_iter)->m_Rotation, NULL);
+			my::Vector3 Pos, Scale; my::Quaternion Rot;
+			(*sel_iter)->m_World.Decompose(Scale, Rot, Pos);
+			(*sel_iter)->SetPxPoseOrbyPxThread(Pos, Rot, NULL);
 		}
 		Invalidate();
 		UpdateWindow();
