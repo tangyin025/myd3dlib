@@ -2199,11 +2199,11 @@ void CChildView::OnMouseMove(UINT nFlags, CPoint point)
 				(*sel_iter)->UpdateWorld();
 				break;
 			case Pivot::PivotModeRot:
-				trans = my::Matrix4::AffineTransformation(1, pFrame->m_Pivot.m_Pos, pFrame->m_Pivot.m_Rot.inverse() * my::Quaternion::RotationEulerAngles(
-					pFrame->m_Pivot.m_DragDeltaRot.x, pFrame->m_Pivot.m_DragDeltaRot.y, pFrame->m_Pivot.m_DragDeltaRot.z) * pFrame->m_Pivot.m_Rot, my::Vector3(0, 0, 0));
+				trans = my::Matrix4::AffineTransformation(1, pFrame->m_Pivot.m_Pos, pFrame->m_Pivot.m_DragRot.inverse() * my::Quaternion::RotationEulerAngles(
+					pFrame->m_Pivot.m_DragDeltaRot.x, pFrame->m_Pivot.m_DragDeltaRot.y, pFrame->m_Pivot.m_DragDeltaRot.z) * pFrame->m_Pivot.m_DragRot, my::Vector3(0, 0, 0));
 				(*sel_iter)->m_Position = pose.m_position.transformCoord(trans);
-				(*sel_iter)->m_Rotation = pose.m_rotation * pFrame->m_Pivot.m_Rot.inverse() * my::Quaternion::RotationEulerAngles(
-					pFrame->m_Pivot.m_DragDeltaRot.x, pFrame->m_Pivot.m_DragDeltaRot.y, pFrame->m_Pivot.m_DragDeltaRot.z) * pFrame->m_Pivot.m_Rot;
+				(*sel_iter)->m_Rotation = pose.m_rotation * pFrame->m_Pivot.m_DragRot.inverse() * my::Quaternion::RotationEulerAngles(
+					pFrame->m_Pivot.m_DragDeltaRot.x, pFrame->m_Pivot.m_DragDeltaRot.y, pFrame->m_Pivot.m_DragDeltaRot.z) * pFrame->m_Pivot.m_DragRot;
 				(*sel_iter)->UpdateWorld();
 				break;
 			}

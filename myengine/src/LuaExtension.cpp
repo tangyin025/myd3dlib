@@ -913,8 +913,9 @@ void LuaContext::Init(void)
 			.def("transformNormalTranspose", &my::Vector3::transformNormalTranspose)
 			.def("transform", (my::Vector3(my::Vector3::*)(const my::Quaternion &) const)&my::Vector3::transform)
 			.property("Polar", &my::Vector3::cartesianToPolar)
-			.def("angle", &my::Vector3::angle)
 			.def("cosTheta", &my::Vector3::cosTheta)
+			.def("angle", &my::Vector3::angle)
+			.def("signedAngle", &my::Vector3::signedAngle)
 			.property("xz", &my::Vector3::xz)
 			.scope
 			[
