@@ -2010,7 +2010,9 @@ void CChildView::OnLButtonDblClk(UINT nFlags, CPoint point)
 	__super::OnLButtonDblClk(nFlags, point);
 }
 
-#define ALIGN_TO_GRID(v) if ((GetKeyState('X') & 0x8000) ? !theApp.default_tool_snap_to_grid : theApp.default_tool_snap_to_grid) (v) = my::Align((v), theApp.default_grid_lines_every / theApp.default_grid_subdivisions);
+#define ALIGN_TO_VALUE(v, a)  if ((GetKeyState('X') & 0x8000) ? !theApp.default_tool_snap_to_grid : theApp.default_tool_snap_to_grid) (v) = my::Align((v), (a));
+
+#define ALIGN_TO_GRID(v) ALIGN_TO_VALUE(v, theApp.default_grid_lines_every / theApp.default_grid_subdivisions);
 
 void CChildView::OnMouseMove(UINT nFlags, CPoint point)
 {
@@ -2158,7 +2160,6 @@ void CChildView::OnMouseMove(UINT nFlags, CPoint point)
 		CMainFrame::ActorList::iterator sel_iter = pFrame->m_selactors.begin();
 		for (; sel_iter != pFrame->m_selactors.end(); sel_iter++)
 		{
-			my::Matrix4 trans = my::Matrix4::Identity();
 			const my::Bone& pose = selactposes[std::distance(pFrame->m_selactors.begin(), sel_iter)];
 			switch (pFrame->m_Pivot.m_Mode)
 			{
@@ -2199,13 +2200,26 @@ void CChildView::OnMouseMove(UINT nFlags, CPoint point)
 				(*sel_iter)->UpdateWorld();
 				break;
 			case Pivot::PivotModeRot:
-				trans = my::Matrix4::AffineTransformation(1, pFrame->m_Pivot.m_Pos, pFrame->m_Pivot.m_DragRot.inverse() * my::Quaternion::RotationEulerAngles(
-					pFrame->m_Pivot.m_DragDeltaRot.x, pFrame->m_Pivot.m_DragDeltaRot.y, pFrame->m_Pivot.m_DragDeltaRot.z) * pFrame->m_Pivot.m_DragRot, my::Vector3(0, 0, 0));
-				(*sel_iter)->m_Position = pose.m_position.transformCoord(trans);
-				(*sel_iter)->m_Rotation = pose.m_rotation * pFrame->m_Pivot.m_DragRot.inverse() * my::Quaternion::RotationEulerAngles(
-					pFrame->m_Pivot.m_DragDeltaRot.x, pFrame->m_Pivot.m_DragDeltaRot.y, pFrame->m_Pivot.m_DragDeltaRot.z) * pFrame->m_Pivot.m_DragRot;
+			{
+				my::Vector3 delta_eular = pFrame->m_Pivot.m_DragDeltaRot;
+				switch (pFrame->m_Pivot.m_DragAxis)
+				{
+				case Pivot::PivotDragAxisX:
+					ALIGN_TO_VALUE(delta_eular.x, D3DXToRadian(10));
+					break;
+				case Pivot::PivotDragAxisY:
+					ALIGN_TO_VALUE(delta_eular.y, D3DXToRadian(10));
+					break;
+				case Pivot::PivotDragAxisZ:
+					ALIGN_TO_VALUE(delta_eular.z, D3DXToRadian(10));
+					break;
+				}
+				my::Quaternion rot = pFrame->m_Pivot.m_DragRot.inverse() * my::Quaternion::RotationEulerAngles(delta_eular.x, delta_eular.y, delta_eular.z) * pFrame->m_Pivot.m_DragRot;
+				(*sel_iter)->m_Position = pose.m_position.transformCoord(my::Matrix4::AffineTransformation(1, pFrame->m_Pivot.m_Pos, rot, my::Vector3(0, 0, 0)));
+				(*sel_iter)->m_Rotation = pose.m_rotation * rot;
 				(*sel_iter)->UpdateWorld();
 				break;
+			}
 			}
 
 			(*sel_iter)->SetPxPoseOrbyPxThread((*sel_iter)->m_Position, (*sel_iter)->m_Rotation, NULL);
