@@ -774,7 +774,6 @@ void ResourceMgr::OnIORequestReady(const std::string & key, IORequestPtr request
 
 	//if(!request->m_res)
 	//{
-		// ! havent handled exception
 		try
 		{
 			_ASSERT(D3DContext::getSingleton().m_DeviceObjectsCreated);
@@ -785,7 +784,6 @@ void ResourceMgr::OnIORequestReady(const std::string & key, IORequestPtr request
 
 			if (request->m_res && D3DContext::getSingleton().m_DeviceObjectsReset)
 			{
-
 				CriticalSectionLock lock(D3DContext::getSingleton().m_d3dDeviceSec);
 				request->m_res->OnResetDevice();
 				lock.Unlock();
@@ -796,10 +794,6 @@ void ResourceMgr::OnIORequestReady(const std::string & key, IORequestPtr request
 		catch(const Exception & e)
 		{
 			D3DContext::getSingleton().m_EventLog(e.what().c_str());
-		}
-		catch(const std::exception & e)
-		{
-			D3DContext::getSingleton().m_EventLog(str_printf("%s error: %s", key.c_str(), e.what()).c_str());
 		}
 	//}
 
@@ -815,7 +809,14 @@ void ResourceMgr::OnIORequestCallback(IORequestPtr request)
 		{
 			_ASSERT(*callback_iter);
 
-			(*callback_iter)(request->m_res);
+			try
+			{
+				(*callback_iter)(request->m_res);
+			}
+			catch (const Exception& e)
+			{
+				D3DContext::getSingleton().m_EventLog(e.what().c_str());
+			}
 		}
 	}
 }

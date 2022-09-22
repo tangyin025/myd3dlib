@@ -575,7 +575,14 @@ void MeshComponent::OnResetShader(void)
 
 void MeshComponent::OnMeshReady(my::DeviceResourceBasePtr res)
 {
-	m_Mesh = boost::dynamic_pointer_cast<my::OgreMesh>(res);
+	OgreMeshPtr mesh = boost::dynamic_pointer_cast<my::OgreMesh>(res);
+
+	if (m_MeshSubMeshId >= mesh->m_AttribTable.size())
+	{
+		THROW_CUSEXCEPTION(str_printf("invalid sub mesh id %d for %s", m_MeshSubMeshId, res->m_Key));
+	}
+
+	m_Mesh = mesh;
 }
 
 MeshComponent::PhysxBaseResource::~PhysxBaseResource(void)
