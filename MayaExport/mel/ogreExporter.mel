@@ -31,7 +31,7 @@ global proc runOgreExport()
 	string $sceneFile    = `file -query -sceneName`;
 	string $mayaFile     = basename($sceneFile, "");
 	string $sceneDir     = dirname($sceneFile);
-	string $baseFile     = basename($sceneFile, ".mb");
+	string $baseFile     = basename($sceneFile, fileExtension($sceneFile));
 	string $outputDir    = (`textField -query -text OutputDirectory`);
 	if (!endsWith($outputDir,"\\") && !endsWith($outputDir,"/") && (size($outputDir)>0))
 		$outputDir += "/";
@@ -377,7 +377,7 @@ global proc initUI()
 	// --- Common parameters
 	string $sceneFile = `file -query -sceneName`;
 	string $sceneDir = dirname($sceneFile);
-	string $baseFile = basename($sceneFile, ".mb");
+	string $baseFile = basename($sceneFile, fileExtension($sceneFile));
 	textField -edit -fileName $sceneDir SceneDirectory;
 	
 	// --- Mesh Export
@@ -1356,7 +1356,7 @@ global proc defaultSettings()
 	// Initialize filenames
 	string $sceneFile = `file -query -sceneName`;
 	string $sceneDir = dirname($sceneFile);
-	string $baseFile = basename($sceneFile, ".mb");
+	string $baseFile = basename($sceneFile, fileExtension($sceneFile));
 	textField -edit -fileName $sceneDir SceneDirectory;
 	
 	// --- Mesh Export
