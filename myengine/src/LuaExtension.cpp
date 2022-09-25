@@ -804,6 +804,36 @@ static std::string cmatch_sub_match(boost::cmatch* self, int i)
 	return self->operator[](i);
 }
 
+typedef std::vector<rapidxml::xml_node<char> *> xml_node_list;
+
+typedef boost::shared_container_iterator<xml_node_list> shared_xml_node_list_iter;
+
+static boost::iterator_range<shared_xml_node_list_iter> xml_node_childs(rapidxml::xml_node<char>* self)
+{
+	boost::shared_ptr<xml_node_list> nodes(new xml_node_list());
+	rapidxml::xml_node<char>* node = self->first_node();
+	for (; node != NULL; node = node->next_sibling())
+	{
+		nodes->push_back(node);
+	}
+	return boost::make_iterator_range(shared_xml_node_list_iter(nodes->begin(), nodes), shared_xml_node_list_iter(nodes->end(), nodes));
+}
+
+typedef std::vector<rapidxml::xml_attribute<char>*> xml_attribute_list;
+
+typedef boost::shared_container_iterator<xml_attribute_list> shared_xml_attribute_list_iter;
+
+static boost::iterator_range<shared_xml_attribute_list_iter> xml_node_attributes(rapidxml::xml_node<char>* self)
+{
+	boost::shared_ptr<xml_attribute_list> attrs(new xml_attribute_list());
+	rapidxml::xml_attribute<char>* attr = self->first_attribute();
+	for (; attr != NULL; attr = attr->next_attribute())
+	{
+		attrs->push_back(attr);
+	}
+	return boost::make_iterator_range(shared_xml_attribute_list_iter(attrs->begin(), attrs), shared_xml_attribute_list_iter(attrs->end(), attrs));
+}
+
 LuaContext::LuaContext(void)
 	: m_State(NULL)
 {
@@ -1454,10 +1484,17 @@ void LuaContext::Init(void)
 
 		, class_<my::Wav, my::DeviceResourceBase, boost::shared_ptr<my::DeviceResourceBase> >("Wav")
 
+		, class_<my::Cache, boost::shared_ptr<my::Cache> >("Cache")
+			.def("push_back", (void(my::Cache::*)(const unsigned char &))&my::Cache::push_back)
+
+		, class_<my::IStream, boost::shared_ptr<my::IStream> >("IStream")
+			.def("GetWholeCache", &my::IStream::GetWholeCache)
+
 		, class_<my::ResourceMgr>("ResourceMgr")
 			.def("CheckPath", &my::ResourceMgr::CheckPath)
 			.def("GetFullPath", &my::ResourceMgr::GetFullPath)
 			.def("GetRelativePath", &my::ResourceMgr::GetRelativePath)
+			.def("OpenIStream", &my::ResourceMgr::OpenIStream)
 			.def("CheckIORequests", &my::ResourceMgr::CheckIORequests)
 			.def("LoadTexture", &my::ResourceMgr::LoadTexture)
 			.def("LoadTextureAsync", &my::ResourceMgr::LoadTextureAsync<luabind::object>)
@@ -2869,16 +2906,6 @@ void LuaContext::Init(void)
 			.def("setSwingLimit", luabind::tag_function<void(physx::PxD6Joint*,float,float)>(
 				boost::bind(&physx::PxD6Joint::setSwingLimit, boost::placeholders::_1, boost::bind(boost::value_factory<physx::PxJointLimitCone>(), boost::placeholders::_2, boost::placeholders::_3, -1.0f))))
 
-		//class_<noise::module::Perlin>("Perlin")
-		//	.def(constructor<>())
-		//	.property("Frequency", &noise::module::Perlin::GetFrequency, &noise::module::Perlin::SetFrequency)
-		//	.property("Lacunarity", &noise::module::Perlin::GetLacunarity, &noise::module::Perlin::SetLacunarity)
-		//	.property("NoiseQuality", &noise::module::Perlin::GetNoiseQuality, &noise::module::Perlin::SetNoiseQuality)
-		//	.property("OctaveCount", &noise::module::Perlin::GetOctaveCount, &noise::module::Perlin::SetOctaveCount)
-		//	.property("Persistence", &noise::module::Perlin::GetPersistence, &noise::module::Perlin::SetPersistence)
-		//	.property("Seed", &noise::module::Perlin::GetSeed, &noise::module::Perlin::SetSeed)
-		//	.def("GetValue", &noise::module::Perlin::GetValue)
-
 		, class_<my::BilinearFiltering<unsigned short> >("BilinearFilteringL16")
 			.def(constructor<unsigned short*, int, int, int>())
 			.def(constructor<const D3DLOCKED_RECT&, int, int>())
@@ -2948,6 +2975,16 @@ void LuaContext::Init(void)
 			.def("SweepBox", &PhysxSpatialIndex::SweepBox, pure_out_value(boost::placeholders::_9))
 			.def("CalculateAABB", &PhysxSpatialIndex::CalculateAABB)
 
+		//class_<noise::module::Perlin>("Perlin")
+		//	.def(constructor<>())
+		//	.property("Frequency", &noise::module::Perlin::GetFrequency, &noise::module::Perlin::SetFrequency)
+		//	.property("Lacunarity", &noise::module::Perlin::GetLacunarity, &noise::module::Perlin::SetLacunarity)
+		//	.property("NoiseQuality", &noise::module::Perlin::GetNoiseQuality, &noise::module::Perlin::SetNoiseQuality)
+		//	.property("OctaveCount", &noise::module::Perlin::GetOctaveCount, &noise::module::Perlin::SetOctaveCount)
+		//	.property("Persistence", &noise::module::Perlin::GetPersistence, &noise::module::Perlin::SetPersistence)
+		//	.property("Seed", &noise::module::Perlin::GetSeed, &noise::module::Perlin::SetSeed)
+		//	.def("GetValue", &noise::module::Perlin::GetValue)
+
 		, class_<boost::regex>("regex")
 			.def(constructor<const char *>())
 			.def("search_all", &regex_search_all, return_stl_iterator)
@@ -2955,6 +2992,34 @@ void LuaContext::Init(void)
 		, class_<boost::cmatch>("cmatch")
 			.def("is_matched", &cmatch_is_matched)
 			.def("sub_match", &cmatch_sub_match)
+
+		, class_<rapidxml::xml_base<char> >("xml_base")
+			.property("name", (char* (rapidxml::xml_base<char>::*)()const)& rapidxml::xml_base<char>::name)
+			.property("value", (char* (rapidxml::xml_base<char>::*)()const)& rapidxml::xml_base<char>::value)
+
+		, class_<rapidxml::xml_node<char>, rapidxml::xml_base<char> >("xml_node")
+			.property("type", (rapidxml::node_type(rapidxml::xml_node<char>::*)() const)& rapidxml::xml_node<char>::type)
+			.def("first_node", luabind::tag_function<rapidxml::xml_node<char>* (const rapidxml::xml_node<char>*)>(
+				boost::bind(&rapidxml::xml_node<char>::first_node, boost::placeholders::_1, (char*)0, 0, true)))
+			.def("first_node", luabind::tag_function<rapidxml::xml_node<char>* (const rapidxml::xml_node<char>*, const std::string&)>(
+				boost::bind(&rapidxml::xml_node<char>::first_node, boost::placeholders::_1, boost::bind(&std::string::c_str, boost::placeholders::_2), boost::bind(&std::string::length, boost::placeholders::_2), true)))
+			.def("first_attribute", luabind::tag_function<rapidxml::xml_node<char>* (const rapidxml::xml_node<char>*)>(
+				boost::bind(&rapidxml::xml_node<char>::first_attribute, boost::placeholders::_1, (char*)0, 0, true)))
+			.def("first_attribute", luabind::tag_function<rapidxml::xml_node<char>* (const rapidxml::xml_node<char>*, const std::string&)>(
+				boost::bind(&rapidxml::xml_node<char>::first_attribute, boost::placeholders::_1, boost::bind(&std::string::c_str, boost::placeholders::_2), boost::bind(&std::string::length, boost::placeholders::_2), true)))
+			.def("next_sibling", luabind::tag_function<rapidxml::xml_node<char>* (const rapidxml::xml_node<char>*)>(
+				boost::bind(&rapidxml::xml_node<char>::next_sibling, boost::placeholders::_1, (char*)0, 0, true)))
+			.def("next_sibling", luabind::tag_function<rapidxml::xml_node<char>* (const rapidxml::xml_node<char>*, const std::string&)>(
+				boost::bind(&rapidxml::xml_node<char>::next_sibling, boost::placeholders::_1, boost::bind(&std::string::c_str, boost::placeholders::_2), boost::bind(&std::string::length, boost::placeholders::_2), true)))
+			.property("childs", &xml_node_childs, return_stl_iterator)
+			.property("attributes", &xml_node_attributes, return_stl_iterator)
+
+		, class_<rapidxml::xml_attribute<char>, rapidxml::xml_base<char> >("xml_attribute")
+
+		, class_<rapidxml::xml_document<char>, rapidxml::xml_node<char> >("xml_document")
+			.def(constructor<>())
+			.def("parse", luabind::tag_function<void(rapidxml::xml_document<char> *, my::Cache * cache)>(
+				boost::bind(&rapidxml::xml_document<char>::parse<0>, boost::placeholders::_1, boost::bind((char* (my::Cache::*)())(unsigned char* (my::Cache::*)() )&my::Cache::data, boost::placeholders::_2))))
 	];
 }
 
