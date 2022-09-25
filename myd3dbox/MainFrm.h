@@ -127,7 +127,6 @@ public:
 	bool ExecuteCode(const char * code);
 	void AddEntity(my::OctEntity * entity, const my::AABB & aabb, float minblock, float threshold);
 	void RemoveEntity(my::OctEntity * entity);
-	void OnMeshComponentReady(my::DeviceResourceBasePtr res, boost::weak_ptr<MeshComponent> mesh_cmp_weak_ptr);
 	Component* GetSelComponent(DWORD Type);
 	template <typename ComponentType>
 	ComponentType* GetSelComponent(void)

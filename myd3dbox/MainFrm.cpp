@@ -1050,30 +1050,6 @@ void CMainFrame::RemoveEntity(my::OctEntity * entity)
 	OctNode::RemoveEntity(entity);
 }
 
-void CMainFrame::OnMeshComponentReady(my::DeviceResourceBasePtr res, boost::weak_ptr<MeshComponent> mesh_cmp_weak_ptr)
-{
-	MeshComponentPtr mesh_cmp = mesh_cmp_weak_ptr.lock();
-	if (mesh_cmp)
-	{
-		ASSERT(mesh_cmp->m_Actor);
-		if (mesh_cmp->m_Actor->m_aabb == my::AABB(-1, 1))
-		{
-			mesh_cmp->m_Actor->UpdateAABB();
-		}
-		else
-		{
-			my::OgreMeshPtr mesh = boost::dynamic_pointer_cast<my::OgreMesh>(res);
-			ASSERT(mesh);
-			mesh_cmp->m_Actor->m_aabb.unionSelf(mesh->CalculateAABB(mesh_cmp->m_MeshSubMeshId));
-		}
-		mesh_cmp->m_Actor->UpdateOctNode();
-		if (std::find(m_selactors.begin(), m_selactors.end(), mesh_cmp->m_Actor) != m_selactors.end())
-		{
-			UpdateSelBox();
-		}
-	}
-}
-
 Component* CMainFrame::GetSelComponent(DWORD Type)
 {
 	if (!m_selactors.empty())
@@ -1359,6 +1335,8 @@ void CMainFrame::OnComponentMesh()
 		return;
 	}
 
+	my::AABB bound = (*actor_iter)->m_Cmps.empty() ? my::AABB::Invalid() : (*actor_iter)->m_aabb;
+
 	const rapidxml::xml_node<char>* node_root = &doc;
 	DEFINE_XML_NODE_SIMPLE(mesh, root);
 	DEFINE_XML_NODE_SIMPLE(submeshes, mesh);
@@ -1377,9 +1355,21 @@ void CMainFrame::OnComponentMesh()
 			mtl->ParseShaderParameters();
 			mesh_cmp->SetMaterial(mtl);
 			(*actor_iter)->InsertComponent(mesh_cmp);
-
-			theApp.LoadMeshAsync(path.c_str(), "", boost::bind(&CMainFrame::OnMeshComponentReady, this, boost::placeholders::_1, boost::weak_ptr<MeshComponent>(mesh_cmp)));
 		}
+
+		DEFINE_XML_NODE_SIMPLE(vertexbuffer, sharedgeometry);
+		DEFINE_XML_NODE_SIMPLE(vertex, vertexbuffer);
+		for (; node_vertex != NULL; node_vertex = node_vertex->next_sibling())
+		{
+			DEFINE_XML_NODE_SIMPLE(position, vertex);
+			DEFINE_XML_ATTRIBUTE_FLOAT_SIMPLE(x, position);
+			DEFINE_XML_ATTRIBUTE_FLOAT_SIMPLE(y, position);
+			DEFINE_XML_ATTRIBUTE_FLOAT_SIMPLE(z, position);
+			bound.unionSelf(my::Vector3(x, y, z));
+		}
+		(*actor_iter)->m_aabb = bound;
+		(*actor_iter)->UpdateOctNode();
+		UpdateSelBox();
 	}
 	else
 	{
@@ -1398,8 +1388,21 @@ void CMainFrame::OnComponentMesh()
 			mesh_cmp->SetMaterial(mtl);
 			(*actor_iter)->InsertComponent(mesh_cmp);
 
-			theApp.LoadMeshAsync(path.c_str(), attr_name->value(), boost::bind(&CMainFrame::OnMeshComponentReady, this, boost::placeholders::_1, boost::weak_ptr<MeshComponent>(mesh_cmp)));
+			DEFINE_XML_NODE_SIMPLE(geometry, submesh);
+			DEFINE_XML_NODE_SIMPLE(vertexbuffer, geometry);
+			DEFINE_XML_NODE_SIMPLE(vertex, vertexbuffer);
+			for (; node_vertex != NULL; node_vertex = node_vertex->next_sibling())
+			{
+				DEFINE_XML_NODE_SIMPLE(position, vertex);
+				DEFINE_XML_ATTRIBUTE_FLOAT_SIMPLE(x, position);
+				DEFINE_XML_ATTRIBUTE_FLOAT_SIMPLE(y, position);
+				DEFINE_XML_ATTRIBUTE_FLOAT_SIMPLE(z, position);
+				bound.unionSelf(my::Vector3(x, y, z));
+			}
 		}
+		(*actor_iter)->m_aabb = bound;
+		(*actor_iter)->UpdateOctNode();
+		UpdateSelBox();
 	}
 
 	my::EventArg arg;
