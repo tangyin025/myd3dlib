@@ -4,7 +4,11 @@
 #include <vector>
 #include <atlbase.h>
 #include "mySingleton.h"
-#include "rapidxml.hpp"
+
+namespace rapidxml
+{
+	template <typename T> class xml_node;
+}
 
 namespace my
 {

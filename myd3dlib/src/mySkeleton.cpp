@@ -1,6 +1,7 @@
 #include "mySkeleton.h"
 #include "libc.h"
 #include "myResource.h"
+#include "rapidxml.hpp"
 #include <fstream>
 
 using namespace my;

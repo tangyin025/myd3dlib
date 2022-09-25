@@ -42,6 +42,7 @@
 #include "PlayerAgent.h"
 #include "Steering.h"
 #include "ActionTrack.h"
+#include "rapidxml.hpp"
 #include <lualib.h>
 
 #ifdef _DEBUG

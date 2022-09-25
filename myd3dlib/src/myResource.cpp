@@ -11,6 +11,7 @@
 #include "myEffect.h"
 #include "myFont.h"
 #include "mySound.h"
+#include "rapidxml.hpp"
 #include <boost/algorithm/string.hpp>
 
 using namespace my;

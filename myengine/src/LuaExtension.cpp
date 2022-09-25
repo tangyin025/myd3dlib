@@ -38,6 +38,7 @@ extern "C" {
 #include "ActionTrack.h"
 #include "Steering.h"
 #include "SceneContext.h"
+#include "rapidxml_print.hpp"
 //#include "noise.h"
 #include <boost/scope_exit.hpp>
 #include <boost/range/algorithm/transform.hpp>
@@ -802,6 +803,15 @@ static bool cmatch_is_matched(boost::cmatch* self, int i)
 static std::string cmatch_sub_match(boost::cmatch* self, int i)
 {
 	return self->operator[](i);
+}
+
+static void xml_node_print_to_file(rapidxml::xml_node<char>* self, const std::string& u8_path)
+{
+	std::ofstream ofs(u8tows(u8_path).c_str(), std::ios::out, _SH_DENYRW);
+	if (ofs.is_open())
+	{
+		rapidxml::print<char>(ofs, *self, 0);
+	}
 }
 
 LuaContext::LuaContext(void)
@@ -2985,6 +2995,7 @@ void LuaContext::Init(void)
 				boost::bind(&rapidxml::xml_node<char>::next_sibling, boost::placeholders::_1, (char*)0, 0, true)))
 			.def("next_sibling", luabind::tag_function<rapidxml::xml_node<char>* (const rapidxml::xml_node<char>*, const std::string&)>(
 				boost::bind(&rapidxml::xml_node<char>::next_sibling, boost::placeholders::_1, boost::bind(&std::string::c_str, boost::placeholders::_2), boost::bind(&std::string::length, boost::placeholders::_2), true)))
+			.def("print_to_file", &xml_node_print_to_file)
 
 		, class_<rapidxml::xml_attribute<char>, rapidxml::xml_base<char> >("xml_attribute")
 			.def("next_attribute", luabind::tag_function<rapidxml::xml_attribute<char>* (const rapidxml::xml_attribute<char>*)>(

@@ -4,6 +4,7 @@
 #include "myResource.h"
 #include "myDxutApp.h"
 #include "libc.h"
+#include "rapidxml.hpp"
 #include <fstream>
 #include <boost/algorithm/string.hpp>
 #include <boost/regex.hpp>

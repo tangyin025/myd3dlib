@@ -11,7 +11,6 @@
 #include "myThread.h"
 #include "mySingleton.h"
 #include "zzip/zzip.h"
-#include "rapidxml.hpp"
 
 namespace my
 {

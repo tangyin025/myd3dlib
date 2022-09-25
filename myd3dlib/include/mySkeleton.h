@@ -6,7 +6,11 @@
 #include "myMath.h"
 #include <boost/unordered_map.hpp>
 #include "mySingleton.h"
-#include "rapidxml.hpp"
+
+namespace rapidxml
+{
+	template <typename T> class xml_node;
+}
 
 namespace my
 {
