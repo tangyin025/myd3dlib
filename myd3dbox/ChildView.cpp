@@ -209,6 +209,7 @@ void CChildView::QueryRenderComponent(const my::Frustum & frustum, RenderPipelin
 		CMainFrame * pFrame;
 		CChildView * pView;
 		CMainFrame::ViewedActorSet::iterator insert_actor_iter;
+		unsigned int remaining_actor_count;
 		DWORD m_duDebugDrawPrimitives;
 
 		Callback(const my::Frustum& _frustum, RenderPipeline* _pipeline, unsigned int _PassMask, const my::Vector3& _ViewPos, const my::Vector3& _TargetPos, CMainFrame* _pFrame, CChildView* _pView)
@@ -220,6 +221,7 @@ void CChildView::QueryRenderComponent(const my::Frustum & frustum, RenderPipelin
 			, pFrame(_pFrame)
 			, pView(_pView)
 			, insert_actor_iter(pFrame->m_ViewedActors.begin())
+			, remaining_actor_count(0)
 			, m_duDebugDrawPrimitives(DU_DRAW_QUADS + 1)
 		{
 		}
@@ -331,6 +333,8 @@ void CChildView::QueryRenderComponent(const my::Frustum & frustum, RenderPipelin
 					pFrame->m_ViewedActors.insert(insert_actor_iter, *actor);
 				}
 
+				remaining_actor_count++;
+
 				actor->UpdateLod(ViewPos, TargetPos);
 			}
 
@@ -364,13 +368,20 @@ void CChildView::QueryRenderComponent(const my::Frustum & frustum, RenderPipelin
 	if (pFrame->GetActiveView() == this && (PassMask & RenderPipeline::PassTypeToMask(RenderPipeline::PassTypeNormal)))
 	{
 		CMainFrame::ViewedActorSet::iterator actor_iter = cb.insert_actor_iter;
-		for (; actor_iter != pFrame->m_ViewedActors.end(); )
+		for (; actor_iter != pFrame->m_ViewedActors.end(); cb.remaining_actor_count++)
 		{
 			ASSERT(actor_iter->IsRequested());
 
-			actor_iter->ReleaseResource();
+			if (cb.remaining_actor_count > theApp.default_remaining_actor_max)
+			{
+				actor_iter->ReleaseResource();
 
-			actor_iter = pFrame->m_ViewedActors.erase(actor_iter);
+				actor_iter = pFrame->m_ViewedActors.erase(actor_iter);
+			}
+			else
+			{
+				actor_iter++;
+			}
 		}
 	}
 }
