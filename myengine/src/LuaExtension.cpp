@@ -804,36 +804,6 @@ static std::string cmatch_sub_match(boost::cmatch* self, int i)
 	return self->operator[](i);
 }
 
-typedef std::vector<rapidxml::xml_node<char> *> xml_node_list;
-
-typedef boost::shared_container_iterator<xml_node_list> shared_xml_node_list_iter;
-
-static boost::iterator_range<shared_xml_node_list_iter> xml_node_childs(rapidxml::xml_node<char>* self)
-{
-	boost::shared_ptr<xml_node_list> nodes(new xml_node_list());
-	rapidxml::xml_node<char>* node = self->first_node();
-	for (; node != NULL; node = node->next_sibling())
-	{
-		nodes->push_back(node);
-	}
-	return boost::make_iterator_range(shared_xml_node_list_iter(nodes->begin(), nodes), shared_xml_node_list_iter(nodes->end(), nodes));
-}
-
-typedef std::vector<rapidxml::xml_attribute<char>*> xml_attribute_list;
-
-typedef boost::shared_container_iterator<xml_attribute_list> shared_xml_attribute_list_iter;
-
-static boost::iterator_range<shared_xml_attribute_list_iter> xml_node_attributes(rapidxml::xml_node<char>* self)
-{
-	boost::shared_ptr<xml_attribute_list> attrs(new xml_attribute_list());
-	rapidxml::xml_attribute<char>* attr = self->first_attribute();
-	for (; attr != NULL; attr = attr->next_attribute())
-	{
-		attrs->push_back(attr);
-	}
-	return boost::make_iterator_range(shared_xml_attribute_list_iter(attrs->begin(), attrs), shared_xml_attribute_list_iter(attrs->end(), attrs));
-}
-
 LuaContext::LuaContext(void)
 	: m_State(NULL)
 {
@@ -1211,6 +1181,10 @@ void LuaContext::Init(void)
 			.def(constructor<const my::Vector3 &, float>())
 			.def_readwrite("min", &my::AABB::m_min)
 			.def_readwrite("max", &my::AABB::m_max)
+			.scope
+			[
+				def("Invalid", &my::AABB::Invalid)
+			]
 			.property("IsValid", &my::AABB::IsValid)
 			.def("valid", &my::AABB::valid)
 			.def("validSelf", &my::AABB::validSelf, return_reference_to(boost::placeholders::_1))
@@ -3011,10 +2985,12 @@ void LuaContext::Init(void)
 				boost::bind(&rapidxml::xml_node<char>::next_sibling, boost::placeholders::_1, (char*)0, 0, true)))
 			.def("next_sibling", luabind::tag_function<rapidxml::xml_node<char>* (const rapidxml::xml_node<char>*, const std::string&)>(
 				boost::bind(&rapidxml::xml_node<char>::next_sibling, boost::placeholders::_1, boost::bind(&std::string::c_str, boost::placeholders::_2), boost::bind(&std::string::length, boost::placeholders::_2), true)))
-			.property("childs", &xml_node_childs, return_stl_iterator)
-			.property("attributes", &xml_node_attributes, return_stl_iterator)
 
 		, class_<rapidxml::xml_attribute<char>, rapidxml::xml_base<char> >("xml_attribute")
+			.def("next_attribute", luabind::tag_function<rapidxml::xml_attribute<char>* (const rapidxml::xml_attribute<char>*)>(
+				boost::bind(&rapidxml::xml_attribute<char>::next_attribute, boost::placeholders::_1, (char*)0, 0, true)))
+			.def("next_attribute", luabind::tag_function<rapidxml::xml_attribute<char>* (const rapidxml::xml_attribute<char>*, const std::string&)>(
+				boost::bind(&rapidxml::xml_attribute<char>::next_attribute, boost::placeholders::_1, boost::bind(&std::string::c_str, boost::placeholders::_2), boost::bind(&std::string::length, boost::placeholders::_2), true)))
 
 		, class_<rapidxml::xml_document<char>, rapidxml::xml_node<char> >("xml_document")
 			.def(constructor<>())
