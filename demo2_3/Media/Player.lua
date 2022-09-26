@@ -11,8 +11,7 @@ skel:AddOgreSkeletonAnimationFromFile("character/casual19_m_highpoly_idle1.skele
 skel:AddOgreSkeletonAnimationFromFile("character/casual19_m_highpoly_run.skeleton.xml")
 skel:AddOgreSkeletonAnimationFromFile("character/casual19_m_highpoly_walk.skeleton.xml")
 skel:AddOgreSkeletonAnimationFromFile("character/casual19_m_highpoly_jumpforward.skeleton.xml")
-skel:Transform(Matrix4.Compose(
-	Vector3(1,1,1),Quaternion.Identity(),Vector3(0,-95,0)))
+skel:AdjustAnimationRoot(Bone(Vector3(0,-95,0)))
 -- skel:SaveOgreSkeletonAnimation("Media/character/casual19_m_highpoly_full.skeleton.xml")
 -- mesh2=client:LoadMesh("mesh/Cylinder.mesh.xml","")
 -- mesh2:Transform(Matrix4.Compose(
@@ -35,7 +34,6 @@ lambert1:AddParameter("g_SpecularTexture", "character/casual19_m_35_spec.png")
 -- 模型
 local cmp=MeshComponent(NamedObject.MakeUniqueName("mesh_cmp"))
 cmp.MeshPath="character/casual19_m_highpoly.mesh.xml"
-cmp.MeshSubMeshName=""
 cmp.Material=lambert1
 player:InsertComponent(cmp)
 

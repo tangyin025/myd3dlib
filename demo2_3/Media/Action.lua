@@ -12,7 +12,7 @@ act_sound:AddTrack(track)
 
 act_tuowei=Action()
 local particle1=Material()
-particle1.Shader="shader/mtl_particle1.fx"
+particle1.Shader="shader/mtl_Particle.fx"
 particle1.PassMask=Material.PassMaskTransparent
 particle1.ZWriteEnable=false
 particle1.BlendMode=Material.BlendModeAdditive

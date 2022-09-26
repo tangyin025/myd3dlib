@@ -106,7 +106,7 @@ void PlayerAgent::RequestResource(void)
 	m_Animator->SetChild(0, node_run_blend_list_slot);
 	m_Animator->ReloadSequenceGroup();
 
-	if (!m_Skel && !theApp.default_player_anim_list.empty())
+	if (!m_Skel && !theApp.default_player_anim_list.empty() && theApp.CheckPath(theApp.default_player_anim_list.front().c_str()))
 	{
 		m_Skel = theApp.LoadSkeleton(theApp.default_player_anim_list.front().c_str());
 		for (int i = 1; i < theApp.default_player_anim_list.size(); i++)
