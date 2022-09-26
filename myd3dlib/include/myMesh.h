@@ -397,6 +397,8 @@ namespace my
 
 		std::vector<D3DXATTRIBUTERANGE> m_AttribTable;
 
+		CComPtr<IDirect3DVertexDeclaration9> m_Decl;
+
 	public:
 		OgreMesh(void)
 		{
@@ -418,14 +420,6 @@ namespace my
 		void CreateMeshFromOgreXml(
 			const rapidxml::xml_node<char> * node_root,
 			const std::string & sub_mesh_name,
-			bool bComputeTangentFrame = true,
-			DWORD dwMeshOptions = D3DXMESH_MANAGED);
-
-		void CreateMeshFromOgreXmlNodes(
-			const rapidxml::xml_node<char> * node_geometry,
-			const rapidxml::xml_node<char> * node_boneassignments,
-			const rapidxml::xml_node<char> * node_submesh,
-			const bool bUseSharedGeometry = true,
 			bool bComputeTangentFrame = true,
 			DWORD dwMeshOptions = D3DXMESH_MANAGED);
 

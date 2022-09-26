@@ -982,55 +982,107 @@ void OgreMesh::CreateMeshFromOgreXml(
 	DEFINE_XML_NODE_SIMPLE(submeshes, mesh);
 	DEFINE_XML_NODE_SIMPLE(submesh, submeshes);
 	rapidxml::xml_node<char>* node_sharedgeometry = node_mesh->first_node("sharedgeometry");
+	rapidxml::xml_node<char>* node_vertexbuffer = NULL, * node_boneassignments = NULL;
+	bool positions = false, normals = false, colours_diffuse = false;
+	int texture_coords = 0;
+	rapidxml::xml_attribute<char>* attr_positions = NULL, * attr_normals = NULL, * attr_colours_diffuse = NULL, * attr_texture_coords = NULL;
+	unsigned int total_vertices = 0, total_faces = 0;
 	if (node_sharedgeometry)
 	{
-		_ASSERT(sub_mesh_name.empty());
-		rapidxml::xml_node<char> * node_boneassignments = node_mesh->first_node("boneassignments");
-		CreateMeshFromOgreXmlNodes(node_sharedgeometry, node_boneassignments, node_submesh, true, bComputeTangentFrame, dwMeshOptions);
-		return;
-	}
+		DEFINE_XML_ATTRIBUTE_INT_SIMPLE(vertexcount, sharedgeometry);
+		total_vertices += vertexcount;
 
-	DEFINE_XML_NODE_SIMPLE(submeshnames, mesh);
-	DEFINE_XML_NODE_SIMPLE(submeshname, submeshnames);
-	for (; node_submesh != NULL && node_submeshname != NULL; node_submesh = node_submesh->next_sibling(), node_submeshname = node_submeshname->next_sibling())
-	{
-		DEFINE_XML_ATTRIBUTE_SIMPLE(name, submeshname);
-		DEFINE_XML_ATTRIBUTE_INT_SIMPLE(index, submeshname);
-		if (sub_mesh_name == attr_name->value())
+		DEFINE_XML_NODE_SIMPLE(vertexbuffer, sharedgeometry);
+		DEFINE_XML_NODE(node_boneassignments, node_mesh, boneassignments);
+		DEFINE_XML_ATTRIBUTE_BOOL(positions, attr_positions, node_vertexbuffer, positions);
+		DEFINE_XML_ATTRIBUTE_BOOL(normals, attr_normals, node_vertexbuffer, normals);
+		DEFINE_XML_ATTRIBUTE_BOOL(colours_diffuse, attr_colours_diffuse, node_vertexbuffer, colours_diffuse);
+		DEFINE_XML_ATTRIBUTE_INT(texture_coords, attr_texture_coords, node_vertexbuffer, texture_coords);
+
+		for (int submesh_i = 0; node_submesh != NULL; node_submesh = node_submesh->next_sibling(), submesh_i++)
 		{
-			DEFINE_XML_NODE_SIMPLE(geometry, submesh);
-			rapidxml::xml_node<char> * node_boneassignments = node_submesh->first_node("boneassignments");
-			CreateMeshFromOgreXmlNodes(node_geometry, node_boneassignments, node_submesh, false, bComputeTangentFrame, dwMeshOptions);
-			return;
+			DEFINE_XML_ATTRIBUTE_SIMPLE(material, submesh);
+			DEFINE_XML_ATTRIBUTE_BOOL_SIMPLE(use32bitindexes, submesh);
+			DEFINE_XML_ATTRIBUTE_BOOL_SIMPLE(usesharedvertices, submesh);
+			if (!usesharedvertices)
+			{
+				THROW_CUSEXCEPTION("invalid usesharedvertices");
+			}
+
+			rapidxml::xml_attribute<char>* attr_operationtype = node_submesh->first_attribute("operationtype");
+			if (attr_operationtype && 0 != _stricmp(attr_operationtype->value(), "triangle_list"))
+			{
+				THROW_CUSEXCEPTION("!triangle_list");
+			}
+
+			m_MaterialNameList.push_back(attr_material->value());
+
+			DEFINE_XML_NODE_SIMPLE(faces, submesh);
+			DEFINE_XML_ATTRIBUTE_INT_SIMPLE(count, faces);
+			D3DXATTRIBUTERANGE rang;
+			rang.AttribId = submesh_i;
+			rang.VertexStart = 0;
+			rang.VertexCount = vertexcount;
+			rang.FaceStart = total_faces;
+			rang.FaceCount = count;
+			m_AttribTable.push_back(rang);
+
+			total_faces += count;
+		}
+	}
+	else
+	{
+		DEFINE_XML_NODE_SIMPLE(geometry, submesh);
+		DEFINE_XML_NODE_SIMPLE(vertexbuffer, geometry);
+		DEFINE_XML_NODE(node_boneassignments, node_submesh, boneassignments);
+		DEFINE_XML_ATTRIBUTE_BOOL(positions, attr_positions, node_vertexbuffer, positions);
+		DEFINE_XML_ATTRIBUTE_BOOL(normals, attr_normals, node_vertexbuffer, normals);
+		DEFINE_XML_ATTRIBUTE_BOOL(colours_diffuse, attr_colours_diffuse, node_vertexbuffer, colours_diffuse);
+		DEFINE_XML_ATTRIBUTE_INT(texture_coords, attr_texture_coords, node_vertexbuffer, texture_coords);
+
+		for (int submesh_i = 0; node_submesh != NULL; node_submesh = node_submesh->next_sibling(), submesh_i++)
+		{
+			DEFINE_XML_ATTRIBUTE_SIMPLE(material, submesh);
+			DEFINE_XML_ATTRIBUTE_BOOL_SIMPLE(use32bitindexes, submesh);
+			DEFINE_XML_ATTRIBUTE_BOOL_SIMPLE(usesharedvertices, submesh);
+			if (usesharedvertices)
+			{
+				THROW_CUSEXCEPTION("invalid usesharedvertices");
+			}
+
+			rapidxml::xml_attribute<char>* attr_operationtype = node_submesh->first_attribute("operationtype");
+			if (attr_operationtype && 0 != _stricmp(attr_operationtype->value(), "triangle_list"))
+			{
+				THROW_CUSEXCEPTION("!triangle_list");
+			}
+
+			m_MaterialNameList.push_back(attr_material->value());
+
+			DEFINE_XML_NODE(node_geometry, node_submesh, geometry);
+			DEFINE_XML_ATTRIBUTE_INT_SIMPLE(vertexcount, geometry);
+
+			DEFINE_XML_NODE_SIMPLE(faces, submesh);
+			DEFINE_XML_ATTRIBUTE_INT_SIMPLE(count, faces);
+			D3DXATTRIBUTERANGE rang;
+			rang.AttribId = submesh_i;
+			rang.VertexStart = total_vertices;
+			rang.VertexCount = vertexcount;
+			rang.FaceStart = total_faces;
+			rang.FaceCount = count;
+			m_AttribTable.push_back(rang);
+
+			total_vertices += vertexcount;
+			total_faces += count;
 		}
 	}
 
-	THROW_CUSEXCEPTION(str_printf("cannot find sub mesh: %s", sub_mesh_name.c_str()));
-}
-
-void OgreMesh::CreateMeshFromOgreXmlNodes(
-	const rapidxml::xml_node<char> * node_geometry,
-	const rapidxml::xml_node<char> * node_boneassignments,
-	const rapidxml::xml_node<char> * node_submesh,
-	const bool bUseSharedGeometry,
-	bool bComputeTangentFrame,
-	DWORD dwMeshOptions)
-{
-	DEFINE_XML_ATTRIBUTE_INT_SIMPLE(vertexcount, geometry);
-	DEFINE_XML_NODE_SIMPLE(vertexbuffer, geometry);
-	DEFINE_XML_ATTRIBUTE_BOOL_SIMPLE(positions, vertexbuffer);
-	DEFINE_XML_ATTRIBUTE_BOOL_SIMPLE(normals, vertexbuffer);
-	DEFINE_XML_ATTRIBUTE_BOOL_SIMPLE(colours_diffuse, vertexbuffer);
-	//DEFINE_XML_ATTRIBUTE_BOOL_SIMPLE(colours_specular, vertexbuffer);
-	DEFINE_XML_ATTRIBUTE_INT_SIMPLE(texture_coords, vertexbuffer);
-
-	if((dwMeshOptions & ~D3DXMESH_32BIT) && vertexcount >= USHRT_MAX)
+	if ((dwMeshOptions & ~D3DXMESH_32BIT) && total_vertices >= USHRT_MAX)
 	{
 		//THROW_CUSEXCEPTION("facecount overflow ( >= 65535 )");
 		dwMeshOptions |= D3DXMESH_32BIT;
 	}
 
-	if(!positions)
+	if (!positions)
 	{
 		THROW_CUSEXCEPTION("cannot process non-position vertex");
 	}
@@ -1038,13 +1090,13 @@ void OgreMesh::CreateMeshFromOgreXmlNodes(
 	m_VertexElems.InsertPositionElement(0);
 	WORD offset = sizeof(Vector3);
 
-	if(normals || bComputeTangentFrame)
+	if (normals || bComputeTangentFrame)
 	{
 		m_VertexElems.InsertNormalElement(offset);
 		offset += sizeof(Vector3);
 	}
 
-	if(bComputeTangentFrame)
+	if (bComputeTangentFrame)
 	{
 		m_VertexElems.InsertTangentElement(offset);
 		offset += sizeof(Vector3);
@@ -1061,14 +1113,14 @@ void OgreMesh::CreateMeshFromOgreXmlNodes(
 		texture_coords = D3DVertexElementSet::MAX_USAGE_INDEX;
 	}
 
-	for(int i = 0; i < texture_coords; i++)
+	for (int i = 0; i < texture_coords; i++)
 	{
 		m_VertexElems.InsertTexcoordElement(offset, i);
 		offset += sizeof(Vector2);
 	}
 
 	WORD indicesOffset = 0, weightsOffset = 0;
-	if(node_boneassignments != NULL && node_boneassignments->first_node("vertexboneassignment"))
+	if (node_boneassignments != NULL && node_boneassignments->first_node("vertexboneassignment"))
 	{
 		m_VertexElems.InsertBlendIndicesElement(offset);
 		offset += sizeof(DWORD);
@@ -1077,184 +1129,195 @@ void OgreMesh::CreateMeshFromOgreXmlNodes(
 		offset += sizeof(Vector4);
 	}
 
-	int facecount = 0;
-	const rapidxml::xml_node<char> * node_submesh_iter = node_submesh;
-	for(; node_submesh_iter != NULL; node_submesh_iter = bUseSharedGeometry ? node_submesh_iter->next_sibling() : NULL)
-	{
-		DEFINE_XML_NODE_SIMPLE(faces, submesh_iter);
-		DEFINE_XML_ATTRIBUTE_INT_SIMPLE(count, faces);
-		facecount += count;
-	}
-
 	std::vector<D3DVERTEXELEMENT9> velist = m_VertexElems.BuildVertexElementList(0);
 	D3DVERTEXELEMENT9 ve_end = D3DDECL_END();
 	velist.push_back(ve_end);
 
 	ResourceMgr::getSingleton().EnterDeviceSection();
-	CreateMesh(facecount, vertexcount, (D3DVERTEXELEMENT9 *)&velist[0], dwMeshOptions);
+	if (FAILED(hr = my::D3DContext::getSingleton().m_d3dDevice->CreateVertexDeclaration(velist.data(), &m_Decl)))
+	{
+		THROW_D3DEXCEPTION(hr);
+	}
 	ResourceMgr::getSingleton().LeaveDeviceSection();
 
 	ResourceMgr::getSingleton().EnterDeviceSection();
-	VOID * pVertices = LockVertexBuffer();
+	CreateMesh(total_faces, total_vertices, (D3DVERTEXELEMENT9*)&velist[0], dwMeshOptions);
 	ResourceMgr::getSingleton().LeaveDeviceSection();
-	DEFINE_XML_NODE_SIMPLE(vertex, vertexbuffer);
-	for(int vertex_i = 0; node_vertex != NULL && vertex_i < vertexcount; node_vertex = node_vertex->next_sibling(), vertex_i++)
+
+	ResourceMgr::getSingleton().EnterDeviceSection();
+	VOID* pVertices = LockVertexBuffer();
+	ResourceMgr::getSingleton().LeaveDeviceSection();
+
+	int vertex_i = 0;
+	DEFINE_XML_NODE(node_submesh, node_submeshes, submesh);
+	for (int submesh_i = 0; node_submesh != NULL; node_submesh = node_submesh->next_sibling(), submesh_i++)
 	{
-		unsigned char * pVertex = (unsigned char *)pVertices + vertex_i * offset;
-		if(positions)
+		const int start_vertex_i = vertex_i;
+		if (node_sharedgeometry)
 		{
-			DEFINE_XML_NODE_SIMPLE(position, vertex);
-			Vector3 & Position = m_VertexElems.GetPosition(pVertex);
-			rapidxml::xml_attribute<char> * attr_tmp;
-			DEFINE_XML_ATTRIBUTE_FLOAT(Position.x, attr_tmp, node_position, x);
-			DEFINE_XML_ATTRIBUTE_FLOAT(Position.y, attr_tmp, node_position, y);
-			DEFINE_XML_ATTRIBUTE_FLOAT(Position.z, attr_tmp, node_position, z);
+			DEFINE_XML_NODE(node_vertexbuffer, node_sharedgeometry, vertexbuffer);
+			DEFINE_XML_NODE(node_boneassignments, node_mesh, boneassignments);
+		}
+		else
+		{
+			DEFINE_XML_NODE_SIMPLE(geometry, submesh);
+			DEFINE_XML_NODE(node_vertexbuffer, node_geometry, vertexbuffer);
+			DEFINE_XML_NODE(node_boneassignments, node_submesh, boneassignments);
 		}
 
-		if(normals)
+		DEFINE_XML_NODE_SIMPLE(vertex, vertexbuffer);
+		for (; node_vertex != NULL; node_vertex = node_vertex->next_sibling(), vertex_i++)
 		{
-			DEFINE_XML_NODE_SIMPLE(normal, vertex);
-			Vector3 & Normal = m_VertexElems.GetNormal(pVertex);
-			rapidxml::xml_attribute<char> * attr_tmp;
-			DEFINE_XML_ATTRIBUTE_FLOAT(Normal.x, attr_tmp, node_normal, x);
-			DEFINE_XML_ATTRIBUTE_FLOAT(Normal.y, attr_tmp, node_normal, y);
-			DEFINE_XML_ATTRIBUTE_FLOAT(Normal.z, attr_tmp, node_normal, z);
-		}
-
-		if (colours_diffuse)
-		{
-			DEFINE_XML_NODE_SIMPLE(colour_diffuse, vertex);
-			DEFINE_XML_ATTRIBUTE_SIMPLE(value, colour_diffuse);
-			const char * color_value = attr_value->value();
-			std::vector<std::string> color_set;
-			boost::algorithm::split(color_set, color_value, boost::is_any_of(" "), boost::algorithm::token_compress_off);
-			D3DXCOLOR Color = D3DCOLOR_ARGB(
-				(int)(boost::lexical_cast<float>(color_set[3]) * 255),
-				(int)(boost::lexical_cast<float>(color_set[0]) * 255),
-				(int)(boost::lexical_cast<float>(color_set[1]) * 255),
-				(int)(boost::lexical_cast<float>(color_set[2]) * 255));
-			m_VertexElems.SetColor(pVertex, Color);
-		}
-
-		rapidxml::xml_node<char> * node_texcoord = node_vertex->first_node("texcoord");
-		for(int i = 0; i < texture_coords && node_texcoord != NULL; i++, node_texcoord = node_texcoord->next_sibling())
-		{
-			Vector2 & Texcoord = m_VertexElems.GetTexcoord(pVertex, i);
-			rapidxml::xml_attribute<char> * attr_tmp;
-			DEFINE_XML_ATTRIBUTE_FLOAT(Texcoord.x, attr_tmp, node_texcoord, u);
-			DEFINE_XML_ATTRIBUTE_FLOAT(Texcoord.y, attr_tmp, node_texcoord, v);
-		}
-
-		if(node_boneassignments != NULL && node_boneassignments->first_node("vertexboneassignment"))
-		{
-			m_VertexElems.SetBlendIndices(pVertex, 0);
-			m_VertexElems.SetBlendWeight(pVertex, Vector4::zero);
-		}
-	}
-
-	if(node_boneassignments != NULL)
-	{
-		rapidxml::xml_node<char> * node_vertexboneassignment = node_boneassignments->first_node("vertexboneassignment");
-		for(; node_vertexboneassignment != NULL; node_vertexboneassignment = node_vertexboneassignment->next_sibling())
-		{
-			DEFINE_XML_ATTRIBUTE_INT_SIMPLE(vertexindex, vertexboneassignment);
-			DEFINE_XML_ATTRIBUTE_INT_SIMPLE(boneindex, vertexboneassignment);
-			DEFINE_XML_ATTRIBUTE_FLOAT_SIMPLE(weight, vertexboneassignment);
-
-			if(vertexindex >= vertexcount)
+			_ASSERT(vertex_i < total_vertices);
+			unsigned char* pVertex = (unsigned char*)pVertices + vertex_i * offset;
+			if (positions)
 			{
-				THROW_CUSEXCEPTION(str_printf("invalid vertex index: %d", vertexindex));
+				DEFINE_XML_NODE_SIMPLE(position, vertex);
+				Vector3& Position = m_VertexElems.GetPosition(pVertex);
+				rapidxml::xml_attribute<char>* attr_tmp;
+				DEFINE_XML_ATTRIBUTE_FLOAT(Position.x, attr_tmp, node_position, x);
+				DEFINE_XML_ATTRIBUTE_FLOAT(Position.y, attr_tmp, node_position, y);
+				DEFINE_XML_ATTRIBUTE_FLOAT(Position.z, attr_tmp, node_position, z);
 			}
 
-			if(boneindex >= 0xff)
+			if (normals)
 			{
-				THROW_CUSEXCEPTION(str_printf("invalid bone index: %d", boneindex));
+				DEFINE_XML_NODE_SIMPLE(normal, vertex);
+				Vector3& Normal = m_VertexElems.GetNormal(pVertex);
+				rapidxml::xml_attribute<char>* attr_tmp;
+				DEFINE_XML_ATTRIBUTE_FLOAT(Normal.x, attr_tmp, node_normal, x);
+				DEFINE_XML_ATTRIBUTE_FLOAT(Normal.y, attr_tmp, node_normal, y);
+				DEFINE_XML_ATTRIBUTE_FLOAT(Normal.z, attr_tmp, node_normal, z);
 			}
 
-			unsigned char * pVertex = (unsigned char *)pVertices + vertexindex * offset;
-			unsigned char * pIndices = (unsigned char *)&m_VertexElems.GetBlendIndices(pVertex);
-			float * pWeights = (float *)&m_VertexElems.GetBlendWeight(pVertex);
-
-			int i = 0;
-			for(; i < D3DVertexElementSet::MAX_BONE_INDICES; i++)
+			if (colours_diffuse)
 			{
-				if(pWeights[i] == 0)
+				DEFINE_XML_NODE_SIMPLE(colour_diffuse, vertex);
+				DEFINE_XML_ATTRIBUTE_SIMPLE(value, colour_diffuse);
+				const char* color_value = attr_value->value();
+				std::vector<std::string> color_set;
+				boost::algorithm::split(color_set, color_value, boost::is_any_of(" "), boost::algorithm::token_compress_off);
+				D3DXCOLOR Color = D3DCOLOR_ARGB(
+					(int)(boost::lexical_cast<float>(color_set[3]) * 255),
+					(int)(boost::lexical_cast<float>(color_set[0]) * 255),
+					(int)(boost::lexical_cast<float>(color_set[1]) * 255),
+					(int)(boost::lexical_cast<float>(color_set[2]) * 255));
+				m_VertexElems.SetColor(pVertex, Color);
+			}
+
+			rapidxml::xml_node<char>* node_texcoord = node_vertex->first_node("texcoord");
+			for (int i = 0; i < texture_coords && node_texcoord != NULL; i++, node_texcoord = node_texcoord->next_sibling())
+			{
+				Vector2& Texcoord = m_VertexElems.GetTexcoord(pVertex, i);
+				rapidxml::xml_attribute<char>* attr_tmp;
+				DEFINE_XML_ATTRIBUTE_FLOAT(Texcoord.x, attr_tmp, node_texcoord, u);
+				DEFINE_XML_ATTRIBUTE_FLOAT(Texcoord.y, attr_tmp, node_texcoord, v);
+			}
+
+			if (node_boneassignments != NULL && node_boneassignments->first_node("vertexboneassignment"))
+			{
+				m_VertexElems.SetBlendIndices(pVertex, 0);
+				m_VertexElems.SetBlendWeight(pVertex, Vector4::zero);
+			}
+		}
+
+		if (node_boneassignments != NULL)
+		{
+			rapidxml::xml_node<char>* node_vertexboneassignment = node_boneassignments->first_node("vertexboneassignment");
+			for (; node_vertexboneassignment != NULL; node_vertexboneassignment = node_vertexboneassignment->next_sibling())
+			{
+				DEFINE_XML_ATTRIBUTE_INT_SIMPLE(vertexindex, vertexboneassignment);
+				DEFINE_XML_ATTRIBUTE_INT_SIMPLE(boneindex, vertexboneassignment);
+				DEFINE_XML_ATTRIBUTE_FLOAT_SIMPLE(weight, vertexboneassignment);
+
+				if (start_vertex_i + vertexindex >= total_vertices)
 				{
-					pIndices[i] = boneindex;
-					pWeights[i] = weight;
-					break;
+					THROW_CUSEXCEPTION(str_printf("invalid vertex index: %d", vertexindex));
+				}
+
+				if (boneindex >= 0xff)
+				{
+					THROW_CUSEXCEPTION(str_printf("invalid bone index: %d", boneindex));
+				}
+
+				unsigned char* pVertex = (unsigned char*)pVertices + (start_vertex_i + vertexindex) * offset;
+				unsigned char* pIndices = (unsigned char*)&m_VertexElems.GetBlendIndices(pVertex);
+				float* pWeights = (float*)&m_VertexElems.GetBlendWeight(pVertex);
+
+				int i = 0;
+				for (; i < D3DVertexElementSet::MAX_BONE_INDICES; i++)
+				{
+					if (pWeights[i] == 0)
+					{
+						pIndices[i] = boneindex;
+						pWeights[i] = weight;
+						break;
+					}
+				}
+
+				if (i >= D3DVertexElementSet::MAX_BONE_INDICES)
+				{
+					THROW_CUSEXCEPTION("too much bone assignment");
 				}
 			}
+		}
 
-			if(i >= D3DVertexElementSet::MAX_BONE_INDICES)
-			{
-				THROW_CUSEXCEPTION("too much bone assignment");
-			}
+		if (node_sharedgeometry)
+		{
+			break;
 		}
 	}
+
 	ResourceMgr::getSingleton().EnterDeviceSection();
 	UnlockVertexBuffer();
 	ResourceMgr::getSingleton().LeaveDeviceSection();
 
 	ResourceMgr::getSingleton().EnterDeviceSection();
-	VOID * pIndices = LockIndexBuffer();
-	DWORD * pAttrBuffer = LockAttributeBuffer();
+	VOID* pIndices = LockIndexBuffer();
+	DWORD* pAttrBuffer = LockAttributeBuffer();
 	ResourceMgr::getSingleton().LeaveDeviceSection();
-	int submesh_i = 0;
-	node_submesh_iter = node_submesh;
-	for(int face_i = 0; node_submesh_iter != NULL; node_submesh_iter = bUseSharedGeometry ? node_submesh_iter->next_sibling() : NULL, submesh_i++)
+
+	DEFINE_XML_NODE(node_submesh, node_submeshes, submesh);
+	int face_i = 0;
+	for (int submesh_i = 0; node_submesh != NULL; node_submesh = node_submesh->next_sibling(), submesh_i++)
 	{
-		DEFINE_XML_ATTRIBUTE_SIMPLE(material, submesh_iter);
-		DEFINE_XML_ATTRIBUTE_BOOL_SIMPLE(use32bitindexes, submesh_iter);
-		DEFINE_XML_ATTRIBUTE_BOOL_SIMPLE(usesharedvertices, submesh_iter);
-		if(usesharedvertices != bUseSharedGeometry)
-		{
-			THROW_CUSEXCEPTION("invalid usesharedvertices");
-		}
-
-		rapidxml::xml_attribute<char> * attr_operationtype = node_submesh_iter->first_attribute("operationtype");
-		if (attr_operationtype && 0 != _stricmp(attr_operationtype->value(), "triangle_list"))
-		{
-			THROW_CUSEXCEPTION("!triangle_list");
-		}
-
-		DEFINE_XML_NODE_SIMPLE(faces, submesh_iter);
+		DEFINE_XML_NODE_SIMPLE(faces, submesh);
 		DEFINE_XML_ATTRIBUTE_INT_SIMPLE(count, faces);
-
 		DEFINE_XML_NODE_SIMPLE(face, faces);
-		for(; node_face != NULL && face_i < facecount; node_face = node_face->next_sibling(), face_i++)
+
+		D3DXATTRIBUTERANGE& rang = m_AttribTable[submesh_i];
+		for (; node_face != NULL && face_i < total_faces; node_face = node_face->next_sibling(), face_i++)
 		{
 			DEFINE_XML_ATTRIBUTE_INT_SIMPLE(v1, face);
 			DEFINE_XML_ATTRIBUTE_INT_SIMPLE(v2, face);
 			DEFINE_XML_ATTRIBUTE_INT_SIMPLE(v3, face);
 
-			if(dwMeshOptions & D3DXMESH_32BIT)
+			if (dwMeshOptions & D3DXMESH_32BIT)
 			{
-				*((DWORD *)pIndices + face_i * 3 + 0) = v1;
-				*((DWORD *)pIndices + face_i * 3 + 1) = v2;
-				*((DWORD *)pIndices + face_i * 3 + 2) = v3;
+				*((DWORD*)pIndices + face_i * 3 + 0) = v1 + rang.VertexStart;
+				*((DWORD*)pIndices + face_i * 3 + 1) = v2 + rang.VertexStart;
+				*((DWORD*)pIndices + face_i * 3 + 2) = v3 + rang.VertexStart;
 			}
 			else
 			{
-				*((WORD *)pIndices + face_i * 3 + 0) = v1;
-				*((WORD *)pIndices + face_i * 3 + 1) = v2;
-				*((WORD *)pIndices + face_i * 3 + 2) = v3;
+				*((WORD*)pIndices + face_i * 3 + 0) = v1 + rang.VertexStart;
+				*((WORD*)pIndices + face_i * 3 + 1) = v2 + rang.VertexStart;
+				*((WORD*)pIndices + face_i * 3 + 2) = v3 + rang.VertexStart;
 			}
 			pAttrBuffer[face_i] = submesh_i;
 		}
-
-		m_MaterialNameList.push_back(attr_material->value());
 	}
+
 	ResourceMgr::getSingleton().EnterDeviceSection();
 	UnlockAttributeBuffer();
 	UnlockIndexBuffer();
 	ResourceMgr::getSingleton().LeaveDeviceSection();
 
-	std::vector<DWORD> adjacency(GetNumFaces() * 3);
 	ResourceMgr::getSingleton().EnterDeviceSection();
-	GenerateAdjacency((float)EPSILON_E6, &adjacency[0]);
+	SetAttributeTable(m_AttribTable.data(), m_AttribTable.size());
 	ResourceMgr::getSingleton().LeaveDeviceSection();
-	if(bComputeTangentFrame)
+
+	if (bComputeTangentFrame)
 	{
 		//DWORD dwOptions = D3DXTANGENT_GENERATE_IN_PLACE;
 		//if(!normals)
@@ -1266,26 +1329,31 @@ void OgreMesh::CreateMeshFromOgreXmlNodes(
 		//	THROW_D3DEXCEPTION(hr);
 		//}
 		ResourceMgr::getSingleton().EnterDeviceSection();
-		VOID * pVertices = LockVertexBuffer();
-		VOID * pIndices = LockIndexBuffer();
+		VOID* pVertices = LockVertexBuffer();
+		VOID* pIndices = LockIndexBuffer();
 		ResourceMgr::getSingleton().LeaveDeviceSection();
+
 		ComputeTangentFrame(
-			pVertices, GetNumVertices(), GetNumBytesPerVertex(), pIndices, !(dwMeshOptions & D3DXMESH_32BIT), GetNumFaces(), m_VertexElems);
+			pVertices, total_vertices, offset, pIndices, !(dwMeshOptions& D3DXMESH_32BIT), total_faces, m_VertexElems);
+
 		ResourceMgr::getSingleton().EnterDeviceSection();
 		UnlockVertexBuffer();
 		UnlockIndexBuffer();
 		ResourceMgr::getSingleton().LeaveDeviceSection();
 	}
-	m_Adjacency.resize(adjacency.size());
-	ResourceMgr::getSingleton().EnterDeviceSection();
-	OptimizeInplace(D3DXMESHOPT_ATTRSORT | D3DXMESHOPT_VERTEXCACHE, &adjacency[0], &m_Adjacency[0], NULL, NULL);
-	ResourceMgr::getSingleton().LeaveDeviceSection();
 
-	DWORD AttribTblCount = 0;
+	//std::vector<DWORD> adjacency(GetNumFaces() * 3);
+	//ResourceMgr::getSingleton().EnterDeviceSection();
+	//GenerateAdjacency((float)EPSILON_E6, &adjacency[0]);
+	//ResourceMgr::getSingleton().LeaveDeviceSection();
+
+	//ResourceMgr::getSingleton().EnterDeviceSection();
+	//OptimizeInplace(D3DXMESHOPT_ATTRSORT | D3DXMESHOPT_VERTEXCACHE, &adjacency[0], &m_Adjacency[0], NULL, NULL);
+	//ResourceMgr::getSingleton().LeaveDeviceSection();
+
+	m_Adjacency.resize(total_faces * 3);
 	ResourceMgr::getSingleton().EnterDeviceSection();
-	GetAttributeTable(NULL, &AttribTblCount);
-	m_AttribTable.resize(AttribTblCount);
-	GetAttributeTable(&m_AttribTable[0], &AttribTblCount);
+	GenerateAdjacency((float)EPSILON_E6, &m_Adjacency[0]);
 	ResourceMgr::getSingleton().LeaveDeviceSection();
 }
 
@@ -1503,6 +1571,9 @@ void OgreMesh::SaveOgreMesh(const char * path)
 	ofs << "\t<submeshes>\n";
 	for (DWORD i=0; i < submeshes; i++)
 	{
+		// ! only support shared geometry
+		_ASSERT(rang[i].VertexStart == 0);
+
 		// Start submesh description
 		ofs << "\t\t<submesh ";
 		// Write material name

@@ -1382,7 +1382,7 @@ void CMainFrame::OnComponentMesh()
 			DEFINE_XML_ATTRIBUTE_INT_SIMPLE(index, submeshname);
 			MeshComponentPtr mesh_cmp(new MeshComponent(my::NamedObject::MakeUniqueName((std::string((*actor_iter)->GetName()) + "_mesh").c_str()).c_str()));
 			mesh_cmp->m_MeshPath = path;
-			mesh_cmp->m_MeshSubMeshName = attr_name->value();
+			mesh_cmp->m_MeshSubMeshId = index;
 			MaterialPtr mtl(new Material());
 			mtl->m_Shader = theApp.default_shader;
 			mtl->ParseShaderParameters();
@@ -1455,54 +1455,19 @@ void CMainFrame::OnComponentCloth()
 	DEFINE_XML_NODE_SIMPLE(mesh, root);
 	DEFINE_XML_NODE_SIMPLE(submeshes, mesh);
 	DEFINE_XML_NODE_SIMPLE(submesh, submeshes);
-	rapidxml::xml_node<char>* node_sharedgeometry = node_mesh->first_node("sharedgeometry");
-	if (node_sharedgeometry)
+	my::OgreMeshPtr mesh(new my::OgreMesh());
+	mesh->CreateMeshFromOgreXml(node_root, "", true, D3DXMESH_MANAGED);
+
+	for (int submesh_i = 0; node_submesh != NULL; node_submesh = node_submesh->next_sibling(), submesh_i++)
 	{
-		rapidxml::xml_node<char>* node_boneassignments = node_mesh->first_node("boneassignments");
-		my::OgreMeshPtr mesh(new my::OgreMesh());
-		mesh->CreateMeshFromOgreXmlNodes(node_sharedgeometry, node_boneassignments, node_submesh, true);
-		std::vector<D3DXATTRIBUTERANGE>::iterator att_iter = mesh->m_AttribTable.begin();
-		for (; att_iter != mesh->m_AttribTable.end(); att_iter++)
-		{
-			std::string ClothFabricPath = MeshPath + ".pxclothfabric";
-			if (att_iter != mesh->m_AttribTable.begin())
-			{
-				ClothFabricPath += "_" + boost::lexical_cast<std::string>(std::distance(mesh->m_AttribTable.begin(), att_iter));
-			}
-			ClothComponentPtr cloth_cmp(new ClothComponent(my::NamedObject::MakeUniqueName((std::string((*actor_iter)->GetName()) + "_cloth").c_str()).c_str()));
-			cloth_cmp->CreateClothFromMesh(ClothFabricPath.c_str(), mesh, std::distance(mesh->m_AttribTable.begin(), att_iter), GetGravity());
-			MaterialPtr mtl(new Material());
-			mtl->m_Shader = theApp.default_shader;
-			mtl->ParseShaderParameters();
-			cloth_cmp->SetMaterial(mtl);
-			(*actor_iter)->InsertComponent(cloth_cmp);
-		}
-	}
-	else
-	{
-		DEFINE_XML_NODE_SIMPLE(submeshnames, mesh);
-		DEFINE_XML_NODE_SIMPLE(submeshname, submeshnames);
-		for (; node_submesh != NULL && node_submeshname != NULL; node_submesh = node_submesh->next_sibling(), node_submeshname = node_submeshname->next_sibling())
-		{
-			DEFINE_XML_ATTRIBUTE_SIMPLE(name, submeshname);
-			DEFINE_XML_ATTRIBUTE_INT_SIMPLE(index, submeshname);
-			DEFINE_XML_NODE_SIMPLE(geometry, submesh);
-			rapidxml::xml_node<char>* node_boneassignments = node_submesh->first_node("boneassignments");
-			my::OgreMeshPtr mesh(new my::OgreMesh());
-			mesh->CreateMeshFromOgreXmlNodes(node_geometry, node_boneassignments, node_submesh, false);
-			std::string ClothFabricPath = MeshPath + ".pxclothfabric";
-			if (attr_name->value())
-			{
-				ClothFabricPath += std::string("_") + attr_name->value();
-			}
-			ClothComponentPtr cloth_cmp(new ClothComponent(my::NamedObject::MakeUniqueName((std::string((*actor_iter)->GetName()) + "_cloth").c_str()).c_str()));
-			cloth_cmp->CreateClothFromMesh(ClothFabricPath.c_str(), mesh, 0, GetGravity());
-			MaterialPtr mtl(new Material());
-			mtl->m_Shader = theApp.default_shader;
-			mtl->ParseShaderParameters();
-			cloth_cmp->SetMaterial(mtl);
-			(*actor_iter)->InsertComponent(cloth_cmp);
-		}
+		std::string ClothFabricPath = MeshPath + ".pxclothfabric_" + boost::lexical_cast<std::string>(submesh_i);
+		ClothComponentPtr cloth_cmp(new ClothComponent(my::NamedObject::MakeUniqueName((std::string((*actor_iter)->GetName()) + "_cloth").c_str()).c_str()));
+		cloth_cmp->CreateClothFromMesh(ClothFabricPath.c_str(), mesh, submesh_i, GetGravity());
+		MaterialPtr mtl(new Material());
+		mtl->m_Shader = theApp.default_shader;
+		mtl->ParseShaderParameters();
+		cloth_cmp->SetMaterial(mtl);
+		(*actor_iter)->InsertComponent(cloth_cmp);
 	}
 
 	(*actor_iter)->UpdateAABB();

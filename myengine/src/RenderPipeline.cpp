@@ -877,7 +877,17 @@ void RenderPipeline::RenderAllObjects(
 	MeshAtomList::iterator mesh_iter = m_Pass[PassID].m_MeshList.begin();
 	for (; mesh_iter != m_Pass[PassID].m_MeshList.end(); mesh_iter++)
 	{
-		DrawMesh(pd3dDevice, PassID, pRC, mesh_iter->mesh, mesh_iter->AttribId, mesh_iter->shader, mesh_iter->cmp, mesh_iter->mtl, mesh_iter->lparam);
+		//DrawMesh(pd3dDevice, PassID, pRC, mesh_iter->mesh, mesh_iter->AttribId, mesh_iter->shader, mesh_iter->cmp, mesh_iter->mtl, mesh_iter->lparam);
+		D3DXATTRIBUTERANGE& rang = static_cast<my::OgreMesh*>(mesh_iter->mesh)->m_AttribTable[mesh_iter->AttribId];
+		DrawIndexedPrimitive(
+			pd3dDevice,
+			PassID,
+			pRC,
+			static_cast<my::OgreMesh*>(mesh_iter->mesh)->m_Decl,
+			mesh_iter->mesh->GetVertexBuffer(),
+			mesh_iter->mesh->GetIndexBuffer(),
+			D3DPT_TRIANGLELIST,
+			0, rang.VertexStart, rang.VertexCount, static_cast<my::OgreMesh*>(mesh_iter->mesh)->GetNumBytesPerVertex(), rang.FaceStart * 3, rang.FaceCount, mesh_iter->shader, mesh_iter->cmp, mesh_iter->mtl, mesh_iter->lparam);
 		m_PassDrawCall[PassID]++;
 	}
 
