@@ -460,13 +460,12 @@ void CPropertiesWnd::UpdatePropertiesMesh(CMFCPropertyGridProperty * pComponent,
 		return;
 	}
 	pComponent->GetSubItem(PropId + 0)->SetValue((_variant_t)ms2ts(theApp.GetFullPath(mesh_cmp->m_MeshPath.c_str())).c_str());
-	pComponent->GetSubItem(PropId + 1)->SetValue((_variant_t)ms2ts(mesh_cmp->m_MeshSubMeshName).c_str());
-	pComponent->GetSubItem(PropId + 2)->SetValue((_variant_t)mesh_cmp->m_MeshSubMeshId);
+	pComponent->GetSubItem(PropId + 1)->SetValue((_variant_t)mesh_cmp->m_MeshSubMeshId);
 	COLORREF color = RGB(mesh_cmp->m_MeshColor.x * 255, mesh_cmp->m_MeshColor.y * 255, mesh_cmp->m_MeshColor.z * 255);
-	(DYNAMIC_DOWNCAST(CColorProp, pComponent->GetSubItem(PropId + 3)))->SetColor(color);
-	pComponent->GetSubItem(PropId + 4)->SetValue((_variant_t)(long)(mesh_cmp->m_MeshColor.w * 255));
-	pComponent->GetSubItem(PropId + 5)->SetValue((_variant_t)(VARIANT_BOOL)mesh_cmp->m_bInstance);
-	UpdatePropertiesMaterial(pComponent->GetSubItem(PropId + 6), mesh_cmp->m_Material.get());
+	(DYNAMIC_DOWNCAST(CColorProp, pComponent->GetSubItem(PropId + 2)))->SetColor(color);
+	pComponent->GetSubItem(PropId + 3)->SetValue((_variant_t)(long)(mesh_cmp->m_MeshColor.w * 255));
+	pComponent->GetSubItem(PropId + 4)->SetValue((_variant_t)(VARIANT_BOOL)mesh_cmp->m_bInstance);
+	UpdatePropertiesMaterial(pComponent->GetSubItem(PropId + 5), mesh_cmp->m_Material.get());
 }
 
 void CPropertiesWnd::UpdatePropertiesMaterial(CMFCPropertyGridProperty * pMaterial, Material * mtl)
@@ -1428,10 +1427,6 @@ void CPropertiesWnd::CreatePropertiesMesh(CMFCPropertyGridProperty * pComponent,
 	ASSERT(pComponent->GetSubItemsCount() == GetComponentPropCount(Component::ComponentTypeComponent));
 
 	CMFCPropertyGridProperty * pProp = new CFileProp(_T("MeshPath"), TRUE, (_variant_t)ms2ts(theApp.GetFullPath(mesh_cmp->m_MeshPath.c_str())).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyMeshPath);
-	pProp->Enable(FALSE);
-	pComponent->AddSubItem(pProp);
-
-	pProp = new CSimpleProp(_T("MeshSubMeshName"), (_variant_t)ms2ts(mesh_cmp->m_MeshSubMeshName).c_str(), NULL, PropertyMeshSubMeshName);
 	pProp->Enable(FALSE);
 	pComponent->AddSubItem(pProp);
 
@@ -2613,7 +2608,7 @@ unsigned int CPropertiesWnd::GetComponentPropCount(DWORD type)
 	case Component::ComponentTypeController:
 		return GetComponentPropCount(Component::ComponentTypeComponent);
 	case Component::ComponentTypeMesh:
-		return GetComponentPropCount(Component::ComponentTypeComponent) + 7;
+		return GetComponentPropCount(Component::ComponentTypeComponent) + 6;
 	case Component::ComponentTypeCloth:
 		return GetComponentPropCount(Component::ComponentTypeComponent) + 4;
 	case Component::ComponentTypeStaticEmitter:
@@ -3192,11 +3187,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 				MessageBox(_T("!mesh_cmp || mesh_cmp->m_MeshPath.empty()"));
 				return 0;
 			}
-			if (!mesh_cmp->m_MeshSubMeshName.empty())
-			{
-				dlg.m_AssetPath = ms2ts(mesh_cmp->m_MeshPath + ".pxconvexmesh_" + mesh_cmp->m_MeshSubMeshName).c_str();
-			}
-			else if (mesh_cmp->m_MeshSubMeshId > 0)
+			if (mesh_cmp->m_MeshSubMeshId > 0)
 			{
 				dlg.m_AssetPath = ms2ts(mesh_cmp->m_MeshPath + ".pxconvexmesh_" + boost::lexical_cast<std::string>(mesh_cmp->m_MeshSubMeshId)).c_str();
 			}
@@ -3214,11 +3205,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 				MessageBox(_T("!mesh_cmp || mesh_cmp->m_MeshPath.empty()"));
 				return 0;
 			}
-			if (!mesh_cmp->m_MeshSubMeshName.empty())
-			{
-				dlg.m_AssetPath = ms2ts(mesh_cmp->m_MeshPath + ".pxtrianglemesh_" + mesh_cmp->m_MeshSubMeshName).c_str();
-			}
-			else if (mesh_cmp->m_MeshSubMeshId > 0)
+			if (mesh_cmp->m_MeshSubMeshId > 0)
 			{
 				dlg.m_AssetPath = ms2ts(mesh_cmp->m_MeshPath + ".pxtrianglemesh_" + boost::lexical_cast<std::string>(mesh_cmp->m_MeshSubMeshId)).c_str();
 			}
@@ -3354,7 +3341,6 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		break;
 	}
 	case PropertyMeshPath:
-	case PropertyMeshSubMeshName:
 	case PropertyMeshSubMeshId:
 	{
 		//MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>((Component *)pProp->GetParent()->GetValue().ulVal);
@@ -3377,11 +3363,11 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	{
 		MeshComponent* mesh_cmp = dynamic_cast<MeshComponent*>((Component*)pProp->GetParent()->GetValue().pulVal);
 		unsigned int PropId = GetComponentPropCount(Component::ComponentTypeComponent);
-		COLORREF color = (DYNAMIC_DOWNCAST(CColorProp, pProp->GetParent()->GetSubItem(PropId + 3)))->GetColor();
+		COLORREF color = (DYNAMIC_DOWNCAST(CColorProp, pProp->GetParent()->GetSubItem(PropId + 2)))->GetColor();
 		mesh_cmp->m_MeshColor.x = GetRValue(color) / 255.0f;
 		mesh_cmp->m_MeshColor.y = GetGValue(color) / 255.0f;
 		mesh_cmp->m_MeshColor.z = GetBValue(color) / 255.0f;
-		mesh_cmp->m_MeshColor.w = pProp->GetParent()->GetSubItem(PropId + 4)->GetValue().lVal / 255.0f;
+		mesh_cmp->m_MeshColor.w = pProp->GetParent()->GetSubItem(PropId + 3)->GetValue().lVal / 255.0f;
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;

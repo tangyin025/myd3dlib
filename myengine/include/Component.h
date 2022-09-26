@@ -235,8 +235,6 @@ public:
 
 	std::string m_MeshPath;
 
-	std::string m_MeshSubMeshName;
-
 	int m_MeshSubMeshId;
 
 	my::OgreMeshPtr m_Mesh;

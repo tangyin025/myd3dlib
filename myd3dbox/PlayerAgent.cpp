@@ -203,7 +203,7 @@ void PlayerAgent::Update(float fElapsedTime)
 	{
 		if (i >= m_Meshes.size())
 		{
-			boost::regex reg("([^;]+);(\\w*);(\\d+)");
+			boost::regex reg("([^;]+);(\\d+)");
 			boost::match_results<std::string::iterator> what;
 			std::string::iterator start = theApp.default_player_mesh_list[i].begin();
 			std::string::iterator end = theApp.default_player_mesh_list[i].end();
@@ -222,8 +222,7 @@ void PlayerAgent::Update(float fElapsedTime)
 
 				m_Meshes.push_back(MeshComponentPtr(new MeshComponent(NULL)));
 				m_Meshes[i]->m_MeshPath = what[1];
-				m_Meshes[i]->m_MeshSubMeshName = what[2];
-				m_Meshes[i]->m_MeshSubMeshId = boost::lexical_cast<int>(what[3]);
+				m_Meshes[i]->m_MeshSubMeshId = boost::lexical_cast<int>(what[2]);
 				m_Meshes[i]->SetMaterial(mtl);
 				m_Actor->InsertComponent(m_Meshes[i]);
 			}

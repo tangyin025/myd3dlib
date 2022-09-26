@@ -940,20 +940,18 @@ bool Mesh::FrustumTest(
 
 void OgreMesh::CreateMeshFromOgreXmlInFile(
 	LPCTSTR pFilename,
-	const std::string & sub_mesh_name,
 	bool bComputeTangentFrame,
 	DWORD dwMeshOptions)
 {
 	CachePtr cache = FileIStream::Open(pFilename)->GetWholeCache();
 	cache->push_back(0);
 
-	CreateMeshFromOgreXmlInMemory((char *)&(*cache)[0], cache->size(), sub_mesh_name, bComputeTangentFrame, dwMeshOptions);
+	CreateMeshFromOgreXmlInMemory((char *)&(*cache)[0], cache->size(), bComputeTangentFrame, dwMeshOptions);
 }
 
 void OgreMesh::CreateMeshFromOgreXmlInMemory(
 	LPSTR pSrcData,
 	UINT srcDataLen,
-	const std::string & sub_mesh_name,
 	bool bComputeTangentFrame,
 	DWORD dwMeshOptions)
 {
@@ -969,12 +967,11 @@ void OgreMesh::CreateMeshFromOgreXmlInMemory(
 		THROW_CUSEXCEPTION(e.what());
 	}
 
-	CreateMeshFromOgreXml(&doc, sub_mesh_name, bComputeTangentFrame, dwMeshOptions);
+	CreateMeshFromOgreXml(&doc, bComputeTangentFrame, dwMeshOptions);
 }
 
 void OgreMesh::CreateMeshFromOgreXml(
 	const rapidxml::xml_node<char> * node_root,
-	const std::string & sub_mesh_name,
 	bool bComputeTangentFrame,
 	DWORD dwMeshOptions)
 {

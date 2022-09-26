@@ -1456,7 +1456,7 @@ void CMainFrame::OnComponentCloth()
 	DEFINE_XML_NODE_SIMPLE(submeshes, mesh);
 	DEFINE_XML_NODE_SIMPLE(submesh, submeshes);
 	my::OgreMeshPtr mesh(new my::OgreMesh());
-	mesh->CreateMeshFromOgreXml(node_root, "", true, D3DXMESH_MANAGED);
+	mesh->CreateMeshFromOgreXml(node_root, true, D3DXMESH_MANAGED);
 
 	for (int submesh_i = 0; node_submesh != NULL; node_submesh = node_submesh->next_sibling(), submesh_i++)
 	{

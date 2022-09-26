@@ -444,14 +444,13 @@ namespace my
 		boost::shared_ptr<BaseTexture> LoadTexture(const char * path);
 
 		template <typename T>
-		void LoadMeshAsync(const char * path, const char * sub_mesh_name, const T & callback, int Priority = 0)
+		void LoadMeshAsync(const char * path, const T & callback, int Priority = 0)
 		{
-			std::string key = MeshIORequest::BuildKey(path, sub_mesh_name);
-			IORequestPtr request(new MeshIORequest(path, sub_mesh_name, Priority));
-			LoadIORequestAsync(key, request, callback);
+			IORequestPtr request(new MeshIORequest(path, Priority));
+			LoadIORequestAsync(path, request, callback);
 		}
 
-		boost::shared_ptr<OgreMesh> LoadMesh(const char * path, const char * sub_mesh_name);
+		boost::shared_ptr<OgreMesh> LoadMesh(const char * path);
 
 		template <typename T>
 		void LoadSkeletonAsync(const char * path, const T & callback, int Priority = 0)
@@ -527,16 +526,12 @@ namespace my
 	protected:
 		std::string m_path;
 
-		std::string m_sub_mesh_name;
-
 	public:
-		MeshIORequest(const char * path, const char * sub_mesh_name, int Priority);
+		MeshIORequest(const char * path, int Priority);
 
 		virtual void LoadResource(void);
 
 		virtual void CreateResource(LPDIRECT3DDEVICE9 pd3dDevice);
-
-		static std::string BuildKey(const char * path, const char * sub_mesh_name);
 	};
 
 	class SkeletonIORequest : public IORequest

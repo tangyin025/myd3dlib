@@ -121,7 +121,6 @@ public:
 		PropertyCharacter,
 		PropertyMesh,
 		PropertyMeshPath,
-		PropertyMeshSubMeshName,
 		PropertyMeshSubMeshId,
 		PropertyMeshColor,
 		PropertyMeshAlpha,

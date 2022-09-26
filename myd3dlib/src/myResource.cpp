@@ -830,12 +830,11 @@ boost::shared_ptr<BaseTexture> ResourceMgr::LoadTexture(const char * path)
 	return boost::dynamic_pointer_cast<BaseTexture>(cb.m_res);
 }
 
-boost::shared_ptr<OgreMesh> ResourceMgr::LoadMesh(const char * path, const char * sub_mesh_name)
+boost::shared_ptr<OgreMesh> ResourceMgr::LoadMesh(const char * path)
 {
-	std::string key = MeshIORequest::BuildKey(path, sub_mesh_name);
 	SimpleResourceCallback cb;
-	IORequestPtr request(new MeshIORequest(path, sub_mesh_name, INT_MAX));
-	LoadIORequestAndWait(key, request, boost::bind(&SimpleResourceCallback::OnResourceReady, &cb, boost::placeholders::_1));
+	IORequestPtr request(new MeshIORequest(path, INT_MAX));
+	LoadIORequestAndWait(path, request, boost::bind(&SimpleResourceCallback::OnResourceReady, &cb, boost::placeholders::_1));
 	return boost::dynamic_pointer_cast<OgreMesh>(cb.m_res);
 }
 
@@ -914,10 +913,9 @@ void TextureIORequest::CreateResource(LPDIRECT3DDEVICE9 pd3dDevice)
 	}
 }
 
-MeshIORequest::MeshIORequest(const char * path, const char * sub_mesh_name, int Priority)
+MeshIORequest::MeshIORequest(const char * path, int Priority)
 	: IORequest(Priority)
 	, m_path(path)
-	, m_sub_mesh_name(sub_mesh_name)
 {
 }
 
@@ -933,7 +931,7 @@ void MeshIORequest::LoadResource(void)
 			doc.parse<0>((char *)&(*cache)[0]);
 
 			OgreMeshPtr res(new OgreMesh());
-			res->CreateMeshFromOgreXml(&doc, m_sub_mesh_name);
+			res->CreateMeshFromOgreXml(&doc, true, D3DXMESH_MANAGED);
 			m_res = res;
 		}
 		catch(rapidxml::parse_error &)
@@ -948,11 +946,6 @@ void MeshIORequest::CreateResource(LPDIRECT3DDEVICE9 pd3dDevice)
 	{
 		THROW_CUSEXCEPTION(str_printf("failed open %s", m_path.c_str()));
 	}
-}
-
-std::string MeshIORequest::BuildKey(const char * path, const char * sub_mesh_name)
-{
-	return str_printf("%s %s", path, sub_mesh_name);
 }
 
 void SkeletonIORequest::LoadResource(void)

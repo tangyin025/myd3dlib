@@ -487,7 +487,6 @@ void MeshComponent::save(Archive & ar, const unsigned int version) const
 {
 	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(Component);
 	ar << BOOST_SERIALIZATION_NVP(m_MeshPath);
-	ar << BOOST_SERIALIZATION_NVP(m_MeshSubMeshName);
 	ar << BOOST_SERIALIZATION_NVP(m_MeshSubMeshId);
 	ar << BOOST_SERIALIZATION_NVP(m_MeshColor);
 	ar << BOOST_SERIALIZATION_NVP(m_bInstance);
@@ -526,7 +525,6 @@ void MeshComponent::load(Archive & ar, const unsigned int version)
 
 	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(Component);
 	ar >> BOOST_SERIALIZATION_NVP(m_MeshPath);
-	ar >> BOOST_SERIALIZATION_NVP(m_MeshSubMeshName);
 	ar >> BOOST_SERIALIZATION_NVP(m_MeshSubMeshId);
 	ar >> BOOST_SERIALIZATION_NVP(m_MeshColor);
 	ar >> BOOST_SERIALIZATION_NVP(m_bInstance);
@@ -734,7 +732,7 @@ void MeshComponent::RequestResource(void)
 	{
 		_ASSERT(!m_Mesh);
 
-		my::ResourceMgr::getSingleton().LoadMeshAsync(m_MeshPath.c_str(), m_MeshSubMeshName.c_str(), boost::bind(&MeshComponent::OnMeshReady, this, boost::placeholders::_1));
+		my::ResourceMgr::getSingleton().LoadMeshAsync(m_MeshPath.c_str(), boost::bind(&MeshComponent::OnMeshReady, this, boost::placeholders::_1));
 	}
 
 	_ASSERT(!PhysxSdk::getSingleton().m_RenderTickMuted);
@@ -771,7 +769,7 @@ void MeshComponent::ReleaseResource(void)
 
 	if (!m_MeshPath.empty())
 	{
-		my::ResourceMgr::getSingleton().RemoveIORequestCallback(MeshIORequest::BuildKey(m_MeshPath.c_str(), m_MeshSubMeshName.c_str()), boost::bind(&MeshComponent::OnMeshReady, this, boost::placeholders::_1));
+		my::ResourceMgr::getSingleton().RemoveIORequestCallback(m_MeshPath.c_str(), boost::bind(&MeshComponent::OnMeshReady, this, boost::placeholders::_1));
 
 		m_Mesh.reset();
 	}
@@ -891,7 +889,7 @@ void MeshComponent::CreateTriangleMeshShape(const char * TriangleMeshPath)
 	{
 		_ASSERT(GetCurrentThreadId() == D3DContext::getSingleton().m_d3dThreadId);
 
-		OgreMeshPtr mesh = m_Mesh ? m_Mesh : my::ResourceMgr::getSingleton().LoadMesh(m_MeshPath.c_str(), m_MeshSubMeshName.c_str());
+		OgreMeshPtr mesh = m_Mesh ? m_Mesh : my::ResourceMgr::getSingleton().LoadMesh(m_MeshPath.c_str());
 		if (mesh)
 		{
 			const D3DXATTRIBUTERANGE& att = mesh->m_AttribTable[m_MeshSubMeshId];
@@ -943,7 +941,7 @@ void MeshComponent::CreateConvexMeshShape(const char * ConvexMeshPath, bool bInf
 	{
 		_ASSERT(GetCurrentThreadId() == D3DContext::getSingleton().m_d3dThreadId);
 
-		OgreMeshPtr mesh = m_Mesh ? m_Mesh : my::ResourceMgr::getSingleton().LoadMesh(m_MeshPath.c_str(), m_MeshSubMeshName.c_str());
+		OgreMeshPtr mesh = m_Mesh ? m_Mesh : my::ResourceMgr::getSingleton().LoadMesh(m_MeshPath.c_str());
 		if (mesh)
 		{
 			const D3DXATTRIBUTERANGE& att = mesh->m_AttribTable[m_MeshSubMeshId];
