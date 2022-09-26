@@ -371,7 +371,7 @@ public:
 
 	struct MeshAtom
 	{
-		my::Mesh * mesh;
+		my::OgreMesh * mesh;
 		DWORD AttribId;
 		my::Effect * shader;
 		Component * cmp;
@@ -390,10 +390,10 @@ public:
 		std::vector<MeshComponent *> cmps;
 	};
 
-	class MeshInstanceAtomKey : public boost::tuple<my::Mesh *, DWORD, my::Effect *, Material *, LPARAM>
+	class MeshInstanceAtomKey : public boost::tuple<my::OgreMesh *, DWORD, my::Effect *, Material *, LPARAM>
 	{
 	public:
-		MeshInstanceAtomKey(my::Mesh * mesh, DWORD AttribId, my::Effect * shader, Material * mtl, LPARAM lparam)
+		MeshInstanceAtomKey(my::OgreMesh * mesh, DWORD AttribId, my::Effect * shader, Material * mtl, LPARAM lparam)
 			: tuple(mesh, AttribId, shader, mtl, lparam)
 		{
 		}
@@ -568,8 +568,6 @@ public:
 		Material * mtl,
 		LPARAM lparam);
 
-	void DrawMesh(IDirect3DDevice9 * pd3dDevice, unsigned int PassID, IRenderContext * pRC, my::Mesh * mesh, DWORD AttribId, my::Effect * shader, Component * cmp, Material * mtl, LPARAM lparam);
-
 	void PushIndexedPrimitive(
 		unsigned int PassID,
 		IDirect3DVertexDeclaration9* pDecl,
@@ -623,9 +621,9 @@ public:
 		Material * mtl,
 		LPARAM lparam);
 
-	void PushMesh(unsigned int PassID, my::Mesh * mesh, DWORD AttribId, my::Effect * shader, Component * cmp, Material * mtl, LPARAM lparam);
+	void PushMesh(unsigned int PassID, my::OgreMesh * mesh, DWORD AttribId, my::Effect * shader, Component * cmp, Material * mtl, LPARAM lparam);
 
-	void PushMeshInstance(unsigned int PassID, my::Mesh * mesh, DWORD AttribId, my::Effect * shader, MeshComponent * mesh_cmp, Material * mtl, LPARAM lparam);
+	void PushMeshInstance(unsigned int PassID, my::OgreMesh * mesh, DWORD AttribId, my::Effect * shader, MeshComponent * mesh_cmp, Material * mtl, LPARAM lparam);
 
 	void PushEmitter(
 		unsigned int PassID,

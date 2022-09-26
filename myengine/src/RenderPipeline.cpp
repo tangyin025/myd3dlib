@@ -877,17 +877,24 @@ void RenderPipeline::RenderAllObjects(
 	MeshAtomList::iterator mesh_iter = m_Pass[PassID].m_MeshList.begin();
 	for (; mesh_iter != m_Pass[PassID].m_MeshList.end(); mesh_iter++)
 	{
-		//DrawMesh(pd3dDevice, PassID, pRC, mesh_iter->mesh, mesh_iter->AttribId, mesh_iter->shader, mesh_iter->cmp, mesh_iter->mtl, mesh_iter->lparam);
-		D3DXATTRIBUTERANGE& rang = static_cast<my::OgreMesh*>(mesh_iter->mesh)->m_AttribTable[mesh_iter->AttribId];
+		D3DXATTRIBUTERANGE& rang = mesh_iter->mesh->m_AttribTable[mesh_iter->AttribId];
 		DrawIndexedPrimitive(
 			pd3dDevice,
 			PassID,
 			pRC,
-			static_cast<my::OgreMesh*>(mesh_iter->mesh)->m_Decl,
+			mesh_iter->mesh->m_Decl,
 			mesh_iter->mesh->GetVertexBuffer(),
 			mesh_iter->mesh->GetIndexBuffer(),
 			D3DPT_TRIANGLELIST,
-			0, rang.VertexStart, rang.VertexCount, static_cast<my::OgreMesh*>(mesh_iter->mesh)->GetNumBytesPerVertex(), rang.FaceStart * 3, rang.FaceCount, mesh_iter->shader, mesh_iter->cmp, mesh_iter->mtl, mesh_iter->lparam);
+			0, rang.VertexStart,
+			rang.VertexCount,
+			mesh_iter->mesh->GetNumBytesPerVertex(),
+			rang.FaceStart * 3,
+			rang.FaceCount,
+			mesh_iter->shader,
+			mesh_iter->cmp,
+			mesh_iter->mtl,
+			mesh_iter->lparam);
 		m_PassDrawCall[PassID]++;
 	}
 
@@ -911,7 +918,7 @@ void RenderPipeline::RenderAllObjects(
 			}
 			m_MeshInstanceData.Unlock();
 
-			my::Mesh* mesh = mesh_inst_iter->first.get<0>();
+			my::OgreMesh* mesh = mesh_inst_iter->first.get<0>();
 			DrawIndexedPrimitiveInstance(
 				pd3dDevice,
 				PassID,
@@ -1124,20 +1131,6 @@ void RenderPipeline::DrawIndexedPrimitiveUP(
 	shader->End();
 }
 
-void RenderPipeline::DrawMesh(IDirect3DDevice9 * pd3dDevice, unsigned int PassID, IRenderContext * pRC, my::Mesh * mesh, DWORD AttribId, my::Effect * shader, Component * cmp, Material * mtl, LPARAM lparam)
-{
-	cmp->OnSetShader(pd3dDevice, shader, lparam);
-	const UINT passes = shader->Begin(D3DXFX_DONOTSAVESTATE | D3DXFX_DONOTSAVESAMPLERSTATE | D3DXFX_DONOTSAVESHADERSTATE);
-	_ASSERT(PassID < passes);
-	{
-		mtl->OnSetShader(pd3dDevice, shader, lparam, pRC, cmp->m_Actor);
-		shader->BeginPass(PassID);
-		mesh->DrawSubset(AttribId);
-		shader->EndPass();
-	}
-	shader->End();
-}
-
 void RenderPipeline::PushIndexedPrimitive(
 	unsigned int PassID,
 	IDirect3DVertexDeclaration9* pDecl,
@@ -1248,7 +1241,7 @@ void RenderPipeline::PushIndexedPrimitiveUP(
 	m_Pass[PassID].m_IndexedPrimitiveUPList.push_back(atom);
 }
 
-void RenderPipeline::PushMesh(unsigned int PassID, my::Mesh * mesh, DWORD AttribId, my::Effect * shader, Component * cmp, Material * mtl, LPARAM lparam)
+void RenderPipeline::PushMesh(unsigned int PassID, my::OgreMesh * mesh, DWORD AttribId, my::Effect * shader, Component * cmp, Material * mtl, LPARAM lparam)
 {
 	MeshAtom atom;
 	atom.mesh = mesh;
@@ -1260,7 +1253,7 @@ void RenderPipeline::PushMesh(unsigned int PassID, my::Mesh * mesh, DWORD Attrib
 	m_Pass[PassID].m_MeshList.push_back(atom);
 }
 
-void RenderPipeline::PushMeshInstance(unsigned int PassID, my::Mesh * mesh, DWORD AttribId, my::Effect * shader, MeshComponent * mesh_cmp, Material * mtl, LPARAM lparam)
+void RenderPipeline::PushMeshInstance(unsigned int PassID, my::OgreMesh * mesh, DWORD AttribId, my::Effect * shader, MeshComponent * mesh_cmp, Material * mtl, LPARAM lparam)
 {
 	MeshInstanceAtomKey key(mesh, AttribId, shader, mtl, lparam);
 	std::pair<MeshInstanceAtomMap::iterator, bool> res = m_Pass[PassID].m_MeshInstanceMap.insert(std::make_pair(key, MeshInstanceAtom()));
