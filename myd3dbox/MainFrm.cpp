@@ -1342,22 +1342,25 @@ void CMainFrame::OnComponentMesh()
 	DEFINE_XML_NODE_SIMPLE(mesh, root);
 	DEFINE_XML_NODE_SIMPLE(submeshes, mesh);
 	DEFINE_XML_NODE_SIMPLE(submesh, submeshes);
+	DEFINE_XML_NODE_SIMPLE(submeshnames, mesh);
+	DEFINE_XML_NODE_SIMPLE(submeshname, submeshnames);
+	for (; node_submesh != NULL && node_submeshname != NULL; node_submesh = node_submesh->next_sibling(), node_submeshname = node_submeshname->next_sibling())
+	{
+		DEFINE_XML_ATTRIBUTE_SIMPLE(name, submeshname);
+		DEFINE_XML_ATTRIBUTE_INT_SIMPLE(index, submeshname);
+		MeshComponentPtr mesh_cmp(new MeshComponent(my::NamedObject::MakeUniqueName((std::string((*actor_iter)->GetName()) + "_" + attr_name->value()).c_str()).c_str()));
+		mesh_cmp->m_MeshPath = path;
+		mesh_cmp->m_MeshSubMeshId = index;
+		MaterialPtr mtl(new Material());
+		mtl->m_Shader = theApp.default_shader;
+		mtl->ParseShaderParameters();
+		mesh_cmp->SetMaterial(mtl);
+		(*actor_iter)->InsertComponent(mesh_cmp);
+	}
+
 	rapidxml::xml_node<char>* node_sharedgeometry = node_mesh->first_node("sharedgeometry");
 	if (node_sharedgeometry)
 	{
-		int submesh_i = 0;
-		for (; node_submesh != NULL; node_submesh = node_submesh->next_sibling(), submesh_i++)
-		{
-			MeshComponentPtr mesh_cmp(new MeshComponent(my::NamedObject::MakeUniqueName((std::string((*actor_iter)->GetName()) + "_mesh").c_str()).c_str()));
-			mesh_cmp->m_MeshPath = path;
-			mesh_cmp->m_MeshSubMeshId = submesh_i;
-			MaterialPtr mtl(new Material());
-			mtl->m_Shader = theApp.default_shader;
-			mtl->ParseShaderParameters();
-			mesh_cmp->SetMaterial(mtl);
-			(*actor_iter)->InsertComponent(mesh_cmp);
-		}
-
 		DEFINE_XML_NODE_SIMPLE(vertexbuffer, sharedgeometry);
 		DEFINE_XML_NODE_SIMPLE(vertex, vertexbuffer);
 		for (; node_vertex != NULL; node_vertex = node_vertex->next_sibling())
@@ -1368,27 +1371,12 @@ void CMainFrame::OnComponentMesh()
 			DEFINE_XML_ATTRIBUTE_FLOAT_SIMPLE(z, position);
 			bound.unionSelf(my::Vector3(x, y, z));
 		}
-		(*actor_iter)->m_aabb = bound;
-		(*actor_iter)->UpdateOctNode();
-		UpdateSelBox();
 	}
 	else
 	{
-		DEFINE_XML_NODE_SIMPLE(submeshnames, mesh);
-		DEFINE_XML_NODE_SIMPLE(submeshname, submeshnames);
-		for (; node_submesh != NULL && node_submeshname != NULL; node_submesh = node_submesh->next_sibling(), node_submeshname = node_submeshname->next_sibling())
+		DEFINE_XML_NODE(node_submesh, node_submeshes, submesh);
+		for (; node_submesh != NULL; node_submesh = node_submesh->next_sibling())
 		{
-			DEFINE_XML_ATTRIBUTE_SIMPLE(name, submeshname);
-			DEFINE_XML_ATTRIBUTE_INT_SIMPLE(index, submeshname);
-			MeshComponentPtr mesh_cmp(new MeshComponent(my::NamedObject::MakeUniqueName((std::string((*actor_iter)->GetName()) + "_mesh").c_str()).c_str()));
-			mesh_cmp->m_MeshPath = path;
-			mesh_cmp->m_MeshSubMeshId = index;
-			MaterialPtr mtl(new Material());
-			mtl->m_Shader = theApp.default_shader;
-			mtl->ParseShaderParameters();
-			mesh_cmp->SetMaterial(mtl);
-			(*actor_iter)->InsertComponent(mesh_cmp);
-
 			DEFINE_XML_NODE_SIMPLE(geometry, submesh);
 			DEFINE_XML_NODE_SIMPLE(vertexbuffer, geometry);
 			DEFINE_XML_NODE_SIMPLE(vertex, vertexbuffer);
@@ -1401,10 +1389,10 @@ void CMainFrame::OnComponentMesh()
 				bound.unionSelf(my::Vector3(x, y, z));
 			}
 		}
-		(*actor_iter)->m_aabb = bound;
-		(*actor_iter)->UpdateOctNode();
-		UpdateSelBox();
 	}
+	(*actor_iter)->m_aabb = bound;
+	(*actor_iter)->UpdateOctNode();
+	UpdateSelBox();
 
 	my::EventArg arg;
 	m_EventAttributeChanged(&arg);
@@ -1452,12 +1440,12 @@ void CMainFrame::OnComponentCloth()
 	}
 
 	const rapidxml::xml_node<char>* node_root = &doc;
-	DEFINE_XML_NODE_SIMPLE(mesh, root);
-	DEFINE_XML_NODE_SIMPLE(submeshes, mesh);
-	DEFINE_XML_NODE_SIMPLE(submesh, submeshes);
 	my::OgreMeshPtr mesh(new my::OgreMesh());
 	mesh->CreateMeshFromOgreXml(node_root, true, D3DXMESH_MANAGED);
 
+	DEFINE_XML_NODE_SIMPLE(mesh, root);
+	DEFINE_XML_NODE_SIMPLE(submeshes, mesh);
+	DEFINE_XML_NODE_SIMPLE(submesh, submeshes);
 	for (int submesh_i = 0; node_submesh != NULL; node_submesh = node_submesh->next_sibling(), submesh_i++)
 	{
 		std::string ClothFabricPath = MeshPath + ".pxclothfabric_" + boost::lexical_cast<std::string>(submesh_i);
