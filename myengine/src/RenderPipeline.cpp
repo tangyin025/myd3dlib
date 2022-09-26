@@ -877,7 +877,7 @@ void RenderPipeline::RenderAllObjects(
 	MeshAtomList::iterator mesh_iter = m_Pass[PassID].m_MeshList.begin();
 	for (; mesh_iter != m_Pass[PassID].m_MeshList.end(); mesh_iter++)
 	{
-		D3DXATTRIBUTERANGE& rang = mesh_iter->mesh->m_AttribTable[mesh_iter->AttribId];
+		const D3DXATTRIBUTERANGE& rang = mesh_iter->mesh->m_AttribTable[mesh_iter->AttribId];
 		DrawIndexedPrimitive(
 			pd3dDevice,
 			PassID,
@@ -904,7 +904,7 @@ void RenderPipeline::RenderAllObjects(
 		if (!mesh_inst_iter->second.cmps.empty())
 		{
 			DWORD AttribId = mesh_inst_iter->first.get<1>();
-			_ASSERT(AttribId < mesh_inst_iter->second.m_AttribTable.size());
+			_ASSERT(AttribId < mesh_inst_iter->first.get<0>()->m_AttribTable.size());
 			const UINT NumInstances = (UINT)mesh_inst_iter->second.cmps.size();
 			_ASSERT(NumInstances <= MESH_INSTANCE_MAX);
 
@@ -928,11 +928,11 @@ void RenderPipeline::RenderAllObjects(
 				mesh->GetIndexBuffer(),
 				m_MeshInstanceData.m_ptr,
 				D3DPT_TRIANGLELIST,
-				0, mesh_inst_iter->second.m_AttribTable[AttribId].VertexStart,
-				mesh_inst_iter->second.m_AttribTable[AttribId].VertexCount,
+				0, mesh->m_AttribTable[AttribId].VertexStart,
+				mesh->m_AttribTable[AttribId].VertexCount,
 				mesh_inst_iter->second.m_VertexStride,
-				mesh_inst_iter->second.m_AttribTable[AttribId].FaceStart * 3,
-				mesh_inst_iter->second.m_AttribTable[AttribId].FaceCount,
+				mesh->m_AttribTable[AttribId].FaceStart * 3,
+				mesh->m_AttribTable[AttribId].FaceCount,
 				NumInstances,
 				m_MeshInstanceStride,
 				mesh_inst_iter->first.get<2>(),
@@ -1259,11 +1259,6 @@ void RenderPipeline::PushMeshInstance(unsigned int PassID, my::OgreMesh * mesh, 
 	std::pair<MeshInstanceAtomMap::iterator, bool> res = m_Pass[PassID].m_MeshInstanceMap.insert(std::make_pair(key, MeshInstanceAtom()));
 	if (res.second)
 	{
-		DWORD submeshes = 0;
-		mesh->GetAttributeTable(NULL, &submeshes);
-		res.first->second.m_AttribTable.resize(submeshes);
-		mesh->GetAttributeTable(&res.first->second.m_AttribTable[0], &submeshes);
-
 		res.first->second.m_velist.resize(MAX_FVF_DECL_SIZE);
 		mesh->GetDeclaration(&res.first->second.m_velist[0]);
 		unsigned int i = 0;

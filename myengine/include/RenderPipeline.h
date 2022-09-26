@@ -383,7 +383,6 @@ public:
 
 	struct MeshInstanceAtom
 	{
-		std::vector<D3DXATTRIBUTERANGE> m_AttribTable;
 		std::vector<D3DVERTEXELEMENT9> m_velist;
 		DWORD m_VertexStride;
 		CComPtr<IDirect3DVertexDeclaration9> m_Decl;

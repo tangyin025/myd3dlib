@@ -209,7 +209,7 @@ void CChildView::QueryRenderComponent(const my::Frustum & frustum, RenderPipelin
 		CMainFrame * pFrame;
 		CChildView * pView;
 		CMainFrame::ViewedActorSet::iterator insert_actor_iter;
-		unsigned int remaining_actor_count;
+		int remaining_actor_count;
 		DWORD m_duDebugDrawPrimitives;
 
 		Callback(const my::Frustum& _frustum, RenderPipeline* _pipeline, unsigned int _PassMask, const my::Vector3& _ViewPos, const my::Vector3& _TargetPos, CMainFrame* _pFrame, CChildView* _pView)

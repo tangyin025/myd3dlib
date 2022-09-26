@@ -40,7 +40,7 @@ public:
 	unsigned int default_physx_shape_filterword0;
 	int default_io_thread_num;
 	bool default_load_shader_cache;
-	unsigned int default_remaining_actor_max;
+	int default_remaining_actor_max;
 	float default_grid_length;
 	float default_grid_lines_every;
 	unsigned int default_grid_subdivisions;
