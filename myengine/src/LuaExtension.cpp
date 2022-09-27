@@ -780,6 +780,11 @@ static void indexedbitmap_save_indexed_bitmap(my::IndexedBitmap * self, const ch
 	self->SaveIndexedBitmap(path, boost::bind(&luabind::call_function<DWORD, unsigned char>, boost::ref(get_color), boost::placeholders::_1));
 }
 
+static bool regex_search(boost::regex* self, const char* s, boost::cmatch & match)
+{
+	return boost::regex_search(s, match, *self, boost::match_default);
+}
+
 typedef std::vector<boost::cmatch> sub_match_list;
 
 typedef boost::shared_container_iterator<sub_match_list> shared_sub_match_list_iter;
@@ -2970,9 +2975,11 @@ void LuaContext::Init(void)
 
 		, class_<boost::regex>("regex")
 			.def(constructor<const char *>())
+			.def("search", &regex_search, pure_out_value(boost::placeholders::_3))
 			.def("search_all", &regex_search_all, return_stl_iterator)
 
 		, class_<boost::cmatch>("cmatch")
+			.def(constructor<>())
 			.def("is_matched", &cmatch_is_matched)
 			.def("sub_match", &cmatch_sub_match)
 
