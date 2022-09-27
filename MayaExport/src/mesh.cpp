@@ -508,6 +508,15 @@ namespace OgreMayaExporter
 				//load vertex and face data
 				stat = pSubmesh->load(polygonSets[i],vertices,points,normals,uvsets,params,opposite);
 
+				//save local transform
+				if (!params.exportWorldCoords)
+				{
+					MFnTransform trans(meshDag.transform());
+					pSubmesh->m_pos = trans.getTranslation(MSpace::kTransform);
+					trans.getRotation(pSubmesh->m_rot);
+					trans.getScale(pSubmesh->m_scale);
+				}
+
 				//add submesh to current mesh
 				m_submeshes.push_back(pSubmesh);
 				//update number of triangles composing the mesh

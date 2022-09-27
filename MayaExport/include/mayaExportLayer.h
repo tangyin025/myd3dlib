@@ -42,6 +42,7 @@
 #include <maya/MAnimUtil.h>
 #include <maya/MRenderUtil.h>
 #include <maya/MQuaternion.h>
+#include <maya/MEulerRotation.h>
 #include <math.h>
 #include <vector>
 #include <cassert>

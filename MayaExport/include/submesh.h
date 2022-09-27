@@ -91,6 +91,10 @@ namespace OgreMayaExporter
 		std::vector<face> m_faces;
 		std::vector<uvset> m_uvsets;
 		bool m_use32bitIndexes;
+	public:
+		MVector m_pos;
+		MEulerRotation m_rot;
+		double m_scale[3];
 	};
 
 }; // end of namespace
