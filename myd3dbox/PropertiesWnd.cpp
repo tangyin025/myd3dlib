@@ -52,6 +52,13 @@ static LPCTSTR GetPassMaskDesc(DWORD mask)
 	return g_PassMaskDesc[0].desc;
 }
 
+static const LPCTSTR g_InstanceType[] =
+{
+	_T("None"),
+	_T("Instance"),
+	_T("Batcher")
+};
+
 static const LPCTSTR g_CullModeDesc[] =
 {
 	_T("NONE"),
@@ -464,7 +471,7 @@ void CPropertiesWnd::UpdatePropertiesMesh(CMFCPropertyGridProperty * pComponent,
 	COLORREF color = RGB(mesh_cmp->m_MeshColor.x * 255, mesh_cmp->m_MeshColor.y * 255, mesh_cmp->m_MeshColor.z * 255);
 	(DYNAMIC_DOWNCAST(CColorProp, pComponent->GetSubItem(PropId + 2)))->SetColor(color);
 	pComponent->GetSubItem(PropId + 3)->SetValue((_variant_t)(long)(mesh_cmp->m_MeshColor.w * 255));
-	pComponent->GetSubItem(PropId + 4)->SetValue((_variant_t)(VARIANT_BOOL)mesh_cmp->m_bInstance);
+	pComponent->GetSubItem(PropId + 4)->SetValue((_variant_t)g_InstanceType[mesh_cmp->m_bInstance]);
 	UpdatePropertiesMaterial(pComponent->GetSubItem(PropId + 5), mesh_cmp->m_Material.get());
 }
 
@@ -1442,8 +1449,12 @@ void CPropertiesWnd::CreatePropertiesMesh(CMFCPropertyGridProperty * pComponent,
 	CMFCPropertyGridProperty* pAlpha = new CSliderProp(_T("Alpha"), (long)(mesh_cmp->m_MeshColor.w * 255), NULL, PropertyMeshAlpha);
 	pComponent->AddSubItem(pAlpha);
 
-	pProp = new CCheckBoxProp(_T("Instance"), (_variant_t)mesh_cmp->m_bInstance, NULL, PropertyMeshInstance);
-	pComponent->AddSubItem(pProp);
+	CComboProp * pInstance = new CComboProp(_T("Instance"), (_variant_t)g_InstanceType[mesh_cmp->m_bInstance], NULL, PropertyMeshInstance);
+	for (unsigned int i = 0; i < _countof(g_InstanceType); i++)
+	{
+		pInstance->AddOption(g_InstanceType[i], TRUE);
+	}
+	pComponent->AddSubItem(pInstance);
 	CreatePropertiesMaterial(pComponent, _T("Material"), mesh_cmp->m_Material.get());
 }
 
@@ -3375,7 +3386,9 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	case PropertyMeshInstance:
 	{
 		MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>((Component *)pProp->GetParent()->GetValue().pulVal);
-		mesh_cmp->m_bInstance = pProp->GetValue().boolVal != 0;
+		int i = (DYNAMIC_DOWNCAST(CComboProp, pProp))->m_iSelIndex;
+		ASSERT(i >= 0 && i < _countof(g_InstanceType));
+		mesh_cmp->m_bInstance = (MeshComponent::InstanceType)i;
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 

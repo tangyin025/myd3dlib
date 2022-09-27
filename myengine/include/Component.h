@@ -241,7 +241,14 @@ public:
 
 	my::Vector4 m_MeshColor;
 
-	bool m_bInstance;
+	enum InstanceType
+	{
+		InstanceTypeNone = 0,
+		InstanceTypeInstance,
+		InstanceTypeBatcher,
+	};
+
+	InstanceType m_bInstance;
 
 	std::string m_PxMeshPath;
 
@@ -292,7 +299,7 @@ protected:
 	MeshComponent(void)
 		: m_MeshSubMeshId(0)
 		, m_MeshColor(my::Vector4(1, 1, 1, 1))
-		, m_bInstance(false)
+		, m_bInstance(InstanceTypeNone)
 		, m_DescSimulationFilterWord0(0)
 		, m_DescQueryFilterWord0(0)
 		, m_DescShapeFlags(physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSIMULATION_SHAPE | physx::PxShapeFlag::eSCENE_QUERY_SHAPE)
@@ -307,7 +314,7 @@ public:
 		: Component(Name)
 		, m_MeshSubMeshId(0)
 		, m_MeshColor(my::Vector4(1, 1, 1, 1))
-		, m_bInstance(false)
+		, m_bInstance(InstanceTypeNone)
 		, m_DescSimulationFilterWord0(0)
 		, m_DescQueryFilterWord0(0)
 		, m_DescShapeFlags(physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSIMULATION_SHAPE | physx::PxShapeFlag::eSCENE_QUERY_SHAPE)

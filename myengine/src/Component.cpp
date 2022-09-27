@@ -842,7 +842,7 @@ void MeshComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline * 
 				{
 					D3DXMACRO macro[3] = { {0} };
 					int j = 0;
-					if (m_bInstance)
+					if (m_bInstance == InstanceTypeInstance)
 					{
 						macro[j++].Name = "INSTANCE";
 					}
@@ -866,13 +866,17 @@ void MeshComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline * 
 							BOOST_VERIFY(handle_dualquat = shader->GetParameterByName(NULL, "g_dualquat"));
 						}
 
-						if (m_bInstance)
+						switch (m_bInstance)
 						{
-							pipeline->PushMeshInstance(PassID, m_Mesh.get(), m_MeshSubMeshId, shader, this, m_Material.get(), m_MeshSubMeshId);
-						}
-						else
-						{
-							pipeline->PushMesh(PassID, m_Mesh.get(), m_MeshSubMeshId, shader, this, m_Material.get(), m_MeshSubMeshId);
+						case InstanceTypeInstance:
+							pipeline->PushMeshInstance(PassID, m_Mesh.get(), m_MeshSubMeshId, shader, this, m_Material.get(), 0);
+							break;
+						case InstanceTypeBatcher:
+							pipeline->PushMeshBatcher(PassID, m_Mesh.get(), m_MeshSubMeshId, shader, this, m_Material.get(), 0);
+							break;
+						default:
+							pipeline->PushMesh(PassID, m_Mesh.get(), m_MeshSubMeshId, shader, this, m_Material.get(), 0);
+							break;
 						}
 					}
 				}

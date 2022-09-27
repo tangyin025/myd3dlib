@@ -2334,6 +2334,12 @@ void LuaContext::Init(void)
 			.def_readwrite("MeshSubMeshId", &MeshComponent::m_MeshSubMeshId)
 			.def_readonly("Mesh", &MeshComponent::m_Mesh)
 			.def_readwrite("MeshColor", &MeshComponent::m_MeshColor)
+			.enum_("InstanceType")
+			[
+				value("InstanceTypeNone", MeshComponent::InstanceTypeNone),
+				value("InstanceTypeInstance", MeshComponent::InstanceTypeInstance),
+				value("InstanceTypeBatcher", MeshComponent::InstanceTypeBatcher)
+			]
 			.def_readwrite("bInstance", &MeshComponent::m_bInstance)
 			.def("CreateTriangleMeshShape", &MeshComponent::CreateTriangleMeshShape)
 			.def("CreateConvexMeshShape", &MeshComponent::CreateConvexMeshShape)
