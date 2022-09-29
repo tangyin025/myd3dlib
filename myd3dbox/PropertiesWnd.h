@@ -124,7 +124,7 @@ public:
 		PropertyMeshSubMeshId,
 		PropertyMeshColor,
 		PropertyMeshAlpha,
-		PropertyMeshInstance,
+		PropertyMeshInstanceType,
 		PropertyMaterial,
 		PropertyMaterialShader,
 		PropertyMaterialPassMask,

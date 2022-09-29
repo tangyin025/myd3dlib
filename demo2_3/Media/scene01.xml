@@ -330,7 +330,7 @@ AAAAAAAAgEIAAAAAAACAPwAAAAAAAAD/
 						<z>1.000000000e+00</z>
 						<w>1.000000000e+00</w>
 					</m_MeshColor>
-					<m_bInstance>0</m_bInstance>
+					<m_InstanceType>0</m_InstanceType>
 				</px>
 			</item>
 			<item>
@@ -372,7 +372,7 @@ AAAAAAAAgEIAAAAAAACAPwAAAAAAAAD/
 						<z>1.000000000e+00</z>
 						<w>1.000000000e+00</w>
 					</m_MeshColor>
-					<m_bInstance>0</m_bInstance>
+					<m_InstanceType>0</m_InstanceType>
 				</px>
 			</item>
 			<item>
@@ -414,7 +414,7 @@ AAAAAAAAgEIAAAAAAACAPwAAAAAAAAD/
 						<z>1.000000000e+00</z>
 						<w>1.000000000e+00</w>
 					</m_MeshColor>
-					<m_bInstance>0</m_bInstance>
+					<m_InstanceType>0</m_InstanceType>
 				</px>
 			</item>
 			<item>
@@ -456,7 +456,7 @@ AAAAAAAAgEIAAAAAAACAPwAAAAAAAAD/
 						<z>1.000000000e+00</z>
 						<w>1.000000000e+00</w>
 					</m_MeshColor>
-					<m_bInstance>0</m_bInstance>
+					<m_InstanceType>0</m_InstanceType>
 				</px>
 			</item>
 			<item>
@@ -498,7 +498,7 @@ AAAAAAAAgEIAAAAAAACAPwAAAAAAAAD/
 						<z>1.000000000e+00</z>
 						<w>1.000000000e+00</w>
 					</m_MeshColor>
-					<m_bInstance>0</m_bInstance>
+					<m_InstanceType>0</m_InstanceType>
 				</px>
 			</item>
 			<item>
@@ -540,7 +540,7 @@ AAAAAAAAgEIAAAAAAACAPwAAAAAAAAD/
 						<z>1.000000000e+00</z>
 						<w>1.000000000e+00</w>
 					</m_MeshColor>
-					<m_bInstance>0</m_bInstance>
+					<m_InstanceType>0</m_InstanceType>
 				</px>
 			</item>
 		</m_Cmps>
@@ -669,7 +669,7 @@ AAAAAAAAgEIAAAAAAACAPwAAAAAAAAD/
 						<z>1.000000000e+00</z>
 						<w>1.000000000e+00</w>
 					</m_MeshColor>
-					<m_bInstance>0</m_bInstance>
+					<m_InstanceType>0</m_InstanceType>
 				</px>
 			</item>
 		</m_Cmps>

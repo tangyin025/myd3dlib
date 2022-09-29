@@ -489,7 +489,7 @@ void MeshComponent::save(Archive & ar, const unsigned int version) const
 	ar << BOOST_SERIALIZATION_NVP(m_MeshPath);
 	ar << BOOST_SERIALIZATION_NVP(m_MeshSubMeshId);
 	ar << BOOST_SERIALIZATION_NVP(m_MeshColor);
-	ar << BOOST_SERIALIZATION_NVP(m_bInstance);
+	ar << BOOST_SERIALIZATION_NVP(m_InstanceType);
 	switch (m_PxGeometryType)
 	{
 	case physx::PxGeometryType::eTRIANGLEMESH:
@@ -527,7 +527,7 @@ void MeshComponent::load(Archive & ar, const unsigned int version)
 	ar >> BOOST_SERIALIZATION_NVP(m_MeshPath);
 	ar >> BOOST_SERIALIZATION_NVP(m_MeshSubMeshId);
 	ar >> BOOST_SERIALIZATION_NVP(m_MeshColor);
-	ar >> BOOST_SERIALIZATION_NVP(m_bInstance);
+	ar >> BOOST_SERIALIZATION_NVP(m_InstanceType);
 	switch (m_PxGeometryType)
 	{
 	case physx::PxGeometryType::eTRIANGLEMESH:
@@ -842,7 +842,7 @@ void MeshComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline * 
 				{
 					D3DXMACRO macro[3] = { {0} };
 					int j = 0;
-					if (m_bInstance == InstanceTypeInstance)
+					if (m_InstanceType == InstanceTypeInstance)
 					{
 						macro[j++].Name = "INSTANCE";
 					}
@@ -866,7 +866,7 @@ void MeshComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline * 
 							BOOST_VERIFY(handle_dualquat = shader->GetParameterByName(NULL, "g_dualquat"));
 						}
 
-						switch (m_bInstance)
+						switch (m_InstanceType)
 						{
 						case InstanceTypeInstance:
 							pipeline->PushMeshInstance(PassID, m_Mesh.get(), m_MeshSubMeshId, shader, this, m_Material.get(), 0);
