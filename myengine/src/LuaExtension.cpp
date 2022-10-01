@@ -2981,8 +2981,8 @@ void LuaContext::Init(void)
 
 		, class_<boost::regex>("regex")
 			.def(constructor<const char *>())
-			.def("search", &regex_search, pure_out_value(boost::placeholders::_3))
-			.def("search_all", &regex_search_all, return_stl_iterator)
+			.def("search", &regex_search, pure_out_value(boost::placeholders::_3) + dependency(result, boost::placeholders::_2))
+			.def("search_all", &regex_search_all, return_stl_iterator + dependency(result, boost::placeholders::_2))
 
 		, class_<boost::cmatch>("cmatch")
 			.def(constructor<>())
