@@ -966,11 +966,11 @@ void RenderPipeline::RenderAllObjects(
 					const D3DXATTRIBUTERANGE& rang = mesh_bat_iter->first->m_AttribTable[(*cmp_iter)->m_MeshSubMeshId];
 					V(pd3dDevice->DrawIndexedPrimitive(D3DPT_TRIANGLELIST,
 						0, rang.VertexStart, rang.VertexCount, rang.FaceStart * 3, rang.FaceCount));
-					m_PassDrawCall[PassID]++;
 				}
 				mesh_bat_iter->second.shader->EndPass();
 			}
 			mesh_bat_iter->second.shader->End();
+			m_PassDrawCall[PassID]++;
 		}
 	}
 
