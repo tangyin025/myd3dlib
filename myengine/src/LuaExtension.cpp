@@ -2444,6 +2444,7 @@ void LuaContext::Init(void)
 			.def("UpdateNormal", &TerrainStream::UpdateNormal)
 			//.def("RayTest", &TerrainStream::RayTest)
 			.def("RayTest2D", &TerrainStream::RayTest2D)
+			.def("SaveObjMesh", &TerrainStream::SaveObjMesh)
 
 		, class_<Controller, Component, boost::shared_ptr<Component> >("Controller")
 			.enum_("CollisionFlag")

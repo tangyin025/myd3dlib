@@ -1521,3 +1521,43 @@ float TerrainStream::RayTest2D(float x, float z)
 		return v2.y;
 	}
 }
+
+void TerrainStream::SaveObjMesh(const char * path, int i0, int j0, int i1, int j1)
+{
+	std::ofstream ofs(path);
+	ofs << "g aaa\n";
+
+	std::vector<int> faces;
+	for (int i = i0; i < i1; i++)
+	{
+		for (int j = j0; j < j1; j++)
+		{
+			const Vector3 pos = GetPos(i, j);
+			const Vector3 nor = GetNormal(i, j);
+			const Vector2 tex(pos.x / m_terrain->m_ColChunks * m_terrain->m_ChunkSize, pos.z / m_terrain->m_RowChunks * m_terrain->m_ChunkSize);
+
+			ofs << "v " << pos.x << " " << pos.y << " " << pos.z << std::endl;
+			ofs << "vn " << nor.x << " " << nor.y << " " << nor.z << std::endl;
+			ofs << "vt " << tex.x << " " << tex.y << std::endl;
+
+			const int i0 = (i + 0) * (j1 - j0) + (j + 0) + 1;
+			const int i1 = (i + 1) * (j1 - j0) + (j + 0) + 1;
+			const int i2 = (i + 0) * (j1 - j0) + (j + 1) + 1;
+			const int i3 = (i + 1) * (j1 - j0) + (j + 1) + 1;
+
+			faces.push_back(i0);
+			faces.push_back(i1);
+			faces.push_back(i2);
+			faces.push_back(i2);
+			faces.push_back(i1);
+			faces.push_back(i3);
+		}
+	}
+
+	for (int i = 0; i < faces.size(); i += 3)
+	{
+		ofs << "f " << faces[i + 0] << "/" << faces[i + 0] << "/" << faces[i + 0]
+			<< " " << faces[i + 1] << "/" << faces[i + 1] << "/" << faces[i + 1]
+			<< " " << faces[i + 2] << "/" << faces[i + 2] << "/" << faces[i + 2] << std::endl;
+	}
+}

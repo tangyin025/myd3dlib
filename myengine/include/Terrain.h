@@ -230,4 +230,6 @@ public:
 	//my::RayResult RayTest(const my::Ray& local_ray);
 
 	float RayTest2D(float x, float z);
+
+	void SaveObjMesh(const char * path, int i0, int j0, int i1, int j1);
 };
