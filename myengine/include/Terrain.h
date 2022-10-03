@@ -231,5 +231,5 @@ public:
 
 	float RayTest2D(float x, float z);
 
-	void SaveObjMesh(const char * path, int i0, int j0, int i1, int j1);
+	void SaveObjMesh(const char * path, const int i0, const int j0, const int i1, const int j1);
 };

@@ -326,6 +326,13 @@ FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
     DEFPUSHBUTTON   "OK",IDOK,198,156,50,14
     PUSHBUTTON      "Cancel",IDCANCEL,252,156,50,14
+    LTEXT           "Directory",IDC_STATIC,30,46,30,8
+    EDITTEXT        IDC_EDIT1,64,46,153,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "Button1",IDC_BUTTON1,230,46,50,14
+    EDITTEXT        IDC_EDIT2,64,70,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT3,121,70,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT4,64,94,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT5,121,95,40,14,ES_AUTOHSCROLL
 END
 
 
@@ -528,11 +535,12 @@ BEGIN
         MENUITEM "Paint Terrain Color",         ID_PAINT_TERRAINCOLOR
         MENUITEM "Paint Emitter Instance",      ID_PAINT_EMITTERINSTANCE
         MENUITEM SEPARATOR
-        MENUITEM "Script1",                     ID_TOOLS_SCRIPT1
-        MENUITEM SEPARATOR
         MENUITEM "&Clear Shader",               ID_TOOLS_CLEARSHADER
         MENUITEM "&Snapshot...",                ID_TOOLS_SNAPSHOT
         MENUITEM "&Playing",                    ID_TOOLS_PLAYING
+        MENUITEM "Terrain To &Obj...",          ID_TOOLS_TERRAINTOOBJ
+        MENUITEM SEPARATOR
+        MENUITEM "Script1",                     ID_TOOLS_SCRIPT1
     END
     POPUP "&View"
     BEGIN

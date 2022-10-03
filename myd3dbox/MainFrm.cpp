@@ -44,6 +44,7 @@
 #include "ActionTrack.h"
 #include "rapidxml.hpp"
 #include <lualib.h>
+#include "TerrainToObjDlg.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -319,6 +320,8 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_UPDATE_COMMAND_UI(ID_TOOLS_PLAYING, &CMainFrame::OnUpdateToolsPlaying)
 	ON_COMMAND(ID_TOOLS_SNAP_TO_GRID, &CMainFrame::OnToolsSnapToGrid)
 	ON_UPDATE_COMMAND_UI(ID_TOOLS_SNAP_TO_GRID, &CMainFrame::OnUpdateToolsSnapToGrid)
+	ON_COMMAND(ID_TOOLS_TERRAINTOOBJ, &CMainFrame::OnToolsTerraintoobj)
+	ON_UPDATE_COMMAND_UI(ID_TOOLS_TERRAINTOOBJ, &CMainFrame::OnUpdateToolsTerraintoobj)
 END_MESSAGE_MAP()
 
 static UINT indicators[] =
@@ -2504,4 +2507,36 @@ void CMainFrame::OnUpdateToolsSnapToGrid(CCmdUI* pCmdUI)
 {
 	// TODO: Add your command update UI handler code here
 	pCmdUI->SetCheck((GetKeyState('X') & 0x8000) ? !theApp.default_tool_snap_to_grid : theApp.default_tool_snap_to_grid);
+}
+
+
+void CMainFrame::OnToolsTerraintoobj()
+{
+	// TODO: Add your command handler code here
+	CTerrainToObjDlg dlg;
+	if (m_selcmp && m_selcmp->GetComponentType() == Component::ComponentTypeTerrain)
+	{
+		dlg.m_terrain = dynamic_cast<Terrain*>(m_selcmp);
+		dlg.m_i1 = (dlg.m_i0 = m_selchunkid.x * dlg.m_terrain->m_ChunkSize) + dlg.m_terrain->m_ChunkSize;
+		dlg.m_j1 = (dlg.m_j0 = m_selchunkid.y * dlg.m_terrain->m_ChunkSize) + dlg.m_terrain->m_ChunkSize;
+	}
+	else if (dlg.m_terrain = m_selactors.front()->GetFirstComponent<Terrain>())
+	{
+		dlg.m_i0 = 0;
+		dlg.m_j0 = 0;
+		dlg.m_i1 = dlg.m_terrain->m_RowChunks * dlg.m_terrain->m_ChunkSize;
+		dlg.m_j1 = dlg.m_terrain->m_ColChunks * dlg.m_terrain->m_ChunkSize;
+	}
+
+	if (dlg.m_terrain)
+	{
+		dlg.DoModal();
+	}
+}
+
+
+void CMainFrame::OnUpdateToolsTerraintoobj(CCmdUI* pCmdUI)
+{
+	// TODO: Add your command update UI handler code here
+	pCmdUI->Enable(!m_selactors.empty() && m_selactors.front()->GetFirstComponent<Terrain>());
 }
