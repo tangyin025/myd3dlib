@@ -30,4 +30,5 @@ public:
 	int m_j1;
 	virtual BOOL OnInitDialog();
 	virtual void OnOK();
+	afx_msg void OnBnClickedButton1();
 };

@@ -15,7 +15,7 @@ IMPLEMENT_DYNAMIC(CSnapshotDlg, CDialogEx)
 
 CSnapshotDlg::CSnapshotDlg(CWnd* pParent /*=nullptr*/)
 	: CDialogEx(IDD_DIALOG7, pParent)
-	, m_TexPath(_T("aaa.png"))
+	, m_TexPath(theApp.GetProfileString(_T("Settings"), _T("SnapshotPath"), _T("aaa.png")))
 	, m_TexWidth(1024)
 	, m_TexHeight(1024)
 	, m_SnapPos(0, 0)
@@ -48,6 +48,11 @@ void CSnapshotDlg::DoDataExchange(CDataExchange* pDX)
 	DDV_MinMaxFloat(pDX, m_SnapSize.y, EPSILON_E6, FLT_MAX);
 	DDX_Text(pDX, IDC_EDIT9, m_SnapRow);
 	DDV_MinMaxInt(pDX, m_SnapRow, 1, INT_MAX);
+
+	if (pDX->m_bSaveAndValidate)
+	{
+		theApp.WriteProfileString(_T("Settings"), _T("SnapshotPath"), m_TexPath);
+	}
 }
 
 
@@ -168,7 +173,7 @@ void CSnapshotDlg::OnOK()
 void CSnapshotDlg::OnClickedButton1()
 {
 	// TODO: Add your control notification handler code here
-	CFileDialog dlg(FALSE, _T("bmp"), m_TexPath, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, this);
+	CFileDialog dlg(FALSE, NULL, m_TexPath, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, this);
 	if (dlg.DoModal() == IDOK)
 	{
 		SetDlgItemText(IDC_EDIT1, dlg.GetPathName());

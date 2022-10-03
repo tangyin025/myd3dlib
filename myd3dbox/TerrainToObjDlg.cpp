@@ -14,7 +14,7 @@ IMPLEMENT_DYNAMIC(CTerrainToObjDlg, CDialogEx)
 CTerrainToObjDlg::CTerrainToObjDlg(CWnd* pParent /*=nullptr*/)
 	: CDialogEx(IDD_DIALOG8, pParent)
 	, m_terrain(NULL)
-	, m_path(_T("aaa.obj"))
+	, m_path(theApp.GetProfileString(_T("Settings"), _T("TerrainToObjPath"), _T("aaa.obj")))
 	, m_i0(0)
 	, m_j0(0)
 	, m_i1(1)
@@ -39,10 +39,16 @@ void CTerrainToObjDlg::DoDataExchange(CDataExchange* pDX)
 	DDV_MinMaxInt(pDX, m_i1, 1, m_terrain->m_RowChunks * m_terrain->m_ChunkSize);
 	DDX_Text(pDX, IDC_EDIT5, m_j1);
 	DDV_MinMaxInt(pDX, m_j1, 1, m_terrain->m_ColChunks * m_terrain->m_ChunkSize);
+
+	if (pDX->m_bSaveAndValidate)
+	{
+		theApp.WriteProfileString(_T("Settings"), _T("TerrainToObjPath"), m_path);
+	}
 }
 
 
 BEGIN_MESSAGE_MAP(CTerrainToObjDlg, CDialogEx)
+	ON_BN_CLICKED(IDC_BUTTON1, &CTerrainToObjDlg::OnBnClickedButton1)
 END_MESSAGE_MAP()
 
 
@@ -74,4 +80,15 @@ void CTerrainToObjDlg::OnOK()
 	tstr.SaveObjMesh(ts2ms((LPCTSTR)m_path).c_str(), m_i0, m_j0, m_i1, m_j1);
 
 	CDialogEx::OnOK();
+}
+
+
+void CTerrainToObjDlg::OnBnClickedButton1()
+{
+	// TODO: Add your control notification handler code here
+	CFileDialog dlg(FALSE, NULL, m_path, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, this);
+	if (dlg.DoModal() == IDOK)
+	{
+		SetDlgItemText(IDC_EDIT1, dlg.GetPathName());
+	}
 }
