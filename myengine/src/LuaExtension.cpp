@@ -1296,7 +1296,7 @@ void LuaContext::Init(void)
 			.enum_("D3DFORMAT")
 			[
 				value("D3DFMT_UNKNOWN", D3DFMT_UNKNOWN),
-				value("D3DFMT_R8G8B8", D3DFMT_R8G8B8),
+				//value("D3DFMT_R8G8B8", D3DFMT_R8G8B8),
 				value("D3DFMT_A8R8G8B8", D3DFMT_A8R8G8B8),
 				value("D3DFMT_X8R8G8B8", D3DFMT_X8R8G8B8)
 			]
@@ -1315,11 +1315,33 @@ void LuaContext::Init(void)
 				value("D3DXIFF_PFM", D3DXIFF_PFM)
 			]
 			.def("SaveTextureToFile", &basetexture_save_texture_to_file)
+			.enum_("D3DLOCK")
+			[
+				value("D3DLOCK_READONLY", D3DLOCK_READONLY),
+				value("D3DLOCK_DISCARD", D3DLOCK_DISCARD),
+				value("D3DLOCK_NOOVERWRITE", D3DLOCK_NOOVERWRITE),
+				value("D3DLOCK_NOSYSLOCK", D3DLOCK_NOSYSLOCK),
+				value("D3DLOCK_DONOTWAIT", D3DLOCK_DONOTWAIT),
+				value("D3DLOCK_NO_DIRTY_UPDATE", D3DLOCK_NO_DIRTY_UPDATE)
+			]
+			.enum_("D3DUSAGE")
+			[
+				value("D3DUSAGE_RENDERTARGET", D3DUSAGE_RENDERTARGET),
+				value("D3DUSAGE_DEPTHSTENCIL", D3DUSAGE_DEPTHSTENCIL),
+				value("D3DUSAGE_DYNAMIC", D3DUSAGE_DYNAMIC)
+			]
+			.enum_("D3DPOOL")
+			[
+				value("D3DPOOL_DEFAULT", D3DPOOL_DEFAULT),
+				value("D3DPOOL_MANAGED", D3DPOOL_MANAGED),
+				value("D3DPOOL_SYSTEMMEM", D3DPOOL_MANAGED),
+				value("D3DPOOL_SCRATCH", D3DPOOL_SCRATCH)
+			]
 
 		, class_<my::Texture2D, my::BaseTexture, boost::shared_ptr<my::DeviceResourceBase> >("Texture2D")
 			.def(constructor<>())
-			.def("LockRect", luabind::tag_function<D3DLOCKED_RECT(my::Texture2D*,unsigned int)>(
-				boost::bind(&my::Texture2D::LockRect, boost::placeholders::_1, (RECT*)NULL, 0, boost::placeholders::_2)))
+			.def("LockRect", luabind::tag_function<D3DLOCKED_RECT(my::Texture2D*,DWORD,unsigned int)>(
+				boost::bind(&my::Texture2D::LockRect, boost::placeholders::_1, (RECT*)NULL, boost::placeholders::_2, boost::placeholders::_3)))
 			.def("UnlockRect", &my::Texture2D::UnlockRect)
 			.def("CreateTexture", &my::Texture2D::CreateTexture)
 			.def("CreateTextureFromFile", &texture2d_create_texture_from_file)
@@ -2903,9 +2925,16 @@ void LuaContext::Init(void)
 				boost::bind(&physx::PxD6Joint::setSwingLimit, boost::placeholders::_1, boost::bind(boost::value_factory<physx::PxJointLimitCone>(), boost::placeholders::_2, boost::placeholders::_3, -1.0f))))
 
 		, class_<my::BilinearFiltering<unsigned short> >("BilinearFilteringL16")
-			.def(constructor<unsigned short*, int, int, int>())
 			.def(constructor<const D3DLOCKED_RECT&, int, int>())
+			.def("Get", &my::BilinearFiltering<unsigned short>::Get)
+			.def("Set", &my::BilinearFiltering<unsigned short>::Set)
 			.def("Sample", &my::BilinearFiltering<unsigned short>::Sample)
+
+		, class_<my::BilinearFiltering<DWORD> >("BilinearFilteringU32")
+			.def(constructor<const D3DLOCKED_RECT&, int, int>())
+			.def("Get", &my::BilinearFiltering<DWORD>::Get)
+			.def("Set", &my::BilinearFiltering<DWORD>::Set)
+			.def("Sample", &my::BilinearFiltering<DWORD>::Sample)
 
 		, class_<my::IndexedBitmap>("IndexedBitmap")
 			.def(constructor<int, int>())

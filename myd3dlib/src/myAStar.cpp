@@ -7,7 +7,7 @@ using namespace my;
 template class BilinearFiltering<D3DCOLOR>; // unresolved external symbol my::BilinearFiltering<unsigned long>::Sample
 
 template <>
-D3DCOLOR BilinearFiltering<D3DCOLOR>::Sample(float u, float v)
+D3DCOLOR BilinearFiltering<D3DCOLOR>::Sample(float u, float v) const
 {
 	D3DCOLOR n[4];
 	float uf, vf;

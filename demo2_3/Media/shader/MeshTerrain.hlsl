@@ -35,7 +35,7 @@ float3 TransformNormal(VS_INPUT In)
 
 float3 TransformTangent(VS_INPUT In)
 {
-	return normalize(mul(cross(In.Normal, float3(0, 0, 1)), (float3x3)g_World));
+	return normalize(mul(cross(float3(0, 0, 1), In.Normal), (float3x3)g_World));
 }
 
 float4 TransformLightWS(VS_INPUT In)

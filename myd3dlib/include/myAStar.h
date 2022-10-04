@@ -203,7 +203,7 @@ namespace my
 		{
 		}
 
-		void SampleFourNeighbors(float u, float v, T& n0, T& n1, T& n2, T& n3, float& uf, float& vf)
+		void SampleFourNeighbors(float u, float v, T& n0, T& n1, T& n2, T& n3, float& uf, float& vf) const
 		{
 			const float us = u * width - 0.5f;
 			const float vs = v * pixel.shape()[0] - 0.5f;
@@ -217,7 +217,17 @@ namespace my
 			vf = vs - i;
 		}
 
-		T Sample(float u, float v)
+		const T& Get(int i, int j) const
+		{
+			return pixel[i][j];
+		}
+
+		void Set(int i, int j, const T& value)
+		{
+			pixel[i][j] = value;
+		}
+
+		T Sample(float u, float v) const
 		{
 			T n[4];
 			float uf, vf;
@@ -227,7 +237,7 @@ namespace my
 	};
 
 	template <>
-	D3DCOLOR BilinearFiltering<D3DCOLOR>::Sample(float u, float v);
+	D3DCOLOR BilinearFiltering<D3DCOLOR>::Sample(float u, float v) const;
 
 	class IndexedBitmap : protected boost::multi_array<unsigned char, 2>
 	{

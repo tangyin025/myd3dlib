@@ -194,10 +194,9 @@ NORMAL_VS_OUTPUT NormalVS( VS_INPUT In )
 	Output.Pos = mul(PosWS, g_ViewProj);
 	Output.Color = TransformColor(In);
 	Output.Tex0 = TransformUV(In) * g_TextureScale;
-	Output.Normal = mul(TransformNormal(In), (float3x3)g_View);
-	Output.Tangent = mul(TransformTangent(In), (float3x3)g_View);
+	Output.Normal = normalize(mul(mul(float3(0,1,0), (float3x3)g_World), (float3x3)g_View));
+	Output.Tangent = normalize(mul(mul(float3(1,0,0), (float3x3)g_World), (float3x3)g_View));
 	Output.Binormal = cross(Output.Normal, Output.Tangent);
-    tex2D(NormalRTSampler, (In.Pos.xy + 0.5f) / g_ScreenDim).xyz;
 	Output.PosVS = mul(PosWS, g_View).xyz;
     Output.Tex1 = TransformUV(In);
 	return Output;
@@ -210,16 +209,21 @@ void NormalPS( 	NORMAL_VS_OUTPUT In,
 {
 	float3x3 m = float3x3(In.Tangent, In.Binormal, In.Normal);
 	float3 NormalTS = tex2D(NormalTexSampler, In.Tex1).rgb * 2 - 1;
+	float3 Normal = normalize(mul(NormalTS, m));
+	float3 Tangent = cross(In.Binormal, Normal);
+	float3 Binormal = cross(Normal, Tangent);
+	float3x3 m2 = float3x3(Tangent, Binormal, Normal);
     float4 Color = tex2D(WeightTexSampler, In.Tex1);
+	float3 NormalTS2 = float3(0,0,0);
 	if (Color.r >= 0.004)
-		NormalTS += (tex2D(NormalTextureSampler0, In.Tex0).rgb * 2 - 1) * Color.r;
+		NormalTS2 += (tex2D(NormalTextureSampler0, In.Tex0).rgb * 2 - 1) * Color.r;
 	if (Color.g >= 0.004)
-		NormalTS += (tex2D(NormalTextureSampler1, In.Tex0).rgb * 2 - 1) * Color.g;
+		NormalTS2 += (tex2D(NormalTextureSampler1, In.Tex0).rgb * 2 - 1) * Color.g;
 	if (Color.b >= 0.004)
-		NormalTS += (tex2D(NormalTextureSampler2, In.Tex0).rgb * 2 - 1) * Color.b;
+		NormalTS2 += (tex2D(NormalTextureSampler2, In.Tex0).rgb * 2 - 1) * Color.b;
 	if (Color.a >= 0.004)
-		NormalTS += (tex2D(NormalTextureSampler3, In.Tex0).rgb * 2 - 1) * Color.a;
-	oNormal = float4(mul(normalize(NormalTS), m), 1);
+		NormalTS2 += (tex2D(NormalTextureSampler3, In.Tex0).rgb * 2 - 1) * Color.a;
+	oNormal = float4(normalize(mul(NormalTS2, m2)), 1);
 	oSpecular = float4(g_Shininess, 0, 0, 1);
 	oPos = float4(In.PosVS, 1.0);
 }
