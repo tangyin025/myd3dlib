@@ -3850,7 +3850,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 				for (int j = 0; j < terrain->m_ColChunks * terrain->m_ChunkSize + 1; j++)
 				{
 					unsigned short pixel = sampler.Sample((j + 0.5f) / (terrain->m_ColChunks * terrain->m_ChunkSize + 1), (i + 0.5f) / (terrain->m_RowChunks * terrain->m_ChunkSize + 1));
-					tstr.SetPos(i, j, my::Vector3(j, ((float)pixel / USHRT_MAX * theApp.default_terrain_max_height - theApp.default_terrain_water_level) / terrain->m_Actor->m_Scale.y, i));
+					tstr.SetPos(i, j, ((float)pixel / USHRT_MAX * theApp.default_terrain_max_height - theApp.default_terrain_water_level) / terrain->m_Actor->m_Scale.y);
 				}
 			}
 			tstr.UpdateNormal();

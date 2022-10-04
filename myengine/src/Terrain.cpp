@@ -1307,6 +1307,11 @@ void TerrainStream::SetPos(int i, int j, const my::Vector3& Pos)
 	}
 }
 
+void TerrainStream::SetPos(int i, int j, float height)
+{
+	SetPos(i, j, Vector3(GetPos(i, j).xz(), height));
+}
+
 void TerrainStream::SetPos(int k, int l, int m, int n, const my::Vector3& Pos)
 {
 	std::streamoff off = m_terrain->m_IndexTable[m][n] * m_terrain->m_VertexStride + m_terrain->m_VertexElems.elems[D3DDECLUSAGE_POSITION][0].Offset;

@@ -211,6 +211,8 @@ public:
 
 	void SetPos(int i, int j, const my::Vector3& Pos);
 
+	void SetPos(int i, int j, float height);
+
 	void SetPos(int k, int l, int m, int n, const my::Vector3& Pos);
 
 	D3DCOLOR GetColor(int i, int j);
