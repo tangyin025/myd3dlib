@@ -125,6 +125,11 @@ namespace OgreMayaExporter
 	// Method for iterating over nodes in a dependency graph from top to bottom, translating only meshes
 	MStatus OgreExporter::translateNode(MDagPath& dagPath)
 	{
+		if (m_params.exportAll && (!dagPath.isVisible() || dagPath.isTemplated()))
+		{	// skip hided or templated node
+			return MS::kSuccess;
+		}
+
 		if (m_params.exportAnimCurves)
 		{
 			MItDependencyGraph animIter( dagPath.node(),

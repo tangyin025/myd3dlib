@@ -512,9 +512,11 @@ namespace OgreMayaExporter
 				if (!params.exportWorldCoords)
 				{
 					MFnTransform trans(meshDag.transform());
-					pSubmesh->m_pos = trans.getTranslation(MSpace::kTransform);
-					trans.getRotation(pSubmesh->m_rot);
-					trans.getScale(pSubmesh->m_scale);
+					MTransformationMatrix matrix = trans.transformationMatrix();
+					pSubmesh->m_pos = matrix.translation(MSpace::kWorld);
+					MTransformationMatrix::RotationOrder rOrder;
+					matrix.getRotation(pSubmesh->m_rot, rOrder, MSpace::kWorld);
+					matrix.getScale(pSubmesh->m_scale, MSpace::kWorld);
 				}
 
 				//add submesh to current mesh

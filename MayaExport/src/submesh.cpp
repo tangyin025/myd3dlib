@@ -219,7 +219,7 @@ namespace OgreMayaExporter
 		if (!params.useSharedGeom)
 		{
 			params.outMesh << "\t\t\t<geometry vertexcount=\"" << m_vertices.size()
-				<< "\" transform=\"" << m_pos.x << " " << m_pos.y << " " << m_pos.z << " " << m_rot.x << " " << m_rot.y << " " << m_rot.z << " " << m_scale[0] << " " << m_scale[1] << " " << m_scale[2] << "\">\n";
+				<< "\" transform=\"" << m_pos.x << " " << m_pos.y << " " << m_pos.z << " " << m_rot[0] << " " << m_rot[1] << " " << m_rot[2] << " " << m_scale[0] << " " << m_scale[1] << " " << m_scale[2] << "\">\n";
 			params.outMesh << "\t\t\t\t<vertexbuffer positions=\"true\" normals=";
 			if (params.exportVertNorm)
 				params.outMesh << "\"true\"";

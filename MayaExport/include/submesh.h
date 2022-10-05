@@ -93,7 +93,7 @@ namespace OgreMayaExporter
 		bool m_use32bitIndexes;
 	public:
 		MVector m_pos;
-		MEulerRotation m_rot;
+		double m_rot[3];
 		double m_scale[3];
 	};
 
