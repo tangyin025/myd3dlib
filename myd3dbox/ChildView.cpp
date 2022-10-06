@@ -1312,7 +1312,7 @@ void CChildView::OnPaint()
 				swprintf_s(&m_ScrInfo[0][0], m_ScrInfo[0].size(), L"PerformanceSec: %.3f", EndPerformanceCount());
 				for (unsigned int PassID = 0; PassID < RenderPipeline::PassTypeNum; PassID++)
 				{
-					swprintf_s(&m_ScrInfo[1+PassID][0], m_ScrInfo[1+PassID].size(), L"%S: %d", RenderPipeline::PassTypeToStr(PassID), theApp.m_PassDrawCall[PassID]);
+					swprintf_s(&m_ScrInfo[1+PassID][0], m_ScrInfo[1+PassID].size(), L"%S: %d, %d", RenderPipeline::PassTypeToStr(PassID), theApp.m_PassDrawCall[PassID], theApp.m_PassBatchDrawCall[PassID]);
 				}
 
 				V(theApp.m_d3dDevice->SetRenderState(D3DRS_ZENABLE, TRUE));

@@ -56,7 +56,7 @@ static const LPCTSTR g_InstanceTypeDesc[] =
 {
 	_T("None"),
 	_T("Instance"),
-	_T("Batcher")
+	_T("Batch")
 };
 
 static const LPCTSTR g_CullModeDesc[] =

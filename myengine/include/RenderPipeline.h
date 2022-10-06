@@ -402,7 +402,7 @@ public:
 
 	typedef boost::unordered_map<MeshInstanceAtomKey, MeshInstanceAtom> MeshInstanceAtomMap;
 
-	struct MeshBatcherAtom
+	struct MeshBatchAtom
 	{
 		my::Effect * shader;
 		Material * mtl;
@@ -410,7 +410,7 @@ public:
 		std::vector<MeshComponent *> cmps;
 	};
 
-	typedef boost::unordered_map<my::OgreMesh *, MeshBatcherAtom> MeshBatcherAtomMap;
+	typedef boost::unordered_map<my::OgreMesh *, MeshBatchAtom> MeshBatchAtomMap;
 
 	struct EmitterInstanceAtom
 	{
@@ -455,13 +455,15 @@ public:
 		IndexedPrimitiveUPAtomList m_IndexedPrimitiveUPList;
 		MeshAtomList m_MeshList;
 		MeshInstanceAtomMap m_MeshInstanceMap;
-		MeshBatcherAtomMap m_MeshBatcherAtomMap;
+		MeshBatchAtomMap m_MeshBatchMap;
 		EmitterInstanceAtomMap m_EmitterInstanceMap;
 	};
 
 	boost::array<Pass, PassTypeNum> m_Pass;
 
 	boost::array<int, PassTypeNum> m_PassDrawCall;
+
+	boost::array<int, PassTypeNum> m_PassBatchDrawCall;
 
 	struct QuadVertex
 	{
@@ -635,7 +637,7 @@ public:
 
 	void PushMeshInstance(unsigned int PassID, my::OgreMesh * mesh, DWORD AttribId, my::Effect * shader, MeshComponent * mesh_cmp, Material * mtl, LPARAM lparam);
 
-	void PushMeshBatcher(unsigned int PassID, my::OgreMesh * mesh, DWORD AttribId, my::Effect * shader, MeshComponent * mesh_cmp, Material * mtl, LPARAM lparam);
+	void PushMeshBatch(unsigned int PassID, my::OgreMesh * mesh, DWORD AttribId, my::Effect * shader, MeshComponent * mesh_cmp, Material * mtl, LPARAM lparam);
 
 	void PushEmitter(
 		unsigned int PassID,

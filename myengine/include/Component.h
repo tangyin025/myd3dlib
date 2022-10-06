@@ -245,7 +245,7 @@ public:
 	{
 		InstanceTypeNone = 0,
 		InstanceTypeInstance,
-		InstanceTypeBatcher,
+		InstanceTypeBatch,
 	};
 
 	InstanceType m_InstanceType;

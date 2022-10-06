@@ -2360,7 +2360,7 @@ void LuaContext::Init(void)
 			[
 				value("InstanceTypeNone", MeshComponent::InstanceTypeNone),
 				value("InstanceTypeInstance", MeshComponent::InstanceTypeInstance),
-				value("InstanceTypeBatcher", MeshComponent::InstanceTypeBatcher)
+				value("InstanceTypeBatch", MeshComponent::InstanceTypeBatch)
 			]
 			.def_readwrite("InstanceType", &MeshComponent::m_InstanceType)
 			.def("CreateTriangleMeshShape", &MeshComponent::CreateTriangleMeshShape)

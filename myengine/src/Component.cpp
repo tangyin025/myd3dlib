@@ -871,8 +871,8 @@ void MeshComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline * 
 						case InstanceTypeInstance:
 							pipeline->PushMeshInstance(PassID, m_Mesh.get(), m_MeshSubMeshId, shader, this, m_Material.get(), 0);
 							break;
-						case InstanceTypeBatcher:
-							pipeline->PushMeshBatcher(PassID, m_Mesh.get(), m_MeshSubMeshId, shader, this, m_Material.get(), 0);
+						case InstanceTypeBatch:
+							pipeline->PushMeshBatch(PassID, m_Mesh.get(), m_MeshSubMeshId, shader, this, m_Material.get(), 0);
 							break;
 						default:
 							pipeline->PushMesh(PassID, m_Mesh.get(), m_MeshSubMeshId, shader, this, m_Material.get(), 0);

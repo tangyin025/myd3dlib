@@ -207,7 +207,7 @@ public:
 		swprintf_s(&m_ScrInfo[0][0], m_ScrInfo[0].size(), L"Fps: %.2f", m_fFps);
 		for (unsigned int PassID = 0; PassID < RenderPipeline::PassTypeNum; PassID++)
 		{
-			swprintf_s(&m_ScrInfo[1 + PassID][0], m_ScrInfo[1 + PassID].size(), L"%S: %d", RenderPipeline::PassTypeToStr(PassID), m_PassDrawCall[PassID]);
+			swprintf_s(&m_ScrInfo[1 + PassID][0], m_ScrInfo[1 + PassID].size(), L"%S: %d, %d", RenderPipeline::PassTypeToStr(PassID), m_PassDrawCall[PassID], m_PassBatchDrawCall[PassID]);
 		}
 
 		swprintf_s(&m_ScrInfo[1 + RenderPipeline::PassTypeNum][0], m_ScrInfo[1 + RenderPipeline::PassTypeNum].size(), L"PassTypeUILayer: %d", ui_render->m_LayerDrawCall);
