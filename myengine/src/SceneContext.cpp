@@ -38,18 +38,20 @@ void SceneContextRequest::LoadResource(void)
 		*ia >> boost::serialization::make_nvp("FogHeight", scene->m_FogHeight);
 		*ia >> boost::serialization::make_nvp("FogFalloff", scene->m_FogFalloff);
 
-		DWORD ActorListSize;
+		LONG ActorListSize;
 		*ia >> BOOST_SERIALIZATION_NVP(ActorListSize);
+		InterlockedExchange(&m_ActorListSize, ActorListSize);
 		scene->m_ActorList.resize(ActorListSize);
-		for (int i = 0; i < ActorListSize; i++, InterlockedExchange(&m_ActorProgress, i))
+		for (LONG i = 0; i < ActorListSize; i++, InterlockedExchange(&m_ActorProgress, i))
 		{
 			*ia >> boost::serialization::make_nvp(str_printf("Actor%d", i).c_str(), scene->m_ActorList[i]);
 		}
 
-		DWORD DialogListSize;
+		LONG DialogListSize;
 		*ia >> BOOST_SERIALIZATION_NVP(DialogListSize);
+		InterlockedExchange(&m_DialogListSize, DialogListSize);
 		scene->m_DialogList.resize(DialogListSize);
-		for (int i = 0; i < DialogListSize; i++, InterlockedExchange(&m_DialogProgress, i))
+		for (LONG i = 0; i < DialogListSize; i++, InterlockedExchange(&m_DialogProgress, i))
 		{
 			*ia >> boost::serialization::make_nvp(str_printf("Dialog%d", i).c_str(), scene->m_DialogList[i]);
 		}

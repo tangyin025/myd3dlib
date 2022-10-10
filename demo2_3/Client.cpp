@@ -1128,12 +1128,12 @@ HRESULT Client::OnCreateDevice(
 			.def("Play", (SoundEventPtr(SoundContext::*)(my::WavPtr, bool, const my::Vector3&, const my::Vector3&, float, float)) & Client::Play)
 			.def("LoadSceneAsync", &Client::LoadSceneAsync<luabind::object>)
 			.def("LoadScene", &Client::LoadScene)
-			.def("GetLoadSceneProgress", &Client::GetLoadSceneProgress, luabind::pure_out_value(boost::placeholders::_4) + luabind::pure_out_value(boost::placeholders::_5))
+			.def("GetLoadSceneProgress", &Client::GetLoadSceneProgress, luabind::pure_out_value(boost::placeholders::_4) + luabind::pure_out_value(boost::placeholders::_5) + luabind::pure_out_value(boost::placeholders::_6) + luabind::pure_out_value(boost::placeholders::_7))
 			.def("LoadPlayerData", &Client::LoadPlayerData)
 			.def("SavePlayerDataAsync", &Client::SavePlayerDataAsync<luabind::object>)
 			.def("SavePlayerData", &Client::SavePlayerData)
 
-		, luabind::def("res2scene", (boost::shared_ptr<SceneContext>(*)(const boost::shared_ptr<my::DeviceResourceBase>&)) & boost::dynamic_pointer_cast<SceneContext, my::DeviceResourceBase>)
+		//, luabind::def("res2scene", (boost::shared_ptr<SceneContext>(*)(const boost::shared_ptr<my::DeviceResourceBase>&)) & boost::dynamic_pointer_cast<SceneContext, my::DeviceResourceBase>)
 
 		, luabind::class_<SqlConnection>("SqlConnection")
 			.def(luabind::constructor<const char*>())
@@ -1873,7 +1873,7 @@ boost::shared_ptr<SceneContext> Client::LoadScene(const char * path, const char 
 	return boost::dynamic_pointer_cast<SceneContext>(cb.m_res);
 }
 
-void Client::GetLoadSceneProgress(const char * path, const char * prefix, int & ActorProgress, int & DialogProgress)
+void Client::GetLoadSceneProgress(const char * path, const char * prefix, int & ActorListSize, int & ActorProgress, int & DialogListSize, int & DialogProgress)
 {
 	_ASSERT(IsMainThread());
 
@@ -1887,7 +1887,9 @@ void Client::GetLoadSceneProgress(const char * path, const char * prefix, int & 
 		SceneContextRequest* request = dynamic_cast<SceneContextRequest*>(req_iter->second.get());
 		if (request)
 		{
+			ActorListSize = request->m_ActorListSize;
 			ActorProgress = request->m_ActorProgress;
+			DialogListSize = request->m_DialogListSize;
 			DialogProgress = request->m_DialogProgress;
 			return;
 		}
@@ -1899,12 +1901,16 @@ void Client::GetLoadSceneProgress(const char * path, const char * prefix, int & 
 	if (res_iter != m_ResourceSet.end())
 	{
 		SceneContext* scene = dynamic_cast<SceneContext*>(res_iter->second.get());
+		ActorListSize = scene->m_ActorList.size();
 		ActorProgress = scene->m_ActorList.size();
+		DialogListSize = scene->m_DialogList.size();
 		DialogProgress = scene->m_DialogList.size();
 		return;
 	}
 
+	ActorListSize = INT_MAX;
 	ActorProgress = 0;
+	DialogListSize = INT_MAX;
 	DialogProgress = 0;
 }
 

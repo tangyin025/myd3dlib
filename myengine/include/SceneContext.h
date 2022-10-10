@@ -63,7 +63,11 @@ protected:
 
 	std::string m_prefix;
 
+	volatile LONG m_ActorListSize;
+
 	volatile LONG m_ActorProgress;
+
+	volatile LONG m_DialogListSize;
 
 	volatile LONG m_DialogProgress;
 
@@ -72,7 +76,9 @@ public:
 		: IORequest(Priority)
 		, m_path(path)
 		, m_prefix(prefix)
+		, m_ActorListSize(LONG_MAX)
 		, m_ActorProgress(0)
+		, m_DialogListSize(LONG_MAX)
 		, m_DialogProgress(0)
 	{
 	}

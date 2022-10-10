@@ -351,7 +351,7 @@ public:
 
 	boost::shared_ptr<SceneContext> LoadScene(const char * path, const char * prefix);
 
-	void GetLoadSceneProgress(const char * path, const char * prefix, int & ActorProgress, int & DialogProgress);
+	void GetLoadSceneProgress(const char * path, const char * prefix, int & ActorListSize, int & ActorProgress, int & DialogListSize, int & DialogProgress);
 
 	boost::shared_ptr<PlayerData> LoadPlayerData(const char * path);
 
