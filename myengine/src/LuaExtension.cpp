@@ -383,9 +383,11 @@ struct ScriptComponent : Component, luabind::wrap_base
 			boost::bind(&Component::OnGUI, this, boost::placeholders::_1, boost::placeholders::_2, boost::placeholders::_3)));
 	}
 
+	enum { TypeID = ComponentTypeScript };
+
 	virtual DWORD GetComponentType(void) const
 	{
-		return ComponentTypeScript;
+		return TypeID;
 	}
 
 	virtual void RequestResource(void)
@@ -2533,6 +2535,7 @@ void LuaContext::Init(void)
 			.def_readonly("dir", &ControllerEventArg::dir)
 			.def_readonly("length", &ControllerEventArg::length)
 			.def_readonly("flag", &ControllerEventArg::flag)
+			.def_readwrite("behaviorflags", &ControllerEventArg::behaviorflags)
 
 		, class_<ShapeHitEventArg, ControllerEventArg>("ShapeHitEventArg")
 			.def_readonly("other", &ShapeHitEventArg::other)

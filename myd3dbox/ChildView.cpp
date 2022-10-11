@@ -13,6 +13,7 @@
 #include <boost/scope_exit.hpp>
 #include <boost/range/algorithm/find_if.hpp>
 #include "DebugDraw.h"
+#include "PlayerAgent.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -1328,6 +1329,14 @@ void CChildView::OnPaint()
 					{
 						RenderSelectedActor(theApp.m_d3dDevice, *sel_iter, D3DCOLOR_ARGB(255, 0, 255, 0));
 					}
+				}
+
+				if (m_bShowCmpHandle && pFrame->m_Player->m_Node)
+				{
+					PlayerAgent* agent = pFrame->m_Player->GetFirstComponent<PlayerAgent>();
+					ASSERT(agent);
+					PushLine(agent->m_DownTouchedPos, agent->m_DownTouchedPos + agent->m_DownTouchedNormal, D3DCOLOR_ARGB(255, 0, 255, 0));
+					PushLine(agent->m_SideTouchedPos, agent->m_SideTouchedPos + agent->m_SideTouchedNormal, D3DCOLOR_ARGB(255, 255, 0, 0));
 				}
 
 				V(theApp.m_d3dDevice->SetVertexShader(NULL));

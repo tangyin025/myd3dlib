@@ -39,17 +39,40 @@ public:
 
 	my::OgreSkeletonAnimationPtr m_Skel;
 
+	Component* m_DownTouchedCmp;
+
+	my::Vector3 m_DownTouchedPos;
+
+	my::Vector3 m_DownTouchedNormal;
+
+	Component* m_SideTouchedCmp;
+
+	my::Vector3 m_SideTouchedPos;
+
+	my::Vector3 m_SideTouchedNormal;
+
 	PlayerAgent(const char* Name)
 		: Component(Name)
 		, m_MoveDir(0, 0, 0)
 		, m_VerticalSpeed(0)
 		, m_Suspending(0.0f)
+		, m_DownTouchedCmp(NULL)
+		, m_DownTouchedPos(0, 0, 0)
+		, m_DownTouchedNormal(1, 0, 0)
+		, m_SideTouchedCmp(NULL)
+		, m_SideTouchedPos(0, 0, 0)
+		, m_SideTouchedNormal(1, 0, 0)
 	{
 	}
 
 	virtual ~PlayerAgent(void);
 
-	virtual DWORD GetComponentType(void) const;
+	enum { TypeID = ComponentTypeScript };
+
+	virtual DWORD GetComponentType(void) const
+	{
+		return TypeID;
+	}
 
 	virtual void RequestResource(void);
 
@@ -58,5 +81,7 @@ public:
 	virtual void Update(float fElapsedTime);
 
 	virtual void OnPxThreadSubstep(float dtime);
+
+	virtual void OnPxThreadShapeHit(my::EventArg* arg);
 };
 

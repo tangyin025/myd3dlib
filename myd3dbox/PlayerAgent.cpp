@@ -76,17 +76,14 @@ PlayerAgent::~PlayerAgent(void)
 	_ASSERT(!IsRequested());
 }
 
-DWORD PlayerAgent::GetComponentType(void) const
-{
-	return ComponentTypeScript;
-}
-
 void PlayerAgent::RequestResource(void)
 {
 	Component::RequestResource();
 
 	PhysxScene* scene = dynamic_cast<PhysxScene*>(m_Actor->m_Node->GetTopNode());
 	scene->m_EventPxThreadSubstep.connect(boost::bind(&PlayerAgent::OnPxThreadSubstep, this, boost::placeholders::_1));
+
+	m_Actor->m_EventPxThreadShapeHit.connect(boost::bind(&PlayerAgent::OnPxThreadShapeHit, this, boost::placeholders::_1));
 
 	theApp.m_mouse->Unacquire();
 	theApp.m_mouse->SetCooperativeLevel(AfxGetMainWnd()->GetSafeHwnd(), DISCL_FOREGROUND | DISCL_EXCLUSIVE);
@@ -126,6 +123,8 @@ void PlayerAgent::ReleaseResource(void)
 
 	PhysxScene* scene = dynamic_cast<PhysxScene*>(m_Actor->m_Node->GetTopNode());
 	scene->m_EventPxThreadSubstep.disconnect(boost::bind(&PlayerAgent::OnPxThreadSubstep, this, boost::placeholders::_1));
+
+	m_Actor->m_EventPxThreadShapeHit.disconnect(boost::bind(&PlayerAgent::OnPxThreadShapeHit, this, boost::placeholders::_1));
 
 	theApp.m_mouse->Unacquire();
 	theApp.m_mouse->SetCooperativeLevel(AfxGetMainWnd()->GetSafeHwnd(), DISCL_FOREGROUND | DISCL_NONEXCLUSIVE);
@@ -260,11 +259,34 @@ void PlayerAgent::OnPxThreadSubstep(float dtime)
 		disp = vel * dtime;
 	}
 
+	m_DownTouchedCmp = NULL;
+	m_SideTouchedCmp = NULL;
 	physx::PxControllerCollisionFlags moveFlags =
 		(physx::PxControllerCollisionFlags)m_Controller->Move(disp, 0.001f, dtime, theApp.default_physx_shape_filterword0);
 	if (moveFlags & physx::PxControllerCollisionFlag::eCOLLISION_DOWN)
 	{
 		m_VerticalSpeed = Lerp(m_VerticalSpeed, 0.0f, 1.0f - pow(0.5f, 30 * dtime));
 		m_Suspending = 0.2f;
+	}
+}
+
+void PlayerAgent::OnPxThreadShapeHit(my::EventArg* arg)
+{
+	ShapeHitEventArg* hit = static_cast<ShapeHitEventArg*>(arg);
+	if (hit->flag & physx::PxControllerCollisionFlag::eCOLLISION_DOWN)
+	{
+		if (m_Steering->m_Speed < 0.001f && (hit->worldPos.xz() - m_Actor->m_Position.xz()).magnitudeSq() > 0.09f * 0.09f)
+		{
+			hit->behaviorflags = physx::PxControllerBehaviorFlag::eCCT_SLIDE;
+		}
+		m_DownTouchedCmp = hit->other_cmp;
+		m_DownTouchedPos = hit->worldPos;
+		m_DownTouchedNormal = hit->worldNormal;
+	}
+	else if (hit->flag & physx::PxControllerCollisionFlag::eCOLLISION_SIDES)
+	{
+		m_SideTouchedCmp = hit->other_cmp;
+		m_SideTouchedPos = hit->worldPos;
+		m_SideTouchedNormal = hit->worldNormal;
 	}
 }
