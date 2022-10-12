@@ -146,8 +146,8 @@ void PlayerAgent::Update(float fElapsedTime)
 	}
 
 	const Vector3 pos = m_Controller->GetPosition();
-	const Quaternion rot = m_AnchoredCmp ? Quaternion::RotationFromToSafe(Vector3(0, 0, 1), -m_SideTouchedNormal) :
-		m_Steering->m_Speed > 0 ? Quaternion::RotationFromToSafe(Vector3(0, 0, 1), m_Steering->m_Forward) : m_Actor->m_Rotation;
+	const Quaternion rot = m_AnchoredCmp ? Quaternion::RotationFromToSafe(Vector3(0, 0, 1), Vector3(-m_SideTouchedNormal.xz(), 0)) :
+		m_Steering->m_Speed > 0 ? Quaternion::RotationFromToSafe(Vector3(0, 0, 1), Vector3(m_Steering->m_Forward.xz(), 0)) : m_Actor->m_Rotation;
 	if (m_Suspending > 0.0f && pos.y > m_Actor->m_Position.y + EPSILON_E3)
 	{
 		m_Actor->SetPose(Vector3(pos.x, Lerp(Max(m_Actor->m_Position.y, pos.y - m_Controller->GetStepOffset()), pos.y, 1.0f - pow(0.7f, 30 * fElapsedTime)), pos.z), rot);
@@ -269,17 +269,27 @@ void PlayerAgent::OnPxThreadSubstep(float dtime)
 
 	m_DownTouchedCmp = NULL;
 	m_SideTouchedCmp = NULL;
-	m_AnchoredCmp = NULL;
 	physx::PxControllerCollisionFlags moveFlags =
 		(physx::PxControllerCollisionFlags)m_Controller->Move(disp, 0.001f, dtime, theApp.default_physx_shape_filterword0);
 	if (moveFlags & physx::PxControllerCollisionFlag::eCOLLISION_DOWN)
 	{
 		m_VerticalSpeed = Lerp(m_VerticalSpeed, 0.0f, 1.0f - pow(0.5f, 30 * dtime));
 		m_Suspending = 0.2f;
+		m_AnchoredCmp = NULL;
 	}
 	else if (moveFlags & physx::PxControllerCollisionFlag::eCOLLISION_SIDES)
 	{
+		if (!m_AnchoredCmp)
+		{
+			Vector3 vel((m_Steering->m_Forward * m_Steering->m_Speed).xz(), m_VerticalSpeed);
+			m_Steering->m_Speed = vel.magnitude();
+			m_Steering->m_Forward = vel / m_Steering->m_Speed;
+		}
 		m_AnchoredCmp = m_SideTouchedCmp;
+	}
+	else
+	{
+		m_AnchoredCmp = NULL;
 	}
 }
 
