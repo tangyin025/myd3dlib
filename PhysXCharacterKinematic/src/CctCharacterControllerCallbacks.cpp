@@ -23,7 +23,7 @@
 // components in life support devices or systems without express written approval of
 // NVIDIA Corporation.
 //
-// Copyright (c) 2008-2017 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2008-2018 NVIDIA Corporation. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
 
@@ -44,7 +44,7 @@
 #include "PsMathUtils.h"
 #include "GuSIMDHelpers.h"
 
-static const bool gVisualizeTouchedTris = false;
+static const bool gVisualizeTouchedTris = true;
 static const float gDebugVisOffset = 0.01f;
 
 using namespace physx;
