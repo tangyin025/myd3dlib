@@ -377,7 +377,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		return -1;
 
 	m_PxScene->setVisualizationParameter(physx::PxVisualizationParameter::eSCALE, 1);
-	m_PxScene->setVisualizationParameter(physx::PxVisualizationParameter::eBODY_AXES, 1);
+	//m_PxScene->setVisualizationParameter(physx::PxVisualizationParameter::eBODY_AXES, 1);
 	m_PxScene->setVisualizationParameter(physx::PxVisualizationParameter::eCOLLISION_SHAPES, 1);
 	m_PxScene->setVisualizationParameter(physx::PxVisualizationParameter::eCOLLISION_FNORMALS, 1);
 	m_PxScene->setVisualizationParameter(physx::PxVisualizationParameter::eCOLLISION_AABBS, 1);

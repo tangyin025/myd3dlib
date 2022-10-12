@@ -31,6 +31,8 @@ public:
 
 	my::Vector3 m_MoveDir;
 
+	my::Vector3 m_ClimbDir;
+
 	float m_VerticalSpeed;
 
 	float m_Suspending;
@@ -51,9 +53,12 @@ public:
 
 	my::Vector3 m_SideTouchedNormal;
 
+	Component* m_AnchoredCmp;
+
 	PlayerAgent(const char* Name)
 		: Component(Name)
 		, m_MoveDir(0, 0, 0)
+		, m_ClimbDir(0, 0, 0)
 		, m_VerticalSpeed(0)
 		, m_Suspending(0.0f)
 		, m_DownTouchedCmp(NULL)
@@ -62,6 +67,7 @@ public:
 		, m_SideTouchedCmp(NULL)
 		, m_SideTouchedPos(0, 0, 0)
 		, m_SideTouchedNormal(1, 0, 0)
+		, m_AnchoredCmp(NULL)
 	{
 	}
 

@@ -1336,7 +1336,9 @@ void CChildView::OnPaint()
 					PlayerAgent* agent = pFrame->m_Player->GetFirstComponent<PlayerAgent>();
 					ASSERT(agent);
 					PushLine(agent->m_DownTouchedPos, agent->m_DownTouchedPos + agent->m_DownTouchedNormal, D3DCOLOR_ARGB(255, 0, 255, 0));
-					PushLine(agent->m_SideTouchedPos, agent->m_SideTouchedPos + agent->m_SideTouchedNormal, D3DCOLOR_ARGB(255, 255, 0, 0));
+					PushLine(agent->m_SideTouchedPos, agent->m_SideTouchedPos + agent->m_SideTouchedNormal, D3DCOLOR_ARGB(255, 255, 255, 0));
+					PushLine(pFrame->m_Player->m_Position, pFrame->m_Player->m_Position + agent->m_MoveDir, D3DCOLOR_ARGB(255, 255, 0, 0));
+					PushLine(pFrame->m_Player->m_Position, pFrame->m_Player->m_Position + agent->m_ClimbDir, D3DCOLOR_ARGB(255, 0, 255, 255));
 				}
 
 				V(theApp.m_d3dDevice->SetVertexShader(NULL));
