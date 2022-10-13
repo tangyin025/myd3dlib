@@ -181,11 +181,11 @@ void PlayerAgent::Update(float fElapsedTime)
 		Vector3 up = m_Controller->GetUpDirection();
 		if (up.y > 0.5f)
 		{
-			m_MoveDir = Quaternion::RotationAxis(up, angle) * up.perpendicular(model_view_camera->m_View.getColumn<2>().xyz).normalize();
+			m_MoveDir = Quaternion::RotationAxis(up, angle) * up.perpendicular(model_view_camera->m_View.getColumn<2>().xyz).normalizeSafe();
 		}
 		else
 		{
-			m_MoveDir = Quaternion::RotationAxis(up, angle) * up.perpendicular(Vector3(0, -1, 0)).normalize();
+			m_MoveDir = Quaternion::RotationAxis(up, angle) * up.perpendicular(Vector3(0, -1, 0)).normalizeSafe();
 		}
 	}
 	else

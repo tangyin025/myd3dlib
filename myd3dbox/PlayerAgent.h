@@ -31,8 +31,6 @@ public:
 
 	my::Vector3 m_MoveDir;
 
-	my::Vector3 m_ClimbDir;
-
 	float m_VerticalSpeed;
 
 	float m_Suspending;
@@ -44,7 +42,6 @@ public:
 	PlayerAgent(const char* Name)
 		: Component(Name)
 		, m_MoveDir(0, 0, 0)
-		, m_ClimbDir(0, 0, 0)
 		, m_VerticalSpeed(0)
 		, m_Suspending(0.0f)
 	{

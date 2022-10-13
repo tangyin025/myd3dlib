@@ -14,6 +14,7 @@
 #include <boost/range/algorithm/find_if.hpp>
 #include "DebugDraw.h"
 #include "PlayerAgent.h"
+#include "Controller.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -1331,12 +1332,13 @@ void CChildView::OnPaint()
 					}
 				}
 
-				if (m_bShowCmpHandle && pFrame->m_Player->m_Node)
+				if (pFrame->m_Player->m_Node && pFrame->m_PxScene->getVisualizationParameter(physx::PxVisualizationParameter::eSCALE))
 				{
 					PlayerAgent* agent = pFrame->m_Player->GetFirstComponent<PlayerAgent>();
 					ASSERT(agent);
 					PushLine(pFrame->m_Player->m_Position, pFrame->m_Player->m_Position + agent->m_MoveDir, D3DCOLOR_ARGB(255, 255, 0, 0));
-					PushLine(pFrame->m_Player->m_Position, pFrame->m_Player->m_Position + agent->m_ClimbDir, D3DCOLOR_ARGB(255, 0, 255, 255));
+					PushLine(pFrame->m_Player->m_Position, pFrame->m_Player->m_Position + agent->m_Controller->GetContactNormalDownPass(), D3DCOLOR_ARGB(255, 0, 255, 0));
+					PushLine(pFrame->m_Player->m_Position, pFrame->m_Player->m_Position + agent->m_Controller->GetContactNormalSidePass(), D3DCOLOR_ARGB(255, 0, 0, 255));
 				}
 
 				V(theApp.m_d3dDevice->SetVertexShader(NULL));
