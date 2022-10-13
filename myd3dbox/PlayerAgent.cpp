@@ -256,6 +256,7 @@ void PlayerAgent::OnPxThreadSubstep(float dtime)
 	else if (m_Suspending <= 0.0f)
 	{
 		m_VerticalSpeed += theApp.default_physx_scene_gravity.y * dtime;
+		m_Controller->SetUpDirection(Vector3(0, 1, 0));
 		Vector3 vel = m_Steering->m_Forward * m_Steering->m_Speed + m_Controller->GetUpDirection() * m_VerticalSpeed;
 		disp = vel * dtime;
 	}
@@ -279,14 +280,6 @@ void PlayerAgent::OnPxThreadSubstep(float dtime)
 		m_VerticalSpeed = Lerp(m_VerticalSpeed, 0.0f, 1.0f - pow(0.5f, 30 * dtime));
 		m_Suspending = 0.2f;
 		m_Controller->SetUpDirection(m_Controller->GetContactNormalSidePass());
-	}
-	else if (moveFlags & physx::PxControllerCollisionFlag::eCOLLISION_UP)
-	{
-		//m_Controller->SetUpDirection(Vector3(0, 1, 0));
-	}
-	else
-	{
-		m_Controller->SetUpDirection(Vector3(0, 1, 0));
 	}
 }
 
