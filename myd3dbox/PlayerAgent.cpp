@@ -310,4 +310,8 @@ void PlayerAgent::OnPxThreadShapeHit(my::EventArg* arg)
 		//m_SideTouchedPos = hit->worldPos;
 		//m_SideTouchedNormal = hit->worldNormal;
 	}
+	else if (hit->flag & physx::PxControllerCollisionFlag::eCOLLISION_UP)
+	{
+
+	}
 }

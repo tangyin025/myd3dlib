@@ -415,8 +415,8 @@ my::Vector3 & Controller::GetTouchedPosLocal(void) const
 static unsigned int _get_collision_flag(unsigned int flags)
 {
 	// ! SweepTest::moveCharacter, SweepTest::doSweepTest, first side next down
-	return (flags & physx::Cct::STF_VALIDATE_TRIANGLE_DOWN) ? physx::PxControllerCollisionFlag::eCOLLISION_DOWN :
-		(flags & physx::Cct::STF_VALIDATE_TRIANGLE_SIDE) ? physx::PxControllerCollisionFlag::eCOLLISION_SIDES : 0;
+	return (flags & physx::Cct::STF_VALIDATE_TRIANGLE_DOWN) ? physx::PxControllerCollisionFlag::eCOLLISION_DOWN
+		: (flags & physx::Cct::STF_VALIDATE_TRIANGLE_SIDE) ? physx::PxControllerCollisionFlag::eCOLLISION_SIDES : physx::PxControllerCollisionFlag::eCOLLISION_UP;
 }
 
 __declspec(thread) static physx::PxControllerBehaviorFlags g_behaviorflags;
