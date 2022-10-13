@@ -146,8 +146,7 @@ void PlayerAgent::Update(float fElapsedTime)
 	}
 
 	const Vector3 pos = m_Controller->GetPosition();
-	const Quaternion rot = m_AnchoredCmp ? Quaternion::RotationFromToSafe(Vector3(0, 0, 1), Vector3(-m_SideTouchedNormal.xz(), 0)) :
-		m_Steering->m_Speed > 0 ? Quaternion::RotationFromToSafe(Vector3(0, 0, 1), Vector3(m_Steering->m_Forward.xz(), 0)) : m_Actor->m_Rotation;
+	const Quaternion rot = m_Steering->m_Speed > 0 ? Quaternion::RotationFromToSafe(Vector3(0, 0, 1), Vector3(m_Steering->m_Forward.xz(), 0)) : m_Actor->m_Rotation;
 	if (m_Suspending > 0.0f && pos.y > m_Actor->m_Position.y + EPSILON_E3)
 	{
 		m_Actor->SetPose(Vector3(pos.x, Lerp(Max(m_Actor->m_Position.y, pos.y - m_Controller->GetStepOffset()), pos.y, 1.0f - pow(0.7f, 30 * fElapsedTime)), pos.z), rot);
@@ -179,13 +178,19 @@ void PlayerAgent::Update(float fElapsedTime)
 	{
 		dir /= sqrt(lensq);
 		float angle = atan2(dir.x, dir.y);
-		m_MoveDir = Quaternion::RotationEulerAngles(0, angle + model_view_camera->m_Euler.y, 0) * Vector3(0, 0, 1);
-		m_ClimbDir = Quaternion::RotationAxis(m_SideTouchedNormal, angle) * Vector3(0, -1, 0);
+		Vector3 up = m_Controller->GetUpDirection();
+		if (up.y > 0.5f)
+		{
+			m_MoveDir = Quaternion::RotationAxis(up, angle) * up.perpendicular(model_view_camera->m_View.getColumn<2>().xyz).normalize();
+		}
+		else
+		{
+			m_MoveDir = Quaternion::RotationAxis(up, angle) * up.perpendicular(Vector3(0, -1, 0)).normalize();
+		}
 	}
 	else
 	{
 		m_MoveDir = Vector3(0, 0, 0);
-		m_ClimbDir = Vector3(0, 0, 0);
 	}
 
 	model_view_camera->m_LookAt = m_Actor->m_World.getRow<3>().xyz + Vector3(0, 0.85, 0);
@@ -248,48 +253,40 @@ void PlayerAgent::OnPxThreadSubstep(float dtime)
 			m_Steering->m_Forward = Vector3(vel.xz(), 0) / m_Steering->m_Speed;
 		}
 	}
-	else if (m_AnchoredCmp)
-	{
-		Vector3 vel = m_Steering->SeekDir(m_ClimbDir * theApp.default_player_seek_force, dtime);
-		m_VerticalSpeed = vel.y;
-		disp = (vel + m_SideTouchedNormal * -10.f) * dtime;
-	}
 	else if (m_Suspending <= 0.0f)
 	{
 		m_VerticalSpeed += theApp.default_physx_scene_gravity.y * dtime;
-		Vector3 vel((m_Steering->m_Forward * m_Steering->m_Speed).xz(), m_VerticalSpeed);
+		Vector3 vel = m_Steering->m_Forward * m_Steering->m_Speed + m_Controller->GetUpDirection() * m_VerticalSpeed;
 		disp = vel * dtime;
 	}
 	else
 	{
 		m_VerticalSpeed += theApp.default_physx_scene_gravity.y * dtime;
-		Vector3 vel(m_Steering->SeekDir(m_MoveDir * theApp.default_player_seek_force, dtime).xz(), m_VerticalSpeed);
+		Vector3 vel = m_Steering->SeekDir(m_MoveDir * theApp.default_player_seek_force, dtime) + m_Controller->GetUpDirection() * m_VerticalSpeed;
 		disp = vel * dtime;
 	}
 
-	m_DownTouchedCmp = NULL;
-	m_SideTouchedCmp = NULL;
 	physx::PxControllerCollisionFlags moveFlags =
 		(physx::PxControllerCollisionFlags)m_Controller->Move(disp, 0.001f, dtime, theApp.default_physx_shape_filterword0);
 	if (moveFlags & physx::PxControllerCollisionFlag::eCOLLISION_DOWN)
 	{
 		m_VerticalSpeed = Lerp(m_VerticalSpeed, 0.0f, 1.0f - pow(0.5f, 30 * dtime));
 		m_Suspending = 0.2f;
-		m_AnchoredCmp = NULL;
+		m_Controller->SetUpDirection(m_Controller->GetContactNormalDownPass());
 	}
 	else if (moveFlags & physx::PxControllerCollisionFlag::eCOLLISION_SIDES)
 	{
-		if (!m_AnchoredCmp)
-		{
-			Vector3 vel((m_Steering->m_Forward * m_Steering->m_Speed).xz(), m_VerticalSpeed);
-			m_Steering->m_Speed = vel.magnitude();
-			m_Steering->m_Forward = vel / m_Steering->m_Speed;
-		}
-		m_AnchoredCmp = m_SideTouchedCmp;
+		m_VerticalSpeed = Lerp(m_VerticalSpeed, 0.0f, 1.0f - pow(0.5f, 30 * dtime));
+		m_Suspending = 0.2f;
+		m_Controller->SetUpDirection(m_Controller->GetContactNormalSidePass());
+	}
+	else if (moveFlags & physx::PxControllerCollisionFlag::eCOLLISION_UP)
+	{
+		//m_Controller->SetUpDirection(Vector3(0, 1, 0));
 	}
 	else
 	{
-		m_AnchoredCmp = NULL;
+		m_Controller->SetUpDirection(Vector3(0, 1, 0));
 	}
 }
 
@@ -298,9 +295,9 @@ void PlayerAgent::OnPxThreadShapeHit(my::EventArg* arg)
 	ShapeHitEventArg* hit = static_cast<ShapeHitEventArg*>(arg);
 	if (hit->flag & physx::PxControllerCollisionFlag::eCOLLISION_DOWN)
 	{
-		m_DownTouchedCmp = hit->other_cmp;
-		m_DownTouchedPos = hit->worldPos;
-		m_DownTouchedNormal = hit->worldNormal;
+		//m_DownTouchedCmp = hit->other_cmp;
+		//m_DownTouchedPos = hit->worldPos;
+		//m_DownTouchedNormal = hit->worldNormal;
 
 		//if (m_Steering->m_Speed < 0.001f && (hit->worldPos.xz() - m_Actor->m_Position.xz()).magnitudeSq() > 0.09f * 0.09f)
 		//{
@@ -309,8 +306,8 @@ void PlayerAgent::OnPxThreadShapeHit(my::EventArg* arg)
 	}
 	else if (hit->flag & physx::PxControllerCollisionFlag::eCOLLISION_SIDES)
 	{
-		m_SideTouchedCmp = hit->other_cmp;
-		m_SideTouchedPos = hit->worldPos;
-		m_SideTouchedNormal = hit->worldNormal;
+		//m_SideTouchedCmp = hit->other_cmp;
+		//m_SideTouchedPos = hit->worldPos;
+		//m_SideTouchedNormal = hit->worldNormal;
 	}
 }

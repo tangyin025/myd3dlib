@@ -41,33 +41,12 @@ public:
 
 	my::OgreSkeletonAnimationPtr m_Skel;
 
-	Component* m_DownTouchedCmp;
-
-	my::Vector3 m_DownTouchedPos;
-
-	my::Vector3 m_DownTouchedNormal;
-
-	Component* m_SideTouchedCmp;
-
-	my::Vector3 m_SideTouchedPos;
-
-	my::Vector3 m_SideTouchedNormal;
-
-	Component* m_AnchoredCmp;
-
 	PlayerAgent(const char* Name)
 		: Component(Name)
 		, m_MoveDir(0, 0, 0)
 		, m_ClimbDir(0, 0, 0)
 		, m_VerticalSpeed(0)
 		, m_Suspending(0.0f)
-		, m_DownTouchedCmp(NULL)
-		, m_DownTouchedPos(0, 0, 0)
-		, m_DownTouchedNormal(1, 0, 0)
-		, m_SideTouchedCmp(NULL)
-		, m_SideTouchedPos(0, 0, 0)
-		, m_SideTouchedNormal(1, 0, 0)
-		, m_AnchoredCmp(NULL)
 	{
 	}
 
