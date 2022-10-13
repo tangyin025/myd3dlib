@@ -608,6 +608,11 @@ namespace my
 				x * rhs.y - y * rhs.x);
 		}
 
+		Vector3 perpendicular(const Vector3 & side) const
+		{
+			return side - operator *(dot(side));
+		}
+
 		float dot(const Vector3 & rhs) const
 		{
 			return x * rhs.x + y * rhs.y + z * rhs.z;

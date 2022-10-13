@@ -861,9 +861,9 @@ void Mesh::ComputeTangentFrame(
 		const Vector3 & t = tan1[vertex_i];
 
 		// Gram-Schmidt orthogonalize
-		Vector3 perpendicular = t - n * n.dot(t);
-		float l = perpendicular.magnitude();
-		VertexElems.SetTangent(pVertex, l > EPSILON_E12 ? perpendicular / l : Vector3(0, 0, 1), 0);
+		Vector3 perp = n.perpendicular(t);
+		float l = perp.magnitude();
+		VertexElems.SetTangent(pVertex, l > EPSILON_E12 ? perp / l : Vector3(0, 0, 1), 0);
 	}
 }
 

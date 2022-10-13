@@ -68,7 +68,7 @@ my::Vector3 Steering::SeekDir(my::Vector3 Force, float dtime)
 		if (cosineOfSourceAngle < cosineOfConeAngle)
 		{
 			// find the portion of "source" that is perpendicular to "basis"
-			const Vector3 perp = Force - m_Forward * Force.dot(m_Forward);
+			const Vector3 perp = m_Forward.perpendicular(Force);
 
 			// normalize that perpendicular
 			const Vector3 unitPerp = perp.normalizeSafe();
