@@ -255,9 +255,15 @@ void PlayerAgent::OnPxThreadSubstep(float dtime)
 	}
 	else if (m_Suspending <= 0.0f)
 	{
-		m_VerticalSpeed += theApp.default_physx_scene_gravity.y * dtime;
-		m_Controller->SetUpDirection(Vector3(0, 1, 0));
 		Vector3 vel = m_Steering->m_Forward * m_Steering->m_Speed + m_Controller->GetUpDirection() * m_VerticalSpeed;
+		vel.y += theApp.default_physx_scene_gravity.y * dtime;
+		m_VerticalSpeed = vel.y;
+		m_Steering->m_Speed = vel.magnitude2D();
+		if (m_Steering->m_Speed > 0)
+		{
+			m_Steering->m_Forward = Vector3(vel.xz(), 0) / m_Steering->m_Speed;
+		}
+		m_Controller->SetUpDirection(Vector3(0, 1, 0));
 		disp = vel * dtime;
 	}
 	else
