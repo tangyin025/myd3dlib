@@ -742,7 +742,7 @@ void Mesh::ComputeNormalFrame(
 		const Vector3 & v2 = VertexElems.GetPosition(pv2);
 		const Vector3 & v3 = VertexElems.GetPosition(pv3);
 
-		FNormals[face_i] = (v2 - v1).cross(v3 - v1).normalizeSafe();
+		FNormals[face_i] = (v2 - v1).cross(v3 - v1).normalize(Vector3(1, 0, 0));
 	}
 
 	for (unsigned int vert_i = 0; vert_i < NumVerts; vert_i++)
@@ -783,7 +783,7 @@ void Mesh::ComputeNormalFrame(
 	for (unsigned int vert_i = 0; vert_i < NumVerts; vert_i++)
 	{
 		unsigned char * pVertex = (unsigned char *)pVertices + vert_i * VertexStride;
-		VertexElems.SetNormal(pVertex, VertexElems.GetNormal(pVertex).normalizeSafe());
+		VertexElems.SetNormal(pVertex, VertexElems.GetNormal(pVertex).normalize(Vector3(1, 0, 0)));
 	}
 }
 

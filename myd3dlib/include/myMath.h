@@ -688,7 +688,7 @@ namespace my
 			return operator *(1.0f / length);
 		}
 
-		Vector3 normalizeSafe(void) const
+		Vector3 normalize(const Vector3 & safe) const
 		{
 			float length = magnitude();
 
@@ -696,7 +696,7 @@ namespace my
 			{
 				return operator *(1.0f / length);
 			}
-			return Vector3(1, 0, 0);
+			return safe;
 		}
 
 		Vector3 normalize2D(void) const
@@ -708,6 +708,17 @@ namespace my
 			return Vector3(x, 0, z) * (1.0f / length);
 		}
 
+		Vector3 normalize2D(const Vector3 & safe) const
+		{
+			float length = magnitude2D();
+
+			if (length > EPSILON_E6)
+			{
+				return Vector3(x, 0, z) * (1.0f / length);
+			}
+			return safe;
+		}
+
 		Vector3 & normalizeSelf(void)
 		{
 			float length = magnitude();
@@ -715,6 +726,17 @@ namespace my
 			_ASSERT(length > EPSILON_E6);
 
 			return operator *=(1.0f / length);
+		}
+
+		Vector3 & normalizeSelf(const Vector3 & safe)
+		{
+			float length = magnitude();
+
+			if (length > EPSILON_E6)
+			{
+				return operator *=(1.0f / length);
+			}
+			return operator =(safe);
 		}
 
 		Vector4 transform(const Matrix4 & m) const;

@@ -920,9 +920,12 @@ void LuaContext::Init(void)
 			.def("distanceSq2D", &my::Vector3::distanceSq2D)
 			.def("lerp", &my::Vector3::lerp)
 			.def("lerpSelf", &my::Vector3::lerpSelf, return_reference_to(boost::placeholders::_1))
-			.property("normalize", &my::Vector3::normalizeSafe)
-			.property("normalize2D", &my::Vector3::normalize2D)
-			.def("normalizeSelf", &my::Vector3::normalizeSelf, return_reference_to(boost::placeholders::_1))
+			.property("normalize", luabind::tag_function<my::Vector3(const my::Vector3*)>(
+				boost::bind((my::Vector3(my::Vector3::*)(const my::Vector3&)const) & my::Vector3::normalize, boost::placeholders::_1, my::Vector3(1, 0, 0))))
+			.property("normalize2D", luabind::tag_function<my::Vector3(const my::Vector3*)>(
+				boost::bind((my::Vector3(my::Vector3::*)(const my::Vector3&)const) & my::Vector3::normalize2D, boost::placeholders::_1, my::Vector3(1, 0, 0))))
+			.def("normalizeSelf", luabind::tag_function<my::Vector3& (my::Vector3*)>(
+				boost::bind((my::Vector3 & (my::Vector3::*)(const my::Vector3&)) & my::Vector3::normalizeSelf, boost::placeholders::_1, my::Vector3(1, 0, 0))))
 			.def("transform", (my::Vector4(my::Vector3::*)(const my::Matrix4 &) const)&my::Vector3::transform)
 			.def("transformTranspose", &my::Vector3::transformTranspose)
 			.def("transformCoord", &my::Vector3::transformCoordSafe)
