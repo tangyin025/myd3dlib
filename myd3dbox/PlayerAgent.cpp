@@ -156,11 +156,6 @@ void PlayerAgent::Update(float fElapsedTime)
 		m_Actor->SetPose(pos, rot);
 	}
 
-	if (m_Suspending > 0.0f)
-	{
-		m_Suspending -= fElapsedTime;
-	}
-
 	CMainFrame* pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
 	CChildView* pView = DYNAMIC_DOWNCAST(CChildView, pFrame->GetActiveView());
@@ -246,6 +241,11 @@ void PlayerAgent::Update(float fElapsedTime)
 
 void PlayerAgent::OnPxThreadSubstep(float dtime)
 {
+	if (m_Suspending > 0.0f)
+	{
+		m_Suspending -= dtime;
+	}
+
 	Vector3 disp;
 	if (m_Actor->TickActionAndGetDisplacement(dtime, disp))
 	{
@@ -260,7 +260,7 @@ void PlayerAgent::OnPxThreadSubstep(float dtime)
 	else if (m_Suspending <= 0.0f)
 	{
 		m_VerticalSpeed += theApp.default_physx_scene_gravity.y * dtime;
-		_ASSERT(m_Controller->GetUpDirection() == Vector3(0, 1, 0));
+		//_ASSERT(m_Controller->GetUpDirection() == Vector3(0, 1, 0));
 		Vector3 vel = m_Steering->m_Forward * m_Steering->m_Speed + m_Controller->GetUpDirection() * m_VerticalSpeed;
 		disp = vel * dtime;
 	}
