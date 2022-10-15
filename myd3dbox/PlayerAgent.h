@@ -39,11 +39,14 @@ public:
 
 	my::OgreSkeletonAnimationPtr m_Skel;
 
+	physx::PxControllerCollisionFlags m_LastMoveFlags;
+
 	PlayerAgent(const char* Name)
 		: Component(Name)
 		, m_MoveDir(0, 0, 0)
 		, m_VerticalSpeed(0)
 		, m_Suspending(0.0f)
+		, m_LastMoveFlags(0)
 	{
 	}
 

@@ -200,9 +200,10 @@ void PlayerAgent::Update(float fElapsedTime)
 	if (theApp.m_keyboard->IsKeyPress(KeyCode::KC_SPACE))
 	{
 		boost::dynamic_pointer_cast<ActionTrackVelocity>(ActionTbl::getSingleton().Jump->m_TrackList[0])->m_ParamVelocity =
-			Vector3((lensq > 0 ? m_MoveDir * m_Steering->m_MaxSpeed : m_Steering->m_Forward * m_Steering->m_Speed).xz(), sqrt(-1.0f * 2.0f * theApp.default_physx_scene_gravity.y));
+			(lensq > 0 ? m_MoveDir * m_Steering->m_MaxSpeed : m_Steering->m_Forward * m_Steering->m_Speed) + Vector3(0, sqrt(-1.0f * 2.0f * theApp.default_physx_scene_gravity.y), 0);
 		m_Actor->PlayAction(ActionTbl::getSingleton().Jump.get(), 0.5f);
 		m_Suspending = 0.0f;
+		m_Controller->SetUpDirection(Vector3(0, 1, 0));
 	}
 
 	for (int i = 0; i < theApp.default_player_mesh_list.size(); i++)
@@ -256,8 +257,7 @@ void PlayerAgent::OnPxThreadSubstep(float dtime)
 	else if (m_Suspending <= 0.0f)
 	{
 		Vector3 vel = m_Steering->m_Forward * m_Steering->m_Speed + m_Controller->GetUpDirection() * m_VerticalSpeed;
-		vel.y += theApp.default_physx_scene_gravity.y * dtime;
-		m_VerticalSpeed = vel.y;
+		m_VerticalSpeed = vel.y += theApp.default_physx_scene_gravity.y * dtime;
 		m_Steering->m_Speed = vel.magnitude2D();
 		if (m_Steering->m_Speed > 0)
 		{
@@ -283,10 +283,17 @@ void PlayerAgent::OnPxThreadSubstep(float dtime)
 	}
 	else if (moveFlags & physx::PxControllerCollisionFlag::eCOLLISION_SIDES)
 	{
-		m_VerticalSpeed = Lerp(m_VerticalSpeed, 0.0f, 1.0f - pow(0.5f, 30 * dtime));
-		m_Suspending = 0.2f;
-		m_Controller->SetUpDirection(m_Controller->GetContactNormalSidePass());
+		if (m_Suspending <= 0.0f)
+		{
+			m_VerticalSpeed = Lerp(m_VerticalSpeed, 0.0f, 1.0f - pow(0.5f, 30 * dtime));
+			m_Suspending = 0.2f;
+			m_Controller->SetUpDirection(m_Controller->GetContactNormalSidePass());
+		}
 	}
+	else if (m_LastMoveFlags & physx::PxControllerCollisionFlag::eCOLLISION_DOWN)
+	{
+	}
+	m_LastMoveFlags = moveFlags;
 }
 
 void PlayerAgent::OnPxThreadShapeHit(my::EventArg* arg)
