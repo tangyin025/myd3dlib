@@ -283,12 +283,12 @@ void PlayerAgent::OnPxThreadSubstep(float dtime)
 	{
 		if (m_Suspending <= 0.0f)
 		{
-			m_VerticalSpeed = Lerp(m_VerticalSpeed, 0.0f, 1.0f - pow(0.5f, 30 * dtime));
+			m_VerticalSpeed = 0;
 			m_Suspending = 0.2f;
 			m_Controller->SetUpDirection(m_Controller->GetContactNormalSidePass());
 		}
 	}
-	else if (m_LastMoveFlags)
+	else if (!moveFlags && m_LastMoveFlags)
 	{
 		Vector3 up = m_Controller->GetUpDirection();
 		if (up.y <= 0.5f)
