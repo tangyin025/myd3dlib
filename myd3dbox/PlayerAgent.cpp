@@ -170,22 +170,25 @@ void PlayerAgent::Update(float fElapsedTime)
 	model_view_camera->m_Euler.y -= D3DXToRadian(theApp.m_mouse->GetX()) * 0.5;
 	model_view_camera->m_Euler.x -= D3DXToRadian(theApp.m_mouse->GetY()) * 0.25;
 
-	Vector2 dir;
-	dir.x = (theApp.m_keyboard->IsKeyDown(KeyCode::KC_A) ? -1.0f : 0.0f) + (theApp.m_keyboard->IsKeyDown(KeyCode::KC_D) ? 1.0f : 0.0f);
-	dir.y = (theApp.m_keyboard->IsKeyDown(KeyCode::KC_W) ? -1.0f : 0.0f) + (theApp.m_keyboard->IsKeyDown(KeyCode::KC_S) ? 1.0f : 0.0f);
+	Vector2 dir(
+		(theApp.m_keyboard->IsKeyDown(KeyCode::KC_A) ? -1.0f : 0.0f) + (theApp.m_keyboard->IsKeyDown(KeyCode::KC_D) ? 1.0f : 0.0f),
+		(theApp.m_keyboard->IsKeyDown(KeyCode::KC_W) ? -1.0f : 0.0f) + (theApp.m_keyboard->IsKeyDown(KeyCode::KC_S) ? 1.0f : 0.0f));
 	float lensq = dir.magnitudeSq();
 	if (lensq > 0)
 	{
 		dir /= sqrt(lensq);
-		float angle = atan2(dir.x, dir.y);
-		Vector3 up = m_Controller->GetUpDirection();
+		const Vector3 up = m_Controller->GetUpDirection();
 		if (up.y > 0.5f)
 		{
-			m_MoveDir = Quaternion::RotationAxis(up, angle) * up.perpendicular(model_view_camera->m_View.getColumn<2>().xyz).normalize(Vector3(0, 0, 0));
+			const Vector3 foward = model_view_camera->m_View.getColumn<0>().xyz.cross(up).normalize(Vector3(0, 0, 0));
+			const Vector3 right = up.cross(foward);
+			m_MoveDir = foward * dir.y + right * dir.x;
 		}
 		else
 		{
-			m_MoveDir = Quaternion::RotationAxis(up, angle) * up.perpendicular(Vector3(0, -1, 0)).normalize(Vector3(0, 0, 0));
+			const Vector3 right = Vector3(0, 1, 0).cross(up).normalize(Vector3(0, 0, 0));
+			const Vector3 foward = right.cross(up);
+			m_MoveDir = foward * dir.y + right * dir.x;
 		}
 	}
 	else
@@ -256,14 +259,9 @@ void PlayerAgent::OnPxThreadSubstep(float dtime)
 	}
 	else if (m_Suspending <= 0.0f)
 	{
+		m_VerticalSpeed += theApp.default_physx_scene_gravity.y * dtime;
+		_ASSERT(m_Controller->GetUpDirection() == Vector3(0, 1, 0));
 		Vector3 vel = m_Steering->m_Forward * m_Steering->m_Speed + m_Controller->GetUpDirection() * m_VerticalSpeed;
-		m_VerticalSpeed = vel.y += theApp.default_physx_scene_gravity.y * dtime;
-		m_Steering->m_Speed = vel.magnitude2D();
-		if (m_Steering->m_Speed > 0)
-		{
-			m_Steering->m_Forward = Vector3(vel.xz(), 0) / m_Steering->m_Speed;
-		}
-		m_Controller->SetUpDirection(Vector3(0, 1, 0));
 		disp = vel * dtime;
 	}
 	else
@@ -290,34 +288,31 @@ void PlayerAgent::OnPxThreadSubstep(float dtime)
 			m_Controller->SetUpDirection(m_Controller->GetContactNormalSidePass());
 		}
 	}
-	else if (m_LastMoveFlags & physx::PxControllerCollisionFlag::eCOLLISION_DOWN)
+	else if (m_LastMoveFlags)
 	{
+		Vector3 up = m_Controller->GetUpDirection();
+		if (up.y <= 0.5f)
+		{
+			Vector3 vel = m_Steering->m_Forward * m_Steering->m_Speed + m_Controller->GetUpDirection() * m_VerticalSpeed;
+			m_VerticalSpeed = vel.y += theApp.default_physx_scene_gravity.y * dtime;
+			m_Steering->m_Speed = m_Steering->m_MaxSpeed;
+			m_Steering->m_Forward = -up;
+		}
+		m_Controller->SetUpDirection(Vector3(0, 1, 0));
 	}
 	m_LastMoveFlags = moveFlags;
 }
 
 void PlayerAgent::OnPxThreadShapeHit(my::EventArg* arg)
 {
-	ShapeHitEventArg* hit = static_cast<ShapeHitEventArg*>(arg);
-	if (hit->flag & physx::PxControllerCollisionFlag::eCOLLISION_DOWN)
-	{
-		//m_DownTouchedCmp = hit->other_cmp;
-		//m_DownTouchedPos = hit->worldPos;
-		//m_DownTouchedNormal = hit->worldNormal;
-
-		//if (m_Steering->m_Speed < 0.001f && (hit->worldPos.xz() - m_Actor->m_Position.xz()).magnitudeSq() > 0.09f * 0.09f)
-		//{
-		//	hit->behaviorflags = physx::PxControllerBehaviorFlag::eCCT_SLIDE;
-		//}
-	}
-	else if (hit->flag & physx::PxControllerCollisionFlag::eCOLLISION_SIDES)
-	{
-		//m_SideTouchedCmp = hit->other_cmp;
-		//m_SideTouchedPos = hit->worldPos;
-		//m_SideTouchedNormal = hit->worldNormal;
-	}
-	else if (hit->flag & physx::PxControllerCollisionFlag::eCOLLISION_UP)
-	{
-
-	}
+	//ShapeHitEventArg* hit = static_cast<ShapeHitEventArg*>(arg);
+	//if (hit->flag & physx::PxControllerCollisionFlag::eCOLLISION_DOWN)
+	//{
+	//}
+	//else if (hit->flag & physx::PxControllerCollisionFlag::eCOLLISION_SIDES)
+	//{
+	//}
+	//else if (hit->flag & physx::PxControllerCollisionFlag::eCOLLISION_UP)
+	//{
+	//}
 }
