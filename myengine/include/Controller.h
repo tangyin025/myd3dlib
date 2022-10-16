@@ -34,7 +34,7 @@ protected:
 	}
 
 public:
-	Controller(const char * Name, float Height, float Radius, float ContactOffset, float StepOffset)
+	Controller(const char * Name, float Height, float Radius, float ContactOffset, float StepOffset, float SlopeLimit)
 		: Component(Name)
 		, m_DescSimulationFilterWord0(0)
 		, m_DescQueryFilterWord0(0)
@@ -43,6 +43,7 @@ public:
 	{
 		m_desc.height = Height;
 		m_desc.radius = Radius;
+		m_desc.slopeLimit = SlopeLimit;
 		m_desc.contactOffset = ContactOffset;
 		m_desc.stepOffset = StepOffset;
 	}
@@ -78,6 +79,18 @@ public:
 
 	virtual void Update(float fElapsedTime);
 
+	virtual void SetSimulationFilterWord0(unsigned int filterWord0);
+
+	virtual unsigned int GetSimulationFilterWord0(void) const;
+
+	virtual void SetQueryFilterWord0(unsigned int filterWord0);
+
+	virtual unsigned int GetQueryFilterWord0(void) const;
+
+	virtual void SetShapeFlags(unsigned int Flags);
+
+	virtual unsigned int GetShapeFlags(void) const;
+
 	unsigned int Move(const my::Vector3 & disp, float minDist, float elapsedTime, unsigned int filterWord0);
 
 	void SetHeight(float Height);
@@ -96,17 +109,9 @@ public:
 
 	float GetContactOffset(void) const;
 
-	void SetSimulationFilterWord0(unsigned int filterWord0);
+	void SetSlopeLimit(float SlopeLimit);
 
-	unsigned int GetSimulationFilterWord0(void) const;
-
-	void SetQueryFilterWord0(unsigned int filterWord0);
-
-	unsigned int GetQueryFilterWord0(void) const;
-
-	virtual void SetShapeFlags(unsigned int Flags);
-
-	virtual unsigned int GetShapeFlags(void) const;
+	float GetSlopeLimit(void) const;
 
 	void SetUpDirection(const my::Vector3 & Up);
 

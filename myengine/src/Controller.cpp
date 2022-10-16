@@ -109,6 +109,68 @@ void Controller::SetPxPoseOrbyPxThread(const my::Vector3 & Pos, const my::Quater
 	SetPosition(Pos);
 }
 
+void Controller::SetSimulationFilterWord0(unsigned int filterWord0)
+{
+	m_DescSimulationFilterWord0 = filterWord0;
+
+	if (m_PxShape)
+	{
+		physx::PxFilterData filter_data(filterWord0, 0, 0, 0);
+		m_PxShape->setSimulationFilterData(filter_data);
+	}
+}
+
+unsigned int Controller::GetSimulationFilterWord0(void) const
+{
+	if (m_PxShape)
+	{
+		return m_PxShape->getSimulationFilterData().word0;
+	}
+
+	return m_DescSimulationFilterWord0;
+}
+
+void Controller::SetQueryFilterWord0(unsigned int filterWord0)
+{
+	m_DescQueryFilterWord0 = filterWord0;
+
+	if (m_PxShape)
+	{
+		physx::PxFilterData filter_data(filterWord0, 0, 0, 0);
+		m_PxShape->setQueryFilterData(filter_data);
+	}
+}
+
+unsigned int Controller::GetQueryFilterWord0(void) const
+{
+	if (m_PxShape)
+	{
+		return m_PxShape->getQueryFilterData().word0;
+	}
+
+	return m_DescQueryFilterWord0;
+}
+
+void Controller::SetShapeFlags(unsigned int Flags)
+{
+	m_DescShapeFlags = Flags;
+
+	if (m_PxShape)
+	{
+		m_PxShape->setFlags(physx::PxShapeFlags(Flags));
+	}
+}
+
+unsigned int Controller::GetShapeFlags(void) const
+{
+	if (m_PxShape)
+	{
+		return m_PxShape->getFlags();
+	}
+
+	return m_DescShapeFlags;
+}
+
 unsigned int Controller::Move(const my::Vector3 & disp, float minDist, float elapsedTime, unsigned int filterWord0)
 {
 	m_PxControllerMoveMuted = true;
@@ -234,66 +296,24 @@ float Controller::GetContactOffset(void) const
 	return m_desc.contactOffset;
 }
 
-void Controller::SetSimulationFilterWord0(unsigned int filterWord0)
+void Controller::SetSlopeLimit(float SlopeLimit)
 {
-	m_DescSimulationFilterWord0 = filterWord0;
+	m_desc.slopeLimit = SlopeLimit;
 
-	if (m_PxShape)
+	if (m_PxController)
 	{
-		physx::PxFilterData filter_data(filterWord0, 0, 0, 0);
-		m_PxShape->setSimulationFilterData(filter_data);
+		m_PxController->setSlopeLimit(SlopeLimit);
 	}
 }
 
-unsigned int Controller::GetSimulationFilterWord0(void) const
+float Controller::GetSlopeLimit(void) const
 {
-	if (m_PxShape)
+	if (m_PxController)
 	{
-		return m_PxShape->getSimulationFilterData().word0;
+		return m_PxController->getSlopeLimit();
 	}
 
-	return m_DescSimulationFilterWord0;
-}
-
-void Controller::SetQueryFilterWord0(unsigned int filterWord0)
-{
-	m_DescQueryFilterWord0 = filterWord0;
-
-	if (m_PxShape)
-	{
-		physx::PxFilterData filter_data(filterWord0, 0, 0, 0);
-		m_PxShape->setQueryFilterData(filter_data);
-	}
-}
-
-unsigned int Controller::GetQueryFilterWord0(void) const
-{
-	if (m_PxShape)
-	{
-		return m_PxShape->getQueryFilterData().word0;
-	}
-
-	return m_DescQueryFilterWord0;
-}
-
-void Controller::SetShapeFlags(unsigned int Flags)
-{
-	m_DescShapeFlags = Flags;
-
-	if (m_PxShape)
-	{
-		m_PxShape->setFlags(physx::PxShapeFlags(Flags));
-	}
-}
-
-unsigned int Controller::GetShapeFlags(void) const
-{
-	if (m_PxShape)
-	{
-		return m_PxShape->getFlags();
-	}
-
-	return m_DescShapeFlags;
+	return m_desc.slopeLimit;
 }
 
 void Controller::SetUpDirection(const my::Vector3 & Up)

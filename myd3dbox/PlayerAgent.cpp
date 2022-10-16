@@ -172,19 +172,9 @@ void PlayerAgent::Update(float fElapsedTime)
 	if (lensq > 0)
 	{
 		dir /= sqrt(lensq);
-		const Vector3 up = m_Controller->GetUpDirection();
-		if (up.y > 0.5f)
-		{
-			const Vector3 foward = model_view_camera->m_View.getColumn<0>().xyz.cross(up).normalize(Vector3(0, 0, 0));
-			const Vector3 right = up.cross(foward);
-			m_MoveDir = foward * dir.y + right * dir.x;
-		}
-		else
-		{
-			const Vector3 right = Vector3(0, 1, 0).cross(up).normalize(Vector3(0, 0, 0));
-			const Vector3 foward = right.cross(up);
-			m_MoveDir = foward * dir.y + right * dir.x;
-		}
+		Vector3 foward = model_view_camera->m_View.getColumn<0>().xyz.cross(Vector3(0, 1, 0)).normalize(Vector3(0, 0, 0));
+		Vector3 right = Vector3(0, 1, 0).cross(foward);
+		m_MoveDir = foward * dir.y + right * dir.x;
 	}
 	else
 	{
@@ -259,15 +249,19 @@ void PlayerAgent::OnPxThreadSubstep(float dtime)
 	}
 	else if (m_Suspending <= 0.0f)
 	{
-		m_VerticalSpeed += theApp.default_physx_scene_gravity.y * dtime;
-		//_ASSERT(m_Controller->GetUpDirection() == Vector3(0, 1, 0));
-		Vector3 vel = m_Steering->m_Forward * m_Steering->m_Speed + m_Controller->GetUpDirection() * m_VerticalSpeed;
+		Vector3 vel = m_Steering->m_Forward * m_Steering->m_Speed + Vector3(0, m_VerticalSpeed + theApp.default_physx_scene_gravity.y * dtime, 0);
 		disp = vel * dtime;
+		m_VerticalSpeed = vel.y;
+		m_Steering->m_Speed = vel.magnitude2D();
+		if (m_Steering->m_Speed > 0)
+		{
+			m_Steering->m_Forward = Vector3(vel.xz(), 0) / m_Steering->m_Speed;
+		}
 	}
 	else
 	{
 		m_VerticalSpeed += theApp.default_physx_scene_gravity.y * dtime;
-		Vector3 vel = m_Steering->SeekDir(m_MoveDir * theApp.default_player_seek_force, dtime) + m_Controller->GetUpDirection() * m_VerticalSpeed;
+		Vector3 vel = m_Steering->SeekDir(m_MoveDir * theApp.default_player_seek_force, dtime) + Vector3(0, m_VerticalSpeed, 0);
 		disp = vel * dtime;
 	}
 
@@ -277,30 +271,7 @@ void PlayerAgent::OnPxThreadSubstep(float dtime)
 	{
 		m_VerticalSpeed = Lerp(m_VerticalSpeed, 0.0f, 1.0f - pow(0.5f, 30 * dtime));
 		m_Suspending = 0.2f;
-		m_Controller->SetUpDirection(m_Controller->GetContactNormalDownPass());
 	}
-	else if (moveFlags & physx::PxControllerCollisionFlag::eCOLLISION_SIDES)
-	{
-		if (m_Suspending <= 0.0f)
-		{
-			m_VerticalSpeed = 0;
-			m_Suspending = 0.2f;
-			m_Controller->SetUpDirection(m_Controller->GetContactNormalSidePass());
-		}
-	}
-	else if (!moveFlags && m_LastMoveFlags)
-	{
-		Vector3 up = m_Controller->GetUpDirection();
-		if (up.y <= 0.5f)
-		{
-			Vector3 vel = m_Steering->m_Forward * m_Steering->m_Speed + m_Controller->GetUpDirection() * m_VerticalSpeed;
-			m_VerticalSpeed = vel.y += theApp.default_physx_scene_gravity.y * dtime;
-			m_Steering->m_Speed = m_Steering->m_MaxSpeed;
-			m_Steering->m_Forward = -up;
-		}
-		m_Controller->SetUpDirection(Vector3(0, 1, 0));
-	}
-	m_LastMoveFlags = moveFlags;
 }
 
 void PlayerAgent::OnPxThreadShapeHit(my::EventArg* arg)

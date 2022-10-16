@@ -385,7 +385,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	m_PxScene->setVisualizationParameter(physx::PxVisualizationParameter::eJOINT_LIMITS, 1);
 
 	m_Player.reset(new Actor(NULL, my::Vector3(0, 0, 0), my::Quaternion::Identity(), my::Vector3(theApp.default_player_scale), my::AABB(-1, 1)));
-	m_Player->InsertComponent(ComponentPtr(new Controller(NULL, theApp.default_player_height, theApp.default_player_radius, 0.1f, 0.5f)));
+	m_Player->InsertComponent(ComponentPtr(new Controller(NULL, theApp.default_player_height, theApp.default_player_radius, 0.1f, 0.5f, 0.0f)));
 	m_Player->InsertComponent(ComponentPtr(new Steering(NULL, theApp.default_player_max_speed, theApp.default_player_breaking_speed, 0.0f)));
 	m_Player->InsertComponent(ComponentPtr(new PlayerAgent(NULL)));
 	m_Player->InsertComponent(ComponentPtr(new Animator(NULL)));
@@ -1288,7 +1288,7 @@ void CMainFrame::OnCreateController()
 		return;
 	}
 
-	ControllerPtr controller_cmp(new Controller(my::NamedObject::MakeUniqueName((std::string((*actor_iter)->GetName()) + "_controller").c_str()).c_str(), 1.0f, 1.0f, 0.1f, 0.5f));
+	ControllerPtr controller_cmp(new Controller(my::NamedObject::MakeUniqueName((std::string((*actor_iter)->GetName()) + "_controller").c_str()).c_str(), 1.0f, 1.0f, 0.1f, 0.5f, 0.0f));
 	(*actor_iter)->InsertComponent(controller_cmp);
 	(*actor_iter)->UpdateAABB();
 	(*actor_iter)->UpdateOctNode();
