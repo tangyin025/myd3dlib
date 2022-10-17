@@ -39,7 +39,7 @@ public:
 
 	my::OgreSkeletonAnimationPtr m_Skel;
 
-	physx::PxControllerCollisionFlags m_LastMoveFlags;
+	unsigned int m_LastMoveFlags;
 
 	PlayerAgent(const char* Name)
 		: Component(Name)

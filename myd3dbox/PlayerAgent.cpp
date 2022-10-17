@@ -271,13 +271,19 @@ void PlayerAgent::OnPxThreadSubstep(float dtime)
 		disp = vel * dtime;
 	}
 
-	physx::PxControllerCollisionFlags moveFlags =
-		(physx::PxControllerCollisionFlags)m_Controller->Move(disp, 0.001f, dtime, theApp.default_physx_shape_filterword0);
+	unsigned int moveFlags = m_Controller->Move(disp, 0.001f, dtime, theApp.default_physx_shape_filterword0);
 	if (moveFlags & physx::PxControllerCollisionFlag::eCOLLISION_DOWN)
 	{
 		m_VerticalSpeed = Lerp(m_VerticalSpeed, 0.0f, 1.0f - pow(0.5f, 30 * dtime));
 		m_Suspending = 0.2f;
-		m_Controller->SetUpDirection(m_Controller->GetContactNormalDownPass());
+		if (moveFlags & physx::PxControllerCollisionFlag::eCOLLISION_SIDES && m_Controller->GetContactNormalSidePass().y > m_Controller->GetSlopeLimit())
+		{
+			m_Controller->SetUpDirection(m_Controller->GetContactNormalSidePass());
+		}
+		else
+		{
+			m_Controller->SetUpDirection(m_Controller->GetContactNormalDownPass());
+		}
 	}
 	else if (moveFlags & physx::PxControllerCollisionFlag::eCOLLISION_SIDES)
 	{

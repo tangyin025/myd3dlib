@@ -44,5 +44,5 @@ SweptCapsule::~SweptCapsule()
 
 void SweptCapsule::computeTemporalBox(const SweepTest& test, PxExtendedBounds3& box, const PxExtendedVec3& center, const PxVec3& direction) const
 {
-	Cct::computeTemporalBox(box, mRadius, mHeight, test.mUserParams.mContactOffset, test.mUserParams.mMaxJumpHeight, test.mUserParams.mUpDirection, center, direction);
+	Cct::computeTemporalBox(box, mRadius, mHeight, test.mUserParams.mContactOffset, test.mUserParams.mMaxJumpHeight, /*test.mUserParams.mUpDirection*/test.mUserParams.mQuatFromUp.rotate(PxVec3(1.0f, 0.0f, 0.0f)), center, direction);
 }
