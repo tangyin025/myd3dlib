@@ -51,6 +51,7 @@ void Controller::RequestResource(void)
 	m_PxMaterial.reset(PhysxSdk::getSingleton().m_sdk->createMaterial(0.5f, 0.5f, 0.5f), PhysxDeleter<physx::PxMaterial>());
 
 	m_desc.position = physx::PxExtendedVec3(m_Actor->m_Position.x, m_Actor->m_Position.y /*+ m_desc.contactOffset + m_desc.radius + m_desc.height * 0.5f*/, m_Actor->m_Position.z);
+	m_desc.upDirection = physx::PxVec3(0.0f, 1.0f, 0.0f);
 	m_desc.material = m_PxMaterial.get();
 	m_desc.reportCallback = this;
 	m_desc.behaviorCallback = this;
@@ -322,15 +323,16 @@ void Controller::SetUpDirection(const my::Vector3 & Up)
 
 	if (m_PxController)
 	{
-		m_PxController->setUpDirection((physx::PxVec3&)Up);
+		// ! Controller::setUpDirectionInternal
+		static_cast<physx::Cct::CapsuleController*>(m_PxController.get())->mUserParams.mUpDirection = (physx::PxVec3&)Up;
 	}
 }
 
-my::Vector3 Controller::GetUpDirection(void) const
+const my::Vector3 & Controller::GetUpDirection(void) const
 {
 	if (m_PxController)
 	{
-		return (my::Vector3&)m_PxController->getUpDirection();
+		return (my::Vector3&)static_cast<physx::Cct::CapsuleController*>(m_PxController.get())->mUserParams.mUpDirection;
 	}
 
 	return (my::Vector3&)m_desc.upDirection;

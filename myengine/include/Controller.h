@@ -115,7 +115,7 @@ public:
 
 	void SetUpDirection(const my::Vector3 & Up);
 
-	my::Vector3 GetUpDirection(void) const;
+	const my::Vector3 & GetUpDirection(void) const;
 
 	void SetPosition(const my::Vector3 & Pos);
 
