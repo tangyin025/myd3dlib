@@ -146,10 +146,12 @@ void PlayerAgent::Update(float fElapsedTime)
 	}
 
 	const Vector3 pos = m_Controller->GetPosition();
-	const Quaternion rot = m_Steering->m_Speed > 0 ? Quaternion::RotationFromToSafe(Vector3(0, 0, 1), Vector3(m_Steering->m_Forward.xz(), 0)) : m_Actor->m_Rotation;
+	const Vector3& up = m_Controller->GetUpDirection();
+	const Quaternion rot = up.y <= m_Controller->GetSlopeLimit() ? Quaternion::RotationAxis(Vector3(0, 1, 0), atan2f(-up.x, -up.z))
+		: m_Steering->m_Speed > 0 ? Quaternion::RotationAxis(Vector3(0, 1, 0), atan2f(m_Steering->m_Forward.x, m_Steering->m_Forward.z)) : m_Actor->m_Rotation;
 	if (m_Suspending > 0.0f && pos.y > m_Actor->m_Position.y + EPSILON_E3)
 	{
-		m_Actor->SetPose(Vector3(pos.x, Lerp(Max(m_Actor->m_Position.y, pos.y - m_Controller->GetStepOffset()), pos.y, 1.0f - pow(0.7f, 30 * fElapsedTime)), pos.z), rot);
+		m_Actor->SetPose((pos - up * Max(0.0f, Min(m_Controller->GetStepOffset(), pos.dot(up) - m_Actor->m_Position.dot(up)))).lerp(pos, 1.0f - pow(0.7f, 30 * fElapsedTime)), rot);
 	}
 	else
 	{
@@ -172,7 +174,6 @@ void PlayerAgent::Update(float fElapsedTime)
 	if (lensq > 0)
 	{
 		dir /= sqrt(lensq);
-		const Vector3 & up = m_Controller->GetUpDirection();
 		if (up.y > m_Controller->GetSlopeLimit())
 		{
 			const Vector3 foward = model_view_camera->m_View.getColumn<0>().xyz.cross(up).normalize(Vector3(0, 0, 0));
