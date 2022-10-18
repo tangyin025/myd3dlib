@@ -870,7 +870,6 @@ void CMainFrame::InitFileContext()
 			.def_readwrite("AmbientColor", &CMainApp::m_AmbientColor)
 			.def_readonly("UIRender", &CMainApp::m_UIRender)
 			.def_readonly("Font", &CMainApp::m_Font)
-			.def("LoadScene", &CMainApp::LoadScene)
 	];
 	luabind::globals(m_State)["theApp"] = &theApp;
 }
@@ -896,7 +895,10 @@ void CMainFrame::ClearFileContext()
 
 BOOL CMainFrame::OpenFileContext(LPCTSTR lpszFileName)
 {
-	SceneContextPtr scene = theApp.LoadScene(ts2ms(lpszFileName).c_str(), "");
+	SceneContextRequest request(ts2ms(lpszFileName).c_str(), "", INT_MAX);
+	request.LoadResource();
+	SceneContextPtr scene = boost::dynamic_pointer_cast<SceneContext>(request.m_res);
+
 	theApp.m_SkyLightCam->m_Euler = scene->m_SkyLightCamEuler;
 	theApp.m_SkyLightColor = scene->m_SkyLightColor;
 	theApp.m_AmbientColor = scene->m_AmbientColor;

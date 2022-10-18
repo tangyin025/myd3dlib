@@ -238,8 +238,6 @@ public:
 	virtual CDocument* OpenDocumentFile(LPCTSTR lpszFileName);
 	virtual void OnNamedObjectCreate(my::NamedObject* Object);
 	virtual void OnNamedObjectDestroy(my::NamedObject* Object);
-public:
-	boost::shared_ptr<SceneContext> LoadScene(const char* path, const char* prefix);
 };
 
 extern CMainApp theApp;
