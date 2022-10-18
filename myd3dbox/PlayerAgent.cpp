@@ -183,7 +183,7 @@ void PlayerAgent::Update(float fElapsedTime)
 		}
 		else
 		{
-			Vector3 right = Vector3(0, 1, 0).cross(up).normalize(Vector3(0, 0, 0));
+			Vector3 right = Vector3(0, 1, 0).cross(up).normalize(rot * Vector3(-1, 0, 0));
 			Vector3 forward = right.cross(up);
 			m_MoveDir = forward * dir.y + right * dir.x;
 		}
