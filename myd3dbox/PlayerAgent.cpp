@@ -187,6 +187,31 @@ void PlayerAgent::Update(float fElapsedTime)
 			Vector3 forward = right.cross(up);
 			m_MoveDir = forward * dir.y + right * dir.x;
 		}
+
+		//if (m_Suspending > 0 && m_LastMoveFlags != 0)
+		//{
+		//	physx::PxSweepBuffer hit;
+		//	physx::PxCapsuleGeometry capsule(m_Controller->GetRadius() + m_Controller->GetContactOffset(), m_Controller->GetHeight() * 0.5f);
+		//	physx::PxQueryFilterData filterData = physx::PxQueryFilterData(
+		//		physx::PxFilterData(theApp.default_physx_shape_filterword0, 0, 0, 0), physx::PxQueryFlag::eDYNAMIC | physx::PxQueryFlag::eSTATIC);
+		//	my::Vector3 start = m_Controller->GetPosition() + m_Controller->GetContactNormalDownPass() * m_Controller->GetStepOffset() + m_MoveDir * 3.0f;
+		//	if (pFrame->m_PxScene->sweep(capsule,
+		//		physx::PxTransform((physx::PxVec3&)start, static_cast<physx::Cct::CapsuleController*>(m_Controller->m_PxController.get())->mUserParams.mQuatFromUp),
+		//		(physx::PxVec3&)-m_Controller->GetContactNormalDownPass(),
+		//		m_Controller->GetStepOffset() * 2,
+		//		hit, physx::PxHitFlag::eDEFAULT, filterData, NULL, NULL, 0.0f))
+		//	{
+		//		my::Vector3 end = start - m_Controller->GetContactNormalDownPass() * hit.block.distance;
+		//		m_MoveDir = (end - m_Controller->GetPosition()).normalize();
+		//		m_Controller->SetUpDirection(m_MoveDir.perpendicular(m_Controller->GetContactNormalDownPass()).normalize(Vector3(0, 1, 0)));
+		//	}
+		//	else
+		//	{
+		//		my::Vector3 end = start - m_Controller->GetContactNormalDownPass() * m_Controller->GetStepOffset();
+		//		m_MoveDir = (end - m_Controller->GetPosition()).normalize();
+		//		m_Controller->SetUpDirection(m_MoveDir.perpendicular(m_Controller->GetContactNormalDownPass()).normalize(Vector3(0, 1, 0)));
+		//	}
+		//}
 	}
 	else
 	{
