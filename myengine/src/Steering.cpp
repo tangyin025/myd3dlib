@@ -112,7 +112,7 @@ my::Vector3 Steering::SeekDir(my::Vector3 Force, float dtime)
 	return newVelocity;
 }
 
-my::Vector3 Steering::SeekTarget(const my::Vector3& Target, float forceLength, float dtime)
+my::Vector3 Steering::SeekTarget(const my::Vector3& Target, float forceLength, float dtime, unsigned int filterWord0)
 {
 	// https://github.com/recastnavigation/recastnavigation/blob/master/DetourCrowd/Source/DetourCrowd.cpp
 	// dtCrowd::update
@@ -128,7 +128,7 @@ my::Vector3 Steering::SeekTarget(const my::Vector3& Target, float forceLength, f
 	std::vector<physx::PxOverlapHit> buff(256);
 	physx::PxOverlapBuffer hitbuff(buff.data(), buff.size());
 	physx::PxQueryFilterData filterData = physx::PxQueryFilterData(
-		physx::PxFilterData(controller->GetQueryFilterWord0(), 0, 0, 0), physx::PxQueryFlag::eDYNAMIC | physx::PxQueryFlag::eSTATIC /*| physx::PxQueryFlag::ePREFILTER | physx::PxQueryFlag::eANY_HIT*/);
+		physx::PxFilterData(filterWord0, 0, 0, 0), physx::PxQueryFlag::eDYNAMIC | physx::PxQueryFlag::eSTATIC /*| physx::PxQueryFlag::ePREFILTER | physx::PxQueryFlag::eANY_HIT*/);
 	if (scene->m_PxScene->overlap(physx::PxSphereGeometry(collisionQueryRange), physx::PxTransform((physx::PxVec3&)pos), hitbuff, filterData, NULL))
 	{
 		for (unsigned int i = 0; i < hitbuff.nbTouches; i++)
