@@ -2501,10 +2501,9 @@ void LuaContext::Init(void)
 			.property("TouchedPosLocal", &Controller::GetTouchedPosLocal)
 
 		, class_<Navigation, Component, boost::shared_ptr<Component> >("Navigation")
-			.def(constructor<const char*>())
 
 		, class_<Steering, Component, boost::shared_ptr<Component> >("Steering")
-			.def(constructor<const char*, float, float, float>())
+			.def(constructor<const char*, float, float, float, Navigation *>())
 			.def_readwrite("Forward", &Steering::m_Forward)
 			.def_readwrite("Speed", &Steering::m_Speed)
 			.def_readwrite("MaxSpeed", &Steering::m_MaxSpeed)

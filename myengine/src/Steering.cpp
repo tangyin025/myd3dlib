@@ -3,6 +3,7 @@
 #include "Controller.h"
 #include "NavigationSerialization.h"
 #include "DetourCommon.h"
+#include "PhysxContext.h"
 
 using namespace my;
 
@@ -16,13 +17,14 @@ ObstacleAvoidanceContext::~ObstacleAvoidanceContext(void)
 {
 }
 
-Steering::Steering(const char * Name, float MaxSpeed, float BrakingSpeed, float MaxAdjustedSpeed)
+Steering::Steering(const char * Name, float MaxSpeed, float BrakingSpeed, float MaxAdjustedSpeed, Navigation * navi)
 	: Component(Name)
 	, m_Forward(0, 0, 1)
 	, m_Speed(0.0f)
 	, m_MaxSpeed(MaxSpeed)
 	, m_BrakingSpeed(BrakingSpeed)
 	, m_MaxAdjustedSpeed(MaxAdjustedSpeed)
+	, m_navi(navi)
 	, m_agentPos(FLT_MAX)
 	, m_targetPos(FLT_MAX)
 	, m_targetRef(0)
@@ -115,56 +117,34 @@ my::Vector3 Steering::SeekTarget(const my::Vector3& Target, float forceLength, f
 	// https://github.com/recastnavigation/recastnavigation/blob/master/DetourCrowd/Source/DetourCrowd.cpp
 	// dtCrowd::update
 
-	struct Callback : public my::OctNode::QueryCallback
+	const Controller* controller = m_Actor->GetFirstComponent<Controller>();
+	PhysxScene* scene = dynamic_cast<PhysxScene*>(m_Actor->m_Node->GetTopNode());
+	Vector3 pos = controller->GetPosition();
+	float collisionQueryRange = controller->GetRadius() * 12.0f;
+	std::vector<Steering*> neighbors;
+	std::vector<Controller*> nei_controllers;
+
+	// Query neighbour agents
+	std::vector<physx::PxOverlapHit> buff(256);
+	physx::PxOverlapBuffer hitbuff(buff.data(), buff.size());
+	physx::PxQueryFilterData filterData = physx::PxQueryFilterData(
+		physx::PxFilterData(controller->GetQueryFilterWord0(), 0, 0, 0), physx::PxQueryFlag::eDYNAMIC | physx::PxQueryFlag::eSTATIC /*| physx::PxQueryFlag::ePREFILTER | physx::PxQueryFlag::eANY_HIT*/);
+	if (scene->m_PxScene->overlap(physx::PxSphereGeometry(collisionQueryRange), physx::PxTransform((physx::PxVec3&)pos), hitbuff, filterData, NULL))
 	{
-		const Actor* self;
-		const Controller* self_controller;
-		Vector3 pos;
-		std::vector<Steering*> neighbors;
-		std::vector<Controller*> nei_controllers;
-		Navigation* navi;
-		Callback(const Actor* _self, const Controller* _self_controller, const my::Vector3& _pos)
-			: self(_self)
-			, self_controller(_self_controller)
-			, pos(_pos)
-			, navi(NULL)
+		for (unsigned int i = 0; i < hitbuff.nbTouches; i++)
 		{
-			_ASSERT(!self->m_Base);
-		}
-
-		virtual bool OnQueryEntity(my::OctEntity* oct_entity, const my::AABB& aabb, my::IntersectionTests::IntersectionType)
-		{
-			Actor* actor = dynamic_cast<Actor*>(oct_entity);
-
-			if (actor != self && !actor->m_Base)
+			const physx::PxOverlapHit& hit = buff[i];
+			if (hit.shape->userData)
 			{
-				if (!navi && (navi = actor->GetFirstComponent<Navigation>()) && !actor->m_OctAabb->Intersect2D(pos))
+				Component* other_cmp = (Component*)hit.shape->userData;
+				Steering* nei = other_cmp->m_Actor->GetFirstComponent<Steering>();
+				if (nei && nei != this && !other_cmp->m_Actor->m_Base)
 				{
-					navi = NULL;
-				}
-
-				Steering* neighbor = actor->GetFirstComponent<Steering>();
-				Controller* nei_controller = actor->GetFirstComponent<Controller>();
-				if (!actor->m_Base && neighbor && nei_controller
-					&& self_controller->GetQueryFilterWord0() & nei_controller->GetQueryFilterWord0())
-				{
-					neighbors.push_back(neighbor);
-					nei_controllers.push_back(nei_controller);
+					neighbors.push_back(nei);
+					nei_controllers.push_back(dynamic_cast<Controller*>(other_cmp));
 				}
 			}
-			return true;
 		}
-	};
-
-	const Controller* controller = m_Actor->GetFirstComponent<Controller>();
-	OctNode* Root = m_Actor->m_Node->GetTopNode();
-	const Vector3 pos = controller->GetPosition();
-	const float collisionQueryRange = controller->GetRadius() * 12.0f;
-	Callback cb(m_Actor, controller, pos);
-	Root->QueryEntity(AABB(pos, collisionQueryRange), &cb);
-	if (!cb.navi)
-	{
-		return Vector3(0, 0, 0);
 	}
 
 	// CrowdToolState::setMoveTarget
@@ -173,10 +153,10 @@ my::Vector3 Steering::SeekTarget(const my::Vector3& Target, float forceLength, f
 	bool replan = false;
 	dtQueryFilter filter;
 	const float m_agentPlacementHalfExtents[3] = { 5,5,5 };// { controller->GetRadius() * 2.0f, controller->GetHeight() * 1.5f, controller->GetRadius() * 2.0f };
-	if ((m_targetPos - Target).magnitudeSq() > EPSILON_E6 || !cb.navi->m_navQuery->isValidPolyRef(m_targetRef, &filter))
+	if ((m_targetPos - Target).magnitudeSq() > EPSILON_E6 || !m_navi->m_navQuery->isValidPolyRef(m_targetRef, &filter))
 	{
 		// Find nearest point on navmesh and set move request to that location.
-		dtStatus status = cb.navi->m_navQuery->findNearestPoly(&Target.x, m_agentPlacementHalfExtents, &filter, &m_targetRef, &m_targetRefPos.x);
+		dtStatus status = m_navi->m_navQuery->findNearestPoly(&Target.x, m_agentPlacementHalfExtents, &filter, &m_targetRef, &m_targetRefPos.x);
 		if (dtStatusFailed(status) || !m_targetRef)
 		{
 			return SeekDir(Vector3(0, 0, 0), dtime);
@@ -197,10 +177,10 @@ my::Vector3 Steering::SeekTarget(const my::Vector3& Target, float forceLength, f
 	//}
 
 	dtPolyRef agentRef = m_corridor.getFirstPoly();
-	if (!cb.navi->m_navQuery->isValidPolyRef(agentRef, &filter))
+	if (!m_navi->m_navQuery->isValidPolyRef(agentRef, &filter))
 	{
 		// Find nearest position on navmesh and place the agent there.
-		dtStatus status = cb.navi->m_navQuery->findNearestPoly(&pos.x, m_agentPlacementHalfExtents, &filter, &agentRef, &m_agentPos.x);
+		dtStatus status = m_navi->m_navQuery->findNearestPoly(&pos.x, m_agentPlacementHalfExtents, &filter, &agentRef, &m_agentPos.x);
 		if (dtStatusFailed(status) || !agentRef)
 		{
 			return SeekDir(Vector3(0, 0, 0), dtime);
@@ -223,7 +203,7 @@ my::Vector3 Steering::SeekTarget(const my::Vector3& Target, float forceLength, f
 	else
 	{
 		// Move along navmesh.
-		if (m_corridor.movePosition(&pos.x, cb.navi->m_navQuery.get(), &filter) && dtVdist2DSqr(m_corridor.getPos(), &pos.x) < EPSILON_E6)
+		if (m_corridor.movePosition(&pos.x, m_navi->m_navQuery.get(), &filter) && dtVdist2DSqr(m_corridor.getPos(), &pos.x) < EPSILON_E6)
 		{
 			// Get valid constrained position back.
 			dtVcopy(&m_agentPos.x, m_corridor.getPos());
@@ -250,17 +230,17 @@ my::Vector3 Steering::SeekTarget(const my::Vector3& Target, float forceLength, f
 		// Quick search towards the goal.
 		static const int MAX_ITER = 20;
 		dtStatus status = 0;
-		status = cb.navi->m_navQuery->initSlicedFindPath(path[0], m_targetRef, &m_agentPos.x, &m_targetRefPos.x, &filter);
-		status = cb.navi->m_navQuery->updateSlicedFindPath(MAX_ITER, 0);
+		status = m_navi->m_navQuery->initSlicedFindPath(path[0], m_targetRef, &m_agentPos.x, &m_targetRefPos.x, &filter);
+		status = m_navi->m_navQuery->updateSlicedFindPath(MAX_ITER, 0);
 		//if (ag->targetReplan) // && npath > 10)
 		//{
 		//	// Try to use existing steady path during replan if possible.
-		//	status = cb.navi->m_navQuery->finalizeSlicedFindPathPartial(path, npath, reqPath, &reqPathCount, MAX_RES);
+		//	status = m_navi->m_navQuery->finalizeSlicedFindPathPartial(path, npath, reqPath, &reqPathCount, MAX_RES);
 		//}
 		//else
 		{
 			// Try to move towards target when goal changes.
-			status = cb.navi->m_navQuery->finalizeSlicedFindPath(reqPath, &reqPathCount, MAX_RES);
+			status = m_navi->m_navQuery->finalizeSlicedFindPath(reqPath, &reqPathCount, MAX_RES);
 		}
 		if (!dtStatusFailed(status) && reqPathCount > 0)
 		{
@@ -268,7 +248,7 @@ my::Vector3 Steering::SeekTarget(const my::Vector3& Target, float forceLength, f
 			if (reqPath[reqPathCount - 1] != m_targetRef)
 			{
 				// Partial path, constrain target position inside the last polygon.
-				status = cb.navi->m_navQuery->closestPointOnPoly(reqPath[reqPathCount - 1], &m_targetRefPos.x, reqPos, 0);
+				status = m_navi->m_navQuery->closestPointOnPoly(reqPath[reqPathCount - 1], &m_targetRefPos.x, reqPos, 0);
 				if (dtStatusFailed(status))
 					reqPathCount = 0;
 			}
@@ -295,7 +275,7 @@ my::Vector3 Steering::SeekTarget(const my::Vector3& Target, float forceLength, f
 
 	// Find next corner to steer to.
 	m_ncorners = m_corridor.findCorners(m_cornerVerts, m_cornerFlags, m_cornerPolys,
-		DT_CROWDAGENT_MAX_CORNERS, cb.navi->m_navQuery.get(), &filter);
+		DT_CROWDAGENT_MAX_CORNERS, m_navi->m_navQuery.get(), &filter);
 	if (!m_ncorners)
 	{
 		return Vector3(0, 0, 0);
@@ -312,10 +292,10 @@ my::Vector3 Steering::SeekTarget(const my::Vector3& Target, float forceLength, f
 	float w = 0;
 	float disp[3] = { 0,0,0 };
 
-	for (int i = 0; i < cb.neighbors.size(); ++i)
+	for (int i = 0; i < neighbors.size(); ++i)
 	{
-		const Steering* nei = cb.neighbors[i];
-		const Controller* neicontroller = cb.nei_controllers[i];
+		const Steering* nei = neighbors[i];
+		const Controller* neicontroller = nei_controllers[i];
 
 		float diff[3];
 		Vector3 neipos = neicontroller->GetPosition();
@@ -348,17 +328,17 @@ my::Vector3 Steering::SeekTarget(const my::Vector3& Target, float forceLength, f
 	// Update the collision boundary after certain distance has been passed or
 	// if it has become invalid.
 	const float updateThr = collisionQueryRange * 0.25f;
-	if (dtVdist2DSqr(&m_agentPos.x, m_boundary.getCenter()) > dtSqr(updateThr) || !m_boundary.isValid(cb.navi->m_navQuery.get(), &filter))
+	if (dtVdist2DSqr(&m_agentPos.x, m_boundary.getCenter()) > dtSqr(updateThr) || !m_boundary.isValid(m_navi->m_navQuery.get(), &filter))
 	{
-		m_boundary.update(m_corridor.getFirstPoly(), &m_agentPos.x, collisionQueryRange, cb.navi->m_navQuery.get(), &filter);
+		m_boundary.update(m_corridor.getFirstPoly(), &m_agentPos.x, collisionQueryRange, m_navi->m_navQuery.get(), &filter);
 	}
 
 	// Add neighbours as obstacles.
 	ObstacleAvoidanceContext::getSingleton().reset();
-	for (int i = 0; i < cb.neighbors.size(); ++i)
+	for (int i = 0; i < neighbors.size(); ++i)
 	{
-		const Steering* nei = cb.neighbors[i];
-		const Controller* neicontroller = cb.nei_controllers[i];
+		const Steering* nei = neighbors[i];
+		const Controller* neicontroller = nei_controllers[i];
 
 		Vector3 npos = neicontroller->GetPosition();
 		Vector3 vel = nei->m_Forward * nei->m_Speed;

@@ -5,7 +5,7 @@
 #include "DetourLocalBoundary.h"
 #include "DetourObstacleAvoidance.h"
 
-class Actor;
+class Navigation;
 
 /// The maximum number of corners a crowd agent will look ahead in the path.
 /// This value is used for sizing the crowd agent corner buffers.
@@ -39,6 +39,8 @@ public:
 
 	float m_MaxAdjustedSpeed;
 
+	Navigation* m_navi;
+
 	/// The path corridor the agent is using.
 	dtPathCorridor m_corridor;
 
@@ -68,7 +70,7 @@ public:
 	int m_ncorners;
 
 public:
-	Steering(const char * Name, float MaxSpeed, float BrakingSpeed, float MaxAdjustedSpeed);
+	Steering(const char * Name, float MaxSpeed, float BrakingSpeed, float MaxAdjustedSpeed, Navigation * navi);
 
 	~Steering(void);
 
