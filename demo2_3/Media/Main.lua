@@ -65,7 +65,7 @@ cmp5.ShapeFlags=bit.bor(Component.eSCENE_QUERY_SHAPE,Component.eTRIGGER_SHAPE,Co
 -- 加载场景资源
 scene01=nil
 client:LoadSceneAsync("scene01.xml", "scene01_", function(res)
-	scene01=res2scene(res)
+	scene01=res
 	client.SkyLightCam.Euler = scene01.SkyLightCamEuler;
 	client.SkyLightColor = scene01.SkyLightColor;
 	client.AmbientColor = scene01.AmbientColor;

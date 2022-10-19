@@ -440,14 +440,12 @@ static unsigned int _get_collision_flag(unsigned int flags)
 	return (flags & physx::Cct::STF_VALIDATE_TRIANGLE_DOWN) ? physx::PxControllerCollisionFlag::eCOLLISION_DOWN
 		: (flags & physx::Cct::STF_VALIDATE_TRIANGLE_SIDE) ? physx::PxControllerCollisionFlag::eCOLLISION_SIDES : physx::PxControllerCollisionFlag::eCOLLISION_UP;
 }
-
-__declspec(thread) static physx::PxControllerBehaviorFlags g_behaviorflags;
+//
+//__declspec(thread) static physx::PxControllerBehaviorFlags g_behaviorflags;
 
 void Controller::onShapeHit(const physx::PxControllerShapeHit & hit)
 {
 	_ASSERT(m_Actor && hit.controller == this->m_PxController.get());
-
-	g_behaviorflags = physx::PxControllerBehaviorFlag::eCCT_USER_DEFINED_RIDE;
 
 	if (hit.shape->userData)
 	{
@@ -461,15 +459,12 @@ void Controller::onShapeHit(const physx::PxControllerShapeHit & hit)
 		arg.flag = _get_collision_flag(static_cast<physx::Cct::CapsuleController*>(m_PxController.get())->mCctModule.mFlags);
 		arg.triangleIndex = hit.triangleIndex;
 		m_Actor->m_EventPxThreadShapeHit(&arg);
-		g_behaviorflags = arg.behaviorflags;
 	}
 }
 
 void Controller::onControllerHit(const physx::PxControllersHit & hit)
 {
 	_ASSERT(m_Actor && hit.controller == this->m_PxController.get());
-
-	g_behaviorflags = physx::PxControllerBehaviorFlag::eCCT_USER_DEFINED_RIDE;
 
 	if (hit.other->getUserData())
 	{
@@ -481,15 +476,12 @@ void Controller::onControllerHit(const physx::PxControllersHit & hit)
 		arg.length = hit.length;
 		arg.flag = _get_collision_flag(static_cast<physx::Cct::CapsuleController*>(m_PxController.get())->mCctModule.mFlags);
 		m_Actor->m_EventPxThreadControllerHit(&arg);
-		g_behaviorflags = arg.behaviorflags;
 	}
 }
 
 void Controller::onObstacleHit(const physx::PxControllerObstacleHit & hit)
 {
 	_ASSERT(m_Actor && hit.controller == this->m_PxController.get());
-
-	g_behaviorflags = physx::PxControllerBehaviorFlag::eCCT_USER_DEFINED_RIDE;
 
 	if (hit.userData)
 	{
@@ -500,21 +492,20 @@ void Controller::onObstacleHit(const physx::PxControllerObstacleHit & hit)
 		arg.length = hit.length;
 		arg.flag = _get_collision_flag(static_cast<physx::Cct::CapsuleController*>(m_PxController.get())->mCctModule.mFlags);
 		m_Actor->m_EventPxThreadObstacleHit(&arg);
-		g_behaviorflags = arg.behaviorflags;
 	}
 }
 
 physx::PxControllerBehaviorFlags Controller::getBehaviorFlags(const physx::PxShape & shape, const physx::PxActor & actor)
 {
-	return g_behaviorflags;
+	return physx::PxControllerBehaviorFlag::eCCT_CAN_RIDE_ON_OBJECT;
 }
 
 physx::PxControllerBehaviorFlags Controller::getBehaviorFlags(const physx::PxController & controller)
 {
-	return g_behaviorflags;
+	return physx::PxControllerBehaviorFlag::eCCT_CAN_RIDE_ON_OBJECT;
 }
 
 physx::PxControllerBehaviorFlags Controller::getBehaviorFlags(const physx::PxObstacle & obstacle)
 {
-	return g_behaviorflags;
+	return physx::PxControllerBehaviorFlag::eCCT_CAN_RIDE_ON_OBJECT;
 }

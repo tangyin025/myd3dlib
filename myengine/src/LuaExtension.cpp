@@ -2540,7 +2540,6 @@ void LuaContext::Init(void)
 			.def_readonly("dir", &ControllerEventArg::dir)
 			.def_readonly("length", &ControllerEventArg::length)
 			.def_readonly("flag", &ControllerEventArg::flag)
-			.def_readwrite("behaviorflags", &ControllerEventArg::behaviorflags)
 
 		, class_<ShapeHitEventArg, ControllerEventArg>("ShapeHitEventArg")
 			.def_readonly("other", &ShapeHitEventArg::other)

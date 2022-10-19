@@ -84,7 +84,6 @@ public:
 	my::Vector3 dir;			//!< Motion direction
 	float length;				//!< Motion length
 	unsigned int flag;
-	physx::PxControllerBehaviorFlags behaviorflags;
 
 	ControllerEventArg::ControllerEventArg(Actor* _self, Component* _self_cmp)
 		: ActorEventArg(_self, _self_cmp)
@@ -93,7 +92,6 @@ public:
 		, dir(1, 0, 0)
 		, length(0)
 		, flag(0)
-		, behaviorflags(physx::PxControllerBehaviorFlag::eCCT_USER_DEFINED_RIDE)
 	{
 	}
 };

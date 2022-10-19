@@ -20,7 +20,7 @@ skel:AdjustAnimationRoot(Bone(Vector3(0,-95,0)))
 
 -- 创建Player主体
 player=Actor("local_player",Vector3(0,3,0),Quaternion.Identity(),Vector3(0.01,0.01,0.01),AABB(-1,1))
-local controller_cmp=Controller(NamedObject.MakeUniqueName("controller_cmp"),1.5,0.1,0.1,0.5)
+local controller_cmp=Controller(NamedObject.MakeUniqueName("controller_cmp"),1.5,0.1,0.1,0.5,0)
 player:InsertComponent(controller_cmp)
 
 -- 模型材质
