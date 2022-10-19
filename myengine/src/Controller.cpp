@@ -187,7 +187,10 @@ unsigned int Controller::Move(const my::Vector3 & disp, float minDist, float ela
 	{
 		struct FilterCallback : physx::PxControllerFilterCallback
 		{
-			FilterCallback(void)
+			unsigned int filterWord0;
+
+			FilterCallback(unsigned int _filterWord0)
+				: filterWord0(_filterWord0)
 			{
 			}
 
@@ -198,8 +201,7 @@ unsigned int Controller::Move(const my::Vector3 & disp, float minDist, float ela
 					Controller* controller0 = static_cast<Controller*>((Component*)a.getUserData());
 					Controller* controller1 = static_cast<Controller*>((Component*)b.getUserData());
 					_ASSERT(!controller0->m_Actor->m_Base);
-					if (!controller1->m_Actor->m_Base
-						&& controller0->GetQueryFilterWord0() & controller1->GetQueryFilterWord0())
+					if (!controller1->m_Actor->m_Base && controller1->GetQueryFilterWord0() & filterWord0)
 					{
 						return true;
 					}
@@ -208,7 +210,7 @@ unsigned int Controller::Move(const my::Vector3 & disp, float minDist, float ela
 			}
 		};
 
-		moveFlags = m_PxController->move((physx::PxVec3&)disp, minDist, elapsedTime, physx::PxControllerFilters(&physx::PxFilterData(filterWord0, 0, 0, 0), NULL, &FilterCallback()), NULL);
+		moveFlags = m_PxController->move((physx::PxVec3&)disp, minDist, elapsedTime, physx::PxControllerFilters(&physx::PxFilterData(filterWord0, 0, 0, 0), NULL, &FilterCallback(filterWord0)), NULL);
 
 		// ! recursively call other Component::SetPxPoseOrbyPxThread
 		m_Actor->SetPxPoseOrbyPxThread(GetPosition(), m_Actor->m_Rotation, this);
