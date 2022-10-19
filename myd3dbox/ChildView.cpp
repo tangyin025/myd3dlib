@@ -1332,12 +1332,12 @@ void CChildView::OnPaint()
 					}
 				}
 
-				if (pFrame->m_Player->m_Node && pFrame->m_PxScene->getVisualizationParameter(physx::PxVisualizationParameter::eSCALE))
+				if (pFrame->m_Player->m_Node && m_bShowCmpHandle)
 				{
 					PlayerAgent* agent = pFrame->m_Player->GetFirstComponent<PlayerAgent>();
 					ASSERT(agent);
-					PushLine(pFrame->m_Player->m_Position, pFrame->m_Player->m_Position + agent->m_MoveDir * 2, D3DCOLOR_ARGB(255, 255, 255, 0));
-					PushLine(pFrame->m_Player->m_Position, pFrame->m_Player->m_Position + agent->m_Controller->GetUpDirection() * 2, D3DCOLOR_ARGB(255, 255, 0, 0));
+					PushLine(pFrame->m_Player->m_Position, pFrame->m_Player->m_Position + agent->m_MoveDir, D3DCOLOR_ARGB(255, 255, 255, 0));
+					PushLine(pFrame->m_Player->m_Position, pFrame->m_Player->m_Position + agent->m_Controller->GetUpDirection(), D3DCOLOR_ARGB(255, 255, 0, 0));
 					PushLine(agent->m_Controller->GetTouchedPosWorld(), agent->m_Controller->GetTouchedPosWorld() + agent->m_Controller->GetContactNormalDownPass(), D3DCOLOR_ARGB(255, 0, 255, 0));
 					PushLine(agent->m_Controller->GetTouchedPosWorld(), agent->m_Controller->GetTouchedPosWorld() + agent->m_Controller->GetContactNormalSidePass(), D3DCOLOR_ARGB(255, 0, 0, 255));
 				}
