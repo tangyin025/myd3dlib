@@ -224,8 +224,23 @@ void PlayerAgent::Update(float fElapsedTime)
 
 	if (theApp.m_keyboard->IsKeyPress(KeyCode::KC_SPACE))
 	{
+		Vector3 right = model_view_camera->m_View.getColumn<0>().xyz;
+		Vector3 forward = right.cross(Vector3(0, 1, 0));
+		Vector3 HorizontalVel;
+		if (lensq > 0)
+		{
+			HorizontalVel = forward * dir.y + right * dir.x;
+		}
+		else if (up.y > m_Controller->GetSlopeLimit())
+		{
+			HorizontalVel = Vector3(m_Steering->m_Forward.xz(), 0).normalize(Vector3(0, 0, 0));
+		}
+		else
+		{
+			HorizontalVel = Vector3(up.xz(), 0).normalize(Vector3(0, 0, 0));
+		}
 		boost::dynamic_pointer_cast<ActionTrackVelocity>(ActionTbl::getSingleton().Jump->m_TrackList[0])->m_ParamVelocity =
-			(lensq > 0 ? m_MoveDir * m_Steering->m_MaxSpeed : m_Steering->m_Forward * m_Steering->m_Speed) + Vector3(0, sqrt(-1.0f * 2.0f * theApp.default_physx_scene_gravity.y), 0);
+			HorizontalVel * m_Steering->m_MaxSpeed + Vector3(0, sqrt(-1.0f * 2.0f * theApp.default_physx_scene_gravity.y), 0);
 		m_Actor->PlayAction(ActionTbl::getSingleton().Jump.get(), 0.5f);
 		m_Suspending = 0.0f;
 		m_Controller->SetUpDirection(Vector3(0, 1, 0));
@@ -277,11 +292,12 @@ void PlayerAgent::OnPxThreadSubstep(float dtime)
 	if (m_Actor->TickActionAndGetDisplacement(dtime, disp))
 	{
 		Vector3 vel = disp / dtime;
-		m_VerticalSpeed = vel.y;
-		m_Steering->m_Speed = vel.magnitude2D();
+		m_VerticalSpeed = vel.dot(m_Controller->GetUpDirection());
+		vel -= m_Controller->GetUpDirection() * m_VerticalSpeed;
+		m_Steering->m_Speed = vel.magnitude();
 		if (m_Steering->m_Speed > 0)
 		{
-			m_Steering->m_Forward = Vector3(vel.xz(), 0) / m_Steering->m_Speed;
+			m_Steering->m_Forward = vel / m_Steering->m_Speed;
 		}
 	}
 	else if (m_Suspending <= 0.0f)
