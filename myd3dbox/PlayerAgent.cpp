@@ -229,18 +229,18 @@ void PlayerAgent::Update(float fElapsedTime)
 		Vector3 HorizontalVel;
 		if (lensq > 0)
 		{
-			HorizontalVel = forward * dir.y + right * dir.x;
+			HorizontalVel = (forward * dir.y + right * dir.x) * m_Steering->m_MaxSpeed;
 		}
 		else if (up.y > m_Controller->GetSlopeLimit())
 		{
-			HorizontalVel = Vector3(m_Steering->m_Forward.xz(), 0).normalize(Vector3(0, 0, 0));
+			HorizontalVel = Vector3(m_Steering->m_Forward.xz(), 0).normalize(Vector3(0, 0, 0)) * m_Steering->m_Speed;
 		}
 		else
 		{
-			HorizontalVel = Vector3(up.xz(), 0).normalize(Vector3(0, 0, 0));
+			HorizontalVel = Vector3(up.xz(), 0).normalize(Vector3(0, 0, 0)) * m_Steering->m_MaxSpeed;
 		}
 		boost::dynamic_pointer_cast<ActionTrackVelocity>(ActionTbl::getSingleton().Jump->m_TrackList[0])->m_ParamVelocity =
-			HorizontalVel * m_Steering->m_MaxSpeed + Vector3(0, sqrt(-1.0f * 2.0f * theApp.default_physx_scene_gravity.y), 0);
+			HorizontalVel + Vector3(0, sqrt(-1.0f * 2.0f * theApp.default_physx_scene_gravity.y), 0);
 		m_Actor->PlayAction(ActionTbl::getSingleton().Jump.get(), 0.5f);
 		m_Suspending = 0.0f;
 		m_Controller->SetUpDirection(Vector3(0, 1, 0));
