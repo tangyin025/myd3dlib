@@ -357,14 +357,6 @@ static void PlayerData_moveitems(PlayerData* self, int src, int count, int dst)
 	std::copy(&self->itemstatus[src], &self->itemstatus[src + count], &self->itemstatus[dst]);
 }
 
-static void PlayerData_movequests(PlayerData* self, int src, int count, int dst)
-{
-	_ASSERT(src + count <= _countof(PlayerData::quests));
-	_ASSERT(dst + count <= _countof(PlayerData::quests));
-	std::copy(&self->quests[src], &self->quests[src + count], &self->quests[dst]);
-	std::copy(&self->queststatus[src], &self->queststatus[src + count], &self->queststatus[dst]);
-}
-
 static void client_query_entity(Client* self, const my::AABB& aabb, const luabind::object& callback)
 {
 	struct Callback : public OctNode::QueryCallback
@@ -450,10 +442,9 @@ PlayerData::PlayerData(void)
 	, angle(D3DXToRadian(0))
 {
 	std::fill_n(attrs, _countof(attrs), 0);
+	std::fill_n(quests, _countof(quests), 0);
 	std::fill_n(items, _countof(items), 0);
 	std::fill_n(itemstatus, _countof(itemstatus), 0);
-	std::fill_n(quests, _countof(quests), 0);
-	std::fill_n(queststatus, _countof(queststatus), 0);
 }
 
 PlayerData::~PlayerData(void)
@@ -471,10 +462,9 @@ void PlayerData::save(Archive& ar, const unsigned int version) const
 	ar << BOOST_SERIALIZATION_NVP(pos);
 	ar << BOOST_SERIALIZATION_NVP(angle);
 	ar << BOOST_SERIALIZATION_NVP(attrs);
+	ar << BOOST_SERIALIZATION_NVP(quests);
 	ar << BOOST_SERIALIZATION_NVP(items);
 	ar << BOOST_SERIALIZATION_NVP(itemstatus);
-	ar << BOOST_SERIALIZATION_NVP(quests);
-	ar << BOOST_SERIALIZATION_NVP(queststatus);
 }
 
 template<class Archive>
@@ -488,10 +478,9 @@ void PlayerData::load(Archive& ar, const unsigned int version)
 		ar >> boost::serialization::make_nvp("pos", pos);
 		ar >> boost::serialization::make_nvp("angle", angle);
 		ar >> boost::serialization::make_nvp("attrs", attrs);
+		ar >> boost::serialization::make_nvp("quests", quests);
 		ar >> boost::serialization::make_nvp("items", items);
 		ar >> boost::serialization::make_nvp("itemstatus", itemstatus);
-		ar >> boost::serialization::make_nvp("quests", quests);
-		ar >> boost::serialization::make_nvp("queststatus", queststatus);
 		return;
 	}
 	_ASSERT(false);
@@ -1008,8 +997,8 @@ HRESULT Client::OnCreateDevice(
 				luabind::value("ATTR_NPC_SPAWN_STATUS_BEGIN", 100),
 				luabind::value("ATTR_NPC_SPAWN_STATUS_END", 199),
 				luabind::value("ATTR_COUNT", _countof(PlayerData::attrs)),
-				luabind::value("MAX_ITEM_NUM", _countof(PlayerData::items)),
-				luabind::value("MAX_QUEST_NUM", _countof(PlayerData::quests))
+				luabind::value("QUEST_COUNT", _countof(PlayerData::quests)),
+				luabind::value("MAX_ITEM_NUM", _countof(PlayerData::items))
 			]
 			.def_readwrite("logintime", &PlayerData::logintime)
 			.def_readwrite("gametime", &PlayerData::gametime)
@@ -1018,16 +1007,13 @@ HRESULT Client::OnCreateDevice(
 			.def_readwrite("angle", &PlayerData::angle)
 			.def("setattr", &PlayerData::setattr)
 			.def("getattr", &PlayerData::getattr)
+			.def("setquest", &PlayerData::setquest)
+			.def("getquest", &PlayerData::getquest)
 			.def("setitem", &PlayerData::setitem)
 			.def("getitem", &PlayerData::getitem)
 			.def("setitemstatus", &PlayerData::setitemstatus)
 			.def("getitemstatus", &PlayerData::getitemstatus)
 			.def("moveitems", &PlayerData_moveitems)
-			.def("setquest", &PlayerData::setquest)
-			.def("getquest", &PlayerData::getquest)
-			.def("setqueststatus", &PlayerData::setqueststatus)
-			.def("getqueststatus", &PlayerData::getqueststatus)
-			.def("movequests", &PlayerData_movequests)
 
 		, luabind::class_<StateBase, ScriptStateBase/*, boost::shared_ptr<StateBase>*/ >("StateBase")
 			.def(luabind::constructor<>())

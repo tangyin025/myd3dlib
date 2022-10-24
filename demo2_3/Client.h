@@ -28,13 +28,11 @@ struct PlayerData : public my::DeviceResourceBase
 
 	int attrs[1024];
 
-	int items[512];
+	int quests[1024];
+
+	int items[1024];
 
 	unsigned int itemstatus[_countof(items)];
-
-	int quests[16];
-
-	unsigned int queststatus[_countof(quests)];
 
 	PlayerData(void);
 
@@ -74,6 +72,16 @@ struct PlayerData : public my::DeviceResourceBase
 		return my::Subscribe(attrs, i);
 	}
 
+	void setquest(int i, int value)
+	{
+		my::Subscribe(quests, i) = value;
+	}
+
+	int getquest(int i) const
+	{
+		return my::Subscribe(quests, i);
+	}
+
 	void setitem(int i, int value)
 	{
 		my::Subscribe(items, i) = value;
@@ -92,26 +100,6 @@ struct PlayerData : public my::DeviceResourceBase
 	unsigned int getitemstatus(int i) const
 	{
 		return my::Subscribe(itemstatus, i);
-	}
-
-	void setquest(int i, int value)
-	{
-		my::Subscribe(quests, i) = value;
-	}
-
-	int getquest(int i) const
-	{
-		return my::Subscribe(quests, i);
-	}
-
-	void setqueststatus(int i, unsigned int value)
-	{
-		my::Subscribe(queststatus, i) = value;
-	}
-
-	unsigned int getqueststatus(int i) const
-	{
-		return my::Subscribe(queststatus, i);
 	}
 };
 
