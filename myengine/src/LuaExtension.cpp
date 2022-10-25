@@ -172,22 +172,6 @@ static void control_insert_control_adopt(my::Control* self, unsigned int i, Scri
 	self->InsertControl(i, my::ControlPtr(ctrl));
 }
 
-static void listbox_resize_child_num(my::ListBox* self, unsigned int size, const luabind::object& callback)
-{
-	unsigned int i = self->GetChildNum();
-	for (; i > size; i--)
-	{
-		self->RemoveControl(i - 1);
-	}
-
-	for (; i < size; i++)
-	{
-		const_cast<luabind::object&>(callback)(self, i);
-
-		_ASSERT(self->GetChildNum() > i);
-	}
-}
-
 struct ScriptComponent;
 
 static void actor_insert_component_adopt(Actor* self, ScriptComponent* cmp)
@@ -1789,7 +1773,6 @@ void LuaContext::Init(void)
 			.property("ScrollbarWidth", &my::ListBox::GetScrollbarWidth, &my::ListBox::SetScrollbarWidth)
 			.property("ScrollbarUpDownBtnHeight", &my::ListBox::GetScrollbarUpDownBtnHeight, &my::ListBox::SetScrollbarUpDownBtnHeight)
 			.property("ItemSize", &my::ListBox::GetItemSize, &my::ListBox::SetItemSize)
-			.def("ResizeChildNum", &listbox_resize_child_num)
 
 		, class_<my::DialogSkin, my::ControlSkin, boost::shared_ptr<my::ControlSkin> >("DialogSkin")
 			.def(constructor<>())
