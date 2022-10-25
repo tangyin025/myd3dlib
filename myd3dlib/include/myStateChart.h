@@ -183,5 +183,18 @@ namespace my
 			}
 			m_States.clear();
 		}
+
+		bool IsActivated(void) const
+		{
+			if (m_Parent)
+			{
+				if (m_Parent->m_Current == this)
+				{
+					return m_Parent->IsActivated();
+				}
+				return false;
+			}
+			return true;
+		}
 	};
 }

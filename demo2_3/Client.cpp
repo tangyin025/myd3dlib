@@ -1017,6 +1017,7 @@ HRESULT Client::OnCreateDevice(
 
 		, luabind::class_<StateBase, ScriptStateBase/*, boost::shared_ptr<StateBase>*/ >("StateBase")
 			.def(luabind::constructor<>())
+			.property("IsActivated", &StateBase::IsActivated)
 			.def("OnAdd", &StateBase::OnAdd, &ScriptStateBase::default_OnAdd)
 			.def("OnEnter", &StateBase::OnEnter, &ScriptStateBase::default_OnEnter)
 			.def("OnExit", &StateBase::OnExit, &ScriptStateBase::default_OnExit)
