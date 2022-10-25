@@ -1414,6 +1414,11 @@ bool Control::RayToWorld(const Ray & ray, Vector2 & ptWorld) const
 	return false;
 }
 
+void Control::InsertControl(ControlPtr control)
+{
+	InsertControl(GetChildNum(), control);
+}
+
 void Control::InsertControl(unsigned int i, ControlPtr control)
 {
 	_ASSERT(!control->m_Parent);

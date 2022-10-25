@@ -162,6 +162,11 @@ static my::Bone animator_get_bone(Animator* self, int i)
 
 struct ScriptControl;
 
+static void control_insert_control_adopt(my::Control* self, ScriptControl* ctrl)
+{
+	self->InsertControl(my::ControlPtr(ctrl));
+}
+
 static void control_insert_control_adopt(my::Control* self, unsigned int i, ScriptControl* ctrl)
 {
 	self->InsertControl(i, my::ControlPtr(ctrl));
@@ -1670,8 +1675,10 @@ void LuaContext::Init(void)
 			.property("Focused", &my::Control::GetFocused, &my::Control::SetFocused)
 			.property("Captured", &my::Control::GetCaptured, &my::Control::SetCaptured)
 			.property("MouseOver", &my::Control::GetMouseOver, &my::Control::SetMouseOver)
-			.def("InsertControl", (void(my::Control::*)(unsigned int, boost::shared_ptr<my::Control>))&my::Control::InsertControl)
-			.def("InsertControlAdopt", &control_insert_control_adopt, adopt(boost::placeholders::_3))
+			.def("InsertControl", (void(my::Control::*)(boost::shared_ptr<my::Control>))& my::Control::InsertControl)
+			.def("InsertControl", (void(my::Control::*)(unsigned int, boost::shared_ptr<my::Control>))& my::Control::InsertControl)
+			.def("InsertControlAdopt", (void(*)(my::Control*, ScriptControl*))& control_insert_control_adopt, adopt(boost::placeholders::_2))
+			.def("InsertControlAdopt", (void(*)(my::Control*, unsigned int i, ScriptControl*))& control_insert_control_adopt, adopt(boost::placeholders::_3))
 			.def("RemoveControl", &my::Control::RemoveControl)
 			.property("ChildNum", &my::Control::GetChildNum)
 			.property("SiblingId", &my::Control::GetSiblingId, &my::Control::SetSiblingId)

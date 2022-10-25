@@ -1982,7 +1982,7 @@ void CMainFrame::OnControlStatic()
 	static_ctl->m_x.offset = 10;
 	static_ctl->m_y.offset = 10;
 
-	m_selctls.front()->InsertControl(m_selctls.front()->GetChildNum(), static_ctl);
+	m_selctls.front()->InsertControl(static_ctl);
 	m_selctls = boost::assign::list_of(static_ctl.get());
 	OnSelChanged();
 }
@@ -2021,7 +2021,7 @@ void CMainFrame::OnControlProgressbar()
 	pgs->m_x.offset = 10;
 	pgs->m_y.offset = 10;
 
-	m_selctls.front()->InsertControl(m_selctls.front()->GetChildNum(), pgs);
+	m_selctls.front()->InsertControl(pgs);
 	m_selctls.front() = pgs.get();
 	OnSelChanged();
 }
@@ -2068,7 +2068,7 @@ void CMainFrame::OnControlButton()
 	btn->m_x.offset = 10;
 	btn->m_y.offset = 10;
 
-	m_selctls.front()->InsertControl(m_selctls.front()->GetChildNum(), btn);
+	m_selctls.front()->InsertControl(btn);
 	m_selctls.front() = btn.get();
 	OnSelChanged();
 }
@@ -2115,7 +2115,7 @@ void CMainFrame::OnControlImeeditbox()
 	edit->m_x.offset = 10;
 	edit->m_y.offset = 10;
 
-	m_selctls.front()->InsertControl(m_selctls.front()->GetChildNum(), edit);
+	m_selctls.front()->InsertControl(edit);
 	m_selctls.front() = edit.get();
 	OnSelChanged();
 }
@@ -2162,7 +2162,7 @@ void CMainFrame::OnControlCheckbox()
 	checkbox->m_x.offset = 10;
 	checkbox->m_y.offset = 10;
 
-	m_selctls.front()->InsertControl(m_selctls.front()->GetChildNum(), checkbox);
+	m_selctls.front()->InsertControl(checkbox);
 	m_selctls.front() = checkbox.get();
 	OnSelChanged();
 }
@@ -2251,7 +2251,7 @@ void CMainFrame::OnControlCombobox()
 	}
 	combobox->OnLayout();
 
-	m_selctls.front()->InsertControl(m_selctls.front()->GetChildNum(), combobox);
+	m_selctls.front()->InsertControl(combobox);
 	m_selctls.front() = combobox.get();
 	OnSelChanged();
 }
@@ -2339,7 +2339,7 @@ void CMainFrame::OnControlListbox()
 	}
 	listBox->OnLayout();
 
-	m_selctls.front()->InsertControl(m_selctls.front()->GetChildNum(), listBox);
+	m_selctls.front()->InsertControl(listBox);
 	m_selctls.front() = listBox.get();
 	OnSelChanged();
 }

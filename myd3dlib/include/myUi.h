@@ -512,6 +512,8 @@ namespace my
 
 		virtual bool RayToWorld(const Ray & ray, Vector2 & ptWorld) const;
 
+		void InsertControl(ControlPtr control);
+
 		virtual void InsertControl(unsigned int i, ControlPtr control);
 
 		virtual void RemoveControl(unsigned int i);

@@ -12,7 +12,7 @@ MessagePanel::MessagePanel(void)
 {
 	m_scrollbar.reset(new ScrollBar(NULL));
 
-	InsertControl(GetChildNum(), m_scrollbar);
+	InsertControl(m_scrollbar);
 }
 
 MessagePanel::~MessagePanel(void)
@@ -231,7 +231,7 @@ Console::Console(void)
 	m_Edit->m_EventKeyDown = boost::bind(&Console::OnEventKeyDown, this, boost::placeholders::_1);
 	m_Edit->m_EventPageUp = boost::bind(&Console::OnEventPageUp, this, boost::placeholders::_1);
 	m_Edit->m_EventPageDown = boost::bind(&Console::OnEventPageDown, this, boost::placeholders::_1);
-	InsertControl(GetChildNum(), m_Edit);
+	InsertControl(m_Edit);
 
 	m_Panel.reset(new MessagePanel());
 	m_Panel->m_Width = UDim(0, m_Width.offset - Border.x - Border.z);
@@ -265,7 +265,7 @@ Console::Console(void)
 	boost::dynamic_pointer_cast<ScrollBarSkin>(m_Panel->m_scrollbar->m_Skin)->m_ThumbBtnNormalImage->m_Texture = my::ResourceMgr::getSingleton().LoadTexture("texture/CommonUI.png");
 	boost::dynamic_pointer_cast<ScrollBarSkin>(m_Panel->m_scrollbar->m_Skin)->m_ThumbBtnNormalImage->m_Rect = my::Rectangle::LeftTop(158,43,2,2);
 	boost::dynamic_pointer_cast<ScrollBarSkin>(m_Panel->m_scrollbar->m_Skin)->m_ThumbBtnNormalImage->m_Border = Vector4(0,0,0,0);
-	InsertControl(GetChildNum(), m_Panel);
+	InsertControl(m_Panel);
 
 	m_strIter = m_strList.end();
 	Client::getSingleton().m_EventLog.connect(boost::bind(&Console::OnEventLog, this, boost::placeholders::_1));
