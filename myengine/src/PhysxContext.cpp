@@ -435,7 +435,12 @@ physx::PxFilterFlags PhysxScene::filter(
 	}
 
 	// generate contacts for all that were not filtered above
-	pairFlags = physx::PxPairFlag::eSOLVE_CONTACT | /*physx::PxPairFlag::eMODIFY_CONTACTS |*/ physx::PxPairFlag::eDETECT_DISCRETE_CONTACT | physx::PxPairFlag::eNOTIFY_TOUCH_FOUND | physx::PxPairFlag::eNOTIFY_CONTACT_POINTS;
+	pairFlags = physx::PxPairFlag::eSOLVE_CONTACT
+		//| physx::PxPairFlag::eMODIFY_CONTACTS
+		| physx::PxPairFlag::eDETECT_DISCRETE_CONTACT
+		| physx::PxPairFlag::eDETECT_CCD_CONTACT
+		| physx::PxPairFlag::eNOTIFY_TOUCH_FOUND
+		| physx::PxPairFlag::eNOTIFY_CONTACT_POINTS;
 
 	return physx::PxFilterFlag::eDEFAULT;
 }
