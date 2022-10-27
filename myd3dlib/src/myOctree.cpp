@@ -33,15 +33,6 @@ bool OctNode::HaveNode(const OctNode * node) const
 	return false;
 }
 
-const OctNode * OctNode::GetTopNode(void) const
-{
-	if (m_Parent)
-	{
-		return m_Parent->GetTopNode();
-	}
-	return this;
-}
-
 OctNode * OctNode::GetTopNode(void)
 {
 	if (m_Parent)

@@ -110,8 +110,6 @@ namespace my
 
 		bool HaveNode(const OctNode * node) const;
 
-		const OctNode * GetTopNode(void) const;
-
 		OctNode * GetTopNode(void);
 
 		virtual void AddEntity(OctEntity * entity, const AABB & aabb, float minblock, float threshold);
