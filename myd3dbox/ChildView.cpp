@@ -9,6 +9,8 @@
 #include "MainFrm.h"
 #include "Animator.h"
 #include "NavigationSerialization.h"
+#include <Recast.h>
+#include <RecastDebugDraw.h>
 #include "StaticEmitter.h"
 #include <boost/scope_exit.hpp>
 #include <boost/range/algorithm/find_if.hpp>
@@ -1523,6 +1525,32 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 		return;
 	}
 
+	if (pFrame->m_PaintType == CMainFrame::PaintTypeOffmeshConnections)
+	{
+		CRect rc(point, CSize(1, 1));
+		D3DLOCKED_RECT lrc = m_OffscreenPositionRT->LockRect(&rc, D3DLOCK_READONLY);
+		my::Vector3 pos = (*(my::Vector4*)lrc.pBits).xyz;
+		m_OffscreenPositionRT->UnlockRect();
+
+		if (pos != my::Vector3::zero)
+		{
+			// Create offmesh connections
+			if (!pFrame->m_hitPosSet)
+			{
+				rcVcopy(pFrame->m_hitPos, &pos.x);
+				pFrame->m_hitPosSet = true;
+			}
+			else
+			{
+				//const unsigned char area = SAMPLE_POLYAREA_JUMP;
+				//const unsigned short flags = SAMPLE_POLYFLAGS_JUMP;
+				//geom->addOffMeshConnection(m_hitPos, p, m_sample->getAgentRadius(), m_bidir ? 1 : 0, area, flags);
+				pFrame->m_hitPosSet = false;
+			}
+		}
+		return;
+	}
+
 	if (!pFrame->m_selactors.empty() && pFrame->m_Pivot.OnLButtonDown(ray, m_PivotScale))
 	{
 		StartPerformanceCount();
@@ -2339,6 +2367,12 @@ void CChildView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 		if (pFrame->GetSelComponent<StaticEmitter>() && pFrame->m_PaintType != CMainFrame::PaintTypeEmitterInstance)
 		{
 			pFrame->OnCmdMsg(ID_PAINT_EMITTERINSTANCE, 0, NULL, NULL);
+		}
+		return;
+	case 'I':
+		if (pFrame->m_PaintType != CMainFrame::PaintTypeOffmeshConnections)
+		{
+			pFrame->OnCmdMsg(ID_TOOLS_OFFMESHCON, 0, NULL, NULL);
 		}
 		return;
 	case 'F':

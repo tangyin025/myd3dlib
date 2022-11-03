@@ -45,6 +45,8 @@ public:
 	ActorPtrList m_ActorList;
 	typedef std::vector<my::DialogPtr> DialogPtrList;
 	DialogPtrList m_DialogList;
+	float m_hitPos[3];
+	bool m_hitPosSet;
 	Pivot m_Pivot;
 	typedef std::vector<Actor *> ActorList;
 	ActorList m_selactors;

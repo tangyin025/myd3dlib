@@ -339,6 +339,7 @@ static UINT indicators[] =
 CMainFrame::CMainFrame()
 	: OctRoot(-4096, 4096)
 	, m_bEatAltUp(FALSE)
+	, m_hitPosSet(false)
 	, m_selcmp(NULL)
 	, m_selchunkid(0, 0)
 	, m_selinstid(0)
@@ -882,6 +883,7 @@ void CMainFrame::ClearFileContext()
 	DialogMgr::RemoveAllDlg();
 	m_ActorList.clear();
 	m_DialogList.clear();
+	m_hitPosSet = false;
 	ASSERT(m_selactors.empty());
 	m_selcmp = NULL;
 	m_selchunkid.SetPoint(0, 0);
@@ -1838,7 +1840,7 @@ void CMainFrame::OnToolsOffmeshconnections()
 	// TODO: Add your command handler code here
 	if (m_PaintType == PaintTypeOffmeshConnections)
 	{
-		m_PaintType == PaintTypeNone;
+		m_PaintType = PaintTypeNone;
 	}
 	else
 	{
@@ -2473,11 +2475,19 @@ void CMainFrame::OnUpdateIndicatorCoord(CCmdUI* pCmdUI)
 		pView->ScreenToClient(&pt);
 		CRect rc(pt, CSize(1,1));
 		D3DLOCKED_RECT lrc = pView->m_OffscreenPositionRT->LockRect(&rc, D3DLOCK_READONLY);
-		my::Vector3 pos = (*(my::Vector4*)lrc.pBits).xyz.transformCoord(pView->m_Camera->m_View.inverse());
+		my::Vector3 pos = (*(my::Vector4*)lrc.pBits).xyz;
 		pView->m_OffscreenPositionRT->UnlockRect();
 
 		CString text;
-		text.Format(_T("%f, %f, %f"), pos.x, pos.y, pos.z);
+		if (pos != my::Vector3::zero)
+		{
+			pos = pos.transformCoord(pView->m_Camera->m_View.inverse());
+			text.Format(_T("%f, %f, %f"), pos.x, pos.y, pos.z);
+		}
+		else
+		{
+			text = _T("Invalid pos");
+		}
 		pCmdUI->SetText(text);
 	}
 }
