@@ -403,5 +403,13 @@ my::Vector3 Steering::SeekTarget(const my::Vector3& Target, float forceLength, f
 	Vector3 vel = m_Forward * m_Speed;
 	ObstacleAvoidanceContext::getSingleton().sampleVelocityAdaptive(&m_agentPos.x, controller->GetRadius(), m_MaxSpeed,
 		&vel.x, &dvel.x, &nvel.x, &params, NULL);
-	return SeekDir(nvel.normalize() * forceLength, dtime);
+	//return SeekDir(nvel.normalize() * forceLength, dtime);
+
+	// Integrate.
+	m_Speed = nvel.magnitude();
+	if (m_Speed > EPSILON_E3)
+	{
+		m_Forward = nvel / m_Speed;
+	}
+	return nvel;
 }
