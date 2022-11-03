@@ -281,6 +281,47 @@ my::Vector3 Steering::SeekTarget(const my::Vector3& Target, float forceLength, f
 		return Vector3(0, 0, 0);
 	}
 
+	//// Trigger off-mesh connections (depends on corners).
+	//for (int i = 0; i < nagents; ++i)
+	//{
+	//	dtCrowdAgent* ag = agents[i];
+
+	//	if (ag->state != DT_CROWDAGENT_STATE_WALKING)
+	//		continue;
+	//	if (ag->targetState == DT_CROWDAGENT_TARGET_NONE || ag->targetState == DT_CROWDAGENT_TARGET_VELOCITY)
+	//		continue;
+
+	//	// Check 
+	//	const float triggerRadius = ag->params.radius * 2.25f;
+	//	if (overOffmeshConnection(ag, triggerRadius))
+	//	{
+	//		// Prepare to off-mesh connection.
+	//		const int idx = (int)(ag - m_agents);
+	//		dtCrowdAgentAnimation* anim = &m_agentAnims[idx];
+
+	//		// Adjust the path over the off-mesh connection.
+	//		dtPolyRef refs[2];
+	//		if (ag->corridor.moveOverOffmeshConnection(ag->cornerPolys[ag->ncorners - 1], refs,
+	//			anim->startPos, anim->endPos, m_navquery))
+	//		{
+	//			dtVcopy(anim->initPos, ag->npos);
+	//			anim->polyRef = refs[1];
+	//			anim->active = true;
+	//			anim->t = 0.0f;
+	//			anim->tmax = (dtVdist2D(anim->startPos, anim->endPos) / ag->params.maxSpeed) * 0.5f;
+
+	//			ag->state = DT_CROWDAGENT_STATE_OFFMESH;
+	//			ag->ncorners = 0;
+	//			ag->nneis = 0;
+	//			continue;
+	//		}
+	//		else
+	//		{
+	//			// Path validity check will ensure that bad/blocked connections will be replanned.
+	//		}
+	//	}
+	//}
+
 	// Calculate steering.
 	Vector3 dvel = (*(Vector3*)&m_cornerVerts[0] - m_agentPos).normalize() * m_MaxSpeed;
 

@@ -293,6 +293,8 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_UPDATE_COMMAND_UI(ID_PAINT_TERRAINCOLOR, &CMainFrame::OnUpdatePaintTerrainColor)
 	ON_COMMAND(ID_PAINT_EMITTERINSTANCE, &CMainFrame::OnPaintEmitterinstance)
 	ON_UPDATE_COMMAND_UI(ID_PAINT_EMITTERINSTANCE, &CMainFrame::OnUpdatePaintEmitterinstance)
+	ON_COMMAND(ID_TOOLS_OFFMESHCON, &CMainFrame::OnToolsOffmeshconnections)
+	ON_UPDATE_COMMAND_UI(ID_TOOLS_OFFMESHCON, &CMainFrame::OnUpdateToolsOffmeshconnections)
 	ON_COMMAND(ID_COMPONENT_ANIMATOR, &CMainFrame::OnComponentAnimator)
 	ON_UPDATE_COMMAND_UI(ID_COMPONENT_ANIMATOR, &CMainFrame::OnUpdateComponentAnimator)
 	ON_COMMAND(ID_COMPONENT_NAVIGATION, &CMainFrame::OnCreateNavigation)
@@ -1829,6 +1831,27 @@ void CMainFrame::OnUpdatePaintEmitterinstance(CCmdUI* pCmdUI)
 	}
 
 	pCmdUI->Enable(FALSE);
+}
+
+void CMainFrame::OnToolsOffmeshconnections()
+{
+	// TODO: Add your command handler code here
+	if (m_PaintType == PaintTypeOffmeshConnections)
+	{
+		m_PaintType == PaintTypeNone;
+	}
+	else
+	{
+		m_PaintType = PaintTypeOffmeshConnections;
+	}
+	my::EventArg arg;
+	m_EventPivotModeChanged(&arg);
+}
+
+void CMainFrame::OnUpdateToolsOffmeshconnections(CCmdUI* pCmdUI)
+{
+	// TODO: Add your command update UI handler code here
+	pCmdUI->SetCheck(m_PaintType == PaintTypeOffmeshConnections);
 }
 
 void CMainFrame::OnComponentAnimator()

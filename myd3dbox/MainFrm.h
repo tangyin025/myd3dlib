@@ -80,6 +80,7 @@ public:
 		PaintTypeTerrainHeightField,
 		PaintTypeTerrainColor,
 		PaintTypeEmitterInstance,
+		PaintTypeOffmeshConnections,
 	};
 	PaintType m_PaintType;
 	enum PaintShape
@@ -192,6 +193,8 @@ public:
 	afx_msg void OnUpdatePaintTerrainColor(CCmdUI* pCmdUI);
 	afx_msg void OnPaintEmitterinstance();
 	afx_msg void OnUpdatePaintEmitterinstance(CCmdUI* pCmdUI);
+	afx_msg void OnToolsOffmeshconnections();
+	afx_msg void OnUpdateToolsOffmeshconnections(CCmdUI* pCmdUI);
 	afx_msg void OnComponentAnimator();
 	afx_msg void OnUpdateComponentAnimator(CCmdUI* pCmdUI);
 	afx_msg void OnCreateNavigation();
