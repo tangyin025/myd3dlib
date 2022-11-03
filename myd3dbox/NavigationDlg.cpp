@@ -11,7 +11,7 @@
 #include "DetourNavMeshBuilder.h"
 #include "DetourCommon.h"
 #include "Terrain.h"
-
+#include "NavigationSerialization.h"
 
 // CNavigationDlg dialog
 
@@ -120,26 +120,6 @@ BOOL CNavigationDlg::OnInitDialog()
 class BuildTileMeshTask : public my::ParallelTask
 {
 public:
-	/// These are just sample areas to use consistent values across the samples.
-	/// The use should specify these base on his needs.
-	enum SamplePolyAreas
-	{
-		SAMPLE_POLYAREA_GROUND,
-		SAMPLE_POLYAREA_WATER,
-		SAMPLE_POLYAREA_ROAD,
-		SAMPLE_POLYAREA_DOOR,
-		SAMPLE_POLYAREA_GRASS,
-		SAMPLE_POLYAREA_JUMP,
-	};
-	enum SamplePolyFlags
-	{
-		SAMPLE_POLYFLAGS_WALK = 0x01,		// Ability to walk (ground, grass, road)
-		SAMPLE_POLYFLAGS_SWIM = 0x02,		// Ability to swim (water).
-		SAMPLE_POLYFLAGS_DOOR = 0x04,		// Ability to move through doors.
-		SAMPLE_POLYFLAGS_JUMP = 0x08,		// Ability to jump.
-		SAMPLE_POLYFLAGS_DISABLED = 0x10,		// Disabled polygon
-		SAMPLE_POLYFLAGS_ALL = 0xffff	// All abilities.
-	};
 	int tx;
 	int ty;
 	float bmin[3];
@@ -705,21 +685,21 @@ public:
 			for (int i = 0; i < m_pmesh->npolys; ++i)
 			{
 				if (m_pmesh->areas[i] == RC_WALKABLE_AREA)
-					m_pmesh->areas[i] = SAMPLE_POLYAREA_GROUND;
+					m_pmesh->areas[i] = Navigation::SAMPLE_POLYAREA_GROUND;
 
-				if (m_pmesh->areas[i] == SAMPLE_POLYAREA_GROUND ||
-					m_pmesh->areas[i] == SAMPLE_POLYAREA_GRASS ||
-					m_pmesh->areas[i] == SAMPLE_POLYAREA_ROAD)
+				if (m_pmesh->areas[i] == Navigation::SAMPLE_POLYAREA_GROUND ||
+					m_pmesh->areas[i] == Navigation::SAMPLE_POLYAREA_GRASS ||
+					m_pmesh->areas[i] == Navigation::SAMPLE_POLYAREA_ROAD)
 				{
-					m_pmesh->flags[i] = SAMPLE_POLYFLAGS_WALK;
+					m_pmesh->flags[i] = Navigation::SAMPLE_POLYFLAGS_WALK;
 				}
-				else if (m_pmesh->areas[i] == SAMPLE_POLYAREA_WATER)
+				else if (m_pmesh->areas[i] == Navigation::SAMPLE_POLYAREA_WATER)
 				{
-					m_pmesh->flags[i] = SAMPLE_POLYFLAGS_SWIM;
+					m_pmesh->flags[i] = Navigation::SAMPLE_POLYFLAGS_SWIM;
 				}
-				else if (m_pmesh->areas[i] == SAMPLE_POLYAREA_DOOR)
+				else if (m_pmesh->areas[i] == Navigation::SAMPLE_POLYAREA_DOOR)
 				{
-					m_pmesh->flags[i] = SAMPLE_POLYFLAGS_WALK | SAMPLE_POLYFLAGS_DOOR;
+					m_pmesh->flags[i] = Navigation::SAMPLE_POLYFLAGS_WALK | Navigation::SAMPLE_POLYFLAGS_DOOR;
 				}
 			}
 
@@ -737,13 +717,13 @@ public:
 			params.detailVertsCount = m_dmesh->nverts;
 			params.detailTris = m_dmesh->tris;
 			params.detailTriCount = m_dmesh->ntris;
-			//params.offMeshConVerts = m_geom->getOffMeshConnectionVerts();
-			//params.offMeshConRad = m_geom->getOffMeshConnectionRads();
-			//params.offMeshConDir = m_geom->getOffMeshConnectionDirs();
-			//params.offMeshConAreas = m_geom->getOffMeshConnectionAreas();
-			//params.offMeshConFlags = m_geom->getOffMeshConnectionFlags();
-			//params.offMeshConUserID = m_geom->getOffMeshConnectionId();
-			//params.offMeshConCount = m_geom->getOffMeshConnectionCount();
+			params.offMeshConVerts = pFrame->m_offMeshConVerts;
+			params.offMeshConRad = pFrame->m_offMeshConRads;
+			params.offMeshConDir = pFrame->m_offMeshConDirs;
+			params.offMeshConAreas = pFrame->m_offMeshConAreas;
+			params.offMeshConFlags = pFrame->m_offMeshConFlags;
+			params.offMeshConUserID = pFrame->m_offMeshConId;
+			params.offMeshConCount = pFrame->m_offMeshConCount;
 			params.walkableHeight = pdlg->m_agentHeight;
 			params.walkableRadius = pdlg->m_agentRadius;
 			params.walkableClimb = pdlg->m_agentMaxClimb;

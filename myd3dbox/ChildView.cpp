@@ -1574,15 +1574,13 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 			else
 			{
 				// ! RecastDemo/Source/InputGeom.cpp, InputGeom::addOffMeshConnection
-				const unsigned char area = 0;// SAMPLE_POLYAREA_JUMP;
-				const unsigned short flags = 0;// SAMPLE_POLYFLAGS_JUMP;
 				float* v = &pFrame->m_offMeshConVerts[pFrame->m_offMeshConCount * 3 * 2];
 				rcVcopy(&v[0], pFrame->m_hitPos);
 				rcVcopy(&v[3], &pos.x);
 				pFrame->m_offMeshConRads[pFrame->m_offMeshConCount] = theApp.default_player_radius;
 				pFrame->m_offMeshConDirs[pFrame->m_offMeshConCount] = true;
-				pFrame->m_offMeshConAreas[pFrame->m_offMeshConCount] = area;
-				pFrame->m_offMeshConFlags[pFrame->m_offMeshConCount] = flags;
+				pFrame->m_offMeshConAreas[pFrame->m_offMeshConCount] = Navigation::SAMPLE_POLYAREA_JUMP;
+				pFrame->m_offMeshConFlags[pFrame->m_offMeshConCount] = Navigation::SAMPLE_POLYFLAGS_JUMP;
 				pFrame->m_offMeshConId[pFrame->m_offMeshConCount] = 1000 + pFrame->m_offMeshConCount;
 				pFrame->m_offMeshConCount++;
 				pFrame->m_hitPosSet = false;
