@@ -9,6 +9,7 @@
 #include "Actor.h"
 #include "Terrain.h"
 #include "StaticEmitter.h"
+#include "DebugDraw.h"
 
 class CMainDoc;
 
@@ -16,6 +17,7 @@ class CChildView
 	: public CView
 	, public RenderPipeline::IRenderContext
 	, public my::DrawHelper
+	, public duDebugDraw
 {
 protected: // create from serialization only
 	CChildView();
@@ -56,6 +58,17 @@ public: my::SurfacePtr m_OffscreenPositionRT; protected:
 	Component * m_raycmp;
 	CPoint m_raychunkid;
 	int m_rayinstid;
+
+	DWORD m_duDebugDrawPrimitives;
+	virtual void depthMask(bool state);
+	virtual void texture(bool state);
+	virtual void begin(duDebugDrawPrimitives prim, float size = 1.0f);
+	virtual void vertex(const float* pos, unsigned int color);
+	virtual void vertex(const float x, const float y, const float z, unsigned int color);
+	virtual void vertex(const float* pos, unsigned int color, const float* uv);
+	virtual void vertex(const float x, const float y, const float z, unsigned int color, const float u, const float v);
+	virtual void end();
+	virtual unsigned int areaToCol(unsigned int area);
 
 	BOOL ResetD3DSwapChain(void);
 	virtual void QueryRenderComponent(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask);

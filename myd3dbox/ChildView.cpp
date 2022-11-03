@@ -14,7 +14,6 @@
 #include "StaticEmitter.h"
 #include <boost/scope_exit.hpp>
 #include <boost/range/algorithm/find_if.hpp>
-#include "DebugDraw.h"
 #include "PlayerAgent.h"
 #include "Controller.h"
 
@@ -86,6 +85,7 @@ CChildView::CChildView()
 	, m_raycmp(NULL)
 	, m_raychunkid(0, 0)
 	, m_rayinstid(0)
+	, m_duDebugDrawPrimitives(DU_DRAW_QUADS + 1)
 {
 	// TODO: add construction code here
 	my::ModelViewerCamera * model_view_camera = new my::ModelViewerCamera(D3DXToRadian(theApp.default_fov), 1.333333f, 0.1f, 3000.0f);
@@ -134,6 +134,79 @@ void CChildView::OnDraw(CDC* /*pDC*/)
 	//	return;
 
 	// TODO: add draw code for native data here
+}
+
+#define DUCOLOR_TO_D3DCOLOR(col) ((col & 0xff00ff00) | (col & 0x00ff0000) >> 16 | (col & 0x000000ff) << 16)
+
+void CChildView::depthMask(bool state)
+{
+}
+
+void CChildView::texture(bool state)
+{
+}
+
+void CChildView::begin(duDebugDrawPrimitives prim, float size)
+{
+	m_duDebugDrawPrimitives = prim;
+}
+
+void CChildView::vertex(const float* pos, unsigned int color)
+{
+	if (m_duDebugDrawPrimitives == DU_DRAW_LINES)
+	{
+		PushLineVertex(pos[0], pos[1], pos[2], DUCOLOR_TO_D3DCOLOR(color));
+	}
+	else if (m_duDebugDrawPrimitives == DU_DRAW_TRIS)
+	{
+		PushTriangleVertex(pos[0], pos[1], pos[2], DUCOLOR_TO_D3DCOLOR(color));
+	}
+}
+
+void CChildView::vertex(const float x, const float y, const float z, unsigned int color)
+{
+	if (m_duDebugDrawPrimitives == DU_DRAW_LINES)
+	{
+		PushLineVertex(x, y, z, DUCOLOR_TO_D3DCOLOR(color));
+	}
+	else if (m_duDebugDrawPrimitives == DU_DRAW_TRIS)
+	{
+		PushTriangleVertex(x, y, z, DUCOLOR_TO_D3DCOLOR(color));
+	}
+}
+
+void CChildView::vertex(const float* pos, unsigned int color, const float* uv)
+{
+	if (m_duDebugDrawPrimitives == DU_DRAW_LINES)
+	{
+		PushLineVertex(pos[0], pos[1], pos[2], DUCOLOR_TO_D3DCOLOR(color));
+	}
+	else if (m_duDebugDrawPrimitives == DU_DRAW_TRIS)
+	{
+		PushTriangleVertex(pos[0], pos[1], pos[2], DUCOLOR_TO_D3DCOLOR(color));
+	}
+}
+
+void CChildView::vertex(const float x, const float y, const float z, unsigned int color, const float u, const float v)
+{
+	if (m_duDebugDrawPrimitives == DU_DRAW_LINES)
+	{
+		PushLineVertex(x, y, z, DUCOLOR_TO_D3DCOLOR(color));
+	}
+	else if (m_duDebugDrawPrimitives == DU_DRAW_TRIS)
+	{
+		PushTriangleVertex(x, y, z, DUCOLOR_TO_D3DCOLOR(color));
+	}
+}
+
+void CChildView::end()
+{
+	m_duDebugDrawPrimitives = DU_DRAW_QUADS + 1;
+}
+
+unsigned int CChildView::areaToCol(unsigned int area)
+{
+	return duDebugDraw::areaToCol(area);
 }
 
 BOOL CChildView::ResetD3DSwapChain(void)
@@ -195,15 +268,12 @@ BOOL CChildView::ResetD3DSwapChain(void)
 	return TRUE;
 }
 
-#define DUCOLOR_TO_D3DCOLOR(col) ((col & 0xff00ff00) | (col & 0x00ff0000) >> 16 | (col & 0x000000ff) << 16)
-
 void CChildView::QueryRenderComponent(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask)
 {
 	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
 
 	struct Callback : public my::OctNode::QueryCallback
-		, public duDebugDraw
 	{
 		const my::Frustum & frustum;
 		RenderPipeline * pipeline;
@@ -214,7 +284,6 @@ void CChildView::QueryRenderComponent(const my::Frustum & frustum, RenderPipelin
 		CChildView * pView;
 		CMainFrame::ViewedActorSet::iterator insert_actor_iter;
 		int remaining_actor_count;
-		DWORD m_duDebugDrawPrimitives;
 
 		Callback(const my::Frustum& _frustum, RenderPipeline* _pipeline, unsigned int _PassMask, const my::Vector3& _ViewPos, const my::Vector3& _TargetPos, CMainFrame* _pFrame, CChildView* _pView)
 			: frustum(_frustum)
@@ -226,79 +295,7 @@ void CChildView::QueryRenderComponent(const my::Frustum & frustum, RenderPipelin
 			, pView(_pView)
 			, insert_actor_iter(pFrame->m_ViewedActors.begin())
 			, remaining_actor_count(0)
-			, m_duDebugDrawPrimitives(DU_DRAW_QUADS + 1)
 		{
-		}
-
-		void depthMask(bool state)
-		{
-		}
-
-		void texture(bool state)
-		{
-		}
-
-		void begin(duDebugDrawPrimitives prim, float size)
-		{
-			m_duDebugDrawPrimitives = prim;
-		}
-
-		void vertex(const float* pos, unsigned int color)
-		{
-			if (m_duDebugDrawPrimitives == DU_DRAW_LINES)
-			{
-				pView->PushLineVertex(pos[0], pos[1], pos[2], DUCOLOR_TO_D3DCOLOR(color));
-			}
-			else if (m_duDebugDrawPrimitives == DU_DRAW_TRIS)
-			{
-				pView->PushTriangleVertex(pos[0], pos[1], pos[2], DUCOLOR_TO_D3DCOLOR(color));
-			}
-		}
-
-		void vertex(const float x, const float y, const float z, unsigned int color)
-		{
-			if (m_duDebugDrawPrimitives == DU_DRAW_LINES)
-			{
-				pView->PushLineVertex(x, y, z, DUCOLOR_TO_D3DCOLOR(color));
-			}
-			else if (m_duDebugDrawPrimitives == DU_DRAW_TRIS)
-			{
-				pView->PushTriangleVertex(x, y, z, DUCOLOR_TO_D3DCOLOR(color));
-			}
-		}
-
-		void vertex(const float* pos, unsigned int color, const float* uv)
-		{
-			if (m_duDebugDrawPrimitives == DU_DRAW_LINES)
-			{
-				pView->PushLineVertex(pos[0], pos[1], pos[2], DUCOLOR_TO_D3DCOLOR(color));
-			}
-			else if (m_duDebugDrawPrimitives == DU_DRAW_TRIS)
-			{
-				pView->PushTriangleVertex(pos[0], pos[1], pos[2], DUCOLOR_TO_D3DCOLOR(color));
-			}
-		}
-
-		void vertex(const float x, const float y, const float z, unsigned int color, const float u, const float v)
-		{
-			if (m_duDebugDrawPrimitives == DU_DRAW_LINES)
-			{
-				pView->PushLineVertex(x, y, z, DUCOLOR_TO_D3DCOLOR(color));
-			}
-			else if (m_duDebugDrawPrimitives == DU_DRAW_TRIS)
-			{
-				pView->PushTriangleVertex(x, y, z, DUCOLOR_TO_D3DCOLOR(color));
-			}
-		}
-
-		void end()
-		{
-			m_duDebugDrawPrimitives = DU_DRAW_QUADS + 1;
-		}
-
-		unsigned int areaToCol(unsigned int area)
-		{
-			return duDebugDraw::areaToCol(area);
 		}
 
 		virtual bool OnQueryEntity(my::OctEntity * oct_entity, const my::AABB & aabb, my::IntersectionTests::IntersectionType)
@@ -355,7 +352,7 @@ void CChildView::QueryRenderComponent(const my::Frustum & frustum, RenderPipelin
 					if ((*cmp_iter)->GetComponentType() == Component::ComponentTypeNavigation)
 					{
 						Navigation* navi = dynamic_cast<Navigation*>(cmp_iter->get());
-						navi->DebugDraw(this, frustum, ViewPos, TargetPos);
+						navi->DebugDraw(pView, frustum, ViewPos, TargetPos);
 					}
 				}
 			}
@@ -1334,6 +1331,38 @@ void CChildView::OnPaint()
 					}
 				}
 
+				if (m_bShowNavigation)
+				{
+					// ! RecastDemo/Source/InputGeom.cpp, InputGeom::drawOffMeshConnections
+					unsigned int conColor = duRGBA(192, 0, 128, 192);
+					unsigned int baseColor = duRGBA(0, 0, 0, 64);
+					depthMask(false);
+
+					begin(DU_DRAW_LINES, 2.0f);
+					for (int i = 0; i < pFrame->m_offMeshConCount; ++i)
+					{
+						float* v = &pFrame->m_offMeshConVerts[i * 3 * 2];
+
+						vertex(v[0], v[1], v[2], baseColor);
+						vertex(v[0], v[1] + 0.2f, v[2], baseColor);
+
+						vertex(v[3], v[4], v[5], baseColor);
+						vertex(v[3], v[4] + 0.2f, v[5], baseColor);
+
+						duAppendCircle(this, v[0], v[1] + 0.1f, v[2], pFrame->m_offMeshConRads[i], baseColor);
+						duAppendCircle(this, v[3], v[4] + 0.1f, v[5], pFrame->m_offMeshConRads[i], baseColor);
+
+						if (true)
+						{
+							duAppendArc(this, v[0], v[1], v[2], v[3], v[4], v[5], 0.25f,
+								(pFrame->m_offMeshConDirs[i] & 1) ? 0.6f : 0.0f, 0.6f, conColor);
+						}
+					}
+					end();
+
+					depthMask(true);
+				}
+
 				if (pFrame->m_Player->m_Node && m_bShowCmpHandle)
 				{
 					PlayerAgent* agent = pFrame->m_Player->GetFirstComponent<PlayerAgent>();
@@ -1532,8 +1561,10 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 		my::Vector3 pos = (*(my::Vector4*)lrc.pBits).xyz;
 		m_OffscreenPositionRT->UnlockRect();
 
-		if (pos != my::Vector3::zero)
+		if (pos != my::Vector3::zero && pFrame->m_offMeshConCount < CMainFrame::MAX_OFFMESH_CONNECTIONS)
 		{
+			pos = pos.transformCoord(m_Camera->m_View.inverse());
+
 			// Create offmesh connections
 			if (!pFrame->m_hitPosSet)
 			{
@@ -1542,11 +1573,21 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 			}
 			else
 			{
-				//const unsigned char area = SAMPLE_POLYAREA_JUMP;
-				//const unsigned short flags = SAMPLE_POLYFLAGS_JUMP;
-				//geom->addOffMeshConnection(m_hitPos, p, m_sample->getAgentRadius(), m_bidir ? 1 : 0, area, flags);
+				// ! RecastDemo/Source/InputGeom.cpp, InputGeom::addOffMeshConnection
+				const unsigned char area = 0;// SAMPLE_POLYAREA_JUMP;
+				const unsigned short flags = 0;// SAMPLE_POLYFLAGS_JUMP;
+				float* v = &pFrame->m_offMeshConVerts[pFrame->m_offMeshConCount * 3 * 2];
+				rcVcopy(&v[0], pFrame->m_hitPos);
+				rcVcopy(&v[3], &pos.x);
+				pFrame->m_offMeshConRads[pFrame->m_offMeshConCount] = theApp.default_player_radius;
+				pFrame->m_offMeshConDirs[pFrame->m_offMeshConCount] = true;
+				pFrame->m_offMeshConAreas[pFrame->m_offMeshConCount] = area;
+				pFrame->m_offMeshConFlags[pFrame->m_offMeshConCount] = flags;
+				pFrame->m_offMeshConId[pFrame->m_offMeshConCount] = 1000 + pFrame->m_offMeshConCount;
+				pFrame->m_offMeshConCount++;
 				pFrame->m_hitPosSet = false;
 			}
+			Invalidate();
 		}
 		return;
 	}

@@ -340,6 +340,7 @@ CMainFrame::CMainFrame()
 	: OctRoot(-4096, 4096)
 	, m_bEatAltUp(FALSE)
 	, m_hitPosSet(false)
+	, m_offMeshConCount(0)
 	, m_selcmp(NULL)
 	, m_selchunkid(0, 0)
 	, m_selinstid(0)
@@ -884,6 +885,7 @@ void CMainFrame::ClearFileContext()
 	m_ActorList.clear();
 	m_DialogList.clear();
 	m_hitPosSet = false;
+	m_offMeshConCount = 0;
 	ASSERT(m_selactors.empty());
 	m_selcmp = NULL;
 	m_selchunkid.SetPoint(0, 0);
@@ -2486,7 +2488,7 @@ void CMainFrame::OnUpdateIndicatorCoord(CCmdUI* pCmdUI)
 		}
 		else
 		{
-			text = _T("Invalid pos");
+			text = _T("Infinite pos");
 		}
 		pCmdUI->SetText(text);
 	}
