@@ -112,7 +112,7 @@ my::Vector3 Steering::SeekDir(my::Vector3 Force, float dtime)
 	return newVelocity;
 }
 
-Steering::CrowdAgentState Steering::SeekTarget(const my::Vector3& Target, float forceLength, float dtime, unsigned int filterWord0, my::Vector3 & nvel)
+Steering::CrowdAgentState Steering::SeekTarget(const my::Vector3& Target, float forceLength, float dtime, unsigned int filterWord0, my::Vector3 & nvel, my::Vector3 & startPos, my::Vector3 & endPos)
 {
 	// https://github.com/recastnavigation/recastnavigation/blob/master/DetourCrowd/Source/DetourCrowd.cpp
 	// dtCrowd::update
@@ -297,9 +297,8 @@ Steering::CrowdAgentState Steering::SeekTarget(const my::Vector3& Target, float 
 
 		// Adjust the path over the off-mesh connection.
 		dtPolyRef refs[2];
-		float startPos[3], endPos[3];
 		if (m_corridor.moveOverOffmeshConnection(m_cornerPolys[m_ncorners - 1], refs,
-			startPos, endPos, m_navi->m_navQuery.get()))
+			&startPos.x, &endPos.x, m_navi->m_navQuery.get()))
 		{
 			//dtVcopy(anim->initPos, ag->npos);
 			//anim->polyRef = refs[1];
