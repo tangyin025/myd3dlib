@@ -599,6 +599,8 @@ static void InteractionCharacterCharacter(Controller* entity0, Controller* entit
 		const PxF32 maxOverlap = gMaxOverlapRecover * elapsedTime;
 		if(overlap>maxOverlap)
 			overlap=maxOverlap;
+		if (dir.isZero())
+			dir = PxVec3(1, 0, 0);
 
 		const PxVec3 sep = dir * overlap * 0.5f;
 		entity0->mOverlapRecover += sep;

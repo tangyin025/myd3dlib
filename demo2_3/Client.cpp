@@ -1449,6 +1449,8 @@ void Client::OnFrameTick(
 
 	m_Camera->UpdateViewProj();
 
+	m_ControllerMgr->computeInteractions(fElapsedTime, 0);
+
 	ParallelTaskManager::DoAllParallelTasks();
 
 	DelayRemover<ActorPtr>::getSingleton().Leave();
