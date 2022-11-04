@@ -408,13 +408,8 @@ Steering::CrowdAgentState Steering::SeekTarget(const my::Vector3& Target, float 
 	Vector3 vel = m_Forward * m_Speed;
 	ObstacleAvoidanceContext::getSingleton().sampleVelocityAdaptive(&m_agentPos.x, controller->GetRadius(), m_MaxSpeed,
 		&vel.x, &dvel.x, &nvel.x, &params, NULL);
-	//return SeekDir(nvel.normalize() * forceLength, dtime);
 
 	// Integrate.
-	m_Speed = nvel.magnitude();
-	if (m_Speed > EPSILON_E3)
-	{
-		m_Forward = nvel / m_Speed;
-	}
+	nvel = SeekDir(nvel / m_MaxSpeed * forceLength, dtime);
 	return DT_CROWDAGENT_STATE_WALKING;
 }
