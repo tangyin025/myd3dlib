@@ -1333,7 +1333,8 @@ void CChildView::OnPaint()
 
 				if (m_bShowNavigation)
 				{
-					// ! RecastDemo/Source/InputGeom.cpp, InputGeom::drawOffMeshConnections
+					// https://github.com/recastnavigation/recastnavigation/blob/master/RecastDemo/Source/InputGeom.cpp
+					// InputGeom::drawOffMeshConnections
 					unsigned int conColor = duRGBA(192, 0, 128, 192);
 					unsigned int baseColor = duRGBA(0, 0, 0, 64);
 					depthMask(false);
@@ -1573,7 +1574,8 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 			}
 			else
 			{
-				// ! RecastDemo/Source/InputGeom.cpp, InputGeom::addOffMeshConnection
+				// https://github.com/recastnavigation/recastnavigation/blob/master/RecastDemo/Source/InputGeom.cpp
+				// InputGeom::addOffMeshConnection
 				float* v = &pFrame->m_offMeshConVerts[pFrame->m_offMeshConCount * 3 * 2];
 				rcVcopy(&v[0], pFrame->m_hitPos);
 				rcVcopy(&v[3], &pos.x);
