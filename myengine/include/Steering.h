@@ -29,6 +29,15 @@ class Steering : public Component
 public:
 	enum { TypeID = ComponentTypeSteering };
 
+	/// The type of navigation mesh polygon the agent is currently traversing.
+	/// @ingroup crowd
+	enum CrowdAgentState
+	{
+		DT_CROWDAGENT_STATE_INVALID,		///< The agent is not in a valid state.
+		DT_CROWDAGENT_STATE_WALKING,		///< The agent is traversing a normal navigation mesh polygon.
+		DT_CROWDAGENT_STATE_OFFMESH,		///< The agent is traversing an off-mesh connection.
+	};
+
 	my::Vector3 m_Forward;
 
 	float m_Speed;
@@ -81,5 +90,5 @@ public:
 
 	my::Vector3 SeekDir(my::Vector3 Force, float dtime);
 
-	my::Vector3 SeekTarget(const my::Vector3 & Target, float forceLength, float dtime, unsigned int filterWord0);
+	CrowdAgentState SeekTarget(const my::Vector3 & Target, float forceLength, float dtime, unsigned int filterWord0, my::Vector3 & nvel);
 };

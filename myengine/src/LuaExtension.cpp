@@ -2494,6 +2494,12 @@ void LuaContext::Init(void)
 		, class_<Navigation, Component, boost::shared_ptr<Component> >("Navigation")
 
 		, class_<Steering, Component, boost::shared_ptr<Component> >("Steering")
+			.enum_("CrowdAgentState")
+			[
+				value("DT_CROWDAGENT_STATE_INVALID", Steering::DT_CROWDAGENT_STATE_INVALID),
+				value("DT_CROWDAGENT_STATE_WALKING", Steering::DT_CROWDAGENT_STATE_WALKING),
+				value("DT_CROWDAGENT_STATE_OFFMESH", Steering::DT_CROWDAGENT_STATE_OFFMESH)
+			]
 			.def(constructor<const char*, float, float, float, Navigation *>())
 			.def_readwrite("Forward", &Steering::m_Forward)
 			.def_readwrite("Speed", &Steering::m_Speed)
@@ -2506,7 +2512,7 @@ void LuaContext::Init(void)
 			.def_readonly("targetRefPos", &Steering::m_targetRefPos)
 			.def_readonly("ncorners", &Steering::m_ncorners)
 			.def("SeekDir", &Steering::SeekDir)
-			.def("SeekTarget", &Steering::SeekTarget)
+			.def("SeekTarget", &Steering::SeekTarget, pure_out_value(boost::placeholders::_6))
 			.def("GetCorner", &steering_get_corner)
 
 		, class_<ActorEventArg, my::EventArg>("ActorEventArg")
