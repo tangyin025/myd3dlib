@@ -451,7 +451,16 @@ PlayerData::~PlayerData(void)
 {
 }
 
-BOOST_CLASS_VERSION(PlayerData, 1)
+//BOOST_CLASS_VERSION(PlayerData, 1)
+
+namespace boost {
+	namespace serialization {
+		template<> struct version<PlayerData>
+		{
+			static const int value = 1000;
+		};
+	}
+}
 
 template<class Archive>
 void PlayerData::save(Archive& ar, const unsigned int version) const
@@ -470,20 +479,22 @@ void PlayerData::save(Archive& ar, const unsigned int version) const
 template<class Archive>
 void PlayerData::load(Archive& ar, const unsigned int version)
 {
-	if (version == 1)
+	if (version < boost::serialization::version<PlayerData>::value)
 	{
-		ar >> boost::serialization::make_nvp("logintime", logintime);
-		ar >> boost::serialization::make_nvp("gametime", gametime);
-		ar >> boost::serialization::make_nvp("sceneid", sceneid);
-		ar >> boost::serialization::make_nvp("pos", pos);
-		ar >> boost::serialization::make_nvp("angle", angle);
-		ar >> boost::serialization::make_nvp("attrs", attrs);
-		ar >> boost::serialization::make_nvp("quests", quests);
-		ar >> boost::serialization::make_nvp("items", items);
-		ar >> boost::serialization::make_nvp("itemstatus", itemstatus);
 		return;
 	}
-	_ASSERT(false);
+
+	_ASSERT(boost::serialization::version<PlayerData>::value == version);
+
+	ar >> boost::serialization::make_nvp("logintime", logintime);
+	ar >> boost::serialization::make_nvp("gametime", gametime);
+	ar >> boost::serialization::make_nvp("sceneid", sceneid);
+	ar >> boost::serialization::make_nvp("pos", pos);
+	ar >> boost::serialization::make_nvp("angle", angle);
+	ar >> boost::serialization::make_nvp("attrs", attrs);
+	ar >> boost::serialization::make_nvp("quests", quests);
+	ar >> boost::serialization::make_nvp("items", items);
+	ar >> boost::serialization::make_nvp("itemstatus", itemstatus);
 }
 
 PlayerDataRequest::PlayerDataRequest(const PlayerData* data, const char* path, int Priority)
