@@ -218,6 +218,23 @@ public:
 
 	ContactPairList mContactPairs;
 
+	struct ControllerFilterCallback : physx::PxControllerFilterCallback
+	{
+		PhysxScene* scene;
+
+		ControllerFilterCallback(PhysxScene * _scene)
+			: scene(_scene)
+		{
+		}
+
+		virtual bool filter(const physx::PxController& a, const physx::PxController& b)
+		{
+			return scene->OnControllerFilter(a, b);
+		}
+	};
+
+	ControllerFilterCallback m_ControllerFilter;
+
 public:
 	PhysxScene(void)
 		: m_Completion0(this)
@@ -227,6 +244,7 @@ public:
 		, m_WaitForResults(false)
 		, m_ErrorState(0)
 		, mActiveTransformCount(0)
+		, m_ControllerFilter(this)
 	{
 	}
 
@@ -282,6 +300,8 @@ public:
 	virtual void onTrigger(physx::PxTriggerPair* pairs, physx::PxU32 count);
 
 	virtual void onAdvance(const physx::PxRigidBody* const* bodyBuffer, const physx::PxTransform* poseBuffer, const physx::PxU32 count);
+
+	virtual bool OnControllerFilter(const physx::PxController& a, const physx::PxController& b);
 
 	void removeRenderActorsFromPhysicsActor(const physx::PxActor * actor);
 

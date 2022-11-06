@@ -533,6 +533,11 @@ void PhysxScene::onAdvance(const physx::PxRigidBody* const* bodyBuffer, const ph
 
 }
 
+bool PhysxScene::OnControllerFilter(const physx::PxController& a, const physx::PxController& b)
+{
+	return true;
+}
+
 void PhysxScene::removeRenderActorsFromPhysicsActor(const physx::PxActor * actor)
 {
 	// check if the actor is in the active transform list and remove

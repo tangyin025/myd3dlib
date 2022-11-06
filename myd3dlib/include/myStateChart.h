@@ -196,5 +196,19 @@ namespace my
 			}
 			return true;
 		}
+
+		StateType * GetActiveLeaf(void)
+		{
+			if (m_Current)
+			{
+				StateType* ret = m_Current->GetActiveLeaf();
+				if (ret)
+				{
+					return ret;
+				}
+				return m_Current;
+			}
+			return NULL;
+		}
 	};
 }

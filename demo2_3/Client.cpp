@@ -666,6 +666,26 @@ struct ScriptStateBase : StateBase, luabind::wrap_base
 	{
 		ptr->StateBase::OnGUI(ui_render, fElapsedTime, Viewport);
 	}
+
+	virtual bool OnControllerFilter(Controller * a, Controller * b)
+	{
+		//my::CriticalSectionLock lock(LuaContext::getSingleton().m_StateSec);
+
+		try
+		{
+			return luabind::wrap_base::call<bool>("OnControllerFilter", a, b);
+		}
+		catch (const luabind::error& e)
+		{
+			my::D3DContext::getSingleton().m_EventLog(lua_tostring(e.state(), -1));
+		}
+		return false;
+	}
+
+	static bool default_OnControllerFilter(StateBase * ptr, Controller * a, Controller * b)
+	{
+		return ptr->StateBase::OnControllerFilter(a, b);
+	}
 };
 
 namespace boost
@@ -1035,6 +1055,7 @@ HRESULT Client::OnCreateDevice(
 			.def("OnActorRequestResource", &StateBase::OnActorRequestResource, &ScriptStateBase::default_OnActorRequestResource)
 			.def("OnActorReleaseResource", &StateBase::OnActorReleaseResource, &ScriptStateBase::default_OnActorReleaseResource)
 			.def("OnGUI", &StateBase::OnGUI, &ScriptStateBase::default_OnGUI)
+			.def("OnControllerFilter", &StateBase::OnControllerFilter, &ScriptStateBase::default_OnControllerFilter)
 
 		, luabind::class_<Client, luabind::bases<my::DxutApp, my::ResourceMgr, my::DrawHelper, PhysxScene> >("Client")
 			.def_readonly("wnd", &Client::m_wnd)
@@ -1460,7 +1481,7 @@ void Client::OnFrameTick(
 
 	m_Camera->UpdateViewProj();
 
-	m_ControllerMgr->computeInteractions(fElapsedTime, 0);
+	m_ControllerMgr->computeInteractions(fElapsedTime, &m_ControllerFilter);
 
 	ParallelTaskManager::DoAllParallelTasks();
 
@@ -1845,6 +1866,18 @@ void Client::OnControlFocus(my::Control * control)
 	{
 		curr_iter->OnControlFocus(control);
 	}
+}
+
+bool Client::OnControllerFilter(const physx::PxController& a, const physx::PxController& b)
+{
+	StateBase* active_leaf = GetActiveLeaf();
+	if (active_leaf && a.getUserData() && b.getUserData())
+	{
+		Controller* controller0 = static_cast<Controller*>((Component*)a.getUserData());
+		Controller* controller1 = static_cast<Controller*>((Component*)b.getUserData());
+		return active_leaf->OnControllerFilter(controller0, controller1);
+	}
+	return PhysxScene::OnControllerFilter(a, b);
 }
 
 std::wstring Client::OnControlTranslate(const std::string& str)

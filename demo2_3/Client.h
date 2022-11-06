@@ -161,6 +161,11 @@ public:
 	virtual void OnGUI(my::UIRender * ui_render, float fElapsedTime, const my::Vector2 & Viewport)
 	{
 	}
+
+	virtual bool OnControllerFilter(Controller * a, Controller * b)
+	{
+		return true;
+	}
 };
 
 typedef boost::shared_ptr<StateBase> StateBasePtr;
@@ -324,6 +329,8 @@ public:
 	virtual void OnControlSound(boost::shared_ptr<my::Wav> wav);
 
 	virtual void OnControlFocus(my::Control * control);
+
+	virtual bool OnControllerFilter(const physx::PxController& a, const physx::PxController& b);
 
 	virtual std::wstring OnControlTranslate(const std::string& str);
 

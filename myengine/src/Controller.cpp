@@ -185,32 +185,9 @@ unsigned int Controller::Move(const my::Vector3 & disp, float minDist, float ela
 
 	if (m_PxController)
 	{
-		struct FilterCallback : physx::PxControllerFilterCallback
-		{
-			unsigned int filterWord0;
+		PhysxScene* scene = dynamic_cast<PhysxScene*>(m_Actor->m_Node->GetTopNode());
 
-			FilterCallback(unsigned int _filterWord0)
-				: filterWord0(_filterWord0)
-			{
-			}
-
-			virtual bool filter(const physx::PxController & a, const physx::PxController & b)
-			{
-				if (a.getUserData() && b.getUserData())
-				{
-					Controller* controller0 = static_cast<Controller*>((Component*)a.getUserData());
-					Controller* controller1 = static_cast<Controller*>((Component*)b.getUserData());
-					_ASSERT(!controller0->m_Actor->m_Base);
-					if (!controller1->m_Actor->m_Base && controller1->GetQueryFilterWord0() & filterWord0)
-					{
-						return true;
-					}
-				}
-				return false;
-			}
-		};
-
-		moveFlags = m_PxController->move((physx::PxVec3&)disp, minDist, elapsedTime, physx::PxControllerFilters(&physx::PxFilterData(filterWord0, 0, 0, 0), NULL, &FilterCallback(filterWord0)), NULL);
+		moveFlags = m_PxController->move((physx::PxVec3&)disp, minDist, elapsedTime, physx::PxControllerFilters(&physx::PxFilterData(filterWord0, 0, 0, 0), NULL, &scene->m_ControllerFilter), NULL);
 
 		// ! recursively call other Component::SetPxPoseOrbyPxThread
 		m_Actor->SetPxPoseOrbyPxThread(GetPosition(), m_Actor->m_Rotation, this);
