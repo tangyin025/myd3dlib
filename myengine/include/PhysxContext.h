@@ -260,7 +260,7 @@ public:
 
 	void Flush(void);
 
-	static physx::PxFilterFlags filter(
+	static physx::PxFilterFlags FilterShader(
 		physx::PxFilterObjectAttributes attributes0,
 		physx::PxFilterData filterData0,
 		physx::PxFilterObjectAttributes attributes1,

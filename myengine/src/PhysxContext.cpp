@@ -144,7 +144,7 @@ bool PhysxScene::Init(physx::PxPhysics * sdk, physx::PxDefaultCpuDispatcher * di
 	sceneDesc.contactModifyCallback = this;
 	sceneDesc.cpuDispatcher = dispatcher;
 	//sceneDesc.filterShader = physx::PxDefaultSimulationFilterShader;
-	sceneDesc.filterShader = PhysxScene::filter;
+	sceneDesc.filterShader = PhysxScene::FilterShader;
 	sceneDesc.flags = flags;
 	m_PxScene.reset(sdk->createScene(sceneDesc), PhysxDeleter<physx::PxScene>());
 	if (!m_PxScene)
@@ -413,7 +413,7 @@ void PhysxScene::Flush(void)
 	m_PxScene->flushSimulation(false);
 }
 
-physx::PxFilterFlags PhysxScene::filter(
+physx::PxFilterFlags PhysxScene::FilterShader(
 	physx::PxFilterObjectAttributes attributes0,
 	physx::PxFilterData filterData0,
 	physx::PxFilterObjectAttributes attributes1,
@@ -462,7 +462,7 @@ void PhysxScene::onSleep(physx::PxActor** actors, physx::PxU32 count)
 
 void PhysxScene::onContact(const physx::PxContactPairHeader& pairHeader, const physx::PxContactPair* pairs, physx::PxU32 nbPairs)
 {
-	// ! set physx::PxPairFlag::eNOTIFY_TOUCH_FOUND for PhysxScene::filter pairFlags
+	// ! set physx::PxPairFlag::eNOTIFY_TOUCH_FOUND for PhysxScene::FilterShader pairFlags
 	std::vector<physx::PxContactPairPoint> contactPoints;
 	for (physx::PxU32 i = 0; i < nbPairs; i++)
 	{
@@ -499,7 +499,7 @@ void PhysxScene::onContact(const physx::PxContactPairHeader& pairHeader, const p
 
 void PhysxScene::onContactModify(physx::PxContactModifyPair* const pairs, physx::PxU32 count)
 {
-	// ! set physx::PxPairFlag::eMODIFY_CONTACTS for PhysxScene::filter pairFlags
+	// ! set physx::PxPairFlag::eMODIFY_CONTACTS for PhysxScene::FilterShader pairFlags
 	for (unsigned int i = 0; i < count; i++)
 	{
 		for (unsigned int j = 0; j < pairs[i].contacts.size(); j++)
