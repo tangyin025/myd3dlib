@@ -772,9 +772,11 @@ namespace my
 		{
 			float determinantSq = magnitudeSq() * rhs.magnitudeSq(); // |v0|*|v1|*Cos(Angle)
 
-			_ASSERT(determinantSq != 0);
-
-			return Min(dot(rhs) / sqrtf(determinantSq), 1.0f);
+			if (determinantSq != 0)
+			{
+				return Min(dot(rhs) / sqrtf(determinantSq), 1.0f);
+			}
+			throw std::exception(__FUNCTION__ ": determinantSq == 0");
 		}
 
 		//float sinTheta(const Vector3 & rhs) const
