@@ -2604,7 +2604,7 @@ int EditBox::GetPriorItemPos(int nCP)
 		switch(state)
 		{
 		case 0:
-			if(IsCharAlphaW(m_Text[i]) || IsCharAlphaNumericW(m_Text[i]))
+			if(IsCharAlphaW(m_Text[i]) || IsCharAlphaNumericW(m_Text[i]) || L'_' == m_Text[i])
 				state = 1;
 			else if(L' ' == m_Text[i])
 				state = 0;
@@ -2613,14 +2613,14 @@ int EditBox::GetPriorItemPos(int nCP)
 			break;
 
 		case 1:
-			if(IsCharAlphaW(m_Text[i]) || IsCharAlphaNumericW(m_Text[i]))
+			if(IsCharAlphaW(m_Text[i]) || IsCharAlphaNumericW(m_Text[i]) || L'_' == m_Text[i])
 				state = 1;
 			else
 				return i + 1;
 			break;
 
 		case 2:
-			if(IsCharAlphaW(m_Text[i]) || IsCharAlphaNumericW(m_Text[i]))
+			if(IsCharAlphaW(m_Text[i]) || IsCharAlphaNumericW(m_Text[i]) || L'_' == m_Text[i])
 				return i + 1;
 			else
 				state = 2;
@@ -2639,14 +2639,14 @@ int EditBox::GetNextItemPos(int nCP)
 		switch(state)
 		{
 		case 0:
-			if(IsCharAlphaW(m_Text[i]) || IsCharAlphaNumericW(m_Text[i]))
+			if(IsCharAlphaW(m_Text[i]) || IsCharAlphaNumericW(m_Text[i]) || L'_' == m_Text[i])
 				state = 1;
 			else
 				state = 2;
 			break;
 
 		case 1:
-			if(IsCharAlphaW(m_Text[i]) || IsCharAlphaNumericW(m_Text[i]))
+			if(IsCharAlphaW(m_Text[i]) || IsCharAlphaNumericW(m_Text[i]) || L'_' == m_Text[i])
 				state = 1;
 			else if(L' ' == m_Text[i])
 				state = 3;
@@ -2655,7 +2655,7 @@ int EditBox::GetNextItemPos(int nCP)
 			break;
 
 		case 2:
-			if(IsCharAlphaW(m_Text[i]) || IsCharAlphaNumericW(m_Text[i]))
+			if(IsCharAlphaW(m_Text[i]) || IsCharAlphaNumericW(m_Text[i]) || L'_' == m_Text[i])
 				return i;
 			else
 				state = 2;
