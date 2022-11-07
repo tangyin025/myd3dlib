@@ -443,6 +443,8 @@ PlayerData::PlayerData(void)
 {
 	std::fill_n(attrs, _countof(attrs), 0);
 	std::fill_n(quests, _countof(quests), 0);
+	std::fill_n(auras, _countof(auras), 0);
+	std::fill_n(aurastatus, _countof(aurastatus), 0);
 	std::fill_n(items, _countof(items), 0);
 	std::fill_n(itemstatus, _countof(itemstatus), 0);
 }
@@ -472,6 +474,8 @@ void PlayerData::save(Archive& ar, const unsigned int version) const
 	ar << BOOST_SERIALIZATION_NVP(angle);
 	ar << BOOST_SERIALIZATION_NVP(attrs);
 	ar << BOOST_SERIALIZATION_NVP(quests);
+	ar << BOOST_SERIALIZATION_NVP(auras);
+	ar << BOOST_SERIALIZATION_NVP(aurastatus);
 	ar << BOOST_SERIALIZATION_NVP(items);
 	ar << BOOST_SERIALIZATION_NVP(itemstatus);
 }
@@ -493,6 +497,8 @@ void PlayerData::load(Archive& ar, const unsigned int version)
 	ar >> BOOST_SERIALIZATION_NVP(angle);
 	ar >> BOOST_SERIALIZATION_NVP(attrs);
 	ar >> BOOST_SERIALIZATION_NVP(quests);
+	ar >> BOOST_SERIALIZATION_NVP(auras);
+	ar >> BOOST_SERIALIZATION_NVP(aurastatus);
 	ar >> BOOST_SERIALIZATION_NVP(items);
 	ar >> BOOST_SERIALIZATION_NVP(itemstatus);
 }
