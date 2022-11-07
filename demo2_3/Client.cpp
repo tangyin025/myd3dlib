@@ -1027,6 +1027,7 @@ HRESULT Client::OnCreateDevice(
 				luabind::value("ATTR_ITEM_CAPACITY", 11),
 				luabind::value("ATTR_COUNT", _countof(PlayerData::attrs)),
 				luabind::value("QUEST_COUNT", _countof(PlayerData::quests)),
+				luabind::value("AURA_COUNT", _countof(PlayerData::auras)),
 				luabind::value("MAX_ITEM_NUM", _countof(PlayerData::items))
 			]
 			.def_readwrite("logintime", &PlayerData::logintime)
@@ -1038,6 +1039,10 @@ HRESULT Client::OnCreateDevice(
 			.def("getattr", &PlayerData::getattr)
 			.def("setquest", &PlayerData::setquest)
 			.def("getquest", &PlayerData::getquest)
+			.def("setaura", &PlayerData::setaura)
+			.def("getaura", &PlayerData::getaura)
+			.def("setaurastatus", &PlayerData::setaurastatus)
+			.def("getaurastatus", &PlayerData::getaurastatus)
 			.def("setitem", &PlayerData::setitem)
 			.def("getitem", &PlayerData::getitem)
 			.def("setitemstatus", &PlayerData::setitemstatus)

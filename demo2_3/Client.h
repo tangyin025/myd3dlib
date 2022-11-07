@@ -30,6 +30,10 @@ struct PlayerData : public my::DeviceResourceBase
 
 	int quests[1024];
 
+	int auras[16];
+
+	unsigned int aurastatus[_countof(auras)];
+
 	int items[1024];
 
 	unsigned int itemstatus[_countof(items)];
@@ -80,6 +84,26 @@ struct PlayerData : public my::DeviceResourceBase
 	int getquest(int i) const
 	{
 		return my::Subscribe(quests, i);
+	}
+
+	void setaura(int i, int value)
+	{
+		my::Subscribe(auras, i) = value;
+	}
+
+	int getaura(int i) const
+	{
+		return my::Subscribe(auras, i);
+	}
+
+	void setaurastatus(int i, unsigned int value)
+	{
+		my::Subscribe(aurastatus, i) = value;
+	}
+
+	unsigned int getaurastatus(int i) const
+	{
+		return my::Subscribe(aurastatus, i);
 	}
 
 	void setitem(int i, int value)
