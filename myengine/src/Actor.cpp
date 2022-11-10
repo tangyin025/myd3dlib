@@ -689,6 +689,18 @@ my::Vector3 Actor::GetAngularVelocity(void) const
 	return m_PxActor ? (Vector3&)m_PxActor->is<physx::PxRigidBody>()->getAngularVelocity() : Vector3(0, 0, 0);
 }
 
+bool Actor::IsSleeping(void) const
+{
+	_ASSERT(GetRigidActorType() == physx::PxActorType::eRIGID_DYNAMIC);
+	return m_PxActor->is<physx::PxRigidDynamic>()->isSleeping();
+}
+
+void Actor::WakeUp(void)
+{
+	_ASSERT(GetRigidActorType() == physx::PxActorType::eRIGID_DYNAMIC);
+	m_PxActor->is<physx::PxRigidDynamic>()->wakeUp();
+}
+
 void Actor::InsertComponent(ComponentPtr cmp)
 {
 	InsertComponent(GetComponentNum(), cmp);

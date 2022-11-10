@@ -340,6 +340,10 @@ public:
 
 	my::Vector3 GetAngularVelocity(void) const;
 
+	bool IsSleeping(void) const;
+
+	void WakeUp(void);
+
 	void InsertComponent(ComponentPtr cmp);
 
 	void InsertComponent(unsigned int i, ComponentPtr cmp);
