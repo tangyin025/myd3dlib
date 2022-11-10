@@ -137,11 +137,14 @@ Steering::CrowdAgentState Steering::SeekTarget(const my::Vector3& Target, float 
 			if (hit.shape->userData)
 			{
 				Component* other_cmp = (Component*)hit.shape->userData;
-				Steering* nei = other_cmp->m_Actor->GetFirstComponent<Steering>();
-				if (nei && nei != this && !other_cmp->m_Actor->m_Base)
+				if (scene->m_ControllerFilter.filter(*controller->m_PxController, *dynamic_cast<Controller*>(other_cmp)->m_PxController))
 				{
-					neighbors.push_back(nei);
-					nei_controllers.push_back(dynamic_cast<Controller*>(other_cmp));
+					Steering* nei = other_cmp->m_Actor->GetFirstComponent<Steering>();
+					if (nei && nei != this && !other_cmp->m_Actor->m_Base)
+					{
+						neighbors.push_back(nei);
+						nei_controllers.push_back(dynamic_cast<Controller*>(other_cmp));
+					}
 				}
 			}
 		}
