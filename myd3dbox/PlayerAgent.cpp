@@ -319,11 +319,12 @@ void PlayerAgent::OnPxThreadSubstep(float dtime)
 	{
 		m_VerticalSpeed = Lerp(m_VerticalSpeed, 0.0f, 1.0f - pow(0.5f, 30 * dtime));
 		m_Suspending = 0.2f;
-		if (moveFlags & physx::PxControllerCollisionFlag::eCOLLISION_SIDES && m_Controller->GetContactNormalSidePass().y > m_Controller->GetSlopeLimit())
+		if (moveFlags & physx::PxControllerCollisionFlag::eCOLLISION_SIDES
+			&& m_Controller->GetTouchedComponent() && m_Controller->GetContactNormalSidePass().y > m_Controller->GetSlopeLimit())
 		{
 			m_Controller->SetUpDirection(m_Controller->GetContactNormalSidePass());
 		}
-		else
+		else if(m_Controller->GetTouchedComponent())
 		{
 			m_Controller->SetUpDirection(m_Controller->GetContactNormalDownPass());
 		}

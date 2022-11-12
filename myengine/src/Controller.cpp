@@ -298,6 +298,8 @@ float Controller::GetSlopeLimit(void) const
 
 void Controller::SetUpDirection(const my::Vector3 & Up)
 {
+	_ASSERT(IS_NORMALIZED(Up));
+
 	m_desc.upDirection = (physx::PxVec3&)Up;
 
 	if (m_PxController)
