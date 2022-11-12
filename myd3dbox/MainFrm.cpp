@@ -1847,6 +1847,7 @@ void CMainFrame::OnToolsOffmeshconnections()
 	else
 	{
 		m_PaintType = PaintTypeOffmeshConnections;
+		m_hitPosSet = false;
 	}
 	my::EventArg arg;
 	m_EventPivotModeChanged(&arg);
