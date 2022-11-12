@@ -86,20 +86,32 @@ my::Vector3 Steering::SeekDir(my::Vector3 Force, float dtime)
 		}
 	}
 
-	// compute acceleration and velocity
-	const Vector3 newAcceleration = Force;
+	//// compute acceleration and velocity
+	//const Vector3 newAcceleration = Force;
+	//Vector3 newVelocity = m_Forward * m_Speed;
+
+	//// Euler integrate (per frame) acceleration into velocity
+	//newVelocity += newAcceleration * dtime;
+
+	//// enforce speed limit
+	//m_Speed = newVelocity.magnitude();
+	//if (m_Speed > m_MaxSpeed)
+	//{
+	//	// update Speed
+	//	newVelocity = newVelocity * m_MaxSpeed / m_Speed;
+	//	m_Speed = m_MaxSpeed;
+	//}
+
 	Vector3 newVelocity = m_Forward * m_Speed;
-
-	// Euler integrate (per frame) acceleration into velocity
-	newVelocity += newAcceleration * dtime;
-
-	// enforce speed limit
-	m_Speed = newVelocity.magnitude();
-	if (m_Speed > m_MaxSpeed)
+	if (forceLength >= EPSILON_E3)
 	{
-		// update Speed
-		newVelocity = newVelocity * m_MaxSpeed / m_Speed;
-		m_Speed = m_MaxSpeed;
+		const Vector3 direction = Force / forceLength;
+		float fspeed = direction.dot(m_Forward * m_Speed);
+
+		float accel = Max(0.0f, Min(m_MaxSpeed - fspeed, forceLength * dtime));
+		newVelocity += direction * accel;
+
+		m_Speed = newVelocity.magnitude();
 	}
 
 	// regenerate local space (by default: align vehicle's forward axis with
