@@ -365,12 +365,9 @@ void Actor::Update(float fElapsedTime)
 	ComponentPtrList::iterator cmp_iter = dummy_cmps.begin();
 	for (; cmp_iter != dummy_cmps.end(); cmp_iter++)
 	{
-		if (this == (*cmp_iter)->m_Actor)
+		if ((*cmp_iter)->m_LodMask & 1 << m_Lod && this == (*cmp_iter)->m_Actor)
 		{
-			if ((*cmp_iter)->m_LodMask & 1 << m_Lod)
-			{
-				(*cmp_iter)->Update(fElapsedTime);
-			}
+			(*cmp_iter)->Update(fElapsedTime);
 		}
 	}
 }
