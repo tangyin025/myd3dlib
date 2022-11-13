@@ -1,6 +1,7 @@
 
 texture g_Texture:MaterialParameter<string path="texture/Checker.bmp";>;
 float2 g_Tiles:MaterialParameter = float2(4, 4);
+float2 g_TileAreas:MaterialParameter = float2(1, 1);
 
 sampler TextureSampler = sampler_state
 {
@@ -26,8 +27,8 @@ TRANSPARENT_VS_OUTPUT TransparentVS( VS_INPUT In )
     float Row = floor(TotalFrames / g_Tiles.x);
     float Frame = fmod(TotalFrames, g_Tiles.x);
     float2 Tex = TransformUV(In);
-	Output.Tex0.x = (Frame + Tex.x) / g_Tiles.x;
-    Output.Tex0.y = (Row + Tex.y) / g_Tiles.y;
+	Output.Tex0.x = (Frame + Tex.x) / g_Tiles.x * g_TileAreas.x;
+    Output.Tex0.y = (Row + Tex.y) / g_Tiles.y * g_TileAreas.y;
     return Output;    
 }
 
