@@ -39,14 +39,9 @@ bool Spline::InsertNode(const SplineNode & node, int begin_i, int end_i)
 	return InsertNode(node, mid_i + 1, end_i);
 }
 
-void Spline::InsertNode(const SplineNode & node)
-{
-	InsertNode(node, 0, size());
-}
-
 void Spline::AddNode(float x, float y, float k0, float k)
 {
-	InsertNode(SplineNode(x, y, k0, k));
+	InsertNode(SplineNode(x, y, k0, k), 0, size());
 }
 
 float Spline::Interpolate(float s, int begin_i, int end_i) const

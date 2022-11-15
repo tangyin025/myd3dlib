@@ -52,8 +52,6 @@ namespace my
 
 		bool InsertNode(const SplineNode & node, int begin_i, int end_i);
 
-		void InsertNode(const SplineNode & node);
-
 		void AddNode(float x, float y, float k0, float k);
 
 		float Interpolate(float s, int begin_i, int end_i) const;
