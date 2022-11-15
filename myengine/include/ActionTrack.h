@@ -238,6 +238,10 @@ public:
 
 	float m_SpawnSpeed;
 
+	int m_SpawnBoneId;
+
+	my::Bone m_SpawnLocalPose;
+
 	float m_ParticleLifeTime;
 
 	float m_ParticleDamping;
@@ -276,6 +280,8 @@ public:
 		, m_SpawnInclination(D3DXToRadian(-90), D3DXToRadian(90))
 		, m_SpawnAzimuth(D3DXToRadian(0), D3DXToRadian(360))
 		, m_SpawnSpeed(0.0f)
+		, m_SpawnBoneId(-1)
+		, m_SpawnLocalPose(my::Vector3(0, 0, 0))
 		, m_ParticleLifeTime(1.0f)
 		, m_ParticleDamping(1.0f)
 	{

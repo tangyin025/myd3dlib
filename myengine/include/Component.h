@@ -657,6 +657,10 @@ public:
 
 	float m_SpawnTime;
 
+	int m_SpawnBoneId;
+
+	my::Bone m_SpawnLocalPose;
+
 protected:
 	SphericalEmitter(void)
 		: m_ParticleLifeTime(FLT_MAX)
@@ -665,6 +669,8 @@ protected:
 		, m_SpawnSpeed(0)
 		, m_SpawnCycle(5)
 		, m_SpawnTime(FLT_MAX)
+		, m_SpawnBoneId(-1)
+		, m_SpawnLocalPose(my::Vector3(0, 0, 0))
 	{
 	}
 
@@ -677,6 +683,8 @@ public:
 		, m_SpawnSpeed(0)
 		, m_SpawnCycle(5)
 		, m_SpawnTime(FLT_MAX)
+		, m_SpawnBoneId(-1)
+		, m_SpawnLocalPose(my::Vector3(0, 0, 0))
 	{
 	}
 

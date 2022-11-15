@@ -295,6 +295,9 @@ void ActionTrackEmitterInst::UpdateTime(float LastTime, float Time)
 			key_iter->first, key_iter->second.SpawnCount, key_iter->second.SpawnInterval));
 	}
 
+	const Bone pose = m_Actor->GetAttachPose(
+		m_Template->m_SpawnBoneId, m_Template->m_SpawnLocalPose.m_position, m_Template->m_SpawnLocalPose.m_rotation);
+
 	KeyFrameInstList::iterator key_inst_iter = m_KeyInsts.begin();
 	for (; key_inst_iter != m_KeyInsts.end(); )
 	{
@@ -306,19 +309,20 @@ void ActionTrackEmitterInst::UpdateTime(float LastTime, float Time)
 				Random(m_Template->m_SpawnArea.m_min.y, m_Template->m_SpawnArea.m_max.y),
 				Random(m_Template->m_SpawnArea.m_min.z, m_Template->m_SpawnArea.m_max.z));
 
-			const Vector3 SpawnVel = Vector3::PolarToCartesian(m_Template->m_SpawnSpeed,
+			const Vector4 SpawnVel = Vector4(Vector3::PolarToCartesian(
+				m_Template->m_SpawnSpeed,
 				Random(m_Template->m_SpawnInclination.x, m_Template->m_SpawnInclination.y),
-				Random(m_Template->m_SpawnAzimuth.x, m_Template->m_SpawnAzimuth.y));
+				Random(m_Template->m_SpawnAzimuth.x, m_Template->m_SpawnAzimuth.y)), 1);
 
 			if (m_WorldEmitterCmp->m_EmitterSpaceType == EmitterComponent::SpaceTypeWorld)
 			{
-				m_WorldEmitterCmp->Spawn(
-					SpawnPos.transform(m_Actor->m_World), Vector4(SpawnVel.transformNormal(m_Actor->m_World), 1.0f), Vector4(1, 1, 1, 1), Vector2(1, 1), 0, 0);
+				m_WorldEmitterCmp->Spawn(Vector4(pose.m_position + SpawnPos, 1.0f),
+					SpawnVel, Vector4(1, 1, 1, 1), Vector2(1, 1), 0, 0);
 			}
 			else
 			{
-				m_WorldEmitterCmp->Spawn(
-					Vector4(SpawnPos, 1.0f), Vector4(SpawnVel, 1.0f), Vector4(1, 1, 1, 1), Vector2(1, 1), 0, 0);
+				m_WorldEmitterCmp->Spawn(Vector4(m_Template->m_SpawnLocalPose.m_position + SpawnPos, 1.0f),
+					SpawnVel, Vector4(1, 1, 1, 1), Vector2(1, 1), 0, 0);
 			}
 		}
 

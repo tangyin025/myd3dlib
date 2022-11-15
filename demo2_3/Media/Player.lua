@@ -1,19 +1,12 @@
 module("SPlayer", package.seeall)
 require "Action.lua"
 
--- 修正不规范资源
--- mesh=client:LoadMesh("character/casual19_m_highpoly.mesh.xml","")
+-- -- 修正不规范资源
+-- local mesh=client:LoadMesh("character/casual19_m_highpoly.mesh.xml","")
 -- mesh:Transform(Matrix4.Compose(
--- 	Vector3(1,1,1),Quaternion.Identity(),Vector3(0,-95,0)))
+	-- Vector3(1,1,1),Quaternion.Identity(),Vector3(0,-95,0)))
 -- mesh:SaveOgreMesh("Media/character/casual19_m_highpoly.mesh.xml")
-skel=client:LoadSkeleton("character/casual19_m_highpoly.skeleton.xml")
-skel:AddOgreSkeletonAnimationFromFile("character/casual19_m_highpoly_idle1.skeleton.xml")
-skel:AddOgreSkeletonAnimationFromFile("character/casual19_m_highpoly_run.skeleton.xml")
-skel:AddOgreSkeletonAnimationFromFile("character/casual19_m_highpoly_walk.skeleton.xml")
-skel:AddOgreSkeletonAnimationFromFile("character/casual19_m_highpoly_jumpforward.skeleton.xml")
-skel:AdjustAnimationRoot(Bone(Vector3(0,-95,0)))
--- skel:SaveOgreSkeletonAnimation("Media/character/casual19_m_highpoly_full.skeleton.xml")
--- mesh2=client:LoadMesh("mesh/Cylinder.mesh.xml","")
+-- local mesh2=client:LoadMesh("mesh/Cylinder.mesh.xml","")
 -- mesh2:Transform(Matrix4.Compose(
 	-- Vector3(0.1,0.25,0.1), Quaternion.RotationYawPitchRoll(0,0,math.rad(90)),Vector3(0.25,0,0)))
 -- mesh2:SaveOgreMesh("Media/mesh/Cylinder.mesh.xml")

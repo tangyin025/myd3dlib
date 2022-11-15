@@ -1,5 +1,13 @@
 module("SAction", package.seeall)
 
+skel=client:LoadSkeleton("character/casual19_m_highpoly.skeleton.xml")
+skel:AddOgreSkeletonAnimationFromFile("character/casual19_m_highpoly_idle1.skeleton.xml")
+skel:AddOgreSkeletonAnimationFromFile("character/casual19_m_highpoly_run.skeleton.xml")
+skel:AddOgreSkeletonAnimationFromFile("character/casual19_m_highpoly_walk.skeleton.xml")
+skel:AddOgreSkeletonAnimationFromFile("character/casual19_m_highpoly_jumpforward.skeleton.xml")
+skel:AdjustAnimationRoot(Bone(Vector3(0,-95,0)))
+-- skel:SaveOgreSkeletonAnimation("Media/character/casual19_m_highpoly_full.skeleton.xml")
+
 act_jump=Action()
 local track=ActionTrackAnimation()
 track:AddKeyFrame(0,"node_run_slot","jumpforward",2.0,1.0,0.3,0.3,false,1,"")
@@ -29,6 +37,7 @@ track.ParticleColorB:AddNode(0,1,0,0)
 track.ParticleColorB:AddNode(3,0,0,0)
 track.ParticleColorA:AddNode(0,1,0,0)
 track.ParticleColorA:AddNode(3,0,0,0)
+track.SpawnBoneId=skel:GetBoneIndex("Bip01_Neck")
 track:AddKeyFrame(0,99999,0.1)
 act_tuowei:AddTrack(track)
 
