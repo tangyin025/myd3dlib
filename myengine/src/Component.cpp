@@ -1644,44 +1644,31 @@ void SphericalEmitter::Update(float fElapsedTime)
 		m_ParticleList.rerase(m_ParticleList.begin(), first_part_iter);
 	}
 
-	const Bone pose = m_Actor->GetAttachPose(m_SpawnBoneId, m_SpawnLocalPose.m_position, m_SpawnLocalPose.m_rotation);
+	const Bone pose = m_EmitterSpaceType == SpaceTypeWorld ?
+		m_Actor->GetAttachPose(m_SpawnBoneId, m_SpawnLocalPose.m_position, m_SpawnLocalPose.m_rotation) : m_SpawnLocalPose;
 
 	for (; m_SpawnTime < D3DContext::getSingleton().m_fTotalTime; m_SpawnTime += m_SpawnInterval)
 	{
 		const float SpawnTimeCycle = Wrap<float>(m_SpawnTime, 0, m_SpawnCycle);
 
-		const Vector3 SpawnPos = Vector3(
-			Random(-m_HalfSpawnArea.x, m_HalfSpawnArea.x),
-			Random(-m_HalfSpawnArea.y, m_HalfSpawnArea.y),
-			Random(-m_HalfSpawnArea.z, m_HalfSpawnArea.z));
-
-		const Vector4 SpawnVel = Vector4(Vector3::PolarToCartesian(
-			m_SpawnSpeed,
-			m_SpawnInclination.Interpolate(SpawnTimeCycle, 0),
-			m_SpawnAzimuth.Interpolate(SpawnTimeCycle, 0)), 1);
-
-		const Vector4 SpawnColor = Vector4(
-			m_SpawnColorR.Interpolate(SpawnTimeCycle, 1),
-			m_SpawnColorG.Interpolate(SpawnTimeCycle, 1),
-			m_SpawnColorB.Interpolate(SpawnTimeCycle, 1),
-			m_SpawnColorA.Interpolate(SpawnTimeCycle, 1));
-
-		const Vector2 SpawnSize = Vector2(
-			m_SpawnSizeX.Interpolate(SpawnTimeCycle, 1),
-			m_SpawnSizeY.Interpolate(SpawnTimeCycle, 1));
-
-		const float SpawnAngle = m_SpawnAngle.Interpolate(SpawnTimeCycle, 0);
-
-		if (m_EmitterSpaceType == SpaceTypeWorld)
-		{
-			Spawn(Vector4(pose.m_position + SpawnPos, 1),
-				SpawnVel, SpawnColor, SpawnSize, SpawnAngle, m_SpawnTime);
-		}
-		else
-		{
-			Spawn(Vector4(m_SpawnLocalPose.m_position + SpawnPos, 1),
-				SpawnVel, SpawnColor, SpawnSize, SpawnAngle, m_SpawnTime);
-		}
+		Spawn(
+			Vector4(Vector3(
+				Random(-m_HalfSpawnArea.x, m_HalfSpawnArea.x),
+				Random(-m_HalfSpawnArea.y, m_HalfSpawnArea.y),
+				Random(-m_HalfSpawnArea.z, m_HalfSpawnArea.z)) + pose.m_position, 1),
+			Vector4(Vector3::PolarToCartesian(
+				m_SpawnSpeed,
+				m_SpawnInclination.Interpolate(SpawnTimeCycle, 0),
+				m_SpawnAzimuth.Interpolate(SpawnTimeCycle, 0)), 1),
+			Vector4(
+				m_SpawnColorR.Interpolate(SpawnTimeCycle, 1),
+				m_SpawnColorG.Interpolate(SpawnTimeCycle, 1),
+				m_SpawnColorB.Interpolate(SpawnTimeCycle, 1),
+				m_SpawnColorA.Interpolate(SpawnTimeCycle, 1)),
+			Vector2(
+				m_SpawnSizeX.Interpolate(SpawnTimeCycle, 1),
+				m_SpawnSizeY.Interpolate(SpawnTimeCycle, 1)),
+			m_SpawnAngle.Interpolate(SpawnTimeCycle, 0), m_SpawnTime);
 	}
 }
 

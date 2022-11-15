@@ -295,8 +295,8 @@ void ActionTrackEmitterInst::UpdateTime(float LastTime, float Time)
 			key_iter->first, key_iter->second.SpawnCount, key_iter->second.SpawnInterval));
 	}
 
-	const Bone pose = m_Actor->GetAttachPose(
-		m_Template->m_SpawnBoneId, m_Template->m_SpawnLocalPose.m_position, m_Template->m_SpawnLocalPose.m_rotation);
+	const Bone pose = m_WorldEmitterCmp->m_EmitterSpaceType == EmitterComponent::SpaceTypeWorld ?
+		m_Actor->GetAttachPose(m_Template->m_SpawnBoneId, m_Template->m_SpawnLocalPose.m_position, m_Template->m_SpawnLocalPose.m_rotation) : m_Template->m_SpawnLocalPose;
 
 	KeyFrameInstList::iterator key_inst_iter = m_KeyInsts.begin();
 	for (; key_inst_iter != m_KeyInsts.end(); )
@@ -304,26 +304,16 @@ void ActionTrackEmitterInst::UpdateTime(float LastTime, float Time)
 		for (; key_inst_iter->m_Time < Time && key_inst_iter->m_SpawnCount > 0;
 			key_inst_iter->m_Time += key_inst_iter->m_SpawnInterval, key_inst_iter->m_SpawnCount--)
 		{
-			const Vector3 SpawnPos = Vector3(
-				Random(m_Template->m_SpawnArea.m_min.x, m_Template->m_SpawnArea.m_max.x),
-				Random(m_Template->m_SpawnArea.m_min.y, m_Template->m_SpawnArea.m_max.y),
-				Random(m_Template->m_SpawnArea.m_min.z, m_Template->m_SpawnArea.m_max.z));
-
-			const Vector4 SpawnVel = Vector4(Vector3::PolarToCartesian(
-				m_Template->m_SpawnSpeed,
-				Random(m_Template->m_SpawnInclination.x, m_Template->m_SpawnInclination.y),
-				Random(m_Template->m_SpawnAzimuth.x, m_Template->m_SpawnAzimuth.y)), 1);
-
-			if (m_WorldEmitterCmp->m_EmitterSpaceType == EmitterComponent::SpaceTypeWorld)
-			{
-				m_WorldEmitterCmp->Spawn(Vector4(pose.m_position + SpawnPos, 1.0f),
-					SpawnVel, Vector4(1, 1, 1, 1), Vector2(1, 1), 0, 0);
-			}
-			else
-			{
-				m_WorldEmitterCmp->Spawn(Vector4(m_Template->m_SpawnLocalPose.m_position + SpawnPos, 1.0f),
-					SpawnVel, Vector4(1, 1, 1, 1), Vector2(1, 1), 0, 0);
-			}
+			m_WorldEmitterCmp->Spawn(
+				Vector4(Vector3(
+					Random(m_Template->m_SpawnArea.m_min.x, m_Template->m_SpawnArea.m_max.x),
+					Random(m_Template->m_SpawnArea.m_min.y, m_Template->m_SpawnArea.m_max.y),
+					Random(m_Template->m_SpawnArea.m_min.z, m_Template->m_SpawnArea.m_max.z)) + pose.m_position, 1.0f),
+				Vector4(Vector3::PolarToCartesian(
+					m_Template->m_SpawnSpeed,
+					Random(m_Template->m_SpawnInclination.x, m_Template->m_SpawnInclination.y),
+					Random(m_Template->m_SpawnAzimuth.x, m_Template->m_SpawnAzimuth.y)), 1),
+				Vector4(1, 1, 1, 1), Vector2(1, 1), 0, 0);
 		}
 
 		if (key_inst_iter->m_SpawnCount <= 0)

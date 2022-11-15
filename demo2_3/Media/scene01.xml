@@ -52,14 +52,14 @@
 		</NamedObject>
 		<m_aabb class_id="5" tracking_level="0" version="0">
 			<m_min>
-				<x>0.000000000e+00</x>
-				<y>-1.000000000e+00</y>
-				<z>0.000000000e+00</z>
+				<x>-4.096000000e+03</x>
+				<y>-4.096000000e+03</y>
+				<z>-4.096000000e+03</z>
 			</m_min>
 			<m_max>
-				<x>6.400000000e+01</x>
-				<y>1.000000000e+00</y>
-				<z>6.400000000e+01</z>
+				<x>4.096000000e+03</x>
+				<y>4.096000000e+03</y>
+				<z>4.096000000e+03</z>
 			</m_max>
 		</m_aabb>
 		<m_Position>
@@ -80,7 +80,7 @@
 		</m_Scale>
 		<m_LodDist>3.300000000e+01</m_LodDist>
 		<m_LodFactor>2.000000000e+00</m_LodFactor>
-		<m_CullingDistSq>2.048000000e+03</m_CullingDistSq>
+		<m_CullingDistSq>6.969599795e+14</m_CullingDistSq>
 		<ActorType>0</ActorType>
 		<m_Cmps class_id="7" tracking_level="0" version="0">
 			<count>7</count>
