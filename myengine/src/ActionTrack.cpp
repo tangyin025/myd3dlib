@@ -282,7 +282,7 @@ void ActionTrackEmitterInst::UpdateTime(float LastTime, float Time)
 	my::Emitter::ParticleList::iterator first_part_iter = std::upper_bound(
 		m_WorldEmitterCmp->m_ParticleList.begin(), m_WorldEmitterCmp->m_ParticleList.end(),	m_Template->m_ParticleLifeTime,
 		boost::bind(std::greater<float>(), boost::placeholders::_1, boost::bind(&my::Emitter::Particle::m_Time, boost::placeholders::_2)));
-	if (first_part_iter != m_WorldEmitterCmp->m_ParticleList.end())
+	if (first_part_iter != m_WorldEmitterCmp->m_ParticleList.begin())
 	{
 		m_WorldEmitterCmp->m_ParticleList.rerase(m_WorldEmitterCmp->m_ParticleList.begin(), first_part_iter);
 	}
