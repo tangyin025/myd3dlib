@@ -1651,14 +1651,14 @@ void SphericalEmitter::Update(float fElapsedTime)
 		if (m_EmitterSpaceType == SpaceTypeWorld)
 		{
 			Spawn(
-				Vector3(
+				Vector4(Vector3(
 					Random(-m_HalfSpawnArea.x, m_HalfSpawnArea.x),
 					Random(-m_HalfSpawnArea.y, m_HalfSpawnArea.y),
-					Random(-m_HalfSpawnArea.z, m_HalfSpawnArea.z)).transform(m_Actor->m_World),
+					Random(-m_HalfSpawnArea.z, m_HalfSpawnArea.z)).transformCoord(m_Actor->m_World), 1),
 				Vector4(Vector3::PolarToCartesian(
 					m_SpawnSpeed,
 					m_SpawnInclination.Interpolate(SpawnTimeCycle, 0),
-					m_SpawnAzimuth.Interpolate(SpawnTimeCycle, 0)).transformNormal(m_Actor->m_World), 1),
+					m_SpawnAzimuth.Interpolate(SpawnTimeCycle, 0)), 1),
 				Vector4(
 					m_SpawnColorR.Interpolate(SpawnTimeCycle, 1),
 					m_SpawnColorG.Interpolate(SpawnTimeCycle, 1),
