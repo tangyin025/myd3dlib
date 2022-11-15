@@ -654,7 +654,15 @@ void CPropertiesWnd::UpdatePropertiesSphericalEmitter(CMFCPropertyGridProperty *
 	UpdatePropertiesSpline(pComponent->GetSubItem(PropId + 16), &sphe_emit_cmp->m_SpawnSizeY);
 	UpdatePropertiesSpline(pComponent->GetSubItem(PropId + 17), &sphe_emit_cmp->m_SpawnAngle);
 	pComponent->GetSubItem(PropId + 18)->SetValue((_variant_t)sphe_emit_cmp->m_SpawnCycle);
-	UpdatePropertiesMaterial(pComponent->GetSubItem(PropId + 19), sphe_emit_cmp->m_Material.get());
+	pComponent->GetSubItem(PropId + 19)->SetValue((_variant_t)sphe_emit_cmp->m_SpawnBoneId);
+	pComponent->GetSubItem(PropId + 20)->GetSubItem(0)->SetValue((_variant_t)sphe_emit_cmp->m_SpawnLocalPose.m_position.x);
+	pComponent->GetSubItem(PropId + 20)->GetSubItem(1)->SetValue((_variant_t)sphe_emit_cmp->m_SpawnLocalPose.m_position.y);
+	pComponent->GetSubItem(PropId + 20)->GetSubItem(2)->SetValue((_variant_t)sphe_emit_cmp->m_SpawnLocalPose.m_position.z);
+	my::Vector3 angle = sphe_emit_cmp->m_SpawnLocalPose.m_rotation.toEulerAngles();
+	pComponent->GetSubItem(PropId + 21)->GetSubItem(0)->SetValue((_variant_t)D3DXToDegree(angle.x));
+	pComponent->GetSubItem(PropId + 21)->GetSubItem(1)->SetValue((_variant_t)D3DXToDegree(angle.y));
+	pComponent->GetSubItem(PropId + 21)->GetSubItem(2)->SetValue((_variant_t)D3DXToDegree(angle.z));
+	UpdatePropertiesMaterial(pComponent->GetSubItem(PropId + 22), sphe_emit_cmp->m_Material.get());
 }
 
 void CPropertiesWnd::UpdatePropertiesSpline(CMFCPropertyGridProperty * pSpline, my::Spline * spline)
@@ -1724,6 +1732,25 @@ void CPropertiesWnd::CreatePropertiesSphericalEmitter(CMFCPropertyGridProperty *
 	CreatePropertiesSpline(pComponent, _T("SpawnAngle"), PropertySphericalEmitterSpawnAngle, &sphe_emit_cmp->m_SpawnAngle);
 	pProp = new CSimpleProp(_T("SpawnCycle"), (_variant_t)sphe_emit_cmp->m_SpawnCycle, NULL, PropertySphericalEmitterSpawnCycle);
 	pComponent->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("BoneId"), (_variant_t)sphe_emit_cmp->m_SpawnBoneId, NULL, PropertySphericalEmitterSpawnBoneId);
+	pComponent->AddSubItem(pProp);
+	CMFCPropertyGridProperty* pSpawnLocalPos = new CSimpleProp(_T("SpawnLocalPos"), PropertySphericalEmitterSpawnLocalPos, TRUE);
+	pComponent->AddSubItem(pSpawnLocalPos);
+	pProp = new CSimpleProp(_T("x"), (_variant_t)sphe_emit_cmp->m_SpawnLocalPose.m_position.x, NULL, PropertySphericalEmitterSpawnLocalPosX);
+	pSpawnLocalPos->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("y"), (_variant_t)sphe_emit_cmp->m_SpawnLocalPose.m_position.y, NULL, PropertySphericalEmitterSpawnLocalPosY);
+	pSpawnLocalPos->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("z"), (_variant_t)sphe_emit_cmp->m_SpawnLocalPose.m_position.z, NULL, PropertySphericalEmitterSpawnLocalPosZ);
+	pSpawnLocalPos->AddSubItem(pProp);
+	my::Vector3 angle = sphe_emit_cmp->m_SpawnLocalPose.m_rotation.toEulerAngles();
+	CMFCPropertyGridProperty* pSpawnLocalRot = new CSimpleProp(_T("SpawnLocalRot"), PropertySphericalEmitterSpawnLocalRot, TRUE);
+	pComponent->AddSubItem(pSpawnLocalRot);
+	pProp = new CSimpleProp(_T("x"), (_variant_t)D3DXToDegree(angle.x), NULL, PropertySphericalEmitterSpawnLocalRotX);
+	pSpawnLocalRot->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("y"), (_variant_t)D3DXToDegree(angle.y), NULL, PropertySphericalEmitterSpawnLocalRotY);
+	pSpawnLocalRot->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("z"), (_variant_t)D3DXToDegree(angle.z), NULL, PropertySphericalEmitterSpawnLocalRotZ);
+	pSpawnLocalRot->AddSubItem(pProp);
 	CreatePropertiesMaterial(pComponent, _T("Material"), sphe_emit_cmp->m_Material.get());
 }
 
@@ -2625,7 +2652,7 @@ unsigned int CPropertiesWnd::GetComponentPropCount(DWORD type)
 	case Component::ComponentTypeStaticEmitter:
 		return GetComponentPropCount(Component::ComponentTypeComponent) + 9;
 	case Component::ComponentTypeSphericalEmitter:
-		return GetComponentPropCount(Component::ComponentTypeComponent) + 20;
+		return GetComponentPropCount(Component::ComponentTypeComponent) + 23;
 	case Component::ComponentTypeTerrain:
 		return GetComponentPropCount(Component::ComponentTypeComponent) + 10;
 	case Component::ComponentTypeAnimator:
@@ -3737,6 +3764,15 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	case PropertySphericalEmitterHalfSpawnAreaZ:
 	case PropertySphericalEmitterSpawnSpeed:
 	case PropertySphericalEmitterSpawnCycle:
+	case PropertySphericalEmitterSpawnBoneId:
+	case PropertySphericalEmitterSpawnLocalPos:
+	case PropertySphericalEmitterSpawnLocalPosX:
+	case PropertySphericalEmitterSpawnLocalPosY:
+	case PropertySphericalEmitterSpawnLocalPosZ:
+	case PropertySphericalEmitterSpawnLocalRot:
+	case PropertySphericalEmitterSpawnLocalRotX:
+	case PropertySphericalEmitterSpawnLocalRotY:
+	case PropertySphericalEmitterSpawnLocalRotZ:
 	{
 		CMFCPropertyGridProperty * pComponent = NULL;
 		switch (PropertyId)
@@ -3744,6 +3780,12 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		case PropertySphericalEmitterHalfSpawnAreaX:
 		case PropertySphericalEmitterHalfSpawnAreaY:
 		case PropertySphericalEmitterHalfSpawnAreaZ:
+		case PropertySphericalEmitterSpawnLocalPosX:
+		case PropertySphericalEmitterSpawnLocalPosY:
+		case PropertySphericalEmitterSpawnLocalPosZ:
+		case PropertySphericalEmitterSpawnLocalRotX:
+		case PropertySphericalEmitterSpawnLocalRotY:
+		case PropertySphericalEmitterSpawnLocalRotZ:
 			pComponent = pProp->GetParent()->GetParent();
 			break;
 		default:
@@ -3759,6 +3801,14 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		sphe_emit_cmp->m_HalfSpawnArea.z = pComponent->GetSubItem(PropId + 7)->GetSubItem(2)->GetValue().fltVal;
 		sphe_emit_cmp->m_SpawnSpeed = pComponent->GetSubItem(PropId + 8)->GetValue().fltVal;
 		sphe_emit_cmp->m_SpawnCycle = pComponent->GetSubItem(PropId + 18)->GetValue().fltVal;
+		sphe_emit_cmp->m_SpawnBoneId = pComponent->GetSubItem(PropId + 19)->GetValue().intVal;
+		sphe_emit_cmp->m_SpawnLocalPose.m_position.x = pComponent->GetSubItem(PropId + 20)->GetSubItem(0)->GetValue().fltVal;
+		sphe_emit_cmp->m_SpawnLocalPose.m_position.y = pComponent->GetSubItem(PropId + 20)->GetSubItem(1)->GetValue().fltVal;
+		sphe_emit_cmp->m_SpawnLocalPose.m_position.z = pComponent->GetSubItem(PropId + 20)->GetSubItem(2)->GetValue().fltVal;
+		sphe_emit_cmp->m_SpawnLocalPose.m_rotation = my::Quaternion::RotationEulerAngles(
+			D3DXToRadian(pComponent->GetSubItem(PropId + 21)->GetSubItem(0)->GetValue().fltVal),
+			D3DXToRadian(pComponent->GetSubItem(PropId + 21)->GetSubItem(1)->GetValue().fltVal),
+			D3DXToRadian(pComponent->GetSubItem(PropId + 21)->GetSubItem(2)->GetValue().fltVal));
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;

@@ -1595,6 +1595,8 @@ void SphericalEmitter::save(Archive & ar, const unsigned int version) const
 	ar << BOOST_SERIALIZATION_NVP(m_SpawnSizeY);
 	ar << BOOST_SERIALIZATION_NVP(m_SpawnAngle);
 	ar << BOOST_SERIALIZATION_NVP(m_SpawnCycle);
+	ar << BOOST_SERIALIZATION_NVP(m_SpawnBoneId);
+	ar << BOOST_SERIALIZATION_NVP(m_SpawnLocalPose);
 }
 
 template<class Archive>
@@ -1618,6 +1620,8 @@ void SphericalEmitter::load(Archive & ar, const unsigned int version)
 	ar >> BOOST_SERIALIZATION_NVP(m_SpawnSizeY);
 	ar >> BOOST_SERIALIZATION_NVP(m_SpawnAngle);
 	ar >> BOOST_SERIALIZATION_NVP(m_SpawnCycle);
+	ar >> BOOST_SERIALIZATION_NVP(m_SpawnBoneId);
+	ar >> BOOST_SERIALIZATION_NVP(m_SpawnLocalPose);
 }
 
 void SphericalEmitter::RequestResource(void)

@@ -2920,6 +2920,13 @@ namespace my
 		{
 		}
 
+		template <class Archive>
+		void serialize(Archive & ar, const unsigned int version)
+		{
+			ar & BOOST_SERIALIZATION_NVP(m_rotation);
+			ar & BOOST_SERIALIZATION_NVP(m_position);
+		}
+
 		Bone Increment(const Bone & rhs) const
 		{
 			return Bone(
