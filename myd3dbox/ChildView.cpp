@@ -1580,7 +1580,7 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 				rcVcopy(&v[0], pFrame->m_hitPos);
 				rcVcopy(&v[3], &pos.x);
 				pFrame->m_offMeshConRads[pFrame->m_offMeshConCount] = theApp.default_player_radius;
-				pFrame->m_offMeshConDirs[pFrame->m_offMeshConCount] = true;
+				pFrame->m_offMeshConDirs[pFrame->m_offMeshConCount] = !(nFlags & MK_CONTROL);
 				pFrame->m_offMeshConAreas[pFrame->m_offMeshConCount] = Navigation::SAMPLE_POLYAREA_JUMP;
 				pFrame->m_offMeshConFlags[pFrame->m_offMeshConCount] = Navigation::SAMPLE_POLYFLAGS_JUMP;
 				pFrame->m_offMeshConId[pFrame->m_offMeshConCount] = 1000 + pFrame->m_offMeshConCount;
