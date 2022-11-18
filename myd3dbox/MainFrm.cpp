@@ -1202,6 +1202,7 @@ void CMainFrame::OnFileOpen()
 	InitFileContext();
 	OpenFileContext(strPathName);
 	m_wndOutliner.OnInitItemList();
+	OnUpdateFrameTitle(TRUE);
 
 	OnSelChanged();
 
@@ -1233,7 +1234,11 @@ void CMainFrame::OnFileSave()
 void CMainFrame::OnFileSaveAs()
 {
 	// TODO: Add your command handler code here
-	CString strPathName;
+	CString strPathName(m_strPathName);
+	if (strPathName.IsEmpty())
+	{
+		strPathName.LoadString(AFX_IDS_UNTITLED);
+	}
 	CFileDialog dlg(FALSE, NULL, NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, 0);
 	dlg.m_ofn.lpstrFile = strPathName.GetBuffer(_MAX_PATH);
 	INT_PTR nResult = dlg.DoModal();
@@ -2577,4 +2582,29 @@ void CMainFrame::OnUpdateToolsTerraintoobj(CCmdUI* pCmdUI)
 {
 	// TODO: Add your command update UI handler code here
 	pCmdUI->Enable(!m_selactors.empty() && m_selactors.front()->GetFirstComponent<Terrain>());
+}
+
+
+void CMainFrame::OnUpdateFrameTitle(BOOL bAddToTitle)
+{
+	// TODO: Add your specialized code here and/or call the base class
+	if (bAddToTitle)
+	{
+		if (m_strPathName.IsEmpty())
+		{
+			CString strTitle;
+			strTitle.LoadString(AFX_IDS_UNTITLED);
+			UpdateFrameTitleForDocument(strTitle);
+		}
+		else
+		{
+			UpdateFrameTitleForDocument(m_strPathName);
+		}
+	}
+	else
+	{
+		UpdateFrameTitleForDocument(NULL);
+	}
+
+	//__super::OnUpdateFrameTitle(bAddToTitle);
 }

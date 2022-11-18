@@ -235,6 +235,7 @@ public:
 	afx_msg void OnUpdateToolsSnapToGrid(CCmdUI* pCmdUI);
 	afx_msg void OnToolsTerraintoobj();
 	afx_msg void OnUpdateToolsTerraintoobj(CCmdUI* pCmdUI);
+	virtual void OnUpdateFrameTitle(BOOL bAddToTitle);
 };
 
 

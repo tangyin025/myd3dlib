@@ -782,7 +782,7 @@ END
 
 STRINGTABLE
 BEGIN
-    IDR_MAINFRAME           "aaa\n\naaa\n\n\naaa.Document\naaa.Document"
+    IDR_MAINFRAME           "myd3dbox\n\nmyd3dbox\n\n\nmyd3dbox.Document\nmyd3dbox.Document"
 END
 
 STRINGTABLE
