@@ -100,27 +100,30 @@ void MessagePanel::_push_line(const std::wstring & str, D3DCOLOR Color)
 	{
 		int last_line_idx = MoveLineIndex(m_lend, -1);
 		std::wstring & last_line_str = m_lines[last_line_idx].m_Text;
-		float lend_x = Skin->m_Font->CPtoX(last_line_str.c_str(), last_line_str.length());
-		float remain_x = m_Width.offset - m_scrollbar->m_Width.offset - lend_x;
-		int nCP = Skin->m_Font->XtoCP(str.c_str(), remain_x);
-		last_line_str.insert(last_line_str.length(), str.c_str(), nCP);
+		//float lend_x = Skin->m_Font->CPtoX(last_line_str.c_str(), last_line_str.length());
+		//float remain_x = m_Width.offset - m_scrollbar->m_Width.offset - lend_x;
+		//int nCP = Skin->m_Font->XtoCP(str.c_str(), remain_x);
+		//last_line_str.insert(last_line_str.length(), str.c_str(), nCP);
 
-		if(nCP < (int)str.length())
-		{
-			_push_enter(Color);
-			_push_line(str.substr(nCP), Color);
-		}
+		//if(nCP < (int)str.length())
+		//{
+		//	_push_enter(Color);
+		//	_push_line(str.substr(nCP), Color);
+		//}
+		last_line_str.insert(last_line_str.end(), str.begin(), str.end());
 	}
 }
 
 void MessagePanel::AddLine(const std::wstring & str, D3DCOLOR Color)
 {
+	my::CriticalSectionLock lock(m_linesSec);
 	_push_enter(Color);
 	puts(str);
 }
 
 void MessagePanel::puts(const std::wstring & str)
 {
+	my::CriticalSectionLock lock(m_linesSec);
 	D3DCOLOR Color = m_lines[MoveLineIndex(m_lend, -1)].m_Color;
 	std::wstring::size_type lpos = 0;
 	for (; lpos < str.length(); )
@@ -319,8 +322,8 @@ void Console::OnEventPageDown(my::EventArg * arg)
 
 void Console::OnEventLog(const char * str)
 {
-	// ! avoid call from ScriptComponent::OnPxThreadSubstep, see MessagePanel::_push_line, m_Font->CPtoX
-	_ASSERT(GetCurrentThreadId() == D3DContext::getSingleton().m_d3dThreadId);
+	//// ! avoid call from ScriptComponent::OnPxThreadSubstep, see MessagePanel::_push_line, m_Font->CPtoX
+	//_ASSERT(GetCurrentThreadId() == D3DContext::getSingleton().m_d3dThreadId);
 
 	std::wstring logs = ms2ws(str);
 	boost::trim_if(logs, boost::algorithm::is_any_of(L"\n\r"));

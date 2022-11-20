@@ -17,6 +17,8 @@ public:
 
 	int m_lend;
 
+	my::CriticalSection m_linesSec;
+
 	my::ScrollBarPtr m_scrollbar;
 
 public:
