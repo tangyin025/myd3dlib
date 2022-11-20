@@ -1400,6 +1400,10 @@ void CChildView::OnPaint()
 					{
 						DrawTerrainHeightFieldHandle(pFrame->GetSelComponent<Terrain>());
 					}
+					else if (pFrame->m_PaintType == CMainFrame::PaintTypeOffmeshConnections)
+					{
+
+					}
 					else
 					{
 						m_PivotScale = m_Camera->CalculateViewportScaler(pFrame->m_Pivot.m_Pos) * 40.0f / m_SwapChainBufferDesc.Height;
