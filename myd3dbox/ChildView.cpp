@@ -361,7 +361,8 @@ void CChildView::QueryRenderComponent(const my::Frustum & frustum, RenderPipelin
 	};
 
 	//pFrame->m_emitter->m_Emitter->m_ParticleList.clear();
-	my::ModelViewerCamera * model_view_camera = dynamic_cast<my::ModelViewerCamera *>(m_Camera.get());
+	my::ModelViewerCamera* model_view_camera = dynamic_cast<my::ModelViewerCamera*>(
+		(pFrame->GetActiveView() ? DYNAMIC_DOWNCAST(CChildView, pFrame->GetActiveView()) : this)->m_Camera.get());
 	Callback cb(frustum, pipeline, PassMask, m_Camera->m_Eye, model_view_camera->m_LookAt, pFrame, this);
 	pFrame->QueryEntity(frustum, &cb);
 	//pFrame->m_emitter->AddToPipeline(frustum, pipeline, PassMask);
@@ -928,6 +929,9 @@ my::RayResult CChildView::OverlapTestRayAndActor(const my::Ray & ray, Actor * ac
 
 my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, const my::Ray & local_ray, Component * cmp, CPoint & raychunkid, int & rayinstid)
 {
+	CMainFrame* pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
+	ASSERT_VALID(pFrame);
+
 	switch (cmp->GetComponentType())
 	{
 	case Component::ComponentTypeMesh:
@@ -1125,7 +1129,8 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, const 
 	case Component::ComponentTypeTerrain:
 		{
 			Terrain * terrain = dynamic_cast<Terrain *>(cmp);
-			my::ModelViewerCamera * model_view_camera = dynamic_cast<my::ModelViewerCamera *>(m_Camera.get());
+			my::ModelViewerCamera* model_view_camera = dynamic_cast<my::ModelViewerCamera*>(
+				(pFrame->GetActiveView() ? DYNAMIC_DOWNCAST(CChildView, pFrame->GetActiveView()) : this)->m_Camera.get());
 			my::Vector3 LocalViewPos = model_view_camera->m_LookAt.transformCoord(terrain->m_Actor->m_World.inverse());
 			my::RayResult ret = terrain->RayTest(local_ray, LocalViewPos, raychunkid);
 			if (ret.first)
@@ -1216,7 +1221,8 @@ void CChildView::DrawTerrainHeightFieldHandle(Terrain* terrain)
 	ScreenToClient(&point);
 	my::Ray ray = m_Camera->CalculateRay(my::Vector2((float)point.x, (float)point.y), CSize(m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height));
 	my::Ray local_ray = ray.transform(terrain->m_Actor->m_World.inverse());
-	my::ModelViewerCamera* model_view_camera = dynamic_cast<my::ModelViewerCamera*>(m_Camera.get());
+	my::ModelViewerCamera* model_view_camera = dynamic_cast<my::ModelViewerCamera*>(
+		(pFrame->GetActiveView() ? DYNAMIC_DOWNCAST(CChildView, pFrame->GetActiveView()) : this)->m_Camera.get());
 	my::Vector3 LocalViewPos = model_view_camera->m_LookAt.transformCoord(terrain->m_Actor->m_World.inverse());
 	CPoint chunkid;
 	my::RayResult res = terrain->RayTest(local_ray, LocalViewPos, chunkid);
@@ -2635,7 +2641,8 @@ void CChildView::OnPaintTerrainHeightField(const my::Ray& ray, TerrainStream& ts
 	ASSERT_VALID(pFrame);
 	CPoint raychunkid;
 	my::Ray local_ray = ray.transform(tstr.m_terrain->m_Actor->m_World.inverse());
-	my::ModelViewerCamera* model_view_camera = dynamic_cast<my::ModelViewerCamera*>(m_Camera.get());
+	my::ModelViewerCamera* model_view_camera = dynamic_cast<my::ModelViewerCamera*>(
+		(pFrame->GetActiveView() ? DYNAMIC_DOWNCAST(CChildView, pFrame->GetActiveView()) : this)->m_Camera.get());
 	my::Vector3 LocalViewPos = model_view_camera->m_LookAt.transformCoord(tstr.m_terrain->m_Actor->m_World.inverse());
 	my::RayResult res = tstr.m_terrain->RayTest(local_ray, LocalViewPos, raychunkid);
 	if (res.first)
@@ -2678,7 +2685,8 @@ void CChildView::OnPaintTerrainColor(const my::Ray& ray, TerrainStream& tstr)
 	ASSERT_VALID(pFrame);
 	CPoint raychunkid;
 	my::Ray local_ray = ray.transform(tstr.m_terrain->m_Actor->m_World.inverse());
-	my::ModelViewerCamera* model_view_camera = dynamic_cast<my::ModelViewerCamera*>(m_Camera.get());
+	my::ModelViewerCamera* model_view_camera = dynamic_cast<my::ModelViewerCamera*>(
+		(pFrame->GetActiveView() ? DYNAMIC_DOWNCAST(CChildView, pFrame->GetActiveView()) : this)->m_Camera.get());
 	my::Vector3 LocalViewPos = model_view_camera->m_LookAt.transformCoord(tstr.m_terrain->m_Actor->m_World.inverse());
 	my::RayResult res = tstr.m_terrain->RayTest(local_ray, LocalViewPos, raychunkid);
 	if (res.first)
@@ -2714,7 +2722,8 @@ void CChildView::OnPaintEmitterInstance(const my::Ray& ray, TerrainStream& tstr,
 	ASSERT_VALID(pFrame);
 	CPoint raychunkid;
 	my::Ray local_ray = ray.transform(tstr.m_terrain->m_Actor->m_World.inverse());
-	my::ModelViewerCamera* model_view_camera = dynamic_cast<my::ModelViewerCamera*>(m_Camera.get());
+	my::ModelViewerCamera* model_view_camera = dynamic_cast<my::ModelViewerCamera*>(
+		(pFrame->GetActiveView() ? DYNAMIC_DOWNCAST(CChildView, pFrame->GetActiveView()) : this)->m_Camera.get());
 	my::Vector3 LocalViewPos = model_view_camera->m_LookAt.transformCoord(tstr.m_terrain->m_Actor->m_World.inverse());
 	my::RayResult res = tstr.m_terrain->RayTest(local_ray, LocalViewPos, raychunkid);
 	if (res.first)
