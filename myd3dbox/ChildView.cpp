@@ -764,7 +764,7 @@ bool CChildView::OverlapTestFrustumAndComponent(const my::Frustum & frustum, con
 					StaticEmitterChunk* chunk = dynamic_cast<StaticEmitterChunk*>(oct_entity);
 					if (chunk->m_buff)
 					{
-						if (pView->OverlapTestFrustumAndParticles(frustum, local_ftm, emitter, &(*chunk->m_buff)[0], chunk->m_buff->size()))
+						if (pView->OverlapTestFrustumAndParticles(frustum, local_ftm, emitter, &(*chunk->m_buff)[0], chunk->m_buff->size() >> chunk->m_Lod))
 						{
 							ret = true;
 							return false;
@@ -1022,7 +1022,7 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, const 
 					if (chunk->m_buff)
 					{
 						int part_id;
-						my::RayResult result = pView->OverlapTestRayAndParticles(ray, local_ray, emitter, &(*chunk->m_buff)[0], chunk->m_buff->size(), part_id);
+						my::RayResult result = pView->OverlapTestRayAndParticles(ray, local_ray, emitter, &(*chunk->m_buff)[0], chunk->m_buff->size() >> chunk->m_Lod, part_id);
 						if (result.first && result.second < ret.second)
 						{
 							ret = result;
