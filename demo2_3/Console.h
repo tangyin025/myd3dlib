@@ -32,9 +32,9 @@ public:
 
 	virtual bool CanHaveFocus(void);
 
-	int MoveLineIndex(int index, int step);
+	int MoveLineIndex(int index, int step) const;
 
-	int LineIndexDistance(int start, int end);
+	int LineIndexDistance(int start, int end) const;
 
 	void _update_scrollbar(void);
 

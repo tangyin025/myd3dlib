@@ -32,6 +32,7 @@ void MessagePanel::Draw(UIRender * ui_render, float fElapsedTime, const my::Vect
 		{
 			int i = MoveLineIndex(m_lbegin, m_scrollbar->m_nPosition);
 			float y = m_Rect.t;
+			my::CriticalSectionLock lock(m_linesSec);
 			for (; i != m_lend && y <= m_Rect.b - Skin->m_Font->m_LineHeight; i = MoveLineIndex(i, 1), y += Skin->m_Font->m_LineHeight)
 			{
 				ui_render->PushString(my::Rectangle(m_Rect.l, y, m_Rect.r, y + Skin->m_Font->m_LineHeight),
@@ -55,12 +56,12 @@ bool MessagePanel::CanHaveFocus(void)
 	return false;
 }
 
-int MessagePanel::MoveLineIndex(int index, int step)
+int MessagePanel::MoveLineIndex(int index, int step) const
 {
 	return (index + step) % _countof(m_lines);
 }
 
-int MessagePanel::LineIndexDistance(int start, int end)
+int MessagePanel::LineIndexDistance(int start, int end) const
 {
 	if(end >= start)
 		return end - start;
