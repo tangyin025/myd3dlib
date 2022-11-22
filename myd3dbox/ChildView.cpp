@@ -1839,11 +1839,8 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 ctrl_handle_end:
 
 	CRectTracker tracker;
-	if (theApp.default_enable_mouse_tracker) // ! disable mouse tracker to avoid conflict with direct input get mouse button0 state
-	{
-		tracker.TrackRubberBand(this, point, TRUE);
-		tracker.m_rect.NormalizeRect();
-	}
+	tracker.TrackRubberBand(this, point, TRUE);
+	tracker.m_rect.NormalizeRect();
 
 	StartPerformanceCount();
 	if (!(nFlags & MK_SHIFT) && !(nFlags & MK_CONTROL) && (!pFrame->m_selactors.empty() || !pFrame->m_selctls.empty()))

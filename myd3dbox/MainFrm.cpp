@@ -881,7 +881,6 @@ void CMainFrame::InitFileContext()
 			.def_readonly("RenderingView", &CMainFrame::m_RenderingView)
 
 		, luabind::class_<CMainApp, luabind::bases<my::D3DContext, my::ResourceMgr> >("MainApp")
-			.def_readwrite("default_enable_mouse_tracker", &CMainApp::default_enable_mouse_tracker)
 			.def_readonly("MainWnd", &CMainApp::m_pMainWnd)
 			.def_readonly("SkyLightCam", &CMainApp::m_SkyLightCam)
 			.def_readwrite("SkyLightColor", &CMainApp::m_SkyLightColor)
