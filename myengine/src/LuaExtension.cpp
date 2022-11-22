@@ -2456,7 +2456,7 @@ void LuaContext::Init(void)
 			//.def_readonly("Chunks", &Terrain::m_Chunks, return_stl_iterator)
 			.def("CalculateAABB", &Terrain::CalculateAABB)
 			.def("CreateHeightFieldShape", &Terrain::CreateHeightFieldShape)
-			.def("RayTest", &Terrain::RayTest)
+			.def("RayTest", &Terrain::RayTest, pure_out_value(boost::placeholders::_4))
 			.def("RayTest2D", &Terrain::RayTest2D)
 			.def("GetIndices", &TerrainStream::GetIndices, pure_out_value(boost::placeholders::_4) + pure_out_value(boost::placeholders::_5) + pure_out_value(boost::placeholders::_6) + pure_out_value(boost::placeholders::_7) + pure_out_value(boost::placeholders::_8) + pure_out_value(boost::placeholders::_9))
 
