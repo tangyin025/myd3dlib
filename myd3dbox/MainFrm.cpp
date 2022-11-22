@@ -224,9 +224,17 @@ static int os_exit(lua_State * L)
 //	return 1;
 //}
 
+static CPoint cchildview_get_cursor_pos(const CChildView* self)
+{
+	CPoint point;
+	GetCursorPos(&point);
+	self->ScreenToClient(&point);
+	return point;
+}
+
 typedef boost::shared_container_iterator<CMainFrame::ActorList> shared_actor_list_iter;
 
-extern boost::iterator_range<shared_actor_list_iter> cmainframe_get_all_acts(const CMainFrame* self)
+static boost::iterator_range<shared_actor_list_iter> cmainframe_get_all_acts(const CMainFrame* self)
 {
 	boost::shared_ptr<CMainFrame::ActorList> acts(new CMainFrame::ActorList());
 	struct Callback : public my::OctNode::QueryCallback
@@ -843,8 +851,12 @@ void CMainFrame::InitFileContext()
 	[
 		luabind::class_<CWnd> ("CWnd")
 
-		, luabind::class_<CChildView, luabind::bases<CWnd, my::DrawHelper> >("ChildView")
+		, luabind::class_<CView, CWnd>("CView")
+
+		, luabind::class_<CChildView, luabind::bases<CView, my::DrawHelper> >("ChildView")
 			.def_readonly("Camera", &CChildView::m_Camera)
+			.property("CursorPos", &cchildview_get_cursor_pos)
+			.def_readonly("SwapChainBufferDesc", &CChildView::m_SwapChainBufferDesc)
 
 		, luabind::class_<COutlinerWnd, luabind::bases<CWnd> >("COutlinerWnd")
 			.def("OnInitItemList", &COutlinerWnd::OnInitItemList)
@@ -865,6 +877,7 @@ void CMainFrame::InitFileContext()
 			.property("allactors", cmainframe_get_all_acts, luabind::return_stl_iterator)
 			.def_readonly("selactors", &CMainFrame::m_selactors, luabind::return_stl_iterator)
 			.def_readonly("selctls", &CMainFrame::m_selctls, luabind::return_stl_iterator)
+			.property("ActiveView", &CMainFrame::GetActiveView)
 			.def_readonly("RenderingView", &CMainFrame::m_RenderingView)
 
 		, luabind::class_<CMainApp, luabind::bases<my::D3DContext, my::ResourceMgr> >("MainApp")
@@ -874,6 +887,8 @@ void CMainFrame::InitFileContext()
 			.def_readwrite("AmbientColor", &CMainApp::m_AmbientColor)
 			.def_readonly("UIRender", &CMainApp::m_UIRender)
 			.def_readonly("Font", &CMainApp::m_Font)
+			.def_readonly("keyboard", &CMainApp::m_keyboard)
+			.def_readonly("mouse", &CMainApp::m_mouse)
 	];
 	luabind::globals(m_State)["theApp"] = &theApp;
 }

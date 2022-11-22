@@ -49,7 +49,7 @@ protected:
 	my::PerspectiveCamera m_UICamera;
 	CComPtr<IDirect3DSwapChain9> m_d3dSwapChain;
 	my::SurfacePtr m_SwapChainBuffer;
-	D3DSURFACE_DESC m_SwapChainBufferDesc;
+public: D3DSURFACE_DESC m_SwapChainBufferDesc; protected:
 	my::SurfacePtr m_DepthStencil;
 public: my::SurfacePtr m_OffscreenPositionRT; protected:
 	typedef std::map<int, boost::array<wchar_t, 256> > ScrInfoMap;

@@ -1255,6 +1255,7 @@ void LuaContext::Init(void)
 			.def_readwrite("Euler", &my::Camera::m_Euler)
 			.def_readwrite("Nz", &my::Camera::m_Nz)
 			.def_readwrite("Fz", &my::Camera::m_Fz)
+			.def("CalculateRay", &my::Camera::CalculateRay)
 
 		, class_<my::OrthoCamera, my::Camera, boost::shared_ptr<my::Camera> >("OrthoCamera")
 			.def(constructor<float, float, float, float>())
@@ -2216,8 +2217,14 @@ void LuaContext::Init(void)
 			.def_readwrite("RemainingTime", &my::Timer::m_RemainingTime)
 
 		, class_<CPoint>("CPoint")
+			.def(constructor<int, int>())
 			.def_readwrite("x", &CPoint::x)
 			.def_readwrite("y", &CPoint::y)
+
+		, class_<CSize>("CSize")
+			.def(constructor<int, int>())
+			.def_readwrite("cx", &CSize::cx)
+			.def_readwrite("cy", &CSize::cy)
 	];
 
 	module(m_State)[
