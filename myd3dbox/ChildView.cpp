@@ -857,6 +857,16 @@ bool CChildView::OverlapTestFrustumAndComponent(const my::Frustum & frustum, con
 
 	case Component::ComponentTypeTerrain:
 		break;
+
+	case Component::ComponentTypeScript:
+		{
+			my::IntersectionTests::IntersectionType intersect_type = my::IntersectionTests::IntersectAABBAndFrustum(*cmp->m_Actor->m_OctAabb, frustum);
+			if (intersect_type != my::IntersectionTests::IntersectionTypeOutside)
+			{
+				return true;
+			}
+		}
+		break;
 	}
 	return false;
 }
@@ -1139,6 +1149,12 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, const 
 				rayinstid = 0;
 				return ret;
 			}
+		}
+		break;
+
+	case Component::ComponentTypeScript:
+		{
+			return my::IntersectionTests::rayAndAABB(ray.p, ray.d, *cmp->m_Actor->m_OctAabb);
 		}
 		break;
 	}
