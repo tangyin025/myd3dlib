@@ -621,17 +621,17 @@ struct ScriptComponent : Component, luabind::wrap_base
 		if (PassMask & RenderPipeline::PassTypeToMask(RenderPipeline::PassTypeNormal))
 		{
 			my::DialogMgr::getSingleton().m_UIPassObjs.push_back(boost::bind(&Component::OnGUI, this, boost::placeholders::_1, boost::placeholders::_2, boost::placeholders::_3));
+		}
 
-			my::CriticalSectionLock lock(LuaContext::getSingleton().m_StateSec);
+		my::CriticalSectionLock lock(LuaContext::getSingleton().m_StateSec);
 
-			try
-			{
-				luabind::wrap_base::call<void>("AddToPipeline", frustum, pipeline, PassMask, ViewPos, TargetPos);
-			}
-			catch (const luabind::error& e)
-			{
-				my::D3DContext::getSingleton().m_EventLog(lua_tostring(e.state(), -1));
-			}
+		try
+		{
+			luabind::wrap_base::call<void>("AddToPipeline", frustum, pipeline, PassMask, ViewPos, TargetPos);
+		}
+		catch (const luabind::error& e)
+		{
+			my::D3DContext::getSingleton().m_EventLog(lua_tostring(e.state(), -1));
 		}
 	}
 
