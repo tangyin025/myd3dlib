@@ -2782,6 +2782,24 @@ void LuaContext::Init(void)
 			.def("GetDisplacement", &ActionTrackInst::GetDisplacement, &ScriptActionTrackInst::default_GetDisplacement)
 
 		, class_<RenderPipeline>("RenderPipeline")
+			.enum_("MeshType")
+			[
+				luabind::value("MeshTypeMesh", RenderPipeline::MeshTypeMesh),
+				luabind::value("MeshTypeParticle", RenderPipeline::MeshTypeParticle),
+				luabind::value("MeshTypeTerrain", RenderPipeline::MeshTypeTerrain),
+				luabind::value("MeshTypeNum", RenderPipeline::MeshTypeNum)
+			]
+			.enum_("PassType")
+			[
+				luabind::value("PassTypeShadow", RenderPipeline::PassTypeShadow),
+				luabind::value("PassTypeNormal", RenderPipeline::PassTypeNormal),
+				luabind::value("PassTypeNormalTrans", RenderPipeline::PassTypeNormalTrans),
+				luabind::value("PassTypeLight", RenderPipeline::PassTypeLight),
+				luabind::value("PassTypeBackground", RenderPipeline::PassTypeBackground),
+				luabind::value("PassTypeOpaque", RenderPipeline::PassTypeOpaque),
+				luabind::value("PassTypeTransparent", RenderPipeline::PassTypeTransparent),
+				luabind::value("PassTypeNum", RenderPipeline::PassTypeNum)
+			]
 			.enum_("RenderTargetType")
 			[
 				luabind::value("RenderTargetNormal", RenderPipeline::RenderTargetNormal),
