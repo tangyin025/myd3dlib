@@ -254,7 +254,7 @@ static boost::iterator_range<shared_actor_list_iter> cmainframe_get_all_acts(con
 	return boost::make_iterator_range(shared_actor_list_iter(acts->begin(), acts), shared_actor_list_iter(acts->end(), acts));
 }
 
-static bool cmainapp_query_shader(RenderPipeline* self, RenderPipeline::MeshType mesh_type, const luabind::object& macro, const char* path, unsigned int PassID)
+static my::Effect* cmainapp_query_shader(CMainApp* self, RenderPipeline::MeshType mesh_type, const luabind::object& macro, const char* path, unsigned int PassID)
 {
 	std::vector<D3DXMACRO> macs;
 	luabind::iterator iter(macro), end;
@@ -902,6 +902,7 @@ void CMainFrame::InitFileContext()
 			.def_readwrite("SkyLightColor", &CMainApp::m_SkyLightColor)
 			.def_readwrite("AmbientColor", &CMainApp::m_AmbientColor)
 			.def("QueryShader", &cmainapp_query_shader)
+			.def("PushMesh", &CMainApp::PushMesh)
 			.def_readonly("UIRender", &CMainApp::m_UIRender)
 			.def_readonly("Font", &CMainApp::m_Font)
 			.def_readonly("keyboard", &CMainApp::m_keyboard)
