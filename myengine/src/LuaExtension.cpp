@@ -450,6 +450,23 @@ struct ScriptComponent : Component, luabind::wrap_base
 		ptr->m_Actor->m_EventPxThreadObstacleHit.disconnect(boost::bind(&Component::OnPxThreadObstacleHit, ptr, boost::placeholders::_1));
 	}
 
+	virtual void OnSetShader(IDirect3DDevice9* pd3dDevice, my::Effect* shader, LPARAM lparam)
+	{
+		try
+		{
+			luabind::wrap_base::call<void>("OnSetShader", shader, lparam);
+		}
+		catch (const luabind::error& e)
+		{
+			my::D3DContext::getSingleton().m_EventLog(lua_tostring(e.state(), -1));
+		}
+	}
+
+	static void default_OnSetShader(Component* ptr, my::Effect* shader, LPARAM lparam)
+	{
+		//ptr->Component::OnSetShader(pd3dDevice, shader, lparam);
+	}
+
 	virtual void Update(float fElapsedTime)
 	{
 		try
@@ -2313,6 +2330,7 @@ void LuaContext::Init(void)
 			.def("Clone", &Component::Clone)
 			.def("RequestResource", &Component::RequestResource, &ScriptComponent::default_RequestResource)
 			.def("ReleaseResource", &Component::ReleaseResource, &ScriptComponent::default_ReleaseResource)
+			.def("OnSetShader", &Component::OnSetShader, &ScriptComponent::default_OnSetShader)
 			.def("Update", &Component::Update, &ScriptComponent::default_Update)
 			.def("OnPxThreadSubstep", &Component::OnPxThreadSubstep, &ScriptComponent::default_OnPxThreadSubstep)
 			.enum_("PxPairFlag")
