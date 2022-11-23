@@ -17,9 +17,11 @@ public:
 
 	int m_lend;
 
-	my::CriticalSection m_linesSec;
+	my::FontPtr m_Font;
 
-	my::ScrollBarPtr m_scrollbar;
+	my::ScrollBarPtr m_ScrollBar;
+
+	my::CriticalSection m_linesSec;
 
 public:
 	MessagePanel(void);

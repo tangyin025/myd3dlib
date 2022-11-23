@@ -442,8 +442,6 @@ RenderSpans(FT_Library& library,
 
 const Font::CharacterInfo * Font::LoadCharacter(unsigned long character)
 {
-	_ASSERT(GetCurrentThreadId() == D3DContext::getSingleton().m_d3dThreadId);
-
 	_ASSERT(m_characterMap.end() == m_characterMap.find(character));
 
 	// Load the glyph we are looking for.
@@ -525,8 +523,6 @@ static unsigned long _GetCharacterOutlineKey(unsigned long character, float outl
 
 const Font::CharacterInfo * Font::LoadCharacterOutline(unsigned long character, float outlineWidth)
 {
-	_ASSERT(GetCurrentThreadId() == D3DContext::getSingleton().m_d3dThreadId);
-
 	unsigned long character_key = _GetCharacterOutlineKey(character, outlineWidth);
 
 	_ASSERT(m_characterMap.end() == m_characterMap.find(character_key));

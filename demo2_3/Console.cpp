@@ -9,10 +9,14 @@ MessagePanel::MessagePanel(void)
 	: Control(NamedObject::MakeUniqueName("MessagePanel").c_str())
 	, m_lbegin(0)
 	, m_lend(0)
+	, m_Font(new my::Font(1))
+	, m_ScrollBar(new ScrollBar(NULL))
 {
-	m_scrollbar.reset(new ScrollBar(NULL));
+	InsertControl(m_ScrollBar);
 
-	InsertControl(m_scrollbar);
+	m_Font->CreateFontFromFileInCache(
+		my::ResourceMgr::getSingleton().OpenIStream(Client::getSingleton().m_InitFont.c_str())->GetWholeCache(),
+		Client::getSingleton().m_InitFontHeight, Client::getSingleton().m_InitFontFaceIndex);
 }
 
 MessagePanel::~MessagePanel(void)
@@ -28,15 +32,15 @@ void MessagePanel::Draw(UIRender * ui_render, float fElapsedTime, const my::Vect
 		EditBoxSkinPtr Skin = boost::dynamic_pointer_cast<EditBoxSkin>(m_Skin);
 		_ASSERT(Skin);
 
-		if (Skin->m_Font)
+		if (m_Font)
 		{
-			int i = MoveLineIndex(m_lbegin, m_scrollbar->m_nPosition);
-			float y = m_Rect.t;
 			my::CriticalSectionLock lock(m_linesSec);
-			for (; i != m_lend && y <= m_Rect.b - Skin->m_Font->m_LineHeight; i = MoveLineIndex(i, 1), y += Skin->m_Font->m_LineHeight)
+			int i = MoveLineIndex(m_lbegin, m_ScrollBar->m_nPosition);
+			float y = m_Rect.t;
+			for (; i != m_lend && y <= m_Rect.b - m_Font->m_LineHeight; i = MoveLineIndex(i, 1), y += m_Font->m_LineHeight)
 			{
-				ui_render->PushString(my::Rectangle(m_Rect.l, y, m_Rect.r, y + Skin->m_Font->m_LineHeight),
-					m_lines[i].m_Text.c_str(), m_lines[i].m_Color, my::Font::AlignLeftTop, Skin->m_Font.get());
+				ui_render->PushString(my::Rectangle(m_Rect.l, y, m_Rect.r, y + m_Font->m_LineHeight),
+					m_lines[i].m_Text.c_str(), m_lines[i].m_Color, my::Font::AlignLeftTop, m_Font.get());
 			}
 		}
 	}
@@ -44,7 +48,7 @@ void MessagePanel::Draw(UIRender * ui_render, float fElapsedTime, const my::Vect
 
 bool MessagePanel::HandleMouse(UINT uMsg, const my::Vector2 & pt, WPARAM wParam, LPARAM lParam)
 {
-	if (uMsg == WM_MOUSEWHEEL && m_scrollbar->HandleMouse(uMsg, pt, wParam, lParam))
+	if (uMsg == WM_MOUSEWHEEL && m_ScrollBar->HandleMouse(uMsg, pt, wParam, lParam))
 	{
 		return true;
 	}
@@ -71,13 +75,10 @@ int MessagePanel::LineIndexDistance(int start, int end) const
 
 void MessagePanel::_update_scrollbar(void)
 {
-	EditBoxSkinPtr Skin = boost::dynamic_pointer_cast<EditBoxSkin>(m_Skin);
-	_ASSERT(Skin && Skin->m_Font);
-
-	m_scrollbar->m_nStart = 0;
-	m_scrollbar->m_nEnd = LineIndexDistance(m_lbegin, m_lend);
-	m_scrollbar->m_nPageSize = (int)(m_Height.offset / Skin->m_Font->m_LineHeight);
-	m_scrollbar->m_nPosition = m_scrollbar->m_nEnd - m_scrollbar->m_nPageSize;
+	m_ScrollBar->m_nStart = 0;
+	m_ScrollBar->m_nEnd = LineIndexDistance(m_lbegin, m_lend);
+	m_ScrollBar->m_nPageSize = (int)(m_Height.offset / m_Font->m_LineHeight);
+	m_ScrollBar->m_nPosition = m_ScrollBar->m_nEnd - m_ScrollBar->m_nPageSize;
 }
 
 void MessagePanel::_push_enter(D3DCOLOR Color)
@@ -94,24 +95,20 @@ void MessagePanel::_push_enter(D3DCOLOR Color)
 
 void MessagePanel::_push_line(const std::wstring & str, D3DCOLOR Color)
 {
-	EditBoxSkinPtr Skin = boost::dynamic_pointer_cast<EditBoxSkin>(m_Skin);
-	_ASSERT(Skin && Skin->m_Font);
-
 	if(!str.empty())
 	{
 		int last_line_idx = MoveLineIndex(m_lend, -1);
 		std::wstring & last_line_str = m_lines[last_line_idx].m_Text;
-		//float lend_x = Skin->m_Font->CPtoX(last_line_str.c_str(), last_line_str.length());
-		//float remain_x = m_Width.offset - m_scrollbar->m_Width.offset - lend_x;
-		//int nCP = Skin->m_Font->XtoCP(str.c_str(), remain_x);
-		//last_line_str.insert(last_line_str.length(), str.c_str(), nCP);
+		float lend_x = m_Font->CPtoX(last_line_str.c_str(), last_line_str.length());
+		float remain_x = m_Width.offset - m_ScrollBar->m_Width.offset - lend_x;
+		int nCP = m_Font->XtoCP(str.c_str(), remain_x);
+		last_line_str.insert(last_line_str.length(), str.c_str(), nCP);
 
-		//if(nCP < (int)str.length())
-		//{
-		//	_push_enter(Color);
-		//	_push_line(str.substr(nCP), Color);
-		//}
-		last_line_str.insert(last_line_str.end(), str.begin(), str.end());
+		if(nCP < (int)str.length())
+		{
+			_push_enter(Color);
+			_push_line(str.substr(nCP), Color);
+		}
 	}
 }
 
@@ -244,31 +241,31 @@ Console::Console(void)
 	m_Panel->m_y = UDim(0, Border.y);
 	Skin.reset(new EditBoxSkin());
 	Skin->m_Color = D3DCOLOR_ARGB(0, 0, 0, 0);
-	Skin->m_Font = Client::getSingleton().m_Font;
+	//Skin->m_Font = Client::getSingleton().m_Font;
 	m_Panel->m_Skin = Skin;
-	m_Panel->m_scrollbar->m_Width = UDim(0, 20);
-	m_Panel->m_scrollbar->m_Height = UDim(0, m_Panel->m_Height.offset);
-	m_Panel->m_scrollbar->m_x = UDim(0, m_Panel->m_Width.offset - m_Panel->m_scrollbar->m_Width.offset);
-	m_Panel->m_scrollbar->m_y = UDim(0, 0);
-	m_Panel->m_scrollbar->m_nPageSize = 3;
-	m_Panel->m_scrollbar->m_Skin.reset(new ScrollBarSkin());
-	m_Panel->m_scrollbar->m_Skin->m_Color = D3DCOLOR_ARGB(15,255,255,255);
-	m_Panel->m_scrollbar->m_Skin->m_Image.reset(new ControlImage());
-	m_Panel->m_scrollbar->m_Skin->m_Image->m_Texture = my::ResourceMgr::getSingleton().LoadTexture("texture/CommonUI.png");
-	m_Panel->m_scrollbar->m_Skin->m_Image->m_Rect = my::Rectangle::LeftTop(158,43,2,2);
-	m_Panel->m_scrollbar->m_Skin->m_Image->m_Border = Vector4(0,0,0,0);
-	boost::dynamic_pointer_cast<ScrollBarSkin>(m_Panel->m_scrollbar->m_Skin)->m_UpBtnNormalImage.reset(new ControlImage());
-	boost::dynamic_pointer_cast<ScrollBarSkin>(m_Panel->m_scrollbar->m_Skin)->m_UpBtnNormalImage->m_Texture = my::ResourceMgr::getSingleton().LoadTexture("texture/CommonUI.png");
-	boost::dynamic_pointer_cast<ScrollBarSkin>(m_Panel->m_scrollbar->m_Skin)->m_UpBtnNormalImage->m_Rect = my::Rectangle::LeftTop(158,43,2,2);
-	boost::dynamic_pointer_cast<ScrollBarSkin>(m_Panel->m_scrollbar->m_Skin)->m_UpBtnNormalImage->m_Border = Vector4(0,0,0,0);
-	boost::dynamic_pointer_cast<ScrollBarSkin>(m_Panel->m_scrollbar->m_Skin)->m_DownBtnNormalImage.reset(new ControlImage());
-	boost::dynamic_pointer_cast<ScrollBarSkin>(m_Panel->m_scrollbar->m_Skin)->m_DownBtnNormalImage->m_Texture = my::ResourceMgr::getSingleton().LoadTexture("texture/CommonUI.png");
-	boost::dynamic_pointer_cast<ScrollBarSkin>(m_Panel->m_scrollbar->m_Skin)->m_DownBtnNormalImage->m_Rect = my::Rectangle::LeftTop(158,43,2,2);
-	boost::dynamic_pointer_cast<ScrollBarSkin>(m_Panel->m_scrollbar->m_Skin)->m_DownBtnNormalImage->m_Border = Vector4(0,0,0,0);
-	boost::dynamic_pointer_cast<ScrollBarSkin>(m_Panel->m_scrollbar->m_Skin)->m_ThumbBtnNormalImage.reset(new ControlImage());
-	boost::dynamic_pointer_cast<ScrollBarSkin>(m_Panel->m_scrollbar->m_Skin)->m_ThumbBtnNormalImage->m_Texture = my::ResourceMgr::getSingleton().LoadTexture("texture/CommonUI.png");
-	boost::dynamic_pointer_cast<ScrollBarSkin>(m_Panel->m_scrollbar->m_Skin)->m_ThumbBtnNormalImage->m_Rect = my::Rectangle::LeftTop(158,43,2,2);
-	boost::dynamic_pointer_cast<ScrollBarSkin>(m_Panel->m_scrollbar->m_Skin)->m_ThumbBtnNormalImage->m_Border = Vector4(0,0,0,0);
+	m_Panel->m_ScrollBar->m_Width = UDim(0, 20);
+	m_Panel->m_ScrollBar->m_Height = UDim(0, m_Panel->m_Height.offset);
+	m_Panel->m_ScrollBar->m_x = UDim(0, m_Panel->m_Width.offset - m_Panel->m_ScrollBar->m_Width.offset);
+	m_Panel->m_ScrollBar->m_y = UDim(0, 0);
+	m_Panel->m_ScrollBar->m_nPageSize = 3;
+	m_Panel->m_ScrollBar->m_Skin.reset(new ScrollBarSkin());
+	m_Panel->m_ScrollBar->m_Skin->m_Color = D3DCOLOR_ARGB(15,255,255,255);
+	m_Panel->m_ScrollBar->m_Skin->m_Image.reset(new ControlImage());
+	m_Panel->m_ScrollBar->m_Skin->m_Image->m_Texture = my::ResourceMgr::getSingleton().LoadTexture("texture/CommonUI.png");
+	m_Panel->m_ScrollBar->m_Skin->m_Image->m_Rect = my::Rectangle::LeftTop(158,43,2,2);
+	m_Panel->m_ScrollBar->m_Skin->m_Image->m_Border = Vector4(0,0,0,0);
+	boost::dynamic_pointer_cast<ScrollBarSkin>(m_Panel->m_ScrollBar->m_Skin)->m_UpBtnNormalImage.reset(new ControlImage());
+	boost::dynamic_pointer_cast<ScrollBarSkin>(m_Panel->m_ScrollBar->m_Skin)->m_UpBtnNormalImage->m_Texture = my::ResourceMgr::getSingleton().LoadTexture("texture/CommonUI.png");
+	boost::dynamic_pointer_cast<ScrollBarSkin>(m_Panel->m_ScrollBar->m_Skin)->m_UpBtnNormalImage->m_Rect = my::Rectangle::LeftTop(158,43,2,2);
+	boost::dynamic_pointer_cast<ScrollBarSkin>(m_Panel->m_ScrollBar->m_Skin)->m_UpBtnNormalImage->m_Border = Vector4(0,0,0,0);
+	boost::dynamic_pointer_cast<ScrollBarSkin>(m_Panel->m_ScrollBar->m_Skin)->m_DownBtnNormalImage.reset(new ControlImage());
+	boost::dynamic_pointer_cast<ScrollBarSkin>(m_Panel->m_ScrollBar->m_Skin)->m_DownBtnNormalImage->m_Texture = my::ResourceMgr::getSingleton().LoadTexture("texture/CommonUI.png");
+	boost::dynamic_pointer_cast<ScrollBarSkin>(m_Panel->m_ScrollBar->m_Skin)->m_DownBtnNormalImage->m_Rect = my::Rectangle::LeftTop(158,43,2,2);
+	boost::dynamic_pointer_cast<ScrollBarSkin>(m_Panel->m_ScrollBar->m_Skin)->m_DownBtnNormalImage->m_Border = Vector4(0,0,0,0);
+	boost::dynamic_pointer_cast<ScrollBarSkin>(m_Panel->m_ScrollBar->m_Skin)->m_ThumbBtnNormalImage.reset(new ControlImage());
+	boost::dynamic_pointer_cast<ScrollBarSkin>(m_Panel->m_ScrollBar->m_Skin)->m_ThumbBtnNormalImage->m_Texture = my::ResourceMgr::getSingleton().LoadTexture("texture/CommonUI.png");
+	boost::dynamic_pointer_cast<ScrollBarSkin>(m_Panel->m_ScrollBar->m_Skin)->m_ThumbBtnNormalImage->m_Rect = my::Rectangle::LeftTop(158,43,2,2);
+	boost::dynamic_pointer_cast<ScrollBarSkin>(m_Panel->m_ScrollBar->m_Skin)->m_ThumbBtnNormalImage->m_Border = Vector4(0,0,0,0);
 	InsertControl(m_Panel);
 
 	m_strIter = m_strList.end();
@@ -313,12 +310,12 @@ void Console::OnEventKeyDown(EventArg * arg)
 
 void Console::OnEventPageUp(my::EventArg * arg)
 {
-	m_Panel->m_scrollbar->Scroll(-m_Panel->m_scrollbar->m_nPageSize);
+	m_Panel->m_ScrollBar->Scroll(-m_Panel->m_ScrollBar->m_nPageSize);
 }
 
 void Console::OnEventPageDown(my::EventArg * arg)
 {
-	m_Panel->m_scrollbar->Scroll( m_Panel->m_scrollbar->m_nPageSize);
+	m_Panel->m_ScrollBar->Scroll( m_Panel->m_ScrollBar->m_nPageSize);
 }
 
 void Console::OnEventLog(const char * str)
