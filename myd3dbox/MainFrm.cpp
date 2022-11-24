@@ -871,6 +871,12 @@ void CMainFrame::InitFileContext()
 
 		, luabind::class_<CChildView, CView>("ChildView")
 			.def_readonly("Camera", &CChildView::m_Camera)
+			.def("PushLineVertex", &CChildView::PushLineVertex)
+			.def("PushLine", &CChildView::PushLine)
+			.def("PushLineAABB", &CChildView::PushLineAABB)
+			.def("PushLineBox", &CChildView::PushLineBox)
+			.def("PushTriangleVertex", &CChildView::PushTriangleVertex)
+			.def("PushTriangle", &CChildView::PushTriangle)
 			.property("CursorPos", &cchildview_get_cursor_pos)
 			.def_readonly("SwapChainBufferDesc", &CChildView::m_SwapChainBufferDesc)
 
