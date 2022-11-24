@@ -3038,8 +3038,8 @@ void LuaContext::Init(void)
 
 		, class_<my::RayResult>("RayResult")
 			.def(constructor<bool, float>())
-			.def_readonly("first", &my::RayResult::first)
-			.def_readonly("second", &my::RayResult::second)
+			.def_readwrite("first", &my::RayResult::first)
+			.def_readwrite("second", &my::RayResult::second)
 
 		, class_<my::CollisionPrimitive>("CollisionPrimitive")
 			.property("Offset", &my::CollisionPrimitive::getOffset, &my::CollisionPrimitive::setOffset)
