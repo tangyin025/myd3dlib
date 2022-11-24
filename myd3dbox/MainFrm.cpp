@@ -869,7 +869,7 @@ void CMainFrame::InitFileContext()
 
 		, luabind::class_<CView, CWnd>("CView")
 
-		, luabind::class_<CChildView, luabind::bases<CView, my::DrawHelper> >("ChildView")
+		, luabind::class_<CChildView, CView>("ChildView")
 			.def_readonly("Camera", &CChildView::m_Camera)
 			.property("CursorPos", &cchildview_get_cursor_pos)
 			.def_readonly("SwapChainBufferDesc", &CChildView::m_SwapChainBufferDesc)

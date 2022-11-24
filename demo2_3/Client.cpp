@@ -1068,7 +1068,7 @@ HRESULT Client::OnCreateDevice(
 			.def("OnGUI", &StateBase::OnGUI, &ScriptStateBase::default_OnGUI)
 			.def("OnControllerFilter", &StateBase::OnControllerFilter, &ScriptStateBase::default_OnControllerFilter)
 
-		, luabind::class_<Client, luabind::bases<my::DxutApp, my::ResourceMgr, my::DrawHelper, PhysxScene> >("Client")
+		, luabind::class_<Client, luabind::bases<my::DxutApp, my::ResourceMgr, RenderPipeline, PhysxScene> >("Client")
 			.def_readonly("wnd", &Client::m_wnd)
 			.def_readwrite("Camera", &Client::m_Camera)
 			.def_readonly("SkyLightCam", &Client::m_SkyLightCam)
@@ -1136,6 +1136,12 @@ HRESULT Client::OnCreateDevice(
 			.def("InsertDlg", &Client::InsertDlg)
 			.def("RemoveDlg", &Client::RemoveDlg)
 			.def("RemoveAllDlg", &Client::RemoveAllDlg)
+			.def("PushLineVertex", &Client::PushLineVertex)
+			.def("PushLine", &Client::PushLine)
+			.def("PushLineAABB", &Client::PushLineAABB)
+			.def("PushLineBox", &Client::PushLineBox)
+			.def("PushTriangleVertex", &Client::PushTriangleVertex)
+			.def("PushTriangle", &Client::PushTriangle)
 			.def("AddEntity", &Client::AddEntity)
 			.def("AddEntity", luabind::tag_function<void(Client*, Actor*)>(
 				boost::bind(boost::mem_fn(&Client::AddEntity), boost::placeholders::_1, boost::placeholders::_2, boost::bind(&AABB::transform, boost::bind(&Actor::m_aabb, boost::placeholders::_2), boost::bind(&Actor::m_World, boost::placeholders::_2)), Actor::MinBlock, Actor::Threshold)))
