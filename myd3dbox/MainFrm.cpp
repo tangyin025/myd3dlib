@@ -850,6 +850,8 @@ void CMainFrame::InitFileContext()
 	luabind::module(m_State)
 	[
 		luabind::class_<CWnd> ("CWnd")
+			.property("IsCaptured", luabind::tag_function<bool(CWnd*)>(
+				boost::bind(std::equal_to<CWnd*>(), boost::placeholders::_1, boost::bind(&CWnd::GetCapture))))
 
 		, luabind::class_<CView, CWnd>("CView")
 
