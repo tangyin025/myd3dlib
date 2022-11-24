@@ -454,7 +454,7 @@ struct ScriptComponent : Component, luabind::wrap_base
 	{
 		try
 		{
-			luabind::wrap_base::call<void>("OnSetShader", shader, lparam);
+			luabind::wrap_base::call<void>("OnSetShader", my::D3DContext::getSingletonPtr(), shader, lparam);
 		}
 		catch (const luabind::error& e)
 		{
@@ -462,9 +462,9 @@ struct ScriptComponent : Component, luabind::wrap_base
 		}
 	}
 
-	static void default_OnSetShader(Component* ptr, my::Effect* shader, LPARAM lparam)
+	static void default_OnSetShader(Component* ptr, my::D3DContext* context, my::Effect* shader, LPARAM lparam)
 	{
-		//ptr->Component::OnSetShader(pd3dDevice, shader, lparam);
+		//ptr->Component::OnSetShader(context->m_d3dDevice, shader, lparam);
 	}
 
 	virtual void Update(float fElapsedTime)
