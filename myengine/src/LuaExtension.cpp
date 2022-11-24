@@ -46,6 +46,7 @@ extern "C" {
 #include <boost/shared_container_iterator.hpp>
 #include <boost/regex.hpp>
 #include <boost/functional/value_factory.hpp>
+#include <boost/lexical_cast.hpp>
 
 static int add_file_and_line(lua_State * L)
 {
@@ -452,6 +453,8 @@ struct ScriptComponent : Component, luabind::wrap_base
 
 	virtual void OnSetShader(IDirect3DDevice9* pd3dDevice, my::Effect* shader, LPARAM lparam)
 	{
+		my::CriticalSectionLock lock(LuaContext::getSingleton().m_StateSec);
+
 		try
 		{
 			luabind::wrap_base::call<void>("OnSetShader", my::D3DContext::getSingletonPtr(), shader, lparam);
@@ -760,6 +763,22 @@ typedef std::vector<Component*> cmp_list;
 typedef boost::shared_container_iterator<cmp_list> shared_cmp_list_iter;
 
 extern boost::iterator_range<shared_cmp_list_iter> controller_get_geom_stream(const Controller* self);
+
+static my::Effect* renderpipeline_query_shader(RenderPipeline* self, RenderPipeline::MeshType mesh_type, const luabind::object& macro, const char* path, unsigned int PassID)
+{
+	std::vector<D3DXMACRO> macs;
+	luabind::iterator iter(macro), end;
+	for (; iter != end; iter++)
+	{
+		std::string key = boost::lexical_cast<std::string>(iter.key());
+		std::string value = boost::lexical_cast<std::string>(*iter);
+		D3DXMACRO m = { key.c_str(),value.c_str() };
+		macs.push_back(m);
+	}
+	D3DXMACRO m = { 0 };
+	macs.push_back(m);
+	return self->QueryShader(mesh_type, macs.data(), path, PassID);
+}
 
 static bool physxscene_overlap_box(PhysxScene* self,
 	float hx, float hy, float hz, const my::Vector3& Position, const my::Quaternion& Rotation, unsigned int filterWord0, const luabind::object& callback, unsigned int MaxNbTouches)
@@ -2810,6 +2829,21 @@ void LuaContext::Init(void)
 				luabind::value("PassTypeTransparent", RenderPipeline::PassTypeTransparent),
 				luabind::value("PassTypeNum", RenderPipeline::PassTypeNum)
 			]
+			.def_readonly("SkyLightCam", &RenderPipeline::m_SkyLightCam)
+			.def_readwrite("SkyLightColor", &RenderPipeline::m_SkyLightColor)
+			.def_readwrite("AmbientColor", &RenderPipeline::m_AmbientColor)
+			.def_readwrite("SsaoBias", &RenderPipeline::m_SsaoBias)
+			.def_readwrite("SsaoIntensity", &RenderPipeline::m_SsaoIntensity)
+			.def_readwrite("SsaoRadius", &RenderPipeline::m_SsaoRadius)
+			.def_readwrite("SsaoScale", &RenderPipeline::m_SsaoScale)
+			.def_readwrite("FogColor", &RenderPipeline::m_FogColor)
+			.def_readwrite("FogStartDistance", &RenderPipeline::m_FogStartDistance)
+			.def_readwrite("FogHeight", &RenderPipeline::m_FogHeight)
+			.def_readwrite("FogFalloff", &RenderPipeline::m_FogFalloff)
+			.def_readwrite("DofParams", &RenderPipeline::m_DofParams)
+			.def_readwrite("LuminanceThreshold", &RenderPipeline::m_LuminanceThreshold)
+			.def_readwrite("BloomColor", &RenderPipeline::m_BloomColor)
+			.def_readwrite("BloomFactor", &RenderPipeline::m_BloomFactor)
 			.enum_("RenderTargetType")
 			[
 				luabind::value("RenderTargetNormal", RenderPipeline::RenderTargetNormal),
@@ -2818,6 +2852,8 @@ void LuaContext::Init(void)
 				luabind::value("RenderTargetOpaque", RenderPipeline::RenderTargetOpaque),
 				luabind::value("RenderTargetDownFilter", RenderPipeline::RenderTargetDownFilter)
 			]
+			.def("QueryShader", &renderpipeline_query_shader)
+			.def("PushMesh", &RenderPipeline::PushMesh)
 
 		, class_<HitArg, my::EventArg>("HitArg")
 			.def_readonly("actor", &HitArg::actor)

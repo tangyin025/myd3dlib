@@ -254,22 +254,6 @@ static boost::iterator_range<shared_actor_list_iter> cmainframe_get_all_acts(con
 	return boost::make_iterator_range(shared_actor_list_iter(acts->begin(), acts), shared_actor_list_iter(acts->end(), acts));
 }
 
-static my::Effect* cmainapp_query_shader(CMainApp* self, RenderPipeline::MeshType mesh_type, const luabind::object& macro, const char* path, unsigned int PassID)
-{
-	std::vector<D3DXMACRO> macs;
-	luabind::iterator iter(macro), end;
-	for (; iter != end; iter++)
-	{
-		std::string key = boost::lexical_cast<std::string>(iter.key());
-		std::string value = boost::lexical_cast<std::string>(*iter);
-		D3DXMACRO m = { key.c_str(),value.c_str() };
-		macs.push_back(m);
-	}
-	D3DXMACRO m = { 0 };
-	macs.push_back(m);
-	return self->QueryShader(mesh_type, macs.data(), path, PassID);
-}
-
 // CMainFrame
 
 IMPLEMENT_DYNCREATE(CMainFrame, CFrameWndEx)
@@ -902,13 +886,8 @@ void CMainFrame::InitFileContext()
 			.property("ActiveView", &CMainFrame::GetActiveView)
 			.def_readonly("RenderingView", &CMainFrame::m_RenderingView)
 
-		, luabind::class_<CMainApp, luabind::bases<my::D3DContext, my::ResourceMgr> >("MainApp")
+		, luabind::class_<CMainApp, luabind::bases<my::D3DContext, my::ResourceMgr, RenderPipeline> >("MainApp")
 			.def_readonly("MainWnd", &CMainApp::m_pMainWnd)
-			.def_readonly("SkyLightCam", &CMainApp::m_SkyLightCam)
-			.def_readwrite("SkyLightColor", &CMainApp::m_SkyLightColor)
-			.def_readwrite("AmbientColor", &CMainApp::m_AmbientColor)
-			.def("QueryShader", &cmainapp_query_shader)
-			.def("PushMesh", &CMainApp::PushMesh)
 			.def_readonly("UIRender", &CMainApp::m_UIRender)
 			.def_readonly("Font", &CMainApp::m_Font)
 			.def_readonly("keyboard", &CMainApp::m_keyboard)
