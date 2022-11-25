@@ -1154,7 +1154,12 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, const 
 
 	case Component::ComponentTypeScript:
 		{
-			return my::IntersectionTests::rayAndAABB(ray.p, ray.d, *cmp->m_Actor->m_OctAabb);
+			my::RayResult ret = my::IntersectionTests::rayAndAABB(ray.p, ray.d, *cmp->m_Actor->m_OctAabb);
+			if (ret.first)
+			{
+				ret.second = (ray.d * ret.second).transformNormal(cmp->m_Actor->m_World.inverse()).magnitude();
+				return ret;
+			}
 		}
 		break;
 	}
