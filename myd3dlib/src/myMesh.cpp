@@ -1501,64 +1501,67 @@ void OgreMesh::CreateMeshFromObjInStream(
 	}
 }
 
-void OgreMesh::SaveOgreMesh(const char * path)
+void OgreMesh::SaveOgreMesh(const char * path, bool useSharedGeom)
 {
 	std::ofstream ofs(path);
 	ofs << "<mesh>\n";
-	ofs << "\t<sharedgeometry vertexcount=\"" << GetNumVertices() << "\">\n";
-	ofs << "\t\t<vertexbuffer positions=\"true\" normals=";
-	bool normals = m_VertexElems.elems[D3DDECLUSAGE_NORMAL][0].Type == D3DDECLTYPE_FLOAT3;
-	if (normals)
-		ofs << "\"true\"";
-	else
-		ofs << "\"false\"";
-	ofs << " colours_diffuse=";
-	bool colours_diffuse = m_VertexElems.elems[D3DDECLUSAGE_COLOR][0].Type == D3DDECLTYPE_D3DCOLOR;
-	if (colours_diffuse)
-		ofs << "\"true\"";
-	else
-		ofs << "\"false\"";
-	ofs << " colours_specular=\"false\" texture_coords=\"";
-	unsigned int texture_coords = m_VertexElems.CalcTextureCoords();
-	if (texture_coords)
-		ofs << texture_coords << "\">\n";
-	else
-		ofs << 0 << "\">\n";
-	void * pVertices = LockVertexBuffer();
+	void* pVertices = LockVertexBuffer();
 	DWORD VertexStride = GetNumBytesPerVertex();
-	// write vertex data
-	for (DWORD i=0; i < GetNumVertices(); i++)
+	if (useSharedGeom)
 	{
-		ofs << "\t\t\t<vertex>\n";
-		unsigned char * pVertex = (unsigned char *)pVertices + i * VertexStride;
-		const Vector3 vertex = m_VertexElems.GetPosition(pVertex);
-		//write vertex position
-		ofs << "\t\t\t\t<position x=\"" << vertex.x << "\" y=\"" << vertex.y << "\" " << "z=\"" << vertex.z << "\"/>\n";
-		//write vertex normal
+		ofs << "\t<sharedgeometry vertexcount=\"" << GetNumVertices() << "\">\n";
+		ofs << "\t\t<vertexbuffer positions=\"true\" normals=";
+		bool normals = m_VertexElems.elems[D3DDECLUSAGE_NORMAL][0].Type == D3DDECLTYPE_FLOAT3;
 		if (normals)
-		{
-			const Vector3 normal = m_VertexElems.GetNormal(pVertex);
-			ofs << "\t\t\t\t<normal x=\"" << normal.x << "\" y=\"" << normal.y << "\" " << "z=\"" << normal.z << "\"/>\n";
-		}
-		//write vertex color
+			ofs << "\"true\"";
+		else
+			ofs << "\"false\"";
+		ofs << " colours_diffuse=";
+		bool colours_diffuse = m_VertexElems.elems[D3DDECLUSAGE_COLOR][0].Type == D3DDECLTYPE_D3DCOLOR;
 		if (colours_diffuse)
-		{
-			const D3DXCOLOR color(m_VertexElems.GetColor(pVertex));
-			ofs << "\t\t\t\t<colour_diffuse value=\"" << color.r << " " << color.g << " " << color.b << " " << color.a << "\"/>\n";
-		}
-		//write vertex texture coordinates
+			ofs << "\"true\"";
+		else
+			ofs << "\"false\"";
+		ofs << " colours_specular=\"false\" texture_coords=\"";
+		unsigned int texture_coords = m_VertexElems.CalcTextureCoords();
 		if (texture_coords)
+			ofs << texture_coords << "\">\n";
+		else
+			ofs << 0 << "\">\n";
+		// write vertex data
+		for (DWORD i = 0; i < GetNumVertices(); i++)
 		{
-			for (DWORD j=0; j<texture_coords; j++)
+			ofs << "\t\t\t<vertex>\n";
+			unsigned char* pVertex = (unsigned char*)pVertices + i * VertexStride;
+			const Vector3 vertex = m_VertexElems.GetPosition(pVertex);
+			//write vertex position
+			ofs << "\t\t\t\t<position x=\"" << vertex.x << "\" y=\"" << vertex.y << "\" " << "z=\"" << vertex.z << "\"/>\n";
+			//write vertex normal
+			if (normals)
 			{
-				const Vector2 texcoord = m_VertexElems.GetTexcoord(pVertex, (BYTE)j);
-				ofs << "\t\t\t\t<texcoord u=\"" << texcoord.x << "\" v=\"" << texcoord.y << "\"/>\n";
+				const Vector3 normal = m_VertexElems.GetNormal(pVertex);
+				ofs << "\t\t\t\t<normal x=\"" << normal.x << "\" y=\"" << normal.y << "\" " << "z=\"" << normal.z << "\"/>\n";
 			}
+			//write vertex color
+			if (colours_diffuse)
+			{
+				const D3DXCOLOR color(m_VertexElems.GetColor(pVertex));
+				ofs << "\t\t\t\t<colour_diffuse value=\"" << color.r << " " << color.g << " " << color.b << " " << color.a << "\"/>\n";
+			}
+			//write vertex texture coordinates
+			if (texture_coords)
+			{
+				for (DWORD j = 0; j < texture_coords; j++)
+				{
+					const Vector2 texcoord = m_VertexElems.GetTexcoord(pVertex, (BYTE)j);
+					ofs << "\t\t\t\t<texcoord u=\"" << texcoord.x << "\" v=\"" << texcoord.y << "\"/>\n";
+				}
+			}
+			ofs << "\t\t\t</vertex>\n";
 		}
-		ofs << "\t\t\t</vertex>\n";
+		ofs << "\t\t</vertexbuffer>\n";
+		ofs << "\t</sharedgeometry>\n";
 	}
-	ofs << "\t\t</vertexbuffer>\n";
-	ofs << "\t</sharedgeometry>\n";
 	DWORD submeshes = 0;
 	GetAttributeTable(NULL, &submeshes);
 	std::vector<D3DXATTRIBUTERANGE> rang(submeshes);
@@ -1600,6 +1603,94 @@ void OgreMesh::SaveOgreMesh(const char * path)
 			}
 		}
 		ofs << "\t\t\t</faces>\n";
+
+		//// Write mesh geometry
+		//if (!useSharedGeom)
+		//{
+		//	ofs << "\t\t\t<geometry vertexcount=\"" << m_vertices.size()
+		//		<< "\" transform=\"" << m_pos.x << " " << m_pos.y << " " << m_pos.z << " " << m_rot[0] << " " << m_rot[1] << " " << m_rot[2] << " " << m_scale[0] << " " << m_scale[1] << " " << m_scale[2] << "\">\n";
+		//	ofs << "\t\t\t\t<vertexbuffer positions=\"true\" normals=";
+		//	if (params.exportVertNorm)
+		//		ofs << "\"true\"";
+		//	else
+		//		ofs << "\"false\"";
+		//	ofs << " colours_diffuse=";
+		//	if (params.exportVertCol)
+		//		ofs << "\"true\"";
+		//	else
+		//		ofs << "\"false\"";
+		//	ofs << " colours_specular=\"false\" texture_coords=\"";
+		//	if (params.exportTexCoord)
+		//		ofs << m_uvsets.size() << "\">\n";
+		//	else
+		//		ofs << 0 << "\">\n";
+		//	//write vertex data
+		//	for (int i = 0; i < m_vertices.size(); i++)
+		//	{
+		//		ofs << "\t\t\t\t\t<vertex>\n";
+		//		//write vertex position
+		//		ofs << "\t\t\t\t\t\t<position x=\"" << m_vertices[i].x << "\" y=\""
+		//			<< m_vertices[i].y << "\" " << "z=\"" << m_vertices[i].z << "\"/>\n";
+		//		//write vertex normal
+		//		if (params.exportVertNorm)
+		//		{
+		//			ofs << "\t\t\t\t\t\t<normal x=\"" << m_vertices[i].n.x << "\" y=\""
+		//				<< m_vertices[i].n.y << "\" " << "z=\"" << m_vertices[i].n.z << "\"/>\n";
+		//		}
+		//		//write vertex colour
+		//		if (params.exportVertCol)
+		//		{
+		//			float r, g, b, a;
+		//			if (params.exportVertColWhite)
+		//			{
+		//				r = g = b = a = 1.0f;
+		//			}
+		//			else
+		//			{
+		//				r = m_vertices[i].r;
+		//				g = m_vertices[i].g;
+		//				b = m_vertices[i].b;
+		//				a = m_vertices[i].a;
+		//			}
+
+		//			ofs << "\t\t\t\t\t\t<colour_diffuse value=\"" << r << " " << g
+		//				<< " " << b << " " << a << "\"/>\n";
+		//		}//write vertex texture coordinates
+		//		if (params.exportTexCoord)
+		//		{
+		//			for (int j = 0; j < m_uvsets.size(); j++)
+		//			{
+		//				ofs << "\t\t\t\t\t\t<texcoord u=\"" << m_vertices[i].texcoords[j].u << "\" v=\"" <<
+		//					m_vertices[i].texcoords[j].v << "\"/>\n";
+		//			}
+		//		}
+		//		ofs << "\t\t\t\t\t</vertex>\n";
+		//	}
+		//	//end vertex data
+		//	ofs << "\t\t\t\t</vertexbuffer>\n";
+		//	//end geometry description
+		//	ofs << "\t\t\t</geometry>\n";
+
+		//	// Write bone assignments
+		//	if (params.exportVBA)
+		//	{
+		//		ofs << "\t\t\t<boneassignments>\n";
+		//		for (int i = 0; i < m_vertices.size(); i++)
+		//		{
+		//			for (int j = 0; j < m_vertices[i].vbas.size(); j++)
+		//			{
+		//				if (m_vertices[i].vbas[j].weight > 0.001)
+		//				{
+		//					ofs << "\t\t\t\t<vertexboneassignment vertexindex=\"" << i
+		//						<< "\" boneindex=\"" << m_vertices[i].vbas[j].jointIdx << "\" weight=\""
+		//						<< m_vertices[i].vbas[j].weight << "\"/>\n";
+		//				}
+		//			}
+		//		}
+		//		ofs << "\t\t\t</boneassignments>\n";
+		//	}
+		//}
+		// End submesh description
 		ofs << "\t\t</submesh>\n";
 	}
 	UnlockIndexBuffer();
@@ -1607,23 +1698,26 @@ void OgreMesh::SaveOgreMesh(const char * path)
 	// write skeleton link
 	ofs << "\t<skeletonlink name=\"\"/>\n";
 	// Write shared geometry bone assignments
-	ofs << "\t<boneassignments>\n";
-	if (m_VertexElems.elems[D3DDECLUSAGE_BLENDINDICES][0].Type == D3DDECLTYPE_UBYTE4)
+	if (useSharedGeom)
 	{
-		for (DWORD i=0; i<GetNumVertices(); i++)
+		ofs << "\t<boneassignments>\n";
+		if (m_VertexElems.elems[D3DDECLUSAGE_BLENDINDICES][0].Type == D3DDECLTYPE_UBYTE4)
 		{
-			unsigned char * pVertex = (unsigned char *)pVertices + i * VertexStride;
-			for (int j=0; j<D3DVertexElementSet::MAX_BONE_INDICES; j++)
+			for (DWORD i = 0; i < GetNumVertices(); i++)
 			{
-				if (m_VertexElems.GetBlendWeight(pVertex)[j] > 0.001)
+				unsigned char* pVertex = (unsigned char*)pVertices + i * VertexStride;
+				for (int j = 0; j < D3DVertexElementSet::MAX_BONE_INDICES; j++)
 				{
-					ofs << "\t\t<vertexboneassignment vertexindex=\"" << i << "\" boneindex=\"" << (int)((unsigned char *)&m_VertexElems.GetBlendIndices(pVertex))[j] << "\" weight=\"" << m_VertexElems.GetBlendWeight(pVertex)[j] <<"\"/>\n";
+					if (m_VertexElems.GetBlendWeight(pVertex)[j] > 0.001)
+					{
+						ofs << "\t\t<vertexboneassignment vertexindex=\"" << i << "\" boneindex=\"" << (int)((unsigned char*)&m_VertexElems.GetBlendIndices(pVertex))[j] << "\" weight=\"" << m_VertexElems.GetBlendWeight(pVertex)[j] << "\"/>\n";
+					}
 				}
 			}
 		}
+		ofs << "\t</boneassignments>\n";
 	}
 	UnlockVertexBuffer();
-	ofs << "\t</boneassignments>\n";
 	// write submesh names
 	ofs << "\t<submeshnames>\n";
 	ofs << "\t</submeshnames>\n";

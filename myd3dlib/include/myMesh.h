@@ -430,7 +430,7 @@ namespace my
 			bool bComputeTangentFrame = true,
 			DWORD dwMeshOptions = D3DXMESH_MANAGED);
 
-		void SaveOgreMesh(const char * path);
+		void SaveOgreMesh(const char * path, bool useSharedGeom = true);
 
 		void SaveSimplifiedOgreMesh(const char * path, DWORD MinValue, DWORD Options);
 
