@@ -1504,12 +1504,14 @@ void OgreMesh::CreateMeshFromObjInStream(
 void OgreMesh::SaveOgreMesh(const char * path)
 {
 	bool useSharedGeom = true;
-	DWORD submeshes = 0;
-	GetAttributeTable(NULL, &submeshes);
-	std::vector<D3DXATTRIBUTERANGE> rang(submeshes);
-	GetAttributeTable(&rang[0], &submeshes);
-	if (submeshes > 0 && rang[1].VertexStart > 0)
-		useSharedGeom = false;
+	for (int i = 1; i < m_AttribTable.size(); i++)
+	{
+		if (m_AttribTable[i].VertexStart > 0 || m_AttribTable[i].VertexCount != m_AttribTable[0].VertexCount)
+		{
+			useSharedGeom = false;
+			break;
+		}
+	}
 
 	std::ofstream ofs(path);
 	// start mesh description
@@ -1519,7 +1521,7 @@ void OgreMesh::SaveOgreMesh(const char * path)
 	// write shared geometry (if used)
 	if (useSharedGeom)
 	{
-		ofs << "\t<sharedgeometry vertexcount=\"" << GetNumVertices() << "\">\n";
+		ofs << "\t<sharedgeometry vertexcount=\"" << m_AttribTable[0].VertexCount << "\">\n";
 		ofs << "\t\t<vertexbuffer positions=\"true\" normals=";
 		bool normals = m_VertexElems.elems[D3DDECLUSAGE_NORMAL][0].Type == D3DDECLTYPE_FLOAT3;
 		if (normals)
@@ -1539,7 +1541,7 @@ void OgreMesh::SaveOgreMesh(const char * path)
 		else
 			ofs << 0 << "\">\n";
 		// write vertex data
-		for (DWORD i = 0; i < GetNumVertices(); i++)
+		for (DWORD i = 0; i < m_AttribTable[0].VertexCount; i++)
 		{
 			ofs << "\t\t\t<vertex>\n";
 			//write vertex position
@@ -1575,12 +1577,12 @@ void OgreMesh::SaveOgreMesh(const char * path)
 	VOID * pIndices = LockIndexBuffer();
 	// write submeshes data
 	ofs << "\t<submeshes>\n";
-	for (DWORD i=0; i < submeshes; i++)
+	for (DWORD i=0; i < m_AttribTable.size(); i++)
 	{
 		// Start submesh description
 		ofs << "\t\t<submesh ";
 		// Write material name
-		ofs << "material=\"" << m_MaterialNameList[rang[i].AttribId] << "\" ";
+		ofs << "material=\"" << m_MaterialNameList[m_AttribTable[i].AttribId] << "\" ";
 		DWORD use32bitindexes = GetOptions() & D3DXMESH_32BIT;
 		// Write use32bitIndexes flag
 		ofs << "use32bitindexes=\"";
@@ -1600,8 +1602,8 @@ void OgreMesh::SaveOgreMesh(const char * path)
 		ofs << "operationtype=\"triangle_list\">\n";
 
 		// Write submesh polygons
-		ofs << "\t\t\t<faces count=\"" << rang[i].FaceCount << "\">\n";
-		for (DWORD j=rang[i].FaceStart; j<rang[i].FaceStart+rang[i].FaceCount; j++)
+		ofs << "\t\t\t<faces count=\"" << m_AttribTable[i].FaceCount << "\">\n";
+		for (DWORD j = m_AttribTable[i].FaceStart; j < m_AttribTable[i].FaceStart + m_AttribTable[i].FaceCount; j++)
 		{
 			int v[3];
 			for (int k = 0; k < 3; k++)
@@ -1612,7 +1614,7 @@ void OgreMesh::SaveOgreMesh(const char * path)
 					v[k] = *((WORD*)pIndices + j * 3 + k);
 
 				if (!useSharedGeom)
-					v[k] -= rang[i].VertexStart;
+					v[k] -= m_AttribTable[i].VertexStart;
 			}
 			ofs << "\t\t\t\t<face v1=\"" << v[0] << "\" v2=\"" << v[1] << "\" "
 				<< "v3=\"" << v[2] << "\"/>\n";
@@ -1622,7 +1624,7 @@ void OgreMesh::SaveOgreMesh(const char * path)
 		// Write mesh geometry
 		if (!useSharedGeom)
 		{
-			ofs << "\t\t\t<geometry vertexcount=\"" << rang[i].VertexCount
+			ofs << "\t\t\t<geometry vertexcount=\"" << m_AttribTable[i].VertexCount
 				<< "\" transform=\"0 0 0 0 0 0 1 1 1\">\n";
 			ofs << "\t\t\t\t<vertexbuffer positions=\"true\" normals=";
 			bool normals = m_VertexElems.elems[D3DDECLUSAGE_NORMAL][0].Type == D3DDECLTYPE_FLOAT3;
@@ -1643,7 +1645,7 @@ void OgreMesh::SaveOgreMesh(const char * path)
 			else
 				ofs << 0 << "\">\n";
 			//write vertex data
-			for (int j = rang[i].VertexStart; j < rang[i].VertexStart + rang[i].VertexCount; j++)
+			for (int j = m_AttribTable[i].VertexStart; j < m_AttribTable[i].VertexStart + m_AttribTable[i].VertexCount; j++)
 			{
 				ofs << "\t\t\t\t\t<vertex>\n";
 				//write vertex position
@@ -1685,7 +1687,7 @@ void OgreMesh::SaveOgreMesh(const char * path)
 			ofs << "\t\t\t<boneassignments>\n";
 			if (m_VertexElems.elems[D3DDECLUSAGE_BLENDINDICES][0].Type == D3DDECLTYPE_UBYTE4)
 			{
-				for (int j = 0; j < rang[i].VertexCount; j++)
+				for (int j = 0; j < m_AttribTable[i].VertexCount; j++)
 				{
 					unsigned char* pVertex = (unsigned char*)pVertices + j * VertexStride;
 					for (int k = 0; k < D3DVertexElementSet::MAX_BONE_INDICES; k++)
@@ -1714,7 +1716,7 @@ void OgreMesh::SaveOgreMesh(const char * path)
 		ofs << "\t<boneassignments>\n";
 		if (m_VertexElems.elems[D3DDECLUSAGE_BLENDINDICES][0].Type == D3DDECLTYPE_UBYTE4)
 		{
-			for (DWORD i = 0; i < GetNumVertices(); i++)
+			for (DWORD i = 0; i < m_AttribTable[0].VertexCount; i++)
 			{
 				unsigned char* pVertex = (unsigned char*)pVertices + i * VertexStride;
 				for (int j = 0; j < D3DVertexElementSet::MAX_BONE_INDICES; j++)
@@ -1731,7 +1733,7 @@ void OgreMesh::SaveOgreMesh(const char * path)
 	UnlockVertexBuffer();
 	// write submesh names
 	ofs << "\t<submeshnames>\n";
-	for (int i = 0; i < submeshes; i++)
+	for (int i = 0; i < m_AttribTable.size(); i++)
 	{
 		ofs << "\t\t<submeshname name=\"submesh" << i << "\" index=\"" << i << "\"/>\n";
 	}
