@@ -1532,9 +1532,9 @@ void OgreMesh::SaveOgreMesh(const char * path, bool useSharedGeom)
 		for (DWORD i = 0; i < GetNumVertices(); i++)
 		{
 			ofs << "\t\t\t<vertex>\n";
+			//write vertex position
 			unsigned char* pVertex = (unsigned char*)pVertices + i * VertexStride;
 			const Vector3 vertex = m_VertexElems.GetPosition(pVertex);
-			//write vertex position
 			ofs << "\t\t\t\t<position x=\"" << vertex.x << "\" y=\"" << vertex.y << "\" " << "z=\"" << vertex.z << "\"/>\n";
 			//write vertex normal
 			if (normals)
@@ -1571,9 +1571,6 @@ void OgreMesh::SaveOgreMesh(const char * path, bool useSharedGeom)
 	ofs << "\t<submeshes>\n";
 	for (DWORD i=0; i < submeshes; i++)
 	{
-		// ! only support shared geometry
-		_ASSERT(rang[i].VertexStart == 0);
-
 		// Start submesh description
 		ofs << "\t\t<submesh ";
 		// Write material name
@@ -1586,110 +1583,118 @@ void OgreMesh::SaveOgreMesh(const char * path, bool useSharedGeom)
 		else
 			ofs << "false";
 		ofs << "\" ";
+		// Write use32bitIndexes flag
+		ofs << "usesharedvertices=\"";
+		if (useSharedGeom)
+			ofs << "true";
+		else
+			ofs << "false";
+		ofs << "\" ";
 		// Write operation type flag
-		ofs << "usesharedvertices=\"true\" operationtype=\"triangle_list\">\n";
+		ofs << "operationtype=\"triangle_list\">\n";
 
 		// Write submesh polygons
 		ofs << "\t\t\t<faces count=\"" << rang[i].FaceCount << "\">\n";
-		for (DWORD face_i=rang[i].FaceStart; face_i<rang[i].FaceStart+rang[i].FaceCount; face_i++)
+		for (DWORD j=rang[i].FaceStart; j<rang[i].FaceStart+rang[i].FaceCount; j++)
 		{
-			if (use32bitindexes)
+			int v[3];
+			for (int k = 0; k < 3; k++)
 			{
-				ofs << "\t\t\t\t<face v1=\"" << *((DWORD *)pIndices + face_i * 3 + 0) << "\" v2=\"" << *((DWORD *)pIndices + face_i * 3 + 1) << "\" v3=\"" << *((DWORD *)pIndices + face_i * 3 + 2) << "\"/>\n";
+				if (use32bitindexes)
+					v[k] = *((DWORD*)pIndices + j * 3 + k);
+				else
+					v[k] = *((WORD*)pIndices + j * 3 + k);
+
+				if (!useSharedGeom)
+					v[k] -= rang[i].VertexStart;
 			}
-			else
-			{
-				ofs << "\t\t\t\t<face v1=\"" << *((WORD *)pIndices + face_i * 3 + 0) << "\" v2=\"" << *((WORD *)pIndices + face_i * 3 + 1) << "\" v3=\"" << *((WORD *)pIndices + face_i * 3 + 2) << "\"/>\n";
-			}
+			ofs << "\t\t\t\t<face v1=\"" << v[0] << "\" v2=\"" << v[1] << "\" "
+				<< "v3=\"" << v[2] << "\"/>\n";
 		}
 		ofs << "\t\t\t</faces>\n";
 
-		//// Write mesh geometry
-		//if (!useSharedGeom)
-		//{
-		//	ofs << "\t\t\t<geometry vertexcount=\"" << m_vertices.size()
-		//		<< "\" transform=\"" << m_pos.x << " " << m_pos.y << " " << m_pos.z << " " << m_rot[0] << " " << m_rot[1] << " " << m_rot[2] << " " << m_scale[0] << " " << m_scale[1] << " " << m_scale[2] << "\">\n";
-		//	ofs << "\t\t\t\t<vertexbuffer positions=\"true\" normals=";
-		//	if (params.exportVertNorm)
-		//		ofs << "\"true\"";
-		//	else
-		//		ofs << "\"false\"";
-		//	ofs << " colours_diffuse=";
-		//	if (params.exportVertCol)
-		//		ofs << "\"true\"";
-		//	else
-		//		ofs << "\"false\"";
-		//	ofs << " colours_specular=\"false\" texture_coords=\"";
-		//	if (params.exportTexCoord)
-		//		ofs << m_uvsets.size() << "\">\n";
-		//	else
-		//		ofs << 0 << "\">\n";
-		//	//write vertex data
-		//	for (int i = 0; i < m_vertices.size(); i++)
-		//	{
-		//		ofs << "\t\t\t\t\t<vertex>\n";
-		//		//write vertex position
-		//		ofs << "\t\t\t\t\t\t<position x=\"" << m_vertices[i].x << "\" y=\""
-		//			<< m_vertices[i].y << "\" " << "z=\"" << m_vertices[i].z << "\"/>\n";
-		//		//write vertex normal
-		//		if (params.exportVertNorm)
-		//		{
-		//			ofs << "\t\t\t\t\t\t<normal x=\"" << m_vertices[i].n.x << "\" y=\""
-		//				<< m_vertices[i].n.y << "\" " << "z=\"" << m_vertices[i].n.z << "\"/>\n";
-		//		}
-		//		//write vertex colour
-		//		if (params.exportVertCol)
-		//		{
-		//			float r, g, b, a;
-		//			if (params.exportVertColWhite)
-		//			{
-		//				r = g = b = a = 1.0f;
-		//			}
-		//			else
-		//			{
-		//				r = m_vertices[i].r;
-		//				g = m_vertices[i].g;
-		//				b = m_vertices[i].b;
-		//				a = m_vertices[i].a;
-		//			}
+		// Write mesh geometry
+		if (!useSharedGeom)
+		{
+			ofs << "\t\t\t<geometry vertexcount=\"" << rang[i].VertexCount
+				<< "\" transform=\"0 0 0 0 0 0 1 1 1\">\n";
+			ofs << "\t\t\t\t<vertexbuffer positions=\"true\" normals=";
+			bool normals = m_VertexElems.elems[D3DDECLUSAGE_NORMAL][0].Type == D3DDECLTYPE_FLOAT3;
+			if (normals)
+				ofs << "\"true\"";
+			else
+				ofs << "\"false\"";
+			ofs << " colours_diffuse=";
+			bool colours_diffuse = m_VertexElems.elems[D3DDECLUSAGE_COLOR][0].Type == D3DDECLTYPE_D3DCOLOR;
+			if (colours_diffuse)
+				ofs << "\"true\"";
+			else
+				ofs << "\"false\"";
+			ofs << " colours_specular=\"false\" texture_coords=\"";
+			unsigned int texture_coords = m_VertexElems.CalcTextureCoords();
+			if (texture_coords)
+				ofs << texture_coords << "\">\n";
+			else
+				ofs << 0 << "\">\n";
+			//write vertex data
+			for (int j = rang[i].VertexStart; j < rang[i].VertexStart + rang[i].VertexCount; j++)
+			{
+				ofs << "\t\t\t\t\t<vertex>\n";
+				//write vertex position
+				unsigned char* pVertex = (unsigned char*)pVertices + j * VertexStride;
+				const Vector3 vertex = m_VertexElems.GetPosition(pVertex);
+				ofs << "\t\t\t\t\t\t<position x=\"" << vertex.x << "\" y=\""
+					<< vertex.y << "\" " << "z=\"" << vertex.z << "\"/>\n";
+				//write vertex normal
+				if (normals)
+				{
+					const Vector3 normal = m_VertexElems.GetNormal(pVertex);
+					ofs << "\t\t\t\t\t\t<normal x=\"" << normal.x << "\" y=\""
+						<< normal.y << "\" " << "z=\"" << normal.z << "\"/>\n";
+				}
+				//write vertex colour
+				if (colours_diffuse)
+				{
+					const D3DXCOLOR color(m_VertexElems.GetColor(pVertex));
+					ofs << "\t\t\t\t\t\t<colour_diffuse value=\"" << color.r << " " << color.g
+						<< " " << color.b << " " << color.a << "\"/>\n";
+				}//write vertex texture coordinates
+				if (texture_coords)
+				{
+					for (int k = 0; k < texture_coords; k++)
+					{
+						const Vector2 texcoord = m_VertexElems.GetTexcoord(pVertex, (BYTE)k);
+						ofs << "\t\t\t\t\t\t<texcoord u=\"" << texcoord.x << "\" v=\"" <<
+							texcoord.y << "\"/>\n";
+					}
+				}
+				ofs << "\t\t\t\t\t</vertex>\n";
+			}
+			//end vertex data
+			ofs << "\t\t\t\t</vertexbuffer>\n";
+			//end geometry description
+			ofs << "\t\t\t</geometry>\n";
 
-		//			ofs << "\t\t\t\t\t\t<colour_diffuse value=\"" << r << " " << g
-		//				<< " " << b << " " << a << "\"/>\n";
-		//		}//write vertex texture coordinates
-		//		if (params.exportTexCoord)
-		//		{
-		//			for (int j = 0; j < m_uvsets.size(); j++)
-		//			{
-		//				ofs << "\t\t\t\t\t\t<texcoord u=\"" << m_vertices[i].texcoords[j].u << "\" v=\"" <<
-		//					m_vertices[i].texcoords[j].v << "\"/>\n";
-		//			}
-		//		}
-		//		ofs << "\t\t\t\t\t</vertex>\n";
-		//	}
-		//	//end vertex data
-		//	ofs << "\t\t\t\t</vertexbuffer>\n";
-		//	//end geometry description
-		//	ofs << "\t\t\t</geometry>\n";
-
-		//	// Write bone assignments
-		//	if (params.exportVBA)
-		//	{
-		//		ofs << "\t\t\t<boneassignments>\n";
-		//		for (int i = 0; i < m_vertices.size(); i++)
-		//		{
-		//			for (int j = 0; j < m_vertices[i].vbas.size(); j++)
-		//			{
-		//				if (m_vertices[i].vbas[j].weight > 0.001)
-		//				{
-		//					ofs << "\t\t\t\t<vertexboneassignment vertexindex=\"" << i
-		//						<< "\" boneindex=\"" << m_vertices[i].vbas[j].jointIdx << "\" weight=\""
-		//						<< m_vertices[i].vbas[j].weight << "\"/>\n";
-		//				}
-		//			}
-		//		}
-		//		ofs << "\t\t\t</boneassignments>\n";
-		//	}
-		//}
+			// Write bone assignments
+			ofs << "\t\t\t<boneassignments>\n";
+			if (m_VertexElems.elems[D3DDECLUSAGE_BLENDINDICES][0].Type == D3DDECLTYPE_UBYTE4)
+			{
+				for (int j = 0; j < rang[i].VertexCount; j++)
+				{
+					unsigned char* pVertex = (unsigned char*)pVertices + j * VertexStride;
+					for (int k = 0; k < D3DVertexElementSet::MAX_BONE_INDICES; k++)
+					{
+						if (m_VertexElems.GetBlendWeight(pVertex)[k] > 0.001)
+						{
+							ofs << "\t\t\t\t<vertexboneassignment vertexindex=\"" << j
+								<< "\" boneindex=\"" << (int)((unsigned char*)&m_VertexElems.GetBlendIndices(pVertex))[k] << "\" weight=\""
+								<< m_VertexElems.GetBlendWeight(pVertex)[k] << "\"/>\n";
+						}
+					}
+				}
+			}
+			ofs << "\t\t\t</boneassignments>\n";
+		}
 		// End submesh description
 		ofs << "\t\t</submesh>\n";
 	}
@@ -1720,6 +1725,10 @@ void OgreMesh::SaveOgreMesh(const char * path, bool useSharedGeom)
 	UnlockVertexBuffer();
 	// write submesh names
 	ofs << "\t<submeshnames>\n";
+	for (int i = 0; i < submeshes; i++)
+	{
+		ofs << "\t\t<submeshname name=\"submesh" << i << "\" index=\"" << i << "\"/>\n";
+	}
 	ofs << "\t</submeshnames>\n";
 	// end mesh description
 	ofs << "</mesh>\n";
