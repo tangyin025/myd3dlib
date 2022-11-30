@@ -941,19 +941,23 @@ bool Mesh::FrustumTest(
 void OgreMesh::CreateMeshFromOgreXmlInFile(
 	LPCTSTR pFilename,
 	bool bComputeTangentFrame,
-	DWORD dwMeshOptions)
+	DWORD dwMeshOptions,
+	unsigned int face_capacity,
+	unsigned int vertex_capacity)
 {
 	CachePtr cache = FileIStream::Open(pFilename)->GetWholeCache();
 	cache->push_back(0);
 
-	CreateMeshFromOgreXmlInMemory((char *)&(*cache)[0], cache->size(), bComputeTangentFrame, dwMeshOptions);
+	CreateMeshFromOgreXmlInMemory((char *)&(*cache)[0], cache->size(), bComputeTangentFrame, dwMeshOptions, face_capacity, vertex_capacity);
 }
 
 void OgreMesh::CreateMeshFromOgreXmlInMemory(
 	LPSTR pSrcData,
 	UINT srcDataLen,
 	bool bComputeTangentFrame,
-	DWORD dwMeshOptions)
+	DWORD dwMeshOptions,
+	unsigned int face_capacity,
+	unsigned int vertex_capacity)
 {
 	_ASSERT(0 == pSrcData[srcDataLen-1]);
 
@@ -967,13 +971,15 @@ void OgreMesh::CreateMeshFromOgreXmlInMemory(
 		THROW_CUSEXCEPTION(e.what());
 	}
 
-	CreateMeshFromOgreXml(&doc, bComputeTangentFrame, dwMeshOptions);
+	CreateMeshFromOgreXml(&doc, bComputeTangentFrame, dwMeshOptions, face_capacity, vertex_capacity);
 }
 
 void OgreMesh::CreateMeshFromOgreXml(
 	const rapidxml::xml_node<char> * node_root,
 	bool bComputeTangentFrame,
-	DWORD dwMeshOptions)
+	DWORD dwMeshOptions,
+	unsigned int face_capacity,
+	unsigned int vertex_capacity)
 {
 	DEFINE_XML_NODE_SIMPLE(mesh, root);
 	DEFINE_XML_NODE_SIMPLE(submeshes, mesh);
@@ -1073,7 +1079,7 @@ void OgreMesh::CreateMeshFromOgreXml(
 		}
 	}
 
-	if ((dwMeshOptions & ~D3DXMESH_32BIT) && total_vertices >= USHRT_MAX)
+	if ((dwMeshOptions & ~D3DXMESH_32BIT) && Min(vertex_capacity, total_vertices) >= USHRT_MAX)
 	{
 		//THROW_CUSEXCEPTION("facecount overflow ( >= 65535 )");
 		dwMeshOptions |= D3DXMESH_32BIT;
@@ -1138,7 +1144,7 @@ void OgreMesh::CreateMeshFromOgreXml(
 	ResourceMgr::getSingleton().LeaveDeviceSection();
 
 	ResourceMgr::getSingleton().EnterDeviceSection();
-	CreateMesh(total_faces, total_vertices, (D3DVERTEXELEMENT9*)&velist[0], dwMeshOptions);
+	CreateMesh(Min(face_capacity, total_faces), Min(vertex_capacity, total_vertices), (D3DVERTEXELEMENT9*)&velist[0], dwMeshOptions);
 	ResourceMgr::getSingleton().LeaveDeviceSection();
 
 	ResourceMgr::getSingleton().EnterDeviceSection();
@@ -1357,17 +1363,21 @@ void OgreMesh::CreateMeshFromOgreXml(
 void OgreMesh::CreateMeshFromObjInFile(
 	LPCTSTR pFilename,
 	bool bComputeTangentFrame,
-	DWORD dwMeshOptions)
+	DWORD dwMeshOptions,
+	unsigned int face_capacity,
+	unsigned int vertex_capacity)
 {
 	my::IStreamBuff buff(my::FileIStream::Open(pFilename));
 	std::istream ifs(&buff);
-	CreateMeshFromObjInStream(ifs, bComputeTangentFrame, dwMeshOptions);
+	CreateMeshFromObjInStream(ifs, bComputeTangentFrame, dwMeshOptions, face_capacity, vertex_capacity);
 }
 
 void OgreMesh::CreateMeshFromObjInStream(
 	std::istream & is,
 	bool bComputeTangentFrame,
-	DWORD dwMeshOptions)
+	DWORD dwMeshOptions,
+	unsigned int face_capacity,
+	unsigned int vertex_capacity)
 {
 	//                1    2      3             4      5             6      7
 	boost::regex reg("(v\\s(-?\\d+(\\.\\d+)?)\\s(-?\\d+(\\.\\d+)?)\\s(-?\\d+(\\.\\d+)?))"
@@ -1429,14 +1439,14 @@ void OgreMesh::CreateMeshFromObjInStream(
 		D3DVERTEXELEMENT9 ve_end = D3DDECL_END();
 		velist.push_back(ve_end);
 
-		if ((dwMeshOptions & ~D3DXMESH_32BIT) && verts.size() >= USHRT_MAX)
+		if ((dwMeshOptions & ~D3DXMESH_32BIT) && Min<DWORD>(vertex_capacity, verts.size()) >= USHRT_MAX)
 		{
 			//THROW_CUSEXCEPTION("facecount overflow ( >= 65535 )");
 			dwMeshOptions |= D3DXMESH_32BIT;
 		}
 
 		ResourceMgr::getSingleton().EnterDeviceSection();
-		CreateMesh(faces.size() / 3, verts.size(), (D3DVERTEXELEMENT9*)&velist[0], dwMeshOptions);
+		CreateMesh(Min<DWORD>(face_capacity, faces.size() / 3), Min<DWORD>(vertex_capacity, verts.size()), (D3DVERTEXELEMENT9*)&velist[0], dwMeshOptions);
 		ResourceMgr::getSingleton().LeaveDeviceSection();
 
 		ResourceMgr::getSingleton().EnterDeviceSection();

@@ -1477,7 +1477,7 @@ void CMainFrame::OnComponentCloth()
 
 	const rapidxml::xml_node<char>* node_root = &doc;
 	my::OgreMeshPtr mesh(new my::OgreMesh());
-	mesh->CreateMeshFromOgreXml(node_root, true, D3DXMESH_MANAGED);
+	mesh->CreateMeshFromOgreXml(node_root, true, D3DXMESH_MANAGED, 0, 0);
 
 	DEFINE_XML_NODE_SIMPLE(mesh, root);
 	DEFINE_XML_NODE_SIMPLE(submeshes, mesh);

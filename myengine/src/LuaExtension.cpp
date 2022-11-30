@@ -112,14 +112,14 @@ static void cubetexture_load_cube_map_surface_from_file(my::CubeTexture* self, D
 	V(D3DXLoadSurfaceFromFileW(surf, NULL, NULL, u8tots(u8_path).c_str(), NULL, D3DX_DEFAULT, 0, NULL));
 }
 
-static void ogremesh_create_mesh_from_ogre_xml_in_file(my::OgreMesh* self, const std::string& u8_path)
+static void ogremesh_create_mesh_from_ogre_xml_in_file(my::OgreMesh* self, const std::string& u8_path, unsigned int face_capacity, unsigned int vertex_capacity)
 {
-	self->CreateMeshFromOgreXmlInFile(u8tots(u8_path).c_str(), true, D3DXMESH_MANAGED);
+	self->CreateMeshFromOgreXmlInFile(u8tots(u8_path).c_str(), true, D3DXMESH_MANAGED, face_capacity, vertex_capacity);
 }
 
-static void ogremesh_create_mesh_from_obj_in_file(my::OgreMesh* self, const std::string& u8_path)
+static void ogremesh_create_mesh_from_obj_in_file(my::OgreMesh* self, const std::string& u8_path, unsigned int face_capacity, unsigned int vertex_capacity)
 {
-	self->CreateMeshFromObjInFile(u8tots(u8_path).c_str(), true, D3DXMESH_MANAGED);
+	self->CreateMeshFromObjInFile(u8tots(u8_path).c_str(), true, D3DXMESH_MANAGED, face_capacity, vertex_capacity);
 }
 
 static unsigned int ogreskeletonanimation_get_bone_num(my::OgreSkeletonAnimation* self)
