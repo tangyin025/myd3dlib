@@ -406,39 +406,29 @@ namespace my
 
 		void CreateMeshFromOgreXmlInFile(
 			LPCTSTR pFilename,
-			bool bComputeTangentFrame,
-			DWORD dwMeshOptions,
-			unsigned int face_capacity,
-			unsigned int vertex_capacity);
+			bool bComputeTangentFrame = true,
+			DWORD dwMeshOptions = D3DXMESH_MANAGED);
 
 		void CreateMeshFromOgreXmlInMemory(
 			LPSTR pSrcData,
 			UINT srcDataLen,
-			bool bComputeTangentFrame,
-			DWORD dwMeshOptions,
-			unsigned int face_capacity,
-			unsigned int vertex_capacity);
+			bool bComputeTangentFrame = true,
+			DWORD dwMeshOptions = D3DXMESH_MANAGED);
 
 		void CreateMeshFromOgreXml(
 			const rapidxml::xml_node<char> * node_root,
-			bool bComputeTangentFrame,
-			DWORD dwMeshOptions,
-			unsigned int face_capacity,
-			unsigned int vertex_capacity);
+			bool bComputeTangentFrame = true,
+			DWORD dwMeshOptions = D3DXMESH_MANAGED);
 
 		void CreateMeshFromObjInFile(
 			LPCTSTR pFilename,
-			bool bComputeTangentFrame,
-			DWORD dwMeshOptions,
-			unsigned int face_capacity,
-			unsigned int vertex_capacity);
+			bool bComputeTangentFrame = true,
+			DWORD dwMeshOptions = D3DXMESH_MANAGED);
 
 		void CreateMeshFromObjInStream(
 			std::istream & is,
-			bool bComputeTangentFrame,
-			DWORD dwMeshOptions,
-			unsigned int face_capacity,
-			unsigned int vertex_capacity);
+			bool bComputeTangentFrame = true,
+			DWORD dwMeshOptions = D3DXMESH_MANAGED);
 
 		void SaveOgreMesh(const char * path);
 

@@ -931,7 +931,7 @@ void MeshIORequest::LoadResource(void)
 			doc.parse<0>((char *)&(*cache)[0]);
 
 			OgreMeshPtr res(new OgreMesh());
-			res->CreateMeshFromOgreXml(&doc, true, D3DXMESH_MANAGED, 0, 0);
+			res->CreateMeshFromOgreXml(&doc, true, D3DXMESH_MANAGED);
 			m_res = res;
 		}
 		catch(rapidxml::parse_error &)
