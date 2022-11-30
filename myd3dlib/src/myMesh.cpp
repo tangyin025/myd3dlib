@@ -1073,7 +1073,7 @@ void OgreMesh::CreateMeshFromOgreXml(
 		}
 	}
 
-	if ((dwMeshOptions & ~D3DXMESH_32BIT) && total_vertices >= USHRT_MAX)
+	if (!(dwMeshOptions & D3DXMESH_32BIT) && total_vertices >= USHRT_MAX)
 	{
 		//THROW_CUSEXCEPTION("facecount overflow ( >= 65535 )");
 		dwMeshOptions |= D3DXMESH_32BIT;
@@ -1138,7 +1138,7 @@ void OgreMesh::CreateMeshFromOgreXml(
 	ResourceMgr::getSingleton().LeaveDeviceSection();
 
 	ResourceMgr::getSingleton().EnterDeviceSection();
-	CreateMesh(total_faces, total_vertices, (D3DVERTEXELEMENT9*)&velist[0], dwMeshOptions);
+	CreateMesh(total_faces, total_vertices, velist.data(), dwMeshOptions);
 	ResourceMgr::getSingleton().LeaveDeviceSection();
 
 	ResourceMgr::getSingleton().EnterDeviceSection();
@@ -1429,21 +1429,17 @@ void OgreMesh::CreateMeshFromObjInStream(
 		D3DVERTEXELEMENT9 ve_end = D3DDECL_END();
 		velist.push_back(ve_end);
 
-		if ((dwMeshOptions & ~D3DXMESH_32BIT) && verts.size() >= USHRT_MAX)
+		if (!(dwMeshOptions & D3DXMESH_32BIT) && verts.size() >= USHRT_MAX)
 		{
 			//THROW_CUSEXCEPTION("facecount overflow ( >= 65535 )");
 			dwMeshOptions |= D3DXMESH_32BIT;
 		}
 
-		ResourceMgr::getSingleton().EnterDeviceSection();
-		CreateMesh(faces.size() / 3, verts.size(), (D3DVERTEXELEMENT9*)&velist[0], dwMeshOptions);
-		ResourceMgr::getSingleton().LeaveDeviceSection();
+		CreateMesh(faces.size() / 3, verts.size(), velist.data(), dwMeshOptions);
 
-		ResourceMgr::getSingleton().EnterDeviceSection();
 		VOID* pVertices = LockVertexBuffer();
 		VOID* pIndices = LockIndexBuffer();
 		DWORD* pAttrBuffer = LockAttributeBuffer();
-		ResourceMgr::getSingleton().LeaveDeviceSection();
 
 		for (int i = 0; i < verts.size(); i++)
 		{
@@ -1479,26 +1475,129 @@ void OgreMesh::CreateMeshFromObjInStream(
 				pVertices, GetNumVertices(), GetNumBytesPerVertex(), pIndices, !(dwMeshOptions & D3DXMESH_32BIT), GetNumFaces(), m_VertexElems);
 		}
 
-		ResourceMgr::getSingleton().EnterDeviceSection();
 		UnlockVertexBuffer();
 		UnlockIndexBuffer();
 		UnlockAttributeBuffer();
-		ResourceMgr::getSingleton().LeaveDeviceSection();
 
 		std::vector<DWORD> adjacency(GetNumFaces() * 3);
-		ResourceMgr::getSingleton().EnterDeviceSection();
 		GenerateAdjacency((float)EPSILON_E6, &adjacency[0]);
 		m_Adjacency.resize(adjacency.size());
 		OptimizeInplace(D3DXMESHOPT_ATTRSORT | D3DXMESHOPT_VERTEXCACHE, &adjacency[0], &m_Adjacency[0], NULL, NULL);
-		ResourceMgr::getSingleton().LeaveDeviceSection();
 
 		DWORD AttribTblCount = 0;
-		ResourceMgr::getSingleton().EnterDeviceSection();
 		GetAttributeTable(NULL, &AttribTblCount);
 		m_AttribTable.resize(AttribTblCount);
 		GetAttributeTable(&m_AttribTable[0], &AttribTblCount);
-		ResourceMgr::getSingleton().LeaveDeviceSection();
 	}
+}
+
+void OgreMesh::CreateMeshFromOther(OgreMesh* other, DWORD AttribId, const Matrix4& trans, unsigned int vertex_capacity, unsigned int face_capacity)
+{
+	DWORD dwMeshOptions = other->GetOptions();
+	if (!(dwMeshOptions & D3DXMESH_32BIT) && Min<DWORD>(vertex_capacity, other->GetNumVertices()) >= USHRT_MAX)
+	{
+		dwMeshOptions |= D3DXMESH_32BIT;
+	}
+
+	m_VertexElems = other->m_VertexElems;
+
+	std::vector<D3DVERTEXELEMENT9> velist = m_VertexElems.BuildVertexElementList(0);
+	D3DVERTEXELEMENT9 ve_end = D3DDECL_END();
+	velist.push_back(ve_end);
+
+	if (FAILED(hr = my::D3DContext::getSingleton().m_d3dDevice->CreateVertexDeclaration(velist.data(), &m_Decl)))
+	{
+		THROW_D3DEXCEPTION(hr);
+	}
+
+	CreateMesh(Min<DWORD>(face_capacity, other->GetNumFaces()), Min<DWORD>(vertex_capacity, other->GetNumVertices()), velist.data(), dwMeshOptions);
+
+	AppendMesh(other, AttribId, trans);
+}
+
+void OgreMesh::AppendMesh(OgreMesh* other, DWORD AttribId, const Matrix4& trans)
+{
+	D3DXATTRIBUTERANGE rang;
+	rang.AttribId = m_AttribTable.size();
+	rang.FaceStart = 0;
+	rang.FaceCount = other->m_AttribTable[AttribId].FaceCount;
+	rang.VertexStart = 0;
+	rang.VertexCount = other->m_AttribTable[AttribId].VertexCount;
+	for (int i = 0; i < m_AttribTable.size(); i++)
+	{
+		rang.VertexStart = Max(rang.VertexStart, m_AttribTable[i].VertexStart + m_AttribTable[i].VertexCount);
+		rang.FaceStart = Max(rang.FaceStart, m_AttribTable[i].FaceStart + m_AttribTable[i].FaceCount);
+	}
+
+	if (rang.VertexStart + other->m_AttribTable[AttribId].VertexCount > GetNumVertices()
+		|| rang.FaceStart + other->m_AttribTable[AttribId].FaceCount > GetNumFaces())
+	{
+		THROW_CUSEXCEPTION("OgreMesh::AppendOther: vertex or face num overflow");
+	}
+
+	VOID* pVertices = LockVertexBuffer();
+	VOID* pOtherVertices = other->LockVertexBuffer();
+	for (int i = 0; i < other->m_AttribTable[AttribId].VertexCount; i++)
+	{
+		unsigned char* pVertex = (unsigned char*)pVertices + (rang.VertexStart + i) * GetNumBytesPerVertex();
+		unsigned char* pOtherVertex = (unsigned char*)pOtherVertices + (other->m_AttribTable[i].VertexStart + i) * other->GetNumBytesPerVertex();
+		m_VertexElems.SetPosition(pVertex, other->m_VertexElems.GetPosition(pOtherVertex).transformCoord(trans));
+
+		if (m_VertexElems.elems[D3DDECLUSAGE_NORMAL][0].Type != D3DDECLTYPE_UNUSED)
+		{
+			m_VertexElems.SetNormal(pVertex, other->m_VertexElems.GetNormal(pOtherVertex).transformNormal(trans));
+		}
+
+		if (m_VertexElems.elems[D3DDECLUSAGE_TANGENT][0].Type != D3DDECLTYPE_UNUSED)
+		{
+			m_VertexElems.SetTangent(pVertex, other->m_VertexElems.GetTangent(pOtherVertex).transformNormal(trans));
+		}
+
+		if (m_VertexElems.elems[D3DDECLUSAGE_COLOR][0].Type != D3DDECLTYPE_UNUSED)
+		{
+			m_VertexElems.SetColor(pVertex, other->m_VertexElems.GetColor(pOtherVertex));
+		}
+
+		for (int j = 0; j < D3DVertexElementSet::MAX_USAGE_INDEX; j++)
+		{
+			if (m_VertexElems.elems[D3DDECLUSAGE_TEXCOORD][j].Type != D3DDECLTYPE_UNUSED)
+			{
+				m_VertexElems.SetTexcoord(pVertex, other->m_VertexElems.GetTexcoord(pOtherVertex, j), j);
+			}
+		}
+	}
+	other->UnlockVertexBuffer();
+	UnlockVertexBuffer();
+
+	CComPtr<IDirect3DIndexBuffer9> ib = GetIndexBuffer();
+	VOID* pIndices = LockIndexBuffer();
+	VOID* pOtherIndices = other->LockIndexBuffer();
+	DWORD* pAttrBuffer = LockAttributeBuffer();
+	for (int i = 0; i < other->m_AttribTable[AttribId].FaceCount; i++)
+	{
+		for (int j = 0; j < 3; j++)
+		{
+			int idx = (other->GetOptions() & D3DXMESH_32BIT) ?
+				*((DWORD*)pOtherIndices + other->m_AttribTable[AttribId].FaceStart * 3 + j) :
+				*((WORD*)pOtherIndices + other->m_AttribTable[AttribId].FaceStart * 3 + j);
+			idx = idx - other->m_AttribTable[AttribId].VertexStart + rang.VertexStart;
+			if (GetOptions() & D3DXMESH_32BIT)
+			{
+				*((DWORD*)pIndices + rang.FaceStart * 3 + j) = idx;
+			}
+			else
+			{
+				*((WORD*)pIndices + rang.FaceStart * 3 + j) = idx;
+			}
+			pAttrBuffer[rang.FaceStart * 3 + j] = rang.AttribId;
+		}
+	}
+	other->UnlockIndexBuffer();
+	UnlockIndexBuffer();
+	UnlockAttributeBuffer();
+
+	m_AttribTable.push_back(rang);
+	SetAttributeTable(m_AttribTable.data(), m_AttribTable.size());
 }
 
 void OgreMesh::SaveOgreMesh(const char * path)

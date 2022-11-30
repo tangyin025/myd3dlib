@@ -430,6 +430,10 @@ namespace my
 			bool bComputeTangentFrame = true,
 			DWORD dwMeshOptions = D3DXMESH_MANAGED);
 
+		void CreateMeshFromOther(OgreMesh* other, DWORD AttribId, const Matrix4& trans, unsigned int vertex_capacity, unsigned int face_capacity);
+
+		void AppendMesh(OgreMesh* other, DWORD AttribId, const Matrix4& trans);
+
 		void SaveOgreMesh(const char * path);
 
 		void SaveSimplifiedOgreMesh(const char * path, DWORD MinValue, DWORD Options);
