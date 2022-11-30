@@ -1311,7 +1311,7 @@ void OgreMesh::CreateMeshFromOgreXml(
 	ResourceMgr::getSingleton().LeaveDeviceSection();
 
 	ResourceMgr::getSingleton().EnterDeviceSection();
-	SetAttributeTable(m_AttribTable.data(), m_AttribTable.size());
+	SetAttributeTable(&m_AttribTable[0], m_AttribTable.size());
 	ResourceMgr::getSingleton().LeaveDeviceSection();
 
 	if (bComputeTangentFrame)
@@ -1347,11 +1347,6 @@ void OgreMesh::CreateMeshFromOgreXml(
 	//ResourceMgr::getSingleton().EnterDeviceSection();
 	//OptimizeInplace(D3DXMESHOPT_ATTRSORT | D3DXMESHOPT_VERTEXCACHE, &adjacency[0], &m_Adjacency[0], NULL, NULL);
 	//ResourceMgr::getSingleton().LeaveDeviceSection();
-
-	m_Adjacency.resize(total_faces * 3);
-	ResourceMgr::getSingleton().EnterDeviceSection();
-	GenerateAdjacency((float)EPSILON_E6, &m_Adjacency[0]);
-	ResourceMgr::getSingleton().LeaveDeviceSection();
 }
 
 void OgreMesh::CreateMeshFromObjInFile(
@@ -1479,10 +1474,10 @@ void OgreMesh::CreateMeshFromObjInStream(
 		UnlockIndexBuffer();
 		UnlockAttributeBuffer();
 
-		std::vector<DWORD> adjacency(GetNumFaces() * 3);
-		GenerateAdjacency((float)EPSILON_E6, &adjacency[0]);
-		m_Adjacency.resize(adjacency.size());
-		OptimizeInplace(D3DXMESHOPT_ATTRSORT | D3DXMESHOPT_VERTEXCACHE, &adjacency[0], &m_Adjacency[0], NULL, NULL);
+		//std::vector<DWORD> adjacency(GetNumFaces() * 3);
+		//GenerateAdjacency((float)EPSILON_E6, &adjacency[0]);
+		//m_Adjacency.resize(adjacency.size());
+		//OptimizeInplace(D3DXMESHOPT_ATTRSORT | D3DXMESHOPT_VERTEXCACHE, &adjacency[0], &m_Adjacency[0], NULL, NULL);
 
 		DWORD AttribTblCount = 0;
 		GetAttributeTable(NULL, &AttribTblCount);
@@ -1510,7 +1505,7 @@ void OgreMesh::CreateMeshFromOther(OgreMesh* other, DWORD AttribId, const Matrix
 		THROW_D3DEXCEPTION(hr);
 	}
 
-	CreateMesh(Min<DWORD>(face_capacity, other->GetNumFaces()), Min<DWORD>(vertex_capacity, other->GetNumVertices()), velist.data(), dwMeshOptions);
+	CreateMesh(Max<DWORD>(face_capacity, other->GetNumFaces()), Max<DWORD>(vertex_capacity, other->GetNumVertices()), velist.data(), dwMeshOptions);
 
 	AppendMesh(other, AttribId, trans);
 }
@@ -1540,7 +1535,7 @@ void OgreMesh::AppendMesh(OgreMesh* other, DWORD AttribId, const Matrix4& trans)
 	for (int i = 0; i < other->m_AttribTable[AttribId].VertexCount; i++)
 	{
 		unsigned char* pVertex = (unsigned char*)pVertices + (rang.VertexStart + i) * GetNumBytesPerVertex();
-		unsigned char* pOtherVertex = (unsigned char*)pOtherVertices + (other->m_AttribTable[i].VertexStart + i) * other->GetNumBytesPerVertex();
+		unsigned char* pOtherVertex = (unsigned char*)pOtherVertices + (other->m_AttribTable[AttribId].VertexStart + i) * other->GetNumBytesPerVertex();
 		m_VertexElems.SetPosition(pVertex, other->m_VertexElems.GetPosition(pOtherVertex).transformCoord(trans));
 
 		if (m_VertexElems.elems[D3DDECLUSAGE_NORMAL][0].Type != D3DDECLTYPE_UNUSED)
@@ -1578,18 +1573,18 @@ void OgreMesh::AppendMesh(OgreMesh* other, DWORD AttribId, const Matrix4& trans)
 		for (int j = 0; j < 3; j++)
 		{
 			int idx = (other->GetOptions() & D3DXMESH_32BIT) ?
-				*((DWORD*)pOtherIndices + other->m_AttribTable[AttribId].FaceStart * 3 + j) :
-				*((WORD*)pOtherIndices + other->m_AttribTable[AttribId].FaceStart * 3 + j);
+				*((DWORD*)pOtherIndices + (other->m_AttribTable[AttribId].FaceStart + i) * 3 + j) :
+				*((WORD*)pOtherIndices + (other->m_AttribTable[AttribId].FaceStart + i) * 3 + j);
 			idx = idx - other->m_AttribTable[AttribId].VertexStart + rang.VertexStart;
 			if (GetOptions() & D3DXMESH_32BIT)
 			{
-				*((DWORD*)pIndices + rang.FaceStart * 3 + j) = idx;
+				*((DWORD*)pIndices + (rang.FaceStart + i) * 3 + j) = idx;
 			}
 			else
 			{
-				*((WORD*)pIndices + rang.FaceStart * 3 + j) = idx;
+				*((WORD*)pIndices + (rang.FaceStart + i) * 3 + j) = idx;
 			}
-			pAttrBuffer[rang.FaceStart * 3 + j] = rang.AttribId;
+			pAttrBuffer[(rang.FaceStart + i) * 3 + j] = rang.AttribId;
 		}
 	}
 	other->UnlockIndexBuffer();
@@ -1597,7 +1592,8 @@ void OgreMesh::AppendMesh(OgreMesh* other, DWORD AttribId, const Matrix4& trans)
 	UnlockAttributeBuffer();
 
 	m_AttribTable.push_back(rang);
-	SetAttributeTable(m_AttribTable.data(), m_AttribTable.size());
+	SetAttributeTable(&m_AttribTable[0], m_AttribTable.size());
+	m_MaterialNameList.push_back("aaa");
 }
 
 void OgreMesh::SaveOgreMesh(const char * path)
@@ -1843,11 +1839,17 @@ void OgreMesh::SaveOgreMesh(const char * path)
 
 void OgreMesh::SaveSimplifiedOgreMesh(const char * path, DWORD MinValue, DWORD Options)
 {
+	std::vector<DWORD> adjacency(GetNumFaces() * 3);
+	GenerateAdjacency((float)EPSILON_E6, &adjacency[0]);
 	OgreMeshPtr simplified_mesh(new OgreMesh());
-	simplified_mesh->Create(SimplifyMesh(&m_Adjacency[0], MinValue, Options).Detach());
-	simplified_mesh->m_Adjacency = m_Adjacency;
+	simplified_mesh->Create(SimplifyMesh(&adjacency[0], MinValue, Options).Detach());
+	//simplified_mesh->m_Adjacency = m_Adjacency;
 	simplified_mesh->m_MaterialNameList = m_MaterialNameList;
 	simplified_mesh->m_VertexElems = m_VertexElems;
+	DWORD AttribTblCount = 0;
+	simplified_mesh->GetAttributeTable(NULL, &AttribTblCount);
+	simplified_mesh->m_AttribTable.resize(AttribTblCount);
+	simplified_mesh->GetAttributeTable(&simplified_mesh->m_AttribTable[0], &AttribTblCount);
 	simplified_mesh->SaveOgreMesh(path);
 }
 

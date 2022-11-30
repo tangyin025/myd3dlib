@@ -393,11 +393,11 @@ namespace my
 
 		std::vector<std::string> m_MaterialNameList;
 
-		std::vector<DWORD> m_Adjacency;
-
 		std::vector<D3DXATTRIBUTERANGE> m_AttribTable;
 
 		CComPtr<IDirect3DVertexDeclaration9> m_Decl;
+
+		//std::vector<DWORD> m_Adjacency;
 
 	public:
 		OgreMesh(void)

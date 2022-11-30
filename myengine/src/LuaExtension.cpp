@@ -1403,6 +1403,11 @@ void LuaContext::Init(void)
 			.def("CreateMeshFromOther", &my::OgreMesh::CreateMeshFromOther)
 			.def("AppendMesh", &my::OgreMesh::AppendMesh)
 			.def("SaveOgreMesh", &my::OgreMesh::SaveOgreMesh)
+			.enum_("D3DXMESHSIMP")
+			[
+				value("D3DXMESHSIMP_VERTEX", D3DXMESHSIMP_VERTEX),
+				value("D3DXMESHSIMP_FACE", D3DXMESHSIMP_FACE)
+			]
 			.def("SaveSimplifiedOgreMesh", &my::OgreMesh::SaveSimplifiedOgreMesh)
 			.def("Transform", &my::OgreMesh::Transform)
 			.property("MaterialNum", &my::OgreMesh::GetMaterialNum)
