@@ -1501,12 +1501,22 @@ void OgreMesh::CreateMeshFromObjInStream(
 	}
 }
 
-void OgreMesh::SaveOgreMesh(const char * path, bool useSharedGeom)
+void OgreMesh::SaveOgreMesh(const char * path)
 {
+	bool useSharedGeom = true;
+	DWORD submeshes = 0;
+	GetAttributeTable(NULL, &submeshes);
+	std::vector<D3DXATTRIBUTERANGE> rang(submeshes);
+	GetAttributeTable(&rang[0], &submeshes);
+	if (submeshes > 0 && rang[1].VertexStart > 0)
+		useSharedGeom = false;
+
 	std::ofstream ofs(path);
+	// start mesh description
 	ofs << "<mesh>\n";
 	void* pVertices = LockVertexBuffer();
 	DWORD VertexStride = GetNumBytesPerVertex();
+	// write shared geometry (if used)
 	if (useSharedGeom)
 	{
 		ofs << "\t<sharedgeometry vertexcount=\"" << GetNumVertices() << "\">\n";
@@ -1562,10 +1572,6 @@ void OgreMesh::SaveOgreMesh(const char * path, bool useSharedGeom)
 		ofs << "\t\t</vertexbuffer>\n";
 		ofs << "\t</sharedgeometry>\n";
 	}
-	DWORD submeshes = 0;
-	GetAttributeTable(NULL, &submeshes);
-	std::vector<D3DXATTRIBUTERANGE> rang(submeshes);
-	GetAttributeTable(&rang[0], &submeshes);
 	VOID * pIndices = LockIndexBuffer();
 	// write submeshes data
 	ofs << "\t<submeshes>\n";
