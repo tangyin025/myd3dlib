@@ -870,8 +870,6 @@ void Terrain::CreateHeightFieldShape(TerrainStream * tstr, const char * HeightFi
 
 	float HeightScale = Max(fabs(aabb.m_max.y), fabs(aabb.m_min.y)) / SHRT_MAX;
 
-	physx::PxMaterial* material = CreatePhysxMaterial(0.5f, 0.5f, 0.5f);
-
 	if (tstr)
 	{
 		boost::multi_array<physx::PxHeightFieldSample, 2> Samples(boost::extents[m_ColChunks * m_ChunkSize + 1][m_RowChunks * m_ChunkSize + 1]);
@@ -906,6 +904,8 @@ void Terrain::CreateHeightFieldShape(TerrainStream * tstr, const char * HeightFi
 
 	PhysxInputData readBuffer(my::ResourceMgr::getSingleton().OpenIStream(HeightFieldPath));
 	m_PxHeightField.reset(PhysxSdk::getSingleton().m_sdk->createHeightField(readBuffer), PhysxDeleter<physx::PxHeightField>());
+
+	physx::PxMaterial* material = CreatePhysxMaterial(0.5f, 0.5f, 0.5f);
 
 	m_PxShape.reset(PhysxSdk::getSingleton().m_sdk->createShape(physx::PxHeightFieldGeometry(m_PxHeightField.get(), physx::PxMeshGeometryFlags(), HeightScale * ActorScale.y, ActorScale.x, ActorScale.z),
 		*material, true, /*physx::PxShapeFlag::eVISUALIZATION |*/ physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE), PhysxDeleter<physx::PxShape>());
