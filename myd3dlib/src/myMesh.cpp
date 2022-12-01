@@ -1489,7 +1489,7 @@ void OgreMesh::CreateMeshFromObjInStream(
 void OgreMesh::CreateMeshFromOther(OgreMesh* other, DWORD AttribId, const Matrix4& trans, unsigned int vertex_capacity, unsigned int face_capacity)
 {
 	DWORD dwMeshOptions = other->GetOptions();
-	if (!(dwMeshOptions & D3DXMESH_32BIT) && Min<DWORD>(vertex_capacity, other->GetNumVertices()) >= USHRT_MAX)
+	if (!(dwMeshOptions & D3DXMESH_32BIT) && Max<DWORD>(vertex_capacity, other->GetNumVertices()) >= USHRT_MAX)
 	{
 		dwMeshOptions |= D3DXMESH_32BIT;
 	}
