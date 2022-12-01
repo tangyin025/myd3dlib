@@ -1584,7 +1584,7 @@ void OgreMesh::AppendMesh(OgreMesh* other, DWORD AttribId, const Matrix4& trans)
 			{
 				*((WORD*)pIndices + (rang.FaceStart + i) * 3 + j) = idx;
 			}
-			pAttrBuffer[(rang.FaceStart + i) * 3 + j] = rang.AttribId;
+			pAttrBuffer[rang.FaceStart + i] = rang.AttribId;
 		}
 	}
 	other->UnlockIndexBuffer();
