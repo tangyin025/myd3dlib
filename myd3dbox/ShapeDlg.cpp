@@ -120,7 +120,8 @@ void CShapeDlg::OnOK()
 		if (m_cmp->GetComponentType() == Component::ComponentTypeMesh)
 		{
 			MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>(m_cmp);
-			mesh_cmp->CreateConvexMeshShape(ts2ms((LPCTSTR)m_AssetPath).c_str(), m_InflateConvex != FALSE);
+			mesh_cmp->CreateConvexMeshShape(
+				theApp.LoadMesh(mesh_cmp->m_MeshPath.c_str()).get(), mesh_cmp->m_MeshSubMeshId, ts2ms((LPCTSTR)m_AssetPath).c_str(), m_InflateConvex != FALSE);
 			mesh_cmp->SetSimulationFilterWord0(theApp.default_physx_shape_filterword0);
 			mesh_cmp->SetQueryFilterWord0(theApp.default_physx_shape_filterword0);
 		}
@@ -129,7 +130,8 @@ void CShapeDlg::OnOK()
 		if (m_cmp->GetComponentType() == Component::ComponentTypeMesh)
 		{
 			MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>(m_cmp);
-			mesh_cmp->CreateTriangleMeshShape(ts2ms((LPCTSTR)m_AssetPath).c_str());
+			mesh_cmp->CreateTriangleMeshShape(
+				theApp.LoadMesh(mesh_cmp->m_MeshPath.c_str()).get(), mesh_cmp->m_MeshSubMeshId, ts2ms((LPCTSTR)m_AssetPath).c_str());
 			mesh_cmp->SetSimulationFilterWord0(theApp.default_physx_shape_filterword0);
 			mesh_cmp->SetQueryFilterWord0(theApp.default_physx_shape_filterword0);
 		}

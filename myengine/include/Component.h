@@ -363,9 +363,9 @@ public:
 
 	virtual void AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos, const my::Vector3 & TargetPos);
 
-	void CreateTriangleMeshShape(const char * TriangleMeshPath);
+	void CreateTriangleMeshShape(my::OgreMesh * mesh, unsigned int sub_mesh_id, const char * TriangleMeshPath);
 
-	void CreateConvexMeshShape(const char * ConvexMeshPath, bool bInflateConvex);
+	void CreateConvexMeshShape(my::OgreMesh * mesh, unsigned int sub_mesh_id, const char * ConvexMeshPath, bool bInflateConvex);
 
 	virtual void SetSimulationFilterWord0(unsigned int filterWord0);
 
