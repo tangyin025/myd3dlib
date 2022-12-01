@@ -61,6 +61,8 @@ public:
 	void OnVertexBufferReady(my::DeviceResourceBasePtr res);
 };
 
+class TerrainStream;
+
 class Terrain
 	: public Component
 	, public my::OctRoot
@@ -172,7 +174,7 @@ public:
 
 	virtual void AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos, const my::Vector3 & TargetPos);
 
-	void CreateHeightFieldShape(const char * HeightFieldPath, const my::Vector3 & ActorScale);
+	void CreateHeightFieldShape(TerrainStream * tstr, const char * HeightFieldPath, const my::Vector3 & ActorScale);
 
 	virtual void ClearShape(void);
 

@@ -140,7 +140,8 @@ void CShapeDlg::OnOK()
 		if (m_cmp->GetComponentType() == Component::ComponentTypeTerrain)
 		{
 			Terrain * terrain = dynamic_cast<Terrain *>(m_cmp);
-			terrain->CreateHeightFieldShape(ts2ms((LPCTSTR)m_AssetPath).c_str(), terrain->m_Actor->m_Scale);
+			terrain->CreateHeightFieldShape(
+				&TerrainStream(terrain), ts2ms((LPCTSTR)m_AssetPath).c_str(), terrain->m_Actor->m_Scale);
 			terrain->SetSimulationFilterWord0(theApp.default_physx_shape_filterword0);
 			terrain->SetQueryFilterWord0(theApp.default_physx_shape_filterword0);
 		}

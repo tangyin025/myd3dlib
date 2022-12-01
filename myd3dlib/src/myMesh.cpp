@@ -1474,15 +1474,19 @@ void OgreMesh::CreateMeshFromObjInStream(
 		UnlockIndexBuffer();
 		UnlockAttributeBuffer();
 
+		D3DXATTRIBUTERANGE rang = { 0, 0, faces.size() / 3, 0, verts.size() };
+		m_AttribTable.push_back(rang);
+		SetAttributeTable(&m_AttribTable[0], m_AttribTable.size());
+
 		//std::vector<DWORD> adjacency(GetNumFaces() * 3);
 		//GenerateAdjacency((float)EPSILON_E6, &adjacency[0]);
 		//m_Adjacency.resize(adjacency.size());
 		//OptimizeInplace(D3DXMESHOPT_ATTRSORT | D3DXMESHOPT_VERTEXCACHE, &adjacency[0], &m_Adjacency[0], NULL, NULL);
 
-		DWORD AttribTblCount = 0;
-		GetAttributeTable(NULL, &AttribTblCount);
-		m_AttribTable.resize(AttribTblCount);
-		GetAttributeTable(&m_AttribTable[0], &AttribTblCount);
+		//DWORD AttribTblCount = 0;
+		//GetAttributeTable(NULL, &AttribTblCount);
+		//m_AttribTable.resize(AttribTblCount);
+		//GetAttributeTable(&m_AttribTable[0], &AttribTblCount);
 	}
 }
 

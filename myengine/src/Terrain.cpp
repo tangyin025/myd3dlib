@@ -589,7 +589,7 @@ void Terrain::load(Archive & ar, const unsigned int version)
 		ar >> boost::serialization::make_nvp("m_PxHeightFieldPath", PxHeightFieldPath);
 		my::Vector3 ActorScale;
 		ar >> BOOST_SERIALIZATION_NVP(ActorScale);
-		CreateHeightFieldShape(PxHeightFieldPath.c_str(), ActorScale);
+		CreateHeightFieldShape(NULL, PxHeightFieldPath.c_str(), ActorScale);
 		unsigned int SimulationFilterWord0;
 		ar >> BOOST_SERIALIZATION_NVP(SimulationFilterWord0);
 		SetSimulationFilterWord0(SimulationFilterWord0);
@@ -858,7 +858,7 @@ void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 	}
 }
 
-void Terrain::CreateHeightFieldShape(const char * HeightFieldPath, const my::Vector3 & ActorScale)
+void Terrain::CreateHeightFieldShape(TerrainStream * tstr, const char * HeightFieldPath, const my::Vector3 & ActorScale)
 {
 	_ASSERT(!m_PxShape);
 
@@ -872,20 +872,18 @@ void Terrain::CreateHeightFieldShape(const char * HeightFieldPath, const my::Vec
 
 	physx::PxMaterial* material = CreatePhysxMaterial(0.5f, 0.5f, 0.5f);
 
-	if (!my::ResourceMgr::getSingleton().CheckPath(HeightFieldPath))
+	if (tstr)
 	{
 		boost::multi_array<physx::PxHeightFieldSample, 2> Samples(boost::extents[m_ColChunks * m_ChunkSize + 1][m_RowChunks * m_ChunkSize + 1]);
-		TerrainStream tstr(this);
 		for (int i = 0; i < m_RowChunks * m_ChunkSize + 1; i++)
 		{
 			for (int j = 0; j < m_ColChunks * m_ChunkSize + 1; j++)
 			{
-				Samples[j][i].height = (short)Clamp<int>((int)roundf(tstr.GetPos(i, j).y / HeightScale), SHRT_MIN, SHRT_MAX);
+				Samples[j][i].height = (short)Clamp<int>((int)roundf(tstr->GetPos(i, j).y / HeightScale), SHRT_MIN, SHRT_MAX);
 				Samples[j][i].materialIndex0 = physx::PxBitAndByte(0, false);
 				Samples[j][i].materialIndex1 = physx::PxBitAndByte(0, false);
 			}
 		}
-		tstr.Flush();
 
 		physx::PxHeightFieldDesc hfDesc;
 		hfDesc.nbRows = m_ColChunks * m_ChunkSize + 1;
