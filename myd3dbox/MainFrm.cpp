@@ -1274,6 +1274,7 @@ void CMainFrame::OnFileSaveAs()
 	SaveFileContext(m_strPathName);
 
 	theApp.AddToRecentFileList(m_strPathName);
+	OnUpdateFrameTitle(TRUE);
 }
 
 void CMainFrame::OnCreateActor()

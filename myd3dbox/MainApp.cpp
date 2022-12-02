@@ -855,8 +855,8 @@ CDocument* CMainApp::OpenDocumentFile(LPCTSTR lpszFileName)
 	ASSERT_VALID(pFrame);
 	pFrame->m_strPathName = lpszFileName;
 	theApp.AddToRecentFileList(pFrame->m_strPathName); // ! invalid lpszFileName by resizing list
-	pFrame->m_wndOutliner.OnDestroyItemList();
 	pFrame->OnUpdateFrameTitle(TRUE);
+	pFrame->m_wndOutliner.OnDestroyItemList();
 	CWaitCursor wait;
 	pFrame->ClearFileContext();
 	pFrame->InitFileContext();
