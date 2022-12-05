@@ -434,6 +434,8 @@ namespace my
 
 		void AppendMesh(OgreMesh* other, DWORD AttribId, const Matrix4& trans);
 
+		void CombineMesh(OgreMesh* other, DWORD AttribId, const Matrix4& trans);
+
 		void SaveOgreMesh(const char * path);
 
 		void SaveSimplifiedOgreMesh(const char * path, DWORD MinValue, DWORD Options);

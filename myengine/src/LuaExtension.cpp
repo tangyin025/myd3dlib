@@ -1402,6 +1402,7 @@ void LuaContext::Init(void)
 			.def("CreateMeshFromObjInFile", &ogremesh_create_mesh_from_obj_in_file)
 			.def("CreateMeshFromOther", &my::OgreMesh::CreateMeshFromOther)
 			.def("AppendMesh", &my::OgreMesh::AppendMesh)
+			.def("CombineMesh", &my::OgreMesh::CombineMesh)
 			.def("SaveOgreMesh", &my::OgreMesh::SaveOgreMesh)
 			.enum_("D3DXMESHSIMP")
 			[

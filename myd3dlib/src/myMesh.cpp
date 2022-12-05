@@ -1568,7 +1568,6 @@ void OgreMesh::AppendMesh(OgreMesh* other, DWORD AttribId, const Matrix4& trans)
 	other->UnlockVertexBuffer();
 	UnlockVertexBuffer();
 
-	CComPtr<IDirect3DIndexBuffer9> ib = GetIndexBuffer();
 	VOID* pIndices = LockIndexBuffer();
 	VOID* pOtherIndices = other->LockIndexBuffer();
 	DWORD* pAttrBuffer = LockAttributeBuffer();
@@ -1596,6 +1595,86 @@ void OgreMesh::AppendMesh(OgreMesh* other, DWORD AttribId, const Matrix4& trans)
 	UnlockAttributeBuffer();
 
 	m_AttribTable.push_back(rang);
+	SetAttributeTable(&m_AttribTable[0], m_AttribTable.size());
+	m_MaterialNameList.push_back("aaa");
+}
+
+void OgreMesh::CombineMesh(OgreMesh* other, DWORD AttribId, const Matrix4& trans)
+{
+	if (m_AttribTable.empty())
+	{
+		THROW_CUSEXCEPTION("OgreMesh::CombineMesh: m_AttribTable is empty");
+	}
+
+	D3DXATTRIBUTERANGE& rang = m_AttribTable.back();
+	if (rang.VertexStart + rang.VertexCount + other->m_AttribTable[AttribId].VertexCount > GetNumVertices()
+		|| rang.FaceStart + rang.FaceCount + other->m_AttribTable[AttribId].FaceCount > GetNumFaces())
+	{
+		THROW_CUSEXCEPTION("OgreMesh::CombineMesh: vertex or face num overflow");
+	}
+
+	VOID* pVertices = LockVertexBuffer();
+	VOID* pOtherVertices = other->LockVertexBuffer();
+	for (int i = 0; i < other->m_AttribTable[AttribId].VertexCount; i++)
+	{
+		unsigned char* pVertex = (unsigned char*)pVertices + (rang.VertexStart + rang.VertexCount + i) * GetNumBytesPerVertex();
+		unsigned char* pOtherVertex = (unsigned char*)pOtherVertices + (other->m_AttribTable[AttribId].VertexStart + i) * other->GetNumBytesPerVertex();
+		m_VertexElems.SetPosition(pVertex, other->m_VertexElems.GetPosition(pOtherVertex).transformCoord(trans));
+
+		if (m_VertexElems.elems[D3DDECLUSAGE_NORMAL][0].Type != D3DDECLTYPE_UNUSED)
+		{
+			m_VertexElems.SetNormal(pVertex, other->m_VertexElems.GetNormal(pOtherVertex).transformNormal(trans));
+		}
+
+		if (m_VertexElems.elems[D3DDECLUSAGE_TANGENT][0].Type != D3DDECLTYPE_UNUSED)
+		{
+			m_VertexElems.SetTangent(pVertex, other->m_VertexElems.GetTangent(pOtherVertex).transformNormal(trans));
+		}
+
+		if (m_VertexElems.elems[D3DDECLUSAGE_COLOR][0].Type != D3DDECLTYPE_UNUSED)
+		{
+			m_VertexElems.SetColor(pVertex, other->m_VertexElems.GetColor(pOtherVertex));
+		}
+
+		for (int j = 0; j < D3DVertexElementSet::MAX_USAGE_INDEX; j++)
+		{
+			if (m_VertexElems.elems[D3DDECLUSAGE_TEXCOORD][j].Type != D3DDECLTYPE_UNUSED)
+			{
+				m_VertexElems.SetTexcoord(pVertex, other->m_VertexElems.GetTexcoord(pOtherVertex, j), j);
+			}
+		}
+	}
+	other->UnlockVertexBuffer();
+	UnlockVertexBuffer();
+
+	VOID* pIndices = LockIndexBuffer();
+	VOID* pOtherIndices = other->LockIndexBuffer();
+	DWORD* pAttrBuffer = LockAttributeBuffer();
+	for (int i = 0; i < other->m_AttribTable[AttribId].FaceCount; i++)
+	{
+		for (int j = 0; j < 3; j++)
+		{
+			int idx = (other->GetOptions() & D3DXMESH_32BIT) ?
+				*((DWORD*)pOtherIndices + (other->m_AttribTable[AttribId].FaceStart + i) * 3 + j) :
+				*((WORD*)pOtherIndices + (other->m_AttribTable[AttribId].FaceStart + i) * 3 + j);
+			idx = idx - other->m_AttribTable[AttribId].VertexStart + rang.VertexStart + rang.VertexCount;
+			if (GetOptions() & D3DXMESH_32BIT)
+			{
+				*((DWORD*)pIndices + (rang.FaceStart + rang.FaceCount + i) * 3 + j) = idx;
+			}
+			else
+			{
+				*((WORD*)pIndices + (rang.FaceStart + rang.FaceCount + i) * 3 + j) = idx;
+			}
+			pAttrBuffer[rang.FaceStart + rang.FaceCount + i] = rang.AttribId;
+		}
+	}
+	other->UnlockIndexBuffer();
+	UnlockIndexBuffer();
+	UnlockAttributeBuffer();
+
+	rang.VertexCount += other->m_AttribTable[AttribId].VertexCount;
+	rang.FaceCount += other->m_AttribTable[AttribId].FaceCount;
 	SetAttributeTable(&m_AttribTable[0], m_AttribTable.size());
 	m_MaterialNameList.push_back("aaa");
 }
