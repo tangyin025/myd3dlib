@@ -79,7 +79,7 @@ std::string NamedObject::MakeUniqueName(const char * Prefix)
 
 	_ASSERT(Prefix);
 
-	int postfix_i = 0;
+	static unsigned int postfix_i = 0;
 	std::string name_without_postfix;
 	boost::regex reg("(\\d+)$");
 	boost::match_results<const char *> what;
