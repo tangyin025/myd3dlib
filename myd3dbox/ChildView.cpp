@@ -2141,7 +2141,7 @@ void CChildView::OnLButtonDblClk(UINT nFlags, CPoint point)
 	__super::OnLButtonDblClk(nFlags, point);
 }
 
-#define ALIGN_TO_VALUE(v, a)  if ((GetKeyState('X') & 0x8000) ? !theApp.default_tool_snap_to_grid : theApp.default_tool_snap_to_grid) (v) = my::Align((v), (a));
+#define ALIGN_TO_VALUE(v, a)  if ((GetKeyState('X') & 0x8000) ? !theApp.default_tool_snap_to_grid : theApp.default_tool_snap_to_grid) (v) = my::Terrace((v), (a));
 
 #define ALIGN_TO_GRID(v) ALIGN_TO_VALUE(v, theApp.default_grid_lines_every / theApp.default_grid_subdivisions);
 

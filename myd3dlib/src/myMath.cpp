@@ -104,7 +104,7 @@ Quaternion Quaternion::RotationFromToSafe(const Vector3 & from, const Vector3 & 
 		return Identity();
 	}
 
-	return RotationFromTo(from * (1.0f / sqrtf(lensq0)), to * (1.0f / sqrt(lensq1)), Vector3::zero);
+	return RotationFromTo(from * (1.0f / sqrtf(lensq0)), to * (1.0f / sqrtf(lensq1)), Vector3::zero);
 }
 
 Vector3 Quaternion::toEulerAngles(void) const

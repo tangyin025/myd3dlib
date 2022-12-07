@@ -329,7 +329,7 @@ namespace my
 
 	RayResult IntersectionTests::rayAndParallelPlane(const Vector3 & pos, const Vector3 & dir, size_t axis_i, float value)
 	{
-		if (fabs(dir[axis_i]) < EPSILON_E6)
+		if (fabsf(dir[axis_i]) < EPSILON_E6)
 		{
 			return RayResult(false, FLT_MAX);
 		}
@@ -342,7 +342,7 @@ namespace my
 		float tFar = FLT_MAX;
 		for (int i = 0; i < 3; i++)
 		{
-			if (fabs(dir[i]) < EPSILON_E6)
+			if (fabsf(dir[i]) < EPSILON_E6)
 			{
 				if (pos[i] < aabb.m_min[i] || pos[i] > aabb.m_max[i])
 				{
@@ -771,9 +771,9 @@ namespace my
 	static void closestAxis2(const Vector3 & v, unsigned int & j, unsigned int & k)
 	{
 		// find largest 2D plane projection
-		const float absPx = fabs(v.x);
-		const float absPy = fabs(v.y);
-		const float absPz = fabs(v.z);
+		const float absPx = fabsf(v.x);
+		const float absPy = fabsf(v.y);
+		const float absPz = fabsf(v.z);
 		//PxU32 m = 0;	//x biggest axis
 		j = 1;
 		k = 2;

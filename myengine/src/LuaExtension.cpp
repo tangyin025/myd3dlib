@@ -871,11 +871,13 @@ void LuaContext::Init(void)
 	using namespace luabind;
 
 	module(m_State)[
-		def("Lerp", (float(*)(float, float, float))&my::Lerp<float>)
+		def("Lerp", &my::Lerp<double>)
 
-		, def("Clamp", (float(*)(float, float, float))&my::Clamp<float>)
+		, def("Clamp", &my::Clamp<double>)
 
-		, def("Wrap", (float(*)(float, float, float))&my::Wrap<float>)
+		, def("Wrap", &my::Wrap<double>)
+
+		, def("Terrace", &my::Terrace<double>)
 
 		, class_<my::Vector2>("Vector2")
 			.def(constructor<float>())

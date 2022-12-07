@@ -72,9 +72,9 @@ namespace my
 	T Wrap(T v, T min, T max);
 
 	template <typename T>
-	T Align(T v, T align)
+	T Terrace(T v, T align)
 	{
-		return (T)(align * roundf(v / (float)align));
+		return (T)(align * floor(v / align + 0.5f));
 	}
 
 	template <typename T>
@@ -3603,6 +3603,12 @@ namespace my
 	}
 
 	template <>
+	inline double my::Wrap<double>(double v, double min, double max)
+	{
+		return v >= max ? min + fmod(v - max, max - min) : (v < min ? max - fmod(min - v, max - min) : v);
+	}
+
+	template <>
 	inline int my::Random<int>(int range)
 	{
 		return rand() % range;
@@ -3615,6 +3621,12 @@ namespace my
 	}
 
 	template <>
+	inline double my::Random<double>(double range)
+	{
+		return range * ((double)rand() / RAND_MAX);
+	}
+
+	template <>
 	inline int my::Random<int>(int min, int max)
 	{
 		return min + rand() % (max - min);
@@ -3624,6 +3636,12 @@ namespace my
 	inline float my::Random<float>(float min, float max)
 	{
 		return min + (max - min) * ((float)rand() / RAND_MAX);
+	}
+
+	template <>
+	inline double my::Random<double>(double min, double max)
+	{
+		return min + (max - min) * ((double)rand() / RAND_MAX);
 	}
 
 	inline Vector4 Vector2::transform(const Matrix4 & m) const
