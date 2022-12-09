@@ -89,6 +89,10 @@ public:
 
 	float m_ChunkLodScale;
 
+	static const int LastLod = 3;
+
+	int m_ChunkLodOffset;
+
 	typedef std::map<std::pair<int, int>, StaticEmitterChunk> ChunkMap;
 
 	ChunkMap m_Chunks;
@@ -107,6 +111,7 @@ public:
 		: EmitterComponent(Name, _FaceType, _SpaceTypeWorld, _VelocityType, _PrimitiveType)
 		, m_ChunkWidth(ChunkWidth)
 		, m_ChunkLodScale(1.0f)
+		, m_ChunkLodOffset(0)
 		, OctRoot(LocalRootAabb.m_min, LocalRootAabb.m_max)
 	{
 	}
