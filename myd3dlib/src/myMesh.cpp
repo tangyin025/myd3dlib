@@ -1448,7 +1448,7 @@ void OgreMesh::CreateMeshFromObjInStream(
 			m_VertexElems.SetTexcoord(pVertex, uvs[i]);
 		}
 
-		DWORD vmin = UINT_MAX, vmax = 0;
+		int vmin = INT_MAX, vmax = 0;
 		for (int i = 0; i < faces.size() / 3; i++)
 		{
 			if (dwMeshOptions & D3DXMESH_32BIT)
@@ -1464,6 +1464,8 @@ void OgreMesh::CreateMeshFromObjInStream(
 				*((WORD*)pIndices + i * 3 + 2) = faces[i * 3 + 2];
 			}
 			pAttrBuffer[i] = 0;
+			vmin = Min(vmin, Min(faces[i * 3 + 0], faces[i * 3 + 1], faces[i * 3 + 2]));
+			vmax = Max(vmax, Max(faces[i * 3 + 0], faces[i * 3 + 1], faces[i * 3 + 2]));
 		}
 		m_MaterialNameList.push_back("aaa");
 
