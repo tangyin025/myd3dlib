@@ -761,6 +761,55 @@ bool CChildView::OverlapTestFrustumAndComponent(const my::Frustum & frustum, con
 			}
 		}
 		break;
+	
+	case Component::ComponentTypeStaticMesh:
+		{
+			StaticMesh* static_mesh_cmp = dynamic_cast<StaticMesh*>(cmp);
+			struct Callback : public my::OctNode::QueryCallback
+			{
+				CChildView* pView;
+				const my::Frustum& frustum;
+				const my::Frustum& local_ftm;
+				MeshComponent* mesh_cmp;
+				bool ret;
+				Callback(CChildView* _pView, const my::Frustum& _frustum, const my::Frustum& _local_ftm, MeshComponent* _mesh_cmp)
+					: pView(_pView)
+					, frustum(_frustum)
+					, local_ftm(_local_ftm)
+					, mesh_cmp(_mesh_cmp)
+					, ret(false)
+				{
+				}
+				virtual bool OnQueryEntity(my::OctEntity* oct_entity, const my::AABB& aabb, my::IntersectionTests::IntersectionType)
+				{
+					StaticMeshChunk* chunk = dynamic_cast<StaticMeshChunk*>(oct_entity);
+					if (!mesh_cmp->m_Mesh)
+					{
+						return false;
+					}
+					ret = my::Mesh::FrustumTest(local_ftm,
+						mesh_cmp->m_Mesh->LockVertexBuffer(D3DLOCK_READONLY),
+						mesh_cmp->m_Mesh->GetNumVertices(),
+						mesh_cmp->m_Mesh->GetNumBytesPerVertex(),
+						mesh_cmp->m_Mesh->LockIndexBuffer(D3DLOCK_READONLY),
+						!(mesh_cmp->m_Mesh->GetOptions() & D3DXMESH_32BIT),
+						mesh_cmp->m_Mesh->m_AttribTable[chunk->m_SubMeshId].FaceStart,
+						mesh_cmp->m_Mesh->m_AttribTable[chunk->m_SubMeshId].FaceCount,
+						mesh_cmp->m_Mesh->m_VertexElems);
+					mesh_cmp->m_Mesh->UnlockVertexBuffer();
+					mesh_cmp->m_Mesh->UnlockIndexBuffer();
+					if (ret)
+					{
+						return false;
+					}
+					return true;
+				}
+			};
+			Callback cb(this, frustum, local_ftm, static_mesh_cmp);
+			static_mesh_cmp->QueryEntity(local_ftm, &cb);
+			return cb.ret;
+		}
+		break;
 
 	case Component::ComponentTypeStaticEmitter:
 		{
