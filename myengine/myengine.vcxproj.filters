@@ -63,6 +63,9 @@
     <ClInclude Include="include\SceneContext.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\StaticMesh.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Actor.cpp">
@@ -111,6 +114,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\SceneContext.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\StaticMesh.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
