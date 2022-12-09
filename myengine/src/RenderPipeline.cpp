@@ -956,16 +956,16 @@ void RenderPipeline::RenderAllObjects(
 			V(pd3dDevice->SetStreamSource(0, pVB, 0, mesh_bat_iter->first->GetNumBytesPerVertex()));
 			V(pd3dDevice->SetVertexDeclaration(mesh_bat_iter->first->m_Decl));
 			V(pd3dDevice->SetIndices(pIB));
-			mesh_bat_iter->second.cmps.front()->OnSetShader(pd3dDevice, mesh_bat_iter->second.shader, mesh_bat_iter->second.lparam);
+			mesh_bat_iter->second.cmps.front().get<0>()->OnSetShader(pd3dDevice, mesh_bat_iter->second.shader, mesh_bat_iter->second.lparam);
 			const UINT passes = mesh_bat_iter->second.shader->Begin(D3DXFX_DONOTSAVESTATE | D3DXFX_DONOTSAVESAMPLERSTATE | D3DXFX_DONOTSAVESHADERSTATE);
 			_ASSERT(PassID < passes);
 			{
-				mesh_bat_iter->second.mtl->OnSetShader(pd3dDevice, mesh_bat_iter->second.shader, mesh_bat_iter->second.lparam, pRC, mesh_bat_iter->second.cmps.front()->m_Actor);
+				mesh_bat_iter->second.mtl->OnSetShader(pd3dDevice, mesh_bat_iter->second.shader, mesh_bat_iter->second.lparam, pRC, mesh_bat_iter->second.cmps.front().get<0>()->m_Actor);
 				mesh_bat_iter->second.shader->BeginPass(PassID);
-				std::vector<MeshComponent*>::iterator cmp_iter = mesh_bat_iter->second.cmps.begin();
+				std::vector<boost::tuple<Component*, unsigned int> >::iterator cmp_iter = mesh_bat_iter->second.cmps.begin();
 				for (; cmp_iter != mesh_bat_iter->second.cmps.end(); cmp_iter++)
 				{
-					const D3DXATTRIBUTERANGE& rang = mesh_bat_iter->first->m_AttribTable[(*cmp_iter)->m_MeshSubMeshId];
+					const D3DXATTRIBUTERANGE& rang = mesh_bat_iter->first->m_AttribTable[cmp_iter->get<1>()];
 					V(pd3dDevice->DrawIndexedPrimitive(D3DPT_TRIANGLELIST,
 						0, rang.VertexStart, rang.VertexCount, rang.FaceStart * 3, rang.FaceCount));
 					m_PassBatchDrawCall[PassID]++;
@@ -1322,7 +1322,7 @@ void RenderPipeline::PushMeshInstance(unsigned int PassID, my::OgreMesh * mesh, 
 	res.first->second.cmps.push_back(mesh_cmp);
 }
 
-void RenderPipeline::PushMeshBatch(unsigned int PassID, my::OgreMesh * mesh, DWORD AttribId, my::Effect * shader, MeshComponent * mesh_cmp, Material * mtl, LPARAM lparam)
+void RenderPipeline::PushMeshBatch(unsigned int PassID, my::OgreMesh * mesh, DWORD AttribId, my::Effect * shader, Component * cmp, Material * mtl, LPARAM lparam)
 {
 	std::pair<MeshBatchAtomMap::iterator, bool> res = m_Pass[PassID].m_MeshBatchMap.insert(std::make_pair(mesh, MeshBatchAtom()));
 	if (res.second)
@@ -1330,7 +1330,7 @@ void RenderPipeline::PushMeshBatch(unsigned int PassID, my::OgreMesh * mesh, DWO
 		res.first->second.shader = shader;
 		res.first->second.mtl = mtl;
 		res.first->second.lparam = lparam;
-		res.first->second.cmps.push_back(mesh_cmp);
+		res.first->second.cmps.push_back(boost::make_tuple(cmp, AttribId));
 	}
 	else
 	{
@@ -1338,7 +1338,7 @@ void RenderPipeline::PushMeshBatch(unsigned int PassID, my::OgreMesh * mesh, DWO
 		//_ASSERT(boost::hash_value(*res.first->second.mtl) == boost::hash_value(*mtl));
 		//_ASSERT(res.first->second.lparam == lparam);
 		//_ASSERT(res.first->second.cmps.front()->m_Actor->m_World == mesh_cmp->m_Actor->m_World);
-		res.first->second.cmps.push_back(mesh_cmp);
+		res.first->second.cmps.push_back(boost::make_tuple(cmp, AttribId));
 	}
 }
 

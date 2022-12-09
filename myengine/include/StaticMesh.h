@@ -34,9 +34,9 @@ public:
 
 	float m_ChunkWidth;
 
-	typedef std::vector<StaticMeshChunk> StaticMeshChunkList;
+	typedef std::map<int, StaticMeshChunk> ChunkMap;
 
-	StaticMeshChunkList m_Chunks;
+	ChunkMap m_Chunks;
 
 protected:
 	StaticMesh(void)
@@ -49,6 +49,11 @@ public:
 		, m_ChunkWidth(ChunkWidth)
 		, OctRoot(LocalRootAabb.m_min, LocalRootAabb.m_max)
 	{
+	}
+
+	virtual ~StaticMesh(void)
+	{
+		ClearAllEntity();
 	}
 
 	friend class boost::serialization::access;
@@ -78,4 +83,6 @@ public:
 
 	virtual void AddToPipeline(const my::Frustum& frustum, RenderPipeline* pipeline, unsigned int PassMask, const my::Vector3& ViewPos, const my::Vector3& TargetPos);
 };
+
+typedef boost::shared_ptr<StaticMesh> StaticMeshPtr;
 

@@ -13,10 +13,10 @@ void StaticMesh::save(Archive& ar, const unsigned int version) const
 	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(OctRoot);
 	DWORD ChunkSize = m_Chunks.size();
 	ar << BOOST_SERIALIZATION_NVP(ChunkSize);
-	StaticMeshChunkList::const_iterator chunk_iter = m_Chunks.begin();
+	ChunkMap::const_iterator chunk_iter = m_Chunks.begin();
 	for (; chunk_iter != m_Chunks.end(); chunk_iter++)
 	{
-		ar << boost::serialization::make_nvp("m_chunk_submesh_id", chunk_iter->m_SubMeshId);
+		ar << boost::serialization::make_nvp("m_chunk_submesh_id", chunk_iter->first);
 		ar << boost::serialization::make_nvp("m_chunk_aabb", *chunk_iter->m_OctAabb);
 	}
 }
@@ -34,8 +34,9 @@ void StaticMesh::load(Archive& ar, const unsigned int version)
 		int SubMeshId; AABB aabb;
 		ar >> boost::serialization::make_nvp("m_chunk_submesh_id", SubMeshId);
 		ar >> boost::serialization::make_nvp("m_chunk_aabb", aabb);
-		m_Chunks.push_back(StaticMeshChunk(SubMeshId));
-		AddEntity(&m_Chunks.back(), aabb, m_ChunkWidth, 0.01f);
+		std::pair<ChunkMap::iterator, bool> chunk_res = m_Chunks.insert(std::make_pair(SubMeshId, StaticMeshChunk(SubMeshId)));
+		_ASSERT(chunk_res.second);
+		AddEntity(&chunk_res.first->second, aabb, m_ChunkWidth, 0.01f);
 	}
 }
 
@@ -60,10 +61,10 @@ my::AABB StaticMesh::CalculateAABB(void) const
 	}
 
 	AABB ret(AABB::Invalid());
-	StaticMeshChunkList::const_iterator chunk_iter = m_Chunks.begin();
+	ChunkMap::const_iterator chunk_iter = m_Chunks.begin();
 	for (; chunk_iter != m_Chunks.end(); chunk_iter++)
 	{
-		ret.unionSelf(m_Mesh->CalculateAABB(chunk_iter->m_SubMeshId));
+		ret.unionSelf(m_Mesh->CalculateAABB(chunk_iter->first));
 	}
 	return ret;
 }
@@ -89,10 +90,10 @@ void StaticMesh::AddToPipeline(const my::Frustum& frustum, RenderPipeline* pipel
 							BOOST_VERIFY(handle_MeshColor = shader->GetParameterByName(NULL, "g_MeshColor"));
 						}
 
-						StaticMeshChunkList::const_iterator chunk_iter = m_Chunks.begin();
+						ChunkMap::const_iterator chunk_iter = m_Chunks.begin();
 						for (; chunk_iter != m_Chunks.end(); chunk_iter++)
 						{
-							pipeline->PushMeshBatch(PassID, m_Mesh.get(), chunk_iter->m_SubMeshId, shader, this, m_Material.get(), 0);
+							pipeline->PushMeshBatch(PassID, m_Mesh.get(), chunk_iter->first, shader, this, m_Material.get(), 0);
 						}
 					}
 				}

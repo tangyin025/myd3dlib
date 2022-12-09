@@ -407,7 +407,7 @@ public:
 		my::Effect * shader;
 		Material * mtl;
 		LPARAM lparam;
-		std::vector<MeshComponent *> cmps;
+		std::vector<boost::tuple<Component *, unsigned int> > cmps;
 	};
 
 	typedef boost::unordered_map<my::OgreMesh *, MeshBatchAtom> MeshBatchAtomMap;
@@ -637,7 +637,7 @@ public:
 
 	void PushMeshInstance(unsigned int PassID, my::OgreMesh * mesh, DWORD AttribId, my::Effect * shader, MeshComponent * mesh_cmp, Material * mtl, LPARAM lparam);
 
-	void PushMeshBatch(unsigned int PassID, my::OgreMesh * mesh, DWORD AttribId, my::Effect * shader, MeshComponent * mesh_cmp, Material * mtl, LPARAM lparam);
+	void PushMeshBatch(unsigned int PassID, my::OgreMesh * mesh, DWORD AttribId, my::Effect * shader, Component * cmp, Material * mtl, LPARAM lparam);
 
 	void PushEmitter(
 		unsigned int PassID,
