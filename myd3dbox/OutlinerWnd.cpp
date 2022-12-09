@@ -260,6 +260,9 @@ void COutlinerWnd::OnLvnGetdispinfoList(NMHDR* pNMHDR, LRESULT* pResult)
 			case Component::ComponentTypeMesh:
 				pItem->iImage = 7;
 				break;
+			case Component::ComponentTypeStaticMesh:
+				pItem->iImage = 7;
+				break;
 			case Component::ComponentTypeCloth:
 				pItem->iImage = 8;
 				break;
