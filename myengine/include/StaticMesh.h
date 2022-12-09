@@ -1,13 +1,11 @@
 #pragma once
 
 #include "Component.h"
-#include <boost/intrusive/list.hpp>
 
 struct StaticMeshTag;
 
 class StaticMeshChunk
 	: public my::OctEntity
-	, public boost::intrusive::list_base_hook<boost::intrusive::tag<StaticMeshTag> >
 {
 public:
 	int m_SubMeshId;

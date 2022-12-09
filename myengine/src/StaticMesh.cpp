@@ -19,6 +19,8 @@
 
 BOOST_CLASS_EXPORT(StaticMesh)
 
+using namespace my;
+
 template<class Archive>
 void StaticMesh::save(Archive& ar, const unsigned int version) const
 {
@@ -84,31 +86,48 @@ void StaticMesh::AddToPipeline(const my::Frustum& frustum, RenderPipeline* pipel
 {
 	_ASSERT(m_Actor);
 
+	struct Callback : public my::OctNode::QueryCallback
+	{
+		RenderPipeline* pipeline;
+		unsigned int PassMask;
+		StaticMesh* mesh_cmp;
+		Callback(RenderPipeline* _pipeline, unsigned int _PassMask, StaticMesh* _mesh_cmp)
+			: pipeline(_pipeline)
+			, PassMask(_PassMask)
+			, mesh_cmp(_mesh_cmp)
+		{
+		}
+		virtual bool OnQueryEntity(my::OctEntity* oct_entity, const my::AABB& aabb, my::IntersectionTests::IntersectionType)
+		{
+			StaticMeshChunk* chunk = dynamic_cast<StaticMeshChunk*>(oct_entity);
+			for (unsigned int PassID = 0; PassID < RenderPipeline::PassTypeNum; PassID++)
+			{
+				if (RenderPipeline::PassTypeToMask(PassID) & (mesh_cmp->m_Material->m_PassMask & PassMask))
+				{
+					my::Effect* shader = pipeline->QueryShader(RenderPipeline::MeshTypeMesh, NULL, mesh_cmp->m_Material->m_Shader.c_str(), PassID);
+					if (shader)
+					{
+						if (!mesh_cmp->handle_World)
+						{
+							BOOST_VERIFY(mesh_cmp->handle_World = shader->GetParameterByName(NULL, "g_World"));
+							BOOST_VERIFY(mesh_cmp->handle_MeshColor = shader->GetParameterByName(NULL, "g_MeshColor"));
+						}
+
+						pipeline->PushMeshBatch(PassID, mesh_cmp->m_Mesh.get(), chunk->m_SubMeshId, shader, mesh_cmp, mesh_cmp->m_Material.get(), 0);
+					}
+				}
+			}
+			return true;
+		}
+	};
+
 	if (m_Mesh)
 	{
 		if (m_Material && (m_Material->m_PassMask & PassMask))
 		{
-			for (unsigned int PassID = 0; PassID < RenderPipeline::PassTypeNum; PassID++)
-			{
-				if (RenderPipeline::PassTypeToMask(PassID) & (m_Material->m_PassMask & PassMask))
-				{
-					my::Effect* shader = pipeline->QueryShader(RenderPipeline::MeshTypeMesh, NULL, m_Material->m_Shader.c_str(), PassID);
-					if (shader)
-					{
-						if (!handle_World)
-						{
-							BOOST_VERIFY(handle_World = shader->GetParameterByName(NULL, "g_World"));
-							BOOST_VERIFY(handle_MeshColor = shader->GetParameterByName(NULL, "g_MeshColor"));
-						}
-
-						ChunkMap::const_iterator chunk_iter = m_Chunks.begin();
-						for (; chunk_iter != m_Chunks.end(); chunk_iter++)
-						{
-							pipeline->PushMeshBatch(PassID, m_Mesh.get(), chunk_iter->first, shader, this, m_Material.get(), 0);
-						}
-					}
-				}
-			}
+			Frustum LocalFrustum = frustum.transform(m_Actor->m_World.transpose());
+			Callback cb(pipeline, PassMask, this);
+			QueryEntity(LocalFrustum, &cb);
 		}
 	}
 }
