@@ -174,6 +174,7 @@ public:
 		PropertyStaticEmitterChunkWidth,
 		PropertyStaticEmitterChunkPath,
 		PropertyStaticEmitterChunkLodScale,
+		PropertyStaticEmitterChunkLodOffset,
 		PropertySphericalEmitter,
 		PropertySphericalEmitterParticleCapacity,
 		PropertySphericalEmitterParticleLifeTime,

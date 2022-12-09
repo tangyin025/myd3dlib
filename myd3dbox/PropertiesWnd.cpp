@@ -593,26 +593,27 @@ void CPropertiesWnd::UpdatePropertiesStaticEmitter(CMFCPropertyGridProperty * pC
 	pChunkWidth->SetValue((_variant_t)emit_cmp->m_ChunkWidth);
 	pComponent->GetSubItem(PropId + 5)->SetValue((_variant_t)ms2ts(emit_cmp->m_ChunkPath).c_str());
 	pComponent->GetSubItem(PropId + 6)->SetValue((_variant_t)emit_cmp->m_ChunkLodScale);
-	UpdatePropertiesMaterial(pComponent->GetSubItem(PropId + 7), emit_cmp->m_Material.get());
+	pComponent->GetSubItem(PropId + 7)->SetValue((_variant_t)emit_cmp->m_ChunkLodOffset);
+	UpdatePropertiesMaterial(pComponent->GetSubItem(PropId + 8), emit_cmp->m_Material.get());
 	CMainFrame* pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
-	CMFCPropertyGridProperty * pParticle = pComponent->GetSubItem(PropId + 8);
+	CMFCPropertyGridProperty * pParticle = pComponent->GetSubItem(PropId + 9);
 	StaticEmitter::ChunkMap::const_iterator chunk_iter = (pFrame->m_selcmp == emit_cmp ? emit_cmp->m_Chunks.find(std::make_pair(pFrame->m_selchunkid.x, pFrame->m_selchunkid.y)) : emit_cmp->m_Chunks.begin());
 	if (chunk_iter != emit_cmp->m_Chunks.end() && chunk_iter->second.m_buff && pFrame->m_selinstid < chunk_iter->second.m_buff->size())
 	{
 		if (pParticle->GetSubItemsCount() > 0)
 		{
-			UpdatePropertiesStaticEmitterParticle(pComponent->GetSubItem(PropId + 8), CPoint(chunk_iter->first.first, chunk_iter->first.second), pFrame->m_selinstid, &(*chunk_iter->second.m_buff)[pFrame->m_selinstid]);
+			UpdatePropertiesStaticEmitterParticle(pComponent->GetSubItem(PropId + 9), CPoint(chunk_iter->first.first, chunk_iter->first.second), pFrame->m_selinstid, &(*chunk_iter->second.m_buff)[pFrame->m_selinstid]);
 		}
 		else
 		{
-			RemovePropertiesFrom(pComponent, PropId + 8);
+			RemovePropertiesFrom(pComponent, PropId + 9);
 			CreatePropertiesStaticEmitterParticle(pComponent, CPoint(chunk_iter->first.first, chunk_iter->first.second), pFrame->m_selinstid, &(*chunk_iter->second.m_buff)[pFrame->m_selinstid]);
 		}
 	}
 	else
 	{
-		RemovePropertiesFrom(pComponent->GetSubItem(PropId + 8), 0);
+		RemovePropertiesFrom(pComponent->GetSubItem(PropId + 9), 0);
 	}
 }
 
@@ -1656,6 +1657,8 @@ void CPropertiesWnd::CreatePropertiesStaticEmitter(CMFCPropertyGridProperty * pC
 	pComponent->AddSubItem(pChunkPath);
 	CMFCPropertyGridProperty* pChunkLodScale = new CSimpleProp(_T("ChunkLodScale"), (_variant_t)emit_cmp->m_ChunkLodScale, NULL, PropertyStaticEmitterChunkLodScale);
 	pComponent->AddSubItem(pChunkLodScale);
+	CMFCPropertyGridProperty* pChunkLodOffset = new CSimpleProp(_T("ChunkLodOffset"), (_variant_t)emit_cmp->m_ChunkLodOffset, NULL, PropertyStaticEmitterChunkLodOffset);
+	pComponent->AddSubItem(pChunkLodOffset);
 	CreatePropertiesMaterial(pComponent, _T("Material"), emit_cmp->m_Material.get());
 	CMainFrame* pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
@@ -2696,7 +2699,7 @@ unsigned int CPropertiesWnd::GetComponentPropCount(DWORD type)
 	case Component::ComponentTypeCloth:
 		return GetComponentPropCount(Component::ComponentTypeComponent) + 4;
 	case Component::ComponentTypeStaticEmitter:
-		return GetComponentPropCount(Component::ComponentTypeComponent) + 9;
+		return GetComponentPropCount(Component::ComponentTypeComponent) + 10;
 	case Component::ComponentTypeSphericalEmitter:
 		return GetComponentPropCount(Component::ComponentTypeComponent) + 23;
 	case Component::ComponentTypeTerrain:
@@ -3793,6 +3796,14 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	{
 		StaticEmitter* emit_cmp = (StaticEmitter*)pProp->GetParent()->GetValue().pulVal;
 		emit_cmp->m_ChunkLodScale = pProp->GetValue().fltVal;
+		my::EventArg arg;
+		pFrame->m_EventAttributeChanged(&arg);
+		break;
+	}
+	case PropertyStaticEmitterChunkLodOffset:
+	{
+		StaticEmitter* emit_cmp = (StaticEmitter*)pProp->GetParent()->GetValue().pulVal;
+		emit_cmp->m_ChunkLodOffset = pProp->GetValue().intVal;
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
