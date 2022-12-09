@@ -103,7 +103,13 @@ protected:
 	}
 
 public:
-	StaticEmitter(const char* Name, const my::AABB & LocalRootAabb, float ChunkWidth, FaceType _FaceType, SpaceType _SpaceTypeWorld, VelocityType _VelocityType, PrimitiveType _PrimitiveType);
+	StaticEmitter(const char* Name, const my::AABB & LocalRootAabb, float ChunkWidth, FaceType _FaceType, SpaceType _SpaceTypeWorld, VelocityType _VelocityType, PrimitiveType _PrimitiveType)
+		: EmitterComponent(Name, _FaceType, _SpaceTypeWorld, _VelocityType, _PrimitiveType)
+		, m_ChunkWidth(ChunkWidth)
+		, m_ChunkLodScale(1.0f)
+		, OctRoot(LocalRootAabb.m_min, LocalRootAabb.m_max)
+	{
+	}
 
 	virtual ~StaticEmitter(void)
 	{

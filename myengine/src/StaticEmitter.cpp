@@ -116,14 +116,6 @@ void StaticEmitterChunk::OnChunkBufferReady(my::DeviceResourceBasePtr res)
 	m_buff = boost::dynamic_pointer_cast<StaticEmitterChunkBuffer>(res);
 }
 
-StaticEmitter::StaticEmitter(const char* Name, const my::AABB & LocalRootAabb, float ChunkWidth, FaceType _FaceType, SpaceType _SpaceTypeWorld, VelocityType _VelocityType, PrimitiveType _PrimitiveType)
-	: EmitterComponent(Name, _FaceType, _SpaceTypeWorld, _VelocityType, _PrimitiveType)
-	, m_ChunkWidth(ChunkWidth)
-	, m_ChunkLodScale(1.0f)
-	, OctRoot(LocalRootAabb.m_min, LocalRootAabb.m_max)
-{
-}
-
 template<class Archive>
 void StaticEmitter::save(Archive& ar, const unsigned int version) const
 {

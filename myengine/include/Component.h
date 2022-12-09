@@ -40,6 +40,7 @@ public:
 		ComponentTypeActor,
 		ComponentTypeController,
 		ComponentTypeMesh,
+		ComponentTypeStaticMesh,
 		ComponentTypeCloth,
 		ComponentTypeEmitter,
 		ComponentTypeStaticEmitter,
