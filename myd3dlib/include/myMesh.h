@@ -438,7 +438,7 @@ namespace my
 
 		const D3DXATTRIBUTERANGE& AppendToAttrib(const D3DXATTRIBUTERANGE& rang, OgreMesh* other, DWORD AttribId, const Matrix4& trans);
 
-		void SaveOgreMesh(const char * path);
+		void SaveOgreMesh(const char * path, bool useSharedGeom);
 
 		void SaveSimplifiedOgreMesh(const char * path, DWORD MinValue, DWORD Options);
 

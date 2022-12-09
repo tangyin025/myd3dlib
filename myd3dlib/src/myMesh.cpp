@@ -1283,6 +1283,7 @@ void OgreMesh::CreateMeshFromOgreXml(
 		DEFINE_XML_NODE_SIMPLE(face, faces);
 
 		D3DXATTRIBUTERANGE& rang = m_AttribTable[submesh_i];
+		DWORD vmin = UINT_MAX, vmax = 0;
 		for (; node_face != NULL && face_i < total_faces; node_face = node_face->next_sibling(), face_i++)
 		{
 			DEFINE_XML_ATTRIBUTE_INT_SIMPLE(v1, face);
@@ -1302,7 +1303,11 @@ void OgreMesh::CreateMeshFromOgreXml(
 				*((WORD*)pIndices + face_i * 3 + 2) = v3 + rang.VertexStart;
 			}
 			pAttrBuffer[face_i] = submesh_i;
+			vmin = Min(vmin, Min(v1, v2, v3) + rang.VertexStart);
+			vmax = Max(vmax, Max(v1, v2, v3) + rang.VertexStart);
 		}
+		rang.VertexStart = vmin;
+		rang.VertexCount = vmax - vmin + 1;
 	}
 
 	ResourceMgr::getSingleton().EnterDeviceSection();
@@ -1443,6 +1448,7 @@ void OgreMesh::CreateMeshFromObjInStream(
 			m_VertexElems.SetTexcoord(pVertex, uvs[i]);
 		}
 
+		DWORD vmin = UINT_MAX, vmax = 0;
 		for (int i = 0; i < faces.size() / 3; i++)
 		{
 			if (dwMeshOptions & D3DXMESH_32BIT)
@@ -1474,7 +1480,7 @@ void OgreMesh::CreateMeshFromObjInStream(
 		UnlockIndexBuffer();
 		UnlockAttributeBuffer();
 
-		D3DXATTRIBUTERANGE rang = { 0, 0, faces.size() / 3, 0, verts.size() };
+		D3DXATTRIBUTERANGE rang = { 0, 0, faces.size() / 3, vmin, vmax - vmin + 1 };
 		m_AttribTable.push_back(rang);
 		SetAttributeTable(&m_AttribTable[0], m_AttribTable.size());
 
@@ -1616,18 +1622,8 @@ const D3DXATTRIBUTERANGE& OgreMesh::AppendToAttrib(const D3DXATTRIBUTERANGE& ran
 	return rang;
 }
 
-void OgreMesh::SaveOgreMesh(const char * path)
+void OgreMesh::SaveOgreMesh(const char * path, bool useSharedGeom)
 {
-	bool useSharedGeom = true;
-	for (int i = 1; i < m_AttribTable.size(); i++)
-	{
-		if (m_AttribTable[i].VertexStart > 0 || m_AttribTable[i].VertexCount != m_AttribTable[0].VertexCount)
-		{
-			useSharedGeom = false;
-			break;
-		}
-	}
-
 	std::ofstream ofs(path);
 	// start mesh description
 	ofs << "<mesh>\n";
@@ -1870,7 +1866,7 @@ void OgreMesh::SaveSimplifiedOgreMesh(const char * path, DWORD MinValue, DWORD O
 	simplified_mesh->GetAttributeTable(NULL, &AttribTblCount);
 	simplified_mesh->m_AttribTable.resize(AttribTblCount);
 	simplified_mesh->GetAttributeTable(&simplified_mesh->m_AttribTable[0], &AttribTblCount);
-	simplified_mesh->SaveOgreMesh(path);
+	simplified_mesh->SaveOgreMesh(path, true);
 }
 
 void OgreMesh::Transform(const Matrix4 & trans)
