@@ -348,12 +348,6 @@ void CPropertiesWnd::UpdatePropertiesActor(Actor * actor)
 			CreateProperties(pActor, cmp_iter->get());
 			continue;
 		}
-		if (pActor->GetSubItem(PropId + i)->GetData() != GetComponentProp((*cmp_iter)->GetComponentType()))
-		{
-			RemovePropertiesFrom(pActor, PropId + i);
-			CreateProperties(pActor, cmp_iter->get());
-			continue;
-		}
 		UpdateProperties(pActor->GetSubItem(PropId + i), i, cmp_iter->get());
 	}
 	RemovePropertiesFrom(pActor, GetComponentPropCount(Component::ComponentTypeActor) + (int)actor->m_Cmps.size());
@@ -384,7 +378,7 @@ void CPropertiesWnd::UpdatePropertiesRigidActor(CMFCPropertyGridProperty * pRigi
 
 void CPropertiesWnd::UpdateProperties(CMFCPropertyGridProperty * pComponent, int i, Component * cmp)
 {
-	//pComponent->SetName(GetComponentTypeName(cmp->GetComponentType()), FALSE);
+	pComponent->SetName(GetComponentTypeName(cmp->GetComponentType()), FALSE);
 	pComponent->SetValue((_variant_t)(DWORD_PTR)cmp);
 	pComponent->GetSubItem(0)->SetValue((_variant_t)ms2ts(cmp->GetName()).c_str());
 	pComponent->GetSubItem(1)->SetValue((_variant_t)GetLodMaskDesc(cmp->m_LodMask));
