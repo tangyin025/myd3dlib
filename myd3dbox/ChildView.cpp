@@ -12,6 +12,7 @@
 #include <Recast.h>
 #include <RecastDebugDraw.h>
 #include "StaticEmitter.h"
+#include "StaticMesh.h"
 #include <boost/scope_exit.hpp>
 #include <boost/range/algorithm/find_if.hpp>
 #include "PlayerAgent.h"
@@ -467,6 +468,26 @@ void CChildView::RenderSelectedComponent(IDirect3DDevice9 * pd3dDevice, Componen
 					shader->Begin(D3DXFX_DONOTSAVESTATE | D3DXFX_DONOTSAVESAMPLERSTATE | D3DXFX_DONOTSAVESHADERSTATE);
 					shader->BeginPass(RenderPipeline::PassTypeOpaque);
 					mesh_cmp->m_Mesh->DrawSubset(mesh_cmp->m_MeshSubMeshId);
+					shader->EndPass();
+					shader->End();
+				}
+			}
+		}
+		break;
+
+	case Component::ComponentTypeStaticMesh:
+		{
+			MeshComponent* mesh_cmp = dynamic_cast<MeshComponent*>(cmp);
+			if (mesh_cmp->m_Mesh)
+			{
+				my::Effect* shader = theApp.QueryShader(RenderPipeline::MeshTypeMesh, NULL, "shader/mtl_simplecolor.fx", RenderPipeline::PassTypeToMask(RenderPipeline::PassTypeOpaque));
+				if (shader)
+				{
+					shader->SetMatrix(shader->GetParameterByName(NULL, "g_World"), mesh_cmp->m_Actor->m_World);
+					shader->SetVector(shader->GetParameterByName(NULL, "g_MeshColor"), (my::Vector4&)D3DXCOLOR(color));
+					shader->Begin(D3DXFX_DONOTSAVESTATE | D3DXFX_DONOTSAVESAMPLERSTATE | D3DXFX_DONOTSAVESHADERSTATE);
+					shader->BeginPass(RenderPipeline::PassTypeOpaque);
+					mesh_cmp->m_Mesh->DrawSubset(pFrame->m_selinstid);
 					shader->EndPass();
 					shader->End();
 				}
@@ -1003,6 +1024,62 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, const 
 		}
 		break;
 
+	case Component::ComponentTypeStaticMesh:
+		{
+			StaticMesh* static_mesh_cmp = dynamic_cast<StaticMesh*>(cmp);
+			struct Callback : public my::OctNode::QueryCallback
+			{
+				CChildView* pView;
+				const my::Ray& ray;
+				const my::Ray& local_ray;
+				MeshComponent* mesh_cmp;
+				my::RayResult ret;
+				int rayinstid;
+				Callback(CChildView* _pView, const my::Ray& _ray, const my::Ray& _local_ray, MeshComponent* _mesh_cmp)
+					: pView(_pView)
+					, ray(_ray)
+					, local_ray(_local_ray)
+					, mesh_cmp(_mesh_cmp)
+					, ret(false, FLT_MAX)
+					, rayinstid(0)
+				{
+				}
+				virtual bool OnQueryEntity(my::OctEntity* oct_entity, const my::AABB& aabb, my::IntersectionTests::IntersectionType)
+				{
+					StaticMeshChunk* chunk = dynamic_cast<StaticMeshChunk*>(oct_entity);
+					if (!mesh_cmp->m_Mesh)
+					{
+						return false;
+					}
+					my::RayResult result = my::Mesh::RayTest(local_ray,
+						mesh_cmp->m_Mesh->LockVertexBuffer(D3DLOCK_READONLY),
+						mesh_cmp->m_Mesh->GetNumVertices(),
+						mesh_cmp->m_Mesh->GetNumBytesPerVertex(),
+						mesh_cmp->m_Mesh->LockIndexBuffer(D3DLOCK_READONLY),
+						!(mesh_cmp->m_Mesh->GetOptions() & D3DXMESH_32BIT),
+						mesh_cmp->m_Mesh->m_AttribTable[chunk->m_SubMeshId].FaceStart,
+						mesh_cmp->m_Mesh->m_AttribTable[chunk->m_SubMeshId].FaceCount,
+						mesh_cmp->m_Mesh->m_VertexElems);
+					mesh_cmp->m_Mesh->UnlockVertexBuffer();
+					mesh_cmp->m_Mesh->UnlockIndexBuffer();
+					if (result.first && result.second < ret.second)
+					{
+						ret = result;
+						rayinstid = chunk->m_SubMeshId;
+					}
+					return true;
+				}
+			};
+			Callback cb(this, ray, local_ray, static_mesh_cmp);
+			static_mesh_cmp->QueryEntity(local_ray, &cb);
+			if (cb.ret.first)
+			{
+				raychunkid.SetPoint(0, 0);
+				rayinstid = cb.rayinstid;
+				return cb.ret;
+			}
+		}
+		break;
 
 	case Component::ComponentTypeStaticEmitter:
 		{
