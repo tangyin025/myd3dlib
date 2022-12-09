@@ -1436,9 +1436,7 @@ void CMainFrame::OnComponentMesh()
 		mesh_cmp->m_MeshPath = path;
 		for (int i = 0; i < aabb_list.size(); i++)
 		{
-			std::pair<StaticMesh::ChunkMap::iterator, bool> chunk_res = mesh_cmp->m_Chunks.insert(std::make_pair(i, StaticMeshChunk(i)));
-			_ASSERT(chunk_res.second);
-			mesh_cmp->AddEntity(&chunk_res.first->second, aabb_list[i], mesh_cmp->m_ChunkWidth, 0.01f);
+			mesh_cmp->AddChunk(i, aabb_list[i]);
 		}
 		MaterialPtr mtl(new Material());
 		mtl->m_Shader = theApp.default_shader;

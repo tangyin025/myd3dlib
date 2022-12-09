@@ -2,6 +2,19 @@
 #include "Actor.h"
 #include "myEffect.h"
 #include "Material.h"
+#include <boost/archive/polymorphic_xml_iarchive.hpp>
+#include <boost/archive/polymorphic_xml_oarchive.hpp>
+#include <boost/archive/polymorphic_text_iarchive.hpp>
+#include <boost/archive/polymorphic_text_oarchive.hpp>
+#include <boost/archive/polymorphic_binary_iarchive.hpp>
+#include <boost/archive/polymorphic_binary_oarchive.hpp>
+#include <boost/serialization/string.hpp>
+#include <boost/serialization/shared_ptr.hpp>
+#include <boost/serialization/vector.hpp>
+#include <boost/serialization/deque.hpp>
+#include <boost/serialization/map.hpp>
+#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/binary_object.hpp>
 #include <boost/serialization/export.hpp>
 
 BOOST_CLASS_EXPORT(StaticMesh)
@@ -17,7 +30,7 @@ void StaticMesh::save(Archive& ar, const unsigned int version) const
 	for (; chunk_iter != m_Chunks.end(); chunk_iter++)
 	{
 		ar << boost::serialization::make_nvp("m_chunk_submesh_id", chunk_iter->first);
-		ar << boost::serialization::make_nvp("m_chunk_aabb", *chunk_iter->m_OctAabb);
+		ar << boost::serialization::make_nvp("m_chunk_aabb", *chunk_iter->second.m_OctAabb);
 	}
 }
 
@@ -34,9 +47,7 @@ void StaticMesh::load(Archive& ar, const unsigned int version)
 		int SubMeshId; AABB aabb;
 		ar >> boost::serialization::make_nvp("m_chunk_submesh_id", SubMeshId);
 		ar >> boost::serialization::make_nvp("m_chunk_aabb", aabb);
-		std::pair<ChunkMap::iterator, bool> chunk_res = m_Chunks.insert(std::make_pair(SubMeshId, StaticMeshChunk(SubMeshId)));
-		_ASSERT(chunk_res.second);
-		AddEntity(&chunk_res.first->second, aabb, m_ChunkWidth, 0.01f);
+		AddChunk(SubMeshId, aabb);
 	}
 }
 
@@ -100,4 +111,11 @@ void StaticMesh::AddToPipeline(const my::Frustum& frustum, RenderPipeline* pipel
 			}
 		}
 	}
+}
+
+void StaticMesh::AddChunk(int SubMeshId, const my::AABB& aabb)
+{
+	std::pair<ChunkMap::iterator, bool> chunk_res = m_Chunks.insert(std::make_pair(SubMeshId, StaticMeshChunk(SubMeshId)));
+	_ASSERT(chunk_res.second);
+	AddEntity(&chunk_res.first->second, aabb, m_ChunkWidth, 0.01f);
 }

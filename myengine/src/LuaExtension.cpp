@@ -2419,6 +2419,7 @@ void LuaContext::Init(void)
 
 		, class_<StaticMesh, MeshComponent, boost::shared_ptr<Component> >("StaticMesh")
 			.def(constructor<const char *, const my::AABB &, float>())
+			.def("AddChunk", &StaticMesh::AddChunk)
 
 		, class_<ClothComponent, Component, boost::shared_ptr<Component> >("ClothComponent")
 			.def(constructor<const char *>())
