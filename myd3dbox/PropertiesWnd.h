@@ -129,6 +129,8 @@ public:
 		PropertyMeshInstanceType,
 		PropertyStaticMesh,
 		PropertyStaticMeshChunkWidth,
+		PropertyStaticMeshChunkLodScale,
+		PropertyStaticMeshChunkLodOffset,
 		PropertyMaterial,
 		PropertyMaterialShader,
 		PropertyMaterialPassMask,

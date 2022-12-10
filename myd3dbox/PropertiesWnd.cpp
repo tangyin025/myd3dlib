@@ -476,8 +476,8 @@ void CPropertiesWnd::UpdatePropertiesMesh(CMFCPropertyGridProperty * pComponent,
 void CPropertiesWnd::UpdatePropertiesStaticMesh(CMFCPropertyGridProperty * pComponent, StaticMesh * mesh_cmp)
 {
 	unsigned int PropId = GetComponentPropCount(Component::ComponentTypeComponent);
-	CMFCPropertyGridProperty* pProp = pComponent->GetSubItem(PropId + 3);
-	if (!pProp || pProp->GetData() != PropertyStaticMeshChunkWidth)
+	CMFCPropertyGridProperty* pChunkWidth = pComponent->GetSubItem(PropId + 3);
+	if (!pChunkWidth || pChunkWidth->GetData() != PropertyStaticMeshChunkWidth)
 	{
 		RemovePropertiesFrom(pComponent, PropId);
 		CreatePropertiesStaticMesh(pComponent, mesh_cmp);
@@ -487,8 +487,10 @@ void CPropertiesWnd::UpdatePropertiesStaticMesh(CMFCPropertyGridProperty * pComp
 	COLORREF color = RGB(mesh_cmp->m_MeshColor.x * 255, mesh_cmp->m_MeshColor.y * 255, mesh_cmp->m_MeshColor.z * 255);
 	(DYNAMIC_DOWNCAST(CColorProp, pComponent->GetSubItem(PropId + 1)))->SetColor(color);
 	pComponent->GetSubItem(PropId + 2)->SetValue((_variant_t)(long)(mesh_cmp->m_MeshColor.w * 255));
-	pComponent->GetSubItem(PropId + 3)->SetValue((_variant_t)mesh_cmp->m_ChunkWidth);
-	UpdatePropertiesMaterial(pComponent->GetSubItem(PropId + 4), mesh_cmp->m_Material.get());
+	pChunkWidth->SetValue((_variant_t)mesh_cmp->m_ChunkWidth);
+	pComponent->GetSubItem(PropId + 4)->SetValue((_variant_t)mesh_cmp->m_ChunkLodScale);
+	pComponent->GetSubItem(PropId + 5)->SetValue((_variant_t)mesh_cmp->m_ChunkLodOffset);
+	UpdatePropertiesMaterial(pComponent->GetSubItem(PropId + 6), mesh_cmp->m_Material.get());
 }
 
 void CPropertiesWnd::UpdatePropertiesMaterial(CMFCPropertyGridProperty * pMaterial, Material * mtl)
@@ -1505,6 +1507,10 @@ void CPropertiesWnd::CreatePropertiesStaticMesh(CMFCPropertyGridProperty* pCompo
 	CMFCPropertyGridProperty* pChunkWidth = new CSimpleProp(_T("ChunkWidth"), (_variant_t)mesh_cmp->m_ChunkWidth, NULL, PropertyStaticMeshChunkWidth);
 	pChunkWidth->Enable(FALSE);
 	pComponent->AddSubItem(pChunkWidth);
+	CMFCPropertyGridProperty* pChunkLodScale = new CSimpleProp(_T("ChunkLodScale"), (_variant_t)mesh_cmp->m_ChunkLodScale, NULL, PropertyStaticMeshChunkLodScale);
+	pComponent->AddSubItem(pChunkLodScale);
+	CMFCPropertyGridProperty* pChunkLodOffset = new CSimpleProp(_T("ChunkLodOffset"), (_variant_t)mesh_cmp->m_ChunkLodOffset, NULL, PropertyStaticMeshChunkLodOffset);
+	pComponent->AddSubItem(pChunkLodOffset);
 
 	CreatePropertiesMaterial(pComponent, _T("Material"), mesh_cmp->m_Material.get());
 }
@@ -2695,7 +2701,7 @@ unsigned int CPropertiesWnd::GetComponentPropCount(DWORD type)
 	case Component::ComponentTypeMesh:
 		return GetComponentPropCount(Component::ComponentTypeComponent) + 6;
 	case Component::ComponentTypeStaticMesh:
-		return GetComponentPropCount(Component::ComponentTypeComponent) + 5;
+		return GetComponentPropCount(Component::ComponentTypeComponent) + 7;
 	case Component::ComponentTypeCloth:
 		return GetComponentPropCount(Component::ComponentTypeComponent) + 4;
 	case Component::ComponentTypeStaticEmitter:
@@ -3478,6 +3484,22 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	}
 	case PropertyStaticMeshChunkWidth:
 		break;
+	case PropertyStaticMeshChunkLodScale:
+	{
+		StaticMesh* mesh_cmp = (StaticMesh*)pProp->GetParent()->GetValue().pulVal;
+		mesh_cmp->m_ChunkLodScale = pProp->GetValue().fltVal;
+		my::EventArg arg;
+		pFrame->m_EventAttributeChanged(&arg);
+		break;
+	}
+	case PropertyStaticMeshChunkLodOffset:
+	{
+		StaticMesh* mesh_cmp = (StaticMesh*)pProp->GetParent()->GetValue().pulVal;
+		mesh_cmp->m_ChunkLodOffset = pProp->GetValue().intVal;
+		my::EventArg arg;
+		pFrame->m_EventAttributeChanged(&arg);
+		break;
+	}
 	case PropertyMaterialShader:
 	{
 		Material* material = (Material*)pProp->GetParent()->GetValue().pulVal;
