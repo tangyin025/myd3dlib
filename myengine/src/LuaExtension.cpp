@@ -2419,6 +2419,9 @@ void LuaContext::Init(void)
 
 		, class_<StaticMesh, MeshComponent, boost::shared_ptr<Component> >("StaticMesh")
 			.def(constructor<const char *, const my::AABB &, float>())
+			.def_readonly("ChunkWidth", &StaticMesh::m_ChunkWidth)
+			.def_readwrite("ChunkLodScale", &StaticMesh::m_ChunkLodScale)
+			.def_readwrite("ChunkLodOffset", &StaticMesh::m_ChunkLodOffset)
 			.def("AddChunk", &StaticMesh::AddChunk)
 
 		, class_<ClothComponent, Component, boost::shared_ptr<Component> >("ClothComponent")
@@ -2460,6 +2463,7 @@ void LuaContext::Init(void)
 			.def_readonly("ChunkWidth", &StaticEmitter::m_ChunkWidth)
 			.def_readwrite("ChunkPath", &StaticEmitter::m_ChunkPath)
 			.def_readwrite("ChunkLodScale", &StaticEmitter::m_ChunkLodScale)
+			.def_readwrite("ChunkLodOffset", &StaticEmitter::m_ChunkLodOffset)
 
 		, class_<StaticEmitterStream>("StaticEmitterStream")
 			.def(constructor<StaticEmitter *>())
