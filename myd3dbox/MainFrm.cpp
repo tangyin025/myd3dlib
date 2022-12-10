@@ -1432,8 +1432,10 @@ void CMainFrame::OnComponentMesh()
 			aabb_list.push_back(aabb);
 		}
 
-		StaticMeshPtr mesh_cmp(new StaticMesh(my::NamedObject::MakeUniqueName((std::string((*actor_iter)->GetName()) + "_mesh_cmp").c_str()).c_str(), bound, Actor::MinBlock));
+		StaticMeshPtr mesh_cmp(new StaticMesh(my::NamedObject::MakeUniqueName((std::string((*actor_iter)->GetName()) + "_mesh_cmp").c_str()).c_str(),
+			bound, Actor::MinBlock / (*actor_iter)->m_Scale.x));
 		mesh_cmp->m_MeshPath = path;
+		mesh_cmp->m_ChunkLodScale = 1 / (*actor_iter)->m_Scale.x;
 		for (int i = 0; i < aabb_list.size(); i++)
 		{
 			mesh_cmp->AddChunk(i, aabb_list[i]);
