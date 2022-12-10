@@ -53,10 +53,10 @@ protected:
 public:
 	StaticMesh(const char* Name, const my::AABB& LocalRootAabb, float ChunkWidth)
 		: MeshComponent(Name)
+		, OctRoot(LocalRootAabb.m_min, LocalRootAabb.m_max)
 		, m_ChunkWidth(ChunkWidth)
 		, m_ChunkLodScale(1.0f)
 		, m_ChunkLodOffset(0)
-		, OctRoot(LocalRootAabb.m_min, LocalRootAabb.m_max)
 	{
 	}
 

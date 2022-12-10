@@ -26,6 +26,9 @@ void StaticMesh::save(Archive& ar, const unsigned int version) const
 {
 	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(MeshComponent);
 	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(OctRoot);
+	ar << BOOST_SERIALIZATION_NVP(m_ChunkWidth);
+	ar << BOOST_SERIALIZATION_NVP(m_ChunkLodScale);
+	ar << BOOST_SERIALIZATION_NVP(m_ChunkLodOffset);
 	DWORD ChunkSize = m_Chunks.size();
 	ar << BOOST_SERIALIZATION_NVP(ChunkSize);
 	ChunkMap::const_iterator chunk_iter = m_Chunks.begin();
@@ -42,6 +45,9 @@ void StaticMesh::load(Archive& ar, const unsigned int version)
 	ClearAllEntity();
 	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(MeshComponent);
 	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(OctRoot);
+	ar >> BOOST_SERIALIZATION_NVP(m_ChunkWidth);
+	ar >> BOOST_SERIALIZATION_NVP(m_ChunkLodScale);
+	ar >> BOOST_SERIALIZATION_NVP(m_ChunkLodOffset);
 	DWORD ChunkSize;
 	ar >> BOOST_SERIALIZATION_NVP(ChunkSize);
 	for (int i = 0; i < (int)ChunkSize; i++)

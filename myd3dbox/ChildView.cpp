@@ -783,24 +783,23 @@ bool CChildView::OverlapTestFrustumAndComponent(const my::Frustum & frustum, con
 				virtual bool OnQueryEntity(my::OctEntity* oct_entity, const my::AABB& aabb, my::IntersectionTests::IntersectionType)
 				{
 					StaticMeshChunk* chunk = dynamic_cast<StaticMeshChunk*>(oct_entity);
-					if (!mesh_cmp->m_Mesh)
+					if (mesh_cmp->m_Mesh && chunk->m_Lod >= 0 && chunk->m_Lod < StaticMesh::LastLod)
 					{
-						return false;
-					}
-					ret = my::Mesh::FrustumTest(local_ftm,
-						mesh_cmp->m_Mesh->LockVertexBuffer(D3DLOCK_READONLY),
-						mesh_cmp->m_Mesh->GetNumVertices(),
-						mesh_cmp->m_Mesh->GetNumBytesPerVertex(),
-						mesh_cmp->m_Mesh->LockIndexBuffer(D3DLOCK_READONLY),
-						!(mesh_cmp->m_Mesh->GetOptions() & D3DXMESH_32BIT),
-						mesh_cmp->m_Mesh->m_AttribTable[chunk->m_SubMeshId].FaceStart,
-						mesh_cmp->m_Mesh->m_AttribTable[chunk->m_SubMeshId].FaceCount,
-						mesh_cmp->m_Mesh->m_VertexElems);
-					mesh_cmp->m_Mesh->UnlockVertexBuffer();
-					mesh_cmp->m_Mesh->UnlockIndexBuffer();
-					if (ret)
-					{
-						return false;
+						ret = my::Mesh::FrustumTest(local_ftm,
+							mesh_cmp->m_Mesh->LockVertexBuffer(D3DLOCK_READONLY),
+							mesh_cmp->m_Mesh->GetNumVertices(),
+							mesh_cmp->m_Mesh->GetNumBytesPerVertex(),
+							mesh_cmp->m_Mesh->LockIndexBuffer(D3DLOCK_READONLY),
+							!(mesh_cmp->m_Mesh->GetOptions() & D3DXMESH_32BIT),
+							mesh_cmp->m_Mesh->m_AttribTable[chunk->m_SubMeshId].FaceStart,
+							mesh_cmp->m_Mesh->m_AttribTable[chunk->m_SubMeshId].FaceCount,
+							mesh_cmp->m_Mesh->m_VertexElems);
+						mesh_cmp->m_Mesh->UnlockVertexBuffer();
+						mesh_cmp->m_Mesh->UnlockIndexBuffer();
+						if (ret)
+						{
+							return false;
+						}
 					}
 					return true;
 				}
@@ -1096,25 +1095,24 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, const 
 				virtual bool OnQueryEntity(my::OctEntity* oct_entity, const my::AABB& aabb, my::IntersectionTests::IntersectionType)
 				{
 					StaticMeshChunk* chunk = dynamic_cast<StaticMeshChunk*>(oct_entity);
-					if (!mesh_cmp->m_Mesh)
+					if (mesh_cmp->m_Mesh && chunk->m_Lod >= 0 && chunk->m_Lod < StaticMesh::LastLod)
 					{
-						return false;
-					}
-					my::RayResult result = my::Mesh::RayTest(local_ray,
-						mesh_cmp->m_Mesh->LockVertexBuffer(D3DLOCK_READONLY),
-						mesh_cmp->m_Mesh->GetNumVertices(),
-						mesh_cmp->m_Mesh->GetNumBytesPerVertex(),
-						mesh_cmp->m_Mesh->LockIndexBuffer(D3DLOCK_READONLY),
-						!(mesh_cmp->m_Mesh->GetOptions() & D3DXMESH_32BIT),
-						mesh_cmp->m_Mesh->m_AttribTable[chunk->m_SubMeshId].FaceStart,
-						mesh_cmp->m_Mesh->m_AttribTable[chunk->m_SubMeshId].FaceCount,
-						mesh_cmp->m_Mesh->m_VertexElems);
-					mesh_cmp->m_Mesh->UnlockVertexBuffer();
-					mesh_cmp->m_Mesh->UnlockIndexBuffer();
-					if (result.first && result.second < ret.second)
-					{
-						ret = result;
-						raychunkid.SetPoint(chunk->m_SubMeshId, 0);
+						my::RayResult result = my::Mesh::RayTest(local_ray,
+							mesh_cmp->m_Mesh->LockVertexBuffer(D3DLOCK_READONLY),
+							mesh_cmp->m_Mesh->GetNumVertices(),
+							mesh_cmp->m_Mesh->GetNumBytesPerVertex(),
+							mesh_cmp->m_Mesh->LockIndexBuffer(D3DLOCK_READONLY),
+							!(mesh_cmp->m_Mesh->GetOptions() & D3DXMESH_32BIT),
+							mesh_cmp->m_Mesh->m_AttribTable[chunk->m_SubMeshId].FaceStart,
+							mesh_cmp->m_Mesh->m_AttribTable[chunk->m_SubMeshId].FaceCount,
+							mesh_cmp->m_Mesh->m_VertexElems);
+						mesh_cmp->m_Mesh->UnlockVertexBuffer();
+						mesh_cmp->m_Mesh->UnlockIndexBuffer();
+						if (result.first && result.second < ret.second)
+						{
+							ret = result;
+							raychunkid.SetPoint(chunk->m_SubMeshId, 0);
+						}
 					}
 					return true;
 				}
