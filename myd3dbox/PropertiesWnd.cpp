@@ -489,7 +489,7 @@ void CPropertiesWnd::UpdatePropertiesStaticMesh(CMFCPropertyGridProperty * pComp
 	pComponent->GetSubItem(PropId + 2)->SetValue((_variant_t)(long)(mesh_cmp->m_MeshColor.w * 255));
 	pChunkWidth->SetValue((_variant_t)mesh_cmp->m_ChunkWidth);
 	pComponent->GetSubItem(PropId + 4)->SetValue((_variant_t)mesh_cmp->m_ChunkLodScale);
-	pComponent->GetSubItem(PropId + 5)->SetValue((_variant_t)mesh_cmp->m_ChunkLodOffset);
+	pComponent->GetSubItem(PropId + 5)->SetValue((_variant_t)(long)mesh_cmp->m_ChunkLodOffset); // ! VT_I4
 	UpdatePropertiesMaterial(pComponent->GetSubItem(PropId + 6), mesh_cmp->m_Material.get());
 }
 
@@ -595,7 +595,7 @@ void CPropertiesWnd::UpdatePropertiesStaticEmitter(CMFCPropertyGridProperty * pC
 	pChunkWidth->SetValue((_variant_t)emit_cmp->m_ChunkWidth);
 	pComponent->GetSubItem(PropId + 5)->SetValue((_variant_t)ms2ts(emit_cmp->m_ChunkPath).c_str());
 	pComponent->GetSubItem(PropId + 6)->SetValue((_variant_t)emit_cmp->m_ChunkLodScale);
-	pComponent->GetSubItem(PropId + 7)->SetValue((_variant_t)emit_cmp->m_ChunkLodOffset);
+	pComponent->GetSubItem(PropId + 7)->SetValue((_variant_t)(long)emit_cmp->m_ChunkLodOffset);
 	UpdatePropertiesMaterial(pComponent->GetSubItem(PropId + 8), emit_cmp->m_Material.get());
 	CMainFrame* pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
@@ -1509,7 +1509,7 @@ void CPropertiesWnd::CreatePropertiesStaticMesh(CMFCPropertyGridProperty* pCompo
 	pComponent->AddSubItem(pChunkWidth);
 	CMFCPropertyGridProperty* pChunkLodScale = new CSimpleProp(_T("ChunkLodScale"), (_variant_t)mesh_cmp->m_ChunkLodScale, NULL, PropertyStaticMeshChunkLodScale);
 	pComponent->AddSubItem(pChunkLodScale);
-	CMFCPropertyGridProperty* pChunkLodOffset = new CSimpleProp(_T("ChunkLodOffset"), (_variant_t)mesh_cmp->m_ChunkLodOffset, NULL, PropertyStaticMeshChunkLodOffset);
+	CMFCPropertyGridProperty* pChunkLodOffset = new CSimpleProp(_T("ChunkLodOffset"), (_variant_t)(long)mesh_cmp->m_ChunkLodOffset, NULL, PropertyStaticMeshChunkLodOffset);
 	pComponent->AddSubItem(pChunkLodOffset);
 
 	CreatePropertiesMaterial(pComponent, _T("Material"), mesh_cmp->m_Material.get());
@@ -1663,7 +1663,7 @@ void CPropertiesWnd::CreatePropertiesStaticEmitter(CMFCPropertyGridProperty * pC
 	pComponent->AddSubItem(pChunkPath);
 	CMFCPropertyGridProperty* pChunkLodScale = new CSimpleProp(_T("ChunkLodScale"), (_variant_t)emit_cmp->m_ChunkLodScale, NULL, PropertyStaticEmitterChunkLodScale);
 	pComponent->AddSubItem(pChunkLodScale);
-	CMFCPropertyGridProperty* pChunkLodOffset = new CSimpleProp(_T("ChunkLodOffset"), (_variant_t)emit_cmp->m_ChunkLodOffset, NULL, PropertyStaticEmitterChunkLodOffset);
+	CMFCPropertyGridProperty* pChunkLodOffset = new CSimpleProp(_T("ChunkLodOffset"), (_variant_t)(long)emit_cmp->m_ChunkLodOffset, NULL, PropertyStaticEmitterChunkLodOffset);
 	pComponent->AddSubItem(pChunkLodOffset);
 	CreatePropertiesMaterial(pComponent, _T("Material"), emit_cmp->m_Material.get());
 	CMainFrame* pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
