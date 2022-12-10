@@ -87,9 +87,9 @@ public:
 
 	std::string m_ChunkPath;
 
-	float m_ChunkLodScale;
-
 	static const int LastLod = 3;
+
+	float m_ChunkLodScale;
 
 	int m_ChunkLodOffset;
 

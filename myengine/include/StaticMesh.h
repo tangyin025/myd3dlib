@@ -10,9 +10,12 @@ class StaticMeshChunk
 public:
 	int m_SubMeshId;
 
+	int m_Lod;
+
 public:
 	StaticMeshChunk(int SubMeshId)
 		: m_SubMeshId(SubMeshId)
+		, m_Lod(INT_MAX)
 	{
 	}
 
@@ -32,6 +35,12 @@ public:
 
 	float m_ChunkWidth;
 
+	static const int LastLod = 3;
+
+	float m_ChunkLodScale;
+
+	int m_ChunkLodOffset;
+
 	typedef std::map<int, StaticMeshChunk> ChunkMap;
 
 	ChunkMap m_Chunks;
@@ -45,6 +54,8 @@ public:
 	StaticMesh(const char* Name, const my::AABB& LocalRootAabb, float ChunkWidth)
 		: MeshComponent(Name)
 		, m_ChunkWidth(ChunkWidth)
+		, m_ChunkLodScale(1.0f)
+		, m_ChunkLodOffset(0)
 		, OctRoot(LocalRootAabb.m_min, LocalRootAabb.m_max)
 	{
 	}

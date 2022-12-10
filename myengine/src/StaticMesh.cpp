@@ -90,16 +90,28 @@ void StaticMesh::AddToPipeline(const my::Frustum& frustum, RenderPipeline* pipel
 	{
 		RenderPipeline* pipeline;
 		unsigned int PassMask;
+		const Vector3& LocalViewPos;
 		StaticMesh* mesh_cmp;
-		Callback(RenderPipeline* _pipeline, unsigned int _PassMask, StaticMesh* _mesh_cmp)
+		Callback(RenderPipeline* _pipeline, unsigned int _PassMask, const Vector3& _LocalViewPos, StaticMesh* _mesh_cmp)
 			: pipeline(_pipeline)
 			, PassMask(_PassMask)
+			, LocalViewPos(_LocalViewPos)
 			, mesh_cmp(_mesh_cmp)
 		{
 		}
 		virtual bool OnQueryEntity(my::OctEntity* oct_entity, const my::AABB& aabb, my::IntersectionTests::IntersectionType)
 		{
 			StaticMeshChunk* chunk = dynamic_cast<StaticMeshChunk*>(oct_entity);
+			if (PassMask & RenderPipeline::PassTypeToMask(RenderPipeline::PassTypeNormal))
+			{
+				chunk->m_Lod = mesh_cmp->m_Actor->CalculateLod((chunk->m_OctAabb->Center() - LocalViewPos).magnitude() / mesh_cmp->m_ChunkLodScale) - mesh_cmp->m_ChunkLodOffset;
+			}
+
+			if (chunk->m_Lod < 0 || chunk->m_Lod >= LastLod)
+			{
+				return true;
+			}
+
 			for (unsigned int PassID = 0; PassID < RenderPipeline::PassTypeNum; PassID++)
 			{
 				if (RenderPipeline::PassTypeToMask(PassID) & (mesh_cmp->m_Material->m_PassMask & PassMask))
@@ -126,7 +138,8 @@ void StaticMesh::AddToPipeline(const my::Frustum& frustum, RenderPipeline* pipel
 		if (m_Material && (m_Material->m_PassMask & PassMask))
 		{
 			Frustum LocalFrustum = frustum.transform(m_Actor->m_World.transpose());
-			Callback cb(pipeline, PassMask, this);
+			Vector3 LocalViewPos = TargetPos.transformCoord(m_Actor->m_World.inverse());
+			Callback cb(pipeline, PassMask, LocalViewPos, this);
 			QueryEntity(LocalFrustum, &cb);
 		}
 	}
