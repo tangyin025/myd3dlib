@@ -185,7 +185,7 @@ public:
 	float default_player_scale;
 	float default_player_height;
 	float default_player_radius;
-	float default_player_max_speed;
+	float default_player_run_speed;
 	float default_player_breaking_speed;
 	float default_player_seek_force;
 	float default_player_look_distance;

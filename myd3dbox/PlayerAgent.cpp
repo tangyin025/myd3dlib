@@ -278,7 +278,7 @@ void PlayerAgent::Update(float fElapsedTime)
 
 	m_Animator->Tick(fElapsedTime, 1.0f);
 
-	m_Steering->m_MaxSpeed = theApp.m_keyboard->IsKeyDown(KeyCode::KC_LSHIFT) ? theApp.default_player_max_speed * 10 : theApp.default_player_max_speed;
+	m_Steering->m_MaxSpeed = theApp.m_keyboard->IsKeyDown(KeyCode::KC_LSHIFT) ? theApp.default_player_run_speed * 4 : theApp.default_player_run_speed;
 }
 
 void PlayerAgent::OnPxThreadSubstep(float dtime)
