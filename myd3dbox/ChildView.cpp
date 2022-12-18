@@ -546,7 +546,7 @@ void CChildView::RenderSelectedComponent(IDirect3DDevice9 * pd3dDevice, Componen
 			if (pt.z > 0.0f && pt.z < 1.0f)
 			{
 				wchar_t buff[256];
-				swprintf_s(buff, _countof(buff), L"%d, %d", pFrame->m_selchunkid.y * terrain->m_ChunkSize, pFrame->m_selchunkid.x * terrain->m_ChunkSize);
+				swprintf_s(buff, _countof(buff), L"i:%d, j:%d, y:%d, x:%d", pFrame->m_selchunkid.x, pFrame->m_selchunkid.y, pFrame->m_selchunkid.x * terrain->m_ChunkSize, pFrame->m_selchunkid.y * terrain->m_ChunkSize);
 				theApp.m_UIRender->PushString(my::Rectangle::RightBottom(floorf(pt.x), floorf(pt.y), 1, 1), buff, D3DCOLOR_ARGB(255, 255, 255, 0), my::Font::AlignLeftTop, theApp.m_Font.get());
 			}
 		}
