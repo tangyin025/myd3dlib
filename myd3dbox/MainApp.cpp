@@ -60,7 +60,7 @@ BOOL CMainApp::CreateD3DDevice(HWND hWnd)
 	ZeroMemory(&m_DeviceSettings, sizeof(m_DeviceSettings));
 	m_DeviceSettings.AdapterOrdinal = D3DADAPTER_DEFAULT;
 	m_DeviceSettings.DeviceType = D3DDEVTYPE_HAL;
-	m_DeviceSettings.BehaviorFlags = D3DCREATE_SOFTWARE_VERTEXPROCESSING;
+	m_DeviceSettings.BehaviorFlags = D3DCREATE_HARDWARE_VERTEXPROCESSING;
 	m_DeviceSettings.pp.Windowed = TRUE;
 	m_DeviceSettings.pp.SwapEffect = D3DSWAPEFFECT_DISCARD;
 	m_DeviceSettings.pp.BackBufferFormat = D3DFMT_UNKNOWN;
