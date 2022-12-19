@@ -2453,17 +2453,17 @@ BOOL CMainFrame::OnShowPopupMenu(CMFCPopupMenu* pMenuPopup)
 					if (!(ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
 					{
 						m_ToolScripts[i - first_script_index] = ffd.cFileName;
-						CString strText;
-						const TCHAR* pref[] = { _T("&1 "), _T("&2 "), _T("&3 "), _T("&4 "), _T("&5 "), _T("&6 "), _T("&7 "), _T("&8 "), _T("&9 "), _T("1&0 ") };
-						strText.Format(_T("%s%s"), i - first_script_index < _countof(pref) ? pref[i - first_script_index] : _T(""), ms2ts(m_ToolScripts[i - first_script_index]).c_str());
+						static const TCHAR* pref[] = { _T("&1 "), _T("&2 "), _T("&3 "), _T("&4 "), _T("&5 "), _T("&6 "), _T("&7 "), _T("&8 "), _T("&9 "), _T("1&0 ") };
+						std::basic_string<TCHAR> strText(i - first_script_index < _countof(pref) ? pref[i - first_script_index] : _T(""));
+						strText.append(ms2ts(m_ToolScripts[i - first_script_index]));
 						if (i < pMenuBar->GetCount() && pMenuBar->GetButtonStyle(i) != TBBS_SEPARATOR && pMenuBar->GetItemID(i) < ID_TOOLS_SCRIPT_LAST)
 						{
-							pMenuBar->SetButtonText(i, strText);
+							pMenuBar->SetButtonText(i, strText.c_str());
 							i++;
 						}
 						else
 						{
-							pMenuBar->InsertButton(CMFCToolBarMenuButton(ID_TOOLS_SCRIPT1 + i - first_script_index, NULL, -1, strText), i);
+							pMenuBar->InsertButton(CMFCToolBarMenuButton(ID_TOOLS_SCRIPT1 + i - first_script_index, NULL, -1, strText.c_str()), i);
 							i++;
 						}
 					}

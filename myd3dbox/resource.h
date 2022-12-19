@@ -130,26 +130,45 @@
 #define ID_TOOLS_SCRIPT8                32820
 #define ID_TOOLS_SCRIPT9                32821
 #define ID_TOOLS_SCRIPT10               32822
-#define ID_TOOLS_SCRIPT_LAST            32823
-#define ID_RENDERMODE_BLOOM             32824
-#define ID_VIEW_RENDERTARGET            32825
-#define ID_RENDERTARGET_NORMAL          32826
-#define ID_RENDERTARGET_POSITION        32827
-#define ID_RENDERTARGET_LIGHT           32828
-#define ID_RENDERTARGET_OPAQUE          32829
-#define ID_RENDERTARGET_DOWNFILTER      32830
-#define ID_TOOLS_SNAPSHOT               32831
-#define ID_RENDERTARGET_SPECULAR        32832
-#define ID_TOOLS_PLAYING                32833
-#define ID_TOOLS_TERRAINTOOBJ           32834
-#define ID_TOOLS_OFFMESHCON             32835
+#define ID_TOOLS_SCRIPT11               32823
+#define ID_TOOLS_SCRIPT12               32824
+#define ID_TOOLS_SCRIPT13               32825
+#define ID_TOOLS_SCRIPT14               32826
+#define ID_TOOLS_SCRIPT15               32827
+#define ID_TOOLS_SCRIPT16               32828
+#define ID_TOOLS_SCRIPT17               32829
+#define ID_TOOLS_SCRIPT18               32830
+#define ID_TOOLS_SCRIPT19               32831
+#define ID_TOOLS_SCRIPT20               32832
+#define ID_TOOLS_SCRIPT21               32833
+#define ID_TOOLS_SCRIPT22               32834
+#define ID_TOOLS_SCRIPT23               32835
+#define ID_TOOLS_SCRIPT24               32836
+#define ID_TOOLS_SCRIPT25               32837
+#define ID_TOOLS_SCRIPT26               32838
+#define ID_TOOLS_SCRIPT27               32839
+#define ID_TOOLS_SCRIPT28               32840
+#define ID_TOOLS_SCRIPT29               32841
+#define ID_TOOLS_SCRIPT_LAST            32842
+#define ID_RENDERMODE_BLOOM             32843
+#define ID_VIEW_RENDERTARGET            32844
+#define ID_RENDERTARGET_NORMAL          32845
+#define ID_RENDERTARGET_POSITION        32846
+#define ID_RENDERTARGET_LIGHT           32847
+#define ID_RENDERTARGET_OPAQUE          32848
+#define ID_RENDERTARGET_DOWNFILTER      32849
+#define ID_TOOLS_SNAPSHOT               32850
+#define ID_RENDERTARGET_SPECULAR        32851
+#define ID_TOOLS_PLAYING                32852
+#define ID_TOOLS_TERRAINTOOBJ           32853
+#define ID_TOOLS_OFFMESHCON             32854
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        323
-#define _APS_NEXT_COMMAND_VALUE         32836
+#define _APS_NEXT_COMMAND_VALUE         32855
 #define _APS_NEXT_CONTROL_VALUE         1033
 #define _APS_NEXT_SYMED_VALUE           312
 #endif
