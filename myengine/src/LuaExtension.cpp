@@ -980,6 +980,8 @@ void LuaContext::Init(void)
 			]
 
 		, class_<my::Vector4>("Vector4")
+			.def(constructor<float>())
+			.def(constructor<const my::Vector3&, float>())
 			.def(constructor<float, float, float, float>())
 			.def(constructor<const my::Vector4&>())
 			.def_readwrite("x", &my::Vector4::x)
@@ -2417,7 +2419,7 @@ void LuaContext::Init(void)
 			.def("CreateTriangleMeshShape", &MeshComponent::CreateTriangleMeshShape)
 			.def("CreateConvexMeshShape", &MeshComponent::CreateConvexMeshShape)
 
-		, class_<StaticMesh, MeshComponent, boost::shared_ptr<Component> >("StaticMesh")
+		, class_<StaticMesh, bases<MeshComponent, my::AABB>, boost::shared_ptr<Component> >("StaticMesh")
 			.def(constructor<const char *, const my::AABB &, float>())
 			.def_readonly("ChunkWidth", &StaticMesh::m_ChunkWidth)
 			.def_readwrite("ChunkLodScale", &StaticMesh::m_ChunkLodScale)
@@ -2458,7 +2460,7 @@ void LuaContext::Init(void)
 			]
 			.def_readwrite("EmitterPrimitiveType", &EmitterComponent::m_EmitterPrimitiveType)
 
-		, class_<StaticEmitter, EmitterComponent, boost::shared_ptr<Component> >("StaticEmitter")
+		, class_<StaticEmitter, bases<EmitterComponent, my::AABB>, boost::shared_ptr<Component> >("StaticEmitter")
 			.def(constructor<const char *, const my::AABB &, float, EmitterComponent::FaceType, EmitterComponent::SpaceType, EmitterComponent::VelocityType, EmitterComponent::PrimitiveType>())
 			.def_readonly("ChunkWidth", &StaticEmitter::m_ChunkWidth)
 			.def_readwrite("ChunkPath", &StaticEmitter::m_ChunkPath)
