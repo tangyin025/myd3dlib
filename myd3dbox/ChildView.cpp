@@ -305,13 +305,13 @@ void CChildView::QueryRenderComponent(const my::Frustum & frustum, RenderPipelin
 
 			Actor * actor = static_cast<Actor *>(oct_entity);
 
+			if ((actor->m_OctAabb->Center() - TargetPos).magnitudeSq() > actor->m_CullingDistSq) // ! derestrict update sequence of attached actors
+			{
+				return true;
+			}
+
 			if (pFrame->GetActiveView() == pView && (PassMask & RenderPipeline::PassTypeToMask(RenderPipeline::PassTypeNormal)))
 			{
-				if ((actor->m_OctAabb->Center() - TargetPos).magnitudeSq() > actor->m_CullingDistSq) // ! derestrict update sequence of attached actors
-				{
-					return true;
-				}
-
 				if (actor->is_linked())
 				{
 					CMainFrame::ViewedActorSet::iterator actor_iter = pFrame->m_ViewedActors.iterator_to(*actor);
@@ -343,17 +343,17 @@ void CChildView::QueryRenderComponent(const my::Frustum & frustum, RenderPipelin
 			if (actor->IsRequested())
 			{
 				actor->AddToPipeline(frustum, pipeline, PassMask, ViewPos, TargetPos);
-			}
 
-			if (pView->m_bShowNavigation && (PassMask & RenderPipeline::PassTypeToMask(RenderPipeline::PassTypeNormal)))
-			{
-				Actor::ComponentPtrList::const_iterator cmp_iter = actor->m_Cmps.begin();
-				for (; cmp_iter != actor->m_Cmps.end(); cmp_iter++)
+				if (pView->m_bShowNavigation && (PassMask & RenderPipeline::PassTypeToMask(RenderPipeline::PassTypeNormal)))
 				{
-					if ((*cmp_iter)->GetComponentType() == Component::ComponentTypeNavigation)
+					Actor::ComponentPtrList::const_iterator cmp_iter = actor->m_Cmps.begin();
+					for (; cmp_iter != actor->m_Cmps.end(); cmp_iter++)
 					{
-						Navigation* navi = dynamic_cast<Navigation*>(cmp_iter->get());
-						navi->DebugDraw(pView, frustum, ViewPos, TargetPos);
+						if ((*cmp_iter)->GetComponentType() == Component::ComponentTypeNavigation)
+						{
+							Navigation* navi = dynamic_cast<Navigation*>(cmp_iter->get());
+							navi->DebugDraw(pView, frustum, ViewPos, TargetPos);
+						}
 					}
 				}
 			}
