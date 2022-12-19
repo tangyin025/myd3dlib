@@ -819,6 +819,8 @@ void CPropertiesWnd::UpdatePropertiesNavigation(CMFCPropertyGridProperty * pComp
 	if (!pProp || pProp->GetData() != PropertyNavigationOrigin)
 	{
 		RemovePropertiesFrom(pComponent, PropId);
+		CreatePropertiesNavigation(pComponent, navigation);
+		return;
 	}
 
 	const dtNavMeshParams* params = navigation->m_navMesh->getParams();
