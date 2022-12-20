@@ -10,16 +10,6 @@ sampler TextureSampler = sampler_state
     MagFilter = LINEAR;
 };
 
-float2 TransformTileUV(VS_INPUT In, float colorred)
-{
-	float2 uv=TransformUV(In);
-	float2 tiles = float2(floor(1/g_TileSize.x),floor(1/g_TileSize.y));
-	float frame = fmod(colorred * 255.0, tiles.x * tiles.y);
-	float row = floor(frame / tiles.x);
-	float column = fmod(frame, tiles.x);
-	return float2((column + uv.x) * g_TileSize.x, (row + uv.y) * g_TileSize.y);
-}
-
 struct TRANSPARENT_VS_OUTPUT
 {
 	float4 Pos				: POSITION;
@@ -32,7 +22,7 @@ TRANSPARENT_VS_OUTPUT TransparentVS( VS_INPUT In )
     TRANSPARENT_VS_OUTPUT Output;
 	Output.Pos = TransformPos(In);
 	Output.Color = TransformColor(In);
-	Output.Tex0 = TransformTileUV(In, Output.Color.r);
+	Output.Tex0 = TileUV(TransformUV(In), g_TileSize, Output.Color.r * 255);
     return Output;    
 }
 

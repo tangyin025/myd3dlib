@@ -29,16 +29,6 @@ sampler SpecularTextureSampler = sampler_state
 	MagFilter = LINEAR;
 };
 
-float2 TransformTileUV(VS_INPUT In, float colorred)
-{
-	float2 uv=TransformUV(In);
-	float2 tiles = float2(floor(1/g_TileSize.x),floor(1/g_TileSize.y));
-	float frame = fmod(colorred * 255.0, tiles.x * tiles.y);
-	float row = floor(frame / tiles.x);
-	float column = fmod(frame, tiles.x);
-	return float2((column + uv.x) * g_TileSize.x, (row + uv.y) * g_TileSize.y);
-}
-
 struct SHADOW_VS_OUTPUT
 {
 	float4 Pos				: POSITION;
@@ -51,7 +41,7 @@ SHADOW_VS_OUTPUT ShadowVS( VS_INPUT In )
     SHADOW_VS_OUTPUT Output;
 	Output.Pos = TransformPosShadow(In);
 	float4 color = TransformColor(In);
-	Output.Tex0 = TransformTileUV(In, color.r);
+	Output.Tex0 = TileUV(TransformUV(In), g_TileSize, color.r * 255);
 	Output.Tex1 = Output.Pos.zw;
     return Output;    
 }
@@ -78,7 +68,7 @@ NORMAL_VS_OUTPUT NormalVS( VS_INPUT In )
 	float4 PosWS = TransformPosWS(In);
 	Output.Pos = mul(PosWS, g_ViewProj);
 	Output.Color = TransformColor(In);
-	Output.Tex0 = TransformTileUV(In, Output.Color.r);
+	Output.Tex0 = TileUV(TransformUV(In), g_TileSize, Output.Color.r * 255);
 	Output.Normal = mul(TransformNormal(In), (float3x3)g_View);
 	Output.Tangent = mul(TransformTangent(In), (float3x3)g_View);
 	Output.Binormal = cross(Output.Normal, Output.Tangent);
@@ -91,7 +81,8 @@ void NormalPS( 	NORMAL_VS_OUTPUT In,
 				out float4 oSpecular : COLOR1,
 				out float4 oPos : COLOR2 )
 {
-	clip(ScreenDoorTransparency(In.Color.w, In.Pos.xy));
+	float4 Diffuse = tex2D(DiffuseTextureSampler, In.Tex0);
+	clip(ScreenDoorTransparency(Diffuse.w, In.Pos.xy));
 	float3x3 m = float3x3(In.Tangent, In.Binormal, In.Normal);
 	float3 NormalTS = tex2D(NormalTextureSampler, In.Tex0).xyz * 2 - 1;
 	oNormal = float4(mul(NormalTS, m), 1);
@@ -114,7 +105,7 @@ OPAQUE_VS_OUTPUT OpaqueVS( VS_INPUT In )
 	float4 PosWS = TransformPosWS(In);
 	Output.Pos = mul(PosWS, g_ViewProj);
 	Output.Color = TransformColor(In);
-	Output.Tex0 = TransformTileUV(In, Output.Color.r);
+	Output.Tex0 = TileUV(TransformUV(In), g_TileSize, Output.Color.r * 255);
 	Output.ShadowCoord = mul(PosWS, g_SkyLightViewProj);
 	Output.ViewVS = mul(g_Eye - PosWS.xyz, (float3x3)g_View); // ! dont normalize here
     return Output;    
@@ -122,7 +113,8 @@ OPAQUE_VS_OUTPUT OpaqueVS( VS_INPUT In )
 
 float4 OpaquePS( OPAQUE_VS_OUTPUT In ) : COLOR0
 { 
-	clip(ScreenDoorTransparency(In.Color.w, In.Pos.xy));
+	float4 Diffuse = tex2D(DiffuseTextureSampler, In.Tex0);
+	clip(ScreenDoorTransparency(Diffuse.w, In.Pos.xy));
 	float3 SkyLightDir = normalize(float3(g_SkyLightView[0][2], g_SkyLightView[1][2], g_SkyLightView[2][2]));
 	float3 SkyLightDirVS = mul(SkyLightDir, (float3x3)g_View);
 	float LightAmount = GetLigthAmount(In.ShadowCoord);
@@ -130,7 +122,6 @@ float4 OpaquePS( OPAQUE_VS_OUTPUT In ) : COLOR0
 	float3 SkyDiffuse = saturate(dot(NormalVS, SkyLightDirVS) * LightAmount) * g_SkyLightColor.xyz;
 	float3 Ref = Reflection(NormalVS, In.ViewVS);
 	float SkySpecular = pow(saturate(dot(Ref, SkyLightDirVS) * LightAmount), g_Shininess) * g_SkyLightColor.w;
-	float4 Diffuse = tex2D(DiffuseTextureSampler, In.Tex0);
 	float3 Specular = tex2D(SpecularTextureSampler, In.Tex0).xyz;
 	float4 ScreenLight = tex2D(LightRTSampler, (In.Pos.xy + 0.5f) / g_ScreenDim);
 	float3 Final = Diffuse.xyz * (ScreenLight.xyz + SkyDiffuse) + Specular * (ScreenLight.w + SkySpecular);

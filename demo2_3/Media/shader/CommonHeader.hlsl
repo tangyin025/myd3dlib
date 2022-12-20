@@ -174,3 +174,11 @@ float ScreenDoorTransparency(float Alpha, float2 SPos)
 	};
 	return Alpha - thresholdMatrix[SPos.x % 4][SPos.y % 4];
 }
+
+float2 TileUV(float2 uv, float2 TileSize, float id)
+{
+	float2 tiles = float2(floor(1 / TileSize.x), floor(1 / TileSize.y));
+	float frame = fmod(id, tiles.x * tiles.y);
+	float2 pos = float2(fmod(frame, tiles.x), floor(frame / tiles.x));
+	return (pos + uv) * TileSize;
+}
