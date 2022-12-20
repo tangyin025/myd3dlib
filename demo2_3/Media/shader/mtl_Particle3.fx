@@ -31,7 +31,7 @@ sampler SpecularTextureSampler = sampler_state
 
 struct SHADOW_VS_OUTPUT
 {
-	float4 Pos				: POSITION;
+	float4 Pos				: SV_Position;
 	float2 Tex0				: TEXCOORD0;
 	float2 Tex1				: TEXCOORD1;
 };
@@ -48,6 +48,8 @@ SHADOW_VS_OUTPUT ShadowVS( VS_INPUT In )
 
 float4 ShadowPS( SHADOW_VS_OUTPUT In ) : COLOR0
 { 
+	float4 Diffuse = tex2D(DiffuseTextureSampler, In.Tex0);
+	clip(ScreenDoorTransparency(Diffuse.w, In.Pos.xy));
     return In.Tex1.x / In.Tex1.y;
 }
 
