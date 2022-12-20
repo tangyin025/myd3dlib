@@ -1,7 +1,6 @@
 
 texture g_Texture:MaterialParameter<string path="texture/Checker.bmp";>;
-float2 g_Tiles:MaterialParameter = float2(4, 4);
-float2 g_TileAreas:MaterialParameter = float2(1, 1);
+float2 g_TileSize:MaterialParameter = float2(1,1);
 
 sampler TextureSampler = sampler_state
 {
@@ -10,6 +9,16 @@ sampler TextureSampler = sampler_state
     MinFilter = LINEAR;
     MagFilter = LINEAR;
 };
+
+float2 TransformTileUV(VS_INPUT In, float colorred)
+{
+	float2 uv=TransformUV(In);
+	float2 tiles = float2(floor(1/g_TileSize.x),floor(1/g_TileSize.y));
+	float frame = fmod(colorred * 255.0, tiles.x * tiles.y);
+	float row = floor(frame / tiles.x);
+	float column = fmod(frame, tiles.x);
+	return float2((column + uv.x) * g_TileSize.x, (row + uv.y) * g_TileSize.y);
+}
 
 struct TRANSPARENT_VS_OUTPUT
 {
@@ -23,12 +32,7 @@ TRANSPARENT_VS_OUTPUT TransparentVS( VS_INPUT In )
     TRANSPARENT_VS_OUTPUT Output;
 	Output.Pos = TransformPos(In);
 	Output.Color = TransformColor(In);
-    float TotalFrames = fmod(Output.Color.x * 255.0, g_Tiles.x * g_Tiles.y);
-    float Row = floor(TotalFrames / g_Tiles.x);
-    float Frame = fmod(TotalFrames, g_Tiles.x);
-    float2 Tex = TransformUV(In);
-	Output.Tex0.x = (Frame + Tex.x) / g_Tiles.x * g_TileAreas.x;
-    Output.Tex0.y = (Row + Tex.y) / g_Tiles.y * g_TileAreas.y;
+	Output.Tex0 = TransformTileUV(In, Output.Color.r);
     return Output;    
 }
 
