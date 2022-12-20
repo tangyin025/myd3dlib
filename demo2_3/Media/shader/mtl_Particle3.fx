@@ -39,7 +39,7 @@ struct SHADOW_VS_OUTPUT
 SHADOW_VS_OUTPUT ShadowVS( VS_INPUT In )
 {
     SHADOW_VS_OUTPUT Output;
-	Output.Pos = TransformPosShadow(In);
+	Output.Pos = TransformPos(In);
 	float4 color = TransformColor(In);
 	Output.Tex0 = TileUV(TransformUV(In), g_TileSize, color.r * 255);
 	Output.Tex1 = Output.Pos.zw;

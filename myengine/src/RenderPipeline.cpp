@@ -551,11 +551,9 @@ void RenderPipeline::OnRender(
 	m_SimpleSample->SetFloat(handle_ShadowMapSize, (float)SHADOW_MAP_SIZE);
 	m_SimpleSample->SetFloat(handle_ShadowBias, SHADOW_BIAS);
 	m_SimpleSample->SetMatrix(handle_World, Matrix4::identity);
-	m_SimpleSample->SetVector(handle_Eye, pRC->m_Camera->m_Eye);
-	m_SimpleSample->SetMatrix(handle_View, pRC->m_Camera->m_View);
-	m_SimpleSample->SetMatrix(handle_ViewProj, pRC->m_Camera->m_ViewProj);
-	m_SimpleSample->SetMatrix(handle_SkyLightView, m_SkyLightCam->m_View); // ! RH -z
-	m_SimpleSample->SetMatrix(handle_SkyLightViewProj, m_SkyLightCam->m_ViewProj);
+	m_SimpleSample->SetVector(handle_Eye, m_SkyLightCam->m_Eye);
+	m_SimpleSample->SetMatrix(handle_View, m_SkyLightCam->m_View);
+	m_SimpleSample->SetMatrix(handle_ViewProj, m_SkyLightCam->m_ViewProj);
 	V(pd3dDevice->SetRenderTarget(0, ShadowSurf));
 	V(pd3dDevice->SetDepthStencilSurface(m_ShadowDS->m_ptr));
 	V(pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, 0, 0.0f, 0));
@@ -567,6 +565,11 @@ void RenderPipeline::OnRender(
 	CComPtr<IDirect3DSurface9> NormalSurf = pRC->m_NormalRT->GetSurfaceLevel(0);
 	CComPtr<IDirect3DSurface9> SpecularSurf = pRC->m_SpecularRT->GetSurfaceLevel(0);
 	CComPtr<IDirect3DSurface9> PositionSurf = pRC->m_PositionRT->GetSurfaceLevel(0);
+	m_SimpleSample->SetVector(handle_Eye, pRC->m_Camera->m_Eye);
+	m_SimpleSample->SetMatrix(handle_View, pRC->m_Camera->m_View);
+	m_SimpleSample->SetMatrix(handle_ViewProj, pRC->m_Camera->m_ViewProj);
+	m_SimpleSample->SetMatrix(handle_SkyLightView, m_SkyLightCam->m_View); // ! RH -z
+	m_SimpleSample->SetMatrix(handle_SkyLightViewProj, m_SkyLightCam->m_ViewProj);
 	m_SimpleSample->SetVector(handle_SkyLightColor, m_SkyLightColor);
 	m_SimpleSample->SetVector(handle_AmbientColor, m_AmbientColor);
 	m_SimpleSample->SetTexture(handle_ShadowRT, m_ShadowRT.get());

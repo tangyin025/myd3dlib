@@ -143,7 +143,7 @@ struct SHADOW_VS_OUTPUT
 SHADOW_VS_OUTPUT ShadowVS( VS_INPUT In )
 {
     SHADOW_VS_OUTPUT Output;
-	Output.Pos = TransformPosShadow(In);
+	Output.Pos = TransformPos(In);
 	Output.Tex0 = Output.Pos.zw;
     return Output;    
 }

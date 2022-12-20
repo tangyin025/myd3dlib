@@ -18,11 +18,6 @@ float4 TransformPos(VS_INPUT In)
     return mul(TransformPosWS(In), g_ViewProj);
 }
 
-float4 TransformPosShadow(VS_INPUT In)
-{
-	return mul(TransformPosWS(In), g_SkyLightViewProj);
-}
-
 float2 TransformUV(VS_INPUT In)
 {
 	return float2(In.Pos.x / g_TerrainSize.x, In.Pos.z / g_TerrainSize.y);
