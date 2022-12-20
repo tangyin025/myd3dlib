@@ -29,8 +29,9 @@ sampler SpecularTextureSampler = sampler_state
 	MagFilter = LINEAR;
 };
 
-float2 TransformParticleUV(float2 uv, float colorred)
+float2 TransformTileUV(VS_INPUT In, float colorred)
 {
+	float2 uv=TransformUV(In);
 	float2 tiles = float2(floor(1/g_TileSize.x),floor(1/g_TileSize.y));
 	float frame = fmod(colorred * 255.0, tiles.x * tiles.y);
 	float row = floor(frame / tiles.x);
@@ -50,7 +51,7 @@ SHADOW_VS_OUTPUT ShadowVS( VS_INPUT In )
     SHADOW_VS_OUTPUT Output;
 	Output.Pos = TransformPosShadow(In);
 	float4 color = TransformColor(In);
-	Output.Tex0 = TransformParticleUV(TransformUV(In), color.r);
+	Output.Tex0 = TransformTileUV(In, color.r);
 	Output.Tex1 = Output.Pos.zw;
     return Output;    
 }
@@ -77,7 +78,7 @@ NORMAL_VS_OUTPUT NormalVS( VS_INPUT In )
 	float4 PosWS = TransformPosWS(In);
 	Output.Pos = mul(PosWS, g_ViewProj);
 	Output.Color = TransformColor(In);
-	Output.Tex0 = TransformParticleUV(TransformUV(In), Output.Color.r);
+	Output.Tex0 = TransformTileUV(In, Output.Color.r);
 	Output.Normal = mul(TransformNormal(In), (float3x3)g_View);
 	Output.Tangent = mul(TransformTangent(In), (float3x3)g_View);
 	Output.Binormal = cross(Output.Normal, Output.Tangent);
@@ -113,7 +114,7 @@ OPAQUE_VS_OUTPUT OpaqueVS( VS_INPUT In )
 	float4 PosWS = TransformPosWS(In);
 	Output.Pos = mul(PosWS, g_ViewProj);
 	Output.Color = TransformColor(In);
-	Output.Tex0 = TransformParticleUV(TransformUV(In), Output.Color.r);
+	Output.Tex0 = TransformTileUV(In, Output.Color.r);
 	Output.ShadowCoord = mul(PosWS, g_SkyLightViewProj);
 	Output.ViewVS = mul(g_Eye - PosWS.xyz, (float3x3)g_View); // ! dont normalize here
     return Output;    
