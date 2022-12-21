@@ -398,22 +398,26 @@ void StaticEmitterStream::Spawn(const my::Vector4 & Position, const my::Vector4 
 		m_emit->AddEntity(&chunk_res.first->second, my::AABB(
 			(j + 0) * m_emit->m_ChunkWidth, Position.y - Size.y * 0.5f, (i + 0) * m_emit->m_ChunkWidth,
 			(j + 1) * m_emit->m_ChunkWidth, Position.y + Size.y * 0.5f, (i + 1) * m_emit->m_ChunkWidth), m_emit->m_ChunkWidth, 0.1f);
+
+		std::pair<BufferMap::iterator, bool> res = m_buffs.insert(std::make_pair(std::make_pair(i, j), StaticEmitterChunkBufferPtr(new StaticEmitterChunkBuffer())));
+		_ASSERT(res.second);
+		my::ResourceMgr::getSingleton().AddResource(StaticEmitterChunk::MakeChunkPath(m_emit->m_ChunkPath, i, j), res.first->second);
 	}
-	else if (chunk_iter->second.IsRequested()) //else if (chunk_iter->second.m_buff)
-	{
-		SpawnBuffer(Position, Velocity, Color, Size, Angle, Time);
-		return;
-	}
+	//else if (chunk_iter->second.IsRequested()) //else if (chunk_iter->second.m_buff)
+	//{
+	//	SpawnBuffer(Position, Velocity, Color, Size, Angle, Time);
+	//	return;
+	//}
 
-	std::string path = StaticEmitterChunk::MakeChunkPath(m_emit->m_ChunkPath, i, j);
-	std::string FullPath = my::ResourceMgr::getSingleton().GetFullPath(path.c_str());
-	std::ofstream ofs(FullPath, std::ios::binary | std::ios::app, _SH_DENYRW);
-	_ASSERT(ofs.is_open());
+	//std::string path = StaticEmitterChunk::MakeChunkPath(m_emit->m_ChunkPath, i, j);
+	//std::string FullPath = my::ResourceMgr::getSingleton().GetFullPath(path.c_str());
+	//std::ofstream ofs(FullPath, std::ios::binary | std::ios::app, _SH_DENYRW);
+	//_ASSERT(ofs.is_open());
 
-	my::Emitter::Particle part(Position, Velocity, Color, Size, Angle, Time);
-	ofs.write((char*)&part, sizeof(part));
+	//my::Emitter::Particle part(Position, Velocity, Color, Size, Angle, Time);
+	//ofs.write((char*)&part, sizeof(part));
 
-	m_dirty[std::make_pair(i, j)] = true;
+	SpawnBuffer(Position, Velocity, Color, Size, Angle, Time);
 }
 
 my::Emitter::Particle * StaticEmitterStream::GetFirstNearParticle2D(const my::Vector3 & Center, float Range)
