@@ -412,6 +412,8 @@ void StaticEmitterStream::Spawn(const my::Vector4 & Position, const my::Vector4 
 
 	my::Emitter::Particle part(Position, Velocity, Color, Size, Angle, Time);
 	ofs.write((char*)&part, sizeof(part));
+
+	m_dirty[std::make_pair(i, j)] = true;
 }
 
 my::Emitter::Particle * StaticEmitterStream::GetFirstNearParticle2D(const my::Vector3 & Center, float Range)
