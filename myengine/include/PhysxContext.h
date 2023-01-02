@@ -6,6 +6,11 @@
 #include "myUtility.h"
 #include "myThread.h"
 
+namespace my
+{
+	class OgreMesh;
+};
+
 class Actor;
 
 class Component;
@@ -341,6 +346,10 @@ public:
 
 	TriangleList m_TriangleList;
 
+	typedef std::map<std::pair<my::OgreMesh*, unsigned int>, boost::shared_ptr<physx::PxTriangleMesh> > TriangleMeshMap;
+
+	TriangleMeshMap m_TriangleMeshMap;
+
 	typedef std::pair<physx::PxGeometryHolder, physx::PxTransform> GeometryPair;
 
 	typedef boost::shared_ptr<GeometryPair> GeometryPairPtr;
@@ -358,6 +367,8 @@ public:
 
 	void AddBox(float hx, float hy, float hz, const my::Vector3& Pos, const my::Quaternion& Rot);
 
+	void AddMesh(my::OgreMesh* mesh, unsigned int sub_mesh_id, const my::Vector3& Pos, const my::Quaternion& Rot, const my::Vector3& Scale);
+
 	void AddGeometry(const physx::PxGeometry& geom, const physx::PxTransform& pose);
 
 	int GetTriangleNum(void) const;
@@ -365,6 +376,8 @@ public:
 	int GetGeometryNum(void) const;
 
 	void GetTriangle(int i, my::Vector3& v0, my::Vector3& v1, my::Vector3& v2) const;
+
+	physx::PxGeometryType::Enum GetGeometryType(int i) const;
 
 	void GetBox(int i, float& hx, float& hy, float& hz, my::Vector3& Pos, my::Quaternion& Rot) const;
 

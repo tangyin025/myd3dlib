@@ -760,6 +760,41 @@ void PhysxSpatialIndex::AddBox(float hx, float hy, float hz, const my::Vector3& 
 	AddGeometry(physx::PxBoxGeometry(hx, hy, hz), physx::PxTransform((physx::PxVec3&)Pos, (physx::PxQuat&)Rot));
 }
 
+void PhysxSpatialIndex::AddMesh(my::OgreMesh* mesh, unsigned int sub_mesh_id, const my::Vector3& Pos, const my::Quaternion& Rot, const my::Vector3& Scale)
+{
+	std::pair<TriangleMeshMap::iterator, bool> res = m_TriangleMeshMap.insert(std::make_pair(std::make_pair(mesh, sub_mesh_id), boost::shared_ptr<physx::PxTriangleMesh>()));
+	if (res.second)
+	{
+		const D3DXATTRIBUTERANGE& att = mesh->m_AttribTable[sub_mesh_id];
+		physx::PxTriangleMeshDesc desc;
+		desc.points.count = att.VertexStart + att.VertexCount;
+		desc.points.stride = mesh->GetNumBytesPerVertex();
+		desc.points.data = &mesh->m_VertexElems.GetPosition(mesh->LockVertexBuffer());
+		desc.triangles.count = att.FaceCount;
+		if (mesh->GetOptions() & D3DXMESH_32BIT)
+		{
+			desc.triangles.stride = 3 * sizeof(DWORD);
+		}
+		else
+		{
+			desc.triangles.stride = 3 * sizeof(WORD);
+			desc.flags |= physx::PxMeshFlag::e16_BIT_INDICES;
+		}
+		desc.triangles.data = (unsigned char*)mesh->LockIndexBuffer() + att.FaceStart * desc.triangles.stride;
+
+		//// mesh should be validated before cooked without the mesh cleaning
+		//_ASSERT(PhysxSdk::getSingleton().m_Cooking->validateTriangleMesh(desc));
+
+		physx::PxTriangleMesh* tri_mesh = PhysxSdk::getSingleton().m_Cooking->createTriangleMesh(desc, PhysxSdk::getSingleton().m_sdk->getPhysicsInsertionCallback());
+		res.first->second.reset(tri_mesh, PhysxDeleter<physx::PxTriangleMesh>());
+		mesh->UnlockIndexBuffer();
+		mesh->UnlockVertexBuffer();
+	}
+
+	physx::PxMeshScale mesh_scaling((physx::PxVec3&)Scale, physx::PxQuat(physx::PxIdentity));
+	AddGeometry(physx::PxTriangleMeshGeometry(res.first->second.get(), mesh_scaling, physx::PxMeshGeometryFlags()), physx::PxTransform((physx::PxVec3&)Pos, (physx::PxQuat&)Rot));
+}
+
 void PhysxSpatialIndex::AddGeometry(const physx::PxGeometry& geom, const physx::PxTransform& pose)
 {
 	GeometryPairPtr geompair(new GeometryPair(geom, pose));
@@ -783,6 +818,11 @@ void PhysxSpatialIndex::GetTriangle(int i, my::Vector3& v0, my::Vector3& v1, my:
 	v0 = (Vector3&)m_TriangleList[i].verts[0];
 	v1 = (Vector3&)m_TriangleList[i].verts[1];
 	v2 = (Vector3&)m_TriangleList[i].verts[2];
+}
+
+physx::PxGeometryType::Enum PhysxSpatialIndex::GetGeometryType(int i) const
+{
+	return m_GeometryList[i]->first.getType();
 }
 
 void PhysxSpatialIndex::GetBox(int i, float& hx, float& hy, float& hz, my::Vector3& Pos, my::Quaternion& Rot) const

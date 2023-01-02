@@ -389,6 +389,17 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	if (!PhysxScene::Init(theApp.m_sdk.get(), theApp.m_CpuDispatcher.get(), physx::PxSceneFlags(theApp.default_physx_scene_flags), theApp.default_physx_scene_gravity))
 		return -1;
 
+	//// ! Example how to improve cooking speed if needed
+	//physx::PxTolerancesScale scale;
+	//physx::PxCookingParams params(scale);
+	//// disable mesh cleaning - perform mesh validation on development configurations
+	//params.meshPreprocessParams |= physx::PxMeshPreprocessingFlag::eDISABLE_CLEAN_MESH;
+	//// disable edge precompute, edges are set for each triangle, slows contact generation
+	//params.meshPreprocessParams |= physx::PxMeshPreprocessingFlag::eDISABLE_ACTIVE_EDGES_PRECOMPUTE;
+	//// lower hierarchy for internal mesh
+	//params.meshCookingHint = physx::PxMeshCookingHint::eCOOKING_PERFORMANCE;
+	//PhysxSdk::getSingleton().m_Cooking->setParams(params);
+
 	m_PxScene->setVisualizationParameter(physx::PxVisualizationParameter::eSCALE, 1);
 	//m_PxScene->setVisualizationParameter(physx::PxVisualizationParameter::eBODY_AXES, 1);
 	m_PxScene->setVisualizationParameter(physx::PxVisualizationParameter::eCOLLISION_SHAPES, 1);
