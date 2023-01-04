@@ -486,10 +486,10 @@ void CPropertiesWnd::UpdatePropertiesStaticMesh(CMFCPropertyGridProperty * pComp
 	pComponent->GetSubItem(PropId + 0)->SetValue((_variant_t)ms2ts(theApp.GetFullPath(mesh_cmp->m_MeshPath.c_str())).c_str());
 	COLORREF color = RGB(mesh_cmp->m_MeshColor.x * 255, mesh_cmp->m_MeshColor.y * 255, mesh_cmp->m_MeshColor.z * 255);
 	(DYNAMIC_DOWNCAST(CColorProp, pComponent->GetSubItem(PropId + 1)))->SetColor(color);
-	pComponent->GetSubItem(PropId + 2)->SetValue((_variant_t)(long)(mesh_cmp->m_MeshColor.w * 255));
+	pComponent->GetSubItem(PropId + 2)->SetValue((_variant_t)(long)(mesh_cmp->m_MeshColor.w * 255)); // ! VT_I4
 	pChunkWidth->SetValue((_variant_t)mesh_cmp->m_ChunkWidth);
 	pComponent->GetSubItem(PropId + 4)->SetValue((_variant_t)mesh_cmp->m_ChunkLodScale);
-	pComponent->GetSubItem(PropId + 5)->SetValue((_variant_t)(long)mesh_cmp->m_ChunkLodOffset); // ! VT_I4
+	pComponent->GetSubItem(PropId + 5)->SetValue((_variant_t)mesh_cmp->m_ChunkCullingHole);
 	UpdatePropertiesMaterial(pComponent->GetSubItem(PropId + 6), mesh_cmp->m_Material.get());
 }
 
@@ -595,7 +595,7 @@ void CPropertiesWnd::UpdatePropertiesStaticEmitter(CMFCPropertyGridProperty * pC
 	pChunkWidth->SetValue((_variant_t)emit_cmp->m_ChunkWidth);
 	pComponent->GetSubItem(PropId + 5)->SetValue((_variant_t)ms2ts(emit_cmp->m_ChunkPath).c_str());
 	pComponent->GetSubItem(PropId + 6)->SetValue((_variant_t)emit_cmp->m_ChunkLodScale);
-	pComponent->GetSubItem(PropId + 7)->SetValue((_variant_t)(long)emit_cmp->m_ChunkLodOffset);
+	pComponent->GetSubItem(PropId + 7)->SetValue((_variant_t)emit_cmp->m_ChunkCullingHole);
 	UpdatePropertiesMaterial(pComponent->GetSubItem(PropId + 8), emit_cmp->m_Material.get());
 	CMainFrame* pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
@@ -1511,8 +1511,8 @@ void CPropertiesWnd::CreatePropertiesStaticMesh(CMFCPropertyGridProperty* pCompo
 	pComponent->AddSubItem(pChunkWidth);
 	CMFCPropertyGridProperty* pChunkLodScale = new CSimpleProp(_T("ChunkLodScale"), (_variant_t)mesh_cmp->m_ChunkLodScale, NULL, PropertyStaticMeshChunkLodScale);
 	pComponent->AddSubItem(pChunkLodScale);
-	CMFCPropertyGridProperty* pChunkLodOffset = new CSimpleProp(_T("ChunkLodOffset"), (_variant_t)(long)mesh_cmp->m_ChunkLodOffset, NULL, PropertyStaticMeshChunkLodOffset);
-	pComponent->AddSubItem(pChunkLodOffset);
+	CMFCPropertyGridProperty* pChunkCullingHole = new CSimpleProp(_T("ChunkCullingHole"), (_variant_t)mesh_cmp->m_ChunkCullingHole, NULL, PropertyStaticMeshChunkCullingHole);
+	pComponent->AddSubItem(pChunkCullingHole);
 
 	CreatePropertiesMaterial(pComponent, _T("Material"), mesh_cmp->m_Material.get());
 }
@@ -1665,8 +1665,8 @@ void CPropertiesWnd::CreatePropertiesStaticEmitter(CMFCPropertyGridProperty * pC
 	pComponent->AddSubItem(pChunkPath);
 	CMFCPropertyGridProperty* pChunkLodScale = new CSimpleProp(_T("ChunkLodScale"), (_variant_t)emit_cmp->m_ChunkLodScale, NULL, PropertyStaticEmitterChunkLodScale);
 	pComponent->AddSubItem(pChunkLodScale);
-	CMFCPropertyGridProperty* pChunkLodOffset = new CSimpleProp(_T("ChunkLodOffset"), (_variant_t)(long)emit_cmp->m_ChunkLodOffset, NULL, PropertyStaticEmitterChunkLodOffset);
-	pComponent->AddSubItem(pChunkLodOffset);
+	CMFCPropertyGridProperty* pChunkCullingHole = new CSimpleProp(_T("ChunkCullingHole"), (_variant_t)emit_cmp->m_ChunkCullingHole, NULL, PropertyStaticEmitterChunkCullingHole);
+	pComponent->AddSubItem(pChunkCullingHole);
 	CreatePropertiesMaterial(pComponent, _T("Material"), emit_cmp->m_Material.get());
 	CMainFrame* pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
@@ -3494,10 +3494,10 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
 	}
-	case PropertyStaticMeshChunkLodOffset:
+	case PropertyStaticMeshChunkCullingHole:
 	{
 		StaticMesh* mesh_cmp = (StaticMesh*)pProp->GetParent()->GetValue().pulVal;
-		mesh_cmp->m_ChunkLodOffset = pProp->GetValue().intVal;
+		mesh_cmp->m_ChunkCullingHole = pProp->GetValue().fltVal;
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
@@ -3824,10 +3824,10 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
 	}
-	case PropertyStaticEmitterChunkLodOffset:
+	case PropertyStaticEmitterChunkCullingHole:
 	{
 		StaticEmitter* emit_cmp = (StaticEmitter*)pProp->GetParent()->GetValue().pulVal;
-		emit_cmp->m_ChunkLodOffset = pProp->GetValue().intVal;
+		emit_cmp->m_ChunkCullingHole = pProp->GetValue().fltVal;
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;

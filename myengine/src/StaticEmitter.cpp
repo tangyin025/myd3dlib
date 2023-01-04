@@ -124,7 +124,7 @@ void StaticEmitter::save(Archive& ar, const unsigned int version) const
 	ar << BOOST_SERIALIZATION_NVP(m_ChunkWidth);
 	ar << BOOST_SERIALIZATION_NVP(m_ChunkPath);
 	ar << BOOST_SERIALIZATION_NVP(m_ChunkLodScale);
-	ar << BOOST_SERIALIZATION_NVP(m_ChunkLodOffset);
+	ar << BOOST_SERIALIZATION_NVP(m_ChunkCullingHole);
 	DWORD ChunkSize = m_Chunks.size();
 	ar << BOOST_SERIALIZATION_NVP(ChunkSize);
 	ChunkMap::const_iterator chunk_iter = m_Chunks.begin();
@@ -146,7 +146,7 @@ void StaticEmitter::load(Archive& ar, const unsigned int version)
 	ar >> BOOST_SERIALIZATION_NVP(m_ChunkWidth);
 	ar >> BOOST_SERIALIZATION_NVP(m_ChunkPath);
 	ar >> BOOST_SERIALIZATION_NVP(m_ChunkLodScale);
-	ar >> BOOST_SERIALIZATION_NVP(m_ChunkLodOffset);
+	ar >> BOOST_SERIALIZATION_NVP(m_ChunkCullingHole);
 	DWORD ChunkSize;
 	ar >> BOOST_SERIALIZATION_NVP(ChunkSize);
 	for (int i = 0; i < (int)ChunkSize; i++)
@@ -221,10 +221,11 @@ void StaticEmitter::AddToPipeline(const my::Frustum& frustum, RenderPipeline* pi
 			StaticEmitterChunk* chunk = dynamic_cast<StaticEmitterChunk*>(oct_entity);
 			if (PassMask & RenderPipeline::PassTypeToMask(RenderPipeline::PassTypeNormal))
 			{
-				chunk->m_Lod = emit_cmp->m_Actor->CalculateLod((chunk->m_OctAabb->Center() - LocalViewPos).magnitude() / emit_cmp->m_ChunkLodScale) - emit_cmp->m_ChunkLodOffset;
+				float ChunkDist = (chunk->m_OctAabb->Center() - LocalViewPos).magnitude();
+				chunk->m_Lod = ChunkDist < emit_cmp->m_ChunkCullingHole ? -1 : emit_cmp->m_Actor->CalculateLod(ChunkDist / emit_cmp->m_ChunkLodScale);
 			}
 
-			if (chunk->m_Lod < 0 || chunk->m_Lod >= LastLod)
+			if (chunk->m_Lod >= LastLod)
 			{
 				return true;
 			}
@@ -257,7 +258,7 @@ void StaticEmitter::AddToPipeline(const my::Frustum& frustum, RenderPipeline* pi
 				}
 			}
 
-			if (chunk->m_buff)
+			if (chunk->m_Lod >= 0 && chunk->m_buff)
 			{
 				emit_cmp->AddParticlePairToPipeline(pipeline, PassMask, &(*chunk->m_buff)[0], chunk->m_buff->size() >> chunk->m_Lod, NULL, 0);
 			}
