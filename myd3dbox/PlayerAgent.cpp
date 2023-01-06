@@ -147,8 +147,19 @@ void PlayerAgent::Update(float fElapsedTime)
 
 	Vector3 pos = m_Controller->GetPosition();
 	const Vector3& up = m_Controller->GetUpDirection();
-	Quaternion rot = up.y <= m_Controller->GetSlopeLimit() ? Quaternion::RotationAxis(Vector3(0, 1, 0), atan2f(-up.x, -up.z))
-		: m_Steering->m_Speed > 0 ? Quaternion::RotationAxis(Vector3(0, 1, 0), atan2f(m_Steering->m_Forward.x, m_Steering->m_Forward.z)) : m_Actor->m_Rotation;
+	Quaternion rot;
+	if (up.y <= m_Controller->GetSlopeLimit())
+	{
+		rot = Quaternion::RotationAxis(Vector3(0, 1, 0), atan2f(-up.x, -up.z));
+	}
+	else if (m_Steering->m_Speed > 0)
+	{
+		rot = Quaternion::RotationAxis(Vector3(0, 1, 0), atan2f(m_Steering->m_Forward.x, m_Steering->m_Forward.z));
+	}
+	else
+	{
+		rot = m_Actor->m_Rotation;
+	}
 	if (m_Suspending > 0.0f)
 	{
 		Vector3 act_pos = pos - up * Clamp(pos.dot(up) - m_Actor->m_Position.dot(up), 0.0f, m_Controller->GetStepOffset());

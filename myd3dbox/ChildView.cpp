@@ -1523,6 +1523,13 @@ void CChildView::OnPaint()
 					PushLine(pFrame->m_Player->m_Position, pFrame->m_Player->m_Position + agent->m_Controller->GetUpDirection(), D3DCOLOR_ARGB(255, 255, 0, 0));
 					PushLine(agent->m_Controller->GetTouchedPosWorld(), agent->m_Controller->GetTouchedPosWorld() + agent->m_Controller->GetContactNormalDownPass(), D3DCOLOR_ARGB(255, 0, 255, 0));
 					PushLine(agent->m_Controller->GetTouchedPosWorld(), agent->m_Controller->GetTouchedPosWorld() + agent->m_Controller->GetContactNormalSidePass(), D3DCOLOR_ARGB(255, 0, 0, 255));
+					my::Vector3 pt = m_Camera->WorldToScreen(pFrame->m_Player->m_Position, my::Vector2((float)m_SwapChainBufferDesc.Width, (float)m_SwapChainBufferDesc.Height));
+					if (pt.z > 0.0f && pt.z < 1.0f)
+					{
+						wchar_t buff[256];
+						swprintf_s(buff, _countof(buff), L"%f", D3DXToDegree(asinf(agent->m_Controller->GetUpDirection().y)));
+						theApp.m_UIRender->PushString(my::Rectangle::LeftTop(floorf(pt.x), floorf(pt.y), 1, 1), buff, D3DCOLOR_ARGB(255, 255, 0, 0), my::Font::AlignLeftTop, theApp.m_Font.get());
+					}
 				}
 
 				V(theApp.m_d3dDevice->SetVertexShader(NULL));
