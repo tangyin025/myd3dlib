@@ -249,6 +249,8 @@ public:
 	virtual my::BoneList & GetPose(my::BoneList & pose, int root_i, const my::BoneHierarchy & boneHierarchy) const;
 };
 
+typedef boost::shared_ptr<AnimationNodeSubTree> AnimationNodeSubTreePtr;
+
 class AnimationNodeBlendList : public AnimationNode
 {
 public:
@@ -294,6 +296,8 @@ public:
 
 	virtual my::BoneList & GetPose(my::BoneList & pose, int root_i, const my::BoneHierarchy & boneHierarchy) const;
 };
+
+typedef boost::shared_ptr<AnimationNodeBlendList> AnimationNodeBlendListPtr;
 
 class AnimationNodeRate : public AnimationNode
 {

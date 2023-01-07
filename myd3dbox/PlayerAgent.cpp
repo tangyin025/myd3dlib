@@ -34,7 +34,7 @@ public:
 	float m_Rate;
 
 	NodeRunBlendList(const char* Name, PlayerAgent* Agent)
-		: AnimationNodeBlendList(Name, 3)
+		: AnimationNodeBlendList(Name, 4)
 		, m_Agent(Agent)
 		, m_Rate(1.0f)
 	{
@@ -43,6 +43,7 @@ public:
 
 	virtual void Tick(float fElapsedTime, float fTotalWeight)
 	{
+		const Vector3& Up = m_Agent->m_Controller->GetUpDirection();
 		if (m_Agent->m_Suspending <= 0.0f)
 		{
 			if (GetTargetWeight(0) < 0.5f)
@@ -51,21 +52,30 @@ public:
 				m_Rate = 1.0f;
 			}
 		}
-		else if (m_Agent->m_Steering->m_Speed < 0.1f)
+		else if (GetTargetWeight(3) < 0.5f && Up.y < sinf(D3DXToRadian(10.0f))
+			|| GetTargetWeight(3) >= 0.5f && Up.y <= sinf(D3DXToRadian(30.0f)))
 		{
-			if (GetTargetWeight(1) < 0.5f)
+			if (GetTargetWeight(3) < 0.5f)
 			{
-				SetActiveChild(1, 0.1f);
-				m_Rate = 1.0f;
+				SetActiveChild(3, 0.1f);
 			}
+			m_Rate = m_Agent->m_Steering->m_Speed / 2.6f;
 		}
-		else
+		else if (m_Agent->m_Steering->m_Speed > 0.1f)
 		{
 			if (GetTargetWeight(2) < 0.5f)
 			{
 				SetActiveChild(2, 0.1f);
 			}
 			m_Rate = m_Agent->m_Steering->m_Speed / 2.6f;
+		}
+		else
+		{
+			if (GetTargetWeight(1) < 0.5f)
+			{
+				SetActiveChild(1, 0.1f);
+				m_Rate = 1.0f;
+			}
 		}
 		AnimationNodeBlendList::Tick(fElapsedTime * m_Rate, fTotalWeight);
 	}
@@ -96,6 +106,7 @@ void PlayerAgent::RequestResource(void)
 	node_run_blend_list->SetChild(0, AnimationNodePtr(new AnimationNodeSequence("clip_drop")));
 	node_run_blend_list->SetChild(1, AnimationNodePtr(new AnimationNodeSequence("clip_stand")));
 	node_run_blend_list->SetChild(2, AnimationNodePtr(new AnimationNodeSequence("clip_run", 1.0f, true, "move")));
+	node_run_blend_list->SetChild(3, AnimationNodePtr(new AnimationNodeSequence("clip_run", 1.0f, true, "move")));
 
 	AnimationNodeSlotPtr node_run_blend_list_slot(new AnimationNodeSlot("node_run_blend_list_slot"));
 	node_run_blend_list_slot->SetChild(0, node_run_blend_list);
@@ -147,8 +158,9 @@ void PlayerAgent::Update(float fElapsedTime)
 
 	Vector3 pos = m_Controller->GetPosition();
 	const Vector3& up = m_Controller->GetUpDirection();
+	AnimationNodeBlendListPtr node_run_blend_list = boost::dynamic_pointer_cast<AnimationNodeBlendList>(m_Animator->GetChild(0)->GetChild(0));
 	Quaternion rot;
-	if (up.y <= m_Controller->GetSlopeLimit())
+	if (node_run_blend_list->GetTargetWeight(3) >= 0.5f)
 	{
 		rot = Quaternion::RotationAxis(Vector3(0, 1, 0), atan2f(-up.x, -up.z));
 	}
@@ -186,7 +198,7 @@ void PlayerAgent::Update(float fElapsedTime)
 	if (lensq > 0)
 	{
 		dir /= sqrt(lensq);
-		if (up.y > m_Controller->GetSlopeLimit())
+		if (node_run_blend_list->GetTargetWeight(3) < 0.5f)
 		{
 			Vector3 forward = model_view_camera->m_View.getColumn<0>().xyz.cross(up).normalize(Vector3(0, 0, 0));
 			Vector3 right = up.cross(forward);
@@ -242,7 +254,7 @@ void PlayerAgent::Update(float fElapsedTime)
 		{
 			HorizontalVel = (forward * dir.y + right * dir.x) * m_Steering->m_MaxSpeed;
 		}
-		else if (up.y > m_Controller->GetSlopeLimit())
+		else if (node_run_blend_list->GetTargetWeight(3) < 0.5f)
 		{
 			HorizontalVel = Vector3(m_Steering->m_Forward.xz(), 0).normalize(Vector3(0, 0, 0)) * m_Steering->m_Speed;
 		}
