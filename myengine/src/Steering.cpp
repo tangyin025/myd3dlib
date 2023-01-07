@@ -117,15 +117,19 @@ Steering::CrowdAgentState Steering::SeekTarget(const my::Vector3& Target, float 
 {
 	// https://github.com/recastnavigation/recastnavigation/blob/master/DetourCrowd/Source/DetourCrowd.cpp
 	// dtCrowd::update
+	if (!m_navi)
+	{
+		nvel = SeekDir(Vector3(0, 0, 0), dtime);
+		return DT_CROWDAGENT_STATE_INVALID;
+	}
 
+	// Query neighbour agents
 	const Controller* controller = m_Actor->GetFirstComponent<Controller>();
 	PhysxScene* scene = dynamic_cast<PhysxScene*>(m_Actor->m_Node->GetTopNode());
 	Vector3 pos = controller->GetPosition();
 	float collisionQueryRange = controller->GetRadius() * 12.0f;
 	std::vector<Steering*> neighbors;
 	std::vector<Controller*> nei_controllers;
-
-	// Query neighbour agents
 	std::vector<physx::PxOverlapHit> buff(256);
 	physx::PxOverlapBuffer hitbuff(buff.data(), buff.size());
 	physx::PxQueryFilterData filterData = physx::PxQueryFilterData(
