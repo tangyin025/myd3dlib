@@ -45,12 +45,15 @@ public:
 
 	boost::shared_ptr<PhysxSpatialIndex> m_spa;
 
+	float m_Submergence;
+
 	PlayerAgent(const char* Name)
 		: Component(Name)
 		, m_MoveDir(0, 0, 0)
 		, m_VerticalSpeed(0)
 		, m_Suspending(0.0f)
 		, m_LastMoveFlags(0)
+		, m_Submergence(0)
 	{
 	}
 

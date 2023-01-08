@@ -324,11 +324,14 @@ void PlayerAgent::OnPxThreadSubstep(float dtime)
 		m_Suspending -= dtime;
 	}
 
-	float t, depth = 0;
+	float t;
 	if (m_spa && m_spa->Raycast(m_Controller->GetFootPosition() + Vector3(0, 1000, 0), Vector3(0, -1, 0), 1000, t))
 	{
-		// ! Hooke¡¯s law
-		depth = 1000 - t;
+		m_Submergence = my::Min(1.0f, (1000 - t) / m_Controller->GetHeight());
+	}
+	else
+	{
+		m_Submergence = 0;
 	}
 
 	Vector3 disp;
@@ -343,11 +346,16 @@ void PlayerAgent::OnPxThreadSubstep(float dtime)
 			m_Steering->m_Forward = vel / m_Steering->m_Speed;
 		}
 	}
-	else if (depth > m_Controller->GetHeight() * 0.5)
+	else if (m_Submergence > 0.7f)
 	{
-		float buoyancy = my::Lerp(0.0f, 5.0f, Min(1.0f, (depth - m_Controller->GetHeight() * 0.5f) / m_Controller->GetHeight() * 0.5f));
-		m_VerticalSpeed += buoyancy * dtime;
-		Vector3 vel = m_Steering->SeekDir(m_MoveDir * theApp.default_player_seek_force, dtime) + Vector3(0, m_VerticalSpeed, 0);
+		Vector3 vel = (m_Steering->m_Forward * m_Steering->m_Speed + Vector3(0, m_VerticalSpeed, 0)) * (1.0f - 3.f * m_Submergence * dtime);
+		vel.y += theApp.default_physx_scene_gravity.y * (1.0f - 1.5f * m_Submergence) * dtime;
+		m_VerticalSpeed = vel.y;
+		m_Steering->m_Speed = vel.magnitude2D();
+		if (m_Steering->m_Speed > 0)
+		{
+			m_Steering->m_Forward = Vector3(vel.xz(), 0) / m_Steering->m_Speed;
+		}
 		disp = vel * dtime;
 	}
 	else if (m_Suspending <= 0.0f)
