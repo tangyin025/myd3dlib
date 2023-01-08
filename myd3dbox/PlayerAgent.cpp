@@ -126,6 +126,17 @@ void PlayerAgent::RequestResource(void)
 		m_Animator->AddIK(m_Skel->GetBoneIndex("joint1"), m_Skel->m_boneHierarchy, 0.08f, theApp.default_physx_shape_filterword0);
 		m_Animator->AddIK(m_Skel->GetBoneIndex("joint82"), m_Skel->m_boneHierarchy, 0.08f, theApp.default_physx_shape_filterword0);
 	}
+
+	MeshComponent* water_cmp = dynamic_cast<MeshComponent*>(theApp.GetNamedObject("scene03_water0"));
+	if (water_cmp)
+	{
+		m_spa.reset(new PhysxSpatialIndex());
+		my::OgreMeshPtr water_mesh = theApp.LoadMesh(water_cmp->m_MeshPath.c_str());
+		for (int i = 0; i < water_mesh->GetMaterialNum(); i++)
+		{
+			m_spa->AddMesh(water_mesh.get(), i, water_cmp->m_Actor->m_Position, water_cmp->m_Actor->m_Rotation, water_cmp->m_Actor->m_Scale);
+		}
+	}
 }
 
 void PlayerAgent::ReleaseResource(void)
@@ -147,6 +158,8 @@ void PlayerAgent::ReleaseResource(void)
 	m_Meshes.clear();
 
 	m_Animator->RemoveChild(0);
+
+	m_spa.reset();
 }
 
 void PlayerAgent::Update(float fElapsedTime)
@@ -311,6 +324,13 @@ void PlayerAgent::OnPxThreadSubstep(float dtime)
 		m_Suspending -= dtime;
 	}
 
+	float t, depth = 0;
+	if (m_spa && m_spa->Raycast(m_Controller->GetFootPosition() + Vector3(0, 1000, 0), Vector3(0, -1, 0), 1000, t))
+	{
+		// ! Hooke¡¯s law
+		depth = 1000 - t;
+	}
+
 	Vector3 disp;
 	if (m_Actor->TickActionAndGetDisplacement(dtime, disp))
 	{
@@ -322,6 +342,13 @@ void PlayerAgent::OnPxThreadSubstep(float dtime)
 		{
 			m_Steering->m_Forward = vel / m_Steering->m_Speed;
 		}
+	}
+	else if (depth > m_Controller->GetHeight() * 0.5)
+	{
+		float buoyancy = my::Lerp(0.0f, 5.0f, Min(1.0f, (depth - m_Controller->GetHeight() * 0.5f) / m_Controller->GetHeight() * 0.5f));
+		m_VerticalSpeed += buoyancy * dtime;
+		Vector3 vel = m_Steering->SeekDir(m_MoveDir * theApp.default_player_seek_force, dtime) + Vector3(0, m_VerticalSpeed, 0);
+		disp = vel * dtime;
 	}
 	else if (m_Suspending <= 0.0f)
 	{

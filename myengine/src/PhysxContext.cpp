@@ -863,22 +863,23 @@ bool PhysxSpatialIndex::Raycast(const my::Vector3& pos, const my::Vector3& dir, 
 {
 	struct HitCallback : physx::PxSpatialLocationCallback
 	{
-		float closest;
 		const my::Vector3& pos;
 		const my::Vector3& dir;
 		float dist;
+		float closest;
 		HitCallback(const my::Vector3& _pos, const my::Vector3& _dir, float _dist)
-			: closest(FLT_MAX)
-			, pos(_pos)
+			: pos(_pos)
 			, dir(_dir)
 			, dist(_dist)
+			, closest(FLT_MAX)
 		{
 		}
 		virtual physx::PxAgain onHit(physx::PxSpatialIndexItem& item, physx::PxReal distance, physx::PxReal& shrunkDistance)
 		{
 			GeometryPair& geompair = (GeometryPair&)item;
 			physx::PxRaycastHit hit;
-			if (physx::PxGeometryQuery::raycast((physx::PxVec3&)pos, (physx::PxVec3&)dir, geompair.first.any(), geompair.second, dist, physx::PxHitFlag::eDISTANCE, 1, &hit))
+			physx::PxU32 hitCount = physx::PxGeometryQuery::raycast((physx::PxVec3&)pos, (physx::PxVec3&)dir, geompair.first.any(), geompair.second, dist, physx::PxHitFlag::eDISTANCE, 1, &hit);
+			if (hitCount > 0)
 			{
 				if (hit.distance < closest)
 				{
