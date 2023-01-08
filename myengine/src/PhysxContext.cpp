@@ -836,6 +836,29 @@ void PhysxSpatialIndex::GetBox(int i, float& hx, float& hy, float& hz, my::Vecto
 	Rot = (Quaternion&)m_GeometryList[i]->second.q;
 }
 
+// access private member using template trick, https://stackoverflow.com/questions/12993219/access-private-member-using-template-trick
+template<typename Tag, typename Tag::type M>
+struct Rob {
+	friend typename Tag::type get(Tag) {
+		return M;
+	}
+};
+
+struct NpSpatialIndex_f {
+	typedef physx::Sq::IncrementalPruner* physx::NpSpatialIndex::* type;
+	friend type get(NpSpatialIndex_f);
+};
+
+template struct Rob<NpSpatialIndex_f, &physx::NpSpatialIndex::mPruner>;
+
+const my::AABB& PhysxSpatialIndex::GetGeometryWorldBox(int i) const
+{
+	physx::NpSpatialIndex* idx = static_cast<physx::NpSpatialIndex*>(m_PxSpatialIndex.get());
+	physx::Sq::AABBPruner* pruner = static_cast<physx::Sq::AABBPruner*>(idx->*get(NpSpatialIndex_f()));
+	_ASSERT(i <= pruner->mPool.mNbObjects);
+	return (AABB&)pruner->mPool.mWorldBoxes[i];
+}
+
 bool PhysxSpatialIndex::Raycast(const my::Vector3& pos, const my::Vector3& dir, float dist, float& t) const
 {
 	struct HitCallback : physx::PxSpatialLocationCallback
@@ -986,29 +1009,20 @@ bool PhysxSpatialIndex::SweepBox(float hx, float hy, float hz, const my::Vector3
 	return false;
 }
 
-// access private member using template trick, https://stackoverflow.com/questions/12993219/access-private-member-using-template-trick
-template<typename Tag, typename Tag::type M>
-struct Rob {
-	friend typename Tag::type get(Tag) {
-		return M;
-	}
-};
-
-struct NpSpatialIndex_f {
-	typedef physx::Sq::IncrementalPruner* physx::NpSpatialIndex::* type;
-	friend type get(NpSpatialIndex_f);
-};
-
-template struct Rob<NpSpatialIndex_f, &physx::NpSpatialIndex::mPruner>;
-
 my::AABB PhysxSpatialIndex::CalculateAABB(void) const
 {
 	my::AABB ret(FLT_MAX, -FLT_MAX);
-	physx::NpSpatialIndex* idx = static_cast<physx::NpSpatialIndex*>(m_PxSpatialIndex.get());
-	physx::Sq::AABBPruner* pruner = static_cast<physx::Sq::AABBPruner*>(idx->*get(NpSpatialIndex_f()));
-	for (unsigned int i = 0; i < pruner->mPool.mNbObjects; i++)
+	for (int i = 0; i < GetTriangleNum(); i++)
 	{
-		ret.unionSelf((AABB&)pruner->mPool.mWorldBoxes[i]);
+		my::Vector3 v0, v1, v2;
+		GetTriangle(i, v0, v1, v2);
+		ret.unionSelf(v0);
+		ret.unionSelf(v1);
+		ret.unionSelf(v2);
+	}
+	for (int i = 0; i < GetGeometryNum(); i++)
+	{
+		ret.unionSelf(GetGeometryWorldBox(i));
 	}
 	return ret;
 }
