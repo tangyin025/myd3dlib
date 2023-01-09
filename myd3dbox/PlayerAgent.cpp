@@ -44,6 +44,8 @@ public:
 	virtual void Tick(float fElapsedTime, float fTotalWeight)
 	{
 		const Vector3& Up = m_Agent->m_Controller->GetUpDirection();
+		static float enterClimbSlope = sinf(D3DXToRadian(10.0f));
+		static float leaveClimbSlope = sinf(D3DXToRadian(30.0f));
 		if (m_Agent->m_Suspending <= 0.0f)
 		{
 			if (GetTargetWeight(0) < 0.5f)
@@ -52,8 +54,8 @@ public:
 				m_Rate = 1.0f;
 			}
 		}
-		else if (GetTargetWeight(3) < 0.5f && Up.y < sinf(D3DXToRadian(10.0f))
-			|| GetTargetWeight(3) >= 0.5f && Up.y <= sinf(D3DXToRadian(30.0f)))
+		else if (GetTargetWeight(3) < 0.5f && Up.y < enterClimbSlope
+			|| GetTargetWeight(3) >= 0.5f && Up.y <= leaveClimbSlope)
 		{
 			if (GetTargetWeight(3) < 0.5f)
 			{
@@ -325,9 +327,10 @@ void PlayerAgent::OnPxThreadSubstep(float dtime)
 	}
 
 	float t;
-	if (m_spa && m_spa->Raycast(m_Controller->GetFootPosition() + Vector3(0, 1000, 0), Vector3(0, -1, 0), 1000, t))
+	if (m_spa && m_spa->Raycast(m_Controller->GetPosition() + Vector3(0, 1000, 0), Vector3(0, -1, 0), 1000, t))
 	{
-		m_Submergence = my::Min(1.0f, (1000 - t) / m_Controller->GetHeight());
+		static float swimDepth = 0.5f;
+		m_Submergence = my::Min(1.0f, (1000 - t) / swimDepth);
 	}
 	else
 	{
@@ -346,10 +349,14 @@ void PlayerAgent::OnPxThreadSubstep(float dtime)
 			m_Steering->m_Forward = vel / m_Steering->m_Speed;
 		}
 	}
-	else if (m_Submergence > 0.7f)
+	else if (m_Submergence > 0.f)
 	{
-		Vector3 vel = (m_Steering->m_Forward * m_Steering->m_Speed + Vector3(0, m_VerticalSpeed, 0)) * (1.0f - 3.f * m_Submergence * dtime);
-		vel.y += theApp.default_physx_scene_gravity.y * (1.0f - 1.5f * m_Submergence) * dtime;
+		static float buoyancy = 1.5f;
+		static float waterDrag = 3.0f;
+		static float swimForce = 5.0f;
+		Vector3 vel = m_Steering->m_Forward * m_Steering->m_Speed + m_MoveDir * swimForce * dtime + Vector3(0, m_VerticalSpeed, 0);
+		vel	*= 1.0f - waterDrag * m_Submergence * dtime;
+		vel.y += theApp.default_physx_scene_gravity.y * (1.0f - buoyancy * m_Submergence) * dtime;
 		m_VerticalSpeed = vel.y;
 		m_Steering->m_Speed = vel.magnitude2D();
 		if (m_Steering->m_Speed > 0)
