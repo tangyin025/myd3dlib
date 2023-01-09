@@ -329,8 +329,7 @@ void PlayerAgent::OnPxThreadSubstep(float dtime)
 	float t;
 	if (m_spa && m_spa->Raycast(m_Controller->GetPosition() + Vector3(0, 1000, 0), Vector3(0, -1, 0), 1000, t))
 	{
-		static float swimDepth = 0.5f;
-		m_Submergence = my::Min(1.0f, (1000 - t) / swimDepth);
+		m_Submergence = my::Clamp((1000 - t) / theApp.default_player_swim_depth, 0.0f, 1.0f);
 	}
 	else
 	{
@@ -338,6 +337,7 @@ void PlayerAgent::OnPxThreadSubstep(float dtime)
 	}
 
 	Vector3 disp;
+	const float gravity = theApp.default_physx_scene_gravity.y * (1.0f - theApp.default_player_water_buoyancy * m_Submergence);
 	if (m_Actor->TickActionAndGetDisplacement(dtime, disp))
 	{
 		Vector3 vel = disp / dtime;
@@ -349,32 +349,24 @@ void PlayerAgent::OnPxThreadSubstep(float dtime)
 			m_Steering->m_Forward = vel / m_Steering->m_Speed;
 		}
 	}
-	else if (m_Submergence > 0.f)
-	{
-		static float buoyancy = 1.5f;
-		static float waterDrag = 3.0f;
-		static float swimForce = 5.0f;
-		Vector3 vel = m_Steering->m_Forward * m_Steering->m_Speed + m_MoveDir * swimForce * dtime + Vector3(0, m_VerticalSpeed, 0);
-		vel	*= 1.0f - waterDrag * m_Submergence * dtime;
-		vel.y += theApp.default_physx_scene_gravity.y * (1.0f - buoyancy * m_Submergence) * dtime;
-		m_VerticalSpeed = vel.y;
-		m_Steering->m_Speed = vel.magnitude2D();
-		if (m_Steering->m_Speed > 0)
-		{
-			m_Steering->m_Forward = Vector3(vel.xz(), 0) / m_Steering->m_Speed;
-		}
-		disp = vel * dtime;
-	}
 	else if (m_Suspending <= 0.0f)
 	{
-		m_VerticalSpeed += theApp.default_physx_scene_gravity.y * dtime;
+		m_VerticalSpeed += gravity * dtime;
 		//_ASSERT(m_Controller->GetUpDirection() == Vector3(0, 1, 0));
-		Vector3 vel = m_Steering->m_Forward * m_Steering->m_Speed + m_Controller->GetUpDirection() * m_VerticalSpeed;
+		Vector3 vel = m_Steering->m_Forward * m_Steering->m_Speed + m_Controller->GetUpDirection() * m_VerticalSpeed + m_MoveDir * theApp.default_player_swim_force * m_Submergence * dtime;
+		vel *= 1.0f - theApp.default_player_water_drag * m_Submergence * dtime;
 		disp = vel * dtime;
+		m_VerticalSpeed = vel.dot(m_Controller->GetUpDirection());
+		vel -= m_Controller->GetUpDirection() * m_VerticalSpeed;
+		m_Steering->m_Speed = vel.magnitude();
+		if (m_Steering->m_Speed > 0)
+		{
+			m_Steering->m_Forward = vel / m_Steering->m_Speed;
+		}
 	}
 	else
 	{
-		m_VerticalSpeed += theApp.default_physx_scene_gravity.y * dtime;
+		m_VerticalSpeed += gravity * dtime;
 		Vector3 vel = m_Steering->SeekDir(m_MoveDir * theApp.default_player_seek_force, dtime) + m_Controller->GetUpDirection() * m_VerticalSpeed;
 		disp = vel * dtime;
 	}

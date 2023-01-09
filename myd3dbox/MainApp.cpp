@@ -543,11 +543,15 @@ BOOL CMainApp::InitInstance()
 		("default_player_run_speed", boost::program_options::value(&default_player_run_speed)->default_value(5.0f), "Default player run speed")
 		("default_player_breaking_speed", boost::program_options::value(&default_player_breaking_speed)->default_value(20.0f), "Default player breaking speed")
 		("default_player_seek_force", boost::program_options::value(&default_player_seek_force)->default_value(50.0f), "Default player seek force")
+		("default_player_swim_depth", boost::program_options::value(&default_player_swim_depth)->default_value(0.5f), "Default player swim depth")
+		("default_player_swim_force", boost::program_options::value(&default_player_swim_force)->default_value(10.0f), "Default player swim force")
 		("default_player_look_distance", boost::program_options::value(&default_player_look_distance)->default_value(4.0f), "Default player look distance")
 		("default_player_collision_height", boost::program_options::value(&default_player_collision_height)->default_value(1000.0f), "Default player collision height")
 		("default_player_mesh_list", boost::program_options::value(&default_player_mesh_list), "Default player mesh list")
 		("default_player_anim_list", boost::program_options::value(&default_player_anim_list), "Default player anim list")
 		("default_player_water_cmp", boost::program_options::value(&default_player_water_cmp)->default_value("scene03_water0"), "Default player water cmp")
+		("default_player_water_buoyancy", boost::program_options::value(&default_player_water_buoyancy)->default_value(1.5f), "Default player water buoyancy")
+		("default_player_water_drag", boost::program_options::value(&default_player_water_drag)->default_value(3.0f), "Default player water drag")
 		;
 	boost::program_options::variables_map vm;
 	boost::program_options::store(boost::program_options::parse_config_file<char>((cfg_file + ".cfg").c_str(), desc, true), vm);
