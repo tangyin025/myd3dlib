@@ -196,7 +196,7 @@ public:
 	float default_player_collision_height;
 	std::vector<std::string> default_player_mesh_list;
 	std::vector<std::string> default_player_anim_list;
-	std::string default_player_water_cmp;
+	unsigned int default_player_water_filterword0;
 	float default_player_water_buoyancy;
 	float default_player_water_drag;
 	BOOL m_bNeedDraw;

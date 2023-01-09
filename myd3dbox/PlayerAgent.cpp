@@ -126,17 +126,6 @@ void PlayerAgent::RequestResource(void)
 		m_Animator->AddIK(m_Skel->GetBoneIndex("joint1"), m_Skel->m_boneHierarchy, 0.08f, theApp.default_physx_shape_filterword0);
 		m_Animator->AddIK(m_Skel->GetBoneIndex("joint82"), m_Skel->m_boneHierarchy, 0.08f, theApp.default_physx_shape_filterword0);
 	}
-
-	MeshComponent* water_cmp = dynamic_cast<MeshComponent*>(theApp.GetNamedObject(theApp.default_player_water_cmp.c_str()));
-	if (water_cmp)
-	{
-		m_spa.reset(new PhysxSpatialIndex());
-		my::OgreMeshPtr water_mesh = theApp.LoadMesh(water_cmp->m_MeshPath.c_str());
-		for (int i = 0; i < water_mesh->GetMaterialNum(); i++)
-		{
-			m_spa->AddMesh(water_mesh.get(), i, water_cmp->m_Actor->m_Position, water_cmp->m_Actor->m_Rotation, water_cmp->m_Actor->m_Scale);
-		}
-	}
 }
 
 void PlayerAgent::ReleaseResource(void)
@@ -158,8 +147,6 @@ void PlayerAgent::ReleaseResource(void)
 	m_Meshes.clear();
 
 	m_Animator->RemoveChild(0);
-
-	m_spa.reset();
 }
 
 void PlayerAgent::Update(float fElapsedTime)
@@ -324,10 +311,14 @@ void PlayerAgent::OnPxThreadSubstep(float dtime)
 		m_Suspending -= dtime;
 	}
 
-	float t;
-	if (m_spa && m_spa->Raycast(m_Controller->GetPosition() + Vector3(0, 1000, 0), Vector3(0, -1, 0), 1000, t))
+	PhysxScene* scene = dynamic_cast<PhysxScene*>(m_Actor->m_Node->GetTopNode());
+	physx::PxRaycastBuffer hit;
+	physx::PxQueryFilterData filterData = physx::PxQueryFilterData(physx::PxFilterData(theApp.default_player_water_filterword0, 0, 0, 0),
+		physx::PxQueryFlag::eDYNAMIC | physx::PxQueryFlag::eSTATIC /*| physx::PxQueryFlag::ePREFILTER*/ | physx::PxQueryFlag::eANY_HIT);
+	if (scene->m_PxScene->raycast((physx::PxVec3&)(m_Controller->GetPosition() + Vector3(0, 1000, 0)),
+		physx::PxVec3(0, -1, 0), 1000, hit, physx::PxHitFlag::eDISTANCE, filterData, NULL, NULL))
 	{
-		m_Submergence = my::Clamp((1000 - t) / theApp.default_player_swim_depth, 0.0f, 1.0f);
+		m_Submergence = my::Clamp((1000 - hit.block.distance) / theApp.default_player_swim_depth, 0.0f, 1.0f);
 	}
 	else
 	{

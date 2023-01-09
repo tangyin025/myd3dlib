@@ -20,8 +20,6 @@ class Steering;
 
 class Animator;
 
-class PhysxSpatialIndex;
-
 class PlayerAgent : public Component
 {
 public:
@@ -42,8 +40,6 @@ public:
 	my::OgreSkeletonAnimationPtr m_Skel;
 
 	unsigned int m_LastMoveFlags;
-
-	boost::shared_ptr<PhysxSpatialIndex> m_spa;
 
 	float m_Submergence;
 
