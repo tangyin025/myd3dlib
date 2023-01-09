@@ -547,6 +547,7 @@ BOOL CMainApp::InitInstance()
 		("default_player_collision_height", boost::program_options::value(&default_player_collision_height)->default_value(1000.0f), "Default player collision height")
 		("default_player_mesh_list", boost::program_options::value(&default_player_mesh_list), "Default player mesh list")
 		("default_player_anim_list", boost::program_options::value(&default_player_anim_list), "Default player anim list")
+		("default_player_water_cmp", boost::program_options::value(&default_player_water_cmp)->default_value("scene03_water0"), "Default player water cmp")
 		;
 	boost::program_options::variables_map vm;
 	boost::program_options::store(boost::program_options::parse_config_file<char>((cfg_file + ".cfg").c_str(), desc, true), vm);

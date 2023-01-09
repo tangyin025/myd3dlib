@@ -129,7 +129,7 @@ void PlayerAgent::RequestResource(void)
 		m_Animator->AddIK(m_Skel->GetBoneIndex("joint82"), m_Skel->m_boneHierarchy, 0.08f, theApp.default_physx_shape_filterword0);
 	}
 
-	MeshComponent* water_cmp = dynamic_cast<MeshComponent*>(theApp.GetNamedObject("scene03_water0"));
+	MeshComponent* water_cmp = dynamic_cast<MeshComponent*>(theApp.GetNamedObject(theApp.default_player_water_cmp.c_str()));
 	if (water_cmp)
 	{
 		m_spa.reset(new PhysxSpatialIndex());

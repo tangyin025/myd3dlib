@@ -192,6 +192,7 @@ public:
 	float default_player_collision_height;
 	std::vector<std::string> default_player_mesh_list;
 	std::vector<std::string> default_player_anim_list;
+	std::string default_player_water_cmp;
 	BOOL m_bNeedDraw;
 	my::EventSignal m_EventNamedObjectCreate;
 	my::EventSignal m_EventNamedObjectDestroy;
