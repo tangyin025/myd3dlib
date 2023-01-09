@@ -44,8 +44,6 @@ public:
 	virtual void Tick(float fElapsedTime, float fTotalWeight)
 	{
 		const Vector3& Up = m_Agent->m_Controller->GetUpDirection();
-		static float enterClimbSlope = sinf(D3DXToRadian(10.0f));
-		static float leaveClimbSlope = sinf(D3DXToRadian(30.0f));
 		if (m_Agent->m_Suspending <= 0.0f)
 		{
 			if (GetTargetWeight(0) < 0.5f)
@@ -54,8 +52,8 @@ public:
 				m_Rate = 1.0f;
 			}
 		}
-		else if (GetTargetWeight(3) < 0.5f && Up.y < enterClimbSlope
-			|| GetTargetWeight(3) >= 0.5f && Up.y <= leaveClimbSlope)
+		else if (GetTargetWeight(3) < 0.5f && Up.y < theApp.default_player_climb_enter_slope
+			|| GetTargetWeight(3) >= 0.5f && Up.y <= theApp.default_player_climb_leave_slope)
 		{
 			if (GetTargetWeight(3) < 0.5f)
 			{
