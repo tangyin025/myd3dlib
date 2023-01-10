@@ -885,18 +885,18 @@ void MeshComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline * 
 	}
 }
 
-void MeshComponent::CreateTriangleMeshShape(my::OgreMesh * mesh, unsigned int sub_mesh_id, const char * TriangleMeshPath)
+void MeshComponent::CreateTriangleMeshShape(my::OgreMesh * mesh, int sub_mesh_id, const char * TriangleMeshPath)
 {
 	_ASSERT(!m_PxShape);
 
 	if (mesh)
 	{
-		const D3DXATTRIBUTERANGE& att = mesh->m_AttribTable[sub_mesh_id];
+		const D3DXATTRIBUTERANGE& rang = mesh->m_AttribTable[sub_mesh_id];
 		physx::PxTriangleMeshDesc desc;
-		desc.points.count = att.VertexStart + att.VertexCount;
+		desc.points.count = rang.VertexStart + rang.VertexCount;
 		desc.points.stride = mesh->GetNumBytesPerVertex();
 		desc.points.data = &mesh->m_VertexElems.GetPosition(mesh->LockVertexBuffer());
-		desc.triangles.count = att.FaceCount;
+		desc.triangles.count = rang.FaceCount;
 		if (mesh->GetOptions() & D3DXMESH_32BIT)
 		{
 			desc.triangles.stride = 3 * sizeof(DWORD);
@@ -906,7 +906,7 @@ void MeshComponent::CreateTriangleMeshShape(my::OgreMesh * mesh, unsigned int su
 			desc.triangles.stride = 3 * sizeof(WORD);
 			desc.flags |= physx::PxMeshFlag::e16_BIT_INDICES;
 		}
-		desc.triangles.data = (unsigned char*)mesh->LockIndexBuffer() + att.FaceStart * desc.triangles.stride;
+		desc.triangles.data = (unsigned char*)mesh->LockIndexBuffer() + rang.FaceStart * desc.triangles.stride;
 
 		physx::PxDefaultFileOutputStream writeBuffer(my::ResourceMgr::getSingleton().GetFullPath(TriangleMeshPath).c_str());
 		bool status = PhysxSdk::getSingleton().m_Cooking->cookTriangleMesh(desc, writeBuffer);
@@ -931,17 +931,17 @@ void MeshComponent::CreateTriangleMeshShape(my::OgreMesh * mesh, unsigned int su
 	}
 }
 
-void MeshComponent::CreateConvexMeshShape(my::OgreMesh * mesh, unsigned int sub_mesh_id, const char * ConvexMeshPath, bool bInflateConvex)
+void MeshComponent::CreateConvexMeshShape(my::OgreMesh * mesh, int sub_mesh_id, const char * ConvexMeshPath, bool bInflateConvex)
 {
 	_ASSERT(!m_PxShape);
 
 	if (mesh)
 	{
-		const D3DXATTRIBUTERANGE& att = mesh->m_AttribTable[sub_mesh_id];
+		const D3DXATTRIBUTERANGE& rang = mesh->m_AttribTable[sub_mesh_id];
 		physx::PxConvexMeshDesc desc;
-		desc.points.count = att.VertexCount;
+		desc.points.count = rang.VertexCount;
 		desc.points.stride = mesh->GetNumBytesPerVertex();
-		desc.points.data = &mesh->m_VertexElems.GetPosition((unsigned char*)mesh->LockVertexBuffer() + att.VertexStart * desc.points.stride);
+		desc.points.data = &mesh->m_VertexElems.GetPosition((unsigned char*)mesh->LockVertexBuffer() + rang.VertexStart * desc.points.stride);
 		desc.flags = physx::PxConvexFlag::eCOMPUTE_CONVEX;
 		if (bInflateConvex)
 		{
@@ -1136,38 +1136,38 @@ void ClothComponent::OnResetShader(void)
 	handle_dualquat = NULL;
 }
 
-void ClothComponent::CreateClothFromMesh(const char * ClothFabricPath, my::OgreMeshPtr mesh, DWORD AttribId, const my::Vector3 & gravity)
+void ClothComponent::CreateClothFromMesh(const char * ClothFabricPath, my::OgreMeshPtr mesh, int sub_mesh_id, const my::Vector3 & gravity)
 {
 	if (m_VertexData.empty())
 	{
 		_ASSERT(GetCurrentThreadId() == D3DContext::getSingleton().m_d3dThreadId);
 
-		const D3DXATTRIBUTERANGE& att = mesh->m_AttribTable[AttribId];
+		const D3DXATTRIBUTERANGE& rang = mesh->m_AttribTable[sub_mesh_id];
 		m_VertexStride = mesh->GetNumBytesPerVertex();
-		m_VertexData.resize(att.VertexCount * m_VertexStride);
-		memcpy(&m_VertexData[0], (unsigned char*)mesh->LockVertexBuffer() + att.VertexStart * m_VertexStride, m_VertexData.size());
+		m_VertexData.resize(rang.VertexCount * m_VertexStride);
+		memcpy(&m_VertexData[0], (unsigned char*)mesh->LockVertexBuffer() + rang.VertexStart * m_VertexStride, m_VertexData.size());
 		mesh->UnlockVertexBuffer();
 
-		m_IndexData.resize(att.FaceCount * 3);
+		m_IndexData.resize(rang.FaceCount * 3);
 		if (mesh->GetNumVertices() > USHRT_MAX)
 		{
 			THROW_CUSEXCEPTION(str_printf("create deformation mesh with overflow index size %Iu", m_IndexData.size()));
 		}
 		VOID* pIndices = mesh->LockIndexBuffer();
-		for (unsigned int face_i = 0; face_i < att.FaceCount; face_i++)
+		for (unsigned int face_i = 0; face_i < rang.FaceCount; face_i++)
 		{
-			// ! take care of att.VertexStart
+			// ! take care of rang.VertexStart
 			if (mesh->GetOptions() & D3DXMESH_32BIT)
 			{
-				m_IndexData[face_i * 3 + 0] = (WORD) * ((DWORD*)pIndices + att.FaceStart * 3 + face_i * 3 + 0);
-				m_IndexData[face_i * 3 + 1] = (WORD) * ((DWORD*)pIndices + att.FaceStart * 3 + face_i * 3 + 1);
-				m_IndexData[face_i * 3 + 2] = (WORD) * ((DWORD*)pIndices + att.FaceStart * 3 + face_i * 3 + 2);
+				m_IndexData[face_i * 3 + 0] = (WORD) * ((DWORD*)pIndices + rang.FaceStart * 3 + face_i * 3 + 0);
+				m_IndexData[face_i * 3 + 1] = (WORD) * ((DWORD*)pIndices + rang.FaceStart * 3 + face_i * 3 + 1);
+				m_IndexData[face_i * 3 + 2] = (WORD) * ((DWORD*)pIndices + rang.FaceStart * 3 + face_i * 3 + 2);
 			}
 			else
 			{
-				m_IndexData[face_i * 3 + 0] = *((WORD*)pIndices + att.FaceStart * 3 + face_i * 3 + 0);
-				m_IndexData[face_i * 3 + 1] = *((WORD*)pIndices + att.FaceStart * 3 + face_i * 3 + 1);
-				m_IndexData[face_i * 3 + 2] = *((WORD*)pIndices + att.FaceStart * 3 + face_i * 3 + 2);
+				m_IndexData[face_i * 3 + 0] = *((WORD*)pIndices + rang.FaceStart * 3 + face_i * 3 + 0);
+				m_IndexData[face_i * 3 + 1] = *((WORD*)pIndices + rang.FaceStart * 3 + face_i * 3 + 1);
+				m_IndexData[face_i * 3 + 2] = *((WORD*)pIndices + rang.FaceStart * 3 + face_i * 3 + 2);
 			}
 		}
 		mesh->UnlockIndexBuffer();
@@ -1186,7 +1186,7 @@ void ClothComponent::CreateClothFromMesh(const char * ClothFabricPath, my::OgreM
 			THROW_CUSEXCEPTION("mesh must have vertex color for cloth weight");
 		}
 
-		m_particles.resize(att.VertexCount);
+		m_particles.resize(rang.VertexCount);
 		unsigned char* pVertices = (unsigned char*)&m_VertexData[0];
 		for (unsigned int i = 0; i < m_particles.size(); i++) {
 			unsigned char* pVertex = pVertices + i * m_VertexStride;

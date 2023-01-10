@@ -760,17 +760,17 @@ void PhysxSpatialIndex::AddBox(float hx, float hy, float hz, const my::Vector3& 
 	AddGeometry(physx::PxBoxGeometry(hx, hy, hz), physx::PxTransform((physx::PxVec3&)Pos, (physx::PxQuat&)Rot));
 }
 
-void PhysxSpatialIndex::AddMesh(my::OgreMesh* mesh, unsigned int sub_mesh_id, const my::Vector3& Pos, const my::Quaternion& Rot, const my::Vector3& Scale)
+void PhysxSpatialIndex::AddMesh(my::OgreMesh* mesh, int sub_mesh_id, const my::Vector3& Pos, const my::Quaternion& Rot, const my::Vector3& Scale)
 {
 	std::pair<TriangleMeshMap::iterator, bool> res = m_TriangleMeshMap.insert(std::make_pair(std::make_pair(mesh, sub_mesh_id), boost::shared_ptr<physx::PxTriangleMesh>()));
 	if (res.second)
 	{
-		const D3DXATTRIBUTERANGE& att = mesh->m_AttribTable[sub_mesh_id];
+		const D3DXATTRIBUTERANGE& rang = mesh->m_AttribTable[sub_mesh_id];
 		physx::PxTriangleMeshDesc desc;
-		desc.points.count = att.VertexStart + att.VertexCount;
+		desc.points.count = rang.VertexStart + rang.VertexCount;
 		desc.points.stride = mesh->GetNumBytesPerVertex();
 		desc.points.data = &mesh->m_VertexElems.GetPosition(mesh->LockVertexBuffer());
-		desc.triangles.count = att.FaceCount;
+		desc.triangles.count = rang.FaceCount;
 		if (mesh->GetOptions() & D3DXMESH_32BIT)
 		{
 			desc.triangles.stride = 3 * sizeof(DWORD);
@@ -780,7 +780,7 @@ void PhysxSpatialIndex::AddMesh(my::OgreMesh* mesh, unsigned int sub_mesh_id, co
 			desc.triangles.stride = 3 * sizeof(WORD);
 			desc.flags |= physx::PxMeshFlag::e16_BIT_INDICES;
 		}
-		desc.triangles.data = (unsigned char*)mesh->LockIndexBuffer() + att.FaceStart * desc.triangles.stride;
+		desc.triangles.data = (unsigned char*)mesh->LockIndexBuffer() + rang.FaceStart * desc.triangles.stride;
 
 		//// mesh should be validated before cooked without the mesh cleaning
 		//_ASSERT(PhysxSdk::getSingleton().m_Cooking->validateTriangleMesh(desc));

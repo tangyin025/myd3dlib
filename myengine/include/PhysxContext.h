@@ -367,7 +367,7 @@ public:
 
 	void AddBox(float hx, float hy, float hz, const my::Vector3& Pos, const my::Quaternion& Rot);
 
-	void AddMesh(my::OgreMesh* mesh, unsigned int sub_mesh_id, const my::Vector3& Pos, const my::Quaternion& Rot, const my::Vector3& Scale);
+	void AddMesh(my::OgreMesh* mesh, int sub_mesh_id, const my::Vector3& Pos, const my::Quaternion& Rot, const my::Vector3& Scale);
 
 	void AddGeometry(const physx::PxGeometry& geom, const physx::PxTransform& pose);
 
