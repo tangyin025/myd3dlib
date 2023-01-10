@@ -99,6 +99,7 @@ my::Vector3 Steering::SeekDir(my::Vector3 Force, float dtime)
 	{
 		// update Speed
 		m_Speed = Max(m_Speed, m_MaxSpeed);
+		newVelocity *= m_Speed / newSpeed;
 	}
 	else
 		m_Speed = newSpeed;
@@ -107,7 +108,7 @@ my::Vector3 Steering::SeekDir(my::Vector3 Force, float dtime)
 	// new velocity, but this behavior may be overridden by derived classes.)
 	if (m_Speed > EPSILON_E3)
 	{
-		m_Forward = newVelocity / newSpeed;
+		m_Forward = newVelocity / m_Speed;
 		_ASSERT(IS_NORMALIZED(m_Forward));
 	}
 	return newVelocity;
