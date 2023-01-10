@@ -283,6 +283,7 @@ void Controller::SetSlopeLimit(float SlopeLimit)
 	if (m_PxController)
 	{
 		m_PxController->setSlopeLimit(SlopeLimit);
+		static_cast<physx::Cct::CapsuleController*>(m_PxController.get())->mUserParams.mHandleSlope = SlopeLimit != 0.0f;
 	}
 }
 
