@@ -346,7 +346,7 @@ public:
 								float sh = my::Max(fabs(plane.normal.x * ptask->m_cfg.cs / plane.normal.y), fabs(plane.normal.z * ptask->m_cfg.cs / plane.normal.y));
 								unsigned short smin = my::Clamp((int)floorf((sy - sh - ptask->m_cfg.bmin[1]) * ich), 0, RC_SPAN_MAX_HEIGHT);
 								unsigned short smax = my::Max((int)ceilf((sy - ptask->m_cfg.bmin[1]) * ich), smin + 1);
-								rcAddSpan(m_ctx, *ptask->m_solid, x, z, smin, smax, plane.normal.y > walkableThr ? RC_WALKABLE_AREA : 0, ptask->m_cfg.walkableClimb);
+								rcAddSpan(m_ctx, *ptask->m_solid, x, z, smin, smax, (cmp->GetQueryFilterWord0() & theApp.default_physx_shape_filterword0) && plane.normal.y > walkableThr ? RC_WALKABLE_AREA : 0, ptask->m_cfg.walkableClimb);
 							}
 						}
 						break;
@@ -375,7 +375,7 @@ public:
 							my::Vector3 v1 = elems.GetPosition(pV1).transformCoord(World);
 							my::Vector3 v2 = elems.GetPosition(pV2).transformCoord(World);
 							my::Vector3 Normal = (v1 - v0).cross(v2 - v0).normalize();
-							rcRasterizeTriangle(m_ctx, &v0.x, &v1.x, &v2.x, Normal.y > walkableThr ? RC_WALKABLE_AREA : 0, *ptask->m_solid, ptask->m_cfg.walkableClimb);
+							rcRasterizeTriangle(m_ctx, &v0.x, &v1.x, &v2.x, (cmp->GetQueryFilterWord0() & theApp.default_physx_shape_filterword0) && Normal.y > walkableThr ? RC_WALKABLE_AREA : 0, *ptask->m_solid, ptask->m_cfg.walkableClimb);
 						}
 						mesh.UnlockVertexBuffer();
 						mesh.UnlockIndexBuffer();
@@ -411,7 +411,7 @@ public:
 								my::Vector3 v0 = ((my::Vector3&)verts[polys[hullpoly.mIndexBase + 0]]).transformCoord(actor->m_World);
 								my::Vector3 v1 = ((my::Vector3&)verts[polys[hullpoly.mIndexBase + j - 1]]).transformCoord(actor->m_World);
 								my::Vector3 v2 = ((my::Vector3&)verts[polys[hullpoly.mIndexBase + j - 0]]).transformCoord(actor->m_World);
-								rcRasterizeTriangle(m_ctx, &v0.x, &v1.x, &v2.x, hullpoly.mPlane[1] > walkableThr ? RC_WALKABLE_AREA : 0, *ptask->m_solid, ptask->m_cfg.walkableClimb);
+								rcRasterizeTriangle(m_ctx, &v0.x, &v1.x, &v2.x, (cmp->GetQueryFilterWord0() & theApp.default_physx_shape_filterword0) && hullpoly.mPlane[1] > walkableThr ? RC_WALKABLE_AREA : 0, *ptask->m_solid, ptask->m_cfg.walkableClimb);
 							}
 						}
 						break;
@@ -449,7 +449,7 @@ public:
 								v2 = ((my::Vector3&)verts[tris[i * 3 + 2]]).transformCoord(actor->m_World);
 							}
 							my::Vector3 Normal = (v1 - v0).cross(v2 - v0).normalize();
-							rcRasterizeTriangle(m_ctx, &v0.x, &v1.x, &v2.x, Normal.y > walkableThr ? RC_WALKABLE_AREA : 0, * ptask->m_solid, ptask->m_cfg.walkableClimb);
+							rcRasterizeTriangle(m_ctx, &v0.x, &v1.x, &v2.x, (cmp->GetQueryFilterWord0() & theApp.default_physx_shape_filterword0) && Normal.y > walkableThr ? RC_WALKABLE_AREA : 0, * ptask->m_solid, ptask->m_cfg.walkableClimb);
 						}
 						break;
 					}
@@ -482,8 +482,8 @@ public:
 										my::Vector3 Normal[2] = {
 											(v1 - v0).cross(v3 - v0).normalize(),
 											(v1 - v3).cross(v2 - v3).normalize() };
-										rcRasterizeTriangle(m_ctx, &v0.x, &v1.x, &v3.x, Normal[0].y > walkableThr ? RC_WALKABLE_AREA : 0, *ptask->m_solid, ptask->m_cfg.walkableClimb);
-										rcRasterizeTriangle(m_ctx, &v3.x, &v1.x, &v2.x, Normal[1].y > walkableThr ? RC_WALKABLE_AREA : 0, *ptask->m_solid, ptask->m_cfg.walkableClimb);
+										rcRasterizeTriangle(m_ctx, &v0.x, &v1.x, &v3.x, (tstr.m_terrain->GetQueryFilterWord0() & theApp.default_physx_shape_filterword0) && Normal[0].y > walkableThr ? RC_WALKABLE_AREA : 0, *ptask->m_solid, ptask->m_cfg.walkableClimb);
+										rcRasterizeTriangle(m_ctx, &v3.x, &v1.x, &v2.x, (tstr.m_terrain->GetQueryFilterWord0() & theApp.default_physx_shape_filterword0) && Normal[1].y > walkableThr ? RC_WALKABLE_AREA : 0, *ptask->m_solid, ptask->m_cfg.walkableClimb);
 									}
 								}
 								return true;
