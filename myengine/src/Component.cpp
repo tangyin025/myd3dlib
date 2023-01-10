@@ -891,7 +891,15 @@ void MeshComponent::CreateTriangleMeshShape(my::OgreMesh * mesh, int sub_mesh_id
 
 	if (mesh)
 	{
-		const D3DXATTRIBUTERANGE& rang = mesh->m_AttribTable[sub_mesh_id];
+		D3DXATTRIBUTERANGE rang;
+		if (sub_mesh_id < 0)
+		{
+			rang = { 0, 0, mesh->GetNumFaces(), 0, mesh->GetNumVertices() };
+		}
+		else
+		{
+			rang = mesh->m_AttribTable[sub_mesh_id];
+		}
 		physx::PxTriangleMeshDesc desc;
 		desc.points.count = rang.VertexStart + rang.VertexCount;
 		desc.points.stride = mesh->GetNumBytesPerVertex();
@@ -937,7 +945,15 @@ void MeshComponent::CreateConvexMeshShape(my::OgreMesh * mesh, int sub_mesh_id, 
 
 	if (mesh)
 	{
-		const D3DXATTRIBUTERANGE& rang = mesh->m_AttribTable[sub_mesh_id];
+		D3DXATTRIBUTERANGE rang;
+		if (sub_mesh_id < 0)
+		{
+			rang = { 0, 0, mesh->GetNumFaces(), 0, mesh->GetNumVertices() };
+		}
+		else
+		{
+			rang = mesh->m_AttribTable[sub_mesh_id];
+		}
 		physx::PxConvexMeshDesc desc;
 		desc.points.count = rang.VertexCount;
 		desc.points.stride = mesh->GetNumBytesPerVertex();
@@ -1142,7 +1158,15 @@ void ClothComponent::CreateClothFromMesh(const char * ClothFabricPath, my::OgreM
 	{
 		_ASSERT(GetCurrentThreadId() == D3DContext::getSingleton().m_d3dThreadId);
 
-		const D3DXATTRIBUTERANGE& rang = mesh->m_AttribTable[sub_mesh_id];
+		D3DXATTRIBUTERANGE rang;
+		if (sub_mesh_id < 0)
+		{
+			rang = { 0, 0, mesh->GetNumFaces(), 0, mesh->GetNumVertices() };
+		}
+		else
+		{
+			rang = mesh->m_AttribTable[sub_mesh_id];
+		}
 		m_VertexStride = mesh->GetNumBytesPerVertex();
 		m_VertexData.resize(rang.VertexCount * m_VertexStride);
 		memcpy(&m_VertexData[0], (unsigned char*)mesh->LockVertexBuffer() + rang.VertexStart * m_VertexStride, m_VertexData.size());

@@ -765,7 +765,15 @@ void PhysxSpatialIndex::AddMesh(my::OgreMesh* mesh, int sub_mesh_id, const my::V
 	std::pair<TriangleMeshMap::iterator, bool> res = m_TriangleMeshMap.insert(std::make_pair(std::make_pair(mesh, sub_mesh_id), boost::shared_ptr<physx::PxTriangleMesh>()));
 	if (res.second)
 	{
-		const D3DXATTRIBUTERANGE& rang = mesh->m_AttribTable[sub_mesh_id];
+		D3DXATTRIBUTERANGE rang;
+		if (sub_mesh_id < 0)
+		{
+			rang = { 0, 0, mesh->GetNumFaces(), 0, mesh->GetNumVertices() };
+		}
+		else
+		{
+			rang = mesh->m_AttribTable[sub_mesh_id];
+		}
 		physx::PxTriangleMeshDesc desc;
 		desc.points.count = rang.VertexStart + rang.VertexCount;
 		desc.points.stride = mesh->GetNumBytesPerVertex();
