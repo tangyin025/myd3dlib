@@ -205,7 +205,7 @@ Steering::CrowdAgentState Steering::SeekTarget(const my::Vector3& Target, unsign
 		}
 		else
 		{
-			desiredVel = (m_agentPos - pos).normalize2D();
+			desiredVel = (m_agentPos - pos).normalize2D() * m_MaxSpeed;
 			m_corridor.reset(0, &pos.x);
 			m_boundary.reset();
 			return DT_CROWDAGENT_STATE_WALKING;
@@ -221,7 +221,7 @@ Steering::CrowdAgentState Steering::SeekTarget(const my::Vector3& Target, unsign
 		}
 		else
 		{
-			desiredVel = (*(Vector3*)m_corridor.getPos() - pos).normalize2D();
+			desiredVel = (*(Vector3*)m_corridor.getPos() - pos).normalize2D() * m_MaxSpeed;
 			m_corridor.reset(0, &pos.x);
 			m_boundary.reset();
 			return DT_CROWDAGENT_STATE_WALKING;
@@ -420,6 +420,5 @@ Steering::CrowdAgentState Steering::SeekTarget(const my::Vector3& Target, unsign
 
 	// Integrate.
 	//desiredVel = SeekDir(desiredVel / m_MaxSpeed * forceLength, dtime);
-	desiredVel /= m_MaxSpeed;
 	return DT_CROWDAGENT_STATE_WALKING;
 }
