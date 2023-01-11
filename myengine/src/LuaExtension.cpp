@@ -2577,7 +2577,7 @@ void LuaContext::Init(void)
 			.def_readonly("targetRefPos", &Steering::m_targetRefPos)
 			.def_readonly("ncorners", &Steering::m_ncorners)
 			.def("SeekDir", &Steering::SeekDir)
-			.def("SeekTarget", &Steering::SeekTarget, pure_out_value(boost::placeholders::_6) + pure_out_value(boost::placeholders::_7) + pure_out_value(boost::placeholders::_8))
+			.def("SeekTarget", &Steering::SeekTarget, pure_out_value(boost::placeholders::_4) + pure_out_value(boost::placeholders::_5) + pure_out_value(boost::placeholders::_6))
 			.def("GetCorner", &steering_get_corner)
 
 		, class_<ActorEventArg, my::EventArg>("ActorEventArg")

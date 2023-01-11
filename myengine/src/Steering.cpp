@@ -114,13 +114,13 @@ my::Vector3 Steering::SeekDir(my::Vector3 Force, float dtime)
 	return newVelocity;
 }
 
-Steering::CrowdAgentState Steering::SeekTarget(const my::Vector3& Target, float forceLength, float dtime, unsigned int filterWord0, my::Vector3 & nvel, my::Vector3 & startPos, my::Vector3 & endPos)
+Steering::CrowdAgentState Steering::SeekTarget(const my::Vector3& Target, unsigned int filterWord0, my::Vector3 & desiredVel, my::Vector3 & startPos, my::Vector3 & endPos)
 {
 	// https://github.com/recastnavigation/recastnavigation/blob/master/DetourCrowd/Source/DetourCrowd.cpp
 	// dtCrowd::update
 	if (!m_navi)
 	{
-		nvel = SeekDir(Vector3(0, 0, 0), dtime);
+		desiredVel = Vector3(0, 0, 0);
 		return DT_CROWDAGENT_STATE_INVALID;
 	}
 
@@ -168,7 +168,7 @@ Steering::CrowdAgentState Steering::SeekTarget(const my::Vector3& Target, float 
 		dtStatus status = m_navi->m_navQuery->findNearestPoly(&Target.x, m_agentPlacementHalfExtents, &filter, &m_targetRef, &m_targetRefPos.x);
 		if (dtStatusFailed(status) || !m_targetRef)
 		{
-			nvel = SeekDir(Vector3(0, 0, 0), dtime);
+			desiredVel = Vector3(0, 0, 0);
 			return DT_CROWDAGENT_STATE_INVALID;
 		}
 
@@ -193,7 +193,7 @@ Steering::CrowdAgentState Steering::SeekTarget(const my::Vector3& Target, float 
 		dtStatus status = m_navi->m_navQuery->findNearestPoly(&pos.x, m_agentPlacementHalfExtents, &filter, &agentRef, &m_agentPos.x);
 		if (dtStatusFailed(status) || !agentRef)
 		{
-			nvel = SeekDir(Vector3(0, 0, 0), dtime);
+			desiredVel = Vector3(0, 0, 0);
 			return DT_CROWDAGENT_STATE_INVALID;
 		}
 
@@ -205,10 +205,9 @@ Steering::CrowdAgentState Steering::SeekTarget(const my::Vector3& Target, float 
 		}
 		else
 		{
-			Vector3 dvel = (m_agentPos - pos).normalize2D();
+			desiredVel = (m_agentPos - pos).normalize2D();
 			m_corridor.reset(0, &pos.x);
 			m_boundary.reset();
-			nvel = SeekDir(dvel * forceLength, dtime);
 			return DT_CROWDAGENT_STATE_WALKING;
 		}
 	}
@@ -222,10 +221,9 @@ Steering::CrowdAgentState Steering::SeekTarget(const my::Vector3& Target, float 
 		}
 		else
 		{
-			Vector3 dvel = (*(Vector3*)m_corridor.getPos() - pos).normalize2D();
+			desiredVel = (*(Vector3*)m_corridor.getPos() - pos).normalize2D();
 			m_corridor.reset(0, &pos.x);
 			m_boundary.reset();
-			nvel = SeekDir(dvel * forceLength, dtime);
 			return DT_CROWDAGENT_STATE_WALKING;
 		}
 	}
@@ -291,7 +289,7 @@ Steering::CrowdAgentState Steering::SeekTarget(const my::Vector3& Target, float 
 		DT_CROWDAGENT_MAX_CORNERS, m_navi->m_navQuery.get(), &filter);
 	if (!m_ncorners)
 	{
-		nvel = Vector3(0, 0, 0);
+		desiredVel = Vector3(0, 0, 0);
 		return DT_CROWDAGENT_STATE_INVALID;
 	}
 
@@ -319,7 +317,7 @@ Steering::CrowdAgentState Steering::SeekTarget(const my::Vector3& Target, float 
 			//ag->ncorners = 0;
 			//ag->nneis = 0;
 			//continue;
-			nvel = Vector3(0, 0, 0);
+			desiredVel = Vector3(0, 0, 0);
 			return DT_CROWDAGENT_STATE_OFFMESH;
 		}
 		else
@@ -418,9 +416,10 @@ Steering::CrowdAgentState Steering::SeekTarget(const my::Vector3& Target, float 
 	params.adaptiveDepth = 5;
 	Vector3 vel = m_Forward * m_Speed;
 	ObstacleAvoidanceContext::getSingleton().sampleVelocityAdaptive(&m_agentPos.x, controller->GetRadius() - 0.01f, m_MaxSpeed,
-		&vel.x, &dvel.x, &nvel.x, &params, NULL);
+		&vel.x, &dvel.x, &desiredVel.x, &params, NULL);
 
 	// Integrate.
-	nvel = SeekDir(nvel / m_MaxSpeed * forceLength, dtime);
+	//desiredVel = SeekDir(desiredVel / m_MaxSpeed * forceLength, dtime);
+	desiredVel /= m_MaxSpeed;
 	return DT_CROWDAGENT_STATE_WALKING;
 }
