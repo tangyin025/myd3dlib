@@ -73,5 +73,7 @@ public:
 	int m_maxTiles;
 	int m_maxPolysPerTile;
 	float m_tileSize;
+	DWORD m_collisionFilterWord0;
+	DWORD m_walkableFilterWord0;
 	afx_msg void OnChangeEdit7();
 };

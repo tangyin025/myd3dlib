@@ -78,6 +78,8 @@
 #define IDC_BUTTON4                     1030
 #define IDC_EDIT20                      1031
 #define IDC_LIST1                       1032
+#define IDC_EDIT21                      1032
+#define IDC_EDIT22                      1033
 #define ID_CREATE_COMPONENT             32771
 #define ID_COMPONENT_MESH               32772
 #define ID_COMPONENT_STATICEMITTER      32773
