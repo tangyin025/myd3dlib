@@ -74,16 +74,11 @@ void StaticMesh::Update(float fElapsedTime)
 
 my::AABB StaticMesh::CalculateAABB(void) const
 {
-	if (!m_Mesh || m_Chunks.empty())
-	{
-		return Component::CalculateAABB();
-	}
-
 	AABB ret(AABB::Invalid());
 	ChunkMap::const_iterator chunk_iter = m_Chunks.begin();
 	for (; chunk_iter != m_Chunks.end(); chunk_iter++)
 	{
-		ret.unionSelf(m_Mesh->CalculateAABB(chunk_iter->first));
+		ret.unionSelf(*chunk_iter->second.m_OctAabb);
 	}
 	return ret;
 }
