@@ -249,18 +249,19 @@ void PlayerAgent::Update(float fElapsedTime)
 	{
 		Vector3 right = model_view_camera->m_View.getColumn<0>().xyz;
 		Vector3 forward = right.cross(Vector3(0, 1, 0));
+		float HorizontalSpeed = theApp.m_keyboard->IsKeyDown(KeyCode::KC_LSHIFT) ? theApp.default_player_run_speed * 4 : theApp.default_player_run_speed;
 		Vector3 HorizontalVel;
 		if (lensq > 0)
 		{
-			HorizontalVel = (forward * dir.y + right * dir.x) * m_Steering->m_MaxSpeed;
+			HorizontalVel = (forward * dir.y + right * dir.x) * HorizontalSpeed;
 		}
-		else if (node_run_blend_list->GetTargetWeight(3) < 0.5f)
+		else if (node_run_blend_list->GetTargetWeight(3) >= 0.5f)
 		{
-			HorizontalVel = Vector3(m_Steering->m_Forward.xz(), 0).normalize(Vector3(0, 0, 0)) * m_Steering->m_Speed;
+			HorizontalVel = Vector3(up.xz(), 0).normalize(Vector3(0, 0, 0)) * HorizontalSpeed;
 		}
 		else
 		{
-			HorizontalVel = Vector3(up.xz(), 0).normalize(Vector3(0, 0, 0)) * m_Steering->m_MaxSpeed;
+			HorizontalVel = Vector3(m_Steering->m_Forward.xz(), 0).normalize(Vector3(0, 0, 0)) * m_Steering->m_Speed;
 		}
 		boost::dynamic_pointer_cast<ActionTrackVelocity>(ActionTbl::getSingleton().Jump->m_TrackList[0])->m_ParamVelocity =
 			HorizontalVel + Vector3(0, sqrt(-1.0f * 2.0f * theApp.default_physx_scene_gravity.y), 0);
