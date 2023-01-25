@@ -52,6 +52,8 @@ ShaderResourceBase::~ShaderResourceBase(void)
 	D3DContext::getSingleton().m_ShaderObjects.erase(this);
 }
 
+unsigned int NamedObject::postfix_i = 0;
+
 NamedObject::NamedObject(void)
 	: m_Name(NULL)
 {
@@ -79,7 +81,6 @@ std::string NamedObject::MakeUniqueName(const char * Prefix)
 
 	_ASSERT(Prefix);
 
-	static unsigned int postfix_i = 0;
 	std::string name_without_postfix;
 	boost::regex reg("(\\d+)$");
 	boost::match_results<const char *> what;

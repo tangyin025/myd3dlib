@@ -199,6 +199,8 @@ namespace my
 		NamedObject(void);
 
 	public:
+		static unsigned int postfix_i;
+
 		NamedObject(const char * Name);
 
 		virtual ~NamedObject(void);

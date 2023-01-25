@@ -927,6 +927,7 @@ void CMainFrame::ClearFileContext()
 	LuaContext::Shutdown();
 	theApp.m_CollectionObjs.clear();
 	_ASSERT(theApp.m_NamedObjects.empty());
+	my::NamedObject::postfix_i = 0;
 	m_wndOutput.m_wndOutputDebug.SetSel(0, -1);
 	m_wndOutput.m_wndOutputDebug.ReplaceSel(_T(""));
 }
