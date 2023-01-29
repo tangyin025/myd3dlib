@@ -3302,6 +3302,105 @@ namespace my
 			return !operator ==(rhs);
 		}
 
+		AABB operator + (const Vector3 & rhs) const
+		{
+			return AABB(m_min + rhs, m_max + rhs);
+		}
+
+		AABB operator + (float scaler) const
+		{
+			return AABB(m_min + scaler, m_max + scaler);
+		}
+
+		AABB operator - (const Vector3 & rhs) const
+		{
+			return AABB(m_min - rhs, m_max - rhs);
+		}
+
+		AABB operator - (float scaler) const
+		{
+			return AABB(m_min - scaler, m_max - scaler);
+		}
+
+		AABB operator * (const Vector3& rhs) const
+		{
+			return AABB(m_min * rhs, m_max * rhs);
+		}
+
+		AABB operator * (float scaler) const
+		{
+			return AABB(m_min * scaler, m_max * scaler);
+		}
+
+		AABB operator / (const Vector3 & rhs) const
+		{
+			return AABB(m_min / rhs, m_max / rhs);
+		}
+
+		AABB operator / (float scaler) const
+		{
+			float invScaler = 1 / scaler;
+
+			return AABB(m_min * invScaler, m_max * invScaler);
+		}
+
+		AABB & operator += (const Vector3 & rhs)
+		{
+			m_min += rhs;
+			m_max += rhs;
+			return *this;
+		}
+
+		AABB & operator += (float scaler)
+		{
+			m_min += scaler;
+			m_max += scaler;
+			return *this;
+		}
+
+		AABB& operator -= (const Vector3& rhs)
+		{
+			m_min -= rhs;
+			m_max -= rhs;
+			return *this;
+		}
+
+		AABB& operator -= (float scaler)
+		{
+			m_min -= scaler;
+			m_max -= scaler;
+			return *this;
+		}
+
+		AABB& operator *= (const Vector3& rhs)
+		{
+			m_min *= rhs;
+			m_max *= rhs;
+			return *this;
+		}
+
+		AABB& operator *= (float scaler)
+		{
+			m_min *= scaler;
+			m_max *= scaler;
+			return *this;
+		}
+
+		AABB & operator /= (const Vector3 & rhs)
+		{
+			m_min /= rhs;
+			m_max /= rhs;
+			return *this;
+		}
+
+		AABB & operator /= (float scaler)
+		{
+			float invScaler = 1 / scaler;
+			m_min *= invScaler;
+			m_max *= invScaler;
+			return *this;
+		}
+
 	public:
 		Vector3 Center(void) const
 		{
