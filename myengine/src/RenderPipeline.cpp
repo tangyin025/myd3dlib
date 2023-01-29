@@ -911,15 +911,12 @@ void RenderPipeline::RenderAllObjects(
 			DWORD AttribId = mesh_inst_iter->first.get<1>();
 			_ASSERT(AttribId < mesh_inst_iter->first.get<0>()->m_AttribTable.size());
 			const UINT NumInstances = (UINT)mesh_inst_iter->second.cmps.size();
-			_ASSERT(NumInstances <= MESH_INSTANCE_MAX);
 
 			unsigned char * pVertices = (unsigned char *)m_MeshInstanceData.Lock(0, NumInstances * m_MeshInstanceStride, D3DLOCK_DISCARD);
-			for (DWORD i = 0; i < mesh_inst_iter->second.cmps.size(); i++)
+			for (DWORD i = 0; i < mesh_inst_iter->second.cmps.size() && i < MESH_INSTANCE_MAX; i++)
 			{
-				memcpy(m_MeshInstanceElems.GetVertexValue<void>(pVertices + i * m_MeshInstanceStride, D3DDECLUSAGE_POSITION, 1),
-					&mesh_inst_iter->second.cmps[i]->m_Actor->m_World, sizeof(Matrix4));
-				memcpy(m_MeshInstanceElems.GetVertexValue<void>(pVertices + i * m_MeshInstanceStride, D3DDECLUSAGE_COLOR, 1),
-					&mesh_inst_iter->second.cmps[i]->m_MeshColor, sizeof(Vector4));
+				*m_MeshInstanceElems.GetVertexValue<Matrix4>(pVertices + i * m_MeshInstanceStride, D3DDECLUSAGE_POSITION, 1) = mesh_inst_iter->second.cmps[i]->m_Actor->m_World;
+				*m_MeshInstanceElems.GetVertexValue<Vector4>(pVertices + i * m_MeshInstanceStride, D3DDECLUSAGE_COLOR, 1) = mesh_inst_iter->second.cmps[i]->m_MeshColor;
 			}
 			m_MeshInstanceData.Unlock();
 
