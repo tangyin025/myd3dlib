@@ -207,8 +207,8 @@ namespace my
 		{
 			const float us = u * width - 0.5f;
 			const float vs = v * pixel.shape()[0] - 0.5f;
-			int j = (int)us;
-			int i = (int)vs;
+			const int j = (int)us;
+			const int i = (int)vs;
 			n0 = pixel[(i + 0) % pixel.shape()[0]][(j + 0) % width];
 			n1 = pixel[(i + 0) % pixel.shape()[0]][(j + 1) % width];
 			n2 = pixel[(i + 1) % pixel.shape()[0]][(j + 0) % width];
