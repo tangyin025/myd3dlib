@@ -986,14 +986,53 @@ void RenderPipeline::RenderAllObjects(
 		if (!emitter_inst_iter->second.cmps.empty())
 		{
 			_ASSERT(m_ParticleInstanceStride == sizeof(Emitter::ParticleList::value_type));
-			DWORD NumTotalInstances = 0;
+			DWORD NumTotalInstances = 0, NumParticles = 0;
 			unsigned char * pVertices = (unsigned char *)m_ParticleInstanceData.Lock(0, 0, D3DLOCK_DISCARD);
 			std::vector<boost::tuple<Component*, my::Emitter::Particle*, unsigned int> >::const_iterator cmp_iter = emitter_inst_iter->second.cmps.begin();
-			for (; cmp_iter != emitter_inst_iter->second.cmps.end(); cmp_iter++)
+			for (; cmp_iter != emitter_inst_iter->second.cmps.end(); /*cmp_iter++*/)
 			{
-				int Count = Min<int>(PARTICLE_INSTANCE_MAX - NumTotalInstances, cmp_iter->get<2>());
-				memcpy(pVertices + NumTotalInstances * sizeof(Emitter::Particle), cmp_iter->get<1>(), Count * sizeof(Emitter::Particle));
-				NumTotalInstances += Count;
+				//int Count = Min<int>(PARTICLE_INSTANCE_MAX - NumTotalInstances, cmp_iter->get<2>());
+				//memcpy(pVertices + NumTotalInstances * sizeof(Emitter::Particle), cmp_iter->get<1>(), Count * sizeof(Emitter::Particle));
+				//NumTotalInstances += Count;
+
+				int Count = cmp_iter->get<2>() - NumParticles;
+				if (NumTotalInstances + Count > PARTICLE_INSTANCE_MAX)
+				{
+					Count = PARTICLE_INSTANCE_MAX - NumTotalInstances;
+					memcpy(pVertices + NumTotalInstances * sizeof(Emitter::Particle), cmp_iter->get<1>() + NumParticles, Count * sizeof(Emitter::Particle));
+					m_ParticleInstanceData.Unlock();
+					DrawIndexedPrimitiveInstance(
+						pd3dDevice,
+						PassID,
+						pRC,
+						m_ParticleIEDecl,
+						emitter_inst_iter->first.get<0>(),
+						emitter_inst_iter->first.get<1>(),
+						m_ParticleInstanceData.m_ptr,
+						emitter_inst_iter->second.PrimitiveType,
+						0, emitter_inst_iter->first.get<2>(),
+						emitter_inst_iter->second.NumVertices,
+						m_ParticleVertStride,
+						emitter_inst_iter->second.StartIndex,
+						emitter_inst_iter->second.PrimitiveCount,
+						PARTICLE_INSTANCE_MAX,
+						m_ParticleInstanceStride,
+						emitter_inst_iter->first.get<4>(),
+						emitter_inst_iter->second.cmps.front().get<0>(),
+						emitter_inst_iter->first.get<5>(),
+						emitter_inst_iter->first.get<6>());
+					m_PassDrawCall[PassID]++;
+					NumParticles += Count;
+					NumTotalInstances = 0;
+					pVertices = (unsigned char*)m_ParticleInstanceData.Lock(0, 0, D3DLOCK_DISCARD);
+				}
+				else
+				{
+					memcpy(pVertices + NumTotalInstances * sizeof(Emitter::Particle), cmp_iter->get<1>() + NumParticles, Count * sizeof(Emitter::Particle));
+					NumParticles = 0;
+					NumTotalInstances += Count;
+					cmp_iter++;
+				}
 			}
 			m_ParticleInstanceData.Unlock();
 
