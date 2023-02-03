@@ -2738,6 +2738,8 @@ void LuaContext::Init(void)
 			.def("SetTargetWeight", (void (AnimationNodeBlendList::*)(int, float))&AnimationNodeBlendList::SetTargetWeight)
 			.def("SetTargetWeight", (void (AnimationNodeBlendList::*)(int, float, bool))&AnimationNodeBlendList::SetTargetWeight)
 			.def("GetTargetWeight", &AnimationNodeBlendList::GetTargetWeight)
+			.def("GetWeight", luabind::tag_function<float(const AnimationNodeBlendList*, int)>(
+				boost::bind((const float& (std::vector<float>::*)(size_t) const)& std::vector<float>::at, boost::bind(&AnimationNodeBlendList::m_Weight, boost::placeholders::_1), boost::placeholders::_2)))
 			.def("SetActiveChild", &AnimationNodeBlendList::SetActiveChild)
 			.def("GetActiveChild", &AnimationNodeBlendList::GetActiveChild)
 			.def("Tick", &AnimationNodeBlendList::Tick, &ScriptAnimationNodeBlendList::default_Tick)
