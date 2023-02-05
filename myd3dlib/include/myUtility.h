@@ -131,13 +131,15 @@ namespace my
 			LPARAM lParam,
 			bool * pbNoFurtherProcessing) = 0;
 
-		virtual Ray CalculateRay(const Vector2 & pt, const CSize & dim) = 0;
+		virtual Ray CalculateRay(const Vector2 & pt, const CSize & dim) const = 0;
 
-		virtual Frustum CalculateFrustum(const Rectangle & rc, const CSize & dim) = 0;
+		virtual Frustum CalculateFrustum(const Rectangle & rc, const CSize & dim) const = 0;
 
 		virtual void OnViewportChanged(const Vector2 & Viewport) = 0;
 
-		virtual float CalculateViewportScaler(Vector3 WorldPos) const = 0;
+		virtual float CalculateViewportScaler(const Vector3 & WorldPos) const = 0;
+
+		Vector3 AlignUnit(const Vector3 & Pos, const Vector2 & dim) const;
 	};
 
 	typedef boost::shared_ptr<Camera> CameraPtr;
@@ -167,13 +169,13 @@ namespace my
 			LPARAM lParam,
 			bool * pbNoFurtherProcessing);
 
-		virtual Ray CalculateRay(const Vector2 & pt, const CSize & dim);
+		virtual Ray CalculateRay(const Vector2 & pt, const CSize & dim) const;
 
-		virtual Frustum CalculateFrustum(const Rectangle & rc, const CSize & dim);
+		virtual Frustum CalculateFrustum(const Rectangle & rc, const CSize & dim) const;
 
 		virtual void OnViewportChanged(const Vector2 & Viewport);
 
-		virtual float CalculateViewportScaler(Vector3 WorldPos) const;
+		virtual float CalculateViewportScaler(const Vector3 & WorldPos) const;
 	};
 
 	class PerspectiveCamera : public Camera
@@ -201,13 +203,13 @@ namespace my
 			LPARAM lParam,
 			bool * pbNoFurtherProcessing);
 
-		virtual Ray CalculateRay(const Vector2 & pt, const CSize & dim);
+		virtual Ray CalculateRay(const Vector2 & pt, const CSize & dim) const;
 
-		virtual Frustum CalculateFrustum(const Rectangle & rc, const CSize & dim);
+		virtual Frustum CalculateFrustum(const Rectangle & rc, const CSize & dim) const;
 
 		virtual void OnViewportChanged(const Vector2 & Viewport);
 
-		virtual float CalculateViewportScaler(Vector3 WorldPos) const;
+		virtual float CalculateViewportScaler(const Vector3 & WorldPos) const;
 	};
 
 	class ModelViewerCamera : public PerspectiveCamera

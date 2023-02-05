@@ -146,6 +146,20 @@ Frustum BaseCamera::RectangleToFrustum(const my::Rectangle & rc, const Vector2 &
 		Plane::FromTriangle(frt,flt,flb));
 }
 
+Vector3 Camera::AlignUnit(const Vector3 & Pos, const Vector2 & dim) const
+{
+	Matrix4 Rotation = Matrix4::RotationYawPitchRoll(m_Euler.y, m_Euler.x, m_Euler.z);
+
+	Matrix4 ViewProj = Rotation.inverse() * m_Proj;
+
+	Vector4 ViewEye = Pos.transform(ViewProj);
+
+	ViewEye.x = floor(ViewEye.x / ViewEye.w * dim.x * 0.5f) * 2.0f / dim.x * ViewEye.w;
+	ViewEye.y = floor(ViewEye.y / ViewEye.w * dim.y * 0.5f) * 2.0f / dim.y * ViewEye.w;
+
+	return ViewEye.transform(ViewProj.inverse()).xyz;
+}
+
 void OrthoCamera::UpdateViewProj(void)
 {
 	Matrix4 Rotation = Matrix4::RotationYawPitchRoll(m_Euler.y, m_Euler.x, m_Euler.z);
@@ -169,7 +183,7 @@ LRESULT OrthoCamera::MsgProc(
 	return 0;
 }
 
-Ray OrthoCamera::CalculateRay(const Vector2 & pt, const CSize & dim)
+Ray OrthoCamera::CalculateRay(const Vector2 & pt, const CSize & dim) const
 {
 	Vector3 dir = -m_View.getColumn<2>().xyz.normalize();
 
@@ -178,7 +192,7 @@ Ray OrthoCamera::CalculateRay(const Vector2 & pt, const CSize & dim)
 	return Ray(At, dir);
 }
 
-Frustum OrthoCamera::CalculateFrustum(const my::Rectangle & rc, const CSize & dim)
+Frustum OrthoCamera::CalculateFrustum(const my::Rectangle & rc, const CSize & dim) const
 {
 	return RectangleToFrustum(rc, Vector2((float)dim.cx, (float)dim.cy));
 }
@@ -195,7 +209,7 @@ void OrthoCamera::OnViewportChanged(const Vector2 & Viewport)
 	}
 }
 
-float OrthoCamera::CalculateViewportScaler(Vector3 WorldPos) const
+float OrthoCamera::CalculateViewportScaler(const Vector3 & WorldPos) const
 {
 	return m_Width > m_Height ? m_Height * 0.5f : m_Width * 0.5f;
 }
@@ -221,14 +235,14 @@ LRESULT PerspectiveCamera::MsgProc(
 	return 0;
 }
 
-Ray PerspectiveCamera::CalculateRay(const Vector2 & pt, const CSize & dim)
+Ray PerspectiveCamera::CalculateRay(const Vector2 & pt, const CSize & dim) const
 {
 	Vector3 At = ScreenToWorld(pt, Vector2((float)dim.cx, (float)dim.cy), 1.0f);
 
 	return Ray(At, (At - m_Eye).normalize());
 }
 
-Frustum PerspectiveCamera::CalculateFrustum(const my::Rectangle & rc, const CSize & dim)
+Frustum PerspectiveCamera::CalculateFrustum(const my::Rectangle & rc, const CSize & dim) const
 {
 	return RectangleToFrustum(rc, Vector2((float)dim.cx, (float)dim.cy));
 }
@@ -238,7 +252,7 @@ void PerspectiveCamera::OnViewportChanged(const Vector2 & Viewport)
 	m_Aspect = Viewport.x / Viewport.y;
 }
 
-float PerspectiveCamera::CalculateViewportScaler(Vector3 WorldPos) const
+float PerspectiveCamera::CalculateViewportScaler(const Vector3 & WorldPos) const
 {
 	float z = Vector4(WorldPos, 1.0f).dot(-m_View.getColumn<2>());
 	return z * tan(m_Fov * 0.5f);

@@ -1302,6 +1302,8 @@ void LuaContext::Init(void)
 			.def_readwrite("Nz", &my::Camera::m_Nz)
 			.def_readwrite("Fz", &my::Camera::m_Fz)
 			.def("CalculateRay", &my::Camera::CalculateRay)
+			.def("CalculateFrustum", &my::Camera::CalculateFrustum)
+			.def("AlignUnit", &my::Camera::AlignUnit)
 
 		, class_<my::OrthoCamera, my::Camera, boost::shared_ptr<my::Camera> >("OrthoCamera")
 			.def(constructor<float, float, float, float>())
@@ -2859,6 +2861,8 @@ void LuaContext::Init(void)
 				luabind::value("PassTypeTransparent", RenderPipeline::PassTypeTransparent),
 				luabind::value("PassTypeNum", RenderPipeline::PassTypeNum)
 			]
+			.def_readonly("SHADOW_MAP_SIZE", &RenderPipeline::SHADOW_MAP_SIZE)
+			.def_readwrite("SHADOW_BIAS", &RenderPipeline::SHADOW_BIAS)
 			.def_readonly("SkyLightCam", &RenderPipeline::m_SkyLightCam)
 			.def_readwrite("SkyLightColor", &RenderPipeline::m_SkyLightColor)
 			.def_readwrite("AmbientColor", &RenderPipeline::m_AmbientColor)
