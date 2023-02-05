@@ -194,8 +194,6 @@ public:
 
 	ActionInstPtrList m_ActionInstList;
 
-	int m_ActionTrackPoseInstRef;
-
 	my::EventSignal m_EventOnTrigger;
 
 	my::EventSignal m_EventOnContact;
@@ -220,7 +218,6 @@ protected:
 		, m_CullingDistSq(69696.0f)
 		, m_Base(NULL)
 		, m_BaseBoneId(-1)
-		, m_ActionTrackPoseInstRef(0)
 	{
 	}
 
@@ -239,7 +236,6 @@ public:
 		, m_CullingDistSq(69696.0f)
 		, m_Base(NULL)
 		, m_BaseBoneId(-1)
-		, m_ActionTrackPoseInstRef(0)
 	{
 	}
 
