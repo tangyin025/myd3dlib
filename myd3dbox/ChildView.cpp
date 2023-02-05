@@ -1455,7 +1455,12 @@ void CChildView::OnPaint()
 				//V(theApp.m_d3dDevice->SetRenderTarget(0, m_SwapChainBuffer->m_ptr));
 				//V(theApp.m_d3dDevice->SetDepthStencilSurface(m_DepthStencil->m_ptr));
 				my::ModelViewerCamera * model_view_camera = dynamic_cast<my::ModelViewerCamera *>(m_Camera.get());
-				theApp.m_SkyLightCam->m_Eye = model_view_camera->m_LookAt;
+				my::Matrix4 Rotation = my::Matrix4::RotationYawPitchRoll(theApp.m_SkyLightCam->m_Euler.y, theApp.m_SkyLightCam->m_Euler.x, theApp.m_SkyLightCam->m_Euler.z);
+				my::Matrix4 ViewProj = Rotation.inverse() * theApp.m_SkyLightCam->m_Proj;
+				my::Vector4 ViewEye = model_view_camera->m_LookAt.transform(ViewProj);
+				ViewEye.x = (floor((theApp.SHADOW_MAP_SIZE + ViewEye.x / ViewEye.w * theApp.SHADOW_MAP_SIZE) * 0.5f) * 2 - theApp.SHADOW_MAP_SIZE) / theApp.SHADOW_MAP_SIZE * ViewEye.w;
+				ViewEye.y = (theApp.SHADOW_MAP_SIZE - floor((theApp.SHADOW_MAP_SIZE - ViewEye.y / ViewEye.w * theApp.SHADOW_MAP_SIZE) * 0.5f) * 2) / theApp.SHADOW_MAP_SIZE * ViewEye.w;
+				theApp.m_SkyLightCam->m_Eye = ViewEye.transform(ViewProj.inverse()).xyz;
 				theApp.m_SkyLightCam->UpdateViewProj();
 				D3DVIEWPORT9 vp = { 0, 0, m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height, 0.0f, 1.0f };
 				theApp.OnRender(theApp.m_d3dDevice, m_SwapChainBuffer->m_ptr, m_DepthStencil->m_ptr, &vp, this, theApp.m_fAbsoluteTime, theApp.m_fElapsedTime);

@@ -26,6 +26,13 @@ struct VS_OUTPUT
 // This shader computes standard transform and lighting
 //--------------------------------------------------------------------------------------
 
+float4 AlignUnit(float4 pos)
+{
+	return float4(
+        ((floor((g_ScreenDim.x + pos.x / pos.w * g_ScreenDim.x) * 0.5 + 0.222222) - 0.5) * 2 - g_ScreenDim.x) / g_ScreenDim.x * pos.w,
+        (g_ScreenDim.y - (floor((g_ScreenDim.y - pos.y / pos.w * g_ScreenDim.y) * 0.5 + 0.222222) - 0.5) * 2) / g_ScreenDim.y * pos.w, pos.z, pos.w);
+}
+
 VS_OUTPUT RenderSceneVS( float4 vPos : POSITION, 
                          float4 vDiffuse : COLOR0,
                          float2 vTexCoord0 : TEXCOORD0 )
@@ -33,7 +40,7 @@ VS_OUTPUT RenderSceneVS( float4 vPos : POSITION,
     VS_OUTPUT Output;
     
     // Transform the position from object space to homogeneous projection space
-    Output.Position = AlignUnit(mul(vPos, mul(g_World, g_ViewProj)));
+    Output.Position = AlignUnit(mul(mul(vPos, g_World), g_ViewProj));
     
     // Calc diffuse color    
     Output.Diffuse = vDiffuse;

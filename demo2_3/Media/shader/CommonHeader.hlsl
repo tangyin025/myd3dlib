@@ -112,11 +112,6 @@ float Fresnel(float3 Normal, float3 View, float FresExp, float ReflStrength)
 	return pow(1.0 - abs(dot(Normal, View)), FresExp) * ReflStrength;
 }
 
-float4 AlignUnit(float4 pos)
-{
-	return float4(((floor((g_ScreenDim.x + pos.x / pos.w * g_ScreenDim.x) * 0.5 + 0.222222) - 0.5) * 2 - g_ScreenDim.x) / g_ScreenDim.x * pos.w, (g_ScreenDim.y - (floor((g_ScreenDim.y - pos.y / pos.w * g_ScreenDim.y) * 0.5 + 0.222222) - 0.5) * 2) / g_ScreenDim.y * pos.w, pos.z, pos.w);
-}
-
 float3 RotateAngleAxis(float3 v, float a, float3 N)
 {
 	float sin_a, cos_a;
