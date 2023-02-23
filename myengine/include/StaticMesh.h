@@ -13,11 +13,7 @@ public:
 	int m_Lod;
 
 public:
-	StaticMeshChunk(int SubMeshId)
-		: m_SubMeshId(SubMeshId)
-		, m_Lod(INT_MAX)
-	{
-	}
+	StaticMeshChunk(int SubMeshId);
 
 	template<class Archive>
 	void serialize(Archive& ar, const unsigned int version)

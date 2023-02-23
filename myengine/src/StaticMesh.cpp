@@ -21,6 +21,12 @@ BOOST_CLASS_EXPORT(StaticMesh)
 
 using namespace my;
 
+StaticMeshChunk::StaticMeshChunk(int SubMeshId)
+	: m_SubMeshId(SubMeshId)
+	, m_Lod(StaticMesh::LastLod - 1)
+{
+}
+
 template<class Archive>
 void StaticMesh::save(Archive& ar, const unsigned int version) const
 {
