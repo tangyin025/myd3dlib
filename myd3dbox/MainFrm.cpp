@@ -1769,7 +1769,7 @@ void CMainFrame::OnEditDelete()
 void CMainFrame::OnUpdateEditDelete(CCmdUI *pCmdUI)
 {
 	// TODO: Add your command update UI handler code here
-	pCmdUI->Enable(!m_selactors.empty());
+	pCmdUI->Enable(!m_selactors.empty() || !m_selctls.empty());
 }
 
 void CMainFrame::OnPivotMove()
