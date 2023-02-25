@@ -1209,6 +1209,11 @@ listbox_loop_end:
 
 void Control::OnFocusOut(void)
 {
+	if (m_bPressed)
+	{
+		m_bPressed = false;
+	}
+
 	if (m_EventFocusChanged)
 	{
 		FocusEventArg arg(this, false);
@@ -3592,13 +3597,6 @@ bool ComboBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM 
 		}
 	}
 	return false;
-}
-
-void ComboBox::OnFocusOut(void)
-{
-	m_bPressed = false;
-
-	Control::OnFocusOut();
 }
 
 bool ComboBox::HitTest(const Vector2 & pt) const

@@ -1286,8 +1286,6 @@ namespace my
 
 		virtual bool HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lParam);
 
-		virtual void OnFocusOut(void);
-
 		virtual bool HitTest(const Vector2 & pt) const;
 
 		virtual void OnLayout(void);
