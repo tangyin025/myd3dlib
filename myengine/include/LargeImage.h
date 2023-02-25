@@ -66,5 +66,7 @@ public:
 
 	virtual void ReleaseResource(void);
 
+	void DrawDepthRecursive(my::UIRender * ui_render, const my::Rectangle & rect, DWORD color, const my::Rectangle & clip, int depth, ChunkSet::iterator & insert_chunk_iter);
+
 	void Draw(my::UIRender * ui_render, const my::Rectangle & rect, DWORD color, const my::Rectangle & clip, int depth);
 };

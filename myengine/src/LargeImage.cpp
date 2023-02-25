@@ -103,7 +103,7 @@ void LargeImage::ReleaseResource(void)
 	m_ViewedChunks.clear();
 }
 
-void LargeImage::Draw(my::UIRender * ui_render, const my::Rectangle & rect, DWORD color, const my::Rectangle & clip, int depth)
+void LargeImage::DrawDepthRecursive(my::UIRender * ui_render, const my::Rectangle & rect, DWORD color, const my::Rectangle & clip, int depth, ChunkSet::iterator & insert_chunk_iter)
 {
 	const int row_count = my::ipow(2, depth);
 	const int col_count = my::ipow(2, depth);
@@ -112,7 +112,6 @@ void LargeImage::Draw(my::UIRender * ui_render, const my::Rectangle & rect, DWOR
 	const int jbegin = my::Max(0, (int)floorf((clip.t - rect.t) / ChunkSize.y));
 	const int iend = my::Min(row_count, (int)ceilf((clip.r - rect.l) / ChunkSize.x));
 	const int jend = my::Min(col_count, (int)ceilf((clip.b - rect.t) / ChunkSize.y));
-	ChunkSet::iterator insert_chunk_iter = m_ViewedChunks.begin();
 	for (int i = ibegin; i < iend; i++)
 	{
 		for (int j = jbegin; j < jend; j++)
@@ -134,13 +133,6 @@ void LargeImage::Draw(my::UIRender * ui_render, const my::Rectangle & rect, DWOR
 
 					insert_chunk_iter++;
 				}
-
-				if (res.first->second.m_Texture)
-				{
-					my::Rectangle Rect(rect.l + i * ChunkSize.x, rect.t + j * ChunkSize.y, rect.l + (i + 1) * ChunkSize.x, rect.t + (j + 1) * ChunkSize.y);
-
-					my::UIRender::PushRectangleSimple(ui_render->GetVertexList(res.first->second.m_Texture.get()), Rect, my::Rectangle(0, 0, 1, 1), color, clip);
-				}
 			}
 			else
 			{
@@ -150,14 +142,37 @@ void LargeImage::Draw(my::UIRender * ui_render, const my::Rectangle & rect, DWOR
 
 				m_ViewedChunks.insert(insert_chunk_iter, res.first->second);
 			}
+
+			const my::Rectangle Rect(rect.l + i * ChunkSize.x, rect.t + j * ChunkSize.y, rect.l + (i + 1) * ChunkSize.x, rect.t + (j + 1) * ChunkSize.y);
+
+			if (res.first->second.m_Texture)
+			{
+				my::UIRender::PushRectangleSimple(ui_render->GetVertexList(res.first->second.m_Texture.get()), Rect, my::Rectangle(0, 0, 1, 1), color, clip);
+			}
+			else if (depth > 0)
+			{
+				DrawDepthRecursive(ui_render, rect, color, clip.intersect(Rect), depth - 1, insert_chunk_iter);
+			}
 		}
 	}
+}
+
+void LargeImage::Draw(my::UIRender * ui_render, const my::Rectangle & rect, DWORD color, const my::Rectangle & clip, int depth)
+{
+	ChunkSet::iterator insert_chunk_iter = m_ViewedChunks.begin();
+
+	DrawDepthRecursive(ui_render, rect, color, clip, depth, insert_chunk_iter);
 
 	ChunkSet::iterator chunk_iter = insert_chunk_iter;
 	for (; chunk_iter != m_ViewedChunks.end(); )
 	{
-		chunk_iter->ReleaseResource();
+		if (chunk_iter->m_Depth == depth)
+		{
+			chunk_iter->ReleaseResource();
 
-		chunk_iter = m_ViewedChunks.erase(chunk_iter);
+			chunk_iter = m_ViewedChunks.erase(chunk_iter);
+		}
+		else
+			chunk_iter++;
 	}
 }
