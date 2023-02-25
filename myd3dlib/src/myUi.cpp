@@ -1806,6 +1806,16 @@ void Static::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offs
 	}
 }
 
+bool Static::HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+	return false;
+}
+
+bool Static::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lParam)
+{
+	return false;
+}
+
 void ProgressBarSkin::RequestResource(void)
 {
 	StaticSkin::RequestResource();
