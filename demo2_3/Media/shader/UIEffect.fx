@@ -9,6 +9,8 @@ sampler MeshTextureSampler = sampler_state
     MipFilter = LINEAR;
     MinFilter = LINEAR;
     MagFilter = LINEAR;
+    ADDRESSU = CLAMP;
+    ADDRESSV = CLAMP;
 };
 
 //--------------------------------------------------------------------------------------
