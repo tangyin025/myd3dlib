@@ -570,7 +570,7 @@ bool PhysxScene::Overlap(
 	//physx::Cct::Controller** controllers = mManager->getControllers();
 
 	physx::PxTransform pose((physx::PxVec3&)Position, (physx::PxQuat&)Rotation);
-	int callback_i = 0;
+	//int callback_i = 0;
 	//for (physx::PxU32 i = 0; i < nbControllers && callback_i < MaxNbTouches; i++)
 	//{
 	//	physx::Cct::Controller* currentController = controllers[i];
@@ -624,14 +624,26 @@ bool PhysxScene::Overlap(
 	//	}
 	//}
 
-	std::vector<physx::PxOverlapHit> buff(MaxNbTouches - callback_i);
+	std::vector<physx::PxOverlapHit> buff(MaxNbTouches);
 	physx::PxOverlapBuffer hitbuff(buff.data(), buff.size());
 	physx::PxQueryFilterData filterData = physx::PxQueryFilterData(
 		physx::PxFilterData(filterWord0, 0, 0, 0), physx::PxQueryFlag::eDYNAMIC | physx::PxQueryFlag::eSTATIC /*| physx::PxQueryFlag::ePREFILTER | physx::PxQueryFlag::eANY_HIT*/);
 	if (m_PxScene->overlap(geometry, pose, hitbuff, filterData, NULL))
 	{
-		//try
-		//{
+		if (hitbuff.hasBlock)
+		{
+			if (hitbuff.block.shape->userData)
+			{
+				Component* other_cmp = (Component*)hitbuff.block.shape->userData;
+				OverlapHitArg arg(other_cmp->m_Actor, other_cmp, hitbuff.block.faceIndex);
+				if (!callback(&arg))
+				{
+					return false;
+				}
+			}
+		}
+		else
+		{
 			for (unsigned int i = 0; i < hitbuff.nbTouches; i++)
 			{
 				const physx::PxOverlapHit& hit = buff[i];
@@ -645,14 +657,9 @@ bool PhysxScene::Overlap(
 					}
 				}
 			}
-		//}
-		//catch (const luabind::error& e)
-		//{
-		//	my::D3DContext::getSingleton().m_EventLog(lua_tostring(e.state(), -1));
-		//	return false;
-		//}
+		}
 	}
-	return callback_i + hitbuff.nbTouches > 0;
+	return hitbuff.hasBlock || hitbuff.nbTouches > 0;
 }
 
 bool PhysxScene::Raycast(
@@ -670,8 +677,20 @@ bool PhysxScene::Raycast(
 		physx::PxFilterData(filterWord0, 0, 0, 0), physx::PxQueryFlag::eDYNAMIC | physx::PxQueryFlag::eSTATIC /*| physx::PxQueryFlag::ePREFILTER | physx::PxQueryFlag::eANY_HIT*/);
 	if (m_PxScene->raycast((physx::PxVec3&)origin, (physx::PxVec3&)unitDir, distance, hitbuff, physx::PxHitFlag::eDEFAULT, filterData, NULL, NULL))
 	{
-		//try
-		//{
+		if (hitbuff.hasBlock)
+		{
+			if (hitbuff.block.shape->userData)
+			{
+				Component* other_cmp = (Component*)hitbuff.block.shape->userData;
+				RaycastHitArg arg(other_cmp->m_Actor, other_cmp, hitbuff.block.faceIndex, (Vector3&)hitbuff.block.position, (Vector3&)hitbuff.block.normal, hitbuff.block.distance, hitbuff.block.u, hitbuff.block.v);
+				if (!callback(&arg))
+				{
+					return false;
+				}
+			}
+		}
+		else
+		{
 			for (unsigned int i = 0; i < hitbuff.nbTouches; i++)
 			{
 				const physx::PxRaycastHit& hit = buff[i];
@@ -685,14 +704,9 @@ bool PhysxScene::Raycast(
 					}
 				}
 			}
-		//}
-		//catch (const luabind::error& e)
-		//{
-		//	my::D3DContext::getSingleton().m_EventLog(lua_tostring(e.state(), -1));
-		//	return false;
-		//}
+		}
 	}
-	return hitbuff.nbTouches > 0;
+	return hitbuff.hasBlock || hitbuff.nbTouches > 0;
 }
 
 bool PhysxScene::Sweep(
@@ -714,8 +728,20 @@ bool PhysxScene::Sweep(
 		physx::PxFilterData(filterWord0, 0, 0, 0), physx::PxQueryFlag::eDYNAMIC | physx::PxQueryFlag::eSTATIC /*| physx::PxQueryFlag::ePREFILTER | physx::PxQueryFlag::eANY_HIT*/);
 	if (m_PxScene->sweep(geometry, pose, (physx::PxVec3&)unitDir, distance, hitbuff, physx::PxHitFlag::eDEFAULT, filterData, NULL, NULL, 0.0f))
 	{
-		//try
-		//{
+		if (hitbuff.hasBlock)
+		{
+			if (hitbuff.block.shape->userData)
+			{
+				Component* other_cmp = (Component*)hitbuff.block.shape->userData;
+				SweepHitArg arg(other_cmp->m_Actor, other_cmp, hitbuff.block.faceIndex, (Vector3&)hitbuff.block.position, (Vector3&)hitbuff.block.normal, hitbuff.block.distance);
+				if (!callback(&arg))
+				{
+					return false;
+				}
+			}
+		}
+		else
+		{
 			for (unsigned int i = 0; i < hitbuff.nbTouches; i++)
 			{
 				const physx::PxSweepHit& hit = buff[i];
@@ -729,14 +755,9 @@ bool PhysxScene::Sweep(
 					}
 				}
 			}
-		//}
-		//catch (const luabind::error& e)
-		//{
-		//	my::D3DContext::getSingleton().m_EventLog(lua_tostring(e.state(), -1));
-		//	return false;
-		//}
+		}
 	}
-	return hitbuff.nbTouches > 0;
+	return hitbuff.hasBlock || hitbuff.nbTouches > 0;
 }
 
 PhysxSpatialIndex::PhysxSpatialIndex(void)
