@@ -19,8 +19,6 @@ CSnapshotDlg::CSnapshotDlg(CWnd* pParent /*=nullptr*/)
 	, m_TexWidth(theApp.GetProfileInt(_T("Settings"), _T("SnapshotWidth"), 1024))
 	, m_TexHeight(theApp.GetProfileInt(_T("Settings"), _T("SnapshotHeight"), 1024))
 	, m_SnapArea(-4096, -4096, 4096, 4096)
-	, m_SnapCol(theApp.GetProfileInt(_T("Settings"), _T("SnapshotCol"), 1))
-	, m_SnapRow(theApp.GetProfileInt(_T("Settings"), _T("SnapshotRow"), 1))
 {
 
 }
@@ -38,21 +36,15 @@ void CSnapshotDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_EDIT3, m_TexHeight);
 	DDV_MinMaxInt(pDX, m_TexHeight, 1, INT_MAX);
 	DDX_Text(pDX, IDC_EDIT4, m_SnapArea.l);
-	DDX_Text(pDX, IDC_EDIT5, m_SnapArea.r);
-	DDX_Text(pDX, IDC_EDIT6, m_SnapCol);
-	DDV_MinMaxInt(pDX, m_SnapCol, 1, INT_MAX);
-	DDX_Text(pDX, IDC_EDIT7, m_SnapArea.t);
-	DDX_Text(pDX, IDC_EDIT8, m_SnapArea.b);
-	DDX_Text(pDX, IDC_EDIT9, m_SnapRow);
-	DDV_MinMaxInt(pDX, m_SnapRow, 1, INT_MAX);
+	DDX_Text(pDX, IDC_EDIT5, m_SnapArea.t);
+	DDX_Text(pDX, IDC_EDIT6, m_SnapArea.r);
+	DDX_Text(pDX, IDC_EDIT7, m_SnapArea.b);
 
 	if (pDX->m_bSaveAndValidate)
 	{
 		theApp.WriteProfileString(_T("Settings"), _T("SnapshotPath"), m_TexPath);
 		theApp.WriteProfileInt(_T("Settings"), _T("SnapshotWidth"), m_TexWidth);
 		theApp.WriteProfileInt(_T("Settings"), _T("SnapshotHeight"), m_TexHeight);
-		theApp.WriteProfileInt(_T("Settings"), _T("SnapshotCol"), m_SnapCol);
-		theApp.WriteProfileInt(_T("Settings"), _T("SnapshotRow"), m_SnapRow);
 	}
 }
 
@@ -85,6 +77,17 @@ void CSnapshotDlg::OnOK()
 		// the UpdateData routine will set focus to correct item
 		return;
 	}
+
+	my::Texture2D rt;
+	rt.CreateTexture(m_TexWidth, m_TexHeight, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT);
+	CComPtr<IDirect3DSurface9> rtsurf = rt.GetSurfaceLevel(0);
+	D3DSURFACE_DESC desc;
+	HRESULT hr;
+	V(rtsurf->GetDesc(&desc));
+
+	my::Surface DepthStencil;
+	DepthStencil.CreateDepthStencilSurface(
+		desc.Width, desc.Height, D3DFMT_D24X8, D3DMULTISAMPLE_NONE, 0);
 
 	struct RenderContext : RenderPipeline::IRenderContext
 	{
@@ -127,57 +130,39 @@ void CSnapshotDlg::OnOK()
 		}
 	};
 
-	for (int i = 0; i < m_SnapRow; i++)
+	RenderContext rc;
+	rc.m_Camera.reset(new my::OrthoCamera(m_SnapArea.Width(), m_SnapArea.Height(), -2000, 2000));
+	my::OrthoCamera* ortho_camera = dynamic_cast<my::OrthoCamera*>(rc.m_Camera.get());
+	ortho_camera->m_Eye = my::Vector3(0, 0, 0);
+	ortho_camera->m_Euler = my::Vector3(D3DXToRadian(-90), 0, 0);
+	const my::Matrix4 Rotation = my::Matrix4::RotationYawPitchRoll(ortho_camera->m_Euler.y, ortho_camera->m_Euler.x, ortho_camera->m_Euler.z);
+	ortho_camera->m_View = (Rotation * my::Matrix4::Translation(ortho_camera->m_Eye)).inverse();
+	const my::Rectangle Rect = my::Rectangle::LeftTop(m_SnapArea.l, m_SnapArea.t, ortho_camera->m_Width, ortho_camera->m_Height);
+	ortho_camera->m_Proj = my::Matrix4::OrthoOffCenterRH(Rect.l, Rect.r, Rect.t, Rect.b, ortho_camera->m_Nz, ortho_camera->m_Fz);
+	ortho_camera->m_ViewProj = ortho_camera->m_View * ortho_camera->m_Proj;
+	ortho_camera->m_InverseViewProj = ortho_camera->m_ViewProj.inverse();
+	rc.m_NormalRT.reset(new my::Texture2D());
+	rc.m_NormalRT->CreateTexture(
+		desc.Width, desc.Height, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A32B32G32R32F, D3DPOOL_DEFAULT);
+	rc.m_SpecularRT.reset(new my::Texture2D());
+	rc.m_SpecularRT->CreateTexture(
+		desc.Width, desc.Height, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A32B32G32R32F, D3DPOOL_DEFAULT);
+	rc.m_PositionRT.reset(new my::Texture2D());
+	rc.m_PositionRT->CreateTexture(
+		desc.Width, desc.Height, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A32B32G32R32F, D3DPOOL_DEFAULT);
+	rc.m_LightRT.reset(new my::Texture2D());
+	rc.m_LightRT->CreateTexture(
+		desc.Width, desc.Height, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT);
+	for (unsigned int i = 0; i < RenderPipeline::RTChain::RTArray::static_size; i++)
 	{
-		for (int j = 0; j < m_SnapCol; j++)
-		{
-			my::Texture2D rt;
-			rt.CreateTexture(m_TexWidth / m_SnapCol, m_TexHeight / m_SnapRow, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT);
-			CComPtr<IDirect3DSurface9> rtsurf = rt.GetSurfaceLevel(0);
-			D3DSURFACE_DESC desc;
-			HRESULT hr;
-			V(rtsurf->GetDesc(&desc));
-
-			my::Surface DepthStencil;
-			DepthStencil.CreateDepthStencilSurface(
-				desc.Width, desc.Height, D3DFMT_D24X8, D3DMULTISAMPLE_NONE, 0);
-
-			RenderContext rc;
-			rc.m_Camera.reset(new my::OrthoCamera(m_SnapArea.Width(), m_SnapArea.Height(), -2000, 2000));
-			my::OrthoCamera* ortho_camera = dynamic_cast<my::OrthoCamera*>(rc.m_Camera.get());
-			ortho_camera->m_Eye = my::Vector3(0, 0, 0);
-			ortho_camera->m_Euler = my::Vector3(D3DXToRadian(-90), 0, 0);
-			const my::Matrix4 Rotation = my::Matrix4::RotationYawPitchRoll(ortho_camera->m_Euler.y, ortho_camera->m_Euler.x, ortho_camera->m_Euler.z);
-			ortho_camera->m_View = (Rotation * my::Matrix4::Translation(ortho_camera->m_Eye)).inverse();
-			const my::Rectangle Rect = my::Rectangle::LeftTop(m_SnapArea.l + j * ortho_camera->m_Width, m_SnapArea.t + i * ortho_camera->m_Height, ortho_camera->m_Width, ortho_camera->m_Height);
-			ortho_camera->m_Proj = my::Matrix4::OrthoOffCenterRH(Rect.l, Rect.r, Rect.t, Rect.b, ortho_camera->m_Nz, ortho_camera->m_Fz);
-			ortho_camera->m_ViewProj = ortho_camera->m_View * ortho_camera->m_Proj;
-			ortho_camera->m_InverseViewProj = ortho_camera->m_ViewProj.inverse();
-			rc.m_NormalRT.reset(new my::Texture2D());
-			rc.m_NormalRT->CreateTexture(
-				desc.Width, desc.Height, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A32B32G32R32F, D3DPOOL_DEFAULT);
-			rc.m_SpecularRT.reset(new my::Texture2D());
-			rc.m_SpecularRT->CreateTexture(
-				desc.Width, desc.Height, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A32B32G32R32F, D3DPOOL_DEFAULT);
-			rc.m_PositionRT.reset(new my::Texture2D());
-			rc.m_PositionRT->CreateTexture(
-				desc.Width, desc.Height, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A32B32G32R32F, D3DPOOL_DEFAULT);
-			rc.m_LightRT.reset(new my::Texture2D());
-			rc.m_LightRT->CreateTexture(
-				desc.Width, desc.Height, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT);
-			for (unsigned int i = 0; i < RenderPipeline::RTChain::RTArray::static_size; i++)
-			{
-				rc.m_OpaqueRT.m_RenderTarget[i].reset(new my::Texture2D());
-				rc.m_OpaqueRT.m_RenderTarget[i]->CreateTexture(
-					desc.Width, desc.Height, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT);
-			}
-
-			D3DVIEWPORT9 vp = { j * desc.Width, (m_SnapRow - i - 1) * desc.Height, desc.Width, desc.Height, 0.0, 1.0f };
-			theApp.OnRender(theApp.m_d3dDevice, rtsurf, DepthStencil.m_ptr, &vp, &rc, 0, 0);
-			CString ext(PathFindExtension(m_TexPath));
-			V(D3DXSaveTextureToFile(m_TexPath, ext.CompareNoCase(_T(".png")) == 0 ? D3DXIFF_PNG : D3DXIFF_BMP, rt.m_ptr, NULL));
-		}
+		rc.m_OpaqueRT.m_RenderTarget[i].reset(new my::Texture2D());
+		rc.m_OpaqueRT.m_RenderTarget[i]->CreateTexture(
+			desc.Width, desc.Height, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT);
 	}
+
+	theApp.OnRender(theApp.m_d3dDevice, rtsurf, DepthStencil.m_ptr, &desc, &rc, 0, 0);
+	CString ext(PathFindExtension(m_TexPath));
+	V(D3DXSaveTextureToFile(m_TexPath, ext.CompareNoCase(_T(".png")) == 0 ? D3DXIFF_PNG : D3DXIFF_BMP, rt.m_ptr, NULL));
 
 	CDialogEx::OnOK();
 }

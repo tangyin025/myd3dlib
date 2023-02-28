@@ -27,7 +27,5 @@ public:
 	int m_TexWidth;
 	int m_TexHeight;
 	my::Rectangle m_SnapArea;
-	int m_SnapCol;
-	int m_SnapRow;
 	afx_msg void OnClickedButton1();
 };

@@ -518,16 +518,16 @@ void RenderPipeline::OnRender(
 	IDirect3DDevice9 * pd3dDevice,
 	IDirect3DSurface9 * ScreenSurf,
 	IDirect3DSurface9 * ScreenDepthStencilSurf,
-	const D3DVIEWPORT9 * pVP,
+	const D3DSURFACE_DESC * ScreenSurfDesc,
 	IRenderContext * pRC,
 	double fTime,
 	float fElapsedTime)
 {
 	QuadVertex quad[4];
-	UpdateQuad(quad, Vector2((float)pVP->Width, (float)pVP->Height));
+	UpdateQuad(quad, Vector2((float)ScreenSurfDesc->Width, (float)ScreenSurfDesc->Height));
 
 	QuadVertex quad_quat[4];
-	UpdateQuad(quad_quat, Vector2((float)pVP->Width, (float)pVP->Height) / 4.0f);
+	UpdateQuad(quad_quat, Vector2((float)ScreenSurfDesc->Width, (float)ScreenSurfDesc->Height) / 4.0f);
 
 	HRESULT hr;
 	//CComPtr<IDirect3DSurface9> ScreenSurf;
@@ -535,8 +535,8 @@ void RenderPipeline::OnRender(
 	//V(pd3dDevice->GetRenderTarget(0, &ScreenSurf));
 	//V(pd3dDevice->GetDepthStencilSurface(&ScreenDepthStencilSurf));
 
-	D3DVIEWPORT9 vp = { 0, 0, pVP->Width, pVP->Height, 0.0f, 1.0f };
-	V(pd3dDevice->SetViewport(&vp));
+	//D3DVIEWPORT9 vp = { 0, 0, ScreenSurfDesc->Width, ScreenSurfDesc->Height, 0.0f, 1.0f };
+	//V(pd3dDevice->SetViewport(&vp));
 
 	// ! Ogre & Apex模型都是顺时针，右手系应该是逆时针
 	V(pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CW));
@@ -547,7 +547,7 @@ void RenderPipeline::OnRender(
 
 	CComPtr<IDirect3DSurface9> ShadowSurf = m_ShadowRT->GetSurfaceLevel(0);
 	m_SimpleSample->SetFloat(handle_Time, my::D3DContext::getSingleton().m_fTotalTime);
-	m_SimpleSample->SetVector(handle_ScreenDim, Vector2((float)pVP->Width, (float)pVP->Height));
+	m_SimpleSample->SetVector(handle_ScreenDim, Vector2((float)ScreenSurfDesc->Width, (float)ScreenSurfDesc->Height));
 	m_SimpleSample->SetFloat(handle_ShadowMapSize, (float)SHADOW_MAP_SIZE);
 	m_SimpleSample->SetFloat(handle_ShadowBias, SHADOW_BIAS);
 	m_SimpleSample->SetMatrix(handle_World, Matrix4::identity);
@@ -735,7 +735,7 @@ void RenderPipeline::OnRender(
 		V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE));
 		V(pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE));
 		m_FxaaEffect->SetTexture(handle_InputTexture, pRC->m_OpaqueRT.GetNextSource().get());
-		Vector4 RCPFrame(1.0f / pVP->Width, 1.0f / pVP->Height, 0.0f, 0.0f);
+		Vector4 RCPFrame(1.0f / ScreenSurfDesc->Width, 1.0f / ScreenSurfDesc->Height, 0.0f, 0.0f);
 		m_FxaaEffect->SetFloatArray(handle_RCPFrame, &RCPFrame.x, sizeof(RCPFrame) / sizeof(float));
 		m_FxaaEffect->Begin(D3DXFX_DONOTSAVESTATE | D3DXFX_DONOTSAVESAMPLERSTATE | D3DXFX_DONOTSAVESHADERSTATE);
 		m_FxaaEffect->BeginPass(0);
@@ -756,7 +756,6 @@ void RenderPipeline::OnRender(
 	V(pd3dDevice->SetRenderTarget(0, ScreenSurf));
 	V(pd3dDevice->SetVertexShader(NULL));
 	V(pd3dDevice->SetPixelShader(NULL));
-	V(pd3dDevice->SetViewport(pVP));
 	switch (pRC->m_RTType)
 	{
 	case RenderTargetNormal:

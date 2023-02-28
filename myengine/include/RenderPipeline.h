@@ -503,9 +503,9 @@ public:
 
 	void OnRender(
 		IDirect3DDevice9 * pd3dDevice,
-		IDirect3DSurface9* ScreenSurf,
-		IDirect3DSurface9* ScreenDepthStencilSurf,
-		const D3DVIEWPORT9* pVP,
+		IDirect3DSurface9 * ScreenSurf,
+		IDirect3DSurface9 * ScreenDepthStencilSurf,
+		const D3DSURFACE_DESC * ScreenSurfDesc,
 		IRenderContext * pRC,
 		double fTime,
 		float fElapsedTime);
