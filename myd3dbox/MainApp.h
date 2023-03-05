@@ -47,7 +47,7 @@ public:
 	D3DCOLOR default_grid_color;
 	D3DCOLOR default_grid_axis_color;
 	bool default_tool_snap_to_grid;
-	std::string default_tool_scrpit_pattern;
+	std::string default_tool_script_pattern;
 	float default_emitter_chunk_width;
 	std::string default_font_path;
 	int default_font_height;

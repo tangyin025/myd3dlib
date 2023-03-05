@@ -2451,12 +2451,12 @@ BOOL CMainFrame::OnShowPopupMenu(CMFCPopupMenu* pMenuPopup)
 				const int first_script_index = i;
 				WIN32_FIND_DATAA ffd;
 				HANDLE hFind = INVALID_HANDLE_VALUE;
-				hFind = FindFirstFileA(theApp.default_tool_scrpit_pattern.c_str(), &ffd);
+				hFind = FindFirstFileA(theApp.default_tool_script_pattern.c_str(), &ffd);
 				if (hFind == INVALID_HANDLE_VALUE)
 				{
 					break;
 				}
-				m_ToolScriptDir = theApp.default_tool_scrpit_pattern.c_str();
+				m_ToolScriptDir = theApp.default_tool_script_pattern.c_str();
 				// ! c++11 contains a null-terminated, https://cplusplus.com/reference/string/string/data/
 				PathRemoveFileSpecA(const_cast<char*>(m_ToolScriptDir.data()));
 				m_ToolScriptDir.resize(strlen(m_ToolScriptDir.c_str()));
