@@ -2845,11 +2845,12 @@ void CPropertiesWnd::UpdatePropertiesPaintTool(Actor* actor)
 	pPaint->GetSubItem(3)->SetValue((_variant_t)pFrame->m_PaintHeight);
 	COLORREF color = RGB(pFrame->m_PaintColor.r * 255, pFrame->m_PaintColor.g * 255, pFrame->m_PaintColor.b * 255);
 	(DYNAMIC_DOWNCAST(CColorProp, pPaint->GetSubItem(4)))->SetColor(color);
-	UpdatePropertiesSpline(pPaint->GetSubItem(5), &pFrame->m_PaintSpline);
+	pPaint->GetSubItem(5)->SetValue((_variant_t)(long)(pFrame->m_PaintColor.a * 255));
+	UpdatePropertiesSpline(pPaint->GetSubItem(6), &pFrame->m_PaintSpline);
 	std::basic_string<TCHAR> emit_name = actor->m_Cmps.size() > pFrame->m_PaintEmitterSiblingId
 		&& actor->m_Cmps[pFrame->m_PaintEmitterSiblingId]->GetComponentType() == Component::ComponentTypeStaticEmitter ? ms2ts(actor->m_Cmps[pFrame->m_PaintEmitterSiblingId]->GetName()) : _T("");
-	pPaint->GetSubItem(6)->SetValue((_variant_t)emit_name.c_str());
-	pPaint->GetSubItem(7)->SetValue((_variant_t)pFrame->m_PaintParticleMinDist);
+	pPaint->GetSubItem(7)->SetValue((_variant_t)emit_name.c_str());
+	pPaint->GetSubItem(8)->SetValue((_variant_t)pFrame->m_PaintParticleMinDist);
 }
 
 void CPropertiesWnd::CreatePropertiesPaintTool(Actor* actor)
@@ -2883,6 +2884,9 @@ void CPropertiesWnd::CreatePropertiesPaintTool(Actor* actor)
 	pPaintColor->EnableOtherButton(_T("Other..."));
 	pPaint->AddSubItem(pPaintColor);
 
+	CMFCPropertyGridProperty* pPaintAlpha = new CSliderProp(_T("Alpha"), (long)(pFrame->m_PaintColor.a * 255), NULL, PropertyPaintAlpha);
+	pPaint->AddSubItem(pPaintAlpha);
+
 	CreatePropertiesSpline(pPaint, _T("Spline"), PropertyPaintSpline, &pFrame->m_PaintSpline);
 
 	std::basic_string<TCHAR> emit_name = actor->m_Cmps.size() > pFrame->m_PaintEmitterSiblingId
@@ -2896,6 +2900,7 @@ void CPropertiesWnd::CreatePropertiesPaintTool(Actor* actor)
 		}
 	}
 	pPaint->AddSubItem(pProp);
+
 	pProp = new CSimpleProp(_T("ParticleMinDist"), (_variant_t)pFrame->m_PaintParticleMinDist, NULL, PropertyPaintParticleMinDist);
 	pPaint->AddSubItem(pProp);
 }
@@ -4144,12 +4149,13 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		break;
 	}
 	case PropertyPaintColor:
+	case PropertyPaintAlpha:
 	{
-		COLORREF color = (DYNAMIC_DOWNCAST(CColorProp, pProp))->GetColor();
+		COLORREF color = (DYNAMIC_DOWNCAST(CColorProp, pProp->GetParent()->GetSubItem(4)))->GetColor();
 		pFrame->m_PaintColor.r = GetRValue(color) / 255.0f;
 		pFrame->m_PaintColor.g = GetGValue(color) / 255.0f;
 		pFrame->m_PaintColor.b = GetBValue(color) / 255.0f;
-		pFrame->m_PaintColor.a = my::Clamp(1.0f - pFrame->m_PaintColor.r - pFrame->m_PaintColor.g - pFrame->m_PaintColor.b, 0.0f, 1.0f);
+		pFrame->m_PaintColor.a = pProp->GetParent()->GetSubItem(5)->GetValue().lVal / 255.0f;
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;

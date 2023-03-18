@@ -2912,7 +2912,7 @@ void CChildView::OnPaintEmitterInstance(const my::Ray& ray, TerrainStream& tstr,
 		my::Emitter::Particle* particle = estr.GetFirstNearParticle2D(pt, LocalPaintParticleMinDist);
 		if (!particle)
 		{
-			estr.Spawn(my::Vector4(pt.x, tstr.RayTest2D(pt.x, pt.z), pt.z, 1.0f), my::Vector4(0, 0, 0, 1), my::Vector4(1, 1, 1, 1), my::Vector2(1, 1), 0.0f, 0.0f);
+			estr.Spawn(my::Vector4(pt.x, tstr.RayTest2D(pt.x, pt.z), pt.z, 1.0f), my::Vector4(0, 0, 0, 1), (my::Vector4&)pFrame->m_PaintColor, my::Vector2(1, 1), 0.0f, 0.0f);
 			candidate.push_back(my::Vector2(pt.x, pt.z));
 		}
 		else
@@ -2935,7 +2935,7 @@ void CChildView::OnPaintEmitterInstance(const my::Ray& ray, TerrainStream& tstr,
 						my::Vector3 emit_pos(rand_pos, tstr.RayTest2D(rand_pos.x, rand_pos.y));
 						if (estr.m_emit->Intersect(emit_pos))
 						{
-							estr.Spawn(my::Vector4(emit_pos, 1.0f), my::Vector4(0, 0, 0, 1), my::Vector4(1, 1, 1, 1), my::Vector2(1, 1), 0.0f, 0.0f);
+							estr.Spawn(my::Vector4(emit_pos, 1.0f), my::Vector4(0, 0, 0, 1), (my::Vector4&)pFrame->m_PaintColor, my::Vector2(1, 1), 0.0f, 0.0f);
 							candidate.push_back(rand_pos);
 						}
 					}

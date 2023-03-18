@@ -239,6 +239,7 @@ public:
 		PropertyPaintRadius,
 		PropertyPaintHeight,
 		PropertyPaintColor,
+		PropertyPaintAlpha,
 		PropertyPaintSpline,
 		PropertyPaintEmitterSiblingId,
 		PropertyPaintParticleMinDist,
