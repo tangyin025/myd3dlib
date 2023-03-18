@@ -2866,6 +2866,7 @@ void CChildView::OnPaintTerrainColor(const my::Ray& ray, TerrainStream& tstr)
 		(pFrame->GetActiveView() ? DYNAMIC_DOWNCAST(CChildView, pFrame->GetActiveView()) : this)->m_Camera.get());
 	my::Vector3 LocalViewPos = model_view_camera->m_LookAt.transformCoord(tstr.m_terrain->m_Actor->m_World.inverse());
 	my::RayResult res = tstr.m_terrain->RayTest(local_ray, LocalViewPos, raychunkid);
+	D3DXCOLOR PaintColor(pFrame->m_PaintColor.r, pFrame->m_PaintColor.g, pFrame->m_PaintColor.b, my::Clamp(1.0f - pFrame->m_PaintColor.r - pFrame->m_PaintColor.g - pFrame->m_PaintColor.b, 0.0f, 1.0f));
 	if (res.first)
 	{
 		float LocalPaintRadius = pFrame->m_PaintRadius / tstr.m_terrain->m_Actor->m_Scale.x;
@@ -2883,7 +2884,7 @@ void CChildView::OnPaintTerrainColor(const my::Ray& ray, TerrainStream& tstr)
 					if (dist <= 1)
 					{
 						D3DXCOLOR color;
-						D3DXColorLerp(&color, &D3DXCOLOR(tstr.GetColor(i, j)), &pFrame->m_PaintColor, pFrame->m_PaintSpline.Interpolate(1 - dist, 1));
+						D3DXColorLerp(&color, &D3DXCOLOR(tstr.GetColor(i, j)), &PaintColor, pFrame->m_PaintSpline.Interpolate(1 - dist, 1));
 						tstr.SetColor(i, j, color);
 					}
 				}
