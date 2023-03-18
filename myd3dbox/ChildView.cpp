@@ -2909,6 +2909,12 @@ void CChildView::OnPaintEmitterInstance(const my::Ray& ray, TerrainStream& tstr,
 		float LocalPaintRadius = pFrame->m_PaintRadius / tstr.m_terrain->m_Actor->m_Scale.x;
 		float LocalPaintParticleMinDist = pFrame->m_PaintParticleMinDist / tstr.m_terrain->m_Actor->m_Scale.x;
 		my::Vector3 pt = local_ray.p + local_ray.d * res.second;
+		if (LocalPaintParticleMinDist <= 0)
+		{
+			estr.Spawn(my::Vector4(pt.x, tstr.RayTest2D(pt.x, pt.z), pt.z, 1.0f), my::Vector4(0, 0, 0, 1), (my::Vector4&)pFrame->m_PaintColor, my::Vector2(1, 1), 0.0f, 0.0f);
+			return;
+		}
+
 		std::list<my::Vector2> candidate;
 		my::Emitter::Particle* particle = estr.GetFirstNearParticle2D(pt, LocalPaintParticleMinDist);
 		if (!particle)
