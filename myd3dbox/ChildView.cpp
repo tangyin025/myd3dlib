@@ -1705,7 +1705,19 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 		return;
 	}
 
-	StaticEmitter* emit = !pFrame->m_selactors.empty() ? pFrame->m_selactors.front()->GetFirstComponent<StaticEmitter>() : NULL;
+	StaticEmitter* emit = NULL;
+	if (!pFrame->m_selactors.empty())
+	{
+		if (pFrame->m_PaintEmitterSiblingId < pFrame->m_selactors.front()->m_Cmps.size()
+			&& pFrame->m_selactors.front()->m_Cmps[pFrame->m_PaintEmitterSiblingId]->GetComponentType() == Component::ComponentTypeStaticEmitter)
+		{
+			emit = dynamic_cast<StaticEmitter*>(pFrame->m_selactors.front()->m_Cmps[pFrame->m_PaintEmitterSiblingId].get());
+		}
+		else
+		{
+			emit = pFrame->m_selactors.front()->GetFirstComponent<StaticEmitter>();
+		}
+	}
 	if (terrain && emit && pFrame->m_PaintType == CMainFrame::PaintTypeEmitterInstance)
 	{
 		m_PaintTerrainCaptured.reset(new TerrainStream(terrain));

@@ -265,7 +265,7 @@ void CPropertiesWnd::OnSelectionChanged(my::EventArg * arg)
 				|| pFrame->m_PaintType == CMainFrame::PaintTypeTerrainColor
 				|| pFrame->m_PaintType == CMainFrame::PaintTypeEmitterInstance)
 			{
-				UpdatePropertiesPaintTool();
+				UpdatePropertiesPaintTool(*actor_iter);
 				m_wndPropList.AdjustLayout();
 			}
 			else
@@ -2822,7 +2822,7 @@ LPCTSTR CPropertiesWnd::GetControlTypeName(DWORD type)
 	return _T("Unknown Control");
 }
 
-void CPropertiesWnd::UpdatePropertiesPaintTool(void)
+void CPropertiesWnd::UpdatePropertiesPaintTool(Actor* actor)
 {
 	CMFCPropertyGridProperty* pPaint = NULL;
 	if (m_wndPropList.GetPropertyCount() >= 1)
@@ -2832,7 +2832,7 @@ void CPropertiesWnd::UpdatePropertiesPaintTool(void)
 	if (!pPaint || pPaint->GetData() != PropertyPaint)
 	{
 		m_wndPropList.RemoveAll();
-		CreatePropertiesPaintTool();
+		CreatePropertiesPaintTool(actor);
 		return;
 	}
 
@@ -2846,10 +2846,13 @@ void CPropertiesWnd::UpdatePropertiesPaintTool(void)
 	COLORREF color = RGB(pFrame->m_PaintColor.r * 255, pFrame->m_PaintColor.g * 255, pFrame->m_PaintColor.b * 255);
 	(DYNAMIC_DOWNCAST(CColorProp, pPaint->GetSubItem(4)))->SetColor(color);
 	UpdatePropertiesSpline(pPaint->GetSubItem(5), &pFrame->m_PaintSpline);
-	pPaint->GetSubItem(6)->SetValue((_variant_t)pFrame->m_PaintParticleMinDist);
+	std::basic_string<TCHAR> emit_name = actor->m_Cmps.size() > pFrame->m_PaintEmitterSiblingId
+		&& actor->m_Cmps[pFrame->m_PaintEmitterSiblingId]->GetComponentType() == Component::ComponentTypeStaticEmitter ? ms2ts(actor->m_Cmps[pFrame->m_PaintEmitterSiblingId]->GetName()) : _T("");
+	pPaint->GetSubItem(6)->SetValue((_variant_t)emit_name.c_str());
+	pPaint->GetSubItem(7)->SetValue((_variant_t)pFrame->m_PaintParticleMinDist);
 }
 
-void CPropertiesWnd::CreatePropertiesPaintTool(void)
+void CPropertiesWnd::CreatePropertiesPaintTool(Actor* actor)
 {
 	CMainFrame* pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
@@ -2881,7 +2884,19 @@ void CPropertiesWnd::CreatePropertiesPaintTool(void)
 	pPaint->AddSubItem(pPaintColor);
 
 	CreatePropertiesSpline(pPaint, _T("Spline"), PropertyPaintSpline, &pFrame->m_PaintSpline);
-	pProp = new CSimpleProp(_T("EmitterDensity"), (_variant_t)pFrame->m_PaintParticleMinDist, NULL, PropertyPaintParticleMinDist);
+
+	std::basic_string<TCHAR> emit_name = actor->m_Cmps.size() > pFrame->m_PaintEmitterSiblingId
+		&& actor->m_Cmps[pFrame->m_PaintEmitterSiblingId]->GetComponentType() == Component::ComponentTypeStaticEmitter ? ms2ts(actor->m_Cmps[pFrame->m_PaintEmitterSiblingId]->GetName()) : _T("");
+	pProp = new CComboProp(_T("Emitter"), emit_name.c_str(), NULL, PropertyPaintEmitterSiblingId);
+	for (unsigned int i = 0; i < actor->m_Cmps.size(); i++)
+	{
+		if (actor->m_Cmps[i]->GetComponentType() == Component::ComponentTypeStaticEmitter)
+		{
+			pProp->AddOption(ms2ts(actor->m_Cmps[i]->GetName()).c_str(), TRUE);
+		}
+	}
+	pPaint->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("ParticleMinDist"), (_variant_t)pFrame->m_PaintParticleMinDist, NULL, PropertyPaintParticleMinDist);
 	pPaint->AddSubItem(pProp);
 }
 
@@ -4137,6 +4152,14 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		pFrame->m_PaintColor.a = my::Clamp(1.0f - pFrame->m_PaintColor.r - pFrame->m_PaintColor.g - pFrame->m_PaintColor.b, 0.0f, 1.0f);
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
+		break;
+	}
+	case PropertyPaintEmitterSiblingId:
+	{
+		int i = (DYNAMIC_DOWNCAST(CComboProp, pProp))->m_iSelIndex;
+		StaticEmitter* emit = dynamic_cast<StaticEmitter*>(theApp.GetNamedObject(ts2ms((DYNAMIC_DOWNCAST(CComboProp, pProp))->GetOption(i)).c_str()));
+		ASSERT(emit);
+		pFrame->m_PaintEmitterSiblingId = emit->GetSiblingId();
 		break;
 	}
 	case PropertyPaintParticleMinDist:

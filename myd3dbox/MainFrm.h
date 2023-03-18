@@ -107,6 +107,7 @@ public:
 	float m_PaintHeight;
 	my::Spline m_PaintSpline;
 	D3DXCOLOR m_PaintColor;
+	int m_PaintEmitterSiblingId;
 	float m_PaintParticleMinDist;
 	//EmitterComponentPtr m_emitter;
 	my::EventSignal m_EventSelectionChanged;

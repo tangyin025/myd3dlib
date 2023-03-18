@@ -240,6 +240,7 @@ public:
 		PropertyPaintHeight,
 		PropertyPaintColor,
 		PropertyPaintSpline,
+		PropertyPaintEmitterSiblingId,
 		PropertyPaintParticleMinDist,
 		PropertyControl,
 		PropertyControlName,
@@ -554,8 +555,8 @@ public:
 	static unsigned int GetControlPropCount(DWORD type);
 	static LPCTSTR GetControlTypeName(DWORD type);
 
-	void UpdatePropertiesPaintTool(void);
-	void CreatePropertiesPaintTool(void);
+	void UpdatePropertiesPaintTool(Actor* actor);
+	void CreatePropertiesPaintTool(Actor* actor);
 
 // Implementation
 public:
