@@ -1095,15 +1095,6 @@ void CMainFrame::RemoveEntity(my::OctEntity * entity)
 	OctNode::RemoveEntity(entity);
 }
 
-Component* CMainFrame::GetSelComponent(DWORD Type)
-{
-	if (!m_selactors.empty())
-	{
-		return m_selactors.front()->GetFirstComponent(Type);
-	}
-	return NULL;
-}
-
 void CMainFrame::OnDestroy()
 {
 	m_wndOutliner.OnDestroyItemList();
@@ -1828,7 +1819,7 @@ void CMainFrame::OnPaintTerrainHeightField()
 void CMainFrame::OnUpdatePaintTerrainHeightField(CCmdUI* pCmdUI)
 {
 	// TODO: Add your command update UI handler code here
-	if (GetSelComponent<Terrain>())
+	if (!m_selactors.empty() && m_selactors.front()->GetFirstComponent<Terrain>())
 	{
 		pCmdUI->Enable(TRUE);
 		pCmdUI->SetCheck(m_PaintType == PaintTypeTerrainHeightField);
@@ -1856,7 +1847,7 @@ void CMainFrame::OnPaintTerrainColor()
 void CMainFrame::OnUpdatePaintTerrainColor(CCmdUI* pCmdUI)
 {
 	// TODO: Add your command update UI handler code here
-	if (GetSelComponent<Terrain>())
+	if (!m_selactors.empty() && m_selactors.front()->GetFirstComponent<Terrain>())
 	{
 		pCmdUI->Enable(TRUE);
 		pCmdUI->SetCheck(m_PaintType == PaintTypeTerrainColor);
@@ -1884,7 +1875,7 @@ void CMainFrame::OnPaintEmitterinstance()
 void CMainFrame::OnUpdatePaintEmitterinstance(CCmdUI* pCmdUI)
 {
 	// TODO: Add your command update UI handler code here
-	if (GetSelComponent<Terrain>() && GetSelComponent<StaticEmitter>())
+	if (!m_selactors.empty() && m_selactors.front()->GetFirstComponent<Terrain>() && m_selactors.front()->GetFirstComponent<StaticEmitter>())
 	{
 		pCmdUI->Enable(TRUE);
 		pCmdUI->SetCheck(m_PaintType == PaintTypeEmitterInstance);
@@ -2615,7 +2606,7 @@ void CMainFrame::OnToolsTerraintoobj()
 		dlg.m_i1 = (dlg.m_i0 = m_selchunkid.x * dlg.m_terrain->m_ChunkSize) + dlg.m_terrain->m_ChunkSize;
 		dlg.m_j1 = (dlg.m_j0 = m_selchunkid.y * dlg.m_terrain->m_ChunkSize) + dlg.m_terrain->m_ChunkSize;
 	}
-	else if (dlg.m_terrain = m_selactors.front()->GetFirstComponent<Terrain>())
+	else if (!m_selactors.empty() && (dlg.m_terrain = m_selactors.front()->GetFirstComponent<Terrain>()))
 	{
 		dlg.m_i0 = 0;
 		dlg.m_j0 = 0;

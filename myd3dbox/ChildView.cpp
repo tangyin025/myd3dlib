@@ -1555,7 +1555,7 @@ void CChildView::OnPaint()
 						|| pFrame->m_PaintType == CMainFrame::PaintTypeTerrainColor
 						|| pFrame->m_PaintType == CMainFrame::PaintTypeEmitterInstance)
 					{
-						DrawTerrainHeightFieldHandle(pFrame->GetSelComponent<Terrain>());
+						DrawTerrainHeightFieldHandle(pFrame->m_selactors.front()->GetFirstComponent<Terrain>());
 					}
 					else if (pFrame->m_PaintType == CMainFrame::PaintTypeOffmeshConnections)
 					{
@@ -1686,7 +1686,7 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
 	my::Ray ray = m_Camera->CalculateRay(my::Vector2((float)point.x, (float)point.y), CSize(m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height));
-	Terrain* terrain = pFrame->GetSelComponent<Terrain>();
+	Terrain* terrain = !pFrame->m_selactors.empty() ? pFrame->m_selactors.front()->GetFirstComponent<Terrain>() : NULL;
 	if (terrain && pFrame->m_PaintType == CMainFrame::PaintTypeTerrainHeightField)
 	{
 		m_PaintTerrainCaptured.reset(new TerrainStream(terrain));
@@ -1705,7 +1705,7 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 		return;
 	}
 
-	StaticEmitter* emit = pFrame->GetSelComponent<StaticEmitter>();
+	StaticEmitter* emit = !pFrame->m_selactors.empty() ? pFrame->m_selactors.front()->GetFirstComponent<StaticEmitter>() : NULL;
 	if (terrain && emit && pFrame->m_PaintType == CMainFrame::PaintTypeEmitterInstance)
 	{
 		m_PaintTerrainCaptured.reset(new TerrainStream(terrain));
@@ -2554,19 +2554,19 @@ void CChildView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 		}
 		return;
 	case 'T':
-		if (pFrame->GetSelComponent<Terrain>() && pFrame->m_PaintType != CMainFrame::PaintTypeTerrainHeightField)
+		if (!pFrame->m_selactors.empty() && pFrame->m_selactors.front()->GetFirstComponent<Terrain>() && pFrame->m_PaintType != CMainFrame::PaintTypeTerrainHeightField)
 		{
 			pFrame->OnCmdMsg(ID_PAINT_TERRAINHEIGHTFIELD, 0, NULL, NULL);
 		}
 		return;
 	case 'Y':
-		if (pFrame->GetSelComponent<Terrain>() && pFrame->m_PaintType != CMainFrame::PaintTypeTerrainColor)
+		if (!pFrame->m_selactors.empty() && pFrame->m_selactors.front()->GetFirstComponent<Terrain>() && pFrame->m_PaintType != CMainFrame::PaintTypeTerrainColor)
 		{
 			pFrame->OnCmdMsg(ID_PAINT_TERRAINCOLOR, 0, NULL, NULL);
 		}
 		return;
 	case 'U':
-		if (pFrame->GetSelComponent<StaticEmitter>() && pFrame->m_PaintType != CMainFrame::PaintTypeEmitterInstance)
+		if (!pFrame->m_selactors.empty() && pFrame->m_selactors.front()->GetFirstComponent<StaticEmitter>() && pFrame->m_PaintType != CMainFrame::PaintTypeEmitterInstance)
 		{
 			pFrame->OnCmdMsg(ID_PAINT_EMITTERINSTANCE, 0, NULL, NULL);
 		}

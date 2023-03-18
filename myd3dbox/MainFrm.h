@@ -138,12 +138,6 @@ public:
 	bool ExecuteCode(const char * code);
 	void AddEntity(my::OctEntity * entity, const my::AABB & aabb, float minblock, float threshold);
 	void RemoveEntity(my::OctEntity * entity);
-	Component* GetSelComponent(DWORD Type);
-	template <typename ComponentType>
-	ComponentType* GetSelComponent(void)
-	{
-		return dynamic_cast<ComponentType*>(GetSelComponent(ComponentType::TypeID));
-	}
 
 // Implementation
 public:
