@@ -1,7 +1,7 @@
 #include "StaticEmitter.h"
 #include "Actor.h"
 #include "myResource.h"
-#include "RenderPipeline.h"
+#include "Material.h"
 #include "libc.h"
 #include <boost/archive/polymorphic_xml_iarchive.hpp>
 #include <boost/archive/polymorphic_xml_oarchive.hpp>
@@ -266,25 +266,28 @@ void StaticEmitter::AddToPipeline(const my::Frustum& frustum, RenderPipeline* pi
 		}
 	};
 
-	Frustum LocalFrustum = frustum.transform(m_Actor->m_World.transpose());
-	Vector3 LocalViewPos = TargetPos.transformCoord(m_Actor->m_World.inverse());
-	Callback cb(pipeline, PassMask, LocalViewPos, this);
-	QueryEntity(LocalFrustum, &cb);
-
-	if (PassMask & RenderPipeline::PassTypeToMask(RenderPipeline::PassTypeNormal))
+	if (m_Material && (m_Material->m_PassMask & PassMask))
 	{
-		const float LocalCullingDist = m_Actor->m_LodDist * powf(m_Actor->m_LodFactor, LastLod) * m_ChunkLodScale;
-		ChunkSet::iterator chunk_iter = cb.insert_chunk_iter;
-		for (; chunk_iter != m_ViewedChunks.end(); )
-		{
-			if ((chunk_iter->m_OctAabb->Center() - LocalViewPos).magnitudeSq() > LocalCullingDist * LocalCullingDist)
-			{
-				chunk_iter->ReleaseResource();
+		Frustum LocalFrustum = frustum.transform(m_Actor->m_World.transpose());
+		Vector3 LocalViewPos = TargetPos.transformCoord(m_Actor->m_World.inverse());
+		Callback cb(pipeline, PassMask, LocalViewPos, this);
+		QueryEntity(LocalFrustum, &cb);
 
-				chunk_iter = m_ViewedChunks.erase(chunk_iter);
+		if (PassMask & RenderPipeline::PassTypeToMask(RenderPipeline::PassTypeNormal))
+		{
+			const float LocalCullingDist = m_Actor->m_LodDist * powf(m_Actor->m_LodFactor, LastLod) * m_ChunkLodScale;
+			ChunkSet::iterator chunk_iter = cb.insert_chunk_iter;
+			for (; chunk_iter != m_ViewedChunks.end(); )
+			{
+				if ((chunk_iter->m_OctAabb->Center() - LocalViewPos).magnitudeSq() > LocalCullingDist * LocalCullingDist)
+				{
+					chunk_iter->ReleaseResource();
+
+					chunk_iter = m_ViewedChunks.erase(chunk_iter);
+				}
+				else
+					chunk_iter++;
 			}
-			else
-				chunk_iter++;
 		}
 	}
 }

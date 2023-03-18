@@ -1505,72 +1505,71 @@ void EmitterComponent::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * s
 
 void EmitterComponent::AddParticlePairToPipeline(RenderPipeline* pipeline, unsigned int PassMask, my::Emitter::Particle* particles1, unsigned int particle_num1, my::Emitter::Particle* particles2, unsigned int particle_num2)
 {
-	if (m_Material && (m_Material->m_PassMask & PassMask))
+	_ASSERT(m_Material && (m_Material->m_PassMask & PassMask));
+
+	for (unsigned int PassID = 0; PassID < RenderPipeline::PassTypeNum; PassID++)
 	{
-		for (unsigned int PassID = 0; PassID < RenderPipeline::PassTypeNum; PassID++)
+		if (RenderPipeline::PassTypeToMask(PassID) & (m_Material->m_PassMask & PassMask))
 		{
-			if (RenderPipeline::PassTypeToMask(PassID) & (m_Material->m_PassMask & PassMask))
+			D3DXMACRO macro[3] = { {0} };
+			macro[0].Name = "EMITTER_FACE_TYPE";
+			switch (m_EmitterFaceType)
 			{
-				D3DXMACRO macro[3] = { {0} };
-				macro[0].Name = "EMITTER_FACE_TYPE";
-				switch (m_EmitterFaceType)
+			default:
+				macro[0].Definition = "0";
+				break;
+			case FaceTypeY:
+				macro[0].Definition = "1";
+				break;
+			case FaceTypeZ:
+				macro[0].Definition = "2";
+				break;
+			case FaceTypeCamera:
+				macro[0].Definition = "3";
+				break;
+			case FaceTypeAngle:
+				macro[0].Definition = "4";
+				break;
+			case FaceTypeAngleCamera:
+				macro[0].Definition = "5";
+				break;
+			}
+			macro[1].Name = "EMITTER_VEL_TYPE";
+			switch (m_EmitterVelType)
+			{
+			default:
+				macro[1].Definition = "0";
+				break;
+			case VelocityTypeVel:
+				macro[1].Definition = "1";
+				break;
+			}
+			my::Effect* shader = pipeline->QueryShader(RenderPipeline::MeshTypeParticle, macro, m_Material->m_Shader.c_str(), PassID);
+			if (shader)
+			{
+				if (!handle_World)
 				{
-				default:
-					macro[0].Definition = "0";
-					break;
-				case FaceTypeY:
-					macro[0].Definition = "1";
-					break;
-				case FaceTypeZ:
-					macro[0].Definition = "2";
-					break;
-				case FaceTypeCamera:
-					macro[0].Definition = "3";
-					break;
-				case FaceTypeAngle:
-					macro[0].Definition = "4";
-					break;
-				case FaceTypeAngleCamera:
-					macro[0].Definition = "5";
-					break;
+					BOOST_VERIFY(handle_World = shader->GetParameterByName(NULL, "g_World"));
 				}
-				macro[1].Name = "EMITTER_VEL_TYPE";
-				switch (m_EmitterVelType)
+
+				if (particle_num1 > 0)
 				{
-				default:
-					macro[1].Definition = "0";
-					break;
-				case VelocityTypeVel:
-					macro[1].Definition = "1";
-					break;
+					pipeline->PushEmitter(PassID, pipeline->m_ParticleVb.m_ptr, pipeline->m_ParticleIb.m_ptr,
+						RenderPipeline::m_ParticlePrimitiveInfo[m_EmitterPrimitiveType][RenderPipeline::ParticlePrimitiveMinVertexIndex],
+						RenderPipeline::m_ParticlePrimitiveInfo[m_EmitterPrimitiveType][RenderPipeline::ParticlePrimitiveNumVertices],
+						RenderPipeline::m_ParticlePrimitiveInfo[m_EmitterPrimitiveType][RenderPipeline::ParticlePrimitiveStartIndex],
+						RenderPipeline::m_ParticlePrimitiveInfo[m_EmitterPrimitiveType][RenderPipeline::ParticlePrimitivePrimitiveCount],
+						particles1, particle_num1, shader, this, m_Material.get(), 0);
 				}
-				my::Effect * shader = pipeline->QueryShader(RenderPipeline::MeshTypeParticle, macro, m_Material->m_Shader.c_str(), PassID);
-				if (shader)
+
+				if (particle_num2 > 0)
 				{
-					if (!handle_World)
-					{
-						BOOST_VERIFY(handle_World = shader->GetParameterByName(NULL, "g_World"));
-					}
-
-					if (particle_num1 > 0)
-					{
-						pipeline->PushEmitter(PassID, pipeline->m_ParticleVb.m_ptr, pipeline->m_ParticleIb.m_ptr,
-							RenderPipeline::m_ParticlePrimitiveInfo[m_EmitterPrimitiveType][RenderPipeline::ParticlePrimitiveMinVertexIndex],
-							RenderPipeline::m_ParticlePrimitiveInfo[m_EmitterPrimitiveType][RenderPipeline::ParticlePrimitiveNumVertices],
-							RenderPipeline::m_ParticlePrimitiveInfo[m_EmitterPrimitiveType][RenderPipeline::ParticlePrimitiveStartIndex],
-							RenderPipeline::m_ParticlePrimitiveInfo[m_EmitterPrimitiveType][RenderPipeline::ParticlePrimitivePrimitiveCount],
-							particles1, particle_num1, shader, this, m_Material.get(), 0);
-					}
-
-					if (particle_num2 > 0)
-					{
-						pipeline->PushEmitter(PassID, pipeline->m_ParticleVb.m_ptr, pipeline->m_ParticleIb.m_ptr,
-							RenderPipeline::m_ParticlePrimitiveInfo[m_EmitterPrimitiveType][RenderPipeline::ParticlePrimitiveMinVertexIndex],
-							RenderPipeline::m_ParticlePrimitiveInfo[m_EmitterPrimitiveType][RenderPipeline::ParticlePrimitiveNumVertices],
-							RenderPipeline::m_ParticlePrimitiveInfo[m_EmitterPrimitiveType][RenderPipeline::ParticlePrimitiveStartIndex],
-							RenderPipeline::m_ParticlePrimitiveInfo[m_EmitterPrimitiveType][RenderPipeline::ParticlePrimitivePrimitiveCount],
-							particles2, particle_num2, shader, this, m_Material.get(), 0);
-					}
+					pipeline->PushEmitter(PassID, pipeline->m_ParticleVb.m_ptr, pipeline->m_ParticleIb.m_ptr,
+						RenderPipeline::m_ParticlePrimitiveInfo[m_EmitterPrimitiveType][RenderPipeline::ParticlePrimitiveMinVertexIndex],
+						RenderPipeline::m_ParticlePrimitiveInfo[m_EmitterPrimitiveType][RenderPipeline::ParticlePrimitiveNumVertices],
+						RenderPipeline::m_ParticlePrimitiveInfo[m_EmitterPrimitiveType][RenderPipeline::ParticlePrimitiveStartIndex],
+						RenderPipeline::m_ParticlePrimitiveInfo[m_EmitterPrimitiveType][RenderPipeline::ParticlePrimitivePrimitiveCount],
+						particles2, particle_num2, shader, this, m_Material.get(), 0);
 				}
 			}
 		}
@@ -1579,11 +1578,14 @@ void EmitterComponent::AddParticlePairToPipeline(RenderPipeline* pipeline, unsig
 
 void CircularEmitter::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos, const my::Vector3 & TargetPos)
 {
-	ParticleList::array_range array_one = m_ParticleList.array_one();
+	if (m_Material && (m_Material->m_PassMask & PassMask))
+	{
+		ParticleList::array_range array_one = m_ParticleList.array_one();
 
-	ParticleList::array_range array_two = m_ParticleList.array_two();
+		ParticleList::array_range array_two = m_ParticleList.array_two();
 
-	AddParticlePairToPipeline(pipeline, PassMask, array_one.first, array_one.second, array_two.first, array_two.second);
+		AddParticlePairToPipeline(pipeline, PassMask, array_one.first, array_one.second, array_two.first, array_two.second);
+	}
 }
 
 template<class Archive>
