@@ -162,6 +162,85 @@ static boost::iterator_range<shared_obj_list_iter> d3dcontext_get_named_object_l
 	return boost::make_iterator_range(shared_obj_list_iter(objs->begin(), objs), shared_obj_list_iter(objs->end(), objs));
 }
 
+class StaticEmitterParticleIterator : public std::iterator<std::forward_iterator_tag, my::Emitter::Particle>
+{
+protected:
+	boost::shared_ptr<StaticEmitterStream> emit_str;
+	StaticEmitter::ChunkMap::iterator chunk_iter;
+	StaticEmitterChunkBuffer::iterator particle_iter;
+
+public:
+	explicit StaticEmitterParticleIterator(
+		boost::shared_ptr<StaticEmitterStream> _emit_str,
+		StaticEmitter::ChunkMap::iterator _chunk_iter)
+		: emit_str(_emit_str)
+		, chunk_iter(_chunk_iter)
+	{
+		if (chunk_iter != emit_str->m_emit->m_Chunks.end())
+		{
+			particle_iter = emit_str->GetBuffer(chunk_iter->first.first, chunk_iter->first.second)->begin();
+		}
+	}
+	// Assignment operator
+	StaticEmitterParticleIterator& operator=(const StaticEmitterParticleIterator& src)
+	{
+		emit_str = src.emit_str;
+		chunk_iter = src.chunk_iter;
+		particle_iter = src.particle_iter;
+	}
+	// Dereference an iterator
+	my::Emitter::Particle& operator*()
+	{
+		// When the value is one step more than the last, it's an end iterator
+		if (chunk_iter == emit_str->m_emit->m_Chunks.end() || particle_iter == emit_str->GetBuffer(chunk_iter->first.first, chunk_iter->first.second)->end())
+		{
+			throw std::logic_error("Cannot dereference an end iterator.");
+		}
+		return *particle_iter;
+	}
+	// Prefix increment operator
+	StaticEmitterParticleIterator& operator++()
+	{
+		// When the value is one step more than the last, it's an end iterator
+		if (chunk_iter == emit_str->m_emit->m_Chunks.end() || particle_iter == emit_str->GetBuffer(chunk_iter->first.first, chunk_iter->first.second)->end())
+		{
+			throw std::logic_error("Cannot dereference an end iterator.");
+		}
+		particle_iter++;
+		if (particle_iter == emit_str->GetBuffer(chunk_iter->first.first, chunk_iter->first.second)->end())
+		{
+			chunk_iter++;
+			if (chunk_iter != emit_str->m_emit->m_Chunks.end())
+			{
+				particle_iter = emit_str->GetBuffer(chunk_iter->first.first, chunk_iter->first.second)->begin();
+			}
+		}
+		return *this;
+	}
+	// Postfix increment operator
+	StaticEmitterParticleIterator operator++(int)
+	{
+		StaticEmitterParticleIterator temp = *this;
+		temp++;                                      // Increment the value by the range step
+		return temp;                                 // The iterator before it's incremented
+	}
+	// Comparisons
+	bool operator==(const StaticEmitterParticleIterator& iter) const
+	{
+		return chunk_iter == iter.chunk_iter && (chunk_iter == emit_str->m_emit->m_Chunks.end() || particle_iter == iter.particle_iter);
+	}
+	bool operator!=(const StaticEmitterParticleIterator& iter) const
+	{
+		return chunk_iter != iter.chunk_iter || (chunk_iter != emit_str->m_emit->m_Chunks.end() && particle_iter != iter.particle_iter);
+	}
+};
+
+static boost::iterator_range<StaticEmitterParticleIterator> static_emitter_get_particle_list(StaticEmitter* self)
+{
+	boost::shared_ptr<StaticEmitterStream> emit_str(new StaticEmitterStream(self));
+	return boost::make_iterator_range(StaticEmitterParticleIterator(emit_str, self->m_Chunks.begin()), StaticEmitterParticleIterator(emit_str, self->m_Chunks.end()));
+}
+
 static my::Bone animator_get_bone(Animator* self, int i)
 {
 	return self->anim_pose_hier[i];
@@ -2478,6 +2557,7 @@ void LuaContext::Init(void)
 			.def_readwrite("ChunkPath", &StaticEmitter::m_ChunkPath)
 			.def_readwrite("ChunkLodScale", &StaticEmitter::m_ChunkLodScale)
 			.def_readwrite("ChunkCullingHole", &StaticEmitter::m_ChunkCullingHole)
+			.property("ParticleList", &static_emitter_get_particle_list, return_stl_iterator + dependency(result, boost::placeholders::_1))
 
 		, class_<StaticEmitterStream>("StaticEmitterStream")
 			.def(constructor<StaticEmitter *>())
