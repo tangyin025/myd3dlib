@@ -85,7 +85,7 @@ public:
 	float length;				//!< Motion length
 	unsigned int flag;
 
-	ControllerEventArg::ControllerEventArg(Actor* _self, Component* _self_cmp)
+	ControllerEventArg(Actor* _self, Component* _self_cmp)
 		: ActorEventArg(_self, _self_cmp)
 		, worldPos(0, 0, 0)
 		, worldNormal(1, 0, 0)
@@ -103,7 +103,7 @@ public:
 	Component* other_cmp;		//!< Touched shape
 	unsigned int triangleIndex;	//!< touched triangle index (only for meshes/heightfields)
 
-	ShapeHitEventArg::ShapeHitEventArg(Actor* _self, Component* _self_cmp, Actor* _other, Component* _other_cmp)
+	ShapeHitEventArg(Actor* _self, Component* _self_cmp, Actor* _other, Component* _other_cmp)
 		: ControllerEventArg(_self, _self_cmp)
 		, other(_other)
 		, other_cmp(_other_cmp)
@@ -118,7 +118,7 @@ public:
 	Actor* other;				//!< Touched actor
 	Component* other_cmp;		//!< Touched shape
 
-	ControllerHitEventArg::ControllerHitEventArg(Actor* _self, Component* _self_cmp, Actor* _other, Component* _other_cmp)
+	ControllerHitEventArg(Actor* _self, Component* _self_cmp, Actor* _other, Component* _other_cmp)
 		: ControllerEventArg(_self, _self_cmp)
 		, other(_other)
 		, other_cmp(_other_cmp)
@@ -129,7 +129,7 @@ public:
 struct ObstacleHitEventArg : public ControllerEventArg
 {
 public:
-	ObstacleHitEventArg::ObstacleHitEventArg(Actor* _self, Component* _self_cmp)
+	ObstacleHitEventArg(Actor* _self, Component* _self_cmp)
 		: ControllerEventArg(_self, _self_cmp)
 	{
 	}
