@@ -260,7 +260,7 @@ void StaticEmitter::AddToPipeline(const my::Frustum& frustum, RenderPipeline* pi
 
 			if (chunk->m_Lod >= 0 && chunk->m_buff)
 			{
-				emit_cmp->AddParticlePairToPipeline(pipeline, PassMask, &(*chunk->m_buff)[0], chunk->m_buff->size() >> chunk->m_Lod, NULL, 0);
+				emit_cmp->AddParticlePairToPipeline(pipeline, PassMask, chunk->m_buff->data(), chunk->m_buff->size() >> chunk->m_Lod, NULL, 0);
 			}
 			return true;
 		}
@@ -308,6 +308,24 @@ void StaticEmitterStream::Flush(void)
 
 			std::string path = StaticEmitterChunk::MakeChunkPath(m_emit->m_ChunkPath, dirty_iter->first.first, dirty_iter->first.second);
 			std::string FullPath = my::ResourceMgr::getSingleton().GetFullPath(path.c_str());
+			if (buff->empty())
+			{
+				if (chunk_iter->second.is_linked())
+				{
+					StaticEmitter::ChunkSet::iterator viewed_chunk_iter = m_emit->m_ViewedChunks.iterator_to(chunk_iter->second);
+					_ASSERT(viewed_chunk_iter != m_emit->m_ViewedChunks.end());
+					viewed_chunk_iter->ReleaseResource();
+					m_emit->m_ViewedChunks.erase(viewed_chunk_iter);
+				}
+
+				BOOST_VERIFY(!my::ResourceMgr::getSingleton().CheckPath(FullPath.c_str()) || 0 == _unlink(FullPath.c_str()));
+				m_emit->RemoveEntity(&chunk_iter->second);
+				m_emit->m_Chunks.erase(chunk_iter);
+
+				dirty_iter->second = false;
+				continue;
+			}
+
 			std::ofstream ofs(FullPath, std::ios::binary, _SH_DENYRW);
 			_ASSERT(ofs.is_open());
 
@@ -327,6 +345,7 @@ void StaticEmitterStream::Flush(void)
 			dirty_iter->second = false;
 		}
 	}
+	my::ResourceMgr::getSingleton().CheckIORequests(0);
 }
 
 StaticEmitterChunkBuffer * StaticEmitterStream::GetBuffer(int i, int j)
@@ -461,4 +480,47 @@ my::Emitter::Particle * StaticEmitterStream::GetFirstNearParticle2D(const my::Ve
 	Callback cb(*this, Center, Range);
 	m_emit->QueryEntity(AABB(Center.x - Range, m_emit->m_min.y, Center.z - Range, Center.x + Range, m_emit->m_max.y, Center.z + Range), &cb);
 	return cb.near_particle;
+}
+
+void StaticEmitterStream::EraseParticles(const my::Vector3& Center, float Range)
+{
+	struct Callback : public my::OctNode::QueryCallback
+	{
+		StaticEmitterStream& estr;
+		const Vector3& Center;
+		const float RangeSq;
+		my::Emitter::Particle* near_particle;
+		Callback(StaticEmitterStream& _estr, const Vector3& _Center, float _range)
+			: estr(_estr)
+			, Center(_Center)
+			, RangeSq(_range* _range)
+			, near_particle(NULL)
+		{
+		}
+		virtual bool OnQueryEntity(my::OctEntity* oct_entity, const my::AABB& aabb, my::IntersectionTests::IntersectionType)
+		{
+			StaticEmitterChunk* chunk = dynamic_cast<StaticEmitterChunk*>(oct_entity);
+			StaticEmitterChunkBuffer* buff = estr.GetBuffer(chunk->m_Row, chunk->m_Col);
+			_ASSERT(buff);
+			StaticEmitterChunkBuffer::iterator part_iter = buff->begin();
+			for (; part_iter != buff->end(); )
+			{
+				float DistSq = (part_iter->m_Position.xyz - Center).magnitudeSq2D();
+				if (DistSq < RangeSq)
+				{
+					part_iter = buff->erase(part_iter);
+
+					estr.m_dirty[std::make_pair(chunk->m_Row, chunk->m_Col)] = true;
+				}
+				else
+				{
+					part_iter++;
+				}
+			}
+			return true;
+		}
+	};
+
+	Callback cb(*this, Center, Range);
+	m_emit->QueryEntity(AABB(Center.x - Range, m_emit->m_min.y, Center.z - Range, Center.x + Range, m_emit->m_max.y, Center.z + Range), &cb);
 }

@@ -94,7 +94,6 @@ void CTerrainDlg::OnOK()
 		}
 
 		std::string FullPath = theApp.GetFullPath(ts2ms((LPCTSTR)m_AssetPath).c_str()) + "_*";
-		FullPath.append(2, '\0');
 		SHFILEOPSTRUCTA shfo;
 		ZeroMemory(&shfo, sizeof(shfo));
 		shfo.hwnd = AfxGetMainWnd()->m_hWnd;

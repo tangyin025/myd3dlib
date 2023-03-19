@@ -140,7 +140,7 @@ public:
 	afx_msg void OnUpdateShowNavigation(CCmdUI *pCmdUI);
 	void OnPaintTerrainHeightField(const my::Ray& ray, TerrainStream & tstr);
 	void OnPaintTerrainColor(const my::Ray& ray, TerrainStream& tstr);
-	void OnPaintEmitterInstance(const my::Ray& ray, TerrainStream& tstr, StaticEmitterStream& estr);
+	void OnPaintEmitterInstance(const my::Ray& ray, TerrainStream& tstr, StaticEmitterStream& estr, UINT nFlags);
 	afx_msg void OnRendertargetNormal();
 	afx_msg void OnUpdateRendertargetNormal(CCmdUI* pCmdUI);
 	afx_msg void OnRendertargetPosition();

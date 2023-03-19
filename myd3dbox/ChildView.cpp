@@ -1722,7 +1722,7 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 	{
 		m_PaintTerrainCaptured.reset(new TerrainStream(terrain));
 		m_PaintEmitterCaptured.reset(new StaticEmitterStream(emit));
-		OnPaintEmitterInstance(ray, *m_PaintTerrainCaptured, *m_PaintEmitterCaptured);
+		OnPaintEmitterInstance(ray, *m_PaintTerrainCaptured, *m_PaintEmitterCaptured, nFlags);
 		SetCapture();
 		Invalidate();
 		return;
@@ -2312,7 +2312,7 @@ void CChildView::OnMouseMove(UINT nFlags, CPoint point)
 	if (m_PaintTerrainCaptured && m_PaintEmitterCaptured && pFrame->m_PaintType == CMainFrame::PaintTypeEmitterInstance)
 	{
 		my::Ray ray = m_Camera->CalculateRay(my::Vector2((float)point.x, (float)point.y), CSize(m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height));
-		OnPaintEmitterInstance(ray, *m_PaintTerrainCaptured, *m_PaintEmitterCaptured);
+		OnPaintEmitterInstance(ray, *m_PaintTerrainCaptured, *m_PaintEmitterCaptured, nFlags);
 		Invalidate();
 		UpdateWindow();
 		return;
@@ -2893,7 +2893,7 @@ void CChildView::OnPaintTerrainColor(const my::Ray& ray, TerrainStream& tstr)
 	}
 }
 
-void CChildView::OnPaintEmitterInstance(const my::Ray& ray, TerrainStream& tstr, StaticEmitterStream& estr)
+void CChildView::OnPaintEmitterInstance(const my::Ray& ray, TerrainStream& tstr, StaticEmitterStream& estr, UINT nFlags)
 {
 	// TODO: Add your implementation code here.
 	CMainFrame* pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
@@ -2907,43 +2907,50 @@ void CChildView::OnPaintEmitterInstance(const my::Ray& ray, TerrainStream& tstr,
 	if (res.first)
 	{
 		float LocalPaintRadius = pFrame->m_PaintRadius / tstr.m_terrain->m_Actor->m_Scale.x;
-		float LocalPaintParticleMinDist = pFrame->m_PaintParticleMinDist / tstr.m_terrain->m_Actor->m_Scale.x;
 		my::Vector3 pt = local_ray.p + local_ray.d * res.second;
-		if (LocalPaintParticleMinDist <= 0)
+		if (nFlags & MK_CONTROL)
 		{
-			estr.Spawn(my::Vector4(pt.x, tstr.RayTest2D(pt.x, pt.z), pt.z, 1.0f), my::Vector4(0, 0, 0, 1), (my::Vector4&)pFrame->m_PaintColor, my::Vector2(1, 1), 0.0f, 0.0f);
-			return;
-		}
-
-		std::list<my::Vector2> candidate;
-		my::Emitter::Particle* particle = estr.GetFirstNearParticle2D(pt, LocalPaintParticleMinDist);
-		if (!particle)
-		{
-			estr.Spawn(my::Vector4(pt.x, tstr.RayTest2D(pt.x, pt.z), pt.z, 1.0f), my::Vector4(0, 0, 0, 1), (my::Vector4&)pFrame->m_PaintColor, my::Vector2(1, 1), 0.0f, 0.0f);
-			candidate.push_back(my::Vector2(pt.x, pt.z));
+			estr.EraseParticles(pt, LocalPaintRadius);
 		}
 		else
 		{
-			candidate.push_back(my::Vector2(particle->m_Position.x, particle->m_Position.z));
-		}
-
-		for (; !candidate.empty(); candidate.pop_front())
-		{
-			const my::Vector2& pos = candidate.front();
-			for (int i = 0; i < 30; i++)
+			float LocalPaintParticleMinDist = pFrame->m_PaintParticleMinDist / tstr.m_terrain->m_Actor->m_Scale.x;
+			if (LocalPaintParticleMinDist <= 0)
 			{
-				my::Vector2 rand_pos = pos + my::Vector2::RandomUnit() * my::Random(1.0f, 2.0f) * LocalPaintParticleMinDist;
-				if (rand_pos.x >= estr.m_emit->m_min.x && rand_pos.x < estr.m_emit->m_max.x
-					&& rand_pos.y >= estr.m_emit->m_min.z && rand_pos.y < estr.m_emit->m_max.z
-					&& (rand_pos - my::Vector2(pt.x, pt.z)).magnitudeSq() < LocalPaintRadius * LocalPaintRadius)
+				estr.Spawn(my::Vector4(pt.x, tstr.RayTest2D(pt.x, pt.z), pt.z, 1.0f), my::Vector4(0, 0, 0, 1), (my::Vector4&)pFrame->m_PaintColor, my::Vector2(1, 1), 0.0f, 0.0f);
+				return;
+			}
+
+			std::list<my::Vector2> candidate;
+			my::Emitter::Particle* particle = estr.GetFirstNearParticle2D(pt, LocalPaintParticleMinDist);
+			if (!particle)
+			{
+				estr.Spawn(my::Vector4(pt.x, tstr.RayTest2D(pt.x, pt.z), pt.z, 1.0f), my::Vector4(0, 0, 0, 1), (my::Vector4&)pFrame->m_PaintColor, my::Vector2(1, 1), 0.0f, 0.0f);
+				candidate.push_back(my::Vector2(pt.x, pt.z));
+			}
+			else
+			{
+				candidate.push_back(my::Vector2(particle->m_Position.x, particle->m_Position.z));
+			}
+
+			for (; !candidate.empty(); candidate.pop_front())
+			{
+				const my::Vector2& pos = candidate.front();
+				for (int i = 0; i < 30; i++)
 				{
-					if (!estr.GetFirstNearParticle2D(my::Vector3(rand_pos.x, 0, rand_pos.y), LocalPaintParticleMinDist))
+					my::Vector2 rand_pos = pos + my::Vector2::RandomUnit() * my::Random(1.0f, 2.0f) * LocalPaintParticleMinDist;
+					if (rand_pos.x >= estr.m_emit->m_min.x && rand_pos.x < estr.m_emit->m_max.x
+						&& rand_pos.y >= estr.m_emit->m_min.z && rand_pos.y < estr.m_emit->m_max.z
+						&& (rand_pos - my::Vector2(pt.x, pt.z)).magnitudeSq() < LocalPaintRadius * LocalPaintRadius)
 					{
-						my::Vector3 emit_pos(rand_pos, tstr.RayTest2D(rand_pos.x, rand_pos.y));
-						if (estr.m_emit->Intersect(emit_pos))
+						if (!estr.GetFirstNearParticle2D(my::Vector3(rand_pos.x, 0, rand_pos.y), LocalPaintParticleMinDist))
 						{
-							estr.Spawn(my::Vector4(emit_pos, 1.0f), my::Vector4(0, 0, 0, 1), (my::Vector4&)pFrame->m_PaintColor, my::Vector2(1, 1), 0.0f, 0.0f);
-							candidate.push_back(rand_pos);
+							my::Vector3 emit_pos(rand_pos, tstr.RayTest2D(rand_pos.x, rand_pos.y));
+							if (estr.m_emit->Intersect(emit_pos))
+							{
+								estr.Spawn(my::Vector4(emit_pos, 1.0f), my::Vector4(0, 0, 0, 1), (my::Vector4&)pFrame->m_PaintColor, my::Vector2(1, 1), 0.0f, 0.0f);
+								candidate.push_back(rand_pos);
+							}
 						}
 					}
 				}

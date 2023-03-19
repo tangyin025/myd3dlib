@@ -174,6 +174,8 @@ public:
 
 	my::Emitter::Particle * GetFirstNearParticle2D(const my::Vector3 & Center, float Range);
 
+	void EraseParticles(const my::Vector3 & Center, float Range);
+
 	StaticEmitterStream(StaticEmitter* emit)
 		: m_emit(emit)
 	{
