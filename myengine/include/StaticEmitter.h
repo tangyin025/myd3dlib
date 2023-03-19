@@ -6,6 +6,7 @@
 class StaticEmitterChunkBuffer
 	: public my::DeviceResourceBase
 	, public std::vector<my::Emitter::Particle>
+	, public boost::enable_shared_from_this<StaticEmitterChunkBuffer>
 {
 public:
 	StaticEmitterChunkBuffer(void)

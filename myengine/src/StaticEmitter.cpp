@@ -310,6 +310,7 @@ void StaticEmitterStream::Flush(void)
 			std::string FullPath = my::ResourceMgr::getSingleton().GetFullPath(path.c_str());
 			if (buff->empty())
 			{
+				StaticEmitterChunkBufferPtr dummy = buff->shared_from_this();
 				if (chunk_iter->second.is_linked())
 				{
 					StaticEmitter::ChunkSet::iterator viewed_chunk_iter = m_emit->m_ViewedChunks.iterator_to(chunk_iter->second);
@@ -320,8 +321,10 @@ void StaticEmitterStream::Flush(void)
 
 				BOOST_VERIFY(!my::ResourceMgr::getSingleton().CheckPath(FullPath.c_str()) || 0 == _unlink(FullPath.c_str()));
 				m_emit->RemoveEntity(&chunk_iter->second);
+				m_buffs.erase(chunk_iter->first);
 				m_emit->m_Chunks.erase(chunk_iter);
 
+				_ASSERT(dummy.use_count() == 2);
 				dirty_iter->second = false;
 				continue;
 			}
@@ -345,6 +348,8 @@ void StaticEmitterStream::Flush(void)
 			dirty_iter->second = false;
 		}
 	}
+
+	// ! StaticEmitterStream::Spawn, AddResource
 	my::ResourceMgr::getSingleton().CheckIORequests(0);
 }
 
