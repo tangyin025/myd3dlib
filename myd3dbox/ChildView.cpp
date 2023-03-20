@@ -2280,6 +2280,12 @@ void CChildView::OnLButtonDblClk(UINT nFlags, CPoint point)
 		return;
 	}
 
+	if (!pFrame->m_selactors.empty())
+	{
+		OnKeyDown('F', 1, 33);
+		return;
+	}
+
 	__super::OnLButtonDblClk(nFlags, point);
 }
 
