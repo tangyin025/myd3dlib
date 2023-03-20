@@ -2282,7 +2282,7 @@ void CChildView::OnLButtonDblClk(UINT nFlags, CPoint point)
 
 	if (!pFrame->m_selactors.empty())
 	{
-		OnKeyDown('F', 1, 33);
+		SendMessage(WM_KEYDOWN, 'F', MAKEWORD(1, 0));
 		return;
 	}
 
