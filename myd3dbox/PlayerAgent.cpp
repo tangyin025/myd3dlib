@@ -90,8 +90,9 @@ void PlayerAgent::RequestResource(void)
 {
 	Component::RequestResource();
 
-	PhysxScene* scene = dynamic_cast<PhysxScene*>(m_Actor->m_Node->GetTopNode());
-	scene->m_EventPxThreadSubstep.connect(boost::bind(&PlayerAgent::OnPxThreadSubstep, this, boost::placeholders::_1));
+	CMainFrame* pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
+	ASSERT_VALID(pFrame);
+	pFrame->m_EventPxThreadSubstep.connect(boost::bind(&PlayerAgent::OnPxThreadSubstep, this, boost::placeholders::_1));
 
 	m_Actor->m_EventPxThreadShapeHit.connect(boost::bind(&PlayerAgent::OnPxThreadShapeHit, this, boost::placeholders::_1));
 
@@ -132,8 +133,9 @@ void PlayerAgent::ReleaseResource(void)
 {
 	Component::ReleaseResource();
 
-	PhysxScene* scene = dynamic_cast<PhysxScene*>(m_Actor->m_Node->GetTopNode());
-	scene->m_EventPxThreadSubstep.disconnect(boost::bind(&PlayerAgent::OnPxThreadSubstep, this, boost::placeholders::_1));
+	CMainFrame* pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
+	ASSERT_VALID(pFrame);
+	pFrame->m_EventPxThreadSubstep.disconnect(boost::bind(&PlayerAgent::OnPxThreadSubstep, this, boost::placeholders::_1));
 
 	m_Actor->m_EventPxThreadShapeHit.disconnect(boost::bind(&PlayerAgent::OnPxThreadShapeHit, this, boost::placeholders::_1));
 
@@ -241,8 +243,21 @@ void PlayerAgent::Update(float fElapsedTime)
 		m_MoveDir = Vector3(0, 0, 0);
 	}
 
-	model_view_camera->m_LookAt = m_Actor->m_World.getRow<3>().xyz + Vector3(0, 0.85, 0);
-	model_view_camera->m_Distance = Lerp(model_view_camera->m_Distance, theApp.default_player_look_distance, 1.0 - pow(0.5f, 30 * fElapsedTime));
+	model_view_camera->m_LookAt = m_Actor->m_World.getRow<3>().xyz + Vector3(0, 0.85f, 0);
+	physx::PxSweepBuffer hit;
+	physx::PxSphereGeometry sphere(0.1f);
+	physx::PxQueryFilterData filterData = physx::PxQueryFilterData(
+		physx::PxFilterData(theApp.default_physx_shape_filterword0 | theApp.default_player_water_filterword0, 0, 0, 0), physx::PxQueryFlag::eDYNAMIC | physx::PxQueryFlag::eSTATIC);
+	bool status = pFrame->m_PxScene->sweep(sphere, physx::PxTransform((physx::PxVec3&)model_view_camera->m_LookAt),
+		(physx::PxVec3&)model_view_camera->m_View.getColumn<2>().xyz, theApp.default_player_look_distance, hit, physx::PxHitFlag::eDEFAULT, filterData);
+	if (status && hit.block.distance > 0)
+	{
+		model_view_camera->m_Distance = hit.block.distance;
+	}
+	else
+	{
+		model_view_camera->m_Distance = Lerp(model_view_camera->m_Distance, theApp.default_player_look_distance, 1.0 - pow(0.5f, 30 * fElapsedTime));
+	}
 	model_view_camera->UpdateViewProj();
 
 	if (theApp.m_keyboard->IsKeyPress(KeyCode::KC_SPACE))
@@ -310,11 +325,13 @@ void PlayerAgent::OnPxThreadSubstep(float dtime)
 		m_Suspending -= dtime;
 	}
 
-	PhysxScene* scene = dynamic_cast<PhysxScene*>(m_Actor->m_Node->GetTopNode());
+	CMainFrame* pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
+	ASSERT_VALID(pFrame);
+
 	physx::PxRaycastBuffer hit;
 	physx::PxQueryFilterData filterData = physx::PxQueryFilterData(physx::PxFilterData(theApp.default_player_water_filterword0, 0, 0, 0),
 		physx::PxQueryFlag::eDYNAMIC | physx::PxQueryFlag::eSTATIC /*| physx::PxQueryFlag::ePREFILTER*/ | physx::PxQueryFlag::eANY_HIT);
-	if (scene->m_PxScene->raycast((physx::PxVec3&)(m_Controller->GetPosition() + Vector3(0, 1000, 0)),
+	if (pFrame->m_PxScene->raycast((physx::PxVec3&)(m_Controller->GetPosition() + Vector3(0, 1000, 0)),
 		physx::PxVec3(0, -1, 0), 1000, hit, physx::PxHitFlag::eDISTANCE, filterData, NULL, NULL))
 	{
 		m_Submergence = my::Clamp((1000 - hit.block.distance) / theApp.default_player_swim_depth, 0.0f, 1.0f);
