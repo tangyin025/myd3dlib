@@ -20,7 +20,14 @@ CSnapshotDlg::CSnapshotDlg(CWnd* pParent /*=nullptr*/)
 	, m_TexHeight(theApp.GetProfileInt(_T("Settings"), _T("SnapshotHeight"), 1024))
 	, m_SnapArea(-4096, -4096, 4096, 4096)
 {
-
+	my::Rectangle* pData;
+	UINT n;
+	if (theApp.GetProfileBinary(_T("Settings"), _T("SnapshotArea"), (LPBYTE*)&pData, &n))
+	{
+		ASSERT(n == sizeof(*pData));
+		m_SnapArea = *pData;
+		delete[] pData; // free the buffer
+	}
 }
 
 CSnapshotDlg::~CSnapshotDlg()
@@ -45,6 +52,7 @@ void CSnapshotDlg::DoDataExchange(CDataExchange* pDX)
 		theApp.WriteProfileString(_T("Settings"), _T("SnapshotPath"), m_TexPath);
 		theApp.WriteProfileInt(_T("Settings"), _T("SnapshotWidth"), m_TexWidth);
 		theApp.WriteProfileInt(_T("Settings"), _T("SnapshotHeight"), m_TexHeight);
+		theApp.WriteProfileBinary(_T("Settings"), _T("SnapshotArea"), (LPBYTE)&m_SnapArea, sizeof(m_SnapArea));
 	}
 }
 
