@@ -18,7 +18,7 @@ CSnapshotDlg::CSnapshotDlg(CWnd* pParent /*=nullptr*/)
 	, m_TexPath(theApp.GetProfileString(_T("Settings"), _T("SnapshotPath"), _T("aaa.png")))
 	, m_TexWidth(theApp.GetProfileInt(_T("Settings"), _T("SnapshotWidth"), 1024))
 	, m_TexHeight(theApp.GetProfileInt(_T("Settings"), _T("SnapshotHeight"), 1024))
-	, m_SnapArea(-4096, -4096, 4096, 4096)
+	, m_SnapArea(-4096 + 4, -4096 - 4, 4096 + 4, 4096 - 4)
 {
 	my::Rectangle* pData;
 	UINT n;
