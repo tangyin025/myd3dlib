@@ -694,6 +694,7 @@ void CPropertiesWnd::UpdatePropertiesSpline(CMFCPropertyGridProperty * pSpline, 
 		if ((unsigned int)pSpline->GetSubItemsCount() <= i + 1)
 		{
 			CreatePropertiesSplineNode(pSpline, i, &(*spline)[i]);
+			continue;
 		}
 		UpdatePropertiesSplineNode(pSpline, i, &(*spline)[i]);
 	}
@@ -772,6 +773,8 @@ void CPropertiesWnd::UpdatePropertiesAnimator(CMFCPropertyGridProperty* pCompone
 	if (!pProp || pProp->GetData() != PropertyAnimatorSkeletonPath)
 	{
 		RemovePropertiesFrom(pComponent, PropId);
+		CreatePropertiesAnimator(pComponent, animator);
+		return;
 	}
 	pComponent->GetSubItem(PropId + 0)->SetValue((_variant_t)ms2ts(theApp.GetFullPath(animator->m_SkeletonPath.c_str())).c_str());
 
@@ -790,6 +793,7 @@ void CPropertiesWnd::UpdatePropertiesAnimationNode(CMFCPropertyGridProperty* pAn
 		{
 			RemovePropertiesFrom(pAnimationNode, 1);
 			CreatePropertiesAnimationNodeSequence(pAnimationNode, seq);
+			return;
 		}
 
 		UpdatePropertiesAnimationNodeSequence(pAnimationNode, seq);
