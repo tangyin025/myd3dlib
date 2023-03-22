@@ -931,6 +931,14 @@ static void xml_node_print_to_file(rapidxml::xml_node<char>* self, const std::st
 	}
 }
 
+static void xml_document_parse(rapidxml::xml_document<char>* self, const std::string& u8_path, my::CachePtr& cache)
+{
+	_ASSERT(!cache);
+	cache = my::FileIStream::Open(u8tows(u8_path).c_str())->GetWholeCache();
+	cache->push_back(0);
+	self->parse<0>((char*)&(*cache)[0]);
+}
+
 LuaContext::LuaContext(void)
 	: m_State(NULL)
 {
@@ -3231,7 +3239,7 @@ void LuaContext::Init(void)
 
 		, class_<boost::regex>("regex")
 			.def(constructor<const char *>())
-			.def("search", &regex_search, pure_out_value(boost::placeholders::_3) + dependency(result, boost::placeholders::_2))
+			.def("search", &regex_search, pure_out_value(boost::placeholders::_3) + dependency(boost::placeholders::_3, boost::placeholders::_2))
 			.def("search_all", &regex_search_all, return_stl_iterator + dependency(result, boost::placeholders::_2))
 
 		, class_<boost::cmatch>("cmatch")
@@ -3267,8 +3275,7 @@ void LuaContext::Init(void)
 
 		, class_<rapidxml::xml_document<char>, rapidxml::xml_node<char> >("xml_document")
 			.def(constructor<>())
-			.def("parse", luabind::tag_function<void(rapidxml::xml_document<char> *, my::Cache * cache)>(
-				boost::bind(&rapidxml::xml_document<char>::parse<0>, boost::placeholders::_1, boost::bind((char* (my::Cache::*)())(unsigned char* (my::Cache::*)() )&my::Cache::data, boost::placeholders::_2))))
+			.def("parse", &xml_document_parse, pure_out_value(boost::placeholders::_3) + dependency(boost::placeholders::_1, boost::placeholders::_3))
 	];
 }
 
