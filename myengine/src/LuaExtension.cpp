@@ -1065,7 +1065,7 @@ void LuaContext::Init(void)
 				def("PolarToCartesian", &my::Vector3::PolarToCartesian),
 				def("Cosine", &my::Vector3::Cosine),
 				def("RandomUnit", &my::Vector3::RandomUnit),
-				def("RandomUnitCircle", &my::Vector3::RandomUnitSphere)
+				def("RandomUnitSphere", &my::Vector3::RandomUnitSphere)
 			]
 
 		, class_<my::Vector4>("Vector4")
