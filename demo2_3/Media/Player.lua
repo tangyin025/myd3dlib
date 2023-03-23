@@ -56,7 +56,7 @@ client:LoadSkeletonAsync(animator_cmp.SkeletonPath, function(res)
 	animator_cmp:AddIK(res:GetBoneIndex("Bip01_L_Thigh"), res.boneHierarchy, 0.1, 1)
 	animator_cmp:AddIK(res:GetBoneIndex("Bip01_R_Thigh"), res.boneHierarchy, 0.1, 1)
 end, 0)
-player:InsertComponent(animator_cmp)
+-- player:InsertComponent(animator_cmp)
 
 -- 角色行为
 class 'PlayerBehavior'(Component)
@@ -135,8 +135,7 @@ function PlayerBehavior:Update(elapsedTime)
 		node_walk:SetActiveChild(0,0.1)
 	end
 	
-	-- 播放动画
-	animator_cmp:Tick(elapsedTime,1.0)
+	-- 更新相机
 	local LookMatrix=Matrix4.RotationYawPitchRoll(client.Camera.Euler.y,client.Camera.Euler.x,client.Camera.Euler.z)
 	client.Camera.Eye=self.Actor.Position+Vector3(0,0.75,0)+LookMatrix.row2.xyz*self.LookDist
 	client.SkyLightCam.Eye=self.Actor.Position
@@ -178,3 +177,6 @@ function PlayerBehavior:OnGUI(ui_render,elapsedTime,viewport)
 end
 local player_behavior=PlayerBehavior(NamedObject.MakeUniqueName('player_behavior'))
 player:InsertComponentAdopt(player_behavior)
+
+-- 动画在behavior之后插入是为了同步Update顺序
+player:InsertComponent(animator_cmp)
