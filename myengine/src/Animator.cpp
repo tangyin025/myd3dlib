@@ -626,6 +626,8 @@ void Animator::ReleaseResource(void)
 
 void Animator::Update(float fElapsedTime)
 {
+	Tick(fElapsedTime, 1.0f);
+
 	if (m_Skeleton)
 	{
 		my::BoneIndexSet::const_iterator root_iter = m_Skeleton->m_boneRootSet.begin();
@@ -663,7 +665,7 @@ void Animator::Update(float fElapsedTime)
 
 void Animator::Tick(float fElapsedTime, float fTotalWeight)
 {
-	if (m_Skeleton && m_Childs[0])
+	if (m_Childs[0])
 	{
 		m_Childs[0]->Tick(fElapsedTime, fTotalWeight);
 

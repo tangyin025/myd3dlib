@@ -769,12 +769,6 @@ void CMainFrame::OnFrameTick(float fElapsedTime)
 		if ((*actor_iter)->IsRequested())
 		{
 			(*actor_iter)->Update(fElapsedTime);
-
-			Animator* animator = (*actor_iter)->GetFirstComponent<Animator>();
-			if (animator)
-			{
-				animator->Tick(fElapsedTime, 1.0f);
-			}
 		}
 
 		Actor::ActorList::iterator attach_iter = (*actor_iter)->m_Attaches.begin();
@@ -783,12 +777,6 @@ void CMainFrame::OnFrameTick(float fElapsedTime)
 			if ((*attach_iter)->IsRequested())
 			{
 				(*attach_iter)->Update(fElapsedTime);
-
-				Animator* animator = (*attach_iter)->GetFirstComponent<Animator>();
-				if (animator)
-				{
-					animator->Tick(fElapsedTime, 1.0f);
-				}
 			}
 		}
 	}
