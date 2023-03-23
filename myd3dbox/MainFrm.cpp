@@ -876,6 +876,8 @@ void CMainFrame::InitFileContext()
 			.def("PushLineBox", &CChildView::PushLineBox)
 			.def("PushTriangleVertex", &CChildView::PushTriangleVertex)
 			.def("PushTriangle", &CChildView::PushTriangle)
+			.def("PushCircle", luabind::tag_function<void(CChildView*, const my::Vector3&, float, D3DCOLOR)>(
+				boost::bind(&duDebugDrawCircle, boost::placeholders::_1, boost::bind(&my::Vector3::x, boost::placeholders::_2), boost::bind(&my::Vector3::y, boost::placeholders::_2), boost::bind(&my::Vector3::z, boost::placeholders::_2), boost::placeholders::_3, boost::placeholders::_4, 1.0f)))
 			.property("CursorPos", &cchildview_get_cursor_pos)
 			.def_readonly("SwapChainBufferDesc", &CChildView::m_SwapChainBufferDesc)
 
