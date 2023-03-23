@@ -1261,8 +1261,6 @@ void Client::OnFrameTick(
 	double fTime,
 	float fElapsedTime)
 {
-	LuaContext::dogc(LUA_GCSTEP, 1);
-
 	LeaveDeviceSection();
 
 	ResourceMgr::CheckIORequests(0);
@@ -1437,11 +1435,13 @@ void Client::OnFrameTick(
 
 	m_ControllerMgr->computeInteractions(fElapsedTime, &m_ControllerFilter);
 
+	LuaContext::dogc(LUA_GCCOLLECT, 1);
+
 	ParallelTaskManager::DoAllParallelTasks();
 
 	DelayRemover<ActorPtr>::getSingleton().Leave();
 
-	LuaContext::dogc(LUA_GCSTOP, 0); // ! avoid gc called by ScriptComponent::OnPxThreadSubstep
+	//LuaContext::dogc(LUA_GCSTOP, 0); // ! avoid RemoveIORequestCallback called inside ScriptComponent::OnPxThreadSubstep
 
 	PhysxScene::TickPreRender(fElapsedTime);
 
@@ -1480,7 +1480,7 @@ void Client::OnFrameTick(
 
 	PhysxScene::TickPostRender(fElapsedTime);
 
-	LuaContext::dogc(LUA_GCRESTART, 0);
+	//LuaContext::dogc(LUA_GCRESTART, 0);
 
 	//if (player && player->m_Node)
 	//{
