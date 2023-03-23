@@ -111,7 +111,7 @@ client:LoadSceneAsync("scene01.xml", "scene01_", function(res)
 	actor5:UpdateWorld()
 	client:AddEntity(actor5)
 
-	local actor6 = client:GetNamedObject("scene01_actor1")
+	local actor6 = client:GetNamedObject("scene01_actor5")
 	class 'Actor6Behavior'(Component)
 	function Actor6Behavior:__init(name)
 		Component.__init(self,name)
