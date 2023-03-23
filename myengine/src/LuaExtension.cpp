@@ -1422,6 +1422,30 @@ void LuaContext::Init(void)
 			.def_readonly("Pitch", &D3DLOCKED_RECT::Pitch)
 			.def_readonly("pBits", &D3DLOCKED_RECT::pBits)
 
+		, class_<tagPOINT>("tagPOINT")
+			.def_readwrite("x", &CPoint::x)
+			.def_readwrite("y", &CPoint::y)
+
+		, class_<CPoint, tagPOINT>("CPoint")
+			.def(constructor<int, int>())
+
+		, class_<tagSIZE>("tagSIZE")
+			.def_readwrite("cx", &CSize::cx)
+			.def_readwrite("cy", &CSize::cy)
+
+		, class_<CSize, tagSIZE>("CSize")
+			.def(constructor<int, int>())
+
+		, class_<tagRECT>("tagRECT")
+			.def_readwrite("left", &CRect::left)
+			.def_readwrite("top", &CRect::top)
+			.def_readwrite("right", &CRect::right)
+			.def_readwrite("bottom", &CRect::bottom)
+
+		, class_<CRect, tagRECT>("CRect")
+			.def(constructor<int, int, int, int>())
+			.def(constructor<tagPOINT, tagSIZE>())
+
 		, class_<my::DeviceResourceBase, boost::shared_ptr<my::DeviceResourceBase> >("DeviceResourceBase")
 			.def_readonly("Key", &my::DeviceResourceBase::m_Key)
 
@@ -1473,8 +1497,7 @@ void LuaContext::Init(void)
 
 		, class_<my::Texture2D, my::BaseTexture, boost::shared_ptr<my::DeviceResourceBase> >("Texture2D")
 			.def(constructor<>())
-			.def("LockRect", luabind::tag_function<D3DLOCKED_RECT(my::Texture2D*,DWORD,unsigned int)>(
-				boost::bind(&my::Texture2D::LockRect, boost::placeholders::_1, (RECT*)NULL, boost::placeholders::_2, boost::placeholders::_3)))
+			.def("LockRect", &my::Texture2D::LockRect)
 			.def("UnlockRect", &my::Texture2D::UnlockRect)
 			.def("CreateTexture", &my::Texture2D::CreateTexture)
 			.def("CreateTextureFromFile", &texture2d_create_texture_from_file)
@@ -2361,16 +2384,6 @@ void LuaContext::Init(void)
 			.def(constructor<float>())
 			.def_readonly("Interval", &my::Timer::m_Interval)
 			.def_readwrite("RemainingTime", &my::Timer::m_RemainingTime)
-
-		, class_<CPoint>("CPoint")
-			.def(constructor<int, int>())
-			.def_readwrite("x", &CPoint::x)
-			.def_readwrite("y", &CPoint::y)
-
-		, class_<CSize>("CSize")
-			.def(constructor<int, int>())
-			.def_readwrite("cx", &CSize::cx)
-			.def_readwrite("cy", &CSize::cy)
 	];
 
 	module(m_State)[
