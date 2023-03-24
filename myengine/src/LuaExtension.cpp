@@ -881,6 +881,13 @@ static bool physxscene_sweep_sphere(PhysxScene* self,
 	return self->Sweep(sphere, Position, my::Quaternion::Identity(), unitDir, distance, filterWord0, boost::bind(&luabind::call_function<bool, my::EventArg*>, boost::ref(callback), boost::placeholders::_1), MaxNbTouches);
 }
 
+static bool physxscene_sweep_capsule(PhysxScene* self,
+	float radius, float halfHeight, const my::Vector3& Position, const my::Quaternion& Rotation, const my::Vector3& unitDir, float distance, unsigned int filterWord0, const luabind::object& callback, unsigned int MaxNbTouches)
+{
+	physx::PxCapsuleGeometry capsule(radius, halfHeight);
+	return self->Sweep(capsule, Position, Rotation, unitDir, distance, filterWord0, boost::bind(&luabind::call_function<bool, my::EventArg*>, boost::ref(callback), boost::placeholders::_1), MaxNbTouches);
+}
+
 static void indexedbitmap_save_indexed_bitmap(my::IndexedBitmap * self, const char * path, const luabind::object & get_color)
 {
 	self->SaveIndexedBitmap(path, boost::bind(&luabind::call_function<DWORD, unsigned char>, boost::ref(get_color), boost::placeholders::_1));
@@ -3058,6 +3065,7 @@ void LuaContext::Init(void)
 			.def("OverlapSphere", &physxscene_overlap_sphere)
 			.def("Raycast", &physxscene_raycast)
 			.def("SweepSphere", &physxscene_sweep_sphere)
+			.def("SweepCapsule", &physxscene_sweep_capsule)
 
 		, class_<SoundEvent, boost::shared_ptr<SoundEvent> >("SoundEvent")
 			.def_readonly("sbuffer", &SoundEvent::m_sbuffer)
