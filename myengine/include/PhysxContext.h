@@ -365,11 +365,9 @@ public:
 
 	void AddTriangle(const my::Vector3& v0, const my::Vector3& v1, const my::Vector3& v2);
 
-	void AddBox(float hx, float hy, float hz, const my::Vector3& Pos, const my::Quaternion& Rot);
-
 	void AddMesh(my::OgreMesh* mesh, int sub_mesh_id, const my::Vector3& Pos, const my::Quaternion& Rot, const my::Vector3& Scale);
 
-	void AddGeometry(const physx::PxGeometry& geom, const physx::PxTransform& pose);
+	void AddGeometry(const physx::PxGeometry& geom, const my::Vector3& Pos, const my::Quaternion& Rot);
 
 	int GetTriangleNum(void) const;
 

@@ -3219,8 +3219,11 @@ void LuaContext::Init(void)
 		, class_<PhysxSpatialIndex>("PhysxSpatialIndex")
 			.def(constructor<>())
 			.def("AddTriangle", &PhysxSpatialIndex::AddTriangle)
-			.def("AddBox", &PhysxSpatialIndex::AddBox)
 			.def("AddMesh", &PhysxSpatialIndex::AddMesh)
+			.def("AddBox", luabind::tag_function<void(PhysxSpatialIndex*, float, float, float, const my::Vector3&, const my::Quaternion&)>(
+				boost::bind(&PhysxSpatialIndex::AddGeometry, boost::placeholders::_1, boost::bind(boost::value_factory<physx::PxBoxGeometry>(), boost::placeholders::_2, boost::placeholders::_3, boost::placeholders::_4), boost::placeholders::_5, boost::placeholders::_6)))
+			.def("AddSphere", luabind::tag_function<void(PhysxSpatialIndex*, float, const my::Vector3&, const my::Quaternion&)>(
+				boost::bind(&PhysxSpatialIndex::AddGeometry, boost::placeholders::_1, boost::bind(boost::value_factory<physx::PxSphereGeometry>(), boost::placeholders::_2), boost::placeholders::_3, boost::placeholders::_4)))
 			.property("TriangleNum", &PhysxSpatialIndex::GetTriangleNum)
 			.property("GeometryNum", &PhysxSpatialIndex::GetGeometryNum)
 			.def("GetTriangle", &PhysxSpatialIndex::GetTriangle, pure_out_value(boost::placeholders::_3) + pure_out_value(boost::placeholders::_4) + pure_out_value(boost::placeholders::_5))

@@ -776,11 +776,6 @@ void PhysxSpatialIndex::AddTriangle(const my::Vector3& v0, const my::Vector3& v1
 	m_TriangleList.push_back(physx::PxTriangle((physx::PxVec3&)v0, (physx::PxVec3&)v1, (physx::PxVec3&)v2));
 }
 
-void PhysxSpatialIndex::AddBox(float hx, float hy, float hz, const my::Vector3& Pos, const my::Quaternion& Rot)
-{
-	AddGeometry(physx::PxBoxGeometry(hx, hy, hz), physx::PxTransform((physx::PxVec3&)Pos, (physx::PxQuat&)Rot));
-}
-
 void PhysxSpatialIndex::AddMesh(my::OgreMesh* mesh, int sub_mesh_id, const my::Vector3& Pos, const my::Quaternion& Rot, const my::Vector3& Scale)
 {
 	std::pair<TriangleMeshMap::iterator, bool> res = m_TriangleMeshMap.insert(std::make_pair(std::make_pair(mesh, sub_mesh_id), boost::shared_ptr<physx::PxTriangleMesh>()));
@@ -821,15 +816,15 @@ void PhysxSpatialIndex::AddMesh(my::OgreMesh* mesh, int sub_mesh_id, const my::V
 	}
 
 	physx::PxMeshScale mesh_scaling((physx::PxVec3&)Scale, physx::PxQuat(physx::PxIdentity));
-	AddGeometry(physx::PxTriangleMeshGeometry(res.first->second.get(), mesh_scaling, physx::PxMeshGeometryFlags()), physx::PxTransform((physx::PxVec3&)Pos, (physx::PxQuat&)Rot));
+	AddGeometry(physx::PxTriangleMeshGeometry(res.first->second.get(), mesh_scaling, physx::PxMeshGeometryFlags()), Pos, Rot);
 }
 
-void PhysxSpatialIndex::AddGeometry(const physx::PxGeometry& geom, const physx::PxTransform& pose)
+void PhysxSpatialIndex::AddGeometry(const physx::PxGeometry& geom, const my::Vector3& Pos, const my::Quaternion& Rot)
 {
-	GeometryPairPtr geompair(new GeometryPair(geom, pose));
+	GeometryPairPtr geompair(new GeometryPair(geom, physx::PxTransform((physx::PxVec3&)Pos, (physx::PxQuat&)Rot)));
 	m_GeometryList.push_back(geompair);
 	BOOST_VERIFY(m_GeometryList.size() - 1 == m_PxSpatialIndex->insert(
-		(physx::PxSpatialIndexItem&)*geompair, physx::PxGeometryQuery::getWorldBounds(geom, pose)));
+		(physx::PxSpatialIndexItem&)*geompair, physx::PxGeometryQuery::getWorldBounds(geom, geompair->second)));
 }
 
 int PhysxSpatialIndex::GetTriangleNum(void) const
