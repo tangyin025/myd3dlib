@@ -943,15 +943,15 @@ bool PhysxSpatialIndex::Raycast(const my::Vector3& pos, const my::Vector3& dir, 
 	return false;
 }
 
-bool PhysxSpatialIndex::OverlapBox(float hx, float hy, float hz, const my::Vector3& Pos, const my::Quaternion& Rot) const
+bool PhysxSpatialIndex::Overlap(const physx::PxGeometry& geometry, const my::Vector3& Pos, const my::Quaternion& Rot) const
 {
 	struct OverlapCallback : physx::PxSpatialOverlapCallback
 	{
-		physx::PxBoxGeometry box;
+		const physx::PxGeometry& geom;
 		physx::PxTransform pose;
 		bool overlap;
-		OverlapCallback(float hx, float hy, float hz, const my::Vector3& Pos, const my::Quaternion& Rot)
-			: box(hx, hy, hz)
+		OverlapCallback(const physx::PxGeometry& _geom, const my::Vector3& Pos, const my::Quaternion& Rot)
+			: geom(_geom)
 			, pose((physx::PxVec3&)Pos, (physx::PxQuat&)Rot)
 			, overlap(false)
 		{
@@ -959,7 +959,7 @@ bool PhysxSpatialIndex::OverlapBox(float hx, float hy, float hz, const my::Vecto
 		virtual physx::PxAgain onHit(physx::PxSpatialIndexItem& item)
 		{
 			GeometryPair& geompair = (GeometryPair&)item;
-			if (physx::PxGeometryQuery::overlap(box, pose, geompair.first.any(), geompair.second))
+			if (physx::PxGeometryQuery::overlap(geom, pose, geompair.first.any(), geompair.second))
 			{
 				overlap = true;
 				return false;
@@ -968,39 +968,34 @@ bool PhysxSpatialIndex::OverlapBox(float hx, float hy, float hz, const my::Vecto
 		}
 	};
 
-	OverlapCallback cb(hx, hy, hz, Pos, Rot);
-	m_PxSpatialIndex->overlap(physx::PxGeometryQuery::getWorldBounds(cb.box, cb.pose), cb);
+	OverlapCallback cb(geometry, Pos, Rot);
+	m_PxSpatialIndex->overlap(physx::PxGeometryQuery::getWorldBounds(geometry, cb.pose), cb);
 
 	if (!cb.overlap)
 	{
-		physx::Gu::BoxPadded box;
-		physx::buildFrom(box, cb.pose.p, cb.box.halfExtents, cb.pose.q);
-		TriangleList::const_iterator tri_iter = m_TriangleList.begin();
-		for (; tri_iter != m_TriangleList.end(); tri_iter++)
+		physx::PxSweepHit hit;
+		if (physx::PxMeshQuery::sweep(physx::PxVec3(1, 0, 0), 1, geometry, cb.pose, GetTriangleNum(), m_TriangleList.data(), hit, physx::PxHitFlag::eDEFAULT, NULL, 0.0f, true))
 		{
-			if (physx::Gu::intersectTriangleBox(box, tri_iter->verts[0], tri_iter->verts[1], tri_iter->verts[2]))
-			{
-				return true;
-			}
+			return true;
 		}
 	}
 	return cb.overlap;
 }
 
-bool PhysxSpatialIndex::SweepBox(float hx, float hy, float hz, const my::Vector3& Pos, const my::Quaternion& Rot, const my::Vector3& dir, float dist, float& t) const
+bool PhysxSpatialIndex::Sweep(const physx::PxGeometry& geometry, const my::Vector3& Pos, const my::Quaternion& Rot, const my::Vector3& dir, float dist, float& t) const
 {
 	struct HitCallback : physx::PxSpatialLocationCallback
 	{
 		float closest;
 		const Vector3 & dir;
 		float dist;
-		physx::PxBoxGeometry box;
+		const physx::PxGeometry& geom;
 		physx::PxTransform pose;
-		HitCallback(const Vector3& _dir, float _dist, float hx, float hy, float hz, const my::Vector3& Pos, const my::Quaternion& Rot)
+		HitCallback(const Vector3& _dir, float _dist, const physx::PxGeometry& _geom, const my::Vector3& Pos, const my::Quaternion& Rot)
 			: closest(FLT_MAX)
 			, dir(_dir)
 			, dist(_dist)
-			, box(hx, hy, hz)
+			, geom(_geom)
 			, pose((physx::PxVec3&)Pos, (physx::PxQuat&)Rot)
 		{
 		}
@@ -1008,7 +1003,7 @@ bool PhysxSpatialIndex::SweepBox(float hx, float hy, float hz, const my::Vector3
 		{
 			GeometryPair& geompair = (GeometryPair&)item;
 			physx::PxSweepHit hit;
-			if (physx::PxGeometryQuery::sweep((physx::PxVec3&)dir, dist, box, pose, geompair.first.any(), geompair.second, hit))
+			if (physx::PxGeometryQuery::sweep((physx::PxVec3&)dir, dist, geom, pose, geompair.first.any(), geompair.second, hit))
 			{
 				if (hit.distance < closest)
 				{
@@ -1019,11 +1014,11 @@ bool PhysxSpatialIndex::SweepBox(float hx, float hy, float hz, const my::Vector3
 		}
 	};
 
-	HitCallback cb(dir, dist, hx, hy, hz, Pos, Rot);
-	m_PxSpatialIndex->sweep(physx::PxGeometryQuery::getWorldBounds(cb.box, cb.pose), (physx::PxVec3&)dir, dist, cb);
+	HitCallback cb(dir, dist, geometry, Pos, Rot);
+	m_PxSpatialIndex->sweep(physx::PxGeometryQuery::getWorldBounds(geometry, cb.pose), (physx::PxVec3&)dir, dist, cb);
 
 	physx::PxSweepHit hit;
-	if (physx::PxMeshQuery::sweep((physx::PxVec3&)dir, dist, cb.box, cb.pose, GetTriangleNum(), m_TriangleList.data(), hit))
+	if (physx::PxMeshQuery::sweep((physx::PxVec3&)dir, dist, geometry, cb.pose, GetTriangleNum(), m_TriangleList.data(), hit))
 	{
 		if (hit.distance < cb.closest)
 		{

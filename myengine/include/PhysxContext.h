@@ -385,9 +385,9 @@ public:
 
 	bool Raycast(const my::Vector3& pos, const my::Vector3& dir, float dist, float& t) const;
 
-	bool OverlapBox(float hx, float hy, float hz, const my::Vector3& Pos, const my::Quaternion& Rot) const;
+	bool Overlap(const physx::PxGeometry& geometry, const my::Vector3& Pos, const my::Quaternion& Rot) const;
 
-	bool SweepBox(float hx, float hy, float hz, const my::Vector3& Pos, const my::Quaternion& Rot, const my::Vector3& dir, float dist, float& t) const;
+	bool Sweep(const physx::PxGeometry& geometry, const my::Vector3& Pos, const my::Quaternion& Rot, const my::Vector3& dir, float dist, float& t) const;
 
 	my::AABB CalculateAABB(void) const;
 };
