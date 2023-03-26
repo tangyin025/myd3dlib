@@ -763,27 +763,36 @@ void CMainFrame::UpdatePivotTransform(void)
 
 void CMainFrame::OnFrameTick(float fElapsedTime)
 {
-	ActorList::iterator actor_iter = m_selactors.begin();
-	for (; actor_iter != m_selactors.end(); actor_iter++)
+	if (m_Player->IsRequested())
 	{
-		if ((*actor_iter)->IsRequested())
+		ViewedActorSet::iterator actor_iter = m_ViewedActors.begin();
+		for (; actor_iter != m_ViewedActors.end(); actor_iter++)
 		{
-			(*actor_iter)->Update(fElapsedTime);
-		}
-
-		Actor::ActorList::iterator attach_iter = (*actor_iter)->m_Attaches.begin();
-		for (; attach_iter != (*actor_iter)->m_Attaches.end(); attach_iter++)
-		{
-			if ((*attach_iter)->IsRequested())
+			if (actor_iter->IsRequested())
 			{
-				(*attach_iter)->Update(fElapsedTime);
+				actor_iter->Update(fElapsedTime);
 			}
 		}
 	}
-
-	if (m_Player->IsRequested())
+	else
 	{
-		m_Player->Update(fElapsedTime);
+		ActorList::iterator actor_iter = m_selactors.begin();
+		for (; actor_iter != m_selactors.end(); actor_iter++)
+		{
+			if ((*actor_iter)->IsRequested())
+			{
+				(*actor_iter)->Update(fElapsedTime);
+			}
+
+			Actor::ActorList::iterator attach_iter = (*actor_iter)->m_Attaches.begin();
+			for (; attach_iter != (*actor_iter)->m_Attaches.end(); attach_iter++)
+			{
+				if ((*attach_iter)->IsRequested())
+				{
+					(*attach_iter)->Update(fElapsedTime);
+				}
+			}
+		}
 	}
 
 	PhysxScene::AdvanceSync(fElapsedTime);
