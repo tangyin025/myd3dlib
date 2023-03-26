@@ -3235,6 +3235,8 @@ void LuaContext::Init(void)
 				boost::bind(&PhysxSpatialIndex::Overlap, boost::placeholders::_1, boost::bind(boost::value_factory<physx::PxBoxGeometry>(), boost::placeholders::_2, boost::placeholders::_3, boost::placeholders::_4), boost::placeholders::_5, boost::placeholders::_6)))
 			.def("OverlapSphere", luabind::tag_function<bool(PhysxSpatialIndex*, float, const my::Vector3&, const my::Quaternion&)>(
 				boost::bind(&PhysxSpatialIndex::Overlap, boost::placeholders::_1, boost::bind(boost::value_factory<physx::PxSphereGeometry>(), boost::placeholders::_2), boost::placeholders::_3, boost::placeholders::_4)))
+			.def("OverlapCapsule", luabind::tag_function<bool(PhysxSpatialIndex*, float, float, const my::Vector3&, const my::Quaternion&)>(
+				boost::bind(&PhysxSpatialIndex::Overlap, boost::placeholders::_1, boost::bind(boost::value_factory<physx::PxCapsuleGeometry>(), boost::placeholders::_2, boost::placeholders::_3), boost::placeholders::_4, boost::placeholders::_5)))
 			.def("SweepBox", luabind::tag_function<bool(PhysxSpatialIndex*, float, float, float, const my::Vector3&, const my::Quaternion&, const my::Vector3&, float, float&)>(
 				boost::bind(&PhysxSpatialIndex::Sweep, boost::placeholders::_1, boost::bind(boost::value_factory<physx::PxBoxGeometry>(), boost::placeholders::_2, boost::placeholders::_3, boost::placeholders::_4), boost::placeholders::_5, boost::placeholders::_6, boost::placeholders::_7, boost::placeholders::_8, boost::placeholders::_9)), pure_out_value(boost::placeholders::_9))
 			.def("CalculateAABB", &PhysxSpatialIndex::CalculateAABB)
