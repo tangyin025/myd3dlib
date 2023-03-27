@@ -1627,6 +1627,7 @@ const D3DXATTRIBUTERANGE& OgreMesh::AppendToAttrib(const D3DXATTRIBUTERANGE& ran
 void OgreMesh::SaveOgreMesh(const char * path, bool useSharedGeom)
 {
 	std::ofstream ofs(path);
+	_ASSERT(ofs.is_open());
 	// start mesh description
 	ofs << "<mesh>\n";
 	void* pVertices = LockVertexBuffer();
@@ -1659,12 +1660,12 @@ void OgreMesh::SaveOgreMesh(const char * path, bool useSharedGeom)
 			ofs << "\t\t\t<vertex>\n";
 			//write vertex position
 			unsigned char* pVertex = (unsigned char*)pVertices + i * VertexStride;
-			const Vector3 vertex = m_VertexElems.GetPosition(pVertex);
+			const Vector3& vertex = m_VertexElems.GetPosition(pVertex);
 			ofs << "\t\t\t\t<position x=\"" << vertex.x << "\" y=\"" << vertex.y << "\" " << "z=\"" << vertex.z << "\"/>\n";
 			//write vertex normal
 			if (normals)
 			{
-				const Vector3 normal = m_VertexElems.GetNormal(pVertex);
+				const Vector3& normal = m_VertexElems.GetNormal(pVertex);
 				ofs << "\t\t\t\t<normal x=\"" << normal.x << "\" y=\"" << normal.y << "\" " << "z=\"" << normal.z << "\"/>\n";
 			}
 			//write vertex color
@@ -1869,6 +1870,53 @@ void OgreMesh::SaveSimplifiedOgreMesh(const char * path, DWORD MinValue, DWORD O
 	simplified_mesh->m_AttribTable.resize(AttribTblCount);
 	simplified_mesh->GetAttributeTable(&simplified_mesh->m_AttribTable[0], &AttribTblCount);
 	simplified_mesh->SaveOgreMesh(path, true);
+}
+
+void OgreMesh::SaveObj(const char* path)
+{
+	std::ofstream ofs(path);
+	_ASSERT(ofs.is_open());
+	void* pVertices = LockVertexBuffer();
+	DWORD VertexStride = GetNumBytesPerVertex();
+	for (int i = 0; i < GetNumVertices(); i++)
+	{
+		// ! todo: combine vertex, normal, tex
+		unsigned char* pVertex = (unsigned char*)pVertices + i * VertexStride;
+		const Vector3& vertex = m_VertexElems.GetPosition(pVertex);
+		ofs << "v " << vertex.x << " " << vertex.y << " " << vertex.z << std::endl;
+
+		const Vector3& normal = m_VertexElems.GetNormal(pVertex);
+		ofs << "vn " << normal.x << " " << normal.y << " " << normal.z << std::endl;
+
+		const Vector2& texcoord = m_VertexElems.GetTexcoord(pVertex);
+		ofs << "vt " << texcoord.x << " " << texcoord.y << std::endl;
+	}
+
+	VOID* pIndices = LockIndexBuffer();
+	for (int i = 0; i < m_AttribTable.size(); i++)
+	{
+		ofs << "g " << "aaa" << i << std::endl;
+
+		D3DXATTRIBUTERANGE& rang = m_AttribTable[i];
+		for (int j = rang.FaceStart; j < rang.FaceStart + rang.FaceCount; j++)
+		{
+			int v[3];
+			for (int k = 0; k < 3; k++)
+			{
+				if (GetOptions() & D3DXMESH_32BIT)
+					v[k] = *((DWORD*)pIndices + j * 3 + k) + 1;
+				else
+					v[k] = *((WORD*)pIndices + j * 3 + k) + 1;
+			}
+
+			ofs << "f " << v[0] << "/" << v[0] << "/" << v[0]
+				<< " " << v[1] << "/" << v[1] << "/" << v[1]
+				<< " " << v[2] << "/" << v[2] << "/" << v[2] << std::endl;
+		}
+	}
+
+	UnlockVertexBuffer();
+	UnlockIndexBuffer();
 }
 
 void OgreMesh::Transform(const Matrix4 & trans)

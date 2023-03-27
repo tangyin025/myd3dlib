@@ -442,6 +442,8 @@ namespace my
 
 		void SaveSimplifiedOgreMesh(const char * path, DWORD MinValue, DWORD Options);
 
+		void SaveObj(const char* path);
+
 		void Transform(const Matrix4 & trans);
 
 		UINT GetMaterialNum(void) const;
