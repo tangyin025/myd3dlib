@@ -1196,11 +1196,11 @@ void OgreMesh::CreateMeshFromOgreXml(
 				const char* color_value = attr_value->value();
 				std::vector<std::string> color_set;
 				boost::algorithm::split(color_set, color_value, boost::is_any_of(" "), boost::algorithm::token_compress_off);
-				D3DXCOLOR Color = D3DCOLOR_ARGB(
-					(int)(boost::lexical_cast<float>(color_set[3]) * 255),
-					(int)(boost::lexical_cast<float>(color_set[0]) * 255),
-					(int)(boost::lexical_cast<float>(color_set[1]) * 255),
-					(int)(boost::lexical_cast<float>(color_set[2]) * 255));
+				D3DXCOLOR Color(
+					boost::lexical_cast<float>(color_set[3]),
+					boost::lexical_cast<float>(color_set[0]),
+					boost::lexical_cast<float>(color_set[1]),
+					boost::lexical_cast<float>(color_set[2]));
 				m_VertexElems.SetColor(pVertex, Color);
 			}
 
