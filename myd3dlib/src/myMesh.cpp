@@ -9,6 +9,8 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/regex.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/fusion/tuple.hpp>
+#include <boost/fusion/include/hash.hpp>
 
 using namespace my;
 
@@ -1878,18 +1880,35 @@ void OgreMesh::SaveObj(const char* path)
 	_ASSERT(ofs.is_open());
 	void* pVertices = LockVertexBuffer();
 	DWORD VertexStride = GetNumBytesPerVertex();
+	boost::unordered_map<boost::fusion::tuple<float, float, float>, int> verts, texcoords, normals;
 	for (int i = 0; i < GetNumVertices(); i++)
 	{
-		// ! todo: combine vertex, normal, tex
 		unsigned char* pVertex = (unsigned char*)pVertices + i * VertexStride;
 		const Vector3& vertex = m_VertexElems.GetPosition(pVertex);
-		ofs << "v " << vertex.x << " " << vertex.y << " " << vertex.z << std::endl;
+		if (verts.insert(std::make_pair(boost::fusion::make_tuple(vertex.x, vertex.y, vertex.z), (int)verts.size() + 1)).second)
+		{
+			ofs << "v " << vertex.x << " " << vertex.y << " " << vertex.z << std::endl;
+		}
+	}
 
-		const Vector3& normal = m_VertexElems.GetNormal(pVertex);
-		ofs << "vn " << normal.x << " " << normal.y << " " << normal.z << std::endl;
-
+	for (int i = 0; i < GetNumVertices(); i++)
+	{
+		unsigned char* pVertex = (unsigned char*)pVertices + i * VertexStride;
 		const Vector2& texcoord = m_VertexElems.GetTexcoord(pVertex);
-		ofs << "vt " << texcoord.x << " " << texcoord.y << std::endl;
+		if (texcoords.insert(std::make_pair(boost::fusion::make_tuple(texcoord.x, texcoord.y, 1.0f), (int)texcoords.size() + 1)).second)
+		{
+			ofs << "vt " << texcoord.x << " " << texcoord.y << std::endl;
+		}
+	}
+
+	for (int i = 0; i < GetNumVertices(); i++)
+	{
+		unsigned char* pVertex = (unsigned char*)pVertices + i * VertexStride;
+		const Vector3& normal = m_VertexElems.GetNormal(pVertex);
+		if (normals.insert(std::make_pair(boost::fusion::make_tuple(normal.x, normal.y, normal.z), (int)normals.size() + 1)).second)
+		{
+			ofs << "vn " << normal.x << " " << normal.y << " " << normal.z << std::endl;
+		}
 	}
 
 	VOID* pIndices = LockIndexBuffer();
@@ -1900,18 +1919,23 @@ void OgreMesh::SaveObj(const char* path)
 		D3DXATTRIBUTERANGE& rang = m_AttribTable[i];
 		for (int j = rang.FaceStart; j < rang.FaceStart + rang.FaceCount; j++)
 		{
-			int v[3];
+			ofs << "f";
 			for (int k = 0; k < 3; k++)
 			{
+				int vertex_i;
 				if (GetOptions() & D3DXMESH_32BIT)
-					v[k] = *((DWORD*)pIndices + j * 3 + k) + 1;
+					vertex_i = *((DWORD*)pIndices + j * 3 + k);
 				else
-					v[k] = *((WORD*)pIndices + j * 3 + k) + 1;
+					vertex_i = *((WORD*)pIndices + j * 3 + k);
+				unsigned char* pVertex = (unsigned char*)pVertices + vertex_i * VertexStride;
+				const Vector3& vertex = m_VertexElems.GetPosition(pVertex);
+				const Vector2& texcoord = m_VertexElems.GetTexcoord(pVertex);
+				const Vector3& normal = m_VertexElems.GetNormal(pVertex);
+				ofs << " " << verts[boost::fusion::make_tuple(vertex.x, vertex.y, vertex.z)]
+					<< "/" << texcoords[boost::fusion::make_tuple(texcoord.x, texcoord.y, 1.0f)]
+					<< "/" << normals[boost::fusion::make_tuple(normal.x, normal.y, normal.z)];
 			}
-
-			ofs << "f " << v[0] << "/" << v[0] << "/" << v[0]
-				<< " " << v[1] << "/" << v[1] << "/" << v[1]
-				<< " " << v[2] << "/" << v[2] << "/" << v[2] << std::endl;
+			ofs << std::endl;
 		}
 	}
 
