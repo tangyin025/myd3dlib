@@ -11,6 +11,7 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/fusion/tuple.hpp>
 #include <boost/fusion/include/hash.hpp>
+#include <boost/range/algorithm/find_if.hpp>
 
 using namespace my;
 
@@ -1243,18 +1244,14 @@ void OgreMesh::CreateMeshFromOgreXml(
 				unsigned char* pIndices = (unsigned char*)&m_VertexElems.GetBlendIndices(pVertex);
 				float* pWeights = (float*)&m_VertexElems.GetBlendWeight(pVertex);
 
-				int i = 0;
-				for (; i < D3DVertexElementSet::MAX_BONE_INDICES; i++)
+				int i = std::distance(pWeights, boost::find_if(boost::make_iterator_range_n(
+					pWeights, D3DVertexElementSet::MAX_BONE_INDICES), boost::bind(std::equal_to<float>(), boost::placeholders::_1, 0.0f)));
+				if (i < D3DVertexElementSet::MAX_BONE_INDICES)
 				{
-					if (pWeights[i] == 0)
-					{
-						pIndices[i] = boneindex;
-						pWeights[i] = weight;
-						break;
-					}
+					pIndices[i] = boneindex;
+					pWeights[i] = weight;
 				}
-
-				if (i >= D3DVertexElementSet::MAX_BONE_INDICES)
+				else
 				{
 					THROW_CUSEXCEPTION("too much bone assignment");
 				}
