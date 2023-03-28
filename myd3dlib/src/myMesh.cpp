@@ -1285,28 +1285,33 @@ void OgreMesh::CreateMeshFromOgreXml(
 		DEFINE_XML_NODE_SIMPLE(face, faces);
 
 		D3DXATTRIBUTERANGE& rang = m_AttribTable[submesh_i];
-		DWORD vmin = UINT_MAX, vmax = 0;
+		int vmin = INT_MAX, vmax = 0;
 		for (; node_face != NULL && face_i < total_faces; node_face = node_face->next_sibling(), face_i++)
 		{
 			DEFINE_XML_ATTRIBUTE_INT_SIMPLE(v1, face);
 			DEFINE_XML_ATTRIBUTE_INT_SIMPLE(v2, face);
 			DEFINE_XML_ATTRIBUTE_INT_SIMPLE(v3, face);
 
+			_ASSERT(!node_sharedgeometry || rang.VertexStart == 0);
+			v1 += rang.VertexStart;
+			v2 += rang.VertexStart;
+			v3 += rang.VertexStart;
+
 			if (dwMeshOptions & D3DXMESH_32BIT)
 			{
-				*((DWORD*)pIndices + face_i * 3 + 0) = v1 + rang.VertexStart;
-				*((DWORD*)pIndices + face_i * 3 + 1) = v2 + rang.VertexStart;
-				*((DWORD*)pIndices + face_i * 3 + 2) = v3 + rang.VertexStart;
+				*((DWORD*)pIndices + face_i * 3 + 0) = v1;
+				*((DWORD*)pIndices + face_i * 3 + 1) = v2;
+				*((DWORD*)pIndices + face_i * 3 + 2) = v3;
 			}
 			else
 			{
-				*((WORD*)pIndices + face_i * 3 + 0) = v1 + rang.VertexStart;
-				*((WORD*)pIndices + face_i * 3 + 1) = v2 + rang.VertexStart;
-				*((WORD*)pIndices + face_i * 3 + 2) = v3 + rang.VertexStart;
+				*((WORD*)pIndices + face_i * 3 + 0) = v1;
+				*((WORD*)pIndices + face_i * 3 + 1) = v2;
+				*((WORD*)pIndices + face_i * 3 + 2) = v3;
 			}
 			pAttrBuffer[face_i] = submesh_i;
-			vmin = Min(vmin, Min(v1, v2, v3) + rang.VertexStart);
-			vmax = Max(vmax, Max(v1, v2, v3) + rang.VertexStart);
+			vmin = Min(vmin, Min(v1, Min(v2, v3)));
+			vmax = Max(vmax, Max(v1, Min(v2, v3)));
 		}
 		rang.VertexStart = vmin;
 		rang.VertexCount = vmax - vmin + 1;
@@ -1466,8 +1471,8 @@ void OgreMesh::CreateMeshFromObjInStream(
 				*((WORD*)pIndices + i * 3 + 2) = faces[i * 3 + 2];
 			}
 			pAttrBuffer[i] = 0;
-			vmin = Min(vmin, Min(faces[i * 3 + 0], faces[i * 3 + 1], faces[i * 3 + 2]));
-			vmax = Max(vmax, Max(faces[i * 3 + 0], faces[i * 3 + 1], faces[i * 3 + 2]));
+			vmin = Min(vmin, Min(faces[i * 3 + 0], Min(faces[i * 3 + 1], faces[i * 3 + 2])));
+			vmax = Max(vmax, Max(faces[i * 3 + 0], Max(faces[i * 3 + 1], faces[i * 3 + 2])));
 		}
 		m_MaterialNameList.push_back("aaa");
 
