@@ -1308,7 +1308,8 @@ void OgreMesh::CreateMeshFromOgreXml(
 			}
 			pAttrBuffer[face_i] = submesh_i;
 			vmin = Min(vmin, Min(v1, Min(v2, v3)));
-			vmax = Max(vmax, Max(v1, Min(v2, v3)));
+			vmax = Max(vmax, Max(v1, Max(v2, v3)));
+			_ASSERT(vmax < total_vertices);
 		}
 		rang.VertexStart = vmin;
 		rang.VertexCount = vmax - vmin + 1;
