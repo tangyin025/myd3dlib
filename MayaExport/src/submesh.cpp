@@ -26,6 +26,7 @@ namespace OgreMayaExporter
 		m_faces.clear();
 		m_uvsets.clear();
 		m_use32bitIndexes = false;
+		std::fill_n(m_rot, _countof(m_rot), 0.0f);
 		std::fill_n(m_scale, _countof(m_scale), 1.0f);
 	}
 
