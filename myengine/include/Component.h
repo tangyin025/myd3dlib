@@ -545,10 +545,10 @@ protected:
 	}
 
 public:
-	EmitterComponent(const char * Name, FaceType _FaceType, SpaceType _SpaceTypeWorld, VelocityType _VelocityType, PrimitiveType _PrimitiveType)
+	EmitterComponent(const char * Name, FaceType _FaceType, SpaceType _SpaceType, VelocityType _VelocityType, PrimitiveType _PrimitiveType)
 		: Component(Name)
 		, m_EmitterFaceType(_FaceType)
-		, m_EmitterSpaceType(_SpaceTypeWorld)
+		, m_EmitterSpaceType(_SpaceType)
 		, m_EmitterVelType(_VelocityType)
 		, m_EmitterPrimitiveType(_PrimitiveType)
 		, handle_World(NULL)
@@ -594,8 +594,8 @@ protected:
 	}
 
 public:
-	CircularEmitter(const char * Name, unsigned int Capacity, FaceType _FaceType, SpaceType _SpaceTypeWorld, VelocityType _VelocityType, PrimitiveType _PrimitiveType)
-		: EmitterComponent(Name, _FaceType, _SpaceTypeWorld, _VelocityType, _PrimitiveType)
+	CircularEmitter(const char * Name, unsigned int Capacity, FaceType _FaceType, SpaceType _SpaceType, VelocityType _VelocityType, PrimitiveType _PrimitiveType)
+		: EmitterComponent(Name, _FaceType, _SpaceType, _VelocityType, _PrimitiveType)
 		, Emitter(Capacity)
 	{
 	}
@@ -676,8 +676,8 @@ protected:
 	}
 
 public:
-	SphericalEmitter(const char * Name, unsigned int Capacity, FaceType _FaceType, SpaceType _SpaceTypeWorld, VelocityType _VelocityType, PrimitiveType _PrimitiveType)
-		: CircularEmitter(Name, Capacity, _FaceType, _SpaceTypeWorld, _VelocityType, _PrimitiveType)
+	SphericalEmitter(const char * Name, unsigned int Capacity, FaceType _FaceType, SpaceType _SpaceType, VelocityType _VelocityType, PrimitiveType _PrimitiveType)
+		: CircularEmitter(Name, Capacity, _FaceType, _SpaceType, _VelocityType, _PrimitiveType)
 		, m_ParticleLifeTime(FLT_MAX)
 		, m_SpawnInterval(FLT_MAX)
 		, m_HalfSpawnArea(0,0,0)
