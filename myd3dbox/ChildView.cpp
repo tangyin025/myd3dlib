@@ -459,7 +459,7 @@ void CChildView::RenderSelectedComponent(IDirect3DDevice9 * pd3dDevice, Componen
 				my::Effect* shader = theApp.QueryShader(RenderPipeline::MeshTypeMesh, macro, "shader/mtl_simplecolor.fx", RenderPipeline::PassTypeToMask(RenderPipeline::PassTypeOpaque));
 				if (shader)
 				{
-					shader->SetMatrix(shader->GetParameterByName(NULL, "g_World"), mesh_cmp->m_Actor->m_World);
+					shader->SetMatrix(shader->GetParameterByName(NULL, "g_World"), mesh_cmp->m_InstanceType != MeshComponent::InstanceTypeBatch ? mesh_cmp->m_Actor->m_World : my::Matrix4::identity);
 					shader->SetVector(shader->GetParameterByName(NULL, "g_MeshColor"), (my::Vector4&)D3DXCOLOR(color));
 					if (animator && !animator->m_DualQuats.empty() && mesh_cmp->m_Mesh->m_VertexElems.elems[D3DDECLUSAGE_BLENDINDICES][0].Type == D3DDECLTYPE_UBYTE4)
 					{
@@ -725,7 +725,7 @@ bool CChildView::OverlapTestFrustumAndComponent(const my::Frustum & frustum, con
 					mesh_cmp->m_Mesh->m_VertexElems,
 					animator->m_DualQuats.data(),
 					animator->m_DualQuats.size());
-				bool ret = my::Mesh::FrustumTest(local_ftm,
+				bool ret = my::Mesh::FrustumTest(mesh_cmp->m_InstanceType != MeshComponent::InstanceTypeBatch ? local_ftm : frustum,
 					&vertices[0],
 					vertices.size(),
 					sizeof(vertices[0]),
@@ -743,7 +743,7 @@ bool CChildView::OverlapTestFrustumAndComponent(const my::Frustum & frustum, con
 			}
 			else
 			{
-				bool ret = my::Mesh::FrustumTest(local_ftm,
+				bool ret = my::Mesh::FrustumTest(mesh_cmp->m_InstanceType != MeshComponent::InstanceTypeBatch ? local_ftm : frustum,
 					mesh_cmp->m_Mesh->LockVertexBuffer(D3DLOCK_READONLY),
 					mesh_cmp->m_Mesh->GetNumVertices(),
 					mesh_cmp->m_Mesh->GetNumBytesPerVertex(),
@@ -1037,7 +1037,7 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, const 
 					mesh_cmp->m_Mesh->m_VertexElems,
 					animator->m_DualQuats.data(),
 					animator->m_DualQuats.size());
-				ret = my::Mesh::RayTest(local_ray,
+				ret = my::Mesh::RayTest(mesh_cmp->m_InstanceType != MeshComponent::InstanceTypeBatch ? local_ray : ray,
 					&vertices[0],
 					vertices.size(),
 					sizeof(vertices[0]),
@@ -1051,7 +1051,7 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, const 
 			}
 			else
 			{
-				ret = my::Mesh::RayTest(local_ray,
+				ret = my::Mesh::RayTest(mesh_cmp->m_InstanceType != MeshComponent::InstanceTypeBatch ? local_ray : ray,
 					mesh_cmp->m_Mesh->LockVertexBuffer(D3DLOCK_READONLY),
 					mesh_cmp->m_Mesh->GetNumVertices(),
 					mesh_cmp->m_Mesh->GetNumBytesPerVertex(),
@@ -1065,6 +1065,10 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, const 
 			}
 			if (ret.first)
 			{
+				if (mesh_cmp->m_InstanceType == MeshComponent::InstanceTypeBatch)
+				{
+					ret.second = (ray.d * ret.second).transformNormal(cmp->m_Actor->m_World.inverse()).magnitude();
+				}
 				raychunkid.SetPoint(0, 0);
 				rayinstid = 0;
 				return ret;

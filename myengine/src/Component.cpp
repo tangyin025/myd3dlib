@@ -802,7 +802,7 @@ void MeshComponent::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shad
 {
 	_ASSERT(m_Actor);
 
-	shader->SetMatrix(handle_World, m_Actor->m_World);
+	shader->SetMatrix(handle_World, m_InstanceType != InstanceTypeBatch ? m_Actor->m_World : Matrix4::identity);
 
 	shader->SetVector(handle_MeshColor, m_MeshColor);
 
