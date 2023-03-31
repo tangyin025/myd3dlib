@@ -518,23 +518,27 @@ void Actor::UpdateLod(const my::Vector3 & ViewPos, const my::Vector3 & TargetPos
 
 void Actor::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos, const my::Vector3 & TargetPos)
 {
-	for (int Lod = m_Lod; Lod < MaxLod; Lod++)
+	for (int Lod = m_Lod; Lod < MaxLod; )
 	{
 		bool lodRequested = false;
 		ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
 		for (; cmp_iter != m_Cmps.end(); cmp_iter++)
 		{
-			if (((*cmp_iter)->m_LodMask & 1 << Lod) && (*cmp_iter)->IsRequested())
+			if (((*cmp_iter)->m_LodMask & 1 << Lod))
 			{
-				(*cmp_iter)->AddToPipeline(frustum, pipeline, PassMask, ViewPos, TargetPos);
-				lodRequested = true;
+				if ((*cmp_iter)->IsRequested())
+				{
+					(*cmp_iter)->AddToPipeline(frustum, pipeline, PassMask, ViewPos, TargetPos);
+				}
+				else
+				{
+					goto continue_next_lod;
+				}
 			}
 		}
-
-		if (lodRequested)
-		{
-			break;
-		}
+		break;
+	continue_next_lod:
+		Lod++;
 	}
 }
 
