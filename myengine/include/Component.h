@@ -607,9 +607,15 @@ public:
 	friend class boost::serialization::access;
 
 	template<class Archive>
-	void serialize(Archive & ar, const unsigned int version)
+	void save(Archive& ar, const unsigned int version) const;
+
+	template<class Archive>
+	void load(Archive& ar, const unsigned int version);
+
+	template<class Archive>
+	void serialize(Archive& ar, const unsigned int version)
 	{
-		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(EmitterComponent);
+		boost::serialization::split_member(ar, *this, version);
 	}
 
 	virtual DWORD GetComponentType(void) const

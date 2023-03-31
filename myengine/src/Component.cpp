@@ -1576,6 +1576,31 @@ void EmitterComponent::AddParticlePairToPipeline(RenderPipeline* pipeline, unsig
 	}
 }
 
+template<class Archive>
+void CircularEmitter::save(Archive& ar, const unsigned int version) const
+{
+	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(EmitterComponent);
+	Emitter::ParticleList::capacity_type Capacity;
+	Capacity = m_ParticleList.capacity();
+	ar << BOOST_SERIALIZATION_NVP(Capacity);
+	boost::serialization::stl::save_collection<Archive, ParticleList>(ar, m_ParticleList);
+}
+
+template<class Archive>
+void CircularEmitter::load(Archive& ar, const unsigned int version)
+{
+	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(EmitterComponent);
+	Emitter::ParticleList::capacity_type Capacity;
+	ar >> BOOST_SERIALIZATION_NVP(Capacity);
+	m_ParticleList.set_capacity(Capacity);
+	boost::serialization::item_version_type item_version(0);
+	boost::serialization::collection_size_type count;
+	ar >> BOOST_SERIALIZATION_NVP(count);
+	ar >> BOOST_SERIALIZATION_NVP(item_version);
+	m_ParticleList.resize(count);
+	boost::serialization::stl::collection_load_impl<Archive, ParticleList>(ar, m_ParticleList, count, item_version);
+}
+
 void CircularEmitter::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos, const my::Vector3 & TargetPos)
 {
 	if (m_Material && (m_Material->m_PassMask & PassMask))
@@ -1591,7 +1616,7 @@ void CircularEmitter::AddToPipeline(const my::Frustum & frustum, RenderPipeline 
 template<class Archive>
 void SphericalEmitter::save(Archive & ar, const unsigned int version) const
 {
-	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(CircularEmitter);
+	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(EmitterComponent);
 	Emitter::ParticleList::capacity_type Capacity;
 	Capacity = m_ParticleList.capacity();
 	ar << BOOST_SERIALIZATION_NVP(Capacity);
@@ -1616,7 +1641,7 @@ void SphericalEmitter::save(Archive & ar, const unsigned int version) const
 template<class Archive>
 void SphericalEmitter::load(Archive & ar, const unsigned int version)
 {
-	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(CircularEmitter);
+	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(EmitterComponent);
 	Emitter::ParticleList::capacity_type Capacity;
 	ar >> BOOST_SERIALIZATION_NVP(Capacity);
 	m_ParticleList.set_capacity(Capacity);
