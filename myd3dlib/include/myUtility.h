@@ -233,7 +233,7 @@ namespace my
 		CPoint m_DragPt;
 
 	public:
-		ModelViewerCamera(float Fov = D3DXToRadian(75.0f), float Aspect = 1.333333f, float Nz = 0.1f, float Fz = 3000.0f)
+		ModelViewerCamera(float Fov, float Aspect, float Nz, float Fz)
 			: PerspectiveCamera(Fov, Aspect, Nz, Fz)
 			, m_LookAt(0,0,0)
 			, m_Distance(0)
@@ -261,7 +261,7 @@ namespace my
 		CPoint m_DragPt;
 
 	public:
-		FirstPersonCamera(float Fov = D3DXToRadian(75.0f), float Aspect = 1.333333f, float Nz = 0.1f, float Fz = 3000.0f)
+		FirstPersonCamera(float Fov, float Aspect, float Nz, float Fz)
 			: PerspectiveCamera(Fov, Aspect, Nz, Fz)
 			, m_LocalVel(0,0,0)
 			, m_DragMode(0)
