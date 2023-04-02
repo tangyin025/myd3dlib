@@ -108,12 +108,14 @@ void CSnapshotDlg::OnOK()
 				unsigned int PassMask;
 				const my::Vector3& ViewPos;
 				const my::Vector3& TargetPos;
-				Callback(const my::Frustum& _frustum, RenderPipeline* _pipeline, unsigned int _PassMask, const my::Vector3& _ViewPos, const my::Vector3& _TargetPos)
+				CMainFrame* pFrame;
+				Callback(const my::Frustum& _frustum, RenderPipeline* _pipeline, unsigned int _PassMask, const my::Vector3& _ViewPos, const my::Vector3& _TargetPos, CMainFrame* _pFrame)
 					: frustum(_frustum)
 					, pipeline(_pipeline)
 					, PassMask(_PassMask)
 					, ViewPos(_ViewPos)
 					, TargetPos(_TargetPos)
+					, pFrame(_pFrame)
 				{
 				}
 
@@ -123,17 +125,30 @@ void CSnapshotDlg::OnOK()
 
 					Actor* actor = static_cast<Actor*>(oct_entity);
 
-					if (actor->IsRequested())
+					if (!actor->IsRequested())
 					{
-						actor->AddToPipeline(frustum, pipeline, PassMask, ViewPos, TargetPos);
+						_ASSERT(!actor->is_linked());
+
+						actor->RequestResource();
+
+						pFrame->m_ViewedActors.push_back(*actor);
 					}
+
+					actor->UpdateLod(actor->m_World.getRow<3>().xyz, actor->m_World.getRow<3>().xyz);
+
+					theApp.LeaveDeviceSection();
+					theApp.CheckIORequests(0xFFFFFFFF); // ! INFINITE conflict with corecrt_math.h
+					theApp.EnterDeviceSection();
+
+					actor->AddToPipeline(frustum, pipeline, PassMask, actor->m_World.getRow<3>().xyz, actor->m_World.getRow<3>().xyz);
+
 					return true;
 				}
 			};
 
 			CMainFrame* pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 			ASSERT_VALID(pFrame);
-			Callback cb(frustum, pipeline, PassMask, m_Camera->m_Eye, m_Camera->m_Eye);
+			Callback cb(frustum, pipeline, PassMask, m_Camera->m_Eye, m_Camera->m_Eye, pFrame);
 			pFrame->QueryEntity(frustum, &cb);
 		}
 	};
@@ -168,6 +183,7 @@ void CSnapshotDlg::OnOK()
 			desc.Width, desc.Height, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT);
 	}
 
+	CWaitCursor wait;
 	theApp.OnRender(theApp.m_d3dDevice, rtsurf, DepthStencil.m_ptr, &desc, &rc, 0, 0);
 	CString ext(PathFindExtension(m_TexPath));
 	V(D3DXSaveTextureToFile(m_TexPath, ext.CompareNoCase(_T(".png")) == 0 ? D3DXIFF_PNG : D3DXIFF_BMP, rt.m_ptr, NULL));
