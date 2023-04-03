@@ -396,7 +396,7 @@ StaticEmitterChunkBuffer * StaticEmitterStream::GetBuffer(int i, int j)
 
 void StaticEmitterStream::SpawnBuffer(const my::Vector4 & Position, const my::Vector4 & Velocity, const my::Vector4 & Color, const my::Vector2 & Size, float Angle, float Time)
 {
-	int i = Position.z / m_emit->m_ChunkWidth, j = Position.x / m_emit->m_ChunkWidth;
+	int i = floor(Position.z / m_emit->m_ChunkWidth), j = floor(Position.x / m_emit->m_ChunkWidth);
 
 	StaticEmitterChunkBuffer* buff = GetBuffer(i, j);
 	_ASSERT(buff);
@@ -408,7 +408,7 @@ void StaticEmitterStream::SpawnBuffer(const my::Vector4 & Position, const my::Ve
 
 void StaticEmitterStream::Spawn(const my::Vector4 & Position, const my::Vector4 & Velocity, const my::Vector4 & Color, const my::Vector2 & Size, float Angle, float Time)
 {
-	int i = Position.z / m_emit->m_ChunkWidth, j = Position.x / m_emit->m_ChunkWidth;
+	int i = floor(Position.z / m_emit->m_ChunkWidth), j = floor(Position.x / m_emit->m_ChunkWidth);
 
 	BufferMap::const_iterator buff_iter = m_buffs.find(std::make_pair(i, j));
 	if (buff_iter != m_buffs.end())
