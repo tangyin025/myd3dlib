@@ -255,6 +255,13 @@ static boost::iterator_range<shared_actor_list_iter> cmainframe_get_all_acts(con
 	return boost::make_iterator_range(shared_actor_list_iter(acts->begin(), acts), shared_actor_list_iter(acts->end(), acts));
 }
 
+static void spawn_terrain_pos_2_emitter(TerrainStream* tstr, StaticEmitterStream* estr, float terrain_local_x, float terrain_local_z, const my::Matrix4 & trans)
+{
+	my::Vector3 pos(terrain_local_x, tstr->RayTest2D(terrain_local_x, terrain_local_z), terrain_local_z);
+	pos = pos.transformCoord(trans);
+	estr->Spawn(my::Vector4(pos, 1), my::Vector4(0, 0, 0, 0), my::Vector4(1, 1, 1, 1), my::Vector2(1, 1), 0, 0);
+}
+
 // CMainFrame
 
 IMPLEMENT_DYNCREATE(CMainFrame, CFrameWndEx)
@@ -906,6 +913,8 @@ void CMainFrame::InitFileContext()
 			.def_readonly("Font", &CMainApp::m_Font)
 			.def_readonly("keyboard", &CMainApp::m_keyboard)
 			.def_readonly("mouse", &CMainApp::m_mouse)
+
+		, luabind::def("spawn_terrain_pos_2_emitter", &spawn_terrain_pos_2_emitter)
 	];
 	luabind::globals(m_State)["theApp"] = &theApp;
 }

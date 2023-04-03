@@ -344,6 +344,7 @@ void StaticEmitterStream::Flush(void)
 			}
 			m_emit->RemoveEntity(&chunk_iter->second);
 			m_emit->AddEntity(&chunk_iter->second, chunk_box, m_emit->m_ChunkWidth, 0.1f);
+			m_buffs.erase(chunk_iter->first);
 
 			dirty_iter->second = false;
 		}
