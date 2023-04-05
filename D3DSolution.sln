@@ -51,8 +51,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "myd3dbox", "myd3dbox\myd3db
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libboost_serialization", "libboost_serialization\libboost_serialization.vcxproj", "{97882A3E-FE4E-4CFF-9863-517FFD484289}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "zziplib", "zziplib\zziplib.vcxproj", "{5D10D16E-E3AA-4430-83DB-4A4FBB9A201D}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "luabind", "luabind\luabind.vcxproj", "{8F8C0F3C-BAEC-48FF-900A-33C045BB395F}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libboost_program_options", "libboost_program_options\libboost_program_options.vcxproj", "{79940869-B99A-42B6-9E8E-D683614C630A}"
@@ -88,6 +86,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "buildvm", "LuaJIT\buildvm.v
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "minilua", "LuaJIT\minilua.vcxproj", "{436D1F49-C3DF-4850-9C65-AD510DB65F2E}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libzip", "libzip\libzip.vcxproj", "{91BEAA70-570B-440B-81AC-83EB114E83C6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -161,14 +161,6 @@ Global
 		{97882A3E-FE4E-4CFF-9863-517FFD484289}.Release|Win32.Build.0 = Release|Win32
 		{97882A3E-FE4E-4CFF-9863-517FFD484289}.Release|x64.ActiveCfg = Release|x64
 		{97882A3E-FE4E-4CFF-9863-517FFD484289}.Release|x64.Build.0 = Release|x64
-		{5D10D16E-E3AA-4430-83DB-4A4FBB9A201D}.Debug|Win32.ActiveCfg = Debug|Win32
-		{5D10D16E-E3AA-4430-83DB-4A4FBB9A201D}.Debug|Win32.Build.0 = Debug|Win32
-		{5D10D16E-E3AA-4430-83DB-4A4FBB9A201D}.Debug|x64.ActiveCfg = Debug|x64
-		{5D10D16E-E3AA-4430-83DB-4A4FBB9A201D}.Debug|x64.Build.0 = Debug|x64
-		{5D10D16E-E3AA-4430-83DB-4A4FBB9A201D}.Release|Win32.ActiveCfg = Release|Win32
-		{5D10D16E-E3AA-4430-83DB-4A4FBB9A201D}.Release|Win32.Build.0 = Release|Win32
-		{5D10D16E-E3AA-4430-83DB-4A4FBB9A201D}.Release|x64.ActiveCfg = Release|x64
-		{5D10D16E-E3AA-4430-83DB-4A4FBB9A201D}.Release|x64.Build.0 = Release|x64
 		{8F8C0F3C-BAEC-48FF-900A-33C045BB395F}.Debug|Win32.ActiveCfg = Debug|Win32
 		{8F8C0F3C-BAEC-48FF-900A-33C045BB395F}.Debug|Win32.Build.0 = Debug|Win32
 		{8F8C0F3C-BAEC-48FF-900A-33C045BB395F}.Debug|x64.ActiveCfg = Debug|x64
@@ -289,6 +281,14 @@ Global
 		{436D1F49-C3DF-4850-9C65-AD510DB65F2E}.Release|Win32.Build.0 = Release|Win32
 		{436D1F49-C3DF-4850-9C65-AD510DB65F2E}.Release|x64.ActiveCfg = Release|x64
 		{436D1F49-C3DF-4850-9C65-AD510DB65F2E}.Release|x64.Build.0 = Release|x64
+		{91BEAA70-570B-440B-81AC-83EB114E83C6}.Debug|Win32.ActiveCfg = Debug|Win32
+		{91BEAA70-570B-440B-81AC-83EB114E83C6}.Debug|Win32.Build.0 = Debug|Win32
+		{91BEAA70-570B-440B-81AC-83EB114E83C6}.Debug|x64.ActiveCfg = Debug|x64
+		{91BEAA70-570B-440B-81AC-83EB114E83C6}.Debug|x64.Build.0 = Debug|x64
+		{91BEAA70-570B-440B-81AC-83EB114E83C6}.Release|Win32.ActiveCfg = Release|Win32
+		{91BEAA70-570B-440B-81AC-83EB114E83C6}.Release|Win32.Build.0 = Release|Win32
+		{91BEAA70-570B-440B-81AC-83EB114E83C6}.Release|x64.ActiveCfg = Release|x64
+		{91BEAA70-570B-440B-81AC-83EB114E83C6}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

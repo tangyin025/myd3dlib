@@ -10,19 +10,26 @@
 #include <boost/unordered_map.hpp>
 #include "myThread.h"
 #include "mySingleton.h"
-#include "zzip/zzip.h"
+
+struct zip_file;
+
+struct zip_stat;
+
+struct zip;
 
 namespace my
 {
 	class ZipIStream : public IStream
 	{
 	protected:
-		ZZIP_FILE * m_fp;
+		boost::shared_ptr<zip_stat> m_stat;
+
+		zip_file * m_zipf;
 
 		CriticalSection & m_DirSec;
 
 	public:
-		ZipIStream(ZZIP_FILE * fp, CriticalSection & DirSec);
+		ZipIStream(boost::shared_ptr<zip_stat> stat, zip_file * zipf, CriticalSection & DirSec);
 
 		~ZipIStream(void);
 
@@ -83,7 +90,7 @@ namespace my
 	class ZipIStreamDir : public StreamDir
 	{
 	protected:
-		ZZIP_DIR * m_zipdir;
+		zip * m_archive;
 
 		CriticalSection m_DirSec;
 

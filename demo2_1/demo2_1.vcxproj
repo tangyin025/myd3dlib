@@ -88,7 +88,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>$(SolutionDir)myd3dlib\include;$(SolutionDir)myengine\include;$(BOOST_DIR);$(PHYSX_DIR)Include;$(PHYSX_DIR)Include\common;$(PHYSX_DIR)Include\geometry;$(PHYSX_DIR)Include\extensions;$(PHYSX_DIR)Include\characterkinematic;$(PHYSX_DIR)Source\Common\src;$(PHYSX_DIR)Source\GeomUtils\headers;$(PHYSX_DIR)Source\GeomUtils\src;$(PHYSX_DIR)Source\SceneQuery\include;$(PHYSX_DIR)Source\SceneQuery\src;$(PHYSX_DIR)Source\PhysX\src;$(PHYSX_DIR)..\PxShared\include;$(PHYSX_DIR)..\PxShared\src\foundation\include;$(SolutionDir)PhysXCharacterKinematic\src;$(SolutionDir)zlib\include;$(SolutionDir)zziplib\include;$(SolutionDir)freetype\include;$(SolutionDir)lua51\include;$(SolutionDir)luabind\include;$(SolutionDir)Recast\Include;$(SolutionDir)Detour\Include;$(SolutionDir)DetourCrowd\Include;$(SolutionDir)DetourTileCache\Include;$(SolutionDir)DebugUtils\Include;$(SolutionDir)libmad\include;$(SolutionDir)libid3tag\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)myd3dlib\include;$(SolutionDir)myengine\include;$(BOOST_DIR);$(PHYSX_DIR)Include;$(PHYSX_DIR)Include\common;$(PHYSX_DIR)Include\geometry;$(PHYSX_DIR)Include\extensions;$(PHYSX_DIR)Include\characterkinematic;$(PHYSX_DIR)Source\Common\src;$(PHYSX_DIR)Source\GeomUtils\headers;$(PHYSX_DIR)Source\GeomUtils\src;$(PHYSX_DIR)Source\SceneQuery\include;$(PHYSX_DIR)Source\SceneQuery\src;$(PHYSX_DIR)Source\PhysX\src;$(PHYSX_DIR)..\PxShared\include;$(PHYSX_DIR)..\PxShared\src\foundation\include;$(SolutionDir)PhysXCharacterKinematic\src;$(SolutionDir)zlib\include;$(SolutionDir)libzip\include;$(SolutionDir)freetype\include;$(SolutionDir)lua51\include;$(SolutionDir)luabind\include;$(SolutionDir)Recast\Include;$(SolutionDir)Detour\Include;$(SolutionDir)DetourCrowd\Include;$(SolutionDir)DetourTileCache\Include;$(SolutionDir)DebugUtils\Include;$(SolutionDir)libmad\include;$(SolutionDir)libid3tag\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;BOOST_ALL_NO_LIB;_SCL_SECURE_NO_WARNINGS;D3DXFX_LARGEADDRESS_HANDLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -109,7 +109,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>$(SolutionDir)myd3dlib\include;$(SolutionDir)myengine\include;$(BOOST_DIR);$(PHYSX_DIR)Include;$(PHYSX_DIR)Include\common;$(PHYSX_DIR)Include\geometry;$(PHYSX_DIR)Include\extensions;$(PHYSX_DIR)Include\characterkinematic;$(PHYSX_DIR)Source\Common\src;$(PHYSX_DIR)Source\GeomUtils\headers;$(PHYSX_DIR)Source\GeomUtils\src;$(PHYSX_DIR)Source\SceneQuery\include;$(PHYSX_DIR)Source\SceneQuery\src;$(PHYSX_DIR)Source\PhysX\src;$(PHYSX_DIR)..\PxShared\include;$(PHYSX_DIR)..\PxShared\src\foundation\include;$(SolutionDir)PhysXCharacterKinematic\src;$(SolutionDir)zlib\include;$(SolutionDir)zziplib\include;$(SolutionDir)freetype\include;$(SolutionDir)lua51\include;$(SolutionDir)luabind\include;$(SolutionDir)Recast\Include;$(SolutionDir)Detour\Include;$(SolutionDir)DetourCrowd\Include;$(SolutionDir)DetourTileCache\Include;$(SolutionDir)DebugUtils\Include;$(SolutionDir)libmad\include;$(SolutionDir)libid3tag\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)myd3dlib\include;$(SolutionDir)myengine\include;$(BOOST_DIR);$(PHYSX_DIR)Include;$(PHYSX_DIR)Include\common;$(PHYSX_DIR)Include\geometry;$(PHYSX_DIR)Include\extensions;$(PHYSX_DIR)Include\characterkinematic;$(PHYSX_DIR)Source\Common\src;$(PHYSX_DIR)Source\GeomUtils\headers;$(PHYSX_DIR)Source\GeomUtils\src;$(PHYSX_DIR)Source\SceneQuery\include;$(PHYSX_DIR)Source\SceneQuery\src;$(PHYSX_DIR)Source\PhysX\src;$(PHYSX_DIR)..\PxShared\include;$(PHYSX_DIR)..\PxShared\src\foundation\include;$(SolutionDir)PhysXCharacterKinematic\src;$(SolutionDir)zlib\include;$(SolutionDir)libzip\include;$(SolutionDir)freetype\include;$(SolutionDir)lua51\include;$(SolutionDir)luabind\include;$(SolutionDir)Recast\Include;$(SolutionDir)Detour\Include;$(SolutionDir)DetourCrowd\Include;$(SolutionDir)DetourTileCache\Include;$(SolutionDir)DebugUtils\Include;$(SolutionDir)libmad\include;$(SolutionDir)libid3tag\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;BOOST_ALL_NO_LIB;_SCL_SECURE_NO_WARNINGS;D3DXFX_LARGEADDRESS_HANDLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -131,7 +131,7 @@
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>$(SolutionDir)myd3dlib\include;$(SolutionDir)myengine\include;$(BOOST_DIR);$(PHYSX_DIR)Include;$(PHYSX_DIR)Include\common;$(PHYSX_DIR)Include\geometry;$(PHYSX_DIR)Include\extensions;$(PHYSX_DIR)Include\characterkinematic;$(PHYSX_DIR)Source\Common\src;$(PHYSX_DIR)Source\GeomUtils\headers;$(PHYSX_DIR)Source\GeomUtils\src;$(PHYSX_DIR)Source\SceneQuery\include;$(PHYSX_DIR)Source\SceneQuery\src;$(PHYSX_DIR)Source\PhysX\src;$(PHYSX_DIR)..\PxShared\include;$(PHYSX_DIR)..\PxShared\src\foundation\include;$(SolutionDir)PhysXCharacterKinematic\src;$(SolutionDir)zlib\include;$(SolutionDir)zziplib\include;$(SolutionDir)freetype\include;$(SolutionDir)lua51\include;$(SolutionDir)luabind\include;$(SolutionDir)Recast\Include;$(SolutionDir)Detour\Include;$(SolutionDir)DetourCrowd\Include;$(SolutionDir)DetourTileCache\Include;$(SolutionDir)DebugUtils\Include;$(SolutionDir)libmad\include;$(SolutionDir)libid3tag\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)myd3dlib\include;$(SolutionDir)myengine\include;$(BOOST_DIR);$(PHYSX_DIR)Include;$(PHYSX_DIR)Include\common;$(PHYSX_DIR)Include\geometry;$(PHYSX_DIR)Include\extensions;$(PHYSX_DIR)Include\characterkinematic;$(PHYSX_DIR)Source\Common\src;$(PHYSX_DIR)Source\GeomUtils\headers;$(PHYSX_DIR)Source\GeomUtils\src;$(PHYSX_DIR)Source\SceneQuery\include;$(PHYSX_DIR)Source\SceneQuery\src;$(PHYSX_DIR)Source\PhysX\src;$(PHYSX_DIR)..\PxShared\include;$(PHYSX_DIR)..\PxShared\src\foundation\include;$(SolutionDir)PhysXCharacterKinematic\src;$(SolutionDir)zlib\include;$(SolutionDir)libzip\include;$(SolutionDir)freetype\include;$(SolutionDir)lua51\include;$(SolutionDir)luabind\include;$(SolutionDir)Recast\Include;$(SolutionDir)Detour\Include;$(SolutionDir)DetourCrowd\Include;$(SolutionDir)DetourTileCache\Include;$(SolutionDir)DebugUtils\Include;$(SolutionDir)libmad\include;$(SolutionDir)libid3tag\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;BOOST_ALL_NO_LIB;_SCL_SECURE_NO_WARNINGS;D3DXFX_LARGEADDRESS_HANDLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -155,7 +155,7 @@
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>$(SolutionDir)myd3dlib\include;$(SolutionDir)myengine\include;$(BOOST_DIR);$(PHYSX_DIR)Include;$(PHYSX_DIR)Include\common;$(PHYSX_DIR)Include\geometry;$(PHYSX_DIR)Include\extensions;$(PHYSX_DIR)Include\characterkinematic;$(PHYSX_DIR)Source\Common\src;$(PHYSX_DIR)Source\GeomUtils\headers;$(PHYSX_DIR)Source\GeomUtils\src;$(PHYSX_DIR)Source\SceneQuery\include;$(PHYSX_DIR)Source\SceneQuery\src;$(PHYSX_DIR)Source\PhysX\src;$(PHYSX_DIR)..\PxShared\include;$(PHYSX_DIR)..\PxShared\src\foundation\include;$(SolutionDir)PhysXCharacterKinematic\src;$(SolutionDir)zlib\include;$(SolutionDir)zziplib\include;$(SolutionDir)freetype\include;$(SolutionDir)lua51\include;$(SolutionDir)luabind\include;$(SolutionDir)Recast\Include;$(SolutionDir)Detour\Include;$(SolutionDir)DetourCrowd\Include;$(SolutionDir)DetourTileCache\Include;$(SolutionDir)DebugUtils\Include;$(SolutionDir)libmad\include;$(SolutionDir)libid3tag\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)myd3dlib\include;$(SolutionDir)myengine\include;$(BOOST_DIR);$(PHYSX_DIR)Include;$(PHYSX_DIR)Include\common;$(PHYSX_DIR)Include\geometry;$(PHYSX_DIR)Include\extensions;$(PHYSX_DIR)Include\characterkinematic;$(PHYSX_DIR)Source\Common\src;$(PHYSX_DIR)Source\GeomUtils\headers;$(PHYSX_DIR)Source\GeomUtils\src;$(PHYSX_DIR)Source\SceneQuery\include;$(PHYSX_DIR)Source\SceneQuery\src;$(PHYSX_DIR)Source\PhysX\src;$(PHYSX_DIR)..\PxShared\include;$(PHYSX_DIR)..\PxShared\src\foundation\include;$(SolutionDir)PhysXCharacterKinematic\src;$(SolutionDir)zlib\include;$(SolutionDir)libzip\include;$(SolutionDir)freetype\include;$(SolutionDir)lua51\include;$(SolutionDir)luabind\include;$(SolutionDir)Recast\Include;$(SolutionDir)Detour\Include;$(SolutionDir)DetourCrowd\Include;$(SolutionDir)DetourTileCache\Include;$(SolutionDir)DebugUtils\Include;$(SolutionDir)libmad\include;$(SolutionDir)libid3tag\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;BOOST_ALL_NO_LIB;_SCL_SECURE_NO_WARNINGS;D3DXFX_LARGEADDRESS_HANDLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -188,6 +188,9 @@
     <ProjectReference Include="..\libboost_serialization\libboost_serialization.vcxproj">
       <Project>{97882a3e-fe4e-4cff-9863-517ffd484289}</Project>
     </ProjectReference>
+    <ProjectReference Include="..\libzip\libzip.vcxproj">
+      <Project>{91beaa70-570b-440b-81ac-83eb114e83c6}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\luabind\luabind.vcxproj">
       <Project>{8f8c0f3c-baec-48ff-900a-33c045bb395f}</Project>
     </ProjectReference>
@@ -202,9 +205,6 @@
     </ProjectReference>
     <ProjectReference Include="..\zlib\zlib.vcxproj">
       <Project>{4b104248-0f92-4516-8d50-e87d5e9bb6b6}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\zziplib\zziplib.vcxproj">
-      <Project>{5d10d16e-e3aa-4430-83db-4a4fbb9a201d}</Project>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

@@ -3,9 +3,12 @@
 #include "libc.h"
 #include <strstream>
 #include <boost/bind/bind.hpp>
-#include <zzip/file.h>
+#include <fcntl.h>
+#include <io.h>
 #include <fstream>
 #include <SYS\Stat.h>
+#include "zip.h"
+#include "zipint.h"
 #include "myMesh.h"
 #include "mySkeleton.h"
 #include "myEffect.h"
@@ -32,41 +35,85 @@ CachePtr my::IStream::GetWholeCache(void)
 	return cache;
 }
 
-ZipIStream::ZipIStream(ZZIP_FILE * fp, CriticalSection & DirSec)
-	: m_fp(fp)
+ZipIStream::ZipIStream(boost::shared_ptr<zip_stat_t> stat, zip_file_t * zipf, CriticalSection & DirSec)
+	: m_stat(stat)
+	, m_zipf(zipf)
 	, m_DirSec(DirSec)
 {
-	_ASSERT(NULL != m_fp);
+	_ASSERT(NULL != m_zipf);
 }
 
 ZipIStream::~ZipIStream(void)
 {
 	CriticalSectionLock lock(m_DirSec);
-	zzip_file_close(m_fp);
+	BOOST_VERIFY(0 == zip_fclose(m_zipf));
 }
 
 int ZipIStream::read(void * buff, unsigned int read_size)
 {
 	CriticalSectionLock lock(m_DirSec);
-	return zzip_file_read(m_fp, buff, read_size);
+	return zip_fread(m_zipf, buff, read_size);
 }
 
 long ZipIStream::seek(long offset, int origin)
 {
 	CriticalSectionLock lock(m_DirSec);
-	return zzip_seek(m_fp, offset, origin);
+	if (zip_file_is_seekable(m_zipf))
+	{
+		if (0 != zip_fseek(m_zipf, offset, origin))
+		{
+			return -1;
+		}
+	}
+	else
+	{
+		zip_int64_t srcpos = zip_ftell(m_zipf);
+		zip_int64_t dstpos;
+		switch (origin)
+		{
+		default:
+		case SEEK_SET:
+			dstpos = offset;
+			break;
+		case SEEK_CUR:
+			dstpos = srcpos + offset;
+			break;
+		case SEEK_END:
+			dstpos = m_stat->size + offset;
+			break;
+		}
+
+		zip_int64_t len = dstpos - srcpos;
+		if (len < 0)
+		{
+			zip_file_t* zipf = zip_fopen_index(m_zipf->za, m_stat->index, ZIP_FL_ENC_GUESS | ZIP_FL_ENC_RAW);
+			if (NULL == zipf)
+			{
+				return -1;
+			}
+			zip_fclose(m_zipf);
+			m_zipf = zipf;
+			len = dstpos;
+		}
+
+		std::vector<unsigned char> buff(len);
+		if (len != zip_fread(m_zipf, buff.data(), len))
+		{
+			return -1;
+		}
+	}
+	return zip_ftell(m_zipf);
 }
 
 long ZipIStream::tell(void)
 {
 	CriticalSectionLock lock(m_DirSec);
-	return zzip_tell(m_fp);
+	return zip_ftell(m_zipf);
 }
 
 size_t ZipIStream::GetSize(void)
 {
-	CriticalSectionLock lock(m_DirSec);
-	return m_fp->usize;
+	return m_stat->size;
 }
 
 FileIStream::FileIStream(int fp)
@@ -111,64 +158,12 @@ size_t FileIStream::GetSize(void)
 	return _filelength(m_fp);
 }
 
-static int zip_istr_dir_open(zzip_char_t* name, int flags, ...)
-{
-	_ASSERT(false);
-	return 0;
-}
-
-static int zip_istr_dir_close(int fd)
-{
-	return _close(fd);
-}
-
-static zzip_ssize_t zip_istr_dir_read(int fd, void* buf, zzip_size_t len)
-{
-	return _read(fd, buf, len);
-}
-
-static zzip_off_t zip_istr_dir_seeks(int fd, zzip_off_t offset, int whence)
-{
-	return _lseek(fd, offset, whence);
-}
-
-static zzip_off_t zip_istr_dir_filesize(int fd)
-{
-	struct stat st;
-	if (fstat(fd, &st) < 0)
-		return -1;
-	return st.st_size;
-}
-
-static zzip_ssize_t zip_istr_dir_write(int fd, _zzip_const void* buf, zzip_size_t len)
-{
-	_ASSERT(false);
-	return _write(fd, buf, len);
-}
-
-static const struct zzip_plugin_io zip_istr_dir_io = {
-	&zip_istr_dir_open,
-	&zip_istr_dir_close,
-	&zip_istr_dir_read,
-	&zip_istr_dir_seeks,
-	&zip_istr_dir_filesize,
-	1, 1,
-	&zip_istr_dir_write
-};
-
 ZipIStreamDir::ZipIStreamDir(const std::string & dir)
 	: StreamDir(dir)
 {
-	int fd;
-	errno_t err = _sopen_s(&fd, m_dir.c_str(), O_RDONLY|O_BINARY, _SH_DENYWR, _S_IREAD);
-	if (0 != err)
-	{
-		THROW_CUSEXCEPTION(str_printf("cannot open zip archive: %s", m_dir.c_str()));
-	}
-
-	zzip_error_t rv;
-	m_zipdir = zzip_dir_fdopen_ext_io(fd, &rv, NULL, (zzip_plugin_io_t)&zip_istr_dir_io);
-	if (!m_zipdir)
+	int error;
+	m_archive = zip_open(dir.c_str(), ZIP_RDONLY, &error);
+	if (!m_archive)
 	{
 		THROW_CUSEXCEPTION(str_printf("cannot open zip archive: %s", m_dir.c_str()));
 	}
@@ -176,82 +171,21 @@ ZipIStreamDir::ZipIStreamDir(const std::string & dir)
 
 ZipIStreamDir::~ZipIStreamDir(void)
 {
-	zzip_dir_close(m_zipdir);
-}
-
-#define ZZIP_BACKSLASH_DIRSEP 1
-
-static zzip_char_t*
-strrchr_basename(zzip_char_t* name)
-{
-	register zzip_char_t* n = strrchr(name, '/');
-	if (n) return n + 1;
-	return name;
-}
-
-static zzip_char_t*
-dirsep_basename(zzip_char_t* name)
-{
-	register zzip_char_t* n = strrchr(name, '/');
-
-	if (ZZIP_BACKSLASH_DIRSEP)
-	{
-		register zzip_char_t* m = strrchr(name, '\\');
-		if (!n || (m && n < m))
-			n = m;
-	}
-
-	if (n) return n + 1;
-	return name;
+	zip_close(m_archive);
 }
 
 bool ZipIStreamDir::CheckPath(const char * path)
 {
 	CriticalSectionLock lock(m_DirSec);
 
-	std::string path_str(path);
-	boost::algorithm::replace_all(path_str, "\\", "/");
-	const char* name = path_str.c_str();
-	int o_mode = ZZIP_CASEINSENSITIVE;
-	struct zzip_dir_hdr* hdr = m_zipdir->hdr0;
-	int (*filename_strcmp) (zzip_char_t*, zzip_char_t*);
-	zzip_char_t* (*filename_basename)(zzip_char_t*);
+	_ASSERT(!strchr(path, '\\'));
 
-	filename_strcmp = (o_mode & ZZIP_CASELESS) ? _stricmp : strcmp;
-	filename_basename = (o_mode & ZZIP_CASELESS) ? dirsep_basename : strrchr_basename;
-
-	if (!m_zipdir)
-		return false;
-	if (!m_zipdir->fd || m_zipdir->fd == -1)
-		return false;
-	if (!hdr)
-		return false;
-
-	if (o_mode & ZZIP_NOPATHS)
-		name = filename_basename(name);
-
-	while (1)
+	zip_int64_t idx = zip_name_locate(m_archive, path, ZIP_FL_ENC_GUESS | ZIP_FL_ENC_RAW);
+	if (idx < 0)
 	{
-		register zzip_char_t* hdr_name = hdr->d_name;
-
-		if (o_mode & ZZIP_NOPATHS)
-			hdr_name = filename_basename(hdr_name);
-
-		//HINT4("name='%s', compr=%d, size=%d\n",
-		//	hdr->d_name, hdr->d_compr, hdr->d_usize);
-
-		if (!filename_strcmp(hdr_name, name))
-		{
-			return true;
-		}
-		else
-		{
-			if (hdr->d_reclen == 0)
-				break;
-			hdr = (struct zzip_dir_hdr*)((char*)hdr + hdr->d_reclen);
-		}                       /*filename_strcmp */
-	}                           /*forever */
-	return false;
+		return false;
+	}
+	return true;
 }
 
 std::string ZipIStreamDir::GetFullPath(const char * path)
@@ -267,15 +201,22 @@ std::string ZipIStreamDir::GetRelativePath(const char * path)
 IStreamPtr ZipIStreamDir::OpenIStream(const char * path)
 {
 	CriticalSectionLock lock(m_DirSec);
-	std::string path_str(path);
-	boost::algorithm::replace_all(path_str, "\\", "/");
-	ZZIP_FILE * zfile = zzip_file_open(m_zipdir, path_str.c_str(), ZZIP_CASEINSENSITIVE);
-	if(NULL == zfile)
+
+	_ASSERT(!strchr(path, '\\'));
+
+	boost::shared_ptr<zip_stat_t> stat(new zip_stat_t);
+	if (0 != zip_stat(m_archive, path, ZIP_FL_ENC_GUESS | ZIP_FL_ENC_RAW, stat.get()))
 	{
 		THROW_CUSEXCEPTION(str_printf("cannot open zip file: %s", path));
 	}
 
-	return IStreamPtr(new ZipIStream(zfile, m_DirSec));
+	zip_file_t* zipf = zip_fopen_index(m_archive, stat->index, ZIP_FL_ENC_GUESS | ZIP_FL_ENC_RAW);
+	if (NULL == zipf)
+	{
+		THROW_CUSEXCEPTION(str_printf("cannot open zip file: %s", path));
+	}
+
+	return IStreamPtr(new ZipIStream(stat, zipf, m_DirSec));
 }
 
 bool FileIStreamDir::CheckPath(const char * path)
@@ -658,6 +599,8 @@ HRESULT ResourceMgr::Open(
 	{
 		PathCombineA(&path[0], m_EffectInclude.c_str(), pFileName);
 	}
+	boost::replace_all(path, "\\", "/");
+
 	switch(IncludeType)
 	{
 	case D3DXINC_SYSTEM:

@@ -21,7 +21,7 @@ boost 1.75.0<br>
 Recast Navigation 1.5.1<br>
 FreeType 2.9.1<br>
 zlib 1.2.11<br>
-ZZIPlib 0.13.68<br>
+libzip 1.9.2<br>
 Lua 5.1.5<br>
 Luabind 0.9.1<br>
 LuaJIT 2.1<br>
