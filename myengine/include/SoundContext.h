@@ -59,15 +59,8 @@ public:
 class Mp3 : public my::Thread
 {
 protected:
-	static const DWORD MPEG_BUFSZ = 40000;
-
-	//static const DWORD MAX_RESAMPLEFACTOR = 6;
-
-	//static const DWORD MAX_NSAMPLES = 1152 * MAX_RESAMPLEFACTOR;
-
 	static const DWORD BLOCK_COUNT = 3;
 
-protected:
 	WAVEFORMATEX m_wavfmt;
 
 	my::SoundBufferPtr m_dsbuffer;
@@ -77,10 +70,6 @@ protected:
 	DSBPOSITIONNOTIFY m_dsnp[BLOCK_COUNT];
 
 	my::Event m_events[BLOCK_COUNT + 1];
-
-	typedef std::vector<unsigned char> FileBuffer;
-
-	FileBuffer m_buffer;
 
 	my::IStreamPtr m_stream;
 
