@@ -25,8 +25,7 @@ libzip 1.9.2<br>
 Lua 5.1.5<br>
 Luabind 0.9.1<br>
 LuaJIT 2.1<br>
-libid3tag-0.15.1b<br>
-libmad-0.15.1b<br>
+minimp3<br>
 
 screenshots
 ----
