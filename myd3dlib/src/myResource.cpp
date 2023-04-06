@@ -284,21 +284,24 @@ void StreamDirMgr::RegisterFileDir(const std::string & dir)
 
 bool StreamDirMgr::CheckPath(const char * path)
 {
-	if(!PathIsRelativeA(path))
+	if(PathIsRelativeA(path))
 	{
-		return PathFileExistsA(path);
-	}
+		std::string dummy_path(path);
 
-	ResourceDirPtrList::iterator dir_iter = m_DirList.begin();
-	for(; dir_iter != m_DirList.end(); dir_iter++)
-	{
-		if((*dir_iter)->CheckPath(path))
+		boost::replace_all(dummy_path, "\\", "/");
+
+		ResourceDirPtrList::iterator dir_iter = m_DirList.begin();
+		for (; dir_iter != m_DirList.end(); dir_iter++)
 		{
-			return true;
+			if ((*dir_iter)->CheckPath(dummy_path.c_str()))
+			{
+				return true;
+			}
 		}
+		return false;
 	}
 
-	return false;
+	return PathFileExistsA(path);
 }
 
 std::string StreamDirMgr::GetFullPath(const char * path)
@@ -367,12 +370,16 @@ IStreamPtr StreamDirMgr::OpenIStream(const char * path)
 {
 	if(PathIsRelativeA(path))
 	{
+		std::string dummy_path(path);
+
+		boost::replace_all(dummy_path, "\\", "/");
+
 		ResourceDirPtrList::iterator dir_iter = m_DirList.begin();
 		for (; dir_iter != m_DirList.end(); dir_iter++)
 		{
-			if ((*dir_iter)->CheckPath(path))
+			if ((*dir_iter)->CheckPath(dummy_path.c_str()))
 			{
-				return (*dir_iter)->OpenIStream(path);
+				return (*dir_iter)->OpenIStream(dummy_path.c_str());
 			}
 		}
 	}
@@ -599,7 +606,6 @@ HRESULT ResourceMgr::Open(
 	{
 		PathCombineA(&path[0], m_EffectInclude.c_str(), pFileName);
 	}
-	boost::replace_all(path, "\\", "/");
 
 	switch(IncludeType)
 	{
