@@ -71,11 +71,9 @@ protected:
 
 	my::Event m_events[BLOCK_COUNT + 1];
 
-	my::IStreamPtr m_stream;
+	std::string m_Mp3Path;
 
 	bool m_Loop;
-
-	//my::CriticalSection m_LoopLock;
 
 	bool PlayOnceByThread(void);
 
@@ -83,20 +81,6 @@ public:
 	Mp3(void);
 
 	virtual ~Mp3(void);
-
-	void SetLoop(bool Loop)
-	{
-		//my::CriticalSectionLock lock(m_LoopLock);
-		m_Loop = Loop;
-	}
-
-	bool GetLoop(void)
-	{
-		//my::CriticalSectionLock lock(m_LoopLock);
-		return m_Loop;
-	}
-
-	void Play(my::IStreamPtr istr, bool Loop);
 
 	void Play(const char * path, bool Loop);
 

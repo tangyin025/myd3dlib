@@ -456,7 +456,7 @@ public:
 
 		if (m_keyboard->IsKeyPress(KC_2))
 		{
-			m_mp3.Play(my::FileIStream::Open(_T("castle1_34.mp3")), false);
+			m_mp3.Play("castle1_34.mp3", false);
 		}
 
 		// Clear the render target and the zbuffer 

@@ -3074,8 +3074,7 @@ void LuaContext::Init(void)
 
 		, class_<Mp3, boost::shared_ptr<Mp3> >("Mp3")
 			.def(constructor<>())
-			.property("Loop", &Mp3::GetLoop, &Mp3::SetLoop)
-			.def("Play", (void(Mp3::*)(const char *, bool))&Mp3::Play)
+			.def("Play", &Mp3::Play)
 			.def("StopAsync", &Mp3::StopAsync)
 			.def("Stop", &Mp3::Stop)
 

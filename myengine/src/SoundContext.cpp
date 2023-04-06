@@ -150,9 +150,7 @@ bool Mp3::PlayOnceByThread(void)
 	mp3dec_init(&mp3d);
 	std::vector<unsigned char> sbuffer;
 
-	m_stream->seek(0, SEEK_SET);
-	std::vector<unsigned char> buffer(m_stream->GetSize());
-	m_stream->read(buffer.data(), buffer.size());
+	CachePtr cache = my::ResourceMgr::getSingleton().OpenIStream(m_Mp3Path.c_str())->GetWholeCache();
 
 	bool ret = false;
 	mp3dec_frame_info_t info;
@@ -160,7 +158,7 @@ bool Mp3::PlayOnceByThread(void)
 	for (int inLen = 0; true; inLen += info.frame_bytes)
 	{
 		// decode audio frame
-		int samples = mp3dec_decode_frame(&mp3d, buffer.data() + inLen, buffer.size() - inLen, pcm, &info);
+		int samples = mp3dec_decode_frame(&mp3d, cache->data() + inLen, cache->size() - inLen, pcm, &info);
 		if (samples <= 0)
 		{
 			if (NULL != m_dsbuffer)
@@ -311,23 +309,22 @@ Mp3::~Mp3(void)
 	}
 }
 
-void Mp3::Play(my::IStreamPtr istr, bool Loop)
+void Mp3::Play(const char* path, bool Loop)
 {
 	if (NULL != m_handle)
 	{
 		Stop();
 	}
 
-	m_stream = istr;
-	SetLoop(Loop);
-	m_events[0].ResetEvent();
-	CreateThread();
-	ResumeThread();
-}
+	m_Mp3Path = path;
 
-void Mp3::Play(const char * path, bool Loop)
-{
-	Play(my::ResourceMgr::getSingleton().OpenIStream(path), Loop);
+	m_Loop = Loop;
+
+	m_events[0].ResetEvent();
+
+	CreateThread();
+
+	ResumeThread();
 }
 
 void Mp3::StopAsync(void)
@@ -348,10 +345,9 @@ DWORD Mp3::OnThreadProc(void)
 {
 	try
 	{
-		do
+		while (PlayOnceByThread() && m_Loop)
 		{
-			;
-		} while (PlayOnceByThread() && GetLoop());
+		}
 	}
 	catch (Exception& /*e*/)
 	{
