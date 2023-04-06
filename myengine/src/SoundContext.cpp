@@ -1,5 +1,6 @@
 #include "SoundContext.h"
 #include "myResource.h"
+#include "myDxutApp.h"
 #define MINIMP3_IMPLEMENTATION 
 #include "minimp3.h"
 
@@ -137,6 +138,8 @@ SoundEventPtr SoundContext::Play(my::WavPtr wav, bool Loop, const my::Vector3 & 
 
 bool Mp3::PlayOnceByThread(void)
 {
+	CachePtr cache = my::ResourceMgr::getSingleton().OpenIStream(m_Mp3Path.c_str())->GetWholeCache();
+
 	// initialize dsound position notifies
 	for (size_t i = 0; i < _countof(m_dsnp); i++)
 	{
@@ -146,15 +149,12 @@ bool Mp3::PlayOnceByThread(void)
 	// set the default block which to begin playing
 	BOOST_VERIFY(::SetEvent(m_dsnp[0].hEventNotify));
 
+	bool ret = false;
 	mp3dec_t mp3d;
 	mp3dec_init(&mp3d);
-	std::vector<unsigned char> sbuffer;
-
-	CachePtr cache = my::ResourceMgr::getSingleton().OpenIStream(m_Mp3Path.c_str())->GetWholeCache();
-
-	bool ret = false;
 	mp3dec_frame_info_t info;
 	short pcm[MINIMP3_MAX_SAMPLES_PER_FRAME];
+	std::vector<unsigned char> sbuffer;
 	for (int inLen = 0; true; inLen += info.frame_bytes)
 	{
 		// decode audio frame
@@ -349,9 +349,9 @@ DWORD Mp3::OnThreadProc(void)
 		{
 		}
 	}
-	catch (Exception& /*e*/)
+	catch (const Exception & e)
 	{
-		//::my::Game::getSingleton().m_pwnd->sendMessage(WM_USER + 0, (WPARAM)&e);
+		D3DContext::getSingleton().m_EventLog(e.what().c_str());
 	}
 
 	return 0;
