@@ -245,7 +245,11 @@ public:
 
 LONG WINAPI OnException(_EXCEPTION_POINTERS* ExceptionInfo)
 {
-	WriteMiniDump(ExceptionInfo, _T("aaa.dmp"));
+	SYSTEMTIME time;
+	GetSystemTime(&time);
+	TCHAR buff[MAX_PATH];
+	_stprintf_s(buff, _countof(buff), _T("aaa_%04u_%02u_%02u_%02u_%02u_%02u_%03u.dmp"), time.wYear, time.wMonth, time.wDay, time.wHour, time.wMinute, time.wSecond, time.wMilliseconds);
+	WriteMiniDump(ExceptionInfo, buff);
 	return EXCEPTION_EXECUTE_HANDLER;
 }
 
