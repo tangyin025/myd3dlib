@@ -848,20 +848,21 @@ bool CChildView::OverlapTestFrustumAndComponent(const my::Frustum & frustum, con
 		}
 		break;
 
+	case Component::ComponentTypeCircularEmitter:
 	case Component::ComponentTypeSphericalEmitter:
 		{
-			SphericalEmitter * sphe_emit_cmp = dynamic_cast<SphericalEmitter*>(cmp);
-			if (sphe_emit_cmp->m_ParticleList.empty())
+			CircularEmitter * circ_emit_cmp = dynamic_cast<CircularEmitter*>(cmp);
+			if (circ_emit_cmp->m_ParticleList.empty())
 			{
 				return false;
 			}
-			my::Emitter::ParticleList::array_range array_one = sphe_emit_cmp->m_ParticleList.array_one();
-			if (OverlapTestFrustumAndParticles(frustum, local_ftm, sphe_emit_cmp, array_one.first, array_one.second))
+			my::Emitter::ParticleList::array_range array_one = circ_emit_cmp->m_ParticleList.array_one();
+			if (OverlapTestFrustumAndParticles(frustum, local_ftm, circ_emit_cmp, array_one.first, array_one.second))
 			{
 				return true;
 			}
-			my::Emitter::ParticleList::array_range array_two = sphe_emit_cmp->m_ParticleList.array_two();
-			if (OverlapTestFrustumAndParticles(frustum, local_ftm, sphe_emit_cmp, array_two.first, array_two.second))
+			my::Emitter::ParticleList::array_range array_two = circ_emit_cmp->m_ParticleList.array_two();
+			if (OverlapTestFrustumAndParticles(frustum, local_ftm, circ_emit_cmp, array_two.first, array_two.second))
 			{
 				return true;
 			}
@@ -1182,24 +1183,25 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, const 
 		}
 		break;
 
+	case Component::ComponentTypeCircularEmitter:
 	case Component::ComponentTypeSphericalEmitter:
 		{
-			SphericalEmitter* sphe_emit_cmp = dynamic_cast<SphericalEmitter *>(cmp);
-			if (sphe_emit_cmp->m_ParticleList.empty())
+			CircularEmitter* circ_emit_cmp = dynamic_cast<CircularEmitter *>(cmp);
+			if (circ_emit_cmp->m_ParticleList.empty())
 			{
 				return my::RayResult(false, FLT_MAX);
 			}
 			int part_id;
-			my::Emitter::ParticleList::array_range array_one = sphe_emit_cmp->m_ParticleList.array_one();
-			my::RayResult ret = OverlapTestRayAndParticles(ray, local_ray, sphe_emit_cmp, array_one.first, array_one.second, part_id);
+			my::Emitter::ParticleList::array_range array_one = circ_emit_cmp->m_ParticleList.array_one();
+			my::RayResult ret = OverlapTestRayAndParticles(ray, local_ray, circ_emit_cmp, array_one.first, array_one.second, part_id);
 			if (ret.first)
 			{
 				raychunkid.SetPoint(0, 0);
 				rayinstid = part_id;
 				return ret;
 			}
-			my::Emitter::ParticleList::array_range array_two = sphe_emit_cmp->m_ParticleList.array_two();
-			ret = OverlapTestRayAndParticles(ray, local_ray, sphe_emit_cmp, array_two.first, array_two.second, part_id);
+			my::Emitter::ParticleList::array_range array_two = circ_emit_cmp->m_ParticleList.array_two();
+			ret = OverlapTestRayAndParticles(ray, local_ray, circ_emit_cmp, array_two.first, array_two.second, part_id);
 			if (ret.first)
 			{
 				raychunkid.SetPoint(0, 0);

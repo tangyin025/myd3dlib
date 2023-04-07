@@ -413,6 +413,9 @@ void CPropertiesWnd::UpdateProperties(CMFCPropertyGridProperty * pComponent, int
 	case Component::ComponentTypeNavigation:
 		UpdatePropertiesNavigation(pComponent, dynamic_cast<Navigation *>(cmp));
 		break;
+	default:
+		RemovePropertiesFrom(pComponent, GetComponentPropCount(Component::ComponentTypeComponent));
+		break;
 	}
 }
 
