@@ -2039,11 +2039,13 @@ void DxutApp::Cleanup3DEnvironment(void)
 	{
 		OnDestroyDevice();
 		UINT references = m_d3dDevice.Detach()->Release();
+#ifdef _DEBUG
 		if(references > 0)
 		{
 			TCHAR msg[256];
 			_stprintf_s(msg, _countof(msg), _T("no zero reference count: %u"), references);
 			::MessageBox(NULL, msg, NULL, MB_OK);
 		}
+#endif
 	}
 }

@@ -146,12 +146,14 @@ void CMainApp::DestroyD3DDevice(void)
 		OnDestroyDevice();
 
 		UINT references = m_d3dDevice.Detach()->Release();
+#ifdef _DEBUG
 		if(references > 0)
 		{
 			CString msg;
 			msg.Format(_T("no zero reference count: %u"), references);
 			AfxMessageBox(msg);
 		}
+#endif
 		m_DeviceObjectsCreated = false;
 	}
 }
