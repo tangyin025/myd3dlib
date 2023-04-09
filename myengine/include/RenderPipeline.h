@@ -2,7 +2,6 @@
 
 #include "myMesh.h"
 #include "myEmitter.h"
-#include "myThread.h"
 #include <boost/unordered_map.hpp>
 #include <boost/array.hpp>
 #include <boost/tuple/tuple.hpp>
@@ -53,8 +52,6 @@ public:
 	typedef boost::unordered_map<size_t, boost::shared_ptr<my::Effect> > ShaderCacheMap;
 
 	ShaderCacheMap m_ShaderCache;
-
-	my::CriticalSection m_ShaderCacheSec;
 
 	my::D3DVertexElementSet m_ParticleVertElems;
 
@@ -463,8 +460,6 @@ public:
 	};
 
 	boost::array<Pass, PassTypeNum> m_Pass;
-
-	boost::array<my::CriticalSection, PassTypeNum> m_PassSec;
 
 	boost::array<int, PassTypeNum> m_PassDrawCall;
 
