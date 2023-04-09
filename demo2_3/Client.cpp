@@ -27,6 +27,7 @@
 #include <boost/program_options.hpp>
 #include <boost/regex.hpp>
 #include <boost/assign/list_of.hpp>
+#include <boost/scope_exit.hpp>
 #include "DebugDraw.h"
 
 #ifdef _DEBUG
@@ -1757,7 +1758,85 @@ void Client::QueryRenderComponent(const my::Frustum & frustum, RenderPipeline * 
 		}
 	};
 
-	QueryEntity(frustum, &Callback(frustum, pipeline, PassMask, m_Camera->m_Eye, m_ViewedCenter, this));
+	//QueryEntity(frustum, &Callback(frustum, pipeline, PassMask, m_Camera->m_Eye, m_ViewedCenter, this));
+
+	// ! make sure all xxx::AddToPipeline are thread safe
+	std::vector<my::ParallelTaskPtr> tasks;
+	Callback cb(frustum, pipeline, PassMask, m_Camera->m_Eye, m_ViewedCenter, this);
+	ParallelQueryEntity(tasks, 1050 * 1050 * 3, this, frustum, &cb);
+	DoAllParallelTasks();
+}
+
+void Client::ParallelQueryEntity(std::vector<my::ParallelTaskPtr>& tasks, const float TaskDiameterSq, const my::OctNode* node, const my::Frustum& frustum, my::OctNode::QueryCallback* callback)
+{
+#ifdef _DEBUG
+	const_cast<bool&>(node->m_QueryEntityMuted) = true;
+	BOOST_SCOPE_EXIT(node)
+	{
+		const_cast<bool&>(node->m_QueryEntityMuted) = false;
+	}
+	BOOST_SCOPE_EXIT_END
+#endif
+
+		class QueryEntityTask : public my::ParallelTask
+	{
+	public:
+		const my::OctNode* node;
+
+		const my::Frustum* frustum;
+
+		my::OctNode::QueryCallback* callback;
+
+		QueryEntityTask(const my::OctNode* _node, const my::Frustum* _frustum, my::OctNode::QueryCallback* _callback)
+			: node(_node)
+			, frustum(_frustum)
+			, callback(_callback)
+		{
+		}
+
+		virtual void DoTask(void)
+		{
+			node->QueryEntity(*frustum, callback);
+		}
+	};
+
+	const float DiameterSq = node->Extent().magnitudeSq();
+	my::OctNode::ChildArray::const_iterator child_iter = node->m_Childs.begin();
+	for (; child_iter != node->m_Childs.end(); child_iter++)
+	{
+		if (*child_iter)
+		{
+			switch (IntersectionTests::IntersectAABBAndFrustum(**child_iter, frustum))
+			{
+			case IntersectionTests::IntersectionTypeInside:
+			case IntersectionTests::IntersectionTypeIntersect:
+				if (DiameterSq > TaskDiameterSq)
+				{
+					ParallelQueryEntity(tasks, TaskDiameterSq, child_iter->get(), frustum, callback);
+				}
+				else
+				{
+					my::ParallelTaskPtr task(new QueryEntityTask(child_iter->get(), &frustum, callback));
+					PushTask(task.get());
+					tasks.push_back(task);
+				}
+				break;
+			}
+		}
+	}
+
+	my::OctNode::OctEntityMap::const_iterator entity_iter = node->m_Entities.begin();
+	for (; entity_iter != node->m_Entities.end(); entity_iter++)
+	{
+		IntersectionTests::IntersectionType intersect_type = IntersectionTests::IntersectAABBAndFrustum(entity_iter->second, frustum);
+		switch (intersect_type)
+		{
+		case IntersectionTests::IntersectionTypeInside:
+		case IntersectionTests::IntersectionTypeIntersect:
+			callback->OnQueryEntity(entity_iter->first, entity_iter->second, intersect_type);
+			break;
+		}
+	}
 }
 
 void Client::AddEntity(my::OctEntity * entity, const my::AABB & aabb, float minblock, float threshold)

@@ -350,6 +350,8 @@ public:
 
 	virtual void QueryRenderComponent(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask);
 
+	void ParallelQueryEntity(std::vector<my::ParallelTaskPtr>& tasks, const float TaskDiameterSq, const my::OctNode* node, const my::Frustum& frustum, my::OctNode::QueryCallback* callback);
+
 	virtual void AddEntity(my::OctEntity * entity, const my::AABB & aabb, float minblock, float threshold);
 
 	virtual void RemoveEntity(my::OctEntity * entity);

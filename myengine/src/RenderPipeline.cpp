@@ -101,6 +101,7 @@ my::Effect * RenderPipeline::QueryShader(MeshType mesh_type, const D3DXMACRO* pD
 {
 	const char * name = PathFindFileNameA(path);
 	size_t seed = _hash_value(mesh_type, pDefines, name);
+	my::CriticalSectionLock lock(m_ShaderCacheSec);
 	ShaderCacheMap::iterator shader_iter = m_ShaderCache.find(seed);
 	if (shader_iter != m_ShaderCache.end())
 	{
@@ -1236,6 +1237,7 @@ void RenderPipeline::PushIndexedPrimitive(
 	atom.cmp = cmp;
 	atom.mtl = mtl;
 	atom.lparam = lparam;
+	my::CriticalSectionLock lock(m_PassSec[PassID]);
 	m_Pass[PassID].m_IndexedPrimitiveList.push_back(atom);
 }
 
@@ -1277,6 +1279,7 @@ void RenderPipeline::PushIndexedPrimitiveInstance(
 	atom.cmp = cmp;
 	atom.mtl = mtl;
 	atom.lparam = lparam;
+	my::CriticalSectionLock lock(m_PassSec[PassID]);
 	m_Pass[PassID].m_IndexedPrimitiveInstanceList.push_back(atom);
 }
 
@@ -1311,6 +1314,7 @@ void RenderPipeline::PushIndexedPrimitiveUP(
 	atom.cmp = cmp;
 	atom.mtl = mtl;
 	atom.lparam = lparam;
+	my::CriticalSectionLock lock(m_PassSec[PassID]);
 	m_Pass[PassID].m_IndexedPrimitiveUPList.push_back(atom);
 }
 
@@ -1323,12 +1327,14 @@ void RenderPipeline::PushMesh(unsigned int PassID, my::OgreMesh * mesh, DWORD At
 	atom.cmp = cmp;
 	atom.mtl = mtl;
 	atom.lparam = lparam;
+	my::CriticalSectionLock lock(m_PassSec[PassID]);
 	m_Pass[PassID].m_MeshList.push_back(atom);
 }
 
 void RenderPipeline::PushMeshInstance(unsigned int PassID, my::OgreMesh * mesh, DWORD AttribId, my::Effect * shader, MeshComponent * mesh_cmp, Material * mtl, LPARAM lparam)
 {
 	MeshInstanceAtomKey key(mesh, AttribId, shader, mtl, lparam);
+	my::CriticalSectionLock lock(m_PassSec[PassID]);
 	std::pair<MeshInstanceAtomMap::iterator, bool> res = m_Pass[PassID].m_MeshInstanceMap.insert(std::make_pair(key, MeshInstanceAtom()));
 	if (res.second)
 	{
@@ -1362,6 +1368,7 @@ void RenderPipeline::PushMeshInstance(unsigned int PassID, my::OgreMesh * mesh, 
 
 void RenderPipeline::PushMeshBatch(unsigned int PassID, my::OgreMesh * mesh, DWORD AttribId, my::Effect * shader, Component * cmp, Material * mtl, LPARAM lparam)
 {
+	my::CriticalSectionLock lock(m_PassSec[PassID]);
 	std::pair<MeshBatchAtomMap::iterator, bool> res = m_Pass[PassID].m_MeshBatchMap.insert(std::make_pair(mesh, MeshBatchAtom()));
 	if (res.second)
 	{
@@ -1404,6 +1411,7 @@ void RenderPipeline::PushEmitter(
 
 	EmitterInstanceAtomKey key(pVB, pIB, MinVertexIndex,
 		dynamic_cast<EmitterComponent *>(cmp)->m_EmitterSpaceType == EmitterComponent::SpaceTypeWorld ? &Matrix4::identity : &cmp->m_Actor->m_World, shader, mtl, lparam);
+	my::CriticalSectionLock lock(m_PassSec[PassID]);
 	std::pair<EmitterInstanceAtomMap::iterator, bool> res = m_Pass[PassID].m_EmitterInstanceMap.insert(std::make_pair(key, EmitterInstanceAtom()));
 	if (res.second)
 	{
