@@ -270,12 +270,18 @@ void StaticEmitter::AddToPipeline(const my::Frustum& frustum, RenderPipeline* pi
 	{
 		Frustum LocalFrustum = frustum.transform(m_Actor->m_World.transpose());
 		Vector3 LocalViewPos = TargetPos.transformCoord(m_Actor->m_World.inverse());
+		const float LocalCullingDist = m_Actor->m_LodDist * powf(m_Actor->m_LodFactor, LastLod) * m_ChunkLodScale;
+
+		LocalFrustum.Near.normalizeSelf();
+		LocalFrustum.Near.d = Min(LocalFrustum.Near.d, LocalCullingDist - LocalViewPos.dot(LocalFrustum.Near.normal));
+		LocalFrustum.Far.normalizeSelf();
+		LocalFrustum.Far.d = Min(LocalFrustum.Far.d, LocalCullingDist - LocalViewPos.dot(LocalFrustum.Far.normal));
+
 		Callback cb(pipeline, PassMask, LocalViewPos, this);
 		QueryEntity(LocalFrustum, &cb);
 
 		if (PassMask & RenderPipeline::PassTypeToMask(RenderPipeline::PassTypeNormal))
 		{
-			const float LocalCullingDist = m_Actor->m_LodDist * powf(m_Actor->m_LodFactor, LastLod) * m_ChunkLodScale;
 			ChunkSet::iterator chunk_iter = cb.insert_chunk_iter;
 			for (; chunk_iter != m_ViewedChunks.end(); )
 			{

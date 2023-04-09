@@ -1757,7 +1757,10 @@ void Client::QueryRenderComponent(const my::Frustum & frustum, RenderPipeline * 
 		}
 	};
 
-	QueryEntity(frustum, &Callback(frustum, pipeline, PassMask, m_Camera->m_Eye, m_ViewedCenter, this));
+	my::Frustum dummy_ftm(frustum);
+	dummy_ftm.Near.normalizeSelf();
+	dummy_ftm.Near.d = Min(dummy_ftm.Near.d, m_ViewedDist - m_ViewedCenter.dot(dummy_ftm.Near.normal));
+	QueryEntity(dummy_ftm, &Callback(frustum, pipeline, PassMask, m_Camera->m_Eye, m_ViewedCenter, this));
 }
 
 void Client::AddEntity(my::OctEntity * entity, const my::AABB & aabb, float minblock, float threshold)
