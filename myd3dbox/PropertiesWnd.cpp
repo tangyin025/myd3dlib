@@ -378,7 +378,9 @@ void CPropertiesWnd::UpdatePropertiesRigidActor(CMFCPropertyGridProperty * pRigi
 
 void CPropertiesWnd::UpdateProperties(CMFCPropertyGridProperty * pComponent, int i, Component * cmp)
 {
-	pComponent->SetName(GetComponentTypeName(cmp->GetComponentType()), FALSE);
+	CString strTitle;
+	strTitle.Format(_T("%s: %S"), GetComponentTypeName(cmp->GetComponentType()), cmp->GetName());
+	pComponent->SetName(strTitle, FALSE);
 	pComponent->SetValue((_variant_t)(DWORD_PTR)cmp);
 	pComponent->GetSubItem(0)->SetValue((_variant_t)ms2ts(cmp->GetName()).c_str());
 	pComponent->GetSubItem(1)->SetValue((_variant_t)GetLodMaskDesc(cmp->m_LodMask));
@@ -1361,7 +1363,9 @@ void CPropertiesWnd::CreatePropertiesRigidActor(CMFCPropertyGridProperty * pPare
 
 void CPropertiesWnd::CreateProperties(CMFCPropertyGridProperty * pParentCtrl, Component * cmp)
 {
-	CMFCPropertyGridProperty * pComponent = new CSimpleProp(GetComponentTypeName(cmp->GetComponentType()), GetComponentProp(cmp->GetComponentType()), FALSE);
+	CString strTitle;
+	strTitle.Format(_T("%s: %S"), GetComponentTypeName(cmp->GetComponentType()), cmp->GetName());
+	CMFCPropertyGridProperty * pComponent = new CSimpleProp(strTitle, GetComponentProp(cmp->GetComponentType()), FALSE);
 	pParentCtrl->AddSubItem(pComponent);
 	pComponent->SetValue((_variant_t)(DWORD_PTR)cmp); // ! only worked on 32bit system
 
