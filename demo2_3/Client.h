@@ -174,10 +174,6 @@ public:
 	{
 	}
 
-	virtual void OnControlFocus(my::Control * control)
-	{
-	}
-
 	virtual void OnActorRequestResource(Actor * actor)
 	{
 	}
@@ -188,6 +184,15 @@ public:
 
 	virtual void OnGUI(my::UIRender * ui_render, float fElapsedTime, const my::Vector2 & Viewport)
 	{
+	}
+
+	virtual void OnControlFocus(my::Control * control)
+	{
+	}
+
+	virtual std::wstring OnControlTranslate(const std::string& u8str)
+	{
+		return std::wstring();
 	}
 
 	virtual bool OnControllerFilter(Controller * a, Controller * b)
@@ -358,9 +363,9 @@ public:
 
 	virtual void OnControlFocus(my::Control * control);
 
-	virtual bool OnControllerFilter(const physx::PxController& a, const physx::PxController& b);
+	virtual std::wstring OnControlTranslate(const std::string& u8str);
 
-	virtual std::wstring OnControlTranslate(const std::string& str);
+	virtual bool OnControllerFilter(const physx::PxController& a, const physx::PxController& b);
 
 	void SetTranslation(const std::string& key, const std::wstring& text);
 

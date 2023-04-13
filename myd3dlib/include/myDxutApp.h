@@ -155,7 +155,7 @@ namespace my
 		{
 		}
 
-		virtual std::wstring OnControlTranslate(const std::string& str);
+		virtual std::wstring OnControlTranslate(const std::string& u8str);
 	};
 
 	class DxutApp

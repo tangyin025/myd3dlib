@@ -563,23 +563,6 @@ struct ScriptStateBase : StateBase, luabind::wrap_base
 		ptr->StateBase::OnUpdate(fElapsedTime);
 	}
 
-	virtual void OnControlFocus(my::Control * control)
-	{
-		try
-		{
-			luabind::wrap_base::call<void>("OnControlFocus", control);
-		}
-		catch (const luabind::error& e)
-		{
-			my::D3DContext::getSingleton().m_EventLog(lua_tostring(e.state(), -1));
-		}
-	}
-
-	static void default_OnControlFocus(StateBase * ptr, my::Control * control)
-	{
-		ptr->StateBase::OnControlFocus(control);
-	}
-
 	virtual void OnActorRequestResource(Actor * actor)
 	{
 		try
@@ -631,6 +614,40 @@ struct ScriptStateBase : StateBase, luabind::wrap_base
 	static void default_OnGUI(StateBase * ptr, my::UIRender * ui_render, float fElapsedTime, const my::Vector2 & Viewport)
 	{
 		ptr->StateBase::OnGUI(ui_render, fElapsedTime, Viewport);
+	}
+
+	virtual void OnControlFocus(my::Control* control)
+	{
+		try
+		{
+			luabind::wrap_base::call<void>("OnControlFocus", control);
+		}
+		catch (const luabind::error& e)
+		{
+			my::D3DContext::getSingleton().m_EventLog(lua_tostring(e.state(), -1));
+		}
+	}
+
+	static void default_OnControlFocus(StateBase* ptr, my::Control* control)
+	{
+		ptr->StateBase::OnControlFocus(control);
+	}
+
+	virtual std::wstring OnControlTranslate(const std::string& u8str)
+	{
+		try
+		{
+			return luabind::wrap_base::call<std::wstring>("OnControlTranslate", u8str);
+		}
+		catch (const luabind::error& e)
+		{
+			my::D3DContext::getSingleton().m_EventLog(lua_tostring(e.state(), -1));
+		}
+	}
+
+	static std::wstring default_OnControlTranslate(StateBase* ptr, const std::string& u8str)
+	{
+		return std::wstring();
 	}
 
 	virtual bool OnControllerFilter(Controller * a, Controller * b)
@@ -1824,6 +1841,16 @@ void Client::OnControlFocus(my::Control * control)
 	}
 }
 
+std::wstring Client::OnControlTranslate(const std::string& u8str)
+{
+	TranslationMap::iterator trans_iter = m_TranslationMap.find(u8str);
+	if (trans_iter != m_TranslationMap.end())
+	{
+		return trans_iter->second;
+	}
+	return D3DContext::OnControlTranslate(u8str);
+}
+
 bool Client::OnControllerFilter(const physx::PxController& a, const physx::PxController& b)
 {
 	StateBase* active_leaf = GetActiveLeaf();
@@ -1834,16 +1861,6 @@ bool Client::OnControllerFilter(const physx::PxController& a, const physx::PxCon
 		return active_leaf->OnControllerFilter(controller0, controller1);
 	}
 	return PhysxScene::OnControllerFilter(a, b);
-}
-
-std::wstring Client::OnControlTranslate(const std::string& str)
-{
-	TranslationMap::iterator trans_iter = m_TranslationMap.find(str);
-	if (trans_iter != m_TranslationMap.end())
-	{
-		return trans_iter->second;
-	}
-	return D3DContext::OnControlTranslate(str);
 }
 
 void Client::SetTranslation(const std::string& key, const std::wstring& text)
