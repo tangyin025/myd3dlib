@@ -813,9 +813,9 @@ void Actor::Attach(Actor * other, int BoneId)
 		BOOST_VERIFY(m_Aggregate->addActor(*other->m_PxActor));
 	}
 
-	const my::Bone pose = Bone(other->m_Position, other->m_Rotation).TransformTranspose(GetAttachPose(BoneId, Vector3(0, 0, 0), Quaternion::Identity()));
+	//const my::Bone pose = Bone(other->m_Position, other->m_Rotation).TransformTranspose(GetAttachPose(BoneId, Vector3(0, 0, 0), Quaternion::Identity()));
 
-	other->SetPose(pose);
+	//other->SetPose(pose);
 }
 
 void Actor::Detach(Actor * other)
@@ -876,9 +876,10 @@ void Actor::Detach(Actor * other)
 			}
 		}
 
-		const my::Bone pose = GetAttachPose(other->m_BaseBoneId, other->m_Position, other->m_Rotation);
+		//const my::Bone pose = GetAttachPose(other->m_BaseBoneId, other->m_Position, other->m_Rotation);
 
-		other->SetPose(pose.m_position, pose.m_rotation);
+		//other->SetPose(pose.m_position, pose.m_rotation);
+
 		return;
 	}
 	_ASSERT(false);
