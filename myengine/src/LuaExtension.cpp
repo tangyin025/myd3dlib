@@ -81,13 +81,13 @@ static void basetexture_generate_mip_sub_levels(my::BaseTexture* self)
 	V(D3DXFilterTexture(self->m_ptr, NULL, 0, D3DX_DEFAULT));
 }
 
-static void basetexture_save_texture_to_file(my::BaseTexture* self, const std::string& u8_path, D3DXIMAGE_FILEFORMAT DestFormat)
+static void basetexture_save_texture_to_file(my::BaseTexture* self, const char* u8_path, D3DXIMAGE_FILEFORMAT DestFormat)
 {
 	HRESULT hr;
 	V(D3DXSaveTextureToFile(u8tots(u8_path).c_str(), DestFormat, self->m_ptr, NULL));
 }
 
-static void texture2d_create_texture_from_file(my::Texture2D* self, const std::string& u8_path)
+static void texture2d_create_texture_from_file(my::Texture2D* self, const char* u8_path)
 {
 	self->CreateTextureFromFile(u8tots(u8_path).c_str(), D3DX_DEFAULT_NONPOW2, D3DX_DEFAULT_NONPOW2, D3DX_DEFAULT, 0, D3DFMT_UNKNOWN, D3DPOOL_MANAGED, D3DX_DEFAULT, D3DX_DEFAULT, 0, NULL, NULL);
 }
@@ -106,19 +106,19 @@ static void texture2d_fill_color(my::Texture2D* self, D3DCOLOR color)
 	V(my::D3DContext::getSingleton().m_d3dDevice->ColorFill(surf, NULL, color));
 }
 
-static void cubetexture_load_cube_map_surface_from_file(my::CubeTexture* self, D3DCUBEMAP_FACES FaceType, const std::string& u8_path)
+static void cubetexture_load_cube_map_surface_from_file(my::CubeTexture* self, D3DCUBEMAP_FACES FaceType, const char* u8_path)
 {
 	HRESULT hr;
 	CComPtr<IDirect3DSurface9> surf = self->GetCubeMapSurface(FaceType, 0);
 	V(D3DXLoadSurfaceFromFileW(surf, NULL, NULL, u8tots(u8_path).c_str(), NULL, D3DX_DEFAULT, 0, NULL));
 }
 
-static void ogremesh_create_mesh_from_ogre_xml_in_file(my::OgreMesh* self, const std::string& u8_path)
+static void ogremesh_create_mesh_from_ogre_xml_in_file(my::OgreMesh* self, const char* u8_path)
 {
 	self->CreateMeshFromOgreXmlInFile(u8tots(u8_path).c_str(), true, D3DXMESH_MANAGED);
 }
 
-static void ogremesh_create_mesh_from_obj_in_file(my::OgreMesh* self, const std::string& u8_path)
+static void ogremesh_create_mesh_from_obj_in_file(my::OgreMesh* self, const char* u8_path)
 {
 	self->CreateMeshFromObjInFile(u8tots(u8_path).c_str(), true, D3DXMESH_MANAGED);
 }
@@ -923,7 +923,7 @@ static std::string cmatch_sub_match(boost::cmatch* self, int i)
 	return self->operator[](i);
 }
 
-static void xml_node_print_to_file(rapidxml::xml_node<char>* self, const std::string& u8_path)
+static void xml_node_print_to_file(rapidxml::xml_node<char>* self, const char* u8_path)
 {
 	std::ofstream ofs(u8tows(u8_path).c_str(), std::ios::out, _SH_DENYRW);
 	if (ofs.is_open())
@@ -932,7 +932,7 @@ static void xml_node_print_to_file(rapidxml::xml_node<char>* self, const std::st
 	}
 }
 
-static void xml_document_parse(rapidxml::xml_document<char>* self, const std::string& u8_path, my::CachePtr& cache)
+static void xml_document_parse(rapidxml::xml_document<char>* self, const char* u8_path, my::CachePtr& cache)
 {
 	_ASSERT(!cache);
 	cache = my::FileIStream::Open(u8tows(u8_path).c_str())->GetWholeCache();

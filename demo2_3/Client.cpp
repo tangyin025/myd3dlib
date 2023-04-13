@@ -389,9 +389,9 @@ static void client_add_state_adopt(Client* self, StateBase* state, StateBase* pa
 	self->AddState(StateBasePtr(state), parent);
 }
 
-static bool client_file_exists(Client* self, const std::string& path)
+static bool client_file_exists(Client* self, const char* u8path)
 {
-	return PathFileExists(u8tots(path).c_str());
+	return PathFileExists(u8tots(u8path).c_str());
 }
 
 PlayerData::PlayerData(void)

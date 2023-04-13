@@ -26,7 +26,7 @@ CTerrainDlg::CTerrainDlg(const char * TerrainComponentName, CWnd* pParent /*=NUL
 	, m_ActorScale(1.0f)
 	, m_ChunkLodScale(1.0f)
 {
-	m_AssetPath.Format(_T("terrain/%s"), ms2ts(m_terrain_name).c_str());
+	m_AssetPath.Format(_T("terrain/%s"), ms2ts(m_terrain_name.c_str()).c_str());
 }
 
 CTerrainDlg::~CTerrainDlg()

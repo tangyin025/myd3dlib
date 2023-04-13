@@ -1768,7 +1768,7 @@ template<class Archive>
 void Static::save(Archive & ar, const unsigned int version) const
 {
 	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(Control);
-	std::string text_u8 = wstou8(m_Text);
+	std::string text_u8 = wstou8(m_Text.c_str());
 	ar << boost::serialization::make_nvp("m_Text", text_u8);
 }
 

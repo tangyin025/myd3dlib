@@ -2467,7 +2467,7 @@ BOOL CMainFrame::OnShowPopupMenu(CMFCPopupMenu* pMenuPopup)
 						m_ToolScripts[i - first_script_index] = ffd.cFileName;
 						static const TCHAR* pref[] = { _T("&1 "), _T("&2 "), _T("&3 "), _T("&4 "), _T("&5 "), _T("&6 "), _T("&7 "), _T("&8 "), _T("&9 "), _T("1&0 ") };
 						std::basic_string<TCHAR> strText(i - first_script_index < _countof(pref) ? pref[i - first_script_index] : _T(""));
-						strText.append(ms2ts(m_ToolScripts[i - first_script_index]));
+						strText.append(ms2ts(m_ToolScripts[i - first_script_index].c_str()));
 						if (i < pMenuBar->GetCount() && pMenuBar->GetButtonStyle(i) != TBBS_SEPARATOR && pMenuBar->GetItemID(i) < ID_TOOLS_SCRIPT_LAST)
 						{
 							pMenuBar->SetButtonText(i, strText.c_str());

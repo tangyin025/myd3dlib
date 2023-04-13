@@ -288,7 +288,7 @@ void Console::OnEventEnter(EventArg * arg)
 		m_strIter = m_strList.end();
 		m_Edit->SetText(L"");
 		m_Panel->AddLine(code, boost::dynamic_pointer_cast<EditBoxSkin>(m_Edit->m_Skin)->m_TextColor);
-		Client::getSingleton().ExecuteCode(wstou8(code).c_str());
+		Client::getSingleton().ExecuteCode(wstou8(code.c_str()).c_str());
 	}
 }
 

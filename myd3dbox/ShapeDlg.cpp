@@ -202,7 +202,7 @@ void CShapeDlg::OnClickedButton4()
 	int res = SHFileOperationA(&shfo);
 	if (res != 0)
 	{
-		MessageBox(str_printf(_T("SHFileOperation failed: %s"), ms2ts(FullPath).c_str()).c_str());
+		MessageBox(str_printf(_T("SHFileOperation failed: %s"), ms2ts(FullPath.c_str()).c_str()).c_str());
 	}
 
 	OnChangeEdit11();

@@ -254,7 +254,7 @@ NamedObject * D3DContext::GetNamedObject(const char * Name)
 
 std::wstring D3DContext::OnControlTranslate(const std::string& u8str)
 {
-	return u8tows(u8str);
+	return u8tows(u8str.c_str());
 }
 
 bool DxutApp::IsDeviceAcceptable(
@@ -339,7 +339,7 @@ int DxutApp::Run(void)
 	}
 	catch(const my::Exception & e)
 	{
-		::MessageBox(m_wnd->m_hWnd, ms2ts(e.what()).c_str(), NULL, MB_OK);
+		::MessageBox(m_wnd->m_hWnd, ms2ts(e.what().c_str()).c_str(), NULL, MB_OK);
 	}
 	catch(const luabind::error & e)
 	{
@@ -350,7 +350,7 @@ int DxutApp::Run(void)
 		std::string msg(e.what());
 		msg.append(": ");
 		msg.append(e.info().name());
-		::MessageBox(m_wnd->m_hWnd, ms2ts(msg).c_str(), NULL, MB_OK);
+		::MessageBox(m_wnd->m_hWnd, ms2ts(msg.c_str()).c_str(), NULL, MB_OK);
 	}
 	catch(const std::exception & e)
 	{

@@ -18,7 +18,7 @@ CStaticEmitterDlg::CStaticEmitterDlg(const char* StaticEmitterName, CWnd* pParen
 	, m_ChunkWidth(4.0f)
 	, m_ChunkLodScale(1.0f)
 {
-	m_AssetPath.Format(_T("terrain/%s"), ms2ts(m_emit_cmp_name).c_str());
+	m_AssetPath.Format(_T("terrain/%s"), ms2ts(m_emit_cmp_name.c_str()).c_str());
 }
 
 CStaticEmitterDlg::~CStaticEmitterDlg()
