@@ -633,23 +633,6 @@ struct ScriptStateBase : StateBase, luabind::wrap_base
 		ptr->StateBase::OnControlFocus(control);
 	}
 
-	virtual std::wstring OnControlTranslate(const std::string& u8str)
-	{
-		try
-		{
-			return luabind::wrap_base::call<std::wstring>("OnControlTranslate", u8str);
-		}
-		catch (const luabind::error& e)
-		{
-			my::D3DContext::getSingleton().m_EventLog(lua_tostring(e.state(), -1));
-		}
-	}
-
-	static std::wstring default_OnControlTranslate(StateBase* ptr, const std::string& u8str)
-	{
-		return std::wstring();
-	}
-
 	virtual bool OnControllerFilter(Controller * a, Controller * b)
 	{
 		//my::CriticalSectionLock lock(LuaContext::getSingleton().m_StateSec);

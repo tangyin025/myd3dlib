@@ -190,11 +190,6 @@ public:
 	{
 	}
 
-	virtual std::wstring OnControlTranslate(const std::string& u8str)
-	{
-		return std::wstring();
-	}
-
 	virtual bool OnControllerFilter(Controller * a, Controller * b)
 	{
 		return true;
