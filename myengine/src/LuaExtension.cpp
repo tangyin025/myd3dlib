@@ -40,7 +40,6 @@ extern "C" {
 #include "Steering.h"
 #include "SceneContext.h"
 #include "rapidxml_print.hpp"
-//#include "noise.h"
 #include <boost/scope_exit.hpp>
 #include <boost/range/algorithm/transform.hpp>
 #include <boost/range/iterator_range.hpp>
@@ -3249,16 +3248,6 @@ void LuaContext::Init(void)
 			.def_readwrite("b", &D3DXCOLOR::b)
 			.def_readwrite("a", &D3DXCOLOR::a)
 			.property("argb", &D3DXCOLOR::operator DWORD)
-
-		//class_<noise::module::Perlin>("Perlin")
-		//	.def(constructor<>())
-		//	.property("Frequency", &noise::module::Perlin::GetFrequency, &noise::module::Perlin::SetFrequency)
-		//	.property("Lacunarity", &noise::module::Perlin::GetLacunarity, &noise::module::Perlin::SetLacunarity)
-		//	.property("NoiseQuality", &noise::module::Perlin::GetNoiseQuality, &noise::module::Perlin::SetNoiseQuality)
-		//	.property("OctaveCount", &noise::module::Perlin::GetOctaveCount, &noise::module::Perlin::SetOctaveCount)
-		//	.property("Persistence", &noise::module::Perlin::GetPersistence, &noise::module::Perlin::SetPersistence)
-		//	.property("Seed", &noise::module::Perlin::GetSeed, &noise::module::Perlin::SetSeed)
-		//	.def("GetValue", &noise::module::Perlin::GetValue)
 
 		, class_<boost::regex>("regex")
 			.def(constructor<const char *>())

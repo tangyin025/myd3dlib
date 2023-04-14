@@ -1,6 +1,0 @@
-https://github.com/NVIDIAGameWorks/PhysX-3.4/releases/tag/v3.4.2-bsd
-
-3.4.2 BSD Release Latest
-@sabdulajees sabdulajees released this Dec 3, 2018 v3.4.2-bsd 326e240
-
-Release with BSD license on public source.
