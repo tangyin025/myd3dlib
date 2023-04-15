@@ -3293,15 +3293,70 @@ void LuaContext::Init(void)
 			.def(constructor<int>())
 			.enum_("NoiseType")
 			[
-				value("OpenSimplex2", FastNoiseLite::NoiseType_OpenSimplex2),
-				value("OpenSimplex2S", FastNoiseLite::NoiseType_OpenSimplex2S),
-				value("Cellular", FastNoiseLite::NoiseType_Cellular),
-				value("Perlin", FastNoiseLite::NoiseType_Perlin),
-				value("ValueCubic", FastNoiseLite::NoiseType_ValueCubic),
-				value("Value", FastNoiseLite::NoiseType_Value)
+				value("NoiseType_OpenSimplex2", FastNoiseLite::NoiseType_OpenSimplex2),
+				value("NoiseType_OpenSimplex2S", FastNoiseLite::NoiseType_OpenSimplex2S),
+				value("NoiseType_Cellular", FastNoiseLite::NoiseType_Cellular),
+				value("NoiseType_Perlin", FastNoiseLite::NoiseType_Perlin),
+				value("NoiseType_ValueCubic", FastNoiseLite::NoiseType_ValueCubic),
+				value("NoiseType_Value", FastNoiseLite::NoiseType_Value)
 			]
+			.enum_("RotationType3D")
+			[
+				value("RotationType3D_None", FastNoiseLite::RotationType3D_None),
+				value("RotationType3D_ImproveXYPlanes", FastNoiseLite::RotationType3D_ImproveXYPlanes),
+				value("RotationType3D_ImproveXZPlanes", FastNoiseLite::RotationType3D_ImproveXZPlanes)
+			]
+			.enum_("FractalType")
+			[
+				value("FractalType_None", FastNoiseLite::FractalType_None),
+				value("FractalType_FBm", FastNoiseLite::FractalType_FBm),
+				value("FractalType_Ridged", FastNoiseLite::FractalType_Ridged),
+				value("FractalType_PingPong", FastNoiseLite::FractalType_PingPong),
+				value("FractalType_DomainWarpProgressive", FastNoiseLite::FractalType_DomainWarpProgressive),
+				value("FractalType_DomainWarpIndependent", FastNoiseLite::FractalType_DomainWarpIndependent)
+			]
+			.enum_("CellularDistanceFunction")
+			[
+				value("CellularDistanceFunction_Euclidean", FastNoiseLite::CellularDistanceFunction_Euclidean),
+				value("CellularDistanceFunction_EuclideanSq", FastNoiseLite::CellularDistanceFunction_EuclideanSq),
+				value("CellularDistanceFunction_Manhattan", FastNoiseLite::CellularDistanceFunction_Manhattan),
+				value("CellularDistanceFunction_Hybrid", FastNoiseLite::CellularDistanceFunction_Hybrid)
+			]
+			.enum_("CellularReturnType")
+			[
+				value("CellularReturnType_CellValue", FastNoiseLite::CellularReturnType_CellValue),
+				value("CellularReturnType_Distance", FastNoiseLite::CellularReturnType_Distance),
+				value("CellularReturnType_Distance2", FastNoiseLite::CellularReturnType_Distance2),
+				value("CellularReturnType_Distance2Add", FastNoiseLite::CellularReturnType_Distance2Add),
+				value("CellularReturnType_Distance2Sub", FastNoiseLite::CellularReturnType_Distance2Sub),
+				value("CellularReturnType_Distance2Mul", FastNoiseLite::CellularReturnType_Distance2Mul),
+				value("CellularReturnType_Distance2Div", FastNoiseLite::CellularReturnType_Distance2Div)
+			]
+			.enum_("DomainWarpType")
+			[
+				value("DomainWarpType_OpenSimplex2", FastNoiseLite::DomainWarpType_OpenSimplex2),
+				value("DomainWarpType_OpenSimplex2Reduced", FastNoiseLite::DomainWarpType_OpenSimplex2Reduced),
+				value("DomainWarpType_BasicGrid", FastNoiseLite::DomainWarpType_BasicGrid)
+			]
+			.def("SetSpeed", &FastNoiseLite::SetSeed)
+			.def("SetFrequency", &FastNoiseLite::SetFrequency)
 			.def("SetNoiseType", &FastNoiseLite::SetNoiseType)
+			.def("SetRotationType3D", &FastNoiseLite::SetRotationType3D)
+			.def("SetFractalType", &FastNoiseLite::SetFractalType)
+			.def("SetFractalOctaves", &FastNoiseLite::SetFractalOctaves)
+			.def("SetFractalLacunarity", &FastNoiseLite::SetFractalLacunarity)
+			.def("SetFractalGain", &FastNoiseLite::SetFractalGain)
+			.def("SetFractalWeightedStrength", &FastNoiseLite::SetFractalWeightedStrength)
+			.def("SetFractalPingPongStrength", &FastNoiseLite::SetFractalPingPongStrength)
+			.def("SetCellularDistanceFunction", &FastNoiseLite::SetCellularDistanceFunction)
+			.def("SetCellularReturnType", &FastNoiseLite::SetCellularReturnType)
+			.def("SetCellularJitter", &FastNoiseLite::SetCellularJitter)
+			.def("SetDomainWarpType", &FastNoiseLite::SetDomainWarpType)
+			.def("SetDomainWarpAmp", &FastNoiseLite::SetDomainWarpAmp)
 			.def("GetNoise", (float (FastNoiseLite::*)(LUA_NUMBER, LUA_NUMBER))&FastNoiseLite::GetNoise)
+			.def("GetNoise", (float (FastNoiseLite::*)(LUA_NUMBER, LUA_NUMBER, LUA_NUMBER))&FastNoiseLite::GetNoise)
+			.def("DomainWarp", (void (FastNoiseLite::*)(LUA_NUMBER&, LUA_NUMBER&))& FastNoiseLite::DomainWarp)
+			.def("DomainWarp", (void (FastNoiseLite::*)(LUA_NUMBER&, LUA_NUMBER&, LUA_NUMBER&))& FastNoiseLite::DomainWarp)
 	];
 }
 
