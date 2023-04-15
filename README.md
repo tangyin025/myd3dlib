@@ -6,8 +6,7 @@ features
 ----
 direct3d9 renderer<br>
 deferred lighting<br>
-gpu particle system (stateless)<br>
-delay loaded resource manager<br>
+delay loading resource manager<br>
 octtree scene<br>
 terrain lod<br>
 fast collision test<br>
@@ -26,6 +25,7 @@ Lua 5.1.5<br>
 Luabind 0.9.1<br>
 LuaJIT 2.1<br>
 minimp3<br>
+FastNoiseLite 1.0.3<br>
 
 screenshots
 ----

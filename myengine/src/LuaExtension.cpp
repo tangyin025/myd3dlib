@@ -40,6 +40,7 @@ extern "C" {
 #include "Steering.h"
 #include "SceneContext.h"
 #include "rapidxml_print.hpp"
+#include "FastNoiseLite.h"
 #include <boost/scope_exit.hpp>
 #include <boost/range/algorithm/transform.hpp>
 #include <boost/range/iterator_range.hpp>
@@ -3288,6 +3289,20 @@ void LuaContext::Init(void)
 		, class_<rapidxml::xml_document<char>, rapidxml::xml_node<char> >("xml_document")
 			.def(constructor<>())
 			.def("parse", &xml_document_parse, pure_out_value(boost::placeholders::_3) + dependency(boost::placeholders::_1, boost::placeholders::_3))
+
+		, class_<FastNoiseLite>("FastNoiseLite")
+			.def(constructor<int>())
+			.enum_("NoiseType")
+			[
+				value("OpenSimplex2", FastNoiseLite::NoiseType_OpenSimplex2),
+				value("OpenSimplex2S", FastNoiseLite::NoiseType_OpenSimplex2S),
+				value("Cellular", FastNoiseLite::NoiseType_Cellular),
+				value("Perlin", FastNoiseLite::NoiseType_Perlin),
+				value("ValueCubic", FastNoiseLite::NoiseType_ValueCubic),
+				value("Value", FastNoiseLite::NoiseType_Value)
+			]
+			.def("SetNoiseType", &FastNoiseLite::SetNoiseType)
+			.def("GetNoise", (float (FastNoiseLite::*)(LUA_NUMBER, LUA_NUMBER))&FastNoiseLite::GetNoise)
 	];
 }
 
