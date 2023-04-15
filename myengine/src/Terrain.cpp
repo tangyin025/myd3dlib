@@ -1110,6 +1110,8 @@ TerrainStream::~TerrainStream(void)
 
 void TerrainStream::Flush(void)
 {
+	UpdateNormal();
+
 	for (int k = 0; k < m_terrain->m_RowChunks; k++)
 	{
 		for (int l = 0; l < m_terrain->m_ColChunks; l++)
@@ -1411,6 +1413,8 @@ void TerrainStream::SetNormal(int i, int j, const my::Vector3& Normal)
 		m_terrain->m_VertexElems.SetNormal((unsigned char*)m_terrain->m_rootVb.Lock(0, 0, 0) + (o * (m_terrain->m_ColChunks * m_terrain->m_MinChunkLodSize + 1) + p) * m_terrain->m_VertexStride, Normal, 0);
 		m_terrain->m_rootVb.Unlock();
 	}
+
+	m_NormalDirty[i][j] = false;
 }
 
 void TerrainStream::SetNormal(int k, int l, int m, int n, const my::Vector3& Normal)
@@ -1447,7 +1451,7 @@ void TerrainStream::UpdateNormal(void)
 				const Vector3 Normal = (Nors[0] + Nors[1] + Nors[2] + Nors[3]).normalize();
 				SetNormal(i, j, Normal);
 
-				m_NormalDirty[i][j] = false;
+				_ASSERT(!m_NormalDirty[i][j]);
 			}
 		}
 	}

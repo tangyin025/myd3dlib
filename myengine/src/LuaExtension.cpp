@@ -2641,7 +2641,6 @@ void LuaContext::Init(void)
 			.def("SetColor", (void(TerrainStream::*)(int, int, D3DCOLOR))&TerrainStream::SetColor)
 			.def("GetNormal", &TerrainStream::GetNormal)
 			.def("SetNormal", (void(TerrainStream::*)(int, int, const my::Vector3&))&TerrainStream::SetNormal)
-			.def("UpdateNormal", &TerrainStream::UpdateNormal)
 			//.def("RayTest", &TerrainStream::RayTest)
 			.def("RayTest2D", &TerrainStream::RayTest2D)
 

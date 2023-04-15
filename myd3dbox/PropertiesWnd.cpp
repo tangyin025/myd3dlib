@@ -4020,7 +4020,6 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 					tstr.SetPos(i, j, ((float)pixel / USHRT_MAX * theApp.default_terrain_max_height - theApp.default_terrain_water_level) / terrain->m_Actor->m_Scale.y);
 				}
 			}
-			tstr.UpdateNormal();
 			tex.UnlockRect(0);
 			tstr.Flush();
 			Actor * actor = terrain->m_Actor;
