@@ -20,9 +20,7 @@ class dtNavMeshQuery;
 
 struct PlayerData : public my::DeviceResourceBase
 {
-	double logintime;
-
-	double gametime;
+	double savetime;
 
 	int sceneid;
 

@@ -18,8 +18,8 @@
 #include "LuaExtension.inl"
 #include <boost/archive/polymorphic_iarchive.hpp>
 #include <boost/archive/polymorphic_oarchive.hpp>
-#include <boost/archive/xml_iarchive.hpp>
-#include <boost/archive/xml_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
+#include <boost/archive/text_oarchive.hpp>
 #include <boost/serialization/shared_ptr.hpp>
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/binary_object.hpp>
@@ -395,8 +395,7 @@ static bool client_file_exists(Client* self, const char* u8path)
 }
 
 PlayerData::PlayerData(void)
-	: logintime(time(NULL))
-	, gametime(0)
+	: savetime(0)
 	, sceneid(0)
 	, pos(0, 0, 0)
 	, angle(D3DXToRadian(0))
@@ -427,8 +426,7 @@ namespace boost {
 template<class Archive>
 void PlayerData::save(Archive& ar, const unsigned int version) const
 {
-	ar << BOOST_SERIALIZATION_NVP(logintime);
-	ar << BOOST_SERIALIZATION_NVP(gametime);
+	ar << BOOST_SERIALIZATION_NVP(savetime);
 	ar << BOOST_SERIALIZATION_NVP(sceneid);
 	ar << BOOST_SERIALIZATION_NVP(pos);
 	ar << BOOST_SERIALIZATION_NVP(angle);
@@ -450,8 +448,7 @@ void PlayerData::load(Archive& ar, const unsigned int version)
 
 	_ASSERT(boost::serialization::version<PlayerData>::value == version);
 
-	ar >> BOOST_SERIALIZATION_NVP(logintime);
-	ar >> BOOST_SERIALIZATION_NVP(gametime);
+	ar >> BOOST_SERIALIZATION_NVP(savetime);
 	ar >> BOOST_SERIALIZATION_NVP(sceneid);
 	ar >> BOOST_SERIALIZATION_NVP(pos);
 	ar >> BOOST_SERIALIZATION_NVP(angle);
@@ -474,10 +471,10 @@ void PlayerDataRequest::LoadResource(void)
 {
 	boost::shared_ptr<PlayerData> ret = boost::dynamic_pointer_cast<PlayerData>(m_res);
 	_ASSERT(ret);
-	ret->gametime += time(NULL) - ret->logintime;
+	ret->savetime = time(NULL);
 
-	std::ofstream ofs(m_path, std::ios::binary, _SH_DENYRW);
-	boost::archive::xml_oarchive oa(ofs);
+	std::ofstream ofs(m_path, std::ios::out, _SH_DENYRW);
+	boost::archive::text_oarchive oa(ofs);
 	oa << boost::serialization::make_nvp("PlayerData", ret);
 }
 
@@ -996,8 +993,7 @@ HRESULT Client::OnCreateDevice(
 				luabind::value("AURA_COUNT", _countof(PlayerData::auras)),
 				luabind::value("MAX_ITEM_NUM", _countof(PlayerData::items))
 			]
-			.def_readwrite("logintime", &PlayerData::logintime)
-			.def_readwrite("gametime", &PlayerData::gametime)
+			.def_readonly("savetime", &PlayerData::savetime)
 			.def_readwrite("sceneid", &PlayerData::sceneid)
 			.def_readwrite("pos", &PlayerData::pos)
 			.def_readwrite("angle", &PlayerData::angle)
@@ -1906,7 +1902,7 @@ boost::shared_ptr<PlayerData> Client::LoadPlayerData(const char * path)
 	boost::shared_ptr<PlayerData> ret;
 	my::IStreamBuff buff(my::FileIStream::Open(u8tots(path).c_str()));
 	std::istream ifs(&buff);
-	boost::archive::xml_iarchive ia(ifs);
+	boost::archive::text_iarchive ia(ifs);
 	ia >> boost::serialization::make_nvp("PlayerData", ret);
 	return ret;
 }
