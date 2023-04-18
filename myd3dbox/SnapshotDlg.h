@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Component.h"
 
 // CSnapshotDlg dialog
 
@@ -28,4 +29,5 @@ public:
 	int m_TexHeight;
 	my::Rectangle m_SnapArea;
 	afx_msg void OnClickedButton1();
+	BOOL m_ComponentTypes[Component::ComponentTypeNavigation - Component::ComponentTypeMesh + 1];
 };

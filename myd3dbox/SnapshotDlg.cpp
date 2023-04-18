@@ -18,15 +18,28 @@ CSnapshotDlg::CSnapshotDlg(CWnd* pParent /*=nullptr*/)
 	, m_TexPath(theApp.GetProfileString(_T("Settings"), _T("SnapshotPath"), _T("aaa.png")))
 	, m_TexWidth(theApp.GetProfileInt(_T("Settings"), _T("SnapshotWidth"), 1024))
 	, m_TexHeight(theApp.GetProfileInt(_T("Settings"), _T("SnapshotHeight"), 1024))
-	, m_SnapArea(-4096 + 4, -4096 - 4, 4096 + 4, 4096 - 4)
 {
-	my::Rectangle* pData;
+	BYTE* pData;
 	UINT n;
-	if (theApp.GetProfileBinary(_T("Settings"), _T("SnapshotArea"), (LPBYTE*)&pData, &n))
+	if (theApp.GetProfileBinary(_T("Settings"), _T("SnapshotArea"), &pData, &n))
 	{
-		ASSERT(n == sizeof(*pData));
-		m_SnapArea = *pData;
+		ASSERT(n == sizeof(m_SnapArea));
+		m_SnapArea = *(my::Rectangle*)pData;
 		delete[] pData; // free the buffer
+	}
+	else
+	{
+		m_SnapArea = my::Rectangle(-4096 + 4, -4096 - 4, 4096 + 4, 4096 - 4);
+	}
+	if (theApp.GetProfileBinary(_T("Settings"), _T("SnapshotComponentTypes"), &pData, &n))
+	{
+		ASSERT(n == sizeof(m_ComponentTypes));
+		std::copy((BOOL*)pData, (BOOL*)pData + _countof(m_ComponentTypes), &m_ComponentTypes[0]);
+		delete[] pData;
+	}
+	else
+	{
+		std::fill_n(m_ComponentTypes, _countof(m_ComponentTypes), TRUE);
 	}
 }
 
@@ -46,6 +59,16 @@ void CSnapshotDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_EDIT5, m_SnapArea.t);
 	DDX_Text(pDX, IDC_EDIT6, m_SnapArea.r);
 	DDX_Text(pDX, IDC_EDIT7, m_SnapArea.b);
+	DDX_Check(pDX, IDC_CHECK1, m_ComponentTypes[0]);
+	DDX_Check(pDX, IDC_CHECK2, m_ComponentTypes[1]);
+	DDX_Check(pDX, IDC_CHECK3, m_ComponentTypes[2]);
+	DDX_Check(pDX, IDC_CHECK4, m_ComponentTypes[3]);
+	DDX_Check(pDX, IDC_CHECK5, m_ComponentTypes[4]);
+	DDX_Check(pDX, IDC_CHECK6, m_ComponentTypes[5]);
+	DDX_Check(pDX, IDC_CHECK7, m_ComponentTypes[6]);
+	DDX_Check(pDX, IDC_CHECK8, m_ComponentTypes[7]);
+	DDX_Check(pDX, IDC_CHECK9, m_ComponentTypes[8]);
+	DDX_Check(pDX, IDC_CHECK10, m_ComponentTypes[9]);
 
 	if (pDX->m_bSaveAndValidate)
 	{
@@ -53,6 +76,7 @@ void CSnapshotDlg::DoDataExchange(CDataExchange* pDX)
 		theApp.WriteProfileInt(_T("Settings"), _T("SnapshotWidth"), m_TexWidth);
 		theApp.WriteProfileInt(_T("Settings"), _T("SnapshotHeight"), m_TexHeight);
 		theApp.WriteProfileBinary(_T("Settings"), _T("SnapshotArea"), (LPBYTE)&m_SnapArea, sizeof(m_SnapArea));
+		theApp.WriteProfileBinary(_T("Settings"), _T("SnapshotComponentTypes"), (LPBYTE)&m_ComponentTypes, sizeof(m_ComponentTypes));
 	}
 }
 
@@ -99,6 +123,13 @@ void CSnapshotDlg::OnOK()
 
 	struct RenderContext : RenderPipeline::IRenderContext
 	{
+		CSnapshotDlg* pDlg;
+
+		RenderContext(CSnapshotDlg* _pDlg)
+			: pDlg(_pDlg)
+		{
+		}
+
 		virtual void QueryRenderComponent(const my::Frustum& frustum, RenderPipeline* pipeline, unsigned int PassMask)
 		{
 			struct Callback : public my::OctNode::QueryCallback
@@ -109,13 +140,15 @@ void CSnapshotDlg::OnOK()
 				const my::Vector3& ViewPos;
 				const my::Vector3& TargetPos;
 				CMainFrame* pFrame;
-				Callback(const my::Frustum& _frustum, RenderPipeline* _pipeline, unsigned int _PassMask, const my::Vector3& _ViewPos, const my::Vector3& _TargetPos, CMainFrame* _pFrame)
+				CSnapshotDlg* pDlg;
+				Callback(const my::Frustum& _frustum, RenderPipeline* _pipeline, unsigned int _PassMask, const my::Vector3& _ViewPos, const my::Vector3& _TargetPos, CMainFrame* _pFrame, CSnapshotDlg* _pDlg)
 					: frustum(_frustum)
 					, pipeline(_pipeline)
 					, PassMask(_PassMask)
 					, ViewPos(_ViewPos)
 					, TargetPos(_TargetPos)
 					, pFrame(_pFrame)
+					, pDlg(_pDlg)
 				{
 				}
 
@@ -134,26 +167,38 @@ void CSnapshotDlg::OnOK()
 						pFrame->m_ViewedActors.push_back(*actor);
 					}
 
-					actor->UpdateLod(actor->m_World.getRow<3>().xyz, actor->m_World.getRow<3>().xyz);
+					Actor::ComponentPtrList::iterator cmp_iter = actor->m_Cmps.begin();
+					for (; cmp_iter != actor->m_Cmps.end(); cmp_iter++)
+					{
+						if ((*cmp_iter)->GetComponentType() >= Component::ComponentTypeMesh
+							&& (*cmp_iter)->GetComponentType() <= Component::ComponentTypeNavigation
+							&& pDlg->m_ComponentTypes[(*cmp_iter)->GetComponentType() - Component::ComponentTypeMesh]
+							&& (*cmp_iter)->m_LodMask & Component::LOD0)
+						{
+							if (!(*cmp_iter)->IsRequested())
+							{
+								(*cmp_iter)->RequestResource();
 
-					theApp.LeaveDeviceSection();
-					theApp.CheckIORequests(0xFFFFFFFF); // ! INFINITE conflict with corecrt_math.h
-					theApp.EnterDeviceSection();
+								theApp.LeaveDeviceSection();
+								theApp.CheckIORequests(0xFFFFFFFF); // ! INFINITE conflict with corecrt_math.h
+								theApp.EnterDeviceSection();
+							}
 
-					actor->AddToPipeline(frustum, pipeline, PassMask, actor->m_World.getRow<3>().xyz, actor->m_World.getRow<3>().xyz);
-
+							(*cmp_iter)->AddToPipeline(frustum, pipeline, PassMask, actor->m_World.getRow<3>().xyz, actor->m_World.getRow<3>().xyz);
+						}
+					}
 					return true;
 				}
 			};
 
 			CMainFrame* pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 			ASSERT_VALID(pFrame);
-			Callback cb(frustum, pipeline, PassMask, m_Camera->m_Eye, m_Camera->m_Eye, pFrame);
+			Callback cb(frustum, pipeline, PassMask, m_Camera->m_Eye, m_Camera->m_Eye, pFrame, pDlg);
 			pFrame->QueryEntity(frustum, &cb);
 		}
 	};
 
-	RenderContext rc;
+	RenderContext rc(this);
 	rc.m_Camera.reset(new my::OrthoCamera(m_SnapArea.Width(), m_SnapArea.Height(), -2000, 2000));
 	my::OrthoCamera* ortho_camera = dynamic_cast<my::OrthoCamera*>(rc.m_Camera.get());
 	ortho_camera->m_Eye = my::Vector3(0, 0, 0);

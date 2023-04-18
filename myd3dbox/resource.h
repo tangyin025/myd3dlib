@@ -80,6 +80,13 @@
 #define IDC_LIST1                       1032
 #define IDC_EDIT21                      1032
 #define IDC_EDIT22                      1033
+#define IDC_CHECK4                      1033
+#define IDC_CHECK5                      1034
+#define IDC_CHECK6                      1035
+#define IDC_CHECK7                      1036
+#define IDC_CHECK8                      1037
+#define IDC_CHECK9                      1038
+#define IDC_CHECK10                     1039
 #define ID_CREATE_COMPONENT             32771
 #define ID_COMPONENT_MESH               32772
 #define ID_COMPONENT_STATICEMITTER      32773
@@ -171,7 +178,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        323
 #define _APS_NEXT_COMMAND_VALUE         32855
-#define _APS_NEXT_CONTROL_VALUE         1033
+#define _APS_NEXT_CONTROL_VALUE         1040
 #define _APS_NEXT_SYMED_VALUE           312
 #endif
 #endif
