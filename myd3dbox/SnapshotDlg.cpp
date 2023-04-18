@@ -7,6 +7,7 @@
 #include "MainApp.h"
 #include "MainFrm.h"
 #include "Actor.h"
+#include "NavigationSerialization.h"
 
 
 // CSnapshotDlg dialog
@@ -18,6 +19,7 @@ CSnapshotDlg::CSnapshotDlg(CWnd* pParent /*=nullptr*/)
 	, m_TexPath(theApp.GetProfileString(_T("Settings"), _T("SnapshotPath"), _T("aaa.png")))
 	, m_TexWidth(theApp.GetProfileInt(_T("Settings"), _T("SnapshotWidth"), 1024))
 	, m_TexHeight(theApp.GetProfileInt(_T("Settings"), _T("SnapshotHeight"), 1024))
+	, m_duDebugDrawPrimitives(DU_DRAW_QUADS + 1)
 {
 	BYTE* pData;
 	UINT n;
@@ -80,6 +82,78 @@ void CSnapshotDlg::DoDataExchange(CDataExchange* pDX)
 	}
 }
 
+#define DUCOLOR_TO_D3DCOLOR(col) ((col & 0xff00ff00) | (col & 0x00ff0000) >> 16 | (col & 0x000000ff) << 16)
+
+void CSnapshotDlg::depthMask(bool state)
+{
+}
+
+void CSnapshotDlg::texture(bool state)
+{
+}
+
+void CSnapshotDlg::begin(duDebugDrawPrimitives prim, float size)
+{
+	m_duDebugDrawPrimitives = prim;
+}
+
+void CSnapshotDlg::vertex(const float* pos, unsigned int color)
+{
+	if (m_duDebugDrawPrimitives == DU_DRAW_LINES)
+	{
+		PushLineVertex(pos[0], pos[1], pos[2], DUCOLOR_TO_D3DCOLOR(color));
+	}
+	else if (m_duDebugDrawPrimitives == DU_DRAW_TRIS)
+	{
+		PushTriangleVertex(pos[0], pos[1], pos[2], DUCOLOR_TO_D3DCOLOR(color));
+	}
+}
+
+void CSnapshotDlg::vertex(const float x, const float y, const float z, unsigned int color)
+{
+	if (m_duDebugDrawPrimitives == DU_DRAW_LINES)
+	{
+		PushLineVertex(x, y, z, DUCOLOR_TO_D3DCOLOR(color));
+	}
+	else if (m_duDebugDrawPrimitives == DU_DRAW_TRIS)
+	{
+		PushTriangleVertex(x, y, z, DUCOLOR_TO_D3DCOLOR(color));
+	}
+}
+
+void CSnapshotDlg::vertex(const float* pos, unsigned int color, const float* uv)
+{
+	if (m_duDebugDrawPrimitives == DU_DRAW_LINES)
+	{
+		PushLineVertex(pos[0], pos[1], pos[2], DUCOLOR_TO_D3DCOLOR(color));
+	}
+	else if (m_duDebugDrawPrimitives == DU_DRAW_TRIS)
+	{
+		PushTriangleVertex(pos[0], pos[1], pos[2], DUCOLOR_TO_D3DCOLOR(color));
+	}
+}
+
+void CSnapshotDlg::vertex(const float x, const float y, const float z, unsigned int color, const float u, const float v)
+{
+	if (m_duDebugDrawPrimitives == DU_DRAW_LINES)
+	{
+		PushLineVertex(x, y, z, DUCOLOR_TO_D3DCOLOR(color));
+	}
+	else if (m_duDebugDrawPrimitives == DU_DRAW_TRIS)
+	{
+		PushTriangleVertex(x, y, z, DUCOLOR_TO_D3DCOLOR(color));
+	}
+}
+
+void CSnapshotDlg::end()
+{
+	m_duDebugDrawPrimitives = DU_DRAW_QUADS + 1;
+}
+
+unsigned int CSnapshotDlg::areaToCol(unsigned int area)
+{
+	return duDebugDraw::areaToCol(area);
+}
 
 BEGIN_MESSAGE_MAP(CSnapshotDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_BUTTON1, &CSnapshotDlg::OnClickedButton1)
@@ -141,6 +215,7 @@ void CSnapshotDlg::OnOK()
 				const my::Vector3& TargetPos;
 				CMainFrame* pFrame;
 				CSnapshotDlg* pDlg;
+
 				Callback(const my::Frustum& _frustum, RenderPipeline* _pipeline, unsigned int _PassMask, const my::Vector3& _ViewPos, const my::Vector3& _TargetPos, CMainFrame* _pFrame, CSnapshotDlg* _pDlg)
 					: frustum(_frustum)
 					, pipeline(_pipeline)
@@ -184,7 +259,16 @@ void CSnapshotDlg::OnOK()
 								theApp.EnterDeviceSection();
 							}
 
-							(*cmp_iter)->AddToPipeline(frustum, pipeline, PassMask, actor->m_World.getRow<3>().xyz, actor->m_World.getRow<3>().xyz);
+							if ((*cmp_iter)->GetComponentType() == Component::ComponentTypeNavigation
+								&& PassMask & RenderPipeline::PassTypeToMask(RenderPipeline::PassTypeNormal))
+							{
+								Navigation* navi = dynamic_cast<Navigation*>(cmp_iter->get());
+								navi->DebugDraw(pDlg, frustum, ViewPos, TargetPos);
+							}
+							else
+							{
+								(*cmp_iter)->AddToPipeline(frustum, pipeline, PassMask, actor->m_World.getRow<3>().xyz, actor->m_World.getRow<3>().xyz);
+							}
 						}
 					}
 					return true;
@@ -230,6 +314,24 @@ void CSnapshotDlg::OnOK()
 
 	CWaitCursor wait;
 	theApp.OnRender(theApp.m_d3dDevice, rtsurf, DepthStencil.m_ptr, &desc, &rc, 0, 0);
+
+	V(theApp.m_d3dDevice->SetVertexShader(NULL));
+	V(theApp.m_d3dDevice->SetPixelShader(NULL));
+	V(theApp.m_d3dDevice->SetTexture(0, NULL));
+	V(theApp.m_d3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE));
+	V(theApp.m_d3dDevice->SetRenderState(D3DRS_BLENDOP, D3DBLENDOP_ADD));
+	V(theApp.m_d3dDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA));
+	V(theApp.m_d3dDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA));
+	V(theApp.m_d3dDevice->SetRenderState(D3DRS_ZENABLE, TRUE));
+	V(theApp.m_d3dDevice->SetRenderState(D3DRS_ZWRITEENABLE, FALSE));
+	V(theApp.m_d3dDevice->SetRenderState(D3DRS_LIGHTING, FALSE));
+	V(theApp.m_d3dDevice->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID));
+	V(theApp.m_d3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CW));
+	V(theApp.m_d3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX*)&rc.m_Camera->m_View));
+	V(theApp.m_d3dDevice->SetTransform(D3DTS_PROJECTION, (D3DMATRIX*)&rc.m_Camera->m_Proj));
+	V(theApp.m_d3dDevice->SetTransform(D3DTS_WORLD, (D3DMATRIX*)&my::Matrix4::identity));
+	DrawHelper::FlushLine(theApp.m_d3dDevice);
+
 	CString ext(PathFindExtension(m_TexPath));
 	V(D3DXSaveTextureToFile(m_TexPath, ext.CompareNoCase(_T(".png")) == 0 ? D3DXIFF_PNG : D3DXIFF_BMP, rt.m_ptr, NULL));
 
