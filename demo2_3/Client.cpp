@@ -402,6 +402,7 @@ PlayerData::PlayerData(void)
 {
 	std::fill_n(attrs, _countof(attrs), 0);
 	std::fill_n(quests, _countof(quests), 0);
+	std::fill_n(queststatus, _countof(queststatus), 0);
 	std::fill_n(auras, _countof(auras), 0);
 	std::fill_n(aurastatus, _countof(aurastatus), 0);
 	std::fill_n(items, _countof(items), 0);
@@ -432,6 +433,7 @@ void PlayerData::save(Archive& ar, const unsigned int version) const
 	ar << BOOST_SERIALIZATION_NVP(angle);
 	ar << BOOST_SERIALIZATION_NVP(attrs);
 	ar << BOOST_SERIALIZATION_NVP(quests);
+	ar << BOOST_SERIALIZATION_NVP(queststatus);
 	ar << BOOST_SERIALIZATION_NVP(auras);
 	ar << BOOST_SERIALIZATION_NVP(aurastatus);
 	ar << BOOST_SERIALIZATION_NVP(items);
@@ -454,6 +456,7 @@ void PlayerData::load(Archive& ar, const unsigned int version)
 	ar >> BOOST_SERIALIZATION_NVP(angle);
 	ar >> BOOST_SERIALIZATION_NVP(attrs);
 	ar >> BOOST_SERIALIZATION_NVP(quests);
+	ar >> BOOST_SERIALIZATION_NVP(queststatus);
 	ar >> BOOST_SERIALIZATION_NVP(auras);
 	ar >> BOOST_SERIALIZATION_NVP(aurastatus);
 	ar >> BOOST_SERIALIZATION_NVP(items);
@@ -1001,6 +1004,8 @@ HRESULT Client::OnCreateDevice(
 			.def("getattr", &PlayerData::getattr)
 			.def("setquest", &PlayerData::setquest)
 			.def("getquest", &PlayerData::getquest)
+			.def("setqueststatus", &PlayerData::setqueststatus)
+			.def("getqueststatus", &PlayerData::getqueststatus)
 			.def("setaura", &PlayerData::setaura)
 			.def("getaura", &PlayerData::getaura)
 			.def("setaurastatus", &PlayerData::setaurastatus)

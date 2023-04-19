@@ -32,6 +32,8 @@ struct PlayerData : public my::DeviceResourceBase
 
 	int quests[1024];
 
+	lua_Number queststatus[_countof(quests)];
+
 	int auras[16];
 
 	lua_Number aurastatus[_countof(auras)];
@@ -86,6 +88,16 @@ struct PlayerData : public my::DeviceResourceBase
 	int getquest(int i) const
 	{
 		return my::Subscribe(quests, i);
+	}
+
+	void setqueststatus(int i, lua_Number value)
+	{
+		my::Subscribe(queststatus, i) = value;
+	}
+
+	lua_Number getqueststatus(int i) const
+	{
+		return my::Subscribe(queststatus, i);
 	}
 
 	void setaura(int i, int value)
