@@ -370,8 +370,7 @@ static void client_query_entity(Client* self, const my::AABB& aabb, const luabin
 		virtual bool OnQueryEntity(my::OctEntity* oct_entity, const my::AABB& aabb, my::IntersectionTests::IntersectionType)
 		{
 			Actor* actor = dynamic_cast<Actor*>(oct_entity);
-			luabind::call_function<void>(callback, actor);
-			return true;
+			return luabind::call_function<bool>(callback, actor);
 		}
 	};
 

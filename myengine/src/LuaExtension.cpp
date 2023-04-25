@@ -2530,6 +2530,7 @@ void LuaContext::Init(void)
 				value("InstanceTypeBatch", MeshComponent::InstanceTypeBatch)
 			]
 			.def_readwrite("InstanceType", &MeshComponent::m_InstanceType)
+			.def_readonly("PxMeshPath", &MeshComponent::m_PxMeshPath)
 			.def("CreateTriangleMeshShape", &MeshComponent::CreateTriangleMeshShape)
 			.def("CreateConvexMeshShape", &MeshComponent::CreateConvexMeshShape)
 

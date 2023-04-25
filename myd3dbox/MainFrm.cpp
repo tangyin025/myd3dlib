@@ -233,6 +233,28 @@ static CPoint cchildview_get_cursor_pos(const CChildView* self)
 	return point;
 }
 
+static void cmainframe_query_entity(CMainFrame* self, const my::AABB& aabb, const luabind::object& callback)
+{
+	struct Callback : public my::OctNode::QueryCallback
+	{
+		const luabind::object& callback;
+
+		Callback(const luabind::object& _callback)
+			: callback(_callback)
+		{
+		}
+
+		virtual bool OnQueryEntity(my::OctEntity* oct_entity, const my::AABB& aabb, my::IntersectionTests::IntersectionType)
+		{
+			Actor* actor = dynamic_cast<Actor*>(oct_entity);
+			return luabind::call_function<bool>(callback, actor);
+		}
+	};
+
+	Callback cb(callback);
+	self->QueryEntity(aabb, &cb);
+}
+
 typedef boost::shared_container_iterator<CMainFrame::ActorList> shared_actor_list_iter;
 
 static boost::iterator_range<shared_actor_list_iter> cmainframe_get_all_acts(const CMainFrame* self)
@@ -899,6 +921,8 @@ void CMainFrame::InitFileContext()
 				boost::bind(boost::mem_fn(&CMainFrame::AddEntity), boost::placeholders::_1, boost::placeholders::_2, boost::bind(&AABB::transform, boost::bind(&Actor::m_aabb, boost::placeholders::_2), boost::bind(&Actor::m_World, boost::placeholders::_2)), Actor::MinBlock, Actor::Threshold)))
 			.def("RemoveEntity", &CMainFrame::RemoveEntity)
 			.def("ClearAllEntity", &CMainFrame::ClearAllEntity)
+			.property("AllEntityNum", &CMainFrame::GetAllEntityNum)
+			.def("QueryEntity", &cmainframe_query_entity)
 			.def("PushToActorList", luabind::tag_function<void(CMainFrame*,ActorPtr)>(
 				boost::bind((void(ActorPtrList::*)(ActorPtr const&)) & ActorPtrList::push_back, boost::bind<ActorPtrList&>(&CMainFrame::m_ActorList, boost::placeholders::_1), boost::placeholders::_2)))
 			.property("allactors", cmainframe_get_all_acts, luabind::return_stl_iterator)
