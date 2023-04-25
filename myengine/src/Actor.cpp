@@ -820,7 +820,7 @@ void Actor::Attach(Actor * other, int BoneId)
 
 void Actor::Detach(Actor * other)
 {
-	ActorList::iterator att_iter = std::find(m_Attaches.begin(), m_Attaches.end(), other);
+	AttachList::iterator att_iter = std::find(m_Attaches.begin(), m_Attaches.end(), other);
 	if (att_iter != m_Attaches.end())
 	{
 		_ASSERT((*att_iter)->m_Base == this);
@@ -912,7 +912,7 @@ my::Bone Actor::GetAttachPose(int BoneId, const my::Vector3 & LocalPosition, con
 
 void Actor::ClearAllAttach(void)
 {
-	ActorList::iterator att_iter = m_Attaches.begin();
+	AttachList::iterator att_iter = m_Attaches.begin();
 	for (; att_iter != m_Attaches.end(); att_iter = m_Attaches.begin())
 	{
 		Detach(*att_iter);

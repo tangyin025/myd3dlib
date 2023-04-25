@@ -233,48 +233,52 @@ static CPoint cchildview_get_cursor_pos(const CChildView* self)
 	return point;
 }
 
-static void cmainframe_query_entity(CMainFrame* self, const my::AABB& aabb, const luabind::object& callback)
-{
-	struct Callback : public my::OctNode::QueryCallback
-	{
-		const luabind::object& callback;
-
-		Callback(const luabind::object& _callback)
-			: callback(_callback)
-		{
-		}
-
-		virtual bool OnQueryEntity(my::OctEntity* oct_entity, const my::AABB& aabb, my::IntersectionTests::IntersectionType)
-		{
-			Actor* actor = dynamic_cast<Actor*>(oct_entity);
-			return luabind::call_function<bool>(callback, actor);
-		}
-	};
-
-	Callback cb(callback);
-	self->QueryEntity(aabb, &cb);
-}
-
 typedef boost::shared_container_iterator<CMainFrame::ActorList> shared_actor_list_iter;
 
-static boost::iterator_range<shared_actor_list_iter> cmainframe_get_all_acts(const CMainFrame* self)
+static boost::iterator_range<shared_actor_list_iter> cmainframe_query_entity(const CMainFrame* self, const my::AABB& aabb)
 {
-	boost::shared_ptr<CMainFrame::ActorList> acts(new CMainFrame::ActorList());
 	struct Callback : public my::OctNode::QueryCallback
 	{
 		boost::shared_ptr<CMainFrame::ActorList> acts;
-		Callback(boost::shared_ptr<CMainFrame::ActorList> _acts)
-			: acts(_acts)
+
+		Callback(void)
+			: acts(new CMainFrame::ActorList())
 		{
 		}
+
 		virtual bool OnQueryEntity(my::OctEntity* oct_entity, const my::AABB& aabb, my::IntersectionTests::IntersectionType)
 		{
 			acts->push_back(dynamic_cast<Actor*>(oct_entity));
 			return true;
 		}
-	} cb(acts);
+	};
+
+	Callback cb;
+	self->QueryEntity(aabb, &cb);
+	return boost::make_iterator_range(shared_actor_list_iter(cb.acts->begin(), cb.acts), shared_actor_list_iter(cb.acts->end(), cb.acts));
+}
+
+static boost::iterator_range<shared_actor_list_iter> cmainframe_get_all_acts(const CMainFrame* self)
+{
+	struct Callback : public my::OctNode::QueryCallback
+	{
+		boost::shared_ptr<CMainFrame::ActorList> acts;
+
+		Callback(void)
+			: acts(new CMainFrame::ActorList())
+		{
+		}
+
+		virtual bool OnQueryEntity(my::OctEntity* oct_entity, const my::AABB& aabb, my::IntersectionTests::IntersectionType)
+		{
+			acts->push_back(dynamic_cast<Actor*>(oct_entity));
+			return true;
+		}
+	};
+
+	Callback cb;
 	self->QueryAllEntity(&cb);
-	return boost::make_iterator_range(shared_actor_list_iter(acts->begin(), acts), shared_actor_list_iter(acts->end(), acts));
+	return boost::make_iterator_range(shared_actor_list_iter(cb.acts->begin(), cb.acts), shared_actor_list_iter(cb.acts->end(), cb.acts));
 }
 
 static void spawn_terrain_pos_2_emitter(TerrainStream* tstr, StaticEmitterStream* estr, float terrain_local_x, float terrain_local_z, const my::Matrix4 & trans)
@@ -813,7 +817,7 @@ void CMainFrame::OnFrameTick(float fElapsedTime)
 				(*actor_iter)->Update(fElapsedTime);
 			}
 
-			Actor::ActorList::iterator attach_iter = (*actor_iter)->m_Attaches.begin();
+			Actor::AttachList::iterator attach_iter = (*actor_iter)->m_Attaches.begin();
 			for (; attach_iter != (*actor_iter)->m_Attaches.end(); attach_iter++)
 			{
 				if ((*attach_iter)->IsRequested())
@@ -922,7 +926,7 @@ void CMainFrame::InitFileContext()
 			.def("RemoveEntity", &CMainFrame::RemoveEntity)
 			.def("ClearAllEntity", &CMainFrame::ClearAllEntity)
 			.property("AllEntityNum", &CMainFrame::GetAllEntityNum)
-			.def("QueryEntity", &cmainframe_query_entity)
+			.def("QueryEntity", &cmainframe_query_entity, luabind::return_stl_iterator)
 			.def("PushToActorList", luabind::tag_function<void(CMainFrame*,ActorPtr)>(
 				boost::bind((void(ActorPtrList::*)(ActorPtr const&)) & ActorPtrList::push_back, boost::bind<ActorPtrList&>(&CMainFrame::m_ActorList, boost::placeholders::_1), boost::placeholders::_2)))
 			.property("allactors", cmainframe_get_all_acts, luabind::return_stl_iterator)

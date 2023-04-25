@@ -180,9 +180,9 @@ public:
 
 	int m_BaseBoneId;
 
-	typedef std::vector<Actor *> ActorList;
+	typedef std::vector<Actor *> AttachList;
 
-	ActorList m_Attaches;
+	AttachList m_Attaches;
 
 	typedef std::vector<boost::shared_ptr<physx::PxJoint> > JointPtrList;
 

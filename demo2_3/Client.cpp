@@ -27,6 +27,7 @@
 #include <boost/program_options.hpp>
 #include <boost/regex.hpp>
 #include <boost/assign/list_of.hpp>
+#include <boost/shared_container_iterator.hpp>
 #include "DebugDraw.h"
 
 #ifdef _DEBUG
@@ -356,26 +357,31 @@ static void PlayerData_moveitems(PlayerData* self, int src, int count, int dst)
 	std::copy(&self->itemstatus[src], &self->itemstatus[src + count], &self->itemstatus[dst]);
 }
 
-static void client_query_entity(Client* self, const my::AABB& aabb, const luabind::object& callback)
+typedef std::vector<Actor*> ActorList;
+
+typedef boost::shared_container_iterator<ActorList> shared_actor_list_iter;
+
+static boost::iterator_range<shared_actor_list_iter> client_query_entity(Client* self, const my::AABB& aabb)
 {
 	struct Callback : public OctNode::QueryCallback
 	{
-		const luabind::object& callback;
+		boost::shared_ptr<ActorList> acts;
 
-		Callback(const luabind::object& _callback)
-			: callback(_callback)
+		Callback(void)
+			: acts(new ActorList())
 		{
 		}
 
 		virtual bool OnQueryEntity(my::OctEntity* oct_entity, const my::AABB& aabb, my::IntersectionTests::IntersectionType)
 		{
-			Actor* actor = dynamic_cast<Actor*>(oct_entity);
-			return luabind::call_function<bool>(callback, actor);
+			acts->push_back(dynamic_cast<Actor*>(oct_entity));
+			return true;
 		}
 	};
 
-	Callback cb(callback);
+	Callback cb;
 	self->QueryEntity(aabb, &cb);
+	return boost::make_iterator_range(shared_actor_list_iter(cb.acts->begin(), cb.acts), shared_actor_list_iter(cb.acts->end(), cb.acts));
 }
 
 static void client_add_state_adopt(Client* self, StateBase* state)
@@ -1093,7 +1099,7 @@ HRESULT Client::OnCreateDevice(
 			.def("RemoveEntity", &Client::RemoveEntity)
 			.def("ClearAllEntity", &Client::ClearAllEntity)
 			.property("AllEntityNum", &Client::GetAllEntityNum)
-			.def("QueryEntity", &client_query_entity)
+			.def("QueryEntity", &client_query_entity, luabind::return_stl_iterator)
 			.def("AddStateAdopt", (void(*)(Client*, StateBase*)) & client_add_state_adopt, luabind::adopt(boost::placeholders::_2))
 			.def("AddStateAdopt", (void(*)(Client*, StateBase*, StateBase*)) & client_add_state_adopt, luabind::adopt(boost::placeholders::_2)) // ! luabind::class_::def does not support default arguments (Release build.)
 			.def("FileExists", &client_file_exists)
@@ -1385,7 +1391,7 @@ void Client::OnFrameTick(
 				m_client->m_ViewedActors.insert(insert_actor_iter, *actor);
 			}
 
-			Actor::ActorList::iterator attach_iter = actor->m_Attaches.begin();
+			Actor::AttachList::iterator attach_iter = actor->m_Attaches.begin();
 			for (; attach_iter != actor->m_Attaches.end(); attach_iter++)
 			{
 				InsertViewedActor(*attach_iter);

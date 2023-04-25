@@ -431,7 +431,7 @@ void CChildView::RenderSelectedActor(IDirect3DDevice9 * pd3dDevice, Actor * acto
 		}
 	}
 
-	Actor::ActorList::iterator att_iter = actor->m_Attaches.begin();
+	Actor::AttachList::iterator att_iter = actor->m_Attaches.begin();
 	for (; att_iter != actor->m_Attaches.end(); att_iter++)
 	{
 		RenderSelectedActor(pd3dDevice, *att_iter, color);

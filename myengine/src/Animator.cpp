@@ -686,7 +686,7 @@ void Animator::UpdateHierarchyBoneList(const int node_i, const my::Bone& parent)
 {
 	const Bone& src = anim_pose[node_i];
 	Bone& dst = anim_pose_hier[node_i];
-	Actor::ActorList::iterator act_iter = boost::find_if(m_Actor->m_Attaches, boost::bind(std::equal_to<int>(), node_i, boost::bind(&Actor::m_BaseBoneId, boost::placeholders::_1)));
+	Actor::AttachList::iterator act_iter = boost::find_if(m_Actor->m_Attaches, boost::bind(std::equal_to<int>(), node_i, boost::bind(&Actor::m_BaseBoneId, boost::placeholders::_1)));
 	if (act_iter != m_Actor->m_Attaches.end() && (*act_iter)->m_PxActor && !(*act_iter)->GetRigidBodyFlag(physx::PxRigidBodyFlag::eKINEMATIC))
 	{
 		_ASSERT(physx::PxActorType::eRIGID_DYNAMIC == (*act_iter)->GetRigidActorType());
