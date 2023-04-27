@@ -1012,6 +1012,38 @@ BOOL CMainFrame::OpenFileContext(LPCTSTR lpszFileName)
 
 BOOL CMainFrame::SaveFileContext(LPCTSTR lpszPathName)
 {
+	// ! save all actor in the scene, excluding ComponentTypeScript
+	struct Callback : public my::OctNode::QueryCallback
+	{
+		typedef std::map<std::string, Actor*> NamedActorMap;
+
+		NamedActorMap acts;
+
+		Callback(void)
+		{
+		}
+
+		virtual bool OnQueryEntity(my::OctEntity* oct_entity, const my::AABB& aabb, my::IntersectionTests::IntersectionType)
+		{
+			Actor* actor = dynamic_cast<Actor*>(oct_entity);
+			if (Component* cmp = actor->GetFirstComponent(Component::ComponentTypeScript))
+			{
+				CString msg;
+				msg.Format(_T("invalid serialization: %S.%S"), actor->GetName(), cmp->GetName());
+				AfxMessageBox(msg);
+				return false;
+			}
+			VERIFY(acts.insert(std::make_pair(actor->GetName(), actor)).second);
+			return true;
+		}
+	};
+
+	Callback cb;
+	if (!QueryAllEntity(&cb))
+	{
+		return FALSE;
+	}
+
 	std::ofstream ofs(lpszPathName, std::ios::binary, _SH_DENYRW);
 	LPCTSTR Ext = PathFindExtension(lpszPathName);
 	boost::shared_ptr<boost::archive::polymorphic_oarchive> oa = Actor::GetOArchive(ofs, ts2ms(Ext).c_str());
@@ -1031,47 +1063,25 @@ BOOL CMainFrame::SaveFileContext(LPCTSTR lpszPathName)
 	*oa << boost::serialization::make_nvp("FogHeight", theApp.m_FogHeight);
 	*oa << boost::serialization::make_nvp("FogFalloff", theApp.m_FogFalloff);
 
-	// ! save all actor in the scene, including lua context actor
-	LONG ActorListSize = GetAllEntityNum();
+	LONG ActorListSize = cb.acts.size();
 	*oa << BOOST_SERIALIZATION_NVP(ActorListSize);
-	struct Callback : public my::OctNode::QueryCallback
+	Callback::NamedActorMap::iterator act_iter = cb.acts.begin();
+	for (int i = 0; act_iter != cb.acts.end(); act_iter++, i++)
 	{
-		boost::shared_ptr<boost::archive::polymorphic_oarchive> & oa;
-		int i;
-		Callback(boost::shared_ptr<boost::archive::polymorphic_oarchive> & _oa)
-			: oa(_oa)
-			, i(0)
-		{
-		}
-		virtual bool OnQueryEntity(my::OctEntity* oct_entity, const my::AABB& aabb, my::IntersectionTests::IntersectionType)
-		{
-			ActorPtr actor_ptr = dynamic_cast<Actor*>(oct_entity)->shared_from_this();
-			if (Component * cmp = actor_ptr->GetFirstComponent(Component::ComponentTypeScript))
-			{
-				CString msg;
-				msg.Format(_T("invalid serialization: %S.%S"), actor_ptr->GetName(), cmp->GetName());
-				AfxMessageBox(msg);
-				return false;
-			}
-			*oa << boost::serialization::make_nvp(str_printf("Actor%d", i++).c_str(), actor_ptr);
-			return true;
-		}
-	} cb(oa);
-	QueryAllEntity(&cb);
-	_ASSERT(ActorListSize == cb.i);
+		ActorPtr actor_ptr = act_iter->second->shared_from_this();
+		*oa << boost::serialization::make_nvp(str_printf("Actor%d", i).c_str(), actor_ptr);
+	}
 
 	LONG DialogListSize = m_DlgList.size();
 	*oa << BOOST_SERIALIZATION_NVP(DialogListSize);
-	int i = 0;
 	DialogList::iterator dlg_iter = m_DlgList.begin();
-	for (; dlg_iter != m_DlgList.end(); dlg_iter++)
+	for (int i = 0; dlg_iter != m_DlgList.end(); dlg_iter++, i++)
 	{
 		my::DialogPtr dlg_ptr = boost::dynamic_pointer_cast<my::Dialog>((*dlg_iter)->shared_from_this());
-		*oa << boost::serialization::make_nvp(str_printf("Dialog%d", i++).c_str(), dlg_ptr);
+		*oa << boost::serialization::make_nvp(str_printf("Dialog%d", i).c_str(), dlg_ptr);
 	}
-	_ASSERT(DialogListSize == i);
 
-	theApp.m_EventLog(str_printf("CMainFrame::SaveFileContext: %d actors, %d dialogs", cb.i, i).c_str());
+	theApp.m_EventLog(str_printf("CMainFrame::SaveFileContext: %d actors, %d dialogs", ActorListSize, DialogListSize).c_str());
 
 	return TRUE;
 }
@@ -1309,13 +1319,14 @@ void CMainFrame::OnFileSaveAs()
 		return;
 	}
 
-	m_strPathName = strPathName;
-
 	CWaitCursor wait;
-	SaveFileContext(m_strPathName);
+	if (SaveFileContext(strPathName))
+	{
+		m_strPathName = strPathName;
 
-	theApp.AddToRecentFileList(m_strPathName);
-	OnUpdateFrameTitle(TRUE);
+		theApp.AddToRecentFileList(m_strPathName);
+		OnUpdateFrameTitle(TRUE);
+	}
 }
 
 void CMainFrame::OnCreateActor()
