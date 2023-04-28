@@ -99,11 +99,11 @@ static void texture2d_set_as_render_target(my::Texture2D* self, int target_id)
 	V(my::D3DContext::getSingleton().m_d3dDevice->SetRenderTarget(target_id, surf));
 }
 
-static void texture2d_fill_color(my::Texture2D* self, D3DCOLOR color)
+static void texture2d_fill_color(my::Texture2D* self, const RECT* pRect, D3DCOLOR color)
 {
 	HRESULT hr;
 	CComPtr<IDirect3DSurface9> surf = self->GetSurfaceLevel(0);
-	V(my::D3DContext::getSingleton().m_d3dDevice->ColorFill(surf, NULL, color));
+	V(my::D3DContext::getSingleton().m_d3dDevice->ColorFill(surf, pRect, color));
 }
 
 static void cubetexture_load_cube_map_surface_from_file(my::CubeTexture* self, D3DCUBEMAP_FACES FaceType, const char* u8_path)
@@ -1424,24 +1424,24 @@ void LuaContext::Init(void)
 			.def_readonly("pBits", &D3DLOCKED_RECT::pBits)
 
 		, class_<tagPOINT>("tagPOINT")
-			.def_readwrite("x", &CPoint::x)
-			.def_readwrite("y", &CPoint::y)
+			.def_readwrite("x", &tagPOINT::x)
+			.def_readwrite("y", &tagPOINT::y)
 
 		, class_<CPoint, tagPOINT>("CPoint")
 			.def(constructor<int, int>())
 
 		, class_<tagSIZE>("tagSIZE")
-			.def_readwrite("cx", &CSize::cx)
-			.def_readwrite("cy", &CSize::cy)
+			.def_readwrite("cx", &tagSIZE::cx)
+			.def_readwrite("cy", &tagSIZE::cy)
 
 		, class_<CSize, tagSIZE>("CSize")
 			.def(constructor<int, int>())
 
 		, class_<tagRECT>("tagRECT")
-			.def_readwrite("left", &CRect::left)
-			.def_readwrite("top", &CRect::top)
-			.def_readwrite("right", &CRect::right)
-			.def_readwrite("bottom", &CRect::bottom)
+			.def_readwrite("left", &tagRECT::left)
+			.def_readwrite("top", &tagRECT::top)
+			.def_readwrite("right", &tagRECT::right)
+			.def_readwrite("bottom", &tagRECT::bottom)
 
 		, class_<CRect, tagRECT>("CRect")
 			.def(constructor<int, int, int, int>())
