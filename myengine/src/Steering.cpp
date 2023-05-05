@@ -114,10 +114,11 @@ my::Vector3 Steering::SeekDir(my::Vector3 Force, float dtime)
 	return newVelocity;
 }
 
-Steering::CrowdAgentState Steering::SeekTarget(const my::Vector3& Target, unsigned int filterWord0, my::Vector3 & desiredVel, my::Vector3 & startPos, my::Vector3 & endPos)
+Steering::CrowdAgentState Steering::SeekTarget(const my::Vector3& Target, float dtime, unsigned int filterWord0, my::Vector3 & desiredVel, my::Vector3 & startPos, my::Vector3 & endPos)
 {
 	// https://github.com/recastnavigation/recastnavigation/blob/master/DetourCrowd/Source/DetourCrowd.cpp
 	// dtCrowd::update
+	m_targetReplanTime += dtime;
 	if (!m_navi)
 	{
 		desiredVel = Vector3(0, 0, 0);
@@ -177,14 +178,14 @@ Steering::CrowdAgentState Steering::SeekTarget(const my::Vector3& Target, unsign
 		m_boundary.reset();
 		replan = true;
 	}
-	//else if (m_targetReplanTime > TARGET_REPLAN_DELAY &&
-	//	m_corridor.getPathCount() < CHECK_LOOKAHEAD &&
-	//	m_corridor.getLastPoly() != m_targetRef)
-	//{
-	//	m_corridor.reset(0, &m_agentPos.x);
-	//	m_boundary.reset();
-	//	replan = true;
-	//}
+	else if (m_targetReplanTime > TARGET_REPLAN_DELAY &&
+		m_corridor.getPathCount() < CHECK_LOOKAHEAD &&
+		m_corridor.getLastPoly() != m_targetRef)
+	{
+		m_corridor.reset(0, &m_agentPos.x);
+		m_boundary.reset();
+		replan = true;
+	}
 
 	dtPolyRef agentRef = m_corridor.getFirstPoly();
 	if (!m_navi->m_navQuery->isValidPolyRef(agentRef, &filter))
