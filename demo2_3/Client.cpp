@@ -1099,6 +1099,8 @@ HRESULT Client::OnCreateDevice(
 			.def("RemoveEntity", &Client::RemoveEntity)
 			.def("ClearAllEntity", &Client::ClearAllEntity)
 			.property("AllEntityNum", &Client::GetAllEntityNum)
+			.property("AllEntityAABB", luabind::tag_function<AABB(Client*)>(
+				boost::bind(&Client::GetAllEntityAABB, boost::placeholders::_1, AABB::Invalid())))
 			.def("QueryEntity", &client_query_entity, luabind::return_stl_iterator)
 			.def("AddStateAdopt", (void(*)(Client*, StateBase*)) & client_add_state_adopt, luabind::adopt(boost::placeholders::_2))
 			.def("AddStateAdopt", (void(*)(Client*, StateBase*, StateBase*)) & client_add_state_adopt, luabind::adopt(boost::placeholders::_2)) // ! luabind::class_::def does not support default arguments (Release build.)

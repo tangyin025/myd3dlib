@@ -323,6 +323,75 @@ int OctNode::GetAllEntityNum(void) const
 	return ret;
 }
 
+AABB OctNode::GetAllEntityAABB(const AABB & root_aabb) const
+{
+	AABB ret(root_aabb);
+	OctEntityMap::const_iterator entity_iter = m_Entities.begin();
+	for (; entity_iter != m_Entities.end(); entity_iter++)
+	{
+		ret.unionSelf(entity_iter->second);
+	}
+
+	for (int i = 0; i < m_Childs.size(); i++)
+	{
+		if (m_Childs[i])
+		{
+			switch (i)
+			{
+			case QuadrantPxPyPz:
+				if (!ret.Contains(Slice<QuadrantPxPyPz>(m_Half)))
+				{
+					ret.unionSelf(m_Childs[i]->GetAllEntityAABB(ret));
+				}
+				break;
+			case QuadrantPxPyNz:
+				if (!ret.Contains(Slice<QuadrantPxPyNz>(m_Half)))
+				{
+					ret.unionSelf(m_Childs[i]->GetAllEntityAABB(ret));
+				}
+				break;
+			case QuadrantPxNyPz:
+				if (!ret.Contains(Slice<QuadrantPxNyPz>(m_Half)))
+				{
+					ret.unionSelf(m_Childs[i]->GetAllEntityAABB(ret));
+				}
+				break;
+			case QuadrantPxNyNz:
+				if (!ret.Contains(Slice<QuadrantPxNyNz>(m_Half)))
+				{
+					ret.unionSelf(m_Childs[i]->GetAllEntityAABB(ret));
+				}
+				break;
+			case QuadrantNxPyPz:
+				if (!ret.Contains(Slice<QuadrantNxPyPz>(m_Half)))
+				{
+					ret.unionSelf(m_Childs[i]->GetAllEntityAABB(ret));
+				}
+				break;
+			case QuadrantNxPyNz:
+				if (!ret.Contains(Slice<QuadrantNxPyNz>(m_Half)))
+				{
+					ret.unionSelf(m_Childs[i]->GetAllEntityAABB(ret));
+				}
+				break;
+			case QuadrantNxNyPz:
+				if (!ret.Contains(Slice<QuadrantNxNyPz>(m_Half)))
+				{
+					ret.unionSelf(m_Childs[i]->GetAllEntityAABB(ret));
+				}
+				break;
+			case QuadrantNxNyNz:
+				if (!ret.Contains(Slice<QuadrantNxNyNz>(m_Half)))
+				{
+					ret.unionSelf(m_Childs[i]->GetAllEntityAABB(ret));
+				}
+				break;
+			}
+		}
+	}
+	return ret;
+}
+
 void OctNode::RemoveEntity(OctEntity * entity)
 {
 	_ASSERT(!GetTopNode()->m_QueryEntityMuted);

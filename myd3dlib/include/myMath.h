@@ -3413,8 +3413,20 @@ namespace my
 			return m_max - m_min;
 		}
 
+		bool PtInAABB(const Vector3 & pt) const
+		{
+			return pt.x >= m_min.x && pt.x <= m_max.x
+				&& pt.y >= m_min.y && pt.y <= m_max.y
+				&& pt.z >= m_min.z && pt.z <= m_max.z;
+		}
+
+		bool Contains(const AABB & rhs) const
+		{
+			return PtInAABB(rhs.m_min) && PtInAABB(rhs.m_max);
+		}
+
 		template <UINT Quad>
-		AABB Slice(const Vector3 & cente);
+		AABB Slice(const Vector3 & cente) const;
 
 		bool Intersect(const Vector3 & pos) const
 		{
@@ -3829,49 +3841,49 @@ namespace my
 	}
 
 	template <>
-	inline AABB AABB::Slice<AABB::QuadrantPxPyPz>(const Vector3 & cente)
+	inline AABB AABB::Slice<AABB::QuadrantPxPyPz>(const Vector3 & cente) const
 	{
 		return AABB(cente.x, cente.y, cente.z, m_max.x, m_max.y, m_max.z);
 	}
 
 	template <>
-	inline AABB AABB::Slice<AABB::QuadrantPxPyNz>(const Vector3 & cente)
+	inline AABB AABB::Slice<AABB::QuadrantPxPyNz>(const Vector3 & cente) const
 	{
 		return AABB(cente.x, cente.y, m_min.z, m_max.x, m_max.y, cente.z);
 	}
 
 	template <>
-	inline AABB AABB::Slice<AABB::QuadrantPxNyPz>(const Vector3 & cente)
+	inline AABB AABB::Slice<AABB::QuadrantPxNyPz>(const Vector3 & cente) const
 	{
 		return AABB(cente.x, m_min.y, cente.z, m_max.x, cente.y, m_max.z);
 	}
 
 	template <>
-	inline AABB AABB::Slice<AABB::QuadrantPxNyNz>(const Vector3 & cente)
+	inline AABB AABB::Slice<AABB::QuadrantPxNyNz>(const Vector3 & cente) const
 	{
 		return AABB(cente.x, m_min.y, m_min.z, m_max.x, cente.y, cente.z);
 	}
 
 	template <>
-	inline AABB AABB::Slice<AABB::QuadrantNxPyPz>(const Vector3 & cente)
+	inline AABB AABB::Slice<AABB::QuadrantNxPyPz>(const Vector3 & cente) const
 	{
 		return AABB(m_min.x, cente.y, cente.z, cente.x, m_max.y, m_max.z);
 	}
 
 	template <>
-	inline AABB AABB::Slice<AABB::QuadrantNxPyNz>(const Vector3 & cente)
+	inline AABB AABB::Slice<AABB::QuadrantNxPyNz>(const Vector3 & cente) const
 	{
 		return AABB(m_min.x, cente.y, m_min.z, cente.x, m_max.y, cente.z);
 	}
 
 	template <>
-	inline AABB AABB::Slice<AABB::QuadrantNxNyPz>(const Vector3 & cente)
+	inline AABB AABB::Slice<AABB::QuadrantNxNyPz>(const Vector3 & cente) const
 	{
 		return AABB(m_min.x, m_min.y, cente.z, cente.x, cente.y, m_max.z);
 	}
 
 	template <>
-	inline AABB AABB::Slice<AABB::QuadrantNxNyNz>(const Vector3 & cente)
+	inline AABB AABB::Slice<AABB::QuadrantNxNyNz>(const Vector3 & cente) const
 	{
 		return AABB(m_min.x, m_min.y, m_min.z, cente.x, cente.y, cente.z);
 	}

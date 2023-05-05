@@ -126,6 +126,8 @@ namespace my
 
 		int GetAllEntityNum(void) const;
 
+		AABB GetAllEntityAABB(const AABB & root_aabb) const;
+
 		virtual void RemoveEntity(OctEntity * entity);
 
 		void ClearAllEntity(void);

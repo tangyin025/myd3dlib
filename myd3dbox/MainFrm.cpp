@@ -926,6 +926,8 @@ void CMainFrame::InitFileContext()
 			.def("RemoveEntity", &CMainFrame::RemoveEntity)
 			.def("ClearAllEntity", &CMainFrame::ClearAllEntity)
 			.property("AllEntityNum", &CMainFrame::GetAllEntityNum)
+			.property("AllEntityAABB", luabind::tag_function<AABB(CMainFrame*)>(
+				boost::bind(&CMainFrame::GetAllEntityAABB, boost::placeholders::_1, AABB::Invalid())))
 			.def("QueryEntity", &cmainframe_query_entity, luabind::return_stl_iterator)
 			.def("PushToActorList", luabind::tag_function<void(CMainFrame*,ActorPtr)>(
 				boost::bind((void(ActorPtrList::*)(ActorPtr const&)) & ActorPtrList::push_back, boost::bind<ActorPtrList&>(&CMainFrame::m_ActorList, boost::placeholders::_1), boost::placeholders::_2)))
@@ -2030,7 +2032,7 @@ void CMainFrame::OnCreateNavigation()
 	}
 
 	CNavigationDlg dlg;
-	dlg.m_bindingBox = *(*actor_iter)->m_OctAabb;
+	dlg.m_bindingBox = GetAllEntityAABB(my::AABB::Invalid());
 	if (dlg.DoModal() != IDOK)
 	{
 		return;
