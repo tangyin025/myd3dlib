@@ -314,6 +314,8 @@ void PlayerAgent::Update(float fElapsedTime)
 			}
 		}
 	}
+
+	m_Animator->Tick(fElapsedTime, 1.0f);
 }
 
 void PlayerAgent::OnPxThreadSubstep(float dtime)

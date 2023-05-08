@@ -628,8 +628,6 @@ void Animator::Update(float fElapsedTime)
 {
 	if (m_Skeleton)
 	{
-		Tick(fElapsedTime, 1.0f);
-
 		my::BoneIndexSet::const_iterator root_iter = m_Skeleton->m_boneRootSet.begin();
 		for (; root_iter != m_Skeleton->m_boneRootSet.end(); root_iter++)
 		{
@@ -665,7 +663,7 @@ void Animator::Update(float fElapsedTime)
 
 void Animator::Tick(float fElapsedTime, float fTotalWeight)
 {
-	if (m_Childs[0])
+	if (m_Skeleton && m_Childs[0])
 	{
 		m_Childs[0]->Tick(fElapsedTime, fTotalWeight);
 
