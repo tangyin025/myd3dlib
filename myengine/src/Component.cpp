@@ -846,7 +846,7 @@ void MeshComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline * 
 					{
 						macro[j++].Name = "INSTANCE";
 					}
-					if (animator && m_Mesh->m_VertexElems.elems[D3DDECLUSAGE_BLENDINDICES][0].Type == D3DDECLTYPE_UBYTE4)
+					if (animator && !animator->m_DualQuats.empty() /*&& m_Mesh->m_VertexElems.elems[D3DDECLUSAGE_BLENDINDICES][0].Type == D3DDECLTYPE_UBYTE4*/)
 					{
 						macro[j++].Name = "SKELETON";
 					}
@@ -859,7 +859,7 @@ void MeshComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline * 
 							BOOST_VERIFY(handle_MeshColor = shader->GetParameterByName(NULL, "g_MeshColor"));
 						}
 
-						if (!handle_dualquat && animator && m_Mesh->m_VertexElems.elems[D3DDECLUSAGE_BLENDINDICES][0].Type == D3DDECLTYPE_UBYTE4)
+						if (!handle_dualquat && animator && !animator->m_DualQuats.empty() /*&& m_Mesh->m_VertexElems.elems[D3DDECLUSAGE_BLENDINDICES][0].Type == D3DDECLTYPE_UBYTE4*/)
 						{
 							BOOST_VERIFY(handle_World = shader->GetParameterByName(NULL, "g_World"));
 							BOOST_VERIFY(handle_MeshColor = shader->GetParameterByName(NULL, "g_MeshColor"));

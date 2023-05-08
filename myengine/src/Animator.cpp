@@ -224,14 +224,14 @@ void AnimationNodeSequence::Advance(float fElapsedTime)
 float AnimationNodeSequence::GetLength(void) const
 {
 	const Animator * Root = dynamic_cast<const Animator *>(GetTopNode());
-	_ASSERT(Root->m_Skeleton);
 
-	const OgreAnimation* anim = Root->m_Skeleton->GetAnimation(m_Name);
-	if (anim)
+	const OgreAnimation* anim;
+
+	if (Root->m_Skeleton && (anim = Root->m_Skeleton->GetAnimation(m_Name)))
 	{
 		return anim->GetLength();
 	}
-	return 1.0f;
+	return FLT_MAX;
 }
 
 my::BoneList & AnimationNodeSequence::GetPose(my::BoneList & pose, int root_i, const my::BoneHierarchy & boneHierarchy) const
@@ -663,7 +663,7 @@ void Animator::Update(float fElapsedTime)
 
 void Animator::Tick(float fElapsedTime, float fTotalWeight)
 {
-	if (m_Skeleton && m_Childs[0])
+	if (m_Childs[0])
 	{
 		m_Childs[0]->Tick(fElapsedTime, fTotalWeight);
 
