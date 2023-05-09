@@ -803,12 +803,12 @@ void CMainFrame::OnFrameTick(float fElapsedTime)
 		{
 			if (actor_iter->IsRequested())
 			{
-				actor_iter->Update(fElapsedTime);
+				actor_iter->Update(fElapsedTime * theApp.m_fTimeScale);
 
 				Animator* animator = actor_iter->GetFirstComponent<Animator>();
 				if (animator && !(*m_Player == *actor_iter))
 				{
-					animator->Tick(fElapsedTime, 1.0f);
+					animator->Tick(fElapsedTime * theApp.m_fTimeScale, 1.0f);
 				}
 			}
 		}
@@ -820,12 +820,12 @@ void CMainFrame::OnFrameTick(float fElapsedTime)
 		{
 			if ((*actor_iter)->IsRequested())
 			{
-				(*actor_iter)->Update(fElapsedTime);
+				(*actor_iter)->Update(fElapsedTime * theApp.m_fTimeScale);
 
 				Animator* animator = (*actor_iter)->GetFirstComponent<Animator>();
 				if (animator)
 				{
-					animator->Tick(fElapsedTime, 1.0f);
+					animator->Tick(fElapsedTime * theApp.m_fTimeScale, 1.0f);
 				}
 			}
 
@@ -834,12 +834,12 @@ void CMainFrame::OnFrameTick(float fElapsedTime)
 			{
 				if ((*attach_iter)->IsRequested())
 				{
-					(*attach_iter)->Update(fElapsedTime);
+					(*attach_iter)->Update(fElapsedTime * theApp.m_fTimeScale);
 
 					Animator* animator = (*attach_iter)->GetFirstComponent<Animator>();
 					if (animator)
 					{
-						animator->Tick(fElapsedTime, 1.0f);
+						animator->Tick(fElapsedTime * theApp.m_fTimeScale, 1.0f);
 					}
 				}
 			}
