@@ -267,13 +267,13 @@ public:
 
 	void Shutdown(void);
 
-	void TickPreRender(float dtime);
+	void TickPreRender(float fElapsedTime);
 
-	void TickPostRender(float dtime);
+	void TickPostRender(float fElapsedTime);
 
-	bool Advance(float dtime);
+	bool Advance(float fElapsedTime);
 
-	void AdvanceSync(float dtime);
+	void AdvanceSync(float fElapsedTime);
 
 	void Substep(StepperTask & completionTask);
 

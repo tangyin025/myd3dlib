@@ -199,7 +199,7 @@ void PhysxScene::Shutdown(void)
 	m_PxScene.reset();
 }
 
-void PhysxScene::TickPreRender(float dtime)
+void PhysxScene::TickPreRender(float fElapsedTime)
 {
 	m_Sync.ResetEvent();
 
@@ -209,10 +209,10 @@ void PhysxScene::TickPreRender(float dtime)
 
 	PhysxSdk::getSingleton().m_RenderTickMuted = true;
 
-	m_WaitForResults = Advance(dtime);
+	m_WaitForResults = Advance(fElapsedTime);
 }
 
-void PhysxScene::TickPostRender(float dtime)
+void PhysxScene::TickPostRender(float fElapsedTime)
 {
 	if (m_WaitForResults)
 	{
@@ -288,9 +288,9 @@ void PhysxScene::TickPostRender(float dtime)
 	}
 }
 
-bool PhysxScene::Advance(float dtime)
+bool PhysxScene::Advance(float fElapsedTime)
 {
-	m_Timer.m_RemainingTime += my::Min(0.1f, dtime);
+	m_Timer.m_RemainingTime += my::Min(0.1f, fElapsedTime);
 
 	if(!m_Timer.Step())
 	{
@@ -306,11 +306,11 @@ bool PhysxScene::Advance(float dtime)
 	return true;
 }
 
-void PhysxScene::AdvanceSync(float dtime)
+void PhysxScene::AdvanceSync(float fElapsedTime)
 {
 	PhysxSdk::getSingleton().m_RenderTickMuted = true;
 
-	m_Timer.m_RemainingTime += my::Min(0.1f, dtime);
+	m_Timer.m_RemainingTime += my::Min(0.1f, fElapsedTime);
 
 	for (; m_Timer.Step(); )
 	{
