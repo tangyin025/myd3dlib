@@ -43,8 +43,6 @@ namespace my
 
 		double m_fAbsoluteTime;
 
-		float m_fAbsoluteElapsedTime;
-
 		float m_fTimeScale;
 
 		float m_fElapsedTime;

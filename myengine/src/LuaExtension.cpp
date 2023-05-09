@@ -2109,7 +2109,6 @@ void LuaContext::Init(void)
 
 		, class_<my::D3DContext>("D3DContext")
 			.def_readonly("AbsoluteTime", &my::D3DContext::m_fAbsoluteTime)
-			.def_readonly("AbsoluteElapsedTime", &my::D3DContext::m_fAbsoluteElapsedTime)
 			.def_readwrite("TimeScale", &my::D3DContext::m_fTimeScale)
 			.def_readonly("ElapsedTime", &my::D3DContext::m_fElapsedTime)
 			.def_readonly("TotalTime", &my::D3DContext::m_fTotalTime)

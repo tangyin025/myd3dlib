@@ -1517,11 +1517,11 @@ void Client::OnUIRender(
 	double fTime,
 	float fElapsedTime)
 {
-	DialogMgr::Draw(ui_render, m_fAbsoluteTime, m_fAbsoluteElapsedTime, DialogMgr::GetDlgViewport());
+	DialogMgr::Draw(ui_render, m_fAbsoluteTime, m_fElapsedTime, DialogMgr::GetDlgViewport());
 	StateBase* curr_iter = m_Current;
 	for (; curr_iter != NULL; curr_iter = curr_iter->m_Current)
 	{
-		curr_iter->OnGUI(ui_render, m_fAbsoluteElapsedTime, DialogMgr::GetDlgViewport());
+		curr_iter->OnGUI(ui_render, m_fElapsedTime, DialogMgr::GetDlgViewport());
 	}
 	_ASSERT(m_Font);
 	ui_render->SetWorld(Matrix4::identity);

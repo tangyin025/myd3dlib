@@ -1594,7 +1594,7 @@ void CChildView::OnPaint()
 					}
 					theApp.m_UIRender->Flush();
 				}
-				pFrame->DialogMgr::Draw(theApp.m_UIRender.get(), theApp.m_fTotalTime, theApp.m_fAbsoluteElapsedTime, my::Vector2(-m_UICamera.m_View._41 * 2, m_UICamera.m_View._42 * 2));
+				pFrame->DialogMgr::Draw(theApp.m_UIRender.get(), theApp.m_fTotalTime, theApp.m_fElapsedTime, my::Vector2(-m_UICamera.m_View._41 * 2, m_UICamera.m_View._42 * 2));
 				if (!pFrame->m_selctls.empty())
 				{
 					RenderSelectedControl(theApp.m_d3dDevice, pFrame->m_selctls.front(), D3DCOLOR_ARGB(255, 0, 255, 0), true);
