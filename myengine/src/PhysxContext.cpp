@@ -290,19 +290,23 @@ void PhysxScene::TickPostRender(float fElapsedTime)
 
 bool PhysxScene::Advance(float fElapsedTime)
 {
-	m_Timer.m_RemainingTime += my::Min(m_MaxAllowedTimestep, fElapsedTime);
-
-	if (my::D3DContext::getSingleton().m_fTimeScale > 0 && m_Timer.Step())
+	if (my::D3DContext::getSingleton().m_fTimeScale > 0)
 	{
-		m_Completion0.setContinuation(*m_PxScene->getTaskManager(), NULL);
+		m_Timer.m_RemainingTime += my::Min(m_MaxAllowedTimestep, fElapsedTime);
 
-		Substep(m_Completion0);
+		if (m_Timer.Step())
+		{
+			m_Completion0.m_Interval = m_Timer.m_Interval * my::D3DContext::getSingleton().m_fTimeScale;
 
-		m_Completion0.removeReference();
+			m_Completion0.setContinuation(*m_PxScene->getTaskManager(), NULL);
 
-		return true;
+			Substep(m_Completion0);
+
+			m_Completion0.removeReference();
+
+			return true;
+		}
 	}
-
 	return false;
 }
 
@@ -310,17 +314,22 @@ void PhysxScene::AdvanceSync(float fElapsedTime)
 {
 	PhysxSdk::getSingleton().m_RenderTickMuted = true;
 
-	m_Timer.m_RemainingTime += my::Min(m_MaxAllowedTimestep, fElapsedTime);
-
-	for (; my::D3DContext::getSingleton().m_fTimeScale > 0 && m_Timer.Step(); )
+	if (my::D3DContext::getSingleton().m_fTimeScale > 0)
 	{
-		m_PxScene->simulate(m_Timer.m_Interval * my::D3DContext::getSingleton().m_fTimeScale, NULL, 0, 0, true);
+		m_Timer.m_RemainingTime += my::Min(m_MaxAllowedTimestep, fElapsedTime);
 
-		m_PxScene->fetchResults(true, &m_ErrorState);
+		m_Completion0.m_Interval = m_Timer.m_Interval * my::D3DContext::getSingleton().m_fTimeScale;
 
-		_ASSERT(0 == m_ErrorState);
+		for (; m_Timer.Step(); )
+		{
+			m_PxScene->simulate(m_Completion0.m_Interval, NULL, 0, 0, true);
 
-		m_EventPxThreadSubstep(m_Timer.m_Interval * my::D3DContext::getSingleton().m_fTimeScale);
+			m_PxScene->fetchResults(true, &m_ErrorState);
+
+			_ASSERT(0 == m_ErrorState);
+
+			m_EventPxThreadSubstep(m_Completion0.m_Interval);
+		}
 	}
 
 	PhysxSdk::getSingleton().m_RenderTickMuted = false;
@@ -328,7 +337,7 @@ void PhysxScene::AdvanceSync(float fElapsedTime)
 
 void PhysxScene::Substep(StepperTask & completionTask)
 {
-	m_PxScene->simulate(m_Timer.m_Interval * my::D3DContext::getSingleton().m_fTimeScale, &completionTask, 0, 0, true);
+	m_PxScene->simulate(completionTask.m_Interval, &completionTask, 0, 0, true);
 }
 
 void PhysxScene::SubstepDone(StepperTask * ownerTask)
@@ -338,11 +347,13 @@ void PhysxScene::SubstepDone(StepperTask * ownerTask)
 	_ASSERT(0 == m_ErrorState);
 
 	// ! be aware of multi thread
-	m_EventPxThreadSubstep(m_Timer.m_Interval * my::D3DContext::getSingleton().m_fTimeScale);
+	m_EventPxThreadSubstep(ownerTask->m_Interval);
 
-	if(my::D3DContext::getSingleton().m_fTimeScale > 0 && m_Timer.Step())
+	if(m_Timer.Step())
 	{
 		StepperTask& task = (ownerTask == &m_Completion0 ? m_Completion1 : m_Completion0);
+
+		task.m_Interval = ownerTask->m_Interval;
 
 		task.setContinuation(*m_PxScene->getTaskManager(), NULL);
 

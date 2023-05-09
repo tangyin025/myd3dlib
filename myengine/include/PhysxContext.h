@@ -174,8 +174,11 @@ public:
 	public:
 		PhysxScene * m_Scene;
 
+		float m_Interval;
+
 		StepperTask(PhysxScene * Scene)
 			: m_Scene(Scene)
+			, m_Interval(1/60.0f)
 		{
 		}
 
