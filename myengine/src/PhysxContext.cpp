@@ -290,7 +290,7 @@ void PhysxScene::TickPostRender(float fElapsedTime)
 
 bool PhysxScene::Advance(float fElapsedTime)
 {
-	m_Timer.m_RemainingTime += my::Min(0.1f, fElapsedTime);
+	m_Timer.m_RemainingTime += my::Min(m_MaxAllowedTimestep, fElapsedTime);
 
 	if (my::D3DContext::getSingleton().m_fTimeScale > 0 && m_Timer.Step())
 	{
@@ -310,7 +310,7 @@ void PhysxScene::AdvanceSync(float fElapsedTime)
 {
 	PhysxSdk::getSingleton().m_RenderTickMuted = true;
 
-	m_Timer.m_RemainingTime += my::Min(0.1f, fElapsedTime);
+	m_Timer.m_RemainingTime += my::Min(m_MaxAllowedTimestep, fElapsedTime);
 
 	for (; my::D3DContext::getSingleton().m_fTimeScale > 0 && m_Timer.Step(); )
 	{

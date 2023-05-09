@@ -188,6 +188,8 @@ public:
 
 	my::Timer m_Timer;
 
+	float m_MaxAllowedTimestep;
+
 	my::Event m_Sync;
 
 	bool m_WaitForResults;
@@ -245,6 +247,7 @@ public:
 		: m_Completion0(this)
 		, m_Completion1(this)
 		, m_Timer(1/60.0f)
+		, m_MaxAllowedTimestep(0.1f)
 		, m_Sync(NULL, FALSE, FALSE, NULL)
 		, m_WaitForResults(false)
 		, m_ErrorState(0)
