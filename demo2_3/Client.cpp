@@ -1333,7 +1333,7 @@ void Client::OnFrameTick(
 	StateBase * curr_iter = m_Current;
 	for (; curr_iter != NULL; curr_iter = curr_iter->m_Current)
 	{
-		curr_iter->OnUpdate(fElapsedTime);
+		curr_iter->OnUpdate(fElapsedTime * m_fTimeScale);
 	}
 
 	struct Callback : public OctNode::QueryCallback
@@ -1414,7 +1414,7 @@ void Client::OnFrameTick(
 
 		actor_iter->UpdateLod(m_Camera->m_Eye, m_ViewedCenter);
 
-		actor_iter->Update(fElapsedTime);
+		actor_iter->Update(fElapsedTime* m_fTimeScale);
 	}
 
 	for (; actor_iter != m_ViewedActors.end(); )
@@ -1441,7 +1441,7 @@ void Client::OnFrameTick(
 
 	m_Camera->UpdateViewProj();
 
-	m_ControllerMgr->computeInteractions(fElapsedTime, &m_ControllerFilter);
+	m_ControllerMgr->computeInteractions(fElapsedTime* m_fTimeScale, &m_ControllerFilter);
 
 	LuaContext::dogc(LUA_GCCOLLECT, 1);
 
@@ -1517,11 +1517,11 @@ void Client::OnUIRender(
 	double fTime,
 	float fElapsedTime)
 {
-	DialogMgr::Draw(ui_render, m_fAbsoluteTime, m_fElapsedTime, DialogMgr::GetDlgViewport());
+	DialogMgr::Draw(ui_render, m_fAbsoluteTime, fElapsedTime, DialogMgr::GetDlgViewport());
 	StateBase* curr_iter = m_Current;
 	for (; curr_iter != NULL; curr_iter = curr_iter->m_Current)
 	{
-		curr_iter->OnGUI(ui_render, m_fElapsedTime, DialogMgr::GetDlgViewport());
+		curr_iter->OnGUI(ui_render, fElapsedTime, DialogMgr::GetDlgViewport());
 	}
 	_ASSERT(m_Font);
 	ui_render->SetWorld(Matrix4::identity);

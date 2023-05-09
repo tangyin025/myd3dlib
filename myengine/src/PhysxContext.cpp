@@ -292,18 +292,18 @@ bool PhysxScene::Advance(float fElapsedTime)
 {
 	m_Timer.m_RemainingTime += my::Min(0.1f, fElapsedTime);
 
-	if(!m_Timer.Step())
+	if (my::D3DContext::getSingleton().m_fTimeScale > 0 && m_Timer.Step())
 	{
-		return false;
+		m_Completion0.setContinuation(*m_PxScene->getTaskManager(), NULL);
+
+		Substep(m_Completion0);
+
+		m_Completion0.removeReference();
+
+		return true;
 	}
 
-	m_Completion0.setContinuation(*m_PxScene->getTaskManager(), NULL);
-
-	Substep(m_Completion0);
-
-	m_Completion0.removeReference();
-
-	return true;
+	return false;
 }
 
 void PhysxScene::AdvanceSync(float fElapsedTime)
@@ -312,15 +312,15 @@ void PhysxScene::AdvanceSync(float fElapsedTime)
 
 	m_Timer.m_RemainingTime += my::Min(0.1f, fElapsedTime);
 
-	for (; m_Timer.Step(); )
+	for (; my::D3DContext::getSingleton().m_fTimeScale > 0 && m_Timer.Step(); )
 	{
-		m_PxScene->simulate(m_Timer.m_Interval, NULL, 0, 0, true);
+		m_PxScene->simulate(m_Timer.m_Interval * my::D3DContext::getSingleton().m_fTimeScale, NULL, 0, 0, true);
 
 		m_PxScene->fetchResults(true, &m_ErrorState);
 
 		_ASSERT(0 == m_ErrorState);
 
-		m_EventPxThreadSubstep(m_Timer.m_Interval);
+		m_EventPxThreadSubstep(m_Timer.m_Interval * my::D3DContext::getSingleton().m_fTimeScale);
 	}
 
 	PhysxSdk::getSingleton().m_RenderTickMuted = false;
@@ -328,7 +328,7 @@ void PhysxScene::AdvanceSync(float fElapsedTime)
 
 void PhysxScene::Substep(StepperTask & completionTask)
 {
-	m_PxScene->simulate(m_Timer.m_Interval, &completionTask, 0, 0, true);
+	m_PxScene->simulate(m_Timer.m_Interval * my::D3DContext::getSingleton().m_fTimeScale, &completionTask, 0, 0, true);
 }
 
 void PhysxScene::SubstepDone(StepperTask * ownerTask)
@@ -338,21 +338,22 @@ void PhysxScene::SubstepDone(StepperTask * ownerTask)
 	_ASSERT(0 == m_ErrorState);
 
 	// ! be aware of multi thread
-	m_EventPxThreadSubstep(m_Timer.m_Interval);
+	m_EventPxThreadSubstep(m_Timer.m_Interval * my::D3DContext::getSingleton().m_fTimeScale);
 
-	if(!m_Timer.Step())
+	if(my::D3DContext::getSingleton().m_fTimeScale > 0 && m_Timer.Step())
 	{
-		m_Sync.SetEvent();
+		StepperTask& task = (ownerTask == &m_Completion0 ? m_Completion1 : m_Completion0);
+
+		task.setContinuation(*m_PxScene->getTaskManager(), NULL);
+
+		Substep(task);
+
+		task.removeReference();
+
 		return;
 	}
 
-	StepperTask & task = (ownerTask == &m_Completion0 ? m_Completion1 : m_Completion0);
-
-	task.setContinuation(*m_PxScene->getTaskManager(), NULL);
-
-	Substep(task);
-
-	task.removeReference();
+	m_Sync.SetEvent();
 }
 
 void PhysxScene::PushRenderBuffer(my::DrawHelper * drawHelper)
