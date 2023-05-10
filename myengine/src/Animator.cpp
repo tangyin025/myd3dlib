@@ -311,7 +311,7 @@ my::BoneList & AnimationNodeSlot::GetPose(my::BoneList & pose, int root_i, const
 	return pose;
 }
 
-void AnimationNodeSlot::Play(const std::string & Name, float Rate, float Weight, float BlendTime, float BlendOutTime, bool Loop, int Priority, const std::string & Group, DWORD_PTR UserData)
+void AnimationNodeSlot::Play(const std::string & Name, float Rate, float Weight, float BlendTime, float BlendOutTime, bool Loop, int Priority, DWORD_PTR UserData)
 {
 	SequenceList::iterator seq_iter = std::upper_bound(m_SequenceSlot.begin(), m_SequenceSlot.end(), Priority,
 		boost::bind(std::less<float>(), boost::placeholders::_1, boost::bind(&Sequence::m_Priority, boost::placeholders::_2)));
@@ -324,20 +324,12 @@ void AnimationNodeSlot::Play(const std::string & Name, float Rate, float Weight,
 		res_seq_iter->m_Name = Name;
 		res_seq_iter->m_Rate = Rate;
 		res_seq_iter->m_Loop = Loop;
-		res_seq_iter->m_Group = Group;
 		res_seq_iter->m_Priority = Priority;
 		res_seq_iter->m_BlendTime = BlendTime;
 		res_seq_iter->m_BlendOutTime = BlendOutTime;
 		res_seq_iter->m_TargetWeight = Weight;
 		res_seq_iter->m_UserData = UserData;
 		res_seq_iter->m_Parent = this;
-
-		if (!Group.empty())
-		{
-			Animator* Root = dynamic_cast<Animator*>(GetTopNode());
-			Root->AddSequenceGroup(Group, &*res_seq_iter);
-			Root->SyncSequenceGroupTime(Group, res_seq_iter->m_Time / res_seq_iter->GetLength());
-		}
 	}
 }
 
@@ -347,12 +339,6 @@ void AnimationNodeSlot::StopIndex(int i)
 
 	m_SequenceSlot[i].m_TargetWeight = 0;
 	m_SequenceSlot[i].m_BlendTime = m_SequenceSlot[i].m_BlendOutTime;
-
-	if (!m_SequenceSlot[i].m_Group.empty())
-	{
-		Animator* Root = dynamic_cast<Animator*>(GetTopNode());
-		Root->RemoveSequenceGroup(m_SequenceSlot[i].m_Group, &m_SequenceSlot[i]);
-	}
 }
 
 void AnimationNodeSlot::Stop(DWORD_PTR UserData)

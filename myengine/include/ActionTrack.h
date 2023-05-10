@@ -130,7 +130,6 @@ public:
 		float BlendOutTime;
 		bool Loop;
 		int Prority;
-		std::string Group;
 	};
 
 	typedef std::multimap<float, KeyFrame> KeyFrameMap;
@@ -144,7 +143,7 @@ public:
 
 	virtual ActionTrackInstPtr CreateInstance(Actor * _Actor) const;
 
-	void AddKeyFrame(float Time, const char * SlotName, const char * Name, float Rate, float Weight, float BlendTime, float BlendOutTime, bool Loop, int Prority, const char * Group);
+	void AddKeyFrame(float Time, const char * SlotName, const char * Name, float Rate, float Weight, float BlendTime, float BlendOutTime, bool Loop, int Prority);
 };
 
 class ActionTrackAnimationInst : public ActionTrackInst
