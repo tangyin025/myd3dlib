@@ -2811,6 +2811,7 @@ void LuaContext::Init(void)
 		//, def("act2entity", (boost::shared_ptr<my::OctEntity>(*)(const boost::shared_ptr<Actor>&))& boost::static_pointer_cast<my::OctEntity, Actor>)
 
 		, class_<AnimationNode, boost::shared_ptr<AnimationNode> >("AnimationNode")
+			.def_readonly("Parent", &AnimationNode::m_Parent)
 			.def_readonly("Name", &AnimationNode::m_Name)
 			.property("Child0", &animation_node_get_child<0>, &animation_node_set_child<0>)
 			.property("Child1", &animation_node_get_child<1>, &animation_node_set_child<1>)
@@ -2837,8 +2838,7 @@ void LuaContext::Init(void)
 
 		, class_<AnimationNodeSlot, AnimationNode, boost::shared_ptr<AnimationNode> >("AnimationNodeSlot")
 			.def(constructor<const char*>())
-			//.def("Play", &AnimationNodeSlot::Play)
-			//.def("Stop", &AnimationNodeSlot::Stop)
+			.def("StopAll", &AnimationNodeSlot::StopAll)
 
 		, class_<AnimationNodeSubTree, AnimationNode, boost::shared_ptr<AnimationNode> >("AnimationNodeSubTree")
 			.def(constructor<const char*>())
