@@ -313,23 +313,25 @@ my::BoneList & AnimationNodeSlot::GetPose(my::BoneList & pose, int root_i, const
 
 void AnimationNodeSlot::Play(const std::string & Name, float Rate, float Weight, float BlendTime, float BlendOutTime, bool Loop, int Priority, DWORD_PTR UserData)
 {
-	SequenceList::iterator seq_iter = std::upper_bound(m_SequenceSlot.begin(), m_SequenceSlot.end(), Priority,
-		boost::bind(std::less<float>(), boost::placeholders::_1, boost::bind(&Sequence::m_Priority, boost::placeholders::_2)));
-
-	if (seq_iter != m_SequenceSlot.begin() or !m_SequenceSlot.full())
+	if (m_SequenceSlot.empty() || m_SequenceSlot.back().m_Priority <= Priority)
 	{
-		SequenceList::iterator res_seq_iter = m_SequenceSlot.insert(seq_iter);
-		res_seq_iter->m_Time = 0;
-		res_seq_iter->m_Weight = 0;
-		res_seq_iter->m_Name = Name;
-		res_seq_iter->m_Rate = Rate;
-		res_seq_iter->m_Loop = Loop;
-		res_seq_iter->m_Priority = Priority;
-		res_seq_iter->m_BlendTime = BlendTime;
-		res_seq_iter->m_BlendOutTime = BlendOutTime;
-		res_seq_iter->m_TargetWeight = Weight;
-		res_seq_iter->m_UserData = UserData;
-		res_seq_iter->m_Parent = this;
+		SequenceList::iterator seq_iter = m_SequenceSlot.insert(m_SequenceSlot.end());
+		seq_iter->m_Time = 0;
+		seq_iter->m_Weight = 0;
+		seq_iter->m_Name = Name;
+		seq_iter->m_Rate = Rate;
+		seq_iter->m_Loop = Loop;
+		seq_iter->m_Priority = Priority;
+		seq_iter->m_BlendTime = BlendTime;
+		seq_iter->m_BlendOutTime = BlendOutTime;
+		seq_iter->m_TargetWeight = Weight;
+		seq_iter->m_UserData = UserData;
+		seq_iter->m_Parent = this;
+
+		if (seq_iter != m_SequenceSlot.begin())
+		{
+			StopIndex(std::distance(m_SequenceSlot.begin(), seq_iter) - 1);
+		}
 	}
 }
 
