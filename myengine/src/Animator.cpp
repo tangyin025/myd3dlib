@@ -339,8 +339,11 @@ void AnimationNodeSlot::StopSlotByIndex(int i)
 {
 	_ASSERT(i >= 0 && i < (int)m_SequenceSlot.size());
 
-	m_SequenceSlot[i].m_TargetWeight = 0;
-	m_SequenceSlot[i].m_BlendTime = m_SequenceSlot[i].m_BlendOutTime;
+	if (m_SequenceSlot[i].m_TargetWeight > 0)
+	{
+		m_SequenceSlot[i].m_TargetWeight = 0;
+		m_SequenceSlot[i].m_BlendTime = m_SequenceSlot[i].m_BlendOutTime;
+	}
 }
 
 void AnimationNodeSlot::StopSlotByUserData(DWORD_PTR UserData)
@@ -348,7 +351,7 @@ void AnimationNodeSlot::StopSlotByUserData(DWORD_PTR UserData)
 	SequenceList::iterator seq_iter = m_SequenceSlot.begin();
 	for (; seq_iter != m_SequenceSlot.end(); seq_iter++)
 	{
-		if (seq_iter->m_UserData == UserData && seq_iter->m_TargetWeight != 0)
+		if (seq_iter->m_UserData == UserData)
 		{
 			StopSlotByIndex(std::distance(m_SequenceSlot.begin(), seq_iter));
 		}
@@ -365,10 +368,7 @@ void AnimationNodeSlot::StopSlotByUserData(DWORD_PTR UserData)
 //	SequenceList::iterator seq_iter = m_SequenceSlot.begin();
 //	for (; seq_iter != m_SequenceSlot.end(); seq_iter++)
 //	{
-//		if (seq_iter->m_TargetWeight != 0)
-//		{
-//			StopSlotByIndex(std::distance(m_SequenceSlot.begin(), seq_iter));
-//		}
+//		StopSlotByIndex(std::distance(m_SequenceSlot.begin(), seq_iter));
 //	}
 //}
 
