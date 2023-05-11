@@ -370,11 +370,11 @@ public:
 
 	boost::shared_ptr<ActionInst> PlayAction(Action * action, float Length);
 
-	ActionInstPtrList::iterator StopActionIter(ActionInstPtrList::iterator action_inst_iter);
+	ActionInstPtrList::iterator StopActionInstIter(ActionInstPtrList::iterator action_inst_iter);
 
-	void StopAction(boost::shared_ptr<ActionInst> action_inst);
+	void StopActionInst(boost::shared_ptr<ActionInst> action_inst);
 
-	void StopAllAction(void);
+	void StopAllActionInst(void);
 
 	bool TickActionAndGetDisplacement(float dtime, my::Vector3 & disp);
 

@@ -1137,7 +1137,7 @@ void CMainFrame::RemoveEntity(my::OctEntity * entity)
 		actor->ReleaseResource();
 	}
 
-	actor->StopAllAction();
+	actor->StopAllActionInst();
 
 	actor->ClearAllAttach();
 

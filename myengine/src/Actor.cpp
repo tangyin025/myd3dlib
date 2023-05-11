@@ -356,7 +356,7 @@ void Actor::Update(float fElapsedTime)
 		else
 		{
 			// ! make sure action inst was not in parallel task list
-			action_inst_iter = StopActionIter(action_inst_iter);
+			action_inst_iter = StopActionInstIter(action_inst_iter);
 		}
 	}
 
@@ -965,7 +965,7 @@ boost::shared_ptr<ActionInst> Actor::PlayAction(Action * action, float Length)
 	return action_inst;
 }
 
-Actor::ActionInstPtrList::iterator Actor::StopActionIter(ActionInstPtrList::iterator action_inst_iter)
+Actor::ActionInstPtrList::iterator Actor::StopActionInstIter(ActionInstPtrList::iterator action_inst_iter)
 {
 	_ASSERT(action_inst_iter != m_ActionInstList.end());
 
@@ -981,22 +981,22 @@ Actor::ActionInstPtrList::iterator Actor::StopActionIter(ActionInstPtrList::iter
 	return m_ActionInstList.erase(action_inst_iter);
 }
 
-void Actor::StopAction(boost::shared_ptr<ActionInst> action_inst)
+void Actor::StopActionInst(boost::shared_ptr<ActionInst> action_inst)
 {
 	ActionInstPtrList::iterator action_inst_iter = boost::find_if(m_ActionInstList,
 		boost::bind(std::equal_to<const boost::shared_ptr<ActionInst>&>(), boost::bind(&std::pair< boost::shared_ptr<ActionInst>, float>::first, boost::placeholders::_1), action_inst));
 	if (action_inst_iter != m_ActionInstList.end())
 	{
-		StopActionIter(action_inst_iter);
+		StopActionInstIter(action_inst_iter);
 	}
 }
 
-void Actor::StopAllAction(void)
+void Actor::StopAllActionInst(void)
 {
 	ActionInstPtrList::iterator action_inst_iter = m_ActionInstList.begin();
 	for (; action_inst_iter != m_ActionInstList.end(); )
 	{
-		action_inst_iter = StopActionIter(action_inst_iter);
+		action_inst_iter = StopActionInstIter(action_inst_iter);
 	}
 }
 

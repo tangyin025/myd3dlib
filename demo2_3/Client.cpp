@@ -1798,7 +1798,7 @@ void Client::RemoveEntity(my::OctEntity * entity)
 		}
 	}
 
-	actor->StopAllAction();
+	actor->StopAllActionInst();
 
 	actor->ClearAllAttach();
 
