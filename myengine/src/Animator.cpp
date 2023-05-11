@@ -330,12 +330,12 @@ void AnimationNodeSlot::Play(const std::string & Name, float Rate, float Weight,
 
 		if (seq_iter != m_SequenceSlot.begin())
 		{
-			StopIndex(std::distance(m_SequenceSlot.begin(), seq_iter) - 1);
+			StopSlotByIndex(std::distance(m_SequenceSlot.begin(), seq_iter) - 1);
 		}
 	}
 }
 
-void AnimationNodeSlot::StopIndex(int i)
+void AnimationNodeSlot::StopSlotByIndex(int i)
 {
 	_ASSERT(i >= 0 && i < (int)m_SequenceSlot.size());
 
@@ -343,29 +343,34 @@ void AnimationNodeSlot::StopIndex(int i)
 	m_SequenceSlot[i].m_BlendTime = m_SequenceSlot[i].m_BlendOutTime;
 }
 
-void AnimationNodeSlot::Stop(DWORD_PTR UserData)
+void AnimationNodeSlot::StopSlotByUserData(DWORD_PTR UserData)
 {
 	SequenceList::iterator seq_iter = m_SequenceSlot.begin();
 	for (; seq_iter != m_SequenceSlot.end(); seq_iter++)
 	{
 		if (seq_iter->m_UserData == UserData && seq_iter->m_TargetWeight != 0)
 		{
-			StopIndex(std::distance(m_SequenceSlot.begin(), seq_iter));
+			StopSlotByIndex(std::distance(m_SequenceSlot.begin(), seq_iter));
 		}
 	}
 }
-
-void AnimationNodeSlot::StopAll(void)
-{
-	SequenceList::iterator seq_iter = m_SequenceSlot.begin();
-	for (; seq_iter != m_SequenceSlot.end(); seq_iter++)
-	{
-		if (seq_iter->m_TargetWeight != 0)
-		{
-			StopIndex(std::distance(m_SequenceSlot.begin(), seq_iter));
-		}
-	}
-}
+//
+//bool AnimationNodeSlot::IsPlaying(void) const
+//{
+//	return !m_SequenceSlot.empty() && m_SequenceSlot.back().m_TargetWeight != 0;
+//}
+//
+//void AnimationNodeSlot::Stop(void)
+//{
+//	SequenceList::iterator seq_iter = m_SequenceSlot.begin();
+//	for (; seq_iter != m_SequenceSlot.end(); seq_iter++)
+//	{
+//		if (seq_iter->m_TargetWeight != 0)
+//		{
+//			StopSlotByIndex(std::distance(m_SequenceSlot.begin(), seq_iter));
+//		}
+//	}
+//}
 
 void AnimationNodeSubTree::Tick(float fElapsedTime, float fTotalWeight)
 {

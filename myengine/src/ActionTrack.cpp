@@ -146,7 +146,7 @@ void ActionTrackAnimationInst::Stop(void)
 			AnimationNodeSlot* slot = dynamic_cast<AnimationNodeSlot*>(animator->FindSubNode(key_iter->second.SlotName));
 			if (slot)
 			{
-				slot->Stop((DWORD_PTR)this);
+				slot->StopSlotByUserData((DWORD_PTR)this);
 			}
 		}
 	}

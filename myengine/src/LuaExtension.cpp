@@ -2838,7 +2838,8 @@ void LuaContext::Init(void)
 
 		, class_<AnimationNodeSlot, AnimationNode, boost::shared_ptr<AnimationNode> >("AnimationNodeSlot")
 			.def(constructor<const char*>())
-			.def("StopAll", &AnimationNodeSlot::StopAll)
+			//.property("IsPlaying", &AnimationNodeSlot::IsPlaying)
+			//.def("Stop", &AnimationNodeSlot::Stop)
 
 		, class_<AnimationNodeSubTree, AnimationNode, boost::shared_ptr<AnimationNode> >("AnimationNodeSubTree")
 			.def(constructor<const char*>())
