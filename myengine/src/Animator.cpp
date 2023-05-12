@@ -258,7 +258,7 @@ void AnimationNodeSlot::Tick(float fElapsedTime, float fTotalWeight)
 	for (; seq_iter != m_SequenceSlot.end();)
 	{
 		float Weight = 0;
-		if (seq_iter->m_BlendTime < fElapsedTime)
+		if (seq_iter->m_BlendTime <= fElapsedTime)
 		{
 			if (seq_iter->m_TargetWeight <= 0)
 			{
