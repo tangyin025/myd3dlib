@@ -860,6 +860,12 @@ static my::Effect* renderpipeline_query_shader(RenderPipeline* self, RenderPipel
 	return self->QueryShader(mesh_type, macs.data(), path, PassID);
 }
 
+static bool physxscene_raycast(PhysxScene* self,
+	const my::Vector3& origin, const my::Vector3& unitDir, float distance, unsigned int filterWord0, const luabind::object& callback, unsigned int MaxNbTouches)
+{
+	return self->Raycast(origin, unitDir, distance, filterWord0, boost::bind(&luabind::call_function<bool, my::EventArg*>, boost::ref(callback), boost::placeholders::_1), MaxNbTouches);
+}
+
 static bool physxscene_overlap_box(PhysxScene* self,
 	float hx, float hy, float hz, const my::Vector3& Position, const my::Quaternion& Rotation, unsigned int filterWord0, const luabind::object& callback, unsigned int MaxNbTouches)
 {
@@ -874,10 +880,11 @@ static bool physxscene_overlap_sphere(PhysxScene* self,
 	return self->Overlap(sphere, Position, my::Quaternion::Identity(), filterWord0, boost::bind(&luabind::call_function<bool, my::EventArg*>, boost::ref(callback), boost::placeholders::_1), MaxNbTouches);
 }
 
-static bool physxscene_raycast(PhysxScene* self,
-	const my::Vector3& origin, const my::Vector3& unitDir, float distance, unsigned int filterWord0, const luabind::object& callback, unsigned int MaxNbTouches)
+static bool physxscene_sweep_box(PhysxScene* self,
+	const my::Vector3& HalfBox, const my::Vector3& Position, const my::Quaternion& Rotation, const my::Vector3& unitDir, float distance, unsigned int filterWord0, const luabind::object& callback, unsigned int MaxNbTouches)
 {
-	return self->Raycast(origin, unitDir, distance, filterWord0, boost::bind(&luabind::call_function<bool, my::EventArg*>, boost::ref(callback), boost::placeholders::_1), MaxNbTouches);
+	physx::PxBoxGeometry box(HalfBox.x, HalfBox.y, HalfBox.z);
+	return self->Sweep(box, Position, Rotation, unitDir, distance, filterWord0, boost::bind(&luabind::call_function<bool, my::EventArg*>, boost::ref(callback), boost::placeholders::_1), MaxNbTouches);
 }
 
 static bool physxscene_sweep_sphere(PhysxScene* self,
@@ -885,13 +892,6 @@ static bool physxscene_sweep_sphere(PhysxScene* self,
 {
 	physx::PxSphereGeometry sphere(radius);
 	return self->Sweep(sphere, Position, my::Quaternion::Identity(), unitDir, distance, filterWord0, boost::bind(&luabind::call_function<bool, my::EventArg*>, boost::ref(callback), boost::placeholders::_1), MaxNbTouches);
-}
-
-static bool physxscene_sweep_capsule(PhysxScene* self,
-	float radius, float halfHeight, const my::Vector3& Position, const my::Quaternion& Rotation, const my::Vector3& unitDir, float distance, unsigned int filterWord0, const luabind::object& callback, unsigned int MaxNbTouches)
-{
-	physx::PxCapsuleGeometry capsule(radius, halfHeight);
-	return self->Sweep(capsule, Position, Rotation, unitDir, distance, filterWord0, boost::bind(&luabind::call_function<bool, my::EventArg*>, boost::ref(callback), boost::placeholders::_1), MaxNbTouches);
 }
 
 static void indexedbitmap_save_indexed_bitmap(my::IndexedBitmap * self, const char * path, const luabind::object & get_color)
@@ -3069,11 +3069,11 @@ void LuaContext::Init(void)
 			]
 			.def("SetControllerDebugRenderingFlags", &PhysxScene::SetControllerDebugRenderingFlags)
 			.property("Gravity", &PhysxScene::GetGravity, &PhysxScene::SetGravity)
+			.def("Raycast", &physxscene_raycast)
 			.def("OverlapBox", &physxscene_overlap_box)
 			.def("OverlapSphere", &physxscene_overlap_sphere)
-			.def("Raycast", &physxscene_raycast)
+			.def("SweepBox", &physxscene_sweep_box)
 			.def("SweepSphere", &physxscene_sweep_sphere)
-			.def("SweepCapsule", &physxscene_sweep_capsule)
 
 		, class_<SoundEvent, boost::shared_ptr<SoundEvent> >("SoundEvent")
 			.def_readonly("sbuffer", &SoundEvent::m_sbuffer)
