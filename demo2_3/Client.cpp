@@ -798,7 +798,8 @@ Client::Client(void)
 		("keymousey", boost::program_options::value(&m_InitBindKeys[KeyMouseY])->default_value(InputMgr::KeyPairList(), ""), "Key Mouse Y")
 		("keyjump", boost::program_options::value(&m_InitBindKeys[KeyJump])->default_value(InputMgr::KeyPairList(), ""), "Key Jump")
 		("keyfire", boost::program_options::value(&m_InitBindKeys[KeyFire])->default_value(InputMgr::KeyPairList(), ""), "Key Fire")
-		("keycheck", boost::program_options::value(&m_InitBindKeys[KeyCheck])->default_value(InputMgr::KeyPairList(), ""), "Key Check")
+		("keyaction", boost::program_options::value(&m_InitBindKeys[KeyAction])->default_value(InputMgr::KeyPairList(), ""), "Key Action")
+		("keydash", boost::program_options::value(&m_InitBindKeys[KeyDash])->default_value(InputMgr::KeyPairList(), ""), "Key Dash")
 		("keylock", boost::program_options::value(&m_InitBindKeys[KeyLock])->default_value(InputMgr::KeyPairList(), ""), "Key Lock")
 		("keymenu", boost::program_options::value(&m_InitBindKeys[KeyMenu])->default_value(InputMgr::KeyPairList(), ""), "Key Menu")
 		("keyweapon1", boost::program_options::value(&m_InitBindKeys[KeyWeapon1])->default_value(InputMgr::KeyPairList(), ""), "Key Weapon1")
@@ -1060,7 +1061,8 @@ HRESULT Client::OnCreateDevice(
 				luabind::value("KeyMouseY", Client::KeyMouseY),
 				luabind::value("KeyJump", Client::KeyJump),
 				luabind::value("KeyFire", Client::KeyFire),
-				luabind::value("KeyCheck", Client::KeyCheck),
+				luabind::value("KeyAction", Client::KeyAction),
+				luabind::value("KeyDash", Client::KeyDash),
 				luabind::value("KeyLock", Client::KeyLock),
 				luabind::value("KeyMenu", Client::KeyMenu),
 				luabind::value("KeyWeapon1", Client::KeyWeapon1),
