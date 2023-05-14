@@ -356,19 +356,18 @@ void PlayerAgent::OnPxThreadSubstep(float dtime)
 	}
 	else if (m_Suspending <= 0.0f)
 	{
-		m_VerticalSpeed += gravity * dtime;
 		//_ASSERT(m_Controller->GetUpDirection() == Vector3(0, 1, 0));
-		Vector3 vel = m_Steering->m_Forward * m_Steering->m_Speed + m_Controller->GetUpDirection() * m_VerticalSpeed;
-		vel += m_MoveDir * (theApp.m_keyboard->IsKeyDown(KeyCode::KC_LSHIFT) ? theApp.default_player_swim_force * 4 : theApp.default_player_swim_force) * m_Submergence * dtime;
-		vel *= 1.0f - theApp.default_player_water_drag * m_Submergence * dtime;
-		disp = vel * dtime;
-		m_VerticalSpeed = vel.dot(m_Controller->GetUpDirection());
-		vel -= m_Controller->GetUpDirection() * m_VerticalSpeed;
+		m_VerticalSpeed += gravity * dtime;
+		m_VerticalSpeed *= 1.0f - theApp.default_player_water_drag * m_Submergence * dtime;
+		Vector3 vel = m_Steering->m_Forward * m_Steering->m_Speed +
+			m_MoveDir * (theApp.m_keyboard->IsKeyDown(KeyCode::KC_LSHIFT) ? theApp.default_player_swim_force * 4 : theApp.default_player_swim_force) * m_Submergence * dtime;
+		vel *= 1.0f - Lerp(theApp.default_player_air_drag, theApp.default_player_water_drag, m_Submergence) * dtime;
 		m_Steering->m_Speed = vel.magnitude();
 		if (m_Steering->m_Speed > 0)
 		{
 			m_Steering->m_Forward = vel / m_Steering->m_Speed;
 		}
+		disp = (vel + m_Controller->GetUpDirection() * m_VerticalSpeed) * dtime;
 	}
 	else
 	{

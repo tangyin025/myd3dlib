@@ -199,6 +199,7 @@ public:
 	unsigned int default_player_water_filterword0;
 	float default_player_water_buoyancy;
 	float default_player_water_drag;
+	float default_player_air_drag;
 	BOOL m_bNeedDraw;
 	my::EventSignal m_EventNamedObjectCreate;
 	my::EventSignal m_EventNamedObjectDestroy;

@@ -556,6 +556,7 @@ BOOL CMainApp::InitInstance()
 		("default_player_water_filterword0", boost::program_options::value(&default_player_water_filterword0)->default_value(0x02), "Default player water filterword0")
 		("default_player_water_buoyancy", boost::program_options::value(&default_player_water_buoyancy)->default_value(1.5f), "Default player water buoyancy")
 		("default_player_water_drag", boost::program_options::value(&default_player_water_drag)->default_value(5.0f), "Default player water drag")
+		("default_player_air_drag", boost::program_options::value(&default_player_air_drag)->default_value(0.6f), "Default player air drag")
 		;
 	boost::program_options::variables_map vm;
 	boost::program_options::store(boost::program_options::parse_config_file<char>((cfg_file + ".cfg").c_str(), desc, true), vm);
