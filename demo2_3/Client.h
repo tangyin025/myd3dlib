@@ -28,11 +28,11 @@ struct PlayerData : public my::DeviceResourceBase
 
 	float angle;
 
-	int attrs[1024];
+	int attrs[32];
 
 	int quests[1024];
 
-	int auras[16];
+	int auras[32];
 
 	lua_Number aurastatus[_countof(auras)];
 

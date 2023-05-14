@@ -18,8 +18,8 @@
 #include "LuaExtension.inl"
 #include <boost/archive/polymorphic_iarchive.hpp>
 #include <boost/archive/polymorphic_oarchive.hpp>
-#include <boost/archive/text_iarchive.hpp>
-#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/xml_iarchive.hpp>
+#include <boost/archive/xml_oarchive.hpp>
 #include <boost/serialization/shared_ptr.hpp>
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/binary_object.hpp>
@@ -479,7 +479,7 @@ void PlayerDataRequest::LoadResource(void)
 	ret->savetime = time(NULL);
 
 	std::ofstream ofs(m_path, std::ios::out, _SH_DENYRW);
-	boost::archive::text_oarchive oa(ofs);
+	boost::archive::xml_oarchive oa(ofs);
 	oa << boost::serialization::make_nvp("PlayerData", ret);
 }
 
@@ -994,7 +994,9 @@ HRESULT Client::OnCreateDevice(
 				luabind::value("ATTR_AMMO2", 8),
 				luabind::value("ATTR_HEALTH", 9),
 				luabind::value("ATTR_MAX_HEALTH", 10),
-				luabind::value("ATTR_ITEM_CAPACITY", 11),
+				luabind::value("ATTR_STAMINA", 11),
+				luabind::value("ATTR_MAX_STAMINA", 12),
+				luabind::value("ATTR_ITEM_CAPACITY", 13),
 				luabind::value("ATTR_COUNT", _countof(PlayerData::attrs)),
 				luabind::value("QUEST_COUNT", _countof(PlayerData::quests)),
 				luabind::value("AURA_COUNT", _countof(PlayerData::auras)),
@@ -1912,7 +1914,7 @@ boost::shared_ptr<PlayerData> Client::LoadPlayerData(const char * path)
 	boost::shared_ptr<PlayerData> ret;
 	my::IStreamBuff buff(my::FileIStream::Open(u8tots(path).c_str()));
 	std::istream ifs(&buff);
-	boost::archive::text_iarchive ia(ifs);
+	boost::archive::xml_iarchive ia(ifs);
 	ia >> boost::serialization::make_nvp("PlayerData", ret);
 	return ret;
 }
