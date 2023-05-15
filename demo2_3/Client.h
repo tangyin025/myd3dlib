@@ -255,7 +255,6 @@ public:
 		KeyJump,
 		KeyFire,
 		KeyAction,
-		KeyDash,
 		KeyLock,
 		KeyMenu,
 		KeyWeapon1,

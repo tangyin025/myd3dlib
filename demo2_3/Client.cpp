@@ -799,7 +799,6 @@ Client::Client(void)
 		("keyjump", boost::program_options::value(&m_InitBindKeys[KeyJump])->default_value(InputMgr::KeyPairList(), ""), "Key Jump")
 		("keyfire", boost::program_options::value(&m_InitBindKeys[KeyFire])->default_value(InputMgr::KeyPairList(), ""), "Key Fire")
 		("keyaction", boost::program_options::value(&m_InitBindKeys[KeyAction])->default_value(InputMgr::KeyPairList(), ""), "Key Action")
-		("keydash", boost::program_options::value(&m_InitBindKeys[KeyDash])->default_value(InputMgr::KeyPairList(), ""), "Key Dash")
 		("keylock", boost::program_options::value(&m_InitBindKeys[KeyLock])->default_value(InputMgr::KeyPairList(), ""), "Key Lock")
 		("keymenu", boost::program_options::value(&m_InitBindKeys[KeyMenu])->default_value(InputMgr::KeyPairList(), ""), "Key Menu")
 		("keyweapon1", boost::program_options::value(&m_InitBindKeys[KeyWeapon1])->default_value(InputMgr::KeyPairList(), ""), "Key Weapon1")
@@ -994,9 +993,7 @@ HRESULT Client::OnCreateDevice(
 				luabind::value("ATTR_AMMO2", 8),
 				luabind::value("ATTR_HEALTH", 9),
 				luabind::value("ATTR_MAX_HEALTH", 10),
-				luabind::value("ATTR_ENERGY", 11),
-				luabind::value("ATTR_MAX_ENERGY", 12),
-				luabind::value("ATTR_ITEM_CAPACITY", 13),
+				luabind::value("ATTR_ITEM_CAPACITY", 11),
 				luabind::value("ATTR_COUNT", _countof(PlayerData::attrs)),
 				luabind::value("QUEST_COUNT", _countof(PlayerData::quests)),
 				luabind::value("AURA_COUNT", _countof(PlayerData::auras)),
@@ -1064,7 +1061,6 @@ HRESULT Client::OnCreateDevice(
 				luabind::value("KeyJump", Client::KeyJump),
 				luabind::value("KeyFire", Client::KeyFire),
 				luabind::value("KeyAction", Client::KeyAction),
-				luabind::value("KeyDash", Client::KeyDash),
 				luabind::value("KeyLock", Client::KeyLock),
 				luabind::value("KeyMenu", Client::KeyMenu),
 				luabind::value("KeyWeapon1", Client::KeyWeapon1),
