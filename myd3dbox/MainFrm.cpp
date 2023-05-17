@@ -1455,7 +1455,11 @@ void CMainFrame::OnComponentMesh()
 	if (node_sharedgeometry)
 	{
 		DEFINE_XML_NODE_SIMPLE(submeshnames, mesh);
-		DEFINE_XML_NODE_SIMPLE(submeshname, submeshnames);
+		rapidxml::xml_node<char>* node_submeshname = node_submeshnames->first_node("submeshname");
+		if (!node_submeshname)
+		{
+			DEFINE_XML_NODE(node_submeshname, node_submeshnames, submesh);
+		}
 		for (; node_submesh != NULL && node_submeshname != NULL; node_submesh = node_submesh->next_sibling(), node_submeshname = node_submeshname->next_sibling())
 		{
 			DEFINE_XML_ATTRIBUTE_SIMPLE(name, submeshname);

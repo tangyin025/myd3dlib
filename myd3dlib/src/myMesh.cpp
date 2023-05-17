@@ -993,7 +993,7 @@ void OgreMesh::CreateMeshFromOgreXml(
 		total_vertices += vertexcount;
 
 		DEFINE_XML_NODE_SIMPLE(vertexbuffer, sharedgeometry);
-		DEFINE_XML_NODE(node_boneassignments, node_mesh, boneassignments);
+		node_boneassignments = node_mesh->first_node("boneassignments");
 		DEFINE_XML_ATTRIBUTE_BOOL(positions, attr_positions, node_vertexbuffer, positions);
 		DEFINE_XML_ATTRIBUTE_BOOL(normals, attr_normals, node_vertexbuffer, normals);
 		DEFINE_XML_ATTRIBUTE_BOOL(colours_diffuse, attr_colours_diffuse, node_vertexbuffer, colours_diffuse);
@@ -1001,7 +1001,7 @@ void OgreMesh::CreateMeshFromOgreXml(
 
 		for (int submesh_i = 0; node_submesh != NULL; node_submesh = node_submesh->next_sibling(), submesh_i++)
 		{
-			DEFINE_XML_ATTRIBUTE_SIMPLE(material, submesh);
+			rapidxml::xml_attribute<char>* attr_material = node_submesh->first_attribute("material");
 			DEFINE_XML_ATTRIBUTE_BOOL_SIMPLE(use32bitindexes, submesh);
 			DEFINE_XML_ATTRIBUTE_BOOL_SIMPLE(usesharedvertices, submesh);
 			if (!usesharedvertices)
@@ -1015,7 +1015,7 @@ void OgreMesh::CreateMeshFromOgreXml(
 				THROW_CUSEXCEPTION("!triangle_list");
 			}
 
-			m_MaterialNameList.push_back(attr_material->value());
+			m_MaterialNameList.push_back(attr_material ? attr_material->value() : "aaa");
 
 			DEFINE_XML_NODE_SIMPLE(faces, submesh);
 			DEFINE_XML_ATTRIBUTE_INT_SIMPLE(count, faces);
@@ -1034,7 +1034,7 @@ void OgreMesh::CreateMeshFromOgreXml(
 	{
 		DEFINE_XML_NODE_SIMPLE(geometry, submesh);
 		DEFINE_XML_NODE_SIMPLE(vertexbuffer, geometry);
-		DEFINE_XML_NODE(node_boneassignments, node_submesh, boneassignments);
+		node_boneassignments = node_submesh->first_node("boneassignments");
 		DEFINE_XML_ATTRIBUTE_BOOL(positions, attr_positions, node_vertexbuffer, positions);
 		DEFINE_XML_ATTRIBUTE_BOOL(normals, attr_normals, node_vertexbuffer, normals);
 		DEFINE_XML_ATTRIBUTE_BOOL(colours_diffuse, attr_colours_diffuse, node_vertexbuffer, colours_diffuse);
@@ -1042,7 +1042,7 @@ void OgreMesh::CreateMeshFromOgreXml(
 
 		for (int submesh_i = 0; node_submesh != NULL; node_submesh = node_submesh->next_sibling(), submesh_i++)
 		{
-			DEFINE_XML_ATTRIBUTE_SIMPLE(material, submesh);
+			rapidxml::xml_attribute<char>* attr_material = node_submesh->first_attribute("material");
 			DEFINE_XML_ATTRIBUTE_BOOL_SIMPLE(use32bitindexes, submesh);
 			DEFINE_XML_ATTRIBUTE_BOOL_SIMPLE(usesharedvertices, submesh);
 			if (usesharedvertices)
@@ -1056,7 +1056,7 @@ void OgreMesh::CreateMeshFromOgreXml(
 				THROW_CUSEXCEPTION("!triangle_list");
 			}
 
-			m_MaterialNameList.push_back(attr_material->value());
+			m_MaterialNameList.push_back(attr_material ? attr_material->value() : "aaa");
 
 			DEFINE_XML_NODE(node_geometry, node_submesh, geometry);
 			DEFINE_XML_ATTRIBUTE_INT_SIMPLE(vertexcount, geometry);
@@ -1156,13 +1156,13 @@ void OgreMesh::CreateMeshFromOgreXml(
 		if (node_sharedgeometry)
 		{
 			DEFINE_XML_NODE(node_vertexbuffer, node_sharedgeometry, vertexbuffer);
-			DEFINE_XML_NODE(node_boneassignments, node_mesh, boneassignments);
+			node_boneassignments = node_mesh->first_node("boneassignments");
 		}
 		else
 		{
 			DEFINE_XML_NODE_SIMPLE(geometry, submesh);
 			DEFINE_XML_NODE(node_vertexbuffer, node_geometry, vertexbuffer);
-			DEFINE_XML_NODE(node_boneassignments, node_submesh, boneassignments);
+			node_boneassignments = node_submesh->first_node("boneassignments");
 		}
 
 		DEFINE_XML_NODE_SIMPLE(vertex, vertexbuffer);
