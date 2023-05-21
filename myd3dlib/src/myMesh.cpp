@@ -1074,9 +1074,9 @@ void OgreMesh::CreateMeshFromOgreXml(
 		}
 	}
 
-	if (!(dwMeshOptions & D3DXMESH_32BIT) && total_vertices >= USHRT_MAX)
+	if (!(dwMeshOptions & D3DXMESH_32BIT) && (total_vertices >= USHRT_MAX || total_faces >= USHRT_MAX))
 	{
-		//THROW_CUSEXCEPTION("facecount overflow ( >= 65535 )");
+		D3DContext::getSingleton().m_EventLog("facecount overflow ( >= 65535 )");
 		dwMeshOptions |= D3DXMESH_32BIT;
 	}
 
