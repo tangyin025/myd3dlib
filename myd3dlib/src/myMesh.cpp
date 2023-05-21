@@ -841,20 +841,18 @@ void Mesh::ComputeTangentFrame(
 		float t1 = w2.y - w1.y;
 		float t2 = w3.y - w1.y;
 
-		if (s1 * t2 - s2 * t1 > EPSILON_E12)
-		{
-			float r = 1.0F / (s1 * t2 - s2 * t1);
-			Vector3 sdir((t2 * x1 - t1 * x2) * r, (t2 * y1 - t1 * y2) * r, (t2 * z1 - t1 * z2) * r);
-			Vector3 tdir((s1 * x2 - s2 * x1) * r, (s1 * y2 - s2 * y1) * r, (s1 * z2 - s2 * z1) * r);
+		float d = s1 * t2 - s2 * t1;
+		float r = fabs(d) <= EPSILON_E12 ? 1.0f : 1.0F / d;
+		Vector3 sdir((t2 * x1 - t1 * x2) * r, (t2 * y1 - t1 * y2) * r, (t2 * z1 - t1 * z2) * r);
+		Vector3 tdir((s1 * x2 - s2 * x1) * r, (s1 * y2 - s2 * y1) * r, (s1 * z2 - s2 * z1) * r);
 
-			tan1[i1] += sdir;
-			tan1[i2] += sdir;
-			tan1[i3] += sdir;
+		tan1[i1] += sdir;
+		tan1[i2] += sdir;
+		tan1[i3] += sdir;
 
-			tan2[i1] += tdir;
-			tan2[i2] += tdir;
-			tan2[i3] += tdir;
-		}
+		tan2[i1] += tdir;
+		tan2[i2] += tdir;
+		tan2[i3] += tdir;
 	}
 
 	for(DWORD vertex_i = 0; vertex_i < NumVerts; vertex_i++)
@@ -1326,15 +1324,23 @@ void OgreMesh::CreateMeshFromOgreXml(
 
 	if (bComputeTangentFrame)
 	{
+		//std::vector<DWORD> adjacency(GetNumFaces() * 3);
+		//ResourceMgr::getSingleton().EnterDeviceSection();
+		//GenerateAdjacency((float)EPSILON_E6, &adjacency[0]);
+		//ResourceMgr::getSingleton().LeaveDeviceSection();
+
 		//DWORD dwOptions = D3DXTANGENT_GENERATE_IN_PLACE;
 		//if(!normals)
 		//	dwOptions |= D3DXTANGENT_CALCULATE_NORMALS;
+		//ResourceMgr::getSingleton().EnterDeviceSection();
 		//hr = D3DXComputeTangentFrameEx(
-		//	m_ptr, D3DDECLUSAGE_TEXCOORD, 0, D3DDECLUSAGE_TANGENT, 0, D3DX_DEFAULT, 0, D3DDECLUSAGE_NORMAL, 0, dwOptions, &m_Adjacency[0], -1.01f, -0.01f, -1.01f, NULL, NULL);
+		//	m_ptr, D3DDECLUSAGE_TEXCOORD, 0, D3DDECLUSAGE_TANGENT, 0, D3DX_DEFAULT, 0, D3DDECLUSAGE_NORMAL, 0, dwOptions, &adjacency[0], -1.01f, -0.01f, -1.01f, NULL, NULL);
+		//ResourceMgr::getSingleton().LeaveDeviceSection();
 		//if(FAILED(hr))
 		//{
 		//	THROW_D3DEXCEPTION(hr);
 		//}
+
 		ResourceMgr::getSingleton().EnterDeviceSection();
 		VOID* pVertices = LockVertexBuffer();
 		VOID* pIndices = LockIndexBuffer();
