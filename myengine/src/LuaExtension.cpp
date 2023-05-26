@@ -2761,7 +2761,8 @@ void LuaContext::Init(void)
 			.enum_("ActorType")
 			[
 				value("eRIGID_STATIC", physx::PxActorType::eRIGID_STATIC),
-				value("eRIGID_DYNAMIC", physx::PxActorType::eRIGID_DYNAMIC)
+				value("eRIGID_DYNAMIC", physx::PxActorType::eRIGID_DYNAMIC),
+				value("eACTOR_COUNT", physx::PxActorType::eACTOR_COUNT)
 			]
 			.def("CreateRigidActor", &Actor::CreateRigidActor)
 			.property("RigidActorType", &Actor::GetRigidActorType)
