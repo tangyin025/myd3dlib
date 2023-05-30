@@ -48,6 +48,8 @@ extern "C" {
 #include <boost/regex.hpp>
 #include <boost/functional/value_factory.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/info_parser.hpp>
 
 static int add_file_and_line(lua_State * L)
 {
@@ -944,6 +946,13 @@ static void xml_document_parse(rapidxml::xml_document<char>* self, const char* u
 	cache = my::FileIStream::Open(u8tows(u8_path).c_str())->GetWholeCache();
 	cache->push_back(0);
 	self->parse<0>((char*)&(*cache)[0]);
+}
+
+static void ptree_read_info(boost::property_tree::ptree* self, const char* u8_path)
+{
+	my::IStreamBuff buff(my::FileIStream::Open(u8tows(u8_path).c_str()));
+	std::istream ifs(&buff);
+	boost::property_tree::read_info(ifs, *self);
 }
 
 LuaContext::LuaContext(void)
@@ -3297,6 +3306,13 @@ void LuaContext::Init(void)
 		, class_<rapidxml::xml_document<char>, rapidxml::xml_node<char> >("xml_document")
 			.def(constructor<>())
 			.def("parse", &xml_document_parse, pure_out_value(boost::placeholders::_3) + dependency(boost::placeholders::_1, boost::placeholders::_3))
+
+		, class_<boost::property_tree::ptree>("ptree")
+			.def(constructor<>())
+			.def("read_info", &ptree_read_info)
+			.property("data", (const std::string& (boost::property_tree::ptree::*)()const)& boost::property_tree::ptree::data)
+			.def("get_child", luabind::tag_function<boost::property_tree::ptree&(boost::property_tree::ptree*,const char*)>(
+				boost::bind((boost::property_tree::ptree& (boost::property_tree::ptree::*)(const boost::property_tree::path&))& boost::property_tree::ptree::get_child, boost::placeholders::_1, boost::bind(boost::value_factory<boost::property_tree::path>(), boost::placeholders::_2))))
 
 		, class_<FastNoiseLite>("FastNoiseLite")
 			.def(constructor<int>())
