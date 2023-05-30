@@ -3312,7 +3312,7 @@ void LuaContext::Init(void)
 			.def("read_info", &ptree_read_info)
 			.property("data", (const std::string& (boost::property_tree::ptree::*)()const)& boost::property_tree::ptree::data)
 			.def("get_child", luabind::tag_function<boost::property_tree::ptree&(boost::property_tree::ptree*,const char*)>(
-				boost::bind((boost::property_tree::ptree& (boost::property_tree::ptree::*)(const boost::property_tree::path&))& boost::property_tree::ptree::get_child, boost::placeholders::_1, boost::bind(boost::value_factory<boost::property_tree::path>(), boost::placeholders::_2))))
+				boost::bind((boost::property_tree::ptree& (boost::property_tree::ptree::*)(const boost::property_tree::path&))& boost::property_tree::ptree::get_child, boost::placeholders::_1, boost::bind(boost::value_factory<boost::property_tree::path>(), boost::placeholders::_2, '/'))))
 
 		, class_<FastNoiseLite>("FastNoiseLite")
 			.def(constructor<int>())
