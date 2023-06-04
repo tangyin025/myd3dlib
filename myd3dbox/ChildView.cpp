@@ -1520,7 +1520,7 @@ void CChildView::OnPaint()
 					depthMask(true);
 				}
 
-				if (pFrame->m_Player->m_Node && m_bShowCmpHandle)
+				if (pFrame->m_Player->m_Node && pFrame->m_PxScene->getVisualizationParameter(physx::PxVisualizationParameter::eSCALE) > 0)
 				{
 					PlayerAgent* agent = pFrame->m_Player->GetFirstComponent<PlayerAgent>();
 					ASSERT(agent);
