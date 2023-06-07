@@ -125,6 +125,26 @@ static void ogremesh_create_mesh_from_obj_in_file(my::OgreMesh* self, const char
 	self->CreateMeshFromObjInFile(u8tots(u8_path).c_str(), true, D3DXMESH_MANAGED);
 }
 
+static int ogremesh_get_material_num(const my::OgreMesh* self)
+{
+	return (int)self->m_MaterialNameList.size();
+}
+
+static const std::string& ogremesh_get_material_name(const my::OgreMesh* self, int i)
+{
+	return self->m_MaterialNameList[i];
+}
+
+static int ogremesh_get_lod_num(const my::OgreMesh* self)
+{
+	return (int)self->m_LodNameList.size();
+}
+
+static const std::string& ogremesh_get_lod_name(const my::OgreMesh* self, int i)
+{
+	return self->m_LodNameList[i];
+}
+
 static unsigned int ogreskeletonanimation_get_bone_num(my::OgreSkeletonAnimation* self)
 {
 	return (unsigned int)self->m_boneBindPose.size();
@@ -1555,8 +1575,10 @@ void LuaContext::Init(void)
 			.def("SaveSimplifiedOgreMesh", &my::OgreMesh::SaveSimplifiedOgreMesh)
 			.def("SaveObj", &my::OgreMesh::SaveObj)
 			.def("Transform", &my::OgreMesh::Transform)
-			.property("MaterialNum", &my::OgreMesh::GetMaterialNum)
-			.def("GetMaterialName", &my::OgreMesh::GetMaterialName)
+			.property("MaterialNum", &ogremesh_get_material_num)
+			.def("GetMaterialName", &ogremesh_get_material_name)
+			.property("LodNum", &ogremesh_get_lod_num)
+			.def("GetLodName", &ogremesh_get_lod_name)
 			.def("CalculateAABB", &my::OgreMesh::CalculateAABB)
 
 		, class_<my::BoneHierarchyNode>("BoneHierarchyNode")

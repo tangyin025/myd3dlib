@@ -393,6 +393,8 @@ namespace my
 
 		std::vector<std::string> m_MaterialNameList;
 
+		std::vector<std::string> m_LodNameList;
+
 		std::vector<D3DXATTRIBUTERANGE> m_AttribTable;
 
 		CComPtr<IDirect3DVertexDeclaration9> m_Decl;
@@ -445,10 +447,6 @@ namespace my
 		void SaveObj(const char* path);
 
 		void Transform(const Matrix4 & trans);
-
-		UINT GetMaterialNum(void) const;
-
-		const std::string & GetMaterialName(DWORD AttribId) const;
 
 		AABB CalculateAABB(DWORD AttribId);
 	};

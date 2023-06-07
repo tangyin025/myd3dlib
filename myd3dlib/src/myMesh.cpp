@@ -1363,6 +1363,17 @@ void OgreMesh::CreateMeshFromOgreXml(
 	//ResourceMgr::getSingleton().EnterDeviceSection();
 	//OptimizeInplace(D3DXMESHOPT_ATTRSORT | D3DXMESHOPT_VERTEXCACHE, &adjacency[0], &m_Adjacency[0], NULL, NULL);
 	//ResourceMgr::getSingleton().LeaveDeviceSection();
+
+	rapidxml::xml_node<char>* node_levelofdetail = node_mesh->first_node("levelofdetail");
+	if (node_levelofdetail)
+	{
+		rapidxml::xml_node<char>* node_lodmanual = node_levelofdetail->first_node("lodmanual");
+		for (; node_lodmanual; node_lodmanual = node_lodmanual->next_sibling("lodmanual"))
+		{
+			DEFINE_XML_ATTRIBUTE_SIMPLE(meshname, lodmanual);
+			m_LodNameList.push_back(attr_meshname->value());
+		}
+	}
 }
 
 void OgreMesh::CreateMeshFromObjInFile(
@@ -1987,16 +1998,6 @@ void OgreMesh::Transform(const Matrix4 & trans)
 			}
 		}
 	}
-}
-
-UINT OgreMesh::GetMaterialNum(void) const
-{
-	return m_MaterialNameList.size();
-}
-
-const std::string & OgreMesh::GetMaterialName(DWORD AttribId) const
-{
-	return m_MaterialNameList[AttribId];
 }
 
 AABB OgreMesh::CalculateAABB(DWORD AttribId)
