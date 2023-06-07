@@ -526,7 +526,8 @@ void Actor::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline
 		{
 			if (((*cmp_iter)->m_LodMask & 1 << Lod))
 			{
-				if ((*cmp_iter)->IsRequested())
+				if ((*cmp_iter)->IsRequested()
+					&& ((*cmp_iter)->GetComponentType() != Component::ComponentTypeMesh || static_cast<MeshComponent*>(cmp_iter->get())->m_Mesh))
 				{
 					(*cmp_iter)->AddToPipeline(frustum, pipeline, PassMask, ViewPos, TargetPos);
 				}
