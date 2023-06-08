@@ -1738,6 +1738,8 @@ void LuaContext::Init(void)
 
 		, def("PrintCallStack", (std::string (*)(void))& PrintCallStack)
 
+		, def("CopyFile", &CopyFileA)
+
 		, class_<my::NamedObject>("NamedObject")
 			.scope
 			[
