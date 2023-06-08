@@ -176,7 +176,7 @@ void PlayerAgent::Update(float fElapsedTime)
 	}
 	if (m_Suspending > 0.0f)
 	{
-		Vector3 act_pos = pos - up * Clamp(pos.dot(up) - m_Actor->m_Position.dot(up), 0.0f, m_Controller->GetStepOffset());
+		Vector3 act_pos = pos - up * Clamp(up.dot(pos - m_Actor->m_Position), 0.0f, m_Controller->GetStepOffset());
 		m_Actor->SetPose(act_pos.lerp(pos, 1.0f - pow(0.7f, 30 * fElapsedTime)), rot);
 	}
 	else
@@ -243,20 +243,20 @@ void PlayerAgent::Update(float fElapsedTime)
 		m_MoveDir = Vector3(0, 0, 0);
 	}
 
-	model_view_camera->m_LookAt = m_Actor->m_World.getRow<3>().xyz + Vector3(0, 0.85f, 0);
+	model_view_camera->m_LookAt = m_Actor->m_World.getRow<3>().xyz + Vector3(0, 0.5f, 0);
 	physx::PxSweepBuffer hit;
 	physx::PxSphereGeometry sphere(0.1f);
 	physx::PxQueryFilterData filterData = physx::PxQueryFilterData(
 		physx::PxFilterData(theApp.default_physx_shape_filterword0 | theApp.default_player_water_filterword0, 0, 0, 0), physx::PxQueryFlag::eDYNAMIC | physx::PxQueryFlag::eSTATIC);
-	bool status = pFrame->m_PxScene->sweep(sphere, physx::PxTransform((physx::PxVec3&)model_view_camera->m_LookAt),
+	bool status = pFrame->m_PxScene->sweep(sphere, physx::PxTransform((physx::PxVec3&)(model_view_camera->m_LookAt + model_view_camera->m_View.getColumn<2>().xyz * m_Controller->GetStepOffset())),
 		(physx::PxVec3&)model_view_camera->m_View.getColumn<2>().xyz, theApp.default_player_look_distance, hit, physx::PxHitFlag::eDEFAULT, filterData);
 	if (status && hit.block.distance > 0)
 	{
-		model_view_camera->m_Distance = hit.block.distance;
+		model_view_camera->m_Distance = m_Controller->GetStepOffset() + hit.block.distance;
 	}
 	else
 	{
-		model_view_camera->m_Distance = Lerp(model_view_camera->m_Distance, theApp.default_player_look_distance, 1.0 - pow(0.5f, 30 * fElapsedTime));
+		model_view_camera->m_Distance = Lerp(model_view_camera->m_Distance, m_Controller->GetStepOffset() + theApp.default_player_look_distance, 1.0 - pow(0.5f, 30 * fElapsedTime));
 	}
 	model_view_camera->UpdateViewProj();
 
