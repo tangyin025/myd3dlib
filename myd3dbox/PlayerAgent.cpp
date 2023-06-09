@@ -176,7 +176,8 @@ void PlayerAgent::Update(float fElapsedTime)
 	}
 	if (m_Suspending > 0.0f)
 	{
-		Vector3 act_pos = pos - up * Clamp(up.dot(pos - m_Actor->m_Position), 0.0f, m_Controller->GetStepOffset());
+		m_ClimbLerp = m_ClimbLerp.lerp(m_Controller->GetUpDirection(), 1.0f - pow(0.7f, 30 * fElapsedTime)).normalize();
+		Vector3 act_pos = pos - m_ClimbLerp * Clamp(m_ClimbLerp.dot(pos - m_Actor->m_Position), 0.0f, m_Controller->GetStepOffset());
 		m_Actor->SetPose(act_pos.lerp(pos, 1.0f - pow(0.7f, 30 * fElapsedTime)), rot);
 	}
 	else
