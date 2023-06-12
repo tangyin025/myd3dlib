@@ -41,6 +41,7 @@ extern "C" {
 #include "SceneContext.h"
 #include "rapidxml_print.hpp"
 #include "FastNoiseLite.h"
+#include "clipper.hpp"
 #include <boost/scope_exit.hpp>
 #include <boost/range/algorithm/transform.hpp>
 #include <boost/range/iterator_range.hpp>
@@ -3406,6 +3407,54 @@ void LuaContext::Init(void)
 			.def("GetNoise", (float (FastNoiseLite::*)(LUA_NUMBER, LUA_NUMBER, LUA_NUMBER))&FastNoiseLite::GetNoise)
 			.def("DomainWarp", (void (FastNoiseLite::*)(LUA_NUMBER&, LUA_NUMBER&))& FastNoiseLite::DomainWarp)
 			.def("DomainWarp", (void (FastNoiseLite::*)(LUA_NUMBER&, LUA_NUMBER&, LUA_NUMBER&))& FastNoiseLite::DomainWarp)
+
+		, class_<ClipperLib::IntPoint>("IntPoint")
+			.def(constructor<int, int>())
+			.def_readwrite("x", &ClipperLib::IntPoint::X)
+			.def_readwrite("y", &ClipperLib::IntPoint::Y)
+			.def(const_self == other<const ClipperLib::IntPoint&>())
+
+		, class_<ClipperLib::Path>("Path")
+			.def(constructor<>())
+			.def("AddPoint", (void (ClipperLib::Path::*)(const ClipperLib::IntPoint&))& ClipperLib::Path::push_back)
+			.property("PointNum", &ClipperLib::Path::size)
+			.def("GetPoint", (ClipperLib::IntPoint& (ClipperLib::Path::*)(size_t))& ClipperLib::Path::at)
+
+		, class_<ClipperLib::Paths>("Paths")
+			.def(constructor<>())
+			.def("AddPath", (void (ClipperLib::Paths::*)(const ClipperLib::Path&))& ClipperLib::Paths::push_back)
+			.property("PathNum", &ClipperLib::Paths::size)
+			.def("GetPath", (ClipperLib::Path& (ClipperLib::Paths::*)(size_t))& ClipperLib::Paths::at)
+
+		, class_<ClipperLib::Clipper>("Clipper")
+			.enum_("InitOptions")
+			[
+				value("ioReverseSolution", ClipperLib::InitOptions::ioReverseSolution),
+				value("ioStrictlySimple", ClipperLib::InitOptions::ioStrictlySimple),
+				value("ioPreserveCollinear", ClipperLib::InitOptions::ioPreserveCollinear)
+			]
+			.enum_("ClipType")
+			[
+				value("ctIntersection", ClipperLib::ClipType::ctIntersection),
+				value("ctUnion", ClipperLib::ClipType::ctUnion),
+				value("ctDifference", ClipperLib::ClipType::ctDifference),
+				value("ctXor", ClipperLib::ClipType::ctXor)
+			]
+			.enum_("PolyType")
+			[
+				value("ptSubject", ClipperLib::PolyType::ptSubject),
+				value("ptClip", ClipperLib::PolyType::ptClip)
+			]
+			.enum_("PolyFillType")
+			[
+				value("pftEvenOdd", ClipperLib::PolyFillType::pftEvenOdd),
+				value("pftNonZero", ClipperLib::PolyFillType::pftNonZero),
+				value("pftPositive", ClipperLib::PolyFillType::pftPositive),
+				value("pftNegative", ClipperLib::PolyFillType::pftNegative)
+			]
+			.def(constructor<int>())
+			.def("AddPath", &ClipperLib::Clipper::AddPath)
+			.def("Execute", (bool (ClipperLib::Clipper::*)(ClipperLib::ClipType, ClipperLib::Paths&, ClipperLib::PolyFillType))&ClipperLib::Clipper::Execute, pure_out_value(boost::placeholders::_3))
 	];
 }
 

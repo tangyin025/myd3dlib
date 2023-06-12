@@ -27,6 +27,7 @@ Luabind 0.9.1<br>
 LuaJIT 2.1<br>
 minimp3<br>
 FastNoiseLite 1.0.3<br>
+clipper 6.4.2<br>
 
 screenshots
 ----
