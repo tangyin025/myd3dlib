@@ -3460,6 +3460,26 @@ void LuaContext::Init(void)
 			.def(constructor<int>())
 			.def("AddPath", &ClipperLib::Clipper::AddPath)
 			.def("Execute", (bool (ClipperLib::Clipper::*)(ClipperLib::ClipType, ClipperLib::Paths&, ClipperLib::PolyFillType))&ClipperLib::Clipper::Execute, pure_out_value(boost::placeholders::_3))
+
+		, class_<ClipperLib::ClipperOffset>("ClipperOffset")
+			.enum_("JoinType")
+			[
+				value("jtSquare", ClipperLib::JoinType::jtSquare),
+				value("jtRound", ClipperLib::JoinType::jtRound),
+				value("jtMiter", ClipperLib::JoinType::jtMiter)
+			]
+			.enum_("EndType")
+			[
+				value("etClosedPolygon", ClipperLib::EndType::etClosedPolygon),
+				value("etClosedLine", ClipperLib::EndType::etClosedLine),
+				value("etOpenButt", ClipperLib::EndType::etOpenButt),
+				value("etOpenSquare", ClipperLib::EndType::etOpenSquare),
+				value("etOpenRound", ClipperLib::EndType::etOpenRound)
+			]
+			.def(constructor<double,double>())
+			.def("AddPath", &ClipperLib::ClipperOffset::AddPath)
+			.def("AddPaths", &ClipperLib::ClipperOffset::AddPaths)
+			.def("Execute", (void (ClipperLib::ClipperOffset::*)(ClipperLib::Paths&, double))& ClipperLib::ClipperOffset::Execute, pure_out_value(boost::placeholders::_2))
 	];
 }
 
