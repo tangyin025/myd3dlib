@@ -2,6 +2,7 @@
 namespace luabind
 {
 #ifdef _WIN64
+	//LUABIND_NUMBER_CONVERTER(signed __int64, integer)
 	template <>
 	struct default_converter<signed __int64>
 		: native_converter_base<signed __int64>
@@ -31,6 +32,7 @@ namespace luabind
 		: default_converter<signed __int64>
 	{};
 
+	//LUABIND_NUMBER_CONVERTER(unsigned __int64, integer)
 	template <>
 	struct default_converter<unsigned __int64>
 		: native_converter_base<unsigned __int64>
