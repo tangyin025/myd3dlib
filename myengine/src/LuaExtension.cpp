@@ -971,6 +971,11 @@ static void ptree_read_info(boost::property_tree::ptree* self, const char* u8_pa
 	boost::property_tree::read_info(ifs, *self);
 }
 
+static void paths_add_paths(ClipperLib::Paths& paths, const ClipperLib::Paths& rhs)
+{
+	paths.insert(paths.end(), rhs.begin(), rhs.end());
+}
+
 LuaContext::LuaContext(void)
 	: m_State(NULL)
 {
@@ -3413,10 +3418,16 @@ void LuaContext::Init(void)
 			.def("AddPoint", (void (ClipperLib::Path::*)(const ClipperLib::IntPoint&))& ClipperLib::Path::push_back)
 			.property("PointNum", &ClipperLib::Path::size)
 			.def("GetPoint", (ClipperLib::IntPoint& (ClipperLib::Path::*)(size_t))& ClipperLib::Path::at)
+			.property("Orientation", &ClipperLib::Orientation)
+			.property("Area", &ClipperLib::Area)
+			.def("PointInPolygon", luabind::tag_function<int(const ClipperLib::Path&, const ClipperLib::IntPoint&)>(
+				boost::bind(ClipperLib::PointInPolygon, boost::placeholders::_2, boost::placeholders::_1)))
+			.def("ReversePath", &ClipperLib::ReversePath)
 
 		, class_<ClipperLib::Paths>("Paths")
 			.def(constructor<>())
 			.def("AddPath", (void (ClipperLib::Paths::*)(const ClipperLib::Path&))& ClipperLib::Paths::push_back)
+			.def("AddPaths", &paths_add_paths)
 			.property("PathNum", &ClipperLib::Paths::size)
 			.def("GetPath", (ClipperLib::Path& (ClipperLib::Paths::*)(size_t))& ClipperLib::Paths::at)
 
