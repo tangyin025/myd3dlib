@@ -317,11 +317,6 @@ static void animation_node_set_child_adopt(AnimationNode* self, int i, ScriptAni
 	self->SetChild(i, AnimationNodePtr(node));
 }
 
-static unsigned int animation_node_get_child_num(AnimationNode* self)
-{
-	return (unsigned int)self->m_Childs.size();
-}
-
 static my::Vector3 steering_get_corner(const Steering* self, int i)
 {
 	if (i < self->m_ncorners)
@@ -2855,9 +2850,8 @@ void LuaContext::Init(void)
 			.property("Child4", &animation_node_get_child<4>, &animation_node_set_child<4>)
 			.property("Child5", &animation_node_get_child<5>, &animation_node_set_child<5>)
 			.def("SetChildAdopt", &animation_node_set_child_adopt, adopt(boost::placeholders::_3))
-			//.property("ChildNum", luabind::tag_function<unsigned int (const AnimationNode*)>(
-			//	boost::bind(&AnimationNode::AnimationNodePtrList::size, boost::bind(&AnimationNode::m_Childs, boost::placeholders::_1))))
-			.property("ChildNum", &animation_node_get_child_num)
+			.property("ChildNum", luabind::tag_function<size_t (const AnimationNode*)>(
+				boost::bind(&AnimationNode::AnimationNodePtrList::size, boost::bind(&AnimationNode::m_Childs, boost::placeholders::_1))))
 			.def("RemoveChild", &AnimationNode::RemoveChild)
 			.def("FindSubNode", (AnimationNode* (AnimationNode::*)(const std::string&))& AnimationNode::FindSubNode)
 
