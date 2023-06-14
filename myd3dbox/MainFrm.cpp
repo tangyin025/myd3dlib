@@ -140,7 +140,11 @@ static int luaL_loadfile(lua_State *L, const char *filename)
 	{
 		CMainFrame* pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 		ASSERT_VALID(pFrame);
-		lf.stream = theApp.OpenIStream((pFrame->m_ToolScriptDir + "\\" + filename).c_str());
+		std::string dir = theApp.default_tool_script_pattern.c_str();
+		// ! c++11 contains a null-terminated, https://cplusplus.com/reference/string/string/data/
+		PathRemoveFileSpecA(const_cast<char*>(dir.data()));
+		dir.resize(strlen(dir.c_str()));
+		lf.stream = theApp.OpenIStream((dir + "\\" + filename).c_str());
 	}
 	catch (const my::Exception & e)
 	{
@@ -2519,10 +2523,6 @@ BOOL CMainFrame::OnShowPopupMenu(CMFCPopupMenu* pMenuPopup)
 				{
 					break;
 				}
-				m_ToolScriptDir = theApp.default_tool_script_pattern.c_str();
-				// ! c++11 contains a null-terminated, https://cplusplus.com/reference/string/string/data/
-				PathRemoveFileSpecA(const_cast<char*>(m_ToolScriptDir.data()));
-				m_ToolScriptDir.resize(strlen(m_ToolScriptDir.c_str()));
 				do
 				{
 					if (!(ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))

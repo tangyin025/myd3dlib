@@ -115,7 +115,6 @@ public:
 	my::EventSignal m_EventPivotModeChanged;
 	my::EventSignal m_EventAttributeChanged;
 	my::EventSignal m_EventCameraPropChanged;
-	std::string m_ToolScriptDir;
 	std::vector<std::string> m_ToolScripts;
 	CChildView* m_RenderingView;
 	ActorPtr m_Player;
