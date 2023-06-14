@@ -996,7 +996,9 @@ void LuaContext::Init(void)
 	using namespace luabind;
 
 	module(m_State)[
-		def("Lerp", &my::Lerp<float>)
+		def("srand", &srand)
+
+		, def("Lerp", &my::Lerp<float>)
 
 		, def("Clamp", &my::Clamp<float>)
 
@@ -3387,7 +3389,7 @@ void LuaContext::Init(void)
 				value("DomainWarpType_OpenSimplex2Reduced", FastNoiseLite::DomainWarpType_OpenSimplex2Reduced),
 				value("DomainWarpType_BasicGrid", FastNoiseLite::DomainWarpType_BasicGrid)
 			]
-			.def("SetSpeed", &FastNoiseLite::SetSeed)
+			.def("SetSeed", &FastNoiseLite::SetSeed)
 			.def("SetFrequency", &FastNoiseLite::SetFrequency)
 			.def("SetNoiseType", &FastNoiseLite::SetNoiseType)
 			.def("SetRotationType3D", &FastNoiseLite::SetRotationType3D)
