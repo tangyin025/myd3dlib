@@ -1878,12 +1878,12 @@ void OgreMesh::SaveOgreMesh(const char * path, bool useSharedGeom)
 	ofs << "</mesh>\n";
 }
 
-void OgreMesh::SaveSimplifiedOgreMesh(const char * path, DWORD MinValue, DWORD Options)
+boost::shared_ptr<OgreMesh> OgreMesh::SimplifyMesh(DWORD MinValue, DWORD Options)
 {
 	std::vector<DWORD> adjacency(GetNumFaces() * 3);
 	GenerateAdjacency((float)EPSILON_E6, &adjacency[0]);
 	OgreMeshPtr simplified_mesh(new OgreMesh());
-	simplified_mesh->Create(SimplifyMesh(&adjacency[0], MinValue, Options).Detach());
+	simplified_mesh->Create(Mesh::SimplifyMesh(&adjacency[0], MinValue, Options).Detach());
 	//simplified_mesh->m_Adjacency = m_Adjacency;
 	simplified_mesh->m_MaterialNameList = m_MaterialNameList;
 	simplified_mesh->m_VertexElems = m_VertexElems;
@@ -1891,7 +1891,7 @@ void OgreMesh::SaveSimplifiedOgreMesh(const char * path, DWORD MinValue, DWORD O
 	simplified_mesh->GetAttributeTable(NULL, &AttribTblCount);
 	simplified_mesh->m_AttribTable.resize(AttribTblCount);
 	simplified_mesh->GetAttributeTable(&simplified_mesh->m_AttribTable[0], &AttribTblCount);
-	simplified_mesh->SaveOgreMesh(path, true);
+	return simplified_mesh;
 }
 
 void OgreMesh::SaveObj(const char* path)

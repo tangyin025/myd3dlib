@@ -1575,7 +1575,7 @@ void LuaContext::Init(void)
 				value("D3DXMESHSIMP_VERTEX", D3DXMESHSIMP_VERTEX),
 				value("D3DXMESHSIMP_FACE", D3DXMESHSIMP_FACE)
 			]
-			.def("SaveSimplifiedOgreMesh", &my::OgreMesh::SaveSimplifiedOgreMesh)
+			.def("SimplifyMesh", &my::OgreMesh::SimplifyMesh)
 			.def("SaveObj", &my::OgreMesh::SaveObj)
 			.def("Transform", &my::OgreMesh::Transform)
 			.property("MaterialNum", &ogremesh_get_material_num)

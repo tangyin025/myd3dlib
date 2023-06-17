@@ -442,7 +442,7 @@ namespace my
 
 		void SaveOgreMesh(const char * path, bool useSharedGeom);
 
-		void SaveSimplifiedOgreMesh(const char * path, DWORD MinValue, DWORD Options);
+		boost::shared_ptr<OgreMesh> SimplifyMesh(DWORD MinValue, DWORD Options);
 
 		void SaveObj(const char* path);
 
