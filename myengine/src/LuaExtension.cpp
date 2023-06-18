@@ -1261,6 +1261,7 @@ void LuaContext::Init(void)
 			.def(const_self * float())
 			.def(const_self / other<const my::Matrix4 &>())
 			.def(const_self / float())
+			.def("Decompose", &my::Matrix4::Decompose, pure_out_value(boost::placeholders::_2) + pure_out_value(boost::placeholders::_3) + pure_out_value(boost::placeholders::_4))
 			.property("inverse", &my::Matrix4::inverse)
 			.def("multiply", &my::Matrix4::multiply)
 			.def("multiplyTranspose", &my::Matrix4::multiplyTranspose)
@@ -3334,8 +3335,8 @@ void LuaContext::Init(void)
 			.def("read_info", luabind::tag_function<void(boost::property_tree::ptree&, const std::string&)>(
 				boost::bind((void (*)(const std::string&, boost::property_tree::ptree&, const std::locale&))boost::property_tree::read_info, boost::placeholders::_2, boost::placeholders::_1, std::locale())))
 			.property("data", (const std::string& (boost::property_tree::ptree::*)()const)& boost::property_tree::ptree::data)
-			.def("get_child", luabind::tag_function<boost::property_tree::ptree&(boost::property_tree::ptree*,const char*)>(
-				boost::bind((boost::property_tree::ptree& (boost::property_tree::ptree::*)(const boost::property_tree::path&))& boost::property_tree::ptree::get_child, boost::placeholders::_1, boost::bind(boost::value_factory<boost::property_tree::path>(), boost::placeholders::_2, '/'))))
+			.def("get", luabind::tag_function<std::string(boost::property_tree::ptree*,const char*,const std::string&)>(
+				boost::bind(&boost::property_tree::ptree::get<std::string>, boost::placeholders::_1, boost::bind(boost::value_factory<boost::property_tree::path>(), boost::placeholders::_2, '/'), boost::placeholders::_3)))
 
 		, class_<FastNoiseLite>("FastNoiseLite")
 			.def(constructor<int>())
