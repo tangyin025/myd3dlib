@@ -50,6 +50,7 @@ extern "C" {
 #include <boost/functional/value_factory.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/xml_parser.hpp>
 #include <boost/property_tree/info_parser.hpp>
 
 static int add_file_and_line(lua_State * L)
@@ -962,13 +963,6 @@ static void xml_document_parse(rapidxml::xml_document<char>* self, const char* u
 	cache = my::FileIStream::Open(u8tows(u8_path).c_str())->GetWholeCache();
 	cache->push_back(0);
 	self->parse<0>((char*)&(*cache)[0]);
-}
-
-static void ptree_read_info(boost::property_tree::ptree* self, const char* u8_path)
-{
-	my::IStreamBuff buff(my::FileIStream::Open(u8tows(u8_path).c_str()));
-	std::istream ifs(&buff);
-	boost::property_tree::read_info(ifs, *self);
 }
 
 static void paths_add_paths(ClipperLib::Paths& paths, const ClipperLib::Paths& rhs)
@@ -3335,7 +3329,10 @@ void LuaContext::Init(void)
 
 		, class_<boost::property_tree::ptree>("ptree")
 			.def(constructor<>())
-			.def("read_info", &ptree_read_info)
+			.def("read_xml", luabind::tag_function<void(boost::property_tree::ptree&, const std::string&)>(
+				boost::bind((void (*)(const std::string&, boost::property_tree::ptree&, int, const std::locale&))boost::property_tree::read_xml, boost::placeholders::_2, boost::placeholders::_1, 0, std::locale())))
+			.def("read_info", luabind::tag_function<void(boost::property_tree::ptree&, const std::string&)>(
+				boost::bind((void (*)(const std::string&, boost::property_tree::ptree&, const std::locale&))boost::property_tree::read_info, boost::placeholders::_2, boost::placeholders::_1, std::locale())))
 			.property("data", (const std::string& (boost::property_tree::ptree::*)()const)& boost::property_tree::ptree::data)
 			.def("get_child", luabind::tag_function<boost::property_tree::ptree&(boost::property_tree::ptree*,const char*)>(
 				boost::bind((boost::property_tree::ptree& (boost::property_tree::ptree::*)(const boost::property_tree::path&))& boost::property_tree::ptree::get_child, boost::placeholders::_1, boost::bind(boost::value_factory<boost::property_tree::path>(), boost::placeholders::_2, '/'))))
