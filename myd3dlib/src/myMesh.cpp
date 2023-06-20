@@ -1573,7 +1573,6 @@ void OgreMesh::CombineMesh(OgreMesh* other, DWORD AttribId, const Matrix4& trans
 	rang.FaceCount += other->m_AttribTable[AttribId].FaceCount;
 	rang.VertexCount += other->m_AttribTable[AttribId].VertexCount;
 	SetAttributeTable(&m_AttribTable[0], m_AttribTable.size());
-	m_MaterialNameList.push_back("aaa");
 }
 
 const D3DXATTRIBUTERANGE& OgreMesh::AppendToAttrib(const D3DXATTRIBUTERANGE& rang, OgreMesh* other, DWORD AttribId, const Matrix4& trans)
@@ -1581,7 +1580,8 @@ const D3DXATTRIBUTERANGE& OgreMesh::AppendToAttrib(const D3DXATTRIBUTERANGE& ran
 	if (rang.VertexStart + rang.VertexCount + other->m_AttribTable[AttribId].VertexCount > GetNumVertices()
 		|| rang.FaceStart + rang.FaceCount + other->m_AttribTable[AttribId].FaceCount > GetNumFaces())
 	{
-		THROW_CUSEXCEPTION("OgreMesh::CombineMesh: vertex or face num overflow");
+		THROW_CUSEXCEPTION(str_printf("OgreMesh::AppendToAttrib: vertex(%u + %u) or face(%u + %u) overflow",
+			rang.VertexStart + rang.VertexCount, other->m_AttribTable[AttribId].VertexCount, rang.FaceStart + rang.FaceCount, other->m_AttribTable[AttribId].FaceCount));
 	}
 
 	VOID* pVertices = LockVertexBuffer();
