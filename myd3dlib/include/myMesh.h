@@ -319,13 +319,13 @@ namespace my
 			DWORD Flags,
 			CONST DWORD * pAdjacencyIn,
 			DWORD * pAdjacencyOut,
-			DWORD * pFaceRemap,
+			DWORD * pFaceRemap = NULL,
 			LPD3DXBUFFER * ppVertexRemap = NULL);
 
 		void OptimizeInplace(DWORD Flags,
 			CONST DWORD * pAdjacencyIn,
 			DWORD * pAdjacencyOut,
-			DWORD * pFaceRemap,
+			DWORD * pFaceRemap = NULL,
 			LPD3DXBUFFER * ppVertexRemap = NULL);
 
 		void SetAttributeTable(CONST D3DXATTRIBUTERANGE * pAttribTable, DWORD cAttribTableSize);
@@ -441,6 +441,8 @@ namespace my
 		const D3DXATTRIBUTERANGE& AppendToAttrib(const D3DXATTRIBUTERANGE& rang, OgreMesh* other, DWORD AttribId, const Matrix4& trans);
 
 		void SaveOgreMesh(const char * path, bool useSharedGeom);
+
+		boost::shared_ptr<OgreMesh> Optimize(DWORD Flags);
 
 		boost::shared_ptr<OgreMesh> SimplifyMesh(DWORD MinValue, DWORD Options);
 

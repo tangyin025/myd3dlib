@@ -1657,7 +1657,7 @@ void OgreMesh::SaveOgreMesh(const char * path, bool useSharedGeom)
 	// write shared geometry (if used)
 	if (useSharedGeom)
 	{
-		ofs << "\t<sharedgeometry vertexcount=\"" << m_AttribTable[0].VertexCount << "\">\n";
+		ofs << "\t<sharedgeometry vertexcount=\"" << GetNumVertices() << "\">\n";
 		ofs << "\t\t<vertexbuffer positions=\"true\" normals=";
 		bool normals = m_VertexElems.elems[D3DDECLUSAGE_NORMAL][0].Type == D3DDECLTYPE_FLOAT3;
 		if (normals)
@@ -1677,7 +1677,7 @@ void OgreMesh::SaveOgreMesh(const char * path, bool useSharedGeom)
 		else
 			ofs << 0 << "\">\n";
 		// write vertex data
-		for (DWORD i = 0; i < m_AttribTable[0].VertexCount; i++)
+		for (DWORD i = 0; i < GetNumVertices(); i++)
 		{
 			ofs << "\t\t\t<vertex>\n";
 			//write vertex position
@@ -1876,6 +1876,25 @@ void OgreMesh::SaveOgreMesh(const char * path, bool useSharedGeom)
 	ofs << "\t</submeshnames>\n";
 	// end mesh description
 	ofs << "</mesh>\n";
+}
+
+boost::shared_ptr<OgreMesh> OgreMesh::Optimize(DWORD Flags)
+{
+	_ASSERT(!(Flags & (D3DXMESH_32BIT | D3DXMESH_IB_WRITEONLY | D3DXMESH_WRITEONLY)));
+
+	std::vector<DWORD> adjacency(GetNumFaces() * 3);
+	GenerateAdjacency((float)EPSILON_E6, &adjacency[0]);
+	std::vector<DWORD> adjacency_out(GetNumFaces() * 3);
+	OgreMeshPtr optimized_mesh(new OgreMesh());
+	optimized_mesh->Create(Mesh::Optimize(Flags, &adjacency[0], &adjacency_out[0]).Detach());
+	//optimized_mesh->m_Adjacency = m_Adjacency;
+	optimized_mesh->m_MaterialNameList = m_MaterialNameList;
+	optimized_mesh->m_VertexElems = m_VertexElems;
+	DWORD AttribTblCount = 0;
+	optimized_mesh->GetAttributeTable(NULL, &AttribTblCount);
+	optimized_mesh->m_AttribTable.resize(AttribTblCount);
+	optimized_mesh->GetAttributeTable(&optimized_mesh->m_AttribTable[0], &AttribTblCount);
+	return optimized_mesh;
 }
 
 boost::shared_ptr<OgreMesh> OgreMesh::SimplifyMesh(DWORD MinValue, DWORD Options)

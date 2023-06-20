@@ -1565,6 +1565,18 @@ void LuaContext::Init(void)
 			.def("AppendMesh", &my::OgreMesh::AppendMesh)
 			.def("CombineMesh", &my::OgreMesh::CombineMesh)
 			.def("SaveOgreMesh", &my::OgreMesh::SaveOgreMesh)
+			.enum_("D3DXMESHOPT")
+			[
+				value("D3DXMESH_MANAGED", D3DXMESH_MANAGED),
+				value("D3DXMESHOPT_COMPACT", D3DXMESHOPT_COMPACT),
+				value("D3DXMESHOPT_ATTRSORT", D3DXMESHOPT_ATTRSORT),
+				value("D3DXMESHOPT_VERTEXCACHE", D3DXMESHOPT_VERTEXCACHE),
+				value("D3DXMESHOPT_STRIPREORDER", D3DXMESHOPT_STRIPREORDER),
+				value("D3DXMESHOPT_IGNOREVERTS", D3DXMESHOPT_IGNOREVERTS),
+				value("D3DXMESHOPT_DONOTSPLIT", D3DXMESHOPT_DONOTSPLIT),
+				value("D3DXMESHOPT_DEVICEINDEPENDENT", D3DXMESHOPT_DEVICEINDEPENDENT)
+			]
+			.def("Optimize", &my::OgreMesh::Optimize)
 			.enum_("D3DXMESHSIMP")
 			[
 				value("D3DXMESHSIMP_VERTEX", D3DXMESHSIMP_VERTEX),
