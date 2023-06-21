@@ -1897,6 +1897,20 @@ boost::shared_ptr<OgreMesh> OgreMesh::Optimize(DWORD Flags)
 	return optimized_mesh;
 }
 
+void OgreMesh::OptimizeInplace(DWORD Flags)
+{
+	_ASSERT(!(Flags & (D3DXMESH_32BIT | D3DXMESH_IB_WRITEONLY | D3DXMESH_WRITEONLY)));
+
+	std::vector<DWORD> adjacency(GetNumFaces() * 3);
+	GenerateAdjacency((float)EPSILON_E6, &adjacency[0]);
+	std::vector<DWORD> adjacency_out(GetNumFaces() * 3);
+	Mesh::OptimizeInplace(Flags, &adjacency[0], &adjacency_out[0]);
+	DWORD AttribTblCount = 0;
+	GetAttributeTable(NULL, &AttribTblCount);
+	m_AttribTable.resize(AttribTblCount);
+	GetAttributeTable(&m_AttribTable[0], &AttribTblCount);
+}
+
 boost::shared_ptr<OgreMesh> OgreMesh::SimplifyMesh(DWORD MinValue, DWORD Options)
 {
 	std::vector<DWORD> adjacency(GetNumFaces() * 3);

@@ -1577,6 +1577,7 @@ void LuaContext::Init(void)
 				value("D3DXMESHOPT_DEVICEINDEPENDENT", D3DXMESHOPT_DEVICEINDEPENDENT)
 			]
 			.def("Optimize", &my::OgreMesh::Optimize)
+			.def("OptimizeInplace", &my::OgreMesh::OptimizeInplace)
 			.enum_("D3DXMESHSIMP")
 			[
 				value("D3DXMESHSIMP_VERTEX", D3DXMESHSIMP_VERTEX),

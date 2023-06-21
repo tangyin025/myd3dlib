@@ -444,6 +444,8 @@ namespace my
 
 		boost::shared_ptr<OgreMesh> Optimize(DWORD Flags);
 
+		void OptimizeInplace(DWORD Flags);
+
 		boost::shared_ptr<OgreMesh> SimplifyMesh(DWORD MinValue, DWORD Options);
 
 		void SaveObj(const char* path);
