@@ -92,8 +92,6 @@ public:
 
 	float m_ChunkLodScale;
 
-	float m_ChunkCullingHole;
-
 	typedef std::map<std::pair<int, int>, StaticEmitterChunk> ChunkMap;
 
 	ChunkMap m_Chunks;
@@ -113,7 +111,6 @@ public:
 		, OctRoot(LocalRootAabb.m_min, LocalRootAabb.m_max)
 		, m_ChunkWidth(ChunkWidth)
 		, m_ChunkLodScale(1.0f)
-		, m_ChunkCullingHole(-1.0f)
 	{
 	}
 

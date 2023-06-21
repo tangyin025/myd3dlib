@@ -35,8 +35,6 @@ public:
 
 	float m_ChunkLodScale;
 
-	float m_ChunkCullingHole;
-
 	typedef std::map<int, StaticMeshChunk> ChunkMap;
 
 	ChunkMap m_Chunks;
@@ -52,7 +50,6 @@ public:
 		, OctRoot(LocalRootAabb.m_min, LocalRootAabb.m_max)
 		, m_ChunkWidth(ChunkWidth)
 		, m_ChunkLodScale(1.0f)
-		, m_ChunkCullingHole(-1.0f)
 	{
 	}
 

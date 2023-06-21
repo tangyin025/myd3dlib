@@ -34,7 +34,6 @@ void StaticMesh::save(Archive& ar, const unsigned int version) const
 	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(OctRoot);
 	ar << BOOST_SERIALIZATION_NVP(m_ChunkWidth);
 	ar << BOOST_SERIALIZATION_NVP(m_ChunkLodScale);
-	ar << BOOST_SERIALIZATION_NVP(m_ChunkCullingHole);
 	DWORD ChunkSize = m_Chunks.size();
 	ar << BOOST_SERIALIZATION_NVP(ChunkSize);
 	ChunkMap::const_iterator chunk_iter = m_Chunks.begin();
@@ -53,7 +52,6 @@ void StaticMesh::load(Archive& ar, const unsigned int version)
 	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(OctRoot);
 	ar >> BOOST_SERIALIZATION_NVP(m_ChunkWidth);
 	ar >> BOOST_SERIALIZATION_NVP(m_ChunkLodScale);
-	ar >> BOOST_SERIALIZATION_NVP(m_ChunkCullingHole);
 	DWORD ChunkSize;
 	ar >> BOOST_SERIALIZATION_NVP(ChunkSize);
 	for (int i = 0; i < (int)ChunkSize; i++)
@@ -111,11 +109,10 @@ void StaticMesh::AddToPipeline(const my::Frustum& frustum, RenderPipeline* pipel
 			StaticMeshChunk* chunk = dynamic_cast<StaticMeshChunk*>(oct_entity);
 			if (PassMask & RenderPipeline::PassTypeToMask(RenderPipeline::PassTypeNormal))
 			{
-				float ChunkDist = (chunk->m_OctAabb->Center() - LocalViewPos).magnitude();
-				chunk->m_Lod = ChunkDist < mesh_cmp->m_ChunkCullingHole ? -1 : mesh_cmp->m_Actor->CalculateLod(ChunkDist / mesh_cmp->m_ChunkLodScale);
+				chunk->m_Lod = mesh_cmp->m_Actor->CalculateLod((chunk->m_OctAabb->Center() - LocalViewPos).magnitude() / mesh_cmp->m_ChunkLodScale);
 			}
 
-			if (chunk->m_Lod < 0 || chunk->m_Lod >= LastLod)
+			if (chunk->m_Lod >= LastLod)
 			{
 				return true;
 			}

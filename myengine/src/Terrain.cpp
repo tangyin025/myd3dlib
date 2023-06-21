@@ -681,6 +681,7 @@ void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 		unsigned int PassMask;
 		const Vector3 & LocalViewPos;
 		Terrain * terrain;
+		int LastLod;
 		IndexTable::element * pIndices;
 		unsigned int RootPrimitiveCount;
 		ChunkSet::iterator insert_chunk_iter;
@@ -689,6 +690,7 @@ void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 			, PassMask(_PassMask)
 			, LocalViewPos(_LocalViewPos)
 			, terrain(_terrain)
+			, LastLod(_Quad(_terrain->m_ChunkSize, _terrain->m_MinChunkLodSize))
 			, pIndices(_pIndices)
 			, RootPrimitiveCount(0)
 			, insert_chunk_iter(_terrain->m_ViewedChunks.begin())
@@ -702,7 +704,6 @@ void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 				chunk->m_Lod[0] = terrain->CalculateLod(chunk->m_Row, chunk->m_Col, LocalViewPos);
 			}
 
-			int LastLod = _Quad(terrain->m_ChunkSize, terrain->m_MinChunkLodSize);
 			if (chunk->m_Lod[0] >= LastLod)
 			{
 				for (int i = chunk->m_Row * terrain->m_MinChunkLodSize; i < chunk->m_Row * terrain->m_MinChunkLodSize + terrain->m_MinChunkLodSize; i++)
