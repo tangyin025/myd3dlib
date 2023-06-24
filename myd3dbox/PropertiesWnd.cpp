@@ -82,6 +82,7 @@ static const CPropertiesWnd::PassMaskDesc g_LodMaskDesc[] =
 	{ _T("LOD0_1"), Component::LOD0_1 },
 	{ _T("LOD1_2"), Component::LOD1_2 },
 	{ _T("LOD0_1_2"), Component::LOD0_1_2 },
+	{ _T("INVISIBLE"), 0 },
 };
 
 static LPCTSTR GetLodMaskDesc(DWORD mask)
@@ -3271,6 +3272,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		int i = (DYNAMIC_DOWNCAST(CComboProp, pProp))->m_iSelIndex;
 		ASSERT(i >= 0 && i < _countof(g_LodMaskDesc));
 		cmp->m_LodMask = (Component::LODMask)g_LodMaskDesc[i].mask;
+		cmp->m_Actor->m_Lod = Actor::MaxLod;
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
