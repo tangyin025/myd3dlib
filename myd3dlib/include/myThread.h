@@ -164,7 +164,7 @@ namespace my
 	protected:
 		ThreadCallback m_Callback;
 
-		static unsigned int __stdcall ThreadProc(void * lpParameter);
+		static DWORD WINAPI ThreadProc(LPVOID lpParameter);
 
 	public:
 		Thread(const ThreadCallback & Callback);

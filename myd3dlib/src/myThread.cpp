@@ -102,7 +102,7 @@ void ConditionVariable::Wake(LONG lReleaseCount)
 	m_sema.Release(lReleaseCount);
 }
 
-unsigned int __stdcall Thread::ThreadProc(void *  lpParameter)
+DWORD WINAPI Thread::ThreadProc(LPVOID lpParameter)
 {
 	Thread * pThread = reinterpret_cast<Thread *>(lpParameter);
 
@@ -119,9 +119,11 @@ void Thread::CreateThread(DWORD dwCreationFlags)
 {
 	_ASSERT(NULL == m_handle);
 
-	if (0 == (m_handle = (HANDLE)_beginthreadex(NULL, 0, ThreadProc, this, dwCreationFlags, NULL)))
+	m_handle = ::CreateThread(NULL, 0, ThreadProc, this, dwCreationFlags, NULL);
+
+	if (NULL == m_handle)
 	{
-		THROW_CUSEXCEPTION(str_printf("CreateThread failed: %u", _doserrno));
+		THROW_WINEXCEPTION(::GetLastError());
 	}
 }
 
