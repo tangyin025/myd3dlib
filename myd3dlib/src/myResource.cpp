@@ -18,6 +18,8 @@
 #include <boost/algorithm/string.hpp>
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
+#define STB_IMAGE_RESIZE_IMPLEMENTATION
+#include "stb_image_resize.h"
 
 using namespace my;
 
@@ -998,11 +1000,6 @@ struct DDSurfaceDesc2
 
 void TextureIORequest::LoadResource(void)
 {
-	//if(ResourceMgr::getSingleton().CheckPath(m_path.c_str()))
-	//{
-	//	m_cache = ResourceMgr::getSingleton().OpenIStream(m_path.c_str())->GetWholeCache();
-	//}
-
 	if (ResourceMgr::getSingleton().CheckPath(m_path.c_str()))
 	{
 		// https://github.com/urho3d/urho3d/blob/master/Source/Urho3D/Resource/Image.cpp
@@ -1127,40 +1124,6 @@ void TextureIORequest::LoadResource(void)
 				array_ = true;
 			}
 
-			//// Calculate the size of the data
-			//unsigned dataSize = 0;
-			////if (compressedFormat_ != CF_RGBA)
-			//if (fmt != D3DFMT_A8R8G8B8)
-			//{
-			//	//const unsigned blockSize = compressedFormat_ == CF_DXT1 ? 8 : 16; //DXT1/BC1 is 8 bytes, DXT3/BC2 and DXT5/BC3 are 16 bytes
-			//	const unsigned blockSize = fmt == D3DFMT_DXT1 ? 8 : 16; //DXT1/BC1 is 8 bytes, DXT3/BC2 and DXT5/BC3 are 16 bytes
-			//	// Add 3 to ensure valid block: ie 2x2 fits uses a whole 4x4 block
-			//	unsigned blocksWide = (ddsd.dwWidth_ + 3) / 4;
-			//	unsigned blocksHeight = (ddsd.dwHeight_ + 3) / 4;
-			//	dataSize = blocksWide * blocksHeight * blockSize;
-
-			//	// Calculate mip data size
-			//	unsigned x = ddsd.dwWidth_ / 2;
-			//	unsigned y = ddsd.dwHeight_ / 2;
-			//	unsigned z = ddsd.dwDepth_ / 2;
-			//	for (unsigned level = ddsd.dwMipMapCount_; level > 1; x /= 2, y /= 2, z /= 2, --level)
-			//	{
-			//		blocksWide = (Max(x, 1U) + 3) / 4;
-			//		blocksHeight = (Max(y, 1U) + 3) / 4;
-			//		dataSize += blockSize * blocksWide * blocksHeight * Max(z, 1U);
-			//	}
-			//}
-			//else
-			//{
-			//	dataSize = (ddsd.ddpfPixelFormat_.dwRGBBitCount_ / 8) * ddsd.dwWidth_ * ddsd.dwHeight_ * Max(ddsd.dwDepth_, 1U);
-			//	// Calculate mip data size
-			//	unsigned x = ddsd.dwWidth_ / 2;
-			//	unsigned y = ddsd.dwHeight_ / 2;
-			//	unsigned z = ddsd.dwDepth_ / 2;
-			//	for (unsigned level = ddsd.dwMipMapCount_; level > 1; x /= 2, y /= 2, z /= 2, --level)
-			//		dataSize += (ddsd.ddpfPixelFormat_.dwRGBBitCount_ / 8) * Max(x, 1U) * Max(y, 1U) * Max(z, 1U);
-			//}
-
 			BaseTexturePtr res;
 			if (cubemap_)
 			{
@@ -1228,40 +1191,6 @@ void TextureIORequest::LoadResource(void)
 				}
 			}
 			m_res = res;
-
-			//// Do not use a shared ptr here, in case nothing is refcounting the image outside this function.
-			//// A raw pointer is fine as the image chain (if needed) uses shared ptr's properly
-			//Image* currentImage = this;
-
-			//for (unsigned faceIndex = 0; faceIndex < imageChainCount; ++faceIndex)
-			//{
-			//	currentImage->data_ = new unsigned char[dataSize];
-			//	currentImage->cubemap_ = cubemap_;
-			//	currentImage->array_ = array_;
-			//	currentImage->components_ = components_;
-			//	currentImage->compressedFormat_ = compressedFormat_;
-			//	currentImage->width_ = ddsd.dwWidth_;
-			//	currentImage->height_ = ddsd.dwHeight_;
-			//	currentImage->depth_ = ddsd.dwDepth_;
-
-			//	currentImage->numCompressedLevels_ = ddsd.dwMipMapCount_;
-			//	if (!currentImage->numCompressedLevels_)
-			//		currentImage->numCompressedLevels_ = 1;
-
-			//	// Memory use needs to be exact per image as it's used for verifying the data size in GetCompressedLevel()
-			//	// even though it would be more proper for the first image to report the size of all siblings combined
-			//	currentImage->SetMemoryUse(dataSize);
-
-			//	source.Read(currentImage->data_.Get(), dataSize);
-
-			//	if (faceIndex < imageChainCount - 1)
-			//	{
-			//		// Build the image chain
-			//		SharedPtr<Image> nextImage(new Image(context_));
-			//		currentImage->nextSibling_ = nextImage;
-			//		currentImage = nextImage;
-			//	}
-			//}
 		}
 		else
 		{
@@ -1273,47 +1202,55 @@ void TextureIORequest::LoadResource(void)
 			if (pixel && n == 4)
 			{
 				ResourceMgr::getSingleton().EnterDeviceSection();
-				res->CreateTexture(x, y, 1, 0, D3DFMT_A8R8G8B8, D3DPOOL_MANAGED);
-				D3DLOCKED_RECT lrc = res->LockRect();
+				res->CreateTexture(x, y, 0, 0, D3DFMT_A8R8G8B8, D3DPOOL_MANAGED);
 				ResourceMgr::getSingleton().LeaveDeviceSection();
-
-				for (int i = 0; i < y; i++)
-				{
-					for (int j = 0; j < x; j++)
-					{
-						unsigned char* src = pixel.get() + i * x * n + j * n;
-						unsigned char* dst = (unsigned char*)lrc.pBits + i * lrc.Pitch + j * 4;
-						*(DWORD*)dst = D3DCOLOR_ARGB(src[3], src[0], src[1], src[2]);
-					}
-				}
-
-				ResourceMgr::getSingleton().EnterDeviceSection();
-				res->UnlockRect();
-				ResourceMgr::getSingleton().LeaveDeviceSection();
-				m_res = res;
 			}
 			else if (pixel && n == 3)
 			{
 				ResourceMgr::getSingleton().EnterDeviceSection();
-				res->CreateTexture(x, y, 1, 0, D3DFMT_X8R8G8B8, D3DPOOL_MANAGED);
-				D3DLOCKED_RECT lrc = res->LockRect();
+				res->CreateTexture(x, y, 0, 0, D3DFMT_X8R8G8B8, D3DPOOL_MANAGED);
+				ResourceMgr::getSingleton().LeaveDeviceSection();
+			}
+			else
+				// error
+				return;
+
+			unsigned dwMipMapCount = res->GetLevelCount();
+			for (int level = 0; level < Max(dwMipMapCount, 1U); level++)
+			{
+				boost::shared_ptr<unsigned char[]> buff;
+				unsigned blocksWide = Max(x >> level, 1);
+				unsigned blocksHeight = Max(y >> level, 1);
+				if (level > 0)
+				{
+					buff.reset(new unsigned char[blocksWide * blocksHeight * n]);
+					if (0 == stbir_resize_uint8(pixel.get(), x, y, 0, buff.get(), blocksWide, blocksHeight, 0, n))
+						// error
+						return;
+				}
+
+				ResourceMgr::getSingleton().EnterDeviceSection();
+				D3DLOCKED_RECT lrc = res->LockRect(NULL, 0, level);
 				ResourceMgr::getSingleton().LeaveDeviceSection();
 
-				for (int i = 0; i < y; i++)
+				for (int i = 0; i < blocksHeight; i++)
 				{
-					for (int j = 0; j < x; j++)
+					for (int j = 0; j < blocksWide; j++)
 					{
-						unsigned char* src = pixel.get() + i * x * n + j * n;
+						unsigned char* src = (level > 0 ? buff.get() : pixel.get()) + i * blocksWide * n + j * n;
 						unsigned char* dst = (unsigned char*)lrc.pBits + i * lrc.Pitch + j * 4;
-						*(DWORD*)dst = D3DCOLOR_XRGB(src[0], src[1], src[2]);
+						if (n == 4)
+							*(DWORD*)dst = D3DCOLOR_ARGB(src[3], src[0], src[1], src[2]);
+						else
+							*(DWORD*)dst = D3DCOLOR_XRGB(src[0], src[1], src[2]);
 					}
 				}
 
 				ResourceMgr::getSingleton().EnterDeviceSection();
-				res->UnlockRect();
+				res->UnlockRect(level);
 				ResourceMgr::getSingleton().LeaveDeviceSection();
-				m_res = res;
 			}
+			m_res = res;
 		}
 	}
 }
@@ -1324,35 +1261,6 @@ void TextureIORequest::CreateResource(LPDIRECT3DDEVICE9 pd3dDevice)
 	{
 		THROW_CUSEXCEPTION(str_printf("failed open %s", m_path.c_str()));
 	}
-	//if(!m_cache)
-	//{
-	//	THROW_CUSEXCEPTION(str_printf("failed open %s", m_path.c_str()));
-	//}
-	//D3DXIMAGE_INFO imif;
-	//HRESULT hr = D3DXGetImageInfoFromFileInMemory(&(*m_cache)[0], m_cache->size(), &imif);
-	//if(FAILED(hr))
-	//{
-	//	THROW_D3DEXCEPTION(hr);
-	//}
-	//switch(imif.ResourceType)
-	//{
-	//case D3DRTYPE_TEXTURE:
-	//	{
-	//		Texture2DPtr res(new Texture2D());
-	//		res->CreateTextureFromFileInMemory(&(*m_cache)[0], m_cache->size());
-	//		m_res = res;
-	//	}
-	//	break;
-	//case D3DRTYPE_CUBETEXTURE:
-	//	{
-	//		CubeTexturePtr res(new CubeTexture());
-	//		res->CreateCubeTextureFromFileInMemory(&(*m_cache)[0], m_cache->size());
-	//		m_res = res;
-	//	}
-	//	break;
-	//default:
-	//	THROW_CUSEXCEPTION(str_printf("unsupported d3d texture format %u", imif.ResourceType));
-	//}
 }
 
 MeshIORequest::MeshIORequest(const char * path, int Priority)
