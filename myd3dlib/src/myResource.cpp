@@ -16,6 +16,9 @@
 #include "mySound.h"
 #include "rapidxml.hpp"
 #include <boost/algorithm/string.hpp>
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
+#include <boost/multi_array.hpp>
 
 using namespace my;
 
@@ -821,45 +824,534 @@ boost::shared_ptr<Wav> ResourceMgr::LoadWav(const char * path)
 	return boost::dynamic_pointer_cast<Wav>(cb.m_res);
 }
 
+#ifndef MAKEFOURCC
+#define MAKEFOURCC(ch0, ch1, ch2, ch3) ((unsigned)(ch0) | ((unsigned)(ch1) << 8) | ((unsigned)(ch2) << 16) | ((unsigned)(ch3) << 24))
+#endif
+
+#define FOURCC_DXT1 (MAKEFOURCC('D','X','T','1'))
+#define FOURCC_DXT2 (MAKEFOURCC('D','X','T','2'))
+#define FOURCC_DXT3 (MAKEFOURCC('D','X','T','3'))
+#define FOURCC_DXT4 (MAKEFOURCC('D','X','T','4'))
+#define FOURCC_DXT5 (MAKEFOURCC('D','X','T','5'))
+#define FOURCC_DX10 (MAKEFOURCC('D','X','1','0'))
+
+#define FOURCC_ETC1 (MAKEFOURCC('E', 'T', 'C', '1'))
+#define FOURCC_ETC2 (MAKEFOURCC('E', 'T', 'C', '2'))
+#define FOURCC_ETC2A (MAKEFOURCC('E', 'T', '2', 'A'))
+
+static const unsigned DDSCAPS_COMPLEX = 0x00000008U;
+static const unsigned DDSCAPS_TEXTURE = 0x00001000U;
+static const unsigned DDSCAPS_MIPMAP = 0x00400000U;
+static const unsigned DDSCAPS2_VOLUME = 0x00200000U;
+static const unsigned DDSCAPS2_CUBEMAP = 0x00000200U;
+
+static const unsigned DDSCAPS2_CUBEMAP_POSITIVEX = 0x00000400U;
+static const unsigned DDSCAPS2_CUBEMAP_NEGATIVEX = 0x00000800U;
+static const unsigned DDSCAPS2_CUBEMAP_POSITIVEY = 0x00001000U;
+static const unsigned DDSCAPS2_CUBEMAP_NEGATIVEY = 0x00002000U;
+static const unsigned DDSCAPS2_CUBEMAP_POSITIVEZ = 0x00004000U;
+static const unsigned DDSCAPS2_CUBEMAP_NEGATIVEZ = 0x00008000U;
+static const unsigned DDSCAPS2_CUBEMAP_ALL_FACES = 0x0000FC00U;
+
+// DX10 flags
+static const unsigned DDS_DIMENSION_TEXTURE1D = 2;
+static const unsigned DDS_DIMENSION_TEXTURE2D = 3;
+static const unsigned DDS_DIMENSION_TEXTURE3D = 4;
+
+static const unsigned DDS_RESOURCE_MISC_TEXTURECUBE = 0x4;
+
+static const unsigned DDS_DXGI_FORMAT_R8G8B8A8_UNORM = 28;
+static const unsigned DDS_DXGI_FORMAT_R8G8B8A8_UNORM_SRGB = 26;
+static const unsigned DDS_DXGI_FORMAT_BC1_UNORM = 71;
+static const unsigned DDS_DXGI_FORMAT_BC1_UNORM_SRGB = 72;
+static const unsigned DDS_DXGI_FORMAT_BC2_UNORM = 74;
+static const unsigned DDS_DXGI_FORMAT_BC2_UNORM_SRGB = 75;
+static const unsigned DDS_DXGI_FORMAT_BC3_UNORM = 77;
+static const unsigned DDS_DXGI_FORMAT_BC3_UNORM_SRGB = 78;
+
+/// DirectDraw color key definition.
+struct DDColorKey
+{
+	unsigned dwColorSpaceLowValue_;
+	unsigned dwColorSpaceHighValue_;
+};
+
+/// DirectDraw pixel format definition.
+struct DDPixelFormat
+{
+	unsigned dwSize_;
+	unsigned dwFlags_;
+	unsigned dwFourCC_;
+	union
+	{
+		unsigned dwRGBBitCount_;
+		unsigned dwYUVBitCount_;
+		unsigned dwZBufferBitDepth_;
+		unsigned dwAlphaBitDepth_;
+		unsigned dwLuminanceBitCount_;
+		unsigned dwBumpBitCount_;
+		unsigned dwPrivateFormatBitCount_;
+	};
+	union
+	{
+		unsigned dwRBitMask_;
+		unsigned dwYBitMask_;
+		unsigned dwStencilBitDepth_;
+		unsigned dwLuminanceBitMask_;
+		unsigned dwBumpDuBitMask_;
+		unsigned dwOperations_;
+	};
+	union
+	{
+		unsigned dwGBitMask_;
+		unsigned dwUBitMask_;
+		unsigned dwZBitMask_;
+		unsigned dwBumpDvBitMask_;
+		struct
+		{
+			unsigned short wFlipMSTypes_;
+			unsigned short wBltMSTypes_;
+		} multiSampleCaps_;
+	};
+	union
+	{
+		unsigned dwBBitMask_;
+		unsigned dwVBitMask_;
+		unsigned dwStencilBitMask_;
+		unsigned dwBumpLuminanceBitMask_;
+	};
+	union
+	{
+		unsigned dwRGBAlphaBitMask_;
+		unsigned dwYUVAlphaBitMask_;
+		unsigned dwLuminanceAlphaBitMask_;
+		unsigned dwRGBZBitMask_;
+		unsigned dwYUVZBitMask_;
+	};
+};
+
+/// DirectDraw surface capabilities.
+struct DDSCaps2
+{
+	unsigned dwCaps_;
+	unsigned dwCaps2_;
+	unsigned dwCaps3_;
+	union
+	{
+		unsigned dwCaps4_;
+		unsigned dwVolumeDepth_;
+	};
+};
+
+struct DDSHeader10
+{
+	unsigned dxgiFormat;
+	unsigned resourceDimension;
+	unsigned miscFlag;
+	unsigned arraySize;
+	unsigned reserved;
+};
+
+/// DirectDraw surface description.
+struct DDSurfaceDesc2
+{
+	unsigned dwSize_;
+	unsigned dwFlags_;
+	unsigned dwHeight_;
+	unsigned dwWidth_;
+	union
+	{
+		unsigned lPitch_;
+		unsigned dwLinearSize_;
+	};
+	union
+	{
+		unsigned dwBackBufferCount_;
+		unsigned dwDepth_;
+	};
+	union
+	{
+		unsigned dwMipMapCount_;
+		unsigned dwRefreshRate_;
+		unsigned dwSrcVBHandle_;
+	};
+	unsigned dwAlphaBitDepth_;
+	unsigned dwReserved_;
+	unsigned lpSurface_; // Do not define as a void pointer, as it is 8 bytes in a 64bit build
+	union
+	{
+		DDColorKey ddckCKDestOverlay_;
+		unsigned dwEmptyFaceColor_;
+	};
+	DDColorKey ddckCKDestBlt_;
+	DDColorKey ddckCKSrcOverlay_;
+	DDColorKey ddckCKSrcBlt_;
+	union
+	{
+		DDPixelFormat ddpfPixelFormat_;
+		unsigned dwFVF_;
+	};
+	DDSCaps2 ddsCaps_;
+	unsigned dwTextureStage_;
+};
+
 void TextureIORequest::LoadResource(void)
 {
-	if(ResourceMgr::getSingleton().CheckPath(m_path.c_str()))
+	//if(ResourceMgr::getSingleton().CheckPath(m_path.c_str()))
+	//{
+	//	m_cache = ResourceMgr::getSingleton().OpenIStream(m_path.c_str())->GetWholeCache();
+	//}
+
+	if (ResourceMgr::getSingleton().CheckPath(m_path.c_str()))
 	{
-		m_cache = ResourceMgr::getSingleton().OpenIStream(m_path.c_str())->GetWholeCache();
+		// https://github.com/urho3d/urho3d/blob/master/Source/Urho3D/Resource/Image.cpp
+		IStreamPtr ifs = ResourceMgr::getSingleton().OpenIStream(m_path.c_str());
+		std::string header(4, '\0');
+		ifs->read(&header[0], 4);
+		if (header == "DDS ")
+		{
+			// DDS compressed format
+			DDSurfaceDesc2 ddsd;        // NOLINT(hicpp-member-init)
+			ifs->read(&ddsd, sizeof(ddsd));
+
+			// DDS DX10+
+			const bool hasDXGI = ddsd.ddpfPixelFormat_.dwFourCC_ == FOURCC_DX10;
+			DDSHeader10 dxgiHeader;     // NOLINT(hicpp-member-init)
+			if (hasDXGI)
+				ifs->read(&dxgiHeader, sizeof(dxgiHeader));
+
+			unsigned fourCC = ddsd.ddpfPixelFormat_.dwFourCC_;
+
+			// If the DXGI header is available then remap formats and check sRGB
+			bool sRGB_ = false;
+			if (hasDXGI)
+			{
+				switch (dxgiHeader.dxgiFormat)
+				{
+				case DDS_DXGI_FORMAT_BC1_UNORM:
+				case DDS_DXGI_FORMAT_BC1_UNORM_SRGB:
+					fourCC = FOURCC_DXT1;
+					break;
+				case DDS_DXGI_FORMAT_BC2_UNORM:
+				case DDS_DXGI_FORMAT_BC2_UNORM_SRGB:
+					fourCC = FOURCC_DXT3;
+					break;
+				case DDS_DXGI_FORMAT_BC3_UNORM:
+				case DDS_DXGI_FORMAT_BC3_UNORM_SRGB:
+					fourCC = FOURCC_DXT5;
+					break;
+				case DDS_DXGI_FORMAT_R8G8B8A8_UNORM:
+				case DDS_DXGI_FORMAT_R8G8B8A8_UNORM_SRGB:
+					fourCC = 0;
+					break;
+				default:
+					//URHO3D_LOGERROR("Unrecognized DDS DXGI image format");
+					//return false;
+					return;
+				}
+
+				// Check the internal sRGB formats
+				if (dxgiHeader.dxgiFormat == DDS_DXGI_FORMAT_BC1_UNORM_SRGB ||
+					dxgiHeader.dxgiFormat == DDS_DXGI_FORMAT_BC2_UNORM_SRGB ||
+					dxgiHeader.dxgiFormat == DDS_DXGI_FORMAT_BC3_UNORM_SRGB ||
+					dxgiHeader.dxgiFormat == DDS_DXGI_FORMAT_R8G8B8A8_UNORM_SRGB)
+				{
+					sRGB_ = true;
+				}
+			}
+			D3DFORMAT fmt = D3DFMT_UNKNOWN;
+			switch (fourCC)
+			{
+			case FOURCC_DXT1:
+				//compressedFormat_ = CF_DXT1;
+				//components_ = 3;
+				fmt = D3DFMT_DXT1;
+				break;
+
+			case FOURCC_DXT3:
+				//compressedFormat_ = CF_DXT3;
+				//components_ = 4;
+				fmt = D3DFMT_DXT3;
+				break;
+
+			case FOURCC_DXT5:
+				//compressedFormat_ = CF_DXT5;
+				//components_ = 4;
+				fmt = D3DFMT_DXT5;
+				break;
+
+			//case FOURCC_ETC1:
+			//	compressedFormat_ = CF_ETC1;
+			//	components_ = 3;
+			//	break;
+
+			//case FOURCC_ETC2:
+			//	compressedFormat_ = CF_ETC2_RGB;
+			//	components_ = 3;
+			//	break;
+
+			//case FOURCC_ETC2A:
+			//	compressedFormat_ = CF_ETC2_RGBA;
+			//	components_ = 4;
+			//	break;
+
+			case 0:
+				if (ddsd.ddpfPixelFormat_.dwRGBBitCount_ != 32 && ddsd.ddpfPixelFormat_.dwRGBBitCount_ != 24 &&
+					ddsd.ddpfPixelFormat_.dwRGBBitCount_ != 16)
+				{
+					//URHO3D_LOGERROR("Unsupported DDS pixel byte size");
+					//return false;
+					return;
+				}
+				//compressedFormat_ = CF_RGBA;
+				//components_ = 4;
+				fmt = D3DFMT_A8R8G8B8;
+				break;
+
+			default:
+				//URHO3D_LOGERROR("Unrecognized DDS image format");
+				//return false;
+				return;
+			}
+
+			// Is it a cube map or texture array? If so determine the size of the image chain.
+			bool cubemap_ = (ddsd.ddsCaps_.dwCaps2_ & DDSCAPS2_CUBEMAP_ALL_FACES) != 0 || (hasDXGI && (dxgiHeader.miscFlag & DDS_RESOURCE_MISC_TEXTURECUBE) != 0);
+			unsigned imageChainCount = 1;
+			bool array_ = false;
+			if (cubemap_)
+				imageChainCount = 6;
+			else if (hasDXGI && dxgiHeader.arraySize > 1)
+			{
+				imageChainCount = dxgiHeader.arraySize;
+				array_ = true;
+			}
+
+			//// Calculate the size of the data
+			//unsigned dataSize = 0;
+			////if (compressedFormat_ != CF_RGBA)
+			//if (fmt != D3DFMT_A8R8G8B8)
+			//{
+			//	//const unsigned blockSize = compressedFormat_ == CF_DXT1 ? 8 : 16; //DXT1/BC1 is 8 bytes, DXT3/BC2 and DXT5/BC3 are 16 bytes
+			//	const unsigned blockSize = fmt == D3DFMT_DXT1 ? 8 : 16; //DXT1/BC1 is 8 bytes, DXT3/BC2 and DXT5/BC3 are 16 bytes
+			//	// Add 3 to ensure valid block: ie 2x2 fits uses a whole 4x4 block
+			//	unsigned blocksWide = (ddsd.dwWidth_ + 3) / 4;
+			//	unsigned blocksHeight = (ddsd.dwHeight_ + 3) / 4;
+			//	dataSize = blocksWide * blocksHeight * blockSize;
+
+			//	// Calculate mip data size
+			//	unsigned x = ddsd.dwWidth_ / 2;
+			//	unsigned y = ddsd.dwHeight_ / 2;
+			//	unsigned z = ddsd.dwDepth_ / 2;
+			//	for (unsigned level = ddsd.dwMipMapCount_; level > 1; x /= 2, y /= 2, z /= 2, --level)
+			//	{
+			//		blocksWide = (Max(x, 1U) + 3) / 4;
+			//		blocksHeight = (Max(y, 1U) + 3) / 4;
+			//		dataSize += blockSize * blocksWide * blocksHeight * Max(z, 1U);
+			//	}
+			//}
+			//else
+			//{
+			//	dataSize = (ddsd.ddpfPixelFormat_.dwRGBBitCount_ / 8) * ddsd.dwWidth_ * ddsd.dwHeight_ * Max(ddsd.dwDepth_, 1U);
+			//	// Calculate mip data size
+			//	unsigned x = ddsd.dwWidth_ / 2;
+			//	unsigned y = ddsd.dwHeight_ / 2;
+			//	unsigned z = ddsd.dwDepth_ / 2;
+			//	for (unsigned level = ddsd.dwMipMapCount_; level > 1; x /= 2, y /= 2, z /= 2, --level)
+			//		dataSize += (ddsd.ddpfPixelFormat_.dwRGBBitCount_ / 8) * Max(x, 1U) * Max(y, 1U) * Max(z, 1U);
+			//}
+
+			BaseTexturePtr res;
+			if (cubemap_)
+			{
+				res.reset(new CubeTexture());
+				ResourceMgr::getSingleton().EnterDeviceSection();
+				boost::static_pointer_cast<CubeTexture>(res)->CreateCubeTexture(ddsd.dwWidth_, ddsd.dwMipMapCount_, 0, fmt, D3DPOOL_MANAGED);
+				ResourceMgr::getSingleton().LeaveDeviceSection();
+			}
+			else
+			{
+				res.reset(new Texture2D());
+				ResourceMgr::getSingleton().EnterDeviceSection();
+				boost::static_pointer_cast<Texture2D>(res)->CreateTexture(ddsd.dwWidth_, ddsd.dwHeight_, ddsd.dwMipMapCount_, 0, fmt, D3DPOOL_MANAGED);
+				ResourceMgr::getSingleton().LeaveDeviceSection();
+			}
+			for (unsigned faceIndex = 0; faceIndex < imageChainCount; ++faceIndex)
+			{
+				for (unsigned level = 0; level < Max(ddsd.dwMipMapCount_, 1U); level++)
+				{
+					// Calculate mip data size
+					unsigned dataSize = 0;
+					if (fmt != D3DFMT_A8R8G8B8)
+					{
+						//const unsigned blockSize = compressedFormat_ == CF_DXT1 ? 8 : 16; //DXT1/BC1 is 8 bytes, DXT3/BC2 and DXT5/BC3 are 16 bytes
+						const unsigned blockSize = fmt == D3DFMT_DXT1 ? 8 : 16; //DXT1/BC1 is 8 bytes, DXT3/BC2 and DXT5/BC3 are 16 bytes
+						// Add 3 to ensure valid block: ie 2x2 fits uses a whole 4x4 block
+						unsigned blocksWide = (Max(ddsd.dwWidth_ >> level, 1U) + 3) / 4;
+						unsigned blocksHeight = (Max(ddsd.dwHeight_ >> level, 1U) + 3) / 4;
+						dataSize = blocksWide * blocksHeight * blockSize;
+						if (level > 0)
+							dataSize *= Max(ddsd.dwDepth_ >> level, 1U);
+					}
+					else
+					{
+						unsigned blocksWide = Max(ddsd.dwWidth_ >> level, 1U);
+						unsigned blocksHeight = Max(ddsd.dwHeight_ >> level, 1U);
+						dataSize = (ddsd.ddpfPixelFormat_.dwRGBBitCount_ / 8) * blocksWide * blocksHeight * Max(ddsd.dwDepth_ >> level, 1U);
+					}
+					D3DLOCKED_RECT lrc;
+					if (cubemap_)
+					{
+						ResourceMgr::getSingleton().EnterDeviceSection();
+						lrc = boost::static_pointer_cast<CubeTexture>(res)->LockRect((D3DCUBEMAP_FACES)faceIndex, NULL, 0, level);
+						ResourceMgr::getSingleton().LeaveDeviceSection();
+					}
+					else
+					{
+						ResourceMgr::getSingleton().EnterDeviceSection();
+						lrc = boost::static_pointer_cast<Texture2D>(res)->LockRect(NULL, 0, level);
+						ResourceMgr::getSingleton().LeaveDeviceSection();
+					}
+					ifs->read(lrc.pBits, dataSize);
+					if (cubemap_)
+					{
+						ResourceMgr::getSingleton().EnterDeviceSection();
+						boost::static_pointer_cast<CubeTexture>(res)->UnlockRect((D3DCUBEMAP_FACES)faceIndex, level);
+						ResourceMgr::getSingleton().LeaveDeviceSection();
+					}
+					else
+					{
+						ResourceMgr::getSingleton().EnterDeviceSection();
+						boost::static_pointer_cast<Texture2D>(res)->UnlockRect(level);
+						ResourceMgr::getSingleton().LeaveDeviceSection();
+					}
+				}
+			}
+			m_res = res;
+
+			//// Do not use a shared ptr here, in case nothing is refcounting the image outside this function.
+			//// A raw pointer is fine as the image chain (if needed) uses shared ptr's properly
+			//Image* currentImage = this;
+
+			//for (unsigned faceIndex = 0; faceIndex < imageChainCount; ++faceIndex)
+			//{
+			//	currentImage->data_ = new unsigned char[dataSize];
+			//	currentImage->cubemap_ = cubemap_;
+			//	currentImage->array_ = array_;
+			//	currentImage->components_ = components_;
+			//	currentImage->compressedFormat_ = compressedFormat_;
+			//	currentImage->width_ = ddsd.dwWidth_;
+			//	currentImage->height_ = ddsd.dwHeight_;
+			//	currentImage->depth_ = ddsd.dwDepth_;
+
+			//	currentImage->numCompressedLevels_ = ddsd.dwMipMapCount_;
+			//	if (!currentImage->numCompressedLevels_)
+			//		currentImage->numCompressedLevels_ = 1;
+
+			//	// Memory use needs to be exact per image as it's used for verifying the data size in GetCompressedLevel()
+			//	// even though it would be more proper for the first image to report the size of all siblings combined
+			//	currentImage->SetMemoryUse(dataSize);
+
+			//	source.Read(currentImage->data_.Get(), dataSize);
+
+			//	if (faceIndex < imageChainCount - 1)
+			//	{
+			//		// Build the image chain
+			//		SharedPtr<Image> nextImage(new Image(context_));
+			//		currentImage->nextSibling_ = nextImage;
+			//		currentImage = nextImage;
+			//	}
+			//}
+		}
+		else
+		{
+			int x, y, n;
+			ifs->seek(SEEK_SET, 0);
+			CachePtr cache = ifs->GetWholeCache();
+			boost::shared_ptr<unsigned char> pixel(stbi_load_from_memory(cache->data(), cache->size(), &x, &y, &n, 0), stbi_image_free);
+			Texture2DPtr res(new Texture2D());
+			if (pixel && n == 4)
+			{
+				ResourceMgr::getSingleton().EnterDeviceSection();
+				res->CreateTexture(x, y, 1, 0, D3DFMT_A8R8G8B8, D3DPOOL_MANAGED);
+				D3DLOCKED_RECT lrc = res->LockRect();
+				ResourceMgr::getSingleton().LeaveDeviceSection();
+
+				for (int i = 0; i < y; i++)
+				{
+					for (int j = 0; j < x; j++)
+					{
+						unsigned char* src = pixel.get() + i * x * n + j * n;
+						unsigned char* dst = (unsigned char*)lrc.pBits + i * lrc.Pitch + j * 4;
+						*(DWORD*)dst = D3DCOLOR_ARGB(src[3], src[0], src[1], src[2]);
+					}
+				}
+
+				ResourceMgr::getSingleton().EnterDeviceSection();
+				res->UnlockRect();
+				ResourceMgr::getSingleton().LeaveDeviceSection();
+				m_res = res;
+			}
+			else if (pixel && n == 3)
+			{
+				ResourceMgr::getSingleton().EnterDeviceSection();
+				res->CreateTexture(x, y, 1, 0, D3DFMT_X8R8G8B8, D3DPOOL_MANAGED);
+				D3DLOCKED_RECT lrc = res->LockRect();
+				ResourceMgr::getSingleton().LeaveDeviceSection();
+
+				for (int i = 0; i < y; i++)
+				{
+					for (int j = 0; j < x; j++)
+					{
+						unsigned char* src = pixel.get() + i * x * n + j * n;
+						unsigned char* dst = (unsigned char*)lrc.pBits + i * lrc.Pitch + j * 4;
+						*(DWORD*)dst = D3DCOLOR_XRGB(src[0], src[1], src[2]);
+					}
+				}
+
+				ResourceMgr::getSingleton().EnterDeviceSection();
+				res->UnlockRect();
+				ResourceMgr::getSingleton().LeaveDeviceSection();
+				m_res = res;
+			}
+		}
 	}
 }
 
 void TextureIORequest::CreateResource(LPDIRECT3DDEVICE9 pd3dDevice)
 {
-	if(!m_cache)
+	if (!m_res)
 	{
 		THROW_CUSEXCEPTION(str_printf("failed open %s", m_path.c_str()));
 	}
-	D3DXIMAGE_INFO imif;
-	HRESULT hr = D3DXGetImageInfoFromFileInMemory(&(*m_cache)[0], m_cache->size(), &imif);
-	if(FAILED(hr))
-	{
-		THROW_D3DEXCEPTION(hr);
-	}
-	switch(imif.ResourceType)
-	{
-	case D3DRTYPE_TEXTURE:
-		{
-			Texture2DPtr res(new Texture2D());
-			res->CreateTextureFromFileInMemory(&(*m_cache)[0], m_cache->size());
-			m_res = res;
-		}
-		break;
-	case D3DRTYPE_CUBETEXTURE:
-		{
-			CubeTexturePtr res(new CubeTexture());
-			res->CreateCubeTextureFromFileInMemory(&(*m_cache)[0], m_cache->size());
-			m_res = res;
-		}
-		break;
-	default:
-		THROW_CUSEXCEPTION(str_printf("unsupported d3d texture format %u", imif.ResourceType));
-	}
+	//if(!m_cache)
+	//{
+	//	THROW_CUSEXCEPTION(str_printf("failed open %s", m_path.c_str()));
+	//}
+	//D3DXIMAGE_INFO imif;
+	//HRESULT hr = D3DXGetImageInfoFromFileInMemory(&(*m_cache)[0], m_cache->size(), &imif);
+	//if(FAILED(hr))
+	//{
+	//	THROW_D3DEXCEPTION(hr);
+	//}
+	//switch(imif.ResourceType)
+	//{
+	//case D3DRTYPE_TEXTURE:
+	//	{
+	//		Texture2DPtr res(new Texture2D());
+	//		res->CreateTextureFromFileInMemory(&(*m_cache)[0], m_cache->size());
+	//		m_res = res;
+	//	}
+	//	break;
+	//case D3DRTYPE_CUBETEXTURE:
+	//	{
+	//		CubeTexturePtr res(new CubeTexture());
+	//		res->CreateCubeTextureFromFileInMemory(&(*m_cache)[0], m_cache->size());
+	//		m_res = res;
+	//	}
+	//	break;
+	//default:
+	//	THROW_CUSEXCEPTION(str_printf("unsupported d3d texture format %u", imif.ResourceType));
+	//}
 }
 
 MeshIORequest::MeshIORequest(const char * path, int Priority)

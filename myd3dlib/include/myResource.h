@@ -514,8 +514,6 @@ namespace my
 	protected:
 		std::string m_path;
 
-		CachePtr m_cache;
-
 	public:
 		TextureIORequest(const char * path, int Priority)
 			: IORequest(Priority)

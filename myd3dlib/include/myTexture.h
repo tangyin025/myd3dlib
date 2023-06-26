@@ -130,7 +130,7 @@ namespace my
 
 		CComPtr<IDirect3DSurface9> GetSurfaceLevel(UINT Level = 0);
 
-		D3DLOCKED_RECT LockRect(const RECT *pRect, DWORD Flags = 0, UINT Level = 0);
+		D3DLOCKED_RECT LockRect(const RECT *pRect = NULL, DWORD Flags = 0, UINT Level = 0);
 
 		void UnlockRect(UINT Level = 0);
 	};
