@@ -18,7 +18,6 @@
 #include <boost/algorithm/string.hpp>
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
-#include <boost/multi_array.hpp>
 
 using namespace my;
 
@@ -505,7 +504,9 @@ void AsynchronousIOMgr::StartIORequestProc(LONG lMaximumCount)
 	for (int i = 0; i < lMaximumCount; i++)
 	{
 		ThreadPtr thread(new Thread(boost::bind(&AsynchronousIOMgr::IORequestProc, this)));
-		thread->CreateThread(0);
+		thread->CreateThread(CREATE_SUSPENDED);
+		thread->SetThreadPriority(THREAD_PRIORITY_LOWEST);
+		thread->ResumeThread();
 		m_Threads.push_back(thread);
 	}
 }
