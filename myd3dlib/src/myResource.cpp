@@ -1121,14 +1121,14 @@ void TextureIORequest::LoadResource(void)
 			{
 				res.reset(new CubeTexture());
 				ResourceMgr::getSingleton().EnterDeviceSection();
-				boost::static_pointer_cast<CubeTexture>(res)->CreateCubeTexture(ddsd.dwWidth_, ddsd.dwMipMapCount_, 0, fmt, D3DPOOL_MANAGED);
+				boost::static_pointer_cast<CubeTexture>(res)->CreateCubeTexture(ddsd.dwWidth_, Max(ddsd.dwMipMapCount_, 1U), 0, fmt, D3DPOOL_MANAGED);
 				ResourceMgr::getSingleton().LeaveDeviceSection();
 			}
 			else
 			{
 				res.reset(new Texture2D());
 				ResourceMgr::getSingleton().EnterDeviceSection();
-				boost::static_pointer_cast<Texture2D>(res)->CreateTexture(ddsd.dwWidth_, ddsd.dwHeight_, ddsd.dwMipMapCount_, 0, fmt, D3DPOOL_MANAGED);
+				boost::static_pointer_cast<Texture2D>(res)->CreateTexture(ddsd.dwWidth_, ddsd.dwHeight_, Max(ddsd.dwMipMapCount_, 1U), 0, fmt, D3DPOOL_MANAGED);
 				ResourceMgr::getSingleton().LeaveDeviceSection();
 			}
 
