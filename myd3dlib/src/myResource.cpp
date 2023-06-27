@@ -1201,9 +1201,15 @@ void TextureIORequest::LoadResource(void)
 				res->CreateTexture(x, y, 0, 0, D3DFMT_X8R8G8B8, D3DPOOL_MANAGED);
 				ResourceMgr::getSingleton().LeaveDeviceSection();
 			}
+			else if (n == 1)
+			{
+				ResourceMgr::getSingleton().EnterDeviceSection();
+				res->CreateTexture(x, y, 0, 0, D3DFMT_L8, D3DPOOL_MANAGED);
+				ResourceMgr::getSingleton().LeaveDeviceSection();
+			}
 			else
 			{
-				THROW_CUSEXCEPTION("stbi_load_from_memory n != 4 && n != 3");
+				THROW_CUSEXCEPTION("stbi_load_from_memory n != 4 && n != 3 && n != 1");
 			}
 
 			unsigned dwMipMapCount = res->GetLevelCount();
@@ -1230,11 +1236,21 @@ void TextureIORequest::LoadResource(void)
 					for (int j = 0; j < blocksWide; j++)
 					{
 						unsigned char* src = (level > 0 ? buff.get() : pixel.get()) + i * blocksWide * n + j * n;
-						unsigned char* dst = (unsigned char*)lrc.pBits + i * lrc.Pitch + j * 4;
-						if (n == 4)
+						unsigned char* dst = (unsigned char*)lrc.pBits + i * lrc.Pitch + j * (n == 1 ? 1 : 4);
+						switch (n)
+						{
+						case 4:
 							*(DWORD*)dst = D3DCOLOR_ARGB(src[3], src[0], src[1], src[2]);
-						else
+							break;
+						case 3:
 							*(DWORD*)dst = D3DCOLOR_XRGB(src[0], src[1], src[2]);
+							break;
+						case 1:
+							*dst = src[0];
+							break;
+						default:
+							_ASSERT(false);
+						}
 					}
 				}
 
