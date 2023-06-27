@@ -1064,6 +1064,7 @@ void TextureIORequest::LoadResource(void)
 					sRGB_ = true;
 				}
 			}
+
 			D3DFORMAT fmt = D3DFMT_UNKNOWN;
 			switch (fourCC)
 			{
@@ -1080,12 +1081,22 @@ void TextureIORequest::LoadResource(void)
 				break;
 
 			case 0:
-				if (ddsd.ddpfPixelFormat_.dwRGBBitCount_ != 32 && ddsd.ddpfPixelFormat_.dwRGBBitCount_ != 24 &&
-					ddsd.ddpfPixelFormat_.dwRGBBitCount_ != 16)
+				if (ddsd.ddpfPixelFormat_.dwRGBBitCount_ == 32)
+				{
+					fmt = D3DFMT_A8R8G8B8;
+				}
+				else if (ddsd.ddpfPixelFormat_.dwRGBBitCount_ == 24)
+				{
+					fmt = D3DFMT_X8R8G8B8;
+				}
+				else if (ddsd.ddpfPixelFormat_.dwRGBBitCount_ == 8)
+				{
+					fmt = D3DFMT_L8;
+				}
+				else
 				{
 					THROW_CUSEXCEPTION("Unsupported DDS pixel byte size");
 				}
-				fmt = D3DFMT_A8R8G8B8;
 				break;
 
 			default:
@@ -1125,26 +1136,6 @@ void TextureIORequest::LoadResource(void)
 			{
 				for (unsigned level = 0; level < Max(ddsd.dwMipMapCount_, 1U); level++)
 				{
-					// Calculate mip data size
-					unsigned dataSize = 0;
-					if (fmt != D3DFMT_A8R8G8B8)
-					{
-						//const unsigned blockSize = compressedFormat_ == CF_DXT1 ? 8 : 16; //DXT1/BC1 is 8 bytes, DXT3/BC2 and DXT5/BC3 are 16 bytes
-						const unsigned blockSize = fmt == D3DFMT_DXT1 ? 8 : 16; //DXT1/BC1 is 8 bytes, DXT3/BC2 and DXT5/BC3 are 16 bytes
-						// Add 3 to ensure valid block: ie 2x2 fits uses a whole 4x4 block
-						unsigned blocksWide = (Max(ddsd.dwWidth_ >> level, 1U) + 3) / 4;
-						unsigned blocksHeight = (Max(ddsd.dwHeight_ >> level, 1U) + 3) / 4;
-						dataSize = blocksWide * blocksHeight * blockSize;
-						if (level > 0)
-							dataSize *= Max(ddsd.dwDepth_ >> level, 1U);
-					}
-					else
-					{
-						unsigned blocksWide = Max(ddsd.dwWidth_ >> level, 1U);
-						unsigned blocksHeight = Max(ddsd.dwHeight_ >> level, 1U);
-						dataSize = (ddsd.ddpfPixelFormat_.dwRGBBitCount_ / 8) * blocksWide * blocksHeight * Max(ddsd.dwDepth_ >> level, 1U);
-					}
-
 					D3DLOCKED_RECT lrc;
 					if (cubemap_)
 					{
@@ -1159,7 +1150,43 @@ void TextureIORequest::LoadResource(void)
 						ResourceMgr::getSingleton().LeaveDeviceSection();
 					}
 
-					ifs->read(lrc.pBits, dataSize);
+					// Calculate mip data size
+					unsigned dataSize = 0;
+					if (fmt == D3DFMT_DXT1 || fmt == D3DFMT_DXT3 || fmt == D3DFMT_DXT5)
+					{
+						//const unsigned blockSize = compressedFormat_ == CF_DXT1 ? 8 : 16; //DXT1/BC1 is 8 bytes, DXT3/BC2 and DXT5/BC3 are 16 bytes
+						const unsigned blockSize = fmt == D3DFMT_DXT1 ? 8 : 16; //DXT1/BC1 is 8 bytes, DXT3/BC2 and DXT5/BC3 are 16 bytes
+						// Add 3 to ensure valid block: ie 2x2 fits uses a whole 4x4 block
+						unsigned blocksWide = (Max(ddsd.dwWidth_ >> level, 1U) + 3) / 4;
+						unsigned blocksHeight = (Max(ddsd.dwHeight_ >> level, 1U) + 3) / 4;
+						dataSize = blocksWide * blocksHeight * blockSize;
+						if (level > 0)
+							dataSize *= Max(ddsd.dwDepth_ >> level, 1U);
+						ifs->read(lrc.pBits, dataSize);
+					}
+					else if (fmt == D3DFMT_A8R8G8B8 || fmt == D3DFMT_L8)
+					{
+						unsigned blocksWide = Max(ddsd.dwWidth_ >> level, 1U);
+						unsigned blocksHeight = Max(ddsd.dwHeight_ >> level, 1U);
+						dataSize = (ddsd.ddpfPixelFormat_.dwRGBBitCount_ / 8) * blocksWide * blocksHeight * Max(ddsd.dwDepth_ >> level, 1U);
+						ifs->read(lrc.pBits, dataSize);
+					}
+					else
+					{
+						_ASSERT(fmt == D3DFMT_X8R8G8B8 && ddsd.ddpfPixelFormat_.dwRGBBitCount_ == 24);
+						unsigned blocksWide = Max(ddsd.dwWidth_ >> level, 1U);
+						unsigned blocksHeight = Max(ddsd.dwHeight_ >> level, 1U);
+						for (int i = 0; i < blocksHeight; i++)
+						{
+							for (int j = 0; j < blocksWide; j++)
+							{
+								unsigned char src[3];
+								ifs->read(src, sizeof(src));
+								unsigned char* dst = (unsigned char*)lrc.pBits + i * lrc.Pitch + j * 4;
+								*(DWORD*)dst = D3DCOLOR_XRGB(src[2], src[1], src[0]);
+							}
+						}
+					}
 
 					if (cubemap_)
 					{
