@@ -500,38 +500,40 @@ void CChildView::RenderSelectedComponent(IDirect3DDevice9 * pd3dDevice, Componen
 			ASSERT(pFrame->m_selactors.size() >= 1 && pFrame->m_selcmp == cmp);
 			StaticEmitter * static_emit_cmp = dynamic_cast<StaticEmitter *>(cmp);
 			StaticEmitter::ChunkMap::const_iterator chunk_iter = static_emit_cmp->m_Chunks.find(std::make_pair(pFrame->m_selchunkid.x, pFrame->m_selchunkid.y));
-			ASSERT(chunk_iter != static_emit_cmp->m_Chunks.end());
-			PushLineAABB(chunk_iter->second.m_OctAabb->transform(cmp->m_Actor->m_World), D3DCOLOR_ARGB(255, 255, 0, 255));
-			if (chunk_iter->second.m_buff && pFrame->m_selinstid < chunk_iter->second.m_buff->size())
+			if (chunk_iter != static_emit_cmp->m_Chunks.end())
 			{
-				const my::Emitter::Particle & particle = (*chunk_iter->second.m_buff)[pFrame->m_selinstid];
-				my::Matrix4 p2World;
-				switch (static_emit_cmp->m_EmitterSpaceType)
+				PushLineAABB(chunk_iter->second.m_OctAabb->transform(cmp->m_Actor->m_World), D3DCOLOR_ARGB(255, 255, 0, 255));
+				if (chunk_iter->second.m_buff && pFrame->m_selinstid < chunk_iter->second.m_buff->size())
 				{
-				case EmitterComponent::SpaceTypeWorld:
-					p2World = GetParticleTransform(static_emit_cmp->m_EmitterFaceType, particle, my::Matrix4::Identity(), m_Camera->m_View);
-					break;
-				case EmitterComponent::SpaceTypeLocal:
-					p2World = GetParticleTransform(static_emit_cmp->m_EmitterFaceType, particle, static_emit_cmp->m_Actor->m_World, m_Camera->m_View);
-					break;
+					const my::Emitter::Particle& particle = (*chunk_iter->second.m_buff)[pFrame->m_selinstid];
+					my::Matrix4 p2World;
+					switch (static_emit_cmp->m_EmitterSpaceType)
+					{
+					case EmitterComponent::SpaceTypeWorld:
+						p2World = GetParticleTransform(static_emit_cmp->m_EmitterFaceType, particle, my::Matrix4::Identity(), m_Camera->m_View);
+						break;
+					case EmitterComponent::SpaceTypeLocal:
+						p2World = GetParticleTransform(static_emit_cmp->m_EmitterFaceType, particle, static_emit_cmp->m_Actor->m_World, m_Camera->m_View);
+						break;
+					}
+					void* pvb = theApp.m_ParticleVb.Lock(0, 0, D3DLOCK_READONLY);
+					void* pib = theApp.m_ParticleIb.Lock(0, 0, D3DLOCK_READONLY);
+					for (int i = 0; i < RenderPipeline::m_ParticlePrimitiveInfo[static_emit_cmp->m_EmitterPrimitiveType][RenderPipeline::ParticlePrimitivePrimitiveCount]; i++)
+					{
+						unsigned short* pi = (unsigned short*)pib + RenderPipeline::m_ParticlePrimitiveInfo[static_emit_cmp->m_EmitterPrimitiveType][RenderPipeline::ParticlePrimitiveStartIndex] + i * 3;
+						unsigned char* pv0 = (unsigned char*)pvb + *(pi + 0) * theApp.m_ParticleVertStride;
+						unsigned char* pv1 = (unsigned char*)pvb + *(pi + 1) * theApp.m_ParticleVertStride;
+						unsigned char* pv2 = (unsigned char*)pvb + *(pi + 2) * theApp.m_ParticleVertStride;
+						my::Vector3 v0 = theApp.m_ParticleVertElems.GetPosition(pv0).transformCoord(p2World);
+						my::Vector3 v1 = theApp.m_ParticleVertElems.GetPosition(pv1).transformCoord(p2World);
+						my::Vector3 v2 = theApp.m_ParticleVertElems.GetPosition(pv2).transformCoord(p2World);
+						PushLine(v0, v1, color);
+						PushLine(v1, v2, color);
+						PushLine(v2, v0, color);
+					}
+					theApp.m_ParticleVb.Unlock();
+					theApp.m_ParticleIb.Unlock();
 				}
-				void* pvb = theApp.m_ParticleVb.Lock(0, 0, D3DLOCK_READONLY);
-				void* pib = theApp.m_ParticleIb.Lock(0, 0, D3DLOCK_READONLY);
-				for (int i = 0; i < RenderPipeline::m_ParticlePrimitiveInfo[static_emit_cmp->m_EmitterPrimitiveType][RenderPipeline::ParticlePrimitivePrimitiveCount]; i++)
-				{
-					unsigned short* pi = (unsigned short*)pib + RenderPipeline::m_ParticlePrimitiveInfo[static_emit_cmp->m_EmitterPrimitiveType][RenderPipeline::ParticlePrimitiveStartIndex] + i * 3;
-					unsigned char* pv0 = (unsigned char*)pvb + *(pi + 0) * theApp.m_ParticleVertStride;
-					unsigned char* pv1 = (unsigned char*)pvb + *(pi + 1) * theApp.m_ParticleVertStride;
-					unsigned char* pv2 = (unsigned char*)pvb + *(pi + 2) * theApp.m_ParticleVertStride;
-					my::Vector3 v0 = theApp.m_ParticleVertElems.GetPosition(pv0).transformCoord(p2World);
-					my::Vector3 v1 = theApp.m_ParticleVertElems.GetPosition(pv1).transformCoord(p2World);
-					my::Vector3 v2 = theApp.m_ParticleVertElems.GetPosition(pv2).transformCoord(p2World);
-					PushLine(v0, v1, color);
-					PushLine(v1, v2, color);
-					PushLine(v2, v0, color);
-				}
-				theApp.m_ParticleVb.Unlock();
-				theApp.m_ParticleIb.Unlock();
 			}
 		}
 		break;
