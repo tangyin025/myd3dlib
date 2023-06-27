@@ -400,9 +400,10 @@ CMainFrame::CMainFrame()
 	, m_PaintMode(PaintModeGreater)
 	, m_PaintRadius(5.0f)
 	, m_PaintHeight(5.0f)
-	, m_PaintColor(1.0f, 0.0f, 0.0f, 1.0f)
+	, m_PaintColor(1.0f, 1.0f, 1.0f, 1.0f)
 	, m_PaintEmitterSiblingId(0)
 	, m_PaintParticleMinDist(1.0f)
+	, m_PaintParticleAngle(0.0f, 0.0f)
 	, m_RenderingView(NULL)
 {
 	// TODO: add member initialization code here

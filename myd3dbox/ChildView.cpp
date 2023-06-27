@@ -2931,7 +2931,9 @@ void CChildView::OnPaintEmitterInstance(const my::Ray& ray, TerrainStream& tstr,
 			float LocalPaintParticleMinDist = pFrame->m_PaintParticleMinDist / tstr.m_terrain->m_Actor->m_Scale.x;
 			if (LocalPaintParticleMinDist <= 0)
 			{
-				estr.Spawn(my::Vector4(pt.x, tstr.RayTest2D(pt.x, pt.z), pt.z, 1.0f), my::Vector4(0, 0, 0, 1), (my::Vector4&)pFrame->m_PaintColor, my::Vector2(1, 1), 0.0f, 0.0f);
+				const my::Vector3 emit_pos(pt.xz(), tstr.RayTest2D(pt.x, pt.z));
+				estr.Spawn(my::Vector4(emit_pos, 1.0f), my::Vector4(0, 0, 0, 1), (my::Vector4&)pFrame->m_PaintColor,
+					my::Vector2(1, 1), D3DXToRadian(my::Random(pFrame->m_PaintParticleAngle.x, pFrame->m_PaintParticleAngle.y)), 0.0f);
 				return;
 			}
 
@@ -2939,7 +2941,9 @@ void CChildView::OnPaintEmitterInstance(const my::Ray& ray, TerrainStream& tstr,
 			my::Emitter::Particle* particle = estr.GetFirstNearParticle2D(pt, LocalPaintParticleMinDist);
 			if (!particle)
 			{
-				estr.Spawn(my::Vector4(pt.x, tstr.RayTest2D(pt.x, pt.z), pt.z, 1.0f), my::Vector4(0, 0, 0, 1), (my::Vector4&)pFrame->m_PaintColor, my::Vector2(1, 1), 0.0f, 0.0f);
+				const my::Vector3 emit_pos(pt.xz(), tstr.RayTest2D(pt.x, pt.z));
+				estr.Spawn(my::Vector4(emit_pos, 1.0f), my::Vector4(0, 0, 0, 1), (my::Vector4&)pFrame->m_PaintColor,
+					my::Vector2(1, 1), D3DXToRadian(my::Random(pFrame->m_PaintParticleAngle.x, pFrame->m_PaintParticleAngle.y)), 0.0f);
 				candidate.push_back(my::Vector2(pt.x, pt.z));
 			}
 			else
@@ -2959,10 +2963,11 @@ void CChildView::OnPaintEmitterInstance(const my::Ray& ray, TerrainStream& tstr,
 					{
 						if (!estr.GetFirstNearParticle2D(my::Vector3(rand_pos.x, 0, rand_pos.y), LocalPaintParticleMinDist))
 						{
-							my::Vector3 emit_pos(rand_pos, tstr.RayTest2D(rand_pos.x, rand_pos.y));
+							const my::Vector3 emit_pos(rand_pos, tstr.RayTest2D(rand_pos.x, rand_pos.y));
 							if (estr.m_emit->Intersect(emit_pos))
 							{
-								estr.Spawn(my::Vector4(emit_pos, 1.0f), my::Vector4(0, 0, 0, 1), (my::Vector4&)pFrame->m_PaintColor, my::Vector2(1, 1), 0.0f, 0.0f);
+								estr.Spawn(my::Vector4(emit_pos, 1.0f), my::Vector4(0, 0, 0, 1), (my::Vector4&)pFrame->m_PaintColor,
+									my::Vector2(1, 1), D3DXToRadian(my::Random(pFrame->m_PaintParticleAngle.x, pFrame->m_PaintParticleAngle.y)), 0.0f);
 								candidate.push_back(rand_pos);
 							}
 						}

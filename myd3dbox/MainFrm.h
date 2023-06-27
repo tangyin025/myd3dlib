@@ -109,6 +109,7 @@ public:
 	D3DXCOLOR m_PaintColor;
 	int m_PaintEmitterSiblingId;
 	float m_PaintParticleMinDist;
+	my::Vector2 m_PaintParticleAngle;
 	//EmitterComponentPtr m_emitter;
 	my::EventSignal m_EventSelectionChanged;
 	my::EventSignal m_EventSelectionPlaying;

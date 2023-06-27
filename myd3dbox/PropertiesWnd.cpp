@@ -2857,6 +2857,8 @@ void CPropertiesWnd::UpdatePropertiesPaintTool(Actor* actor)
 		&& actor->m_Cmps[pFrame->m_PaintEmitterSiblingId]->GetComponentType() == Component::ComponentTypeStaticEmitter ? ms2ts(actor->m_Cmps[pFrame->m_PaintEmitterSiblingId]->GetName()) : _T("");
 	pPaint->GetSubItem(7)->SetValue((_variant_t)emit_name.c_str());
 	pPaint->GetSubItem(8)->SetValue((_variant_t)pFrame->m_PaintParticleMinDist);
+	pPaint->GetSubItem(9)->GetSubItem(0)->SetValue((_variant_t)pFrame->m_PaintParticleAngle.x);
+	pPaint->GetSubItem(9)->GetSubItem(1)->SetValue((_variant_t)pFrame->m_PaintParticleAngle.y);
 }
 
 void CPropertiesWnd::CreatePropertiesPaintTool(Actor* actor)
@@ -2909,6 +2911,13 @@ void CPropertiesWnd::CreatePropertiesPaintTool(Actor* actor)
 
 	pProp = new CSimpleProp(_T("ParticleMinDist"), (_variant_t)pFrame->m_PaintParticleMinDist, NULL, PropertyPaintParticleMinDist);
 	pPaint->AddSubItem(pProp);
+
+	CMFCPropertyGridProperty* pParticleAngle = new CSimpleProp(_T("ParticleAngle"), PropertyPaintParticleAngle, TRUE);
+	pPaint->AddSubItem(pParticleAngle);
+	pProp = new CSimpleProp(_T("min"), (_variant_t)pFrame->m_PaintParticleAngle.x, NULL, PropertyPaintParticleAngleMin);
+	pParticleAngle->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("max"), (_variant_t)pFrame->m_PaintParticleAngle.y, NULL, PropertyPaintParticleAngleMax);
+	pParticleAngle->AddSubItem(pProp);
 }
 
 int CPropertiesWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
@@ -4161,6 +4170,26 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	case PropertyPaintParticleMinDist:
 	{
 		pFrame->m_PaintParticleMinDist = pProp->GetValue().fltVal;
+		my::EventArg arg;
+		pFrame->m_EventAttributeChanged(&arg);
+		break;
+	}
+	case PropertyPaintParticleAngle:
+	case PropertyPaintParticleAngleMin:
+	case PropertyPaintParticleAngleMax:
+	{
+		CMFCPropertyGridProperty* pParticleAngle = NULL;
+		switch (PropertyId)
+		{
+		case PropertyPaintParticleAngle:
+			pParticleAngle = pProp;
+			break;
+		default:
+			pParticleAngle = pProp->GetParent();
+			break;
+		}
+		pFrame->m_PaintParticleAngle.x = pParticleAngle->GetSubItem(0)->GetValue().fltVal;
+		pFrame->m_PaintParticleAngle.y = pParticleAngle->GetSubItem(1)->GetValue().fltVal;
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
