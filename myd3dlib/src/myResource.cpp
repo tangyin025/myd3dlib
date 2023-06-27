@@ -436,8 +436,17 @@ DWORD AsynchronousIOMgr::IORequestProc(void)
 
 			m_IORequestListMutex.Release();
 
-			// ! HAVENT HANDLED EXCEPTION YET
-			priority_req->LoadResource();
+			try
+			{
+				// ! HAVENT HANDLED EXCEPTION YET
+				priority_req->LoadResource();
+			}
+			catch (const my::Exception& e)
+			{
+			}
+			catch (const std::exception& e)
+			{
+			}
 
 			// ! request list will be modified when set event, shared_ptr must be thread safe
 			priority_req->m_PostLoadEvent.SetEvent();
@@ -1043,9 +1052,7 @@ void TextureIORequest::LoadResource(void)
 					fourCC = 0;
 					break;
 				default:
-					//URHO3D_LOGERROR("Unrecognized DDS DXGI image format");
-					//return false;
-					return;
+					THROW_CUSEXCEPTION("Unrecognized DDS DXGI image format");
 				}
 
 				// Check the internal sRGB formats
@@ -1061,55 +1068,28 @@ void TextureIORequest::LoadResource(void)
 			switch (fourCC)
 			{
 			case FOURCC_DXT1:
-				//compressedFormat_ = CF_DXT1;
-				//components_ = 3;
 				fmt = D3DFMT_DXT1;
 				break;
 
 			case FOURCC_DXT3:
-				//compressedFormat_ = CF_DXT3;
-				//components_ = 4;
 				fmt = D3DFMT_DXT3;
 				break;
 
 			case FOURCC_DXT5:
-				//compressedFormat_ = CF_DXT5;
-				//components_ = 4;
 				fmt = D3DFMT_DXT5;
 				break;
-
-			//case FOURCC_ETC1:
-			//	compressedFormat_ = CF_ETC1;
-			//	components_ = 3;
-			//	break;
-
-			//case FOURCC_ETC2:
-			//	compressedFormat_ = CF_ETC2_RGB;
-			//	components_ = 3;
-			//	break;
-
-			//case FOURCC_ETC2A:
-			//	compressedFormat_ = CF_ETC2_RGBA;
-			//	components_ = 4;
-			//	break;
 
 			case 0:
 				if (ddsd.ddpfPixelFormat_.dwRGBBitCount_ != 32 && ddsd.ddpfPixelFormat_.dwRGBBitCount_ != 24 &&
 					ddsd.ddpfPixelFormat_.dwRGBBitCount_ != 16)
 				{
-					//URHO3D_LOGERROR("Unsupported DDS pixel byte size");
-					//return false;
-					return;
+					THROW_CUSEXCEPTION("Unsupported DDS pixel byte size");
 				}
-				//compressedFormat_ = CF_RGBA;
-				//components_ = 4;
 				fmt = D3DFMT_A8R8G8B8;
 				break;
 
 			default:
-				//URHO3D_LOGERROR("Unrecognized DDS image format");
-				//return false;
-				return;
+				THROW_CUSEXCEPTION("Unrecognized DDS image format");
 			}
 
 			// Is it a cube map or texture array? If so determine the size of the image chain.
@@ -1120,8 +1100,9 @@ void TextureIORequest::LoadResource(void)
 				imageChainCount = 6;
 			else if (hasDXGI && dxgiHeader.arraySize > 1)
 			{
-				imageChainCount = dxgiHeader.arraySize;
-				array_ = true;
+				//imageChainCount = dxgiHeader.arraySize;
+				//array_ = true;
+				THROW_CUSEXCEPTION("hasDXGI && dxgiHeader.arraySize > 1");
 			}
 
 			BaseTexturePtr res;
@@ -1139,6 +1120,7 @@ void TextureIORequest::LoadResource(void)
 				boost::static_pointer_cast<Texture2D>(res)->CreateTexture(ddsd.dwWidth_, ddsd.dwHeight_, ddsd.dwMipMapCount_, 0, fmt, D3DPOOL_MANAGED);
 				ResourceMgr::getSingleton().LeaveDeviceSection();
 			}
+
 			for (unsigned faceIndex = 0; faceIndex < imageChainCount; ++faceIndex)
 			{
 				for (unsigned level = 0; level < Max(ddsd.dwMipMapCount_, 1U); level++)
@@ -1162,6 +1144,7 @@ void TextureIORequest::LoadResource(void)
 						unsigned blocksHeight = Max(ddsd.dwHeight_ >> level, 1U);
 						dataSize = (ddsd.ddpfPixelFormat_.dwRGBBitCount_ / 8) * blocksWide * blocksHeight * Max(ddsd.dwDepth_ >> level, 1U);
 					}
+
 					D3DLOCKED_RECT lrc;
 					if (cubemap_)
 					{
@@ -1175,7 +1158,9 @@ void TextureIORequest::LoadResource(void)
 						lrc = boost::static_pointer_cast<Texture2D>(res)->LockRect(NULL, 0, level);
 						ResourceMgr::getSingleton().LeaveDeviceSection();
 					}
+
 					ifs->read(lrc.pBits, dataSize);
+
 					if (cubemap_)
 					{
 						ResourceMgr::getSingleton().EnterDeviceSection();
@@ -1198,22 +1183,28 @@ void TextureIORequest::LoadResource(void)
 			ifs->seek(SEEK_SET, 0);
 			CachePtr cache = ifs->GetWholeCache();
 			boost::shared_ptr<unsigned char> pixel(stbi_load_from_memory(cache->data(), cache->size(), &x, &y, &n, 0), stbi_image_free);
+			if (!pixel)
+			{
+				THROW_CUSEXCEPTION("stbi_load_from_memory failed");
+			}
+
 			Texture2DPtr res(new Texture2D());
-			if (pixel && n == 4)
+			if (n == 4)
 			{
 				ResourceMgr::getSingleton().EnterDeviceSection();
 				res->CreateTexture(x, y, 0, 0, D3DFMT_A8R8G8B8, D3DPOOL_MANAGED);
 				ResourceMgr::getSingleton().LeaveDeviceSection();
 			}
-			else if (pixel && n == 3)
+			else if (n == 3)
 			{
 				ResourceMgr::getSingleton().EnterDeviceSection();
 				res->CreateTexture(x, y, 0, 0, D3DFMT_X8R8G8B8, D3DPOOL_MANAGED);
 				ResourceMgr::getSingleton().LeaveDeviceSection();
 			}
 			else
-				// error
-				return;
+			{
+				THROW_CUSEXCEPTION("stbi_load_from_memory n != 4 && n != 3");
+			}
 
 			unsigned dwMipMapCount = res->GetLevelCount();
 			for (int level = 0; level < Max(dwMipMapCount, 1U); level++)
@@ -1225,8 +1216,9 @@ void TextureIORequest::LoadResource(void)
 				{
 					buff.reset(new unsigned char[blocksWide * blocksHeight * n]);
 					if (0 == stbir_resize_uint8(pixel.get(), x, y, 0, buff.get(), blocksWide, blocksHeight, 0, n))
-						// error
-						return;
+					{
+						THROW_CUSEXCEPTION("stbir_resize_uint8 failed");
+					}
 				}
 
 				ResourceMgr::getSingleton().EnterDeviceSection();
@@ -1275,18 +1267,13 @@ void MeshIORequest::LoadResource(void)
 	{
 		CachePtr cache = ResourceMgr::getSingleton().OpenIStream(m_path.c_str())->GetWholeCache();
 		cache->push_back(0);
-		try
-		{
-			rapidxml::xml_document<char> doc;
-			doc.parse<0>((char *)&(*cache)[0]);
 
-			OgreMeshPtr res(new OgreMesh());
-			res->CreateMeshFromOgreXml(&doc, true, D3DXMESH_MANAGED);
-			m_res = res;
-		}
-		catch(rapidxml::parse_error &)
-		{
-		}
+		rapidxml::xml_document<char> doc;
+		doc.parse<0>((char *)&(*cache)[0]);
+
+		OgreMeshPtr res(new OgreMesh());
+		res->CreateMeshFromOgreXml(&doc, true, D3DXMESH_MANAGED);
+		m_res = res;
 	}
 }
 
@@ -1304,18 +1291,13 @@ void SkeletonIORequest::LoadResource(void)
 	{
 		CachePtr cache = ResourceMgr::getSingleton().OpenIStream(m_path.c_str())->GetWholeCache();
 		cache->push_back(0);
-		try
-		{
-			rapidxml::xml_document<char> doc;
-			doc.parse<0>((char *)&(*cache)[0]);
 
-			OgreSkeletonAnimationPtr res(new OgreSkeletonAnimation());
-			res->CreateOgreSkeletonAnimation(&doc);
-			m_res = res;
-		}
-		catch(rapidxml::parse_error &)
-		{
-		}
+		rapidxml::xml_document<char> doc;
+		doc.parse<0>((char*)&(*cache)[0]);
+
+		OgreSkeletonAnimationPtr res(new OgreSkeletonAnimation());
+		res->CreateOgreSkeletonAnimation(&doc);
+		m_res = res;
 	}
 }
 
