@@ -256,8 +256,8 @@ const char * RenderPipeline::PassTypeToStr(unsigned int pass_type)
 		return "PassTypeShadow";
 	case PassTypeNormal:
 		return "PassTypeNormal";
-	case PassTypeNormalTrans:
-		return "PassTypeNormalTrans";
+	case PassTypeNormalTransparent:
+		return "PassTypeNormalTransparent";
 	case PassTypeLight:
 		return "PassTypeLight";
 	case PassTypeBackground:
@@ -560,11 +560,12 @@ void RenderPipeline::OnRender(
 	RenderAllObjects(pd3dDevice, PassTypeShadow, pRC, fTime, fElapsedTime);
 	ShadowSurf.Release();
 
-	pRC->QueryRenderComponent(Frustum::ExtractMatrix(pRC->m_Camera->m_ViewProj), this, PassTypeToMask(PassTypeNormal) | PassTypeToMask(PassTypeNormalTrans) | PassTypeToMask(PassTypeLight) | PassTypeToMask(PassTypeBackground) | PassTypeToMask(PassTypeOpaque) | PassTypeToMask(PassTypeTransparent));
+	pRC->QueryRenderComponent(Frustum::ExtractMatrix(pRC->m_Camera->m_ViewProj), this, PassTypeToMask(PassTypeNormal) | PassTypeToMask(PassTypeNormalTransparent) | PassTypeToMask(PassTypeLight) | PassTypeToMask(PassTypeBackground) | PassTypeToMask(PassTypeOpaque) | PassTypeToMask(PassTypeTransparent));
 
 	CComPtr<IDirect3DSurface9> NormalSurf = pRC->m_NormalRT->GetSurfaceLevel(0);
 	CComPtr<IDirect3DSurface9> SpecularSurf = pRC->m_SpecularRT->GetSurfaceLevel(0);
 	CComPtr<IDirect3DSurface9> PositionSurf = pRC->m_PositionRT->GetSurfaceLevel(0);
+	CComPtr<IDirect3DSurface9> LightSurf = pRC->m_LightRT->GetSurfaceLevel(0);
 	m_SimpleSample->SetVector(handle_Eye, pRC->m_Camera->m_Eye);
 	m_SimpleSample->SetMatrix(handle_View, pRC->m_Camera->m_View);
 	m_SimpleSample->SetMatrix(handle_ViewProj, pRC->m_Camera->m_ViewProj);
@@ -580,17 +581,14 @@ void RenderPipeline::OnRender(
 	V(pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, 0, 0.0f, 0));
 	RenderAllObjects(pd3dDevice, PassTypeNormal, pRC, fTime, fElapsedTime);
 
-	PositionSurf.Release();
 	m_SimpleSample->SetTexture(handle_PositionRT, pRC->m_PositionRT.get());
 	V(pd3dDevice->SetRenderTarget(2, NULL));
-	RenderAllObjects(pd3dDevice, PassTypeNormalTrans, pRC, fTime, fElapsedTime);
+	RenderAllObjects(pd3dDevice, PassTypeNormalTransparent, pRC, fTime, fElapsedTime);
 
-	NormalSurf.Release();
-	SpecularSurf.Release();
 	m_SimpleSample->SetTexture(handle_NormalRT, pRC->m_NormalRT.get());
 	m_SimpleSample->SetTexture(handle_SpecularRT, pRC->m_SpecularRT.get());
 	m_SimpleSample->SetTexture(handle_PositionRT, pRC->m_PositionRT.get());
-	V(pd3dDevice->SetRenderTarget(0, pRC->m_LightRT->GetSurfaceLevel(0)));
+	V(pd3dDevice->SetRenderTarget(0, LightSurf));
 	V(pd3dDevice->SetRenderTarget(1, NULL));
 	if (pRC->m_SsaoEnable)
 	{
@@ -745,48 +743,39 @@ void RenderPipeline::OnRender(
 		pRC->m_OpaqueRT.Flip();
 	}
 
-	V(pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE));
-	V(pd3dDevice->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID));
-	V(pd3dDevice->SetRenderState(D3DRS_LIGHTING, FALSE));
-	V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE));
-	V(pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE));
-	V(pd3dDevice->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_POINT));
-	V(pd3dDevice->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_POINT));
-	V(pd3dDevice->SetSamplerState(0, D3DSAMP_MIPFILTER, D3DTEXF_NONE));
-	V(pd3dDevice->SetRenderTarget(0, ScreenSurf));
-	V(pd3dDevice->SetVertexShader(NULL));
-	V(pd3dDevice->SetPixelShader(NULL));
 	switch (pRC->m_RTType)
 	{
 	case RenderTargetNormal:
-		V(pd3dDevice->SetTexture(0, pRC->m_NormalRT->m_ptr));
-		V(pd3dDevice->SetFVF(D3DFVF_XYZRHW | D3DFVF_TEX1));
-		V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, quad, sizeof(quad[0])));
+		//V(pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE));
+		//V(pd3dDevice->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID));
+		//V(pd3dDevice->SetRenderState(D3DRS_LIGHTING, FALSE));
+		//V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE));
+		//V(pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE));
+		//V(pd3dDevice->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_POINT));
+		//V(pd3dDevice->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_POINT));
+		//V(pd3dDevice->SetSamplerState(0, D3DSAMP_MIPFILTER, D3DTEXF_NONE));
+		//V(pd3dDevice->SetRenderTarget(0, ScreenSurf));
+		//V(pd3dDevice->SetVertexShader(NULL));
+		//V(pd3dDevice->SetPixelShader(NULL));
+		//V(pd3dDevice->SetTexture(0, pRC->m_NormalRT->m_ptr));
+		//V(pd3dDevice->SetFVF(D3DFVF_XYZRHW | D3DFVF_TEX1));
+		//V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, quad, sizeof(quad[0])));
+		V(pd3dDevice->StretchRect(NormalSurf, NULL, ScreenSurf, NULL, D3DTEXF_NONE));
 		break;
 	case RenderTargetSpecular:
-		V(pd3dDevice->SetTexture(0, pRC->m_SpecularRT->m_ptr));
-		V(pd3dDevice->SetFVF(D3DFVF_XYZRHW | D3DFVF_TEX1));
-		V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, quad, sizeof(quad[0])));
+		V(pd3dDevice->StretchRect(SpecularSurf, NULL, ScreenSurf, NULL, D3DTEXF_NONE));
 		break;
 	case RenderTargetPosition:
-		V(pd3dDevice->SetTexture(0, pRC->m_PositionRT->m_ptr));
-		V(pd3dDevice->SetFVF(D3DFVF_XYZRHW | D3DFVF_TEX1));
-		V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, quad, sizeof(quad[0])));
+		V(pd3dDevice->StretchRect(PositionSurf, NULL, ScreenSurf, NULL, D3DTEXF_NONE));
 		break;
 	case RenderTargetLight:
-		V(pd3dDevice->SetTexture(0, pRC->m_LightRT->m_ptr));
-		V(pd3dDevice->SetFVF(D3DFVF_XYZRHW | D3DFVF_TEX1));
-		V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, quad, sizeof(quad[0])));
+		V(pd3dDevice->StretchRect(LightSurf, NULL, ScreenSurf, NULL, D3DTEXF_NONE));
 		break;
 	case RenderTargetOpaque:
-		V(pd3dDevice->SetTexture(0, pRC->m_OpaqueRT.GetNextSource()->m_ptr));
-		V(pd3dDevice->SetFVF(D3DFVF_XYZRHW | D3DFVF_TEX1));
-		V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, quad, sizeof(quad[0])));
+		V(pd3dDevice->StretchRect(pRC->m_OpaqueRT.GetNextSource()->GetSurfaceLevel(0), NULL, ScreenSurf, NULL, D3DTEXF_NONE));
 		break;
 	case RenderTargetDownFilter:
-		V(pd3dDevice->SetTexture(0, pRC->m_DownFilterRT.GetNextSource()->m_ptr));
-		V(pd3dDevice->SetFVF(D3DFVF_XYZRHW | D3DFVF_TEX1));
-		V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, quad, sizeof(quad[0])));
+		V(pd3dDevice->StretchRect(pRC->m_DownFilterRT.GetNextSource()->GetSurfaceLevel(0), NULL, ScreenSurf, NULL, D3DTEXF_NONE));
 		break;
 	}
 

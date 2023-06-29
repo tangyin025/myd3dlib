@@ -3007,7 +3007,7 @@ void LuaContext::Init(void)
 			[
 				luabind::value("PassTypeShadow", RenderPipeline::PassTypeShadow),
 				luabind::value("PassTypeNormal", RenderPipeline::PassTypeNormal),
-				luabind::value("PassTypeNormalTrans", RenderPipeline::PassTypeNormalTrans),
+				luabind::value("PassTypeNormalTransparent", RenderPipeline::PassTypeNormalTransparent),
 				luabind::value("PassTypeLight", RenderPipeline::PassTypeLight),
 				luabind::value("PassTypeBackground", RenderPipeline::PassTypeBackground),
 				luabind::value("PassTypeOpaque", RenderPipeline::PassTypeOpaque),

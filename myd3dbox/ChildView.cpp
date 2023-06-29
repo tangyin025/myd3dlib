@@ -1467,6 +1467,7 @@ void CChildView::OnPaint()
 				theApp.m_SkyLightCam->UpdateViewProj();
 				theApp.OnRender(theApp.m_d3dDevice, m_SwapChainBuffer->m_ptr, m_DepthStencil->m_ptr, &m_SwapChainBufferDesc, this, theApp.m_fAbsoluteTime, theApp.m_fElapsedTime);
 				V(theApp.m_d3dDevice->GetRenderTargetData(m_PositionRT->GetSurfaceLevel(0), m_OffscreenPositionRT->m_ptr));
+				V(theApp.m_d3dDevice->SetRenderTarget(0, m_SwapChainBuffer->m_ptr));
 
 				swprintf_s(&m_ScrInfo[0][0], m_ScrInfo[0].size(), L"PerformanceSec: %.3f", EndPerformanceCount());
 				for (unsigned int PassID = 0; PassID < RenderPipeline::PassTypeNum; PassID++)

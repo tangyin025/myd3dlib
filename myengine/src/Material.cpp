@@ -361,7 +361,7 @@ void Material::ParseShaderParameters(void)
 	}
 
 	//                             1 2               3                4                     5               6                    7                8                     9                      10
-	boost::regex reg_pass("pass\\s+((PassTypeShadow)|(PassTypeNormal)|(PassTypeNormalTrans)|(PassTypeLight)|(PassTypeBackground)|(PassTypeOpaque)|(PassTypeTransparent))(\\s*<[^>]+>)?\\s*{\\s*(\\w*)[^}]*}");
+	boost::regex reg_pass("pass\\s+((PassTypeShadow)|(PassTypeNormal)|(PassTypeNormalTransparent)|(PassTypeLight)|(PassTypeBackground)|(PassTypeOpaque)|(PassTypeTransparent))(\\s*<[^>]+>)?\\s*{\\s*(\\w*)[^}]*}");
 	start = (const char *)&(*cache)[0];
 	end = (const char *)&(*cache)[cache->size() - 1];
 	m_PassMask = 0;
@@ -386,7 +386,7 @@ void Material::ParseShaderParameters(void)
 		{
 			if (!assignment.empty())
 			{
-				m_PassMask |= 1 << RenderPipeline::PassTypeNormalTrans;
+				m_PassMask |= 1 << RenderPipeline::PassTypeNormalTransparent;
 			}
 		}
 		else if (what[5].matched)

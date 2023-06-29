@@ -327,7 +327,7 @@ public:
 		PassMaskNormalOpaque = 1 << RenderPipeline::PassTypeNormal | 1 << RenderPipeline::PassTypeOpaque,
 		PassMaskShadowNormalOpaque = 1 << RenderPipeline::PassTypeShadow | 1 << RenderPipeline::PassTypeNormal | 1 << RenderPipeline::PassTypeOpaque,
 		PassMaskTransparent = 1 << RenderPipeline::PassTypeTransparent,
-		PassMaskNormalTransparent = 1 << RenderPipeline::PassTypeNormalTrans | 1 << RenderPipeline::PassTypeTransparent,
+		PassMaskNormalTransparent = 1 << RenderPipeline::PassTypeNormalTransparent | 1 << RenderPipeline::PassTypeTransparent,
 	};
 
 	DWORD m_PassMask;

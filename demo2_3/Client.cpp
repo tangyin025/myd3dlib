@@ -1453,6 +1453,7 @@ void Client::OnFrameTick(
 	{
 		RenderPipeline::OnRender(m_d3dDevice, m_BackBuffer, m_DepthStencil, &m_BackBufferSurfaceDesc, this, fTime, fElapsedTime);
 
+		V(m_d3dDevice->SetRenderTarget(0, m_BackBuffer));
 		V(m_d3dDevice->SetVertexShader(NULL));
 		V(m_d3dDevice->SetPixelShader(NULL));
 		V(m_d3dDevice->SetTexture(0, NULL));
