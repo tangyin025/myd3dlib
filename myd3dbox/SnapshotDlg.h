@@ -46,4 +46,5 @@ public:
 	afx_msg void OnClickedButton1();
 	BOOL m_ComponentTypes[Component::ComponentTypeNavigation - Component::ComponentTypeMesh + 1];
 	DWORD m_duDebugDrawPrimitives;
+	int m_RTType;
 };

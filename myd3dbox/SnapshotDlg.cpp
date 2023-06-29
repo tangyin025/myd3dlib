@@ -23,6 +23,7 @@ CSnapshotDlg::CSnapshotDlg(CWnd* pParent /*=nullptr*/)
 	, m_SnapArea(-4096 + 4, -4096 - 4, 4096 + 4, 4096 - 4)
 	, m_SnapEye(0, 0, 0)
 	, m_SnapEular(-90, 0, 0)
+	, m_RTType(RenderPipeline::RenderTargetOpaque)
 {
 	BYTE* pData;
 	UINT n;
@@ -99,6 +100,7 @@ void CSnapshotDlg::DoDataExchange(CDataExchange* pDX)
 		theApp.WriteProfileBinary(_T("Settings"), _T("SnapshotEular"), (LPBYTE)&m_SnapEular, sizeof(m_SnapEular));
 		theApp.WriteProfileBinary(_T("Settings"), _T("SnapshotComponentTypes"), (LPBYTE)&m_ComponentTypes, sizeof(m_ComponentTypes));
 	}
+	DDX_Radio(pDX, IDC_RADIO1, m_RTType);
 }
 
 #define DUCOLOR_TO_D3DCOLOR(col) ((col & 0xff00ff00) | (col & 0x00ff0000) >> 16 | (col & 0x000000ff) << 16)
@@ -330,6 +332,7 @@ void CSnapshotDlg::OnOK()
 		rc.m_OpaqueRT.m_RenderTarget[i]->CreateTexture(
 			desc.Width, desc.Height, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT);
 	}
+	rc.m_RTType = (RenderPipeline::RenderTargetType)m_RTType;
 
 	CWaitCursor wait;
 	theApp.OnRender(theApp.m_d3dDevice, rtsurf, DepthStencil.m_ptr, &desc, &rc, 0, 0);
