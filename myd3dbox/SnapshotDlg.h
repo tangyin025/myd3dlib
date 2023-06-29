@@ -41,6 +41,8 @@ public:
 	int m_TexWidth;
 	int m_TexHeight;
 	my::Rectangle m_SnapArea;
+	my::Vector3 m_SnapEye;
+	my::Vector3 m_SnapEular;
 	afx_msg void OnClickedButton1();
 	BOOL m_ComponentTypes[Component::ComponentTypeNavigation - Component::ComponentTypeMesh + 1];
 	DWORD m_duDebugDrawPrimitives;
