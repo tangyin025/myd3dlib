@@ -415,6 +415,11 @@ HRESULT RenderPipeline::OnCreateDevice(
 	BOOST_VERIFY(handle_FogStartDistance = m_FogEffect->GetParameterByName(NULL, "g_StartDistance"));
 	BOOST_VERIFY(handle_FogHeight = m_FogEffect->GetParameterByName(NULL, "g_FogHeight"));
 	BOOST_VERIFY(handle_FogFalloff = m_FogEffect->GetParameterByName(NULL, "g_Falloff"));
+
+	if (!(m_NormalCvt = my::ResourceMgr::getSingleton().LoadEffect("shader/NormalCvt.fx", "")))
+	{
+		THROW_CUSEXCEPTION("create m_NormalCvt failed");
+	}
 	return S_OK;
 }
 
@@ -746,21 +751,17 @@ void RenderPipeline::OnRender(
 	switch (pRC->m_RTType)
 	{
 	case RenderTargetNormal:
-		//V(pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE));
-		//V(pd3dDevice->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID));
-		//V(pd3dDevice->SetRenderState(D3DRS_LIGHTING, FALSE));
-		//V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE));
-		//V(pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE));
-		//V(pd3dDevice->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_POINT));
-		//V(pd3dDevice->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_POINT));
-		//V(pd3dDevice->SetSamplerState(0, D3DSAMP_MIPFILTER, D3DTEXF_NONE));
-		//V(pd3dDevice->SetRenderTarget(0, ScreenSurf));
-		//V(pd3dDevice->SetVertexShader(NULL));
-		//V(pd3dDevice->SetPixelShader(NULL));
-		//V(pd3dDevice->SetTexture(0, pRC->m_NormalRT->m_ptr));
-		//V(pd3dDevice->SetFVF(D3DFVF_XYZRHW | D3DFVF_TEX1));
-		//V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, quad, sizeof(quad[0])));
-		V(pd3dDevice->StretchRect(NormalSurf, NULL, ScreenSurf, NULL, D3DTEXF_NONE));
+		//V(pd3dDevice->StretchRect(NormalSurf, NULL, ScreenSurf, NULL, D3DTEXF_NONE));
+		V(pd3dDevice->SetRenderTarget(0, ScreenSurf));
+		V(pd3dDevice->SetFVF(D3DFVF_XYZRHW | D3DFVF_TEX1));
+		V(pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CW));
+		V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE));
+		V(pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE));
+		m_NormalCvt->Begin(D3DXFX_DONOTSAVESTATE | D3DXFX_DONOTSAVESAMPLERSTATE | D3DXFX_DONOTSAVESHADERSTATE);
+		m_NormalCvt->BeginPass(0);
+		V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, quad, sizeof(quad[0])));
+		m_NormalCvt->EndPass();
+		m_NormalCvt->End();
 		break;
 	case RenderTargetSpecular:
 		V(pd3dDevice->StretchRect(SpecularSurf, NULL, ScreenSurf, NULL, D3DTEXF_NONE));

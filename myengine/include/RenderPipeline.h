@@ -213,6 +213,8 @@ public:
 
 	float m_FogFalloff;
 
+	boost::shared_ptr<my::Effect> m_NormalCvt;
+
 	struct RTChain
 	{
 		typedef boost::array<boost::shared_ptr<my::Texture2D>, 2> RTArray;
