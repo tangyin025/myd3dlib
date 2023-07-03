@@ -709,25 +709,28 @@ void OgreSkeletonAnimation::AddOgreSkeletonAnimation(
 			pose.resize(m_boneHierarchy.size(), Bone(Vector3(0, 0, 0)));
 			Bone & bone = pose[name_iter->second];
 
-			rapidxml::xml_attribute<char> * attr_translate_x, *attr_translate_y, *attr_translate_z;
-			float translate_x, translate_y, translate_z;
-			DEFINE_XML_NODE_SIMPLE(translate, keyframe);
-			DEFINE_XML_ATTRIBUTE_FLOAT(translate_x, attr_translate_x, node_translate, x);
-			DEFINE_XML_ATTRIBUTE_FLOAT(translate_y, attr_translate_y, node_translate, y);
-			DEFINE_XML_ATTRIBUTE_FLOAT(translate_z, attr_translate_z, node_translate, z);
+			rapidxml::xml_node<char>* node_translate = node_keyframe->first_node("translate");
+			if (node_translate)
+			{
+				rapidxml::xml_attribute<char>* attr_translate_x, * attr_translate_y, * attr_translate_z;
+				DEFINE_XML_ATTRIBUTE_FLOAT(bone.m_position.x, attr_translate_x, node_translate, x);
+				DEFINE_XML_ATTRIBUTE_FLOAT(bone.m_position.y, attr_translate_y, node_translate, y);
+				DEFINE_XML_ATTRIBUTE_FLOAT(bone.m_position.z, attr_translate_z, node_translate, z);
+			}
 
-			DEFINE_XML_NODE_SIMPLE(rotate, keyframe);
-			DEFINE_XML_ATTRIBUTE_FLOAT_SIMPLE(angle, rotate);
+			rapidxml::xml_node<char>* node_rotate = node_keyframe->first_node("rotate");
+			if (node_rotate)
+			{
+				rapidxml::xml_attribute<char>* attr_axis_x, * attr_axis_y, * attr_axis_z;
+				float axis_x, axis_y, axis_z;
+				DEFINE_XML_ATTRIBUTE_FLOAT_SIMPLE(angle, rotate);
+				DEFINE_XML_NODE_SIMPLE(axis, rotate);
+				DEFINE_XML_ATTRIBUTE_FLOAT(axis_x, attr_axis_x, node_axis, x);
+				DEFINE_XML_ATTRIBUTE_FLOAT(axis_y, attr_axis_y, node_axis, y);
+				DEFINE_XML_ATTRIBUTE_FLOAT(axis_z, attr_axis_z, node_axis, z);
+				bone.m_rotation = Quaternion::RotationAxis(Vector3(axis_x, axis_y, axis_z), angle);
+			}
 
-			rapidxml::xml_attribute<char> * attr_axis_x, *attr_axis_y, *attr_axis_z;
-			float axis_x, axis_y, axis_z;
-			DEFINE_XML_NODE_SIMPLE(axis, rotate);
-			DEFINE_XML_ATTRIBUTE_FLOAT(axis_x, attr_axis_x, node_axis, x);
-			DEFINE_XML_ATTRIBUTE_FLOAT(axis_y, attr_axis_y, node_axis, y);
-			DEFINE_XML_ATTRIBUTE_FLOAT(axis_z, attr_axis_z, node_axis, z);
-
-			bone.m_rotation = Quaternion::RotationAxis(Vector3(axis_x, axis_y, axis_z), angle);
-			bone.m_position = Vector3(translate_x, translate_y, translate_z);
 			bone.IncrementSelf(rhs_base_pose[rhs_name_iter->second]);
 		}
 	}
