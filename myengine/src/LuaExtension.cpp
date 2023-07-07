@@ -91,9 +91,14 @@ static void basetexture_save_texture_to_file(my::BaseTexture* self, const char* 
 	V(D3DXSaveTextureToFile(u8tots(u8_path).c_str(), DestFormat, self->m_ptr, NULL));
 }
 
-static void texture2d_create_texture_from_file(my::Texture2D* self, const char* u8_path)
+static void texture2d_create_texture_from_file(my::Texture2D* self, const char* u8_path, int Width, int Height, int MipLevels, D3DFORMAT Format)
 {
-	self->CreateTextureFromFile(u8tots(u8_path).c_str(), D3DX_DEFAULT_NONPOW2, D3DX_DEFAULT_NONPOW2, D3DX_DEFAULT, 0, D3DFMT_UNKNOWN, D3DPOOL_MANAGED, D3DX_DEFAULT, D3DX_DEFAULT, 0, NULL, NULL);
+//#define D3DX_DEFAULT            ((UINT) -1)
+//#define D3DX_DEFAULT_NONPOW2    ((UINT) -2)
+//#define D3DX_DEFAULT_FLOAT      FLT_MAX
+//#define D3DX_FROM_FILE          ((UINT) -3)
+//#define D3DFMT_FROM_FILE        ((D3DFORMAT) -3)
+	self->CreateTextureFromFile(u8tots(u8_path).c_str(), Width, Height, MipLevels, 0, Format, D3DPOOL_MANAGED, D3DX_DEFAULT, D3DX_DEFAULT, 0, NULL, NULL);
 }
 
 static void texture2d_set_as_render_target(my::Texture2D* self, int target_id)
