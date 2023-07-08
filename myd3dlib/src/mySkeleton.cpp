@@ -730,9 +730,13 @@ void OgreSkeletonAnimation::AddOgreSkeletonAnimation(
 				DEFINE_XML_ATTRIBUTE_FLOAT(axis_z, attr_axis_z, node_axis, z);
 				bone.m_rotation = Quaternion::RotationAxis(Vector3(axis_x, axis_y, axis_z), angle);
 			}
-
-			bone.IncrementSelf(rhs_base_pose[rhs_name_iter->second]);
 		}
+	}
+
+	OgreAnimation::iterator frame_iter = anim_iter->second.begin();
+	for (; frame_iter != anim_iter->second.end(); frame_iter++)
+	{
+		frame_iter->second.IncrementSelf(rhs_base_pose);
 	}
 }
 
