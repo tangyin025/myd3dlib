@@ -70,16 +70,16 @@ namespace my
 					{
 						continue;
 					}
+					std::map<NodeT, float, NodePred>::iterator gscore_nei_iter = gscore.find(*neighbor_iter);
+					float tentative_gscore = gscore[current] + dist_between(current, *neighbor_iter);
+					if (gscore_nei_iter != gscore.end() && tentative_gscore > gscore_nei_iter->second)
+					{
+						continue;
+					}
 					if (open.find(*neighbor_iter) == open.end())
 					{
 						open.insert(*neighbor_iter);
 						_ASSERT(gscore.find(*neighbor_iter) == gscore.end());
-						gscore[*neighbor_iter] = FLT_MAX;
-					}
-					float tentative_gscore = gscore[current] + dist_between(current, *neighbor_iter);
-					if (tentative_gscore > gscore[*neighbor_iter])
-					{
-						continue;
 					}
 					gscore[*neighbor_iter] = tentative_gscore;
 					fscore[*neighbor_iter] = gscore[*neighbor_iter] + heuristic_cost_estimate(*neighbor_iter, goal);
