@@ -2594,7 +2594,7 @@ void CMainFrame::OnUpdateIndicatorCoord(CCmdUI* pCmdUI)
 	CPoint pt;
 	GetCursorPos(&pt);
 	CChildView* pView = DYNAMIC_DOWNCAST(CChildView, WindowFromPoint(pt));
-	if (pView)
+	if (pView && pView->m_OffscreenPositionRT->m_ptr) // theApp.m_DeviceObjectsReset
 	{
 		pView->ScreenToClient(&pt);
 		CRect rc(pt, CSize(1,1));
