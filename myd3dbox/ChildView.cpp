@@ -210,63 +210,82 @@ unsigned int CChildView::areaToCol(unsigned int area)
 	return duDebugDraw::areaToCol(area);
 }
 
-BOOL CChildView::ResetD3DSwapChain(void)
+void CChildView::OnResetDevice(void)
 {
-	D3DPRESENT_PARAMETERS d3dpp = {0};
+	D3DPRESENT_PARAMETERS d3dpp = { 0 };
 	d3dpp.Windowed = TRUE;
 	d3dpp.SwapEffect = D3DSWAPEFFECT_DISCARD;
 	d3dpp.BackBufferFormat = D3DFMT_UNKNOWN;
 	d3dpp.hDeviceWindow = m_hWnd;
 	d3dpp.PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;
 
-	m_d3dSwapChain.Release();
+	ASSERT(!m_d3dSwapChain);
 	HRESULT hr = theApp.m_d3dDevice->CreateAdditionalSwapChain(&d3dpp, &m_d3dSwapChain);
-	if(FAILED(hr))
+	if (FAILED(hr))
 	{
-		TRACE(my::D3DException::Translate(hr));
-		return FALSE;
+		THROW_D3DEXCEPTION(hr);
 	}
 
-	m_SwapChainBuffer->OnDestroyDevice();
+	ASSERT(!m_SwapChainBuffer->m_ptr);
 	V(m_d3dSwapChain->GetBackBuffer(0, D3DBACKBUFFER_TYPE_MONO, &m_SwapChainBuffer->m_ptr));
 	m_SwapChainBufferDesc = m_SwapChainBuffer->GetDesc();
 
-	m_DepthStencil->OnDestroyDevice();
+	ASSERT(!m_DepthStencil->m_ptr);
 	m_DepthStencil->CreateDepthStencilSurface(
 		m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height, D3DFMT_D24X8, d3dpp.MultiSampleType, d3dpp.MultiSampleQuality);
 
-	m_NormalRT->OnDestroyDevice();
+	ASSERT(!m_NormalRT->m_ptr);
 	m_NormalRT->CreateTexture(
 		m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A32B32G32R32F, D3DPOOL_DEFAULT);
 
-	m_SpecularRT->OnDestroyDevice();
+	ASSERT(!m_SpecularRT->m_ptr);
 	m_SpecularRT->CreateTexture(
 		m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A32B32G32R32F, D3DPOOL_DEFAULT);
 
-	m_PositionRT->OnDestroyDevice();
+	ASSERT(!m_PositionRT->m_ptr);
 	m_PositionRT->CreateTexture(
 		m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A32B32G32R32F, D3DPOOL_DEFAULT);
 
-	m_LightRT->OnDestroyDevice();
+	ASSERT(!m_LightRT->m_ptr);
 	m_LightRT->CreateTexture(
 		m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT);
 
 	for (unsigned int i = 0; i < RenderPipeline::RTChain::RTArray::static_size; i++)
 	{
-		m_OpaqueRT.m_RenderTarget[i]->OnDestroyDevice();
+		ASSERT(!m_OpaqueRT.m_RenderTarget[i]->m_ptr);
 		m_OpaqueRT.m_RenderTarget[i]->CreateTexture(
 			m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT);
 
-		m_DownFilterRT.m_RenderTarget[i]->OnDestroyDevice();
+		ASSERT(!m_DownFilterRT.m_RenderTarget[i]->m_ptr);
 		m_DownFilterRT.m_RenderTarget[i]->CreateTexture(
 			m_SwapChainBufferDesc.Width / 4, m_SwapChainBufferDesc.Height / 4, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT);
 	}
 
-	m_OffscreenPositionRT->OnDestroyDevice();
+	ASSERT(!m_OffscreenPositionRT->m_ptr);
 	m_OffscreenPositionRT->CreateOffscreenPlainSurface(
 		m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height, D3DFMT_A32B32G32R32F, D3DPOOL_SYSTEMMEM);
+}
 
-	return TRUE;
+void CChildView::OnLostDevice(void)
+{
+	m_d3dSwapChain.Release();
+	m_SwapChainBuffer->OnDestroyDevice();
+	m_DepthStencil->OnDestroyDevice();
+	m_NormalRT->OnDestroyDevice();
+	m_SpecularRT->OnDestroyDevice();
+	m_PositionRT->OnDestroyDevice();
+	m_LightRT->OnDestroyDevice();
+	for (unsigned int i = 0; i < RenderPipeline::RTChain::RTArray::static_size; i++)
+	{
+		m_OpaqueRT.m_RenderTarget[i]->OnDestroyDevice();
+		m_DownFilterRT.m_RenderTarget[i]->OnDestroyDevice();
+	}
+	m_OffscreenPositionRT->OnDestroyDevice();
+}
+
+void CChildView::OnDestroyDevice(void)
+{
+	ASSERT(!m_OffscreenPositionRT->m_ptr);
 }
 
 void CChildView::QueryRenderComponent(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask)
@@ -1435,204 +1454,201 @@ void CChildView::OnPaint()
 	CPaintDC dc(this); // device context for painting
 	// TODO: Add your message handler code here
 	// Do not call CView::OnPaint() for painting messages
-	if(m_d3dSwapChain)
+	if (theApp.m_DeviceObjectsReset)
 	{
-		if (theApp.m_DeviceObjectsReset)
+		if (m_bShowGrid)
 		{
+			PushLineGrid(theApp.default_grid_length, theApp.default_grid_lines_every, theApp.default_grid_subdivisions,
+				theApp.default_grid_color, theApp.default_grid_axis_color, my::Matrix4::RotationX(D3DXToRadian(-90)));
+		}
+
+		CMainFrame* pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
+		ASSERT_VALID(pFrame);
+		pFrame->PhysxScene::PushRenderBuffer(this);
+		pFrame->m_RenderingView = this;
+		BOOST_SCOPE_EXIT(&pFrame)
+		{
+			pFrame->m_RenderingView = FALSE;
+		}
+		BOOST_SCOPE_EXIT_END;
+
+		if (SUCCEEDED(hr = theApp.m_d3dDevice->BeginScene()))
+		{
+			//m_BgColor = D3DCOLOR_ARGB(0,161,161,161);
+			//V(theApp.m_d3dDevice->Clear(0, NULL, D3DCLEAR_TARGET, m_BgColor, 1.0f, 0)); // ! d3dmultisample will not work
+			//V(theApp.m_d3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CW));
+			//V(theApp.m_d3dDevice->SetRenderTarget(0, m_SwapChainBuffer->m_ptr));
+			//V(theApp.m_d3dDevice->SetDepthStencilSurface(m_DepthStencil->m_ptr));
+			my::ModelViewerCamera* model_view_camera = dynamic_cast<my::ModelViewerCamera*>(m_Camera.get());
+			theApp.m_SkyLightCam->m_Eye = theApp.m_SkyLightCam->AlignUnit(model_view_camera->m_LookAt, my::Vector2(theApp.SHADOW_MAP_SIZE, theApp.SHADOW_MAP_SIZE));
+			theApp.m_SkyLightCam->UpdateViewProj();
+			theApp.OnRender(theApp.m_d3dDevice, m_SwapChainBuffer->m_ptr, m_DepthStencil->m_ptr, &m_SwapChainBufferDesc, this, theApp.m_fAbsoluteTime, theApp.m_fElapsedTime);
+			V(theApp.m_d3dDevice->GetRenderTargetData(m_PositionRT->GetSurfaceLevel(0), m_OffscreenPositionRT->m_ptr));
+			V(theApp.m_d3dDevice->SetRenderTarget(0, m_SwapChainBuffer->m_ptr));
+
+			swprintf_s(&m_ScrInfo[0][0], m_ScrInfo[0].size(), L"PerformanceSec: %.3f", EndPerformanceCount());
+			for (unsigned int PassID = 0; PassID < RenderPipeline::PassTypeNum; PassID++)
+			{
+				swprintf_s(&m_ScrInfo[1 + PassID][0], m_ScrInfo[1 + PassID].size(), L"%S: %d, %d", RenderPipeline::PassTypeToStr(PassID), theApp.m_PassDrawCall[PassID], theApp.m_PassBatchDrawCall[PassID]);
+			}
+
+			V(theApp.m_d3dDevice->SetRenderState(D3DRS_ZENABLE, TRUE));
+			V(theApp.m_d3dDevice->SetRenderState(D3DRS_ZWRITEENABLE, FALSE));
+			V(theApp.m_d3dDevice->SetRenderState(D3DRS_FILLMODE, D3DFILL_WIREFRAME));
+			if (m_bShowCmpHandle && !pFrame->m_selactors.empty())
+			{
+				theApp.m_SimpleSample->SetMatrix(theApp.handle_View, m_Camera->m_View);
+				theApp.m_SimpleSample->SetMatrix(theApp.handle_ViewProj, m_Camera->m_ViewProj);
+				PushLineAABB(pFrame->m_selbox, D3DCOLOR_ARGB(255, 255, 255, 255));
+				CMainFrame::ActorList::const_iterator sel_iter = pFrame->m_selactors.begin();
+				for (; sel_iter != pFrame->m_selactors.end(); sel_iter++)
+				{
+					RenderSelectedActor(theApp.m_d3dDevice, *sel_iter, D3DCOLOR_ARGB(255, 0, 255, 0));
+				}
+			}
+
+			if (m_bShowNavigation)
+			{
+				// https://github.com/recastnavigation/recastnavigation/blob/master/RecastDemo/Source/InputGeom.cpp
+				// InputGeom::drawOffMeshConnections
+				unsigned int conColor = duRGBA(192, 0, 128, 192);
+				unsigned int baseColor = duRGBA(0, 0, 0, 64);
+				depthMask(false);
+
+				begin(DU_DRAW_LINES, 2.0f);
+				for (int i = 0; i < pFrame->m_offMeshConCount; ++i)
+				{
+					float* v = &pFrame->m_offMeshConVerts[i * 3 * 2];
+
+					vertex(v[0], v[1], v[2], baseColor);
+					vertex(v[0], v[1] + 0.2f, v[2], baseColor);
+
+					vertex(v[3], v[4], v[5], baseColor);
+					vertex(v[3], v[4] + 0.2f, v[5], baseColor);
+
+					duAppendCircle(this, v[0], v[1] + 0.1f, v[2], pFrame->m_offMeshConRads[i], baseColor);
+					duAppendCircle(this, v[3], v[4] + 0.1f, v[5], pFrame->m_offMeshConRads[i], baseColor);
+
+					if (true)
+					{
+						duAppendArc(this, v[0], v[1], v[2], v[3], v[4], v[5], 0.25f,
+							(pFrame->m_offMeshConDirs[i] & 1) ? 0.6f : 0.0f, 0.6f, conColor);
+					}
+				}
+				end();
+
+				depthMask(true);
+			}
+
+			if (pFrame->m_Player->m_Node && pFrame->m_PxScene->getVisualizationParameter(physx::PxVisualizationParameter::eSCALE) > 0)
+			{
+				PlayerAgent* agent = pFrame->m_Player->GetFirstComponent<PlayerAgent>();
+				ASSERT(agent);
+				PushLine(pFrame->m_Player->m_Position, pFrame->m_Player->m_Position + agent->m_MoveDir, D3DCOLOR_ARGB(255, 255, 255, 0));
+				PushLine(pFrame->m_Player->m_Position, pFrame->m_Player->m_Position + agent->m_Controller->GetUpDirection(), D3DCOLOR_ARGB(255, 255, 0, 0));
+				PushLine(agent->m_Controller->GetTouchedPosWorld(), agent->m_Controller->GetTouchedPosWorld() + agent->m_Controller->GetContactNormalDownPass(), D3DCOLOR_ARGB(255, 0, 255, 0));
+				PushLine(agent->m_Controller->GetTouchedPosWorld(), agent->m_Controller->GetTouchedPosWorld() + agent->m_Controller->GetContactNormalSidePass(), D3DCOLOR_ARGB(255, 0, 0, 255));
+				my::Vector3 pt = m_Camera->WorldToScreen(pFrame->m_Player->m_Position, my::Vector2((float)m_SwapChainBufferDesc.Width, (float)m_SwapChainBufferDesc.Height));
+				if (pt.z > 0.0f && pt.z < 1.0f)
+				{
+					wchar_t buff[256];
+					swprintf_s(buff, _countof(buff), L"%f", D3DXToDegree(asinf(agent->m_Controller->GetUpDirection().y)));
+					theApp.m_UIRender->PushString(my::Rectangle::LeftTop(floorf(pt.x), floorf(pt.y), 1, 1), buff, D3DCOLOR_ARGB(255, 255, 0, 0), my::Font::AlignLeftTop, theApp.m_Font.get());
+				}
+			}
+
+			V(theApp.m_d3dDevice->SetVertexShader(NULL));
+			V(theApp.m_d3dDevice->SetPixelShader(NULL));
+			V(theApp.m_d3dDevice->SetTexture(0, NULL));
+			V(theApp.m_d3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE));
+			V(theApp.m_d3dDevice->SetRenderState(D3DRS_BLENDOP, D3DBLENDOP_ADD));
+			V(theApp.m_d3dDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA));
+			V(theApp.m_d3dDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA));
+			V(theApp.m_d3dDevice->SetRenderState(D3DRS_ZENABLE, TRUE));
+			V(theApp.m_d3dDevice->SetRenderState(D3DRS_ZWRITEENABLE, FALSE));
+			V(theApp.m_d3dDevice->SetRenderState(D3DRS_LIGHTING, FALSE));
+			V(theApp.m_d3dDevice->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID));
+			V(theApp.m_d3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CW));
+			V(theApp.m_d3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX*)&m_Camera->m_View));
+			V(theApp.m_d3dDevice->SetTransform(D3DTS_PROJECTION, (D3DMATRIX*)&m_Camera->m_Proj));
+			V(theApp.m_d3dDevice->SetTransform(D3DTS_WORLD, (D3DMATRIX*)&my::Matrix4::identity));
+			DrawHelper::FlushLine(theApp.m_d3dDevice);
+
+			V(theApp.m_d3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE));
+			if (m_bShowCmpHandle && !pFrame->m_selactors.empty())
+			{
+				if (pFrame->m_PaintType == CMainFrame::PaintTypeTerrainHeightField
+					|| pFrame->m_PaintType == CMainFrame::PaintTypeTerrainColor
+					|| pFrame->m_PaintType == CMainFrame::PaintTypeEmitterInstance)
+				{
+					DrawTerrainHeightFieldHandle(pFrame->m_selactors.front()->GetFirstComponent<Terrain>());
+				}
+				else if (pFrame->m_PaintType == CMainFrame::PaintTypeOffmeshConnections)
+				{
+
+				}
+				else
+				{
+					m_PivotScale = m_Camera->CalculateViewportScaler(pFrame->m_Pivot.m_Pos) * 40.0f / m_SwapChainBufferDesc.Height;
+					pFrame->m_Pivot.Draw(theApp.m_d3dDevice, m_Camera.get(), &m_SwapChainBufferDesc, m_PivotScale);
+				}
+			}
+			V(theApp.m_d3dDevice->SetTransform(D3DTS_WORLD, (D3DMATRIX*)&my::Matrix4::identity));
+			DrawHelper::FlushLine(theApp.m_d3dDevice);
+
+			theApp.m_UIRender->Begin();
+			theApp.m_UIRender->SetViewProj(m_UICamera.m_ViewProj);
+			theApp.m_UIRender->SetWorld(my::Matrix4::identity);
 			if (m_bShowGrid)
 			{
-				PushLineGrid(theApp.default_grid_length, theApp.default_grid_lines_every, theApp.default_grid_subdivisions,
-					theApp.default_grid_color, theApp.default_grid_axis_color, my::Matrix4::RotationX(D3DXToRadian(-90)));
-			}
+				my::Vector3 pt = m_Camera->WorldToScreen(my::Vector3(12, 0, 0), my::Vector2((float)m_SwapChainBufferDesc.Width, (float)m_SwapChainBufferDesc.Height));
+				if (pt.z > 0.0f && pt.z < 1.0f)
+				{
+					theApp.m_UIRender->PushString(my::Rectangle::LeftTop(floorf(pt.x), floorf(pt.y), 1, 1), L"x", D3DCOLOR_ARGB(255, 255, 255, 0), my::Font::AlignCenterMiddle, theApp.m_Font.get());
+				}
 
-			CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
-			ASSERT_VALID(pFrame);
-			pFrame->PhysxScene::PushRenderBuffer(this);
-			pFrame->m_RenderingView = this;
-			BOOST_SCOPE_EXIT(&pFrame)
+				pt = m_Camera->WorldToScreen(my::Vector3(0, 0, 12), my::Vector2((float)m_SwapChainBufferDesc.Width, (float)m_SwapChainBufferDesc.Height));
+				if (pt.z > 0.0f && pt.z < 1.0f)
+				{
+					theApp.m_UIRender->PushString(my::Rectangle::LeftTop(floorf(pt.x), floorf(pt.y), 1, 1), L"z", D3DCOLOR_ARGB(255, 255, 255, 0), my::Font::AlignCenterMiddle, theApp.m_Font.get());
+				}
+				theApp.m_UIRender->Flush();
+			}
+			pFrame->DialogMgr::Draw(theApp.m_UIRender.get(), theApp.m_fTotalTime, theApp.m_fElapsedTime, my::Vector2(-m_UICamera.m_View._41 * 2, m_UICamera.m_View._42 * 2));
+			if (!pFrame->m_selctls.empty())
 			{
-				pFrame->m_RenderingView = FALSE;
+				RenderSelectedControl(theApp.m_d3dDevice, pFrame->m_selctls.front(), D3DCOLOR_ARGB(255, 0, 255, 0), true);
+				CMainFrame::ControlList::iterator ctrl_iter = pFrame->m_selctls.begin() + 1;
+				for (; ctrl_iter != pFrame->m_selctls.end(); ctrl_iter++)
+				{
+					RenderSelectedControl(theApp.m_d3dDevice, *ctrl_iter, D3DCOLOR_ARGB(255, 255, 255, 255), false);
+				}
 			}
-			BOOST_SCOPE_EXIT_END
-
-			if(SUCCEEDED(hr = theApp.m_d3dDevice->BeginScene()))
+			theApp.m_UIRender->SetWorld(my::Matrix4::identity);
+			ScrInfoMap::const_iterator info_iter = m_ScrInfo.begin();
+			for (int y = 5; info_iter != m_ScrInfo.end(); info_iter++, y += theApp.m_Font->m_LineHeight)
 			{
-				//m_BgColor = D3DCOLOR_ARGB(0,161,161,161);
-				//V(theApp.m_d3dDevice->Clear(0, NULL, D3DCLEAR_TARGET, m_BgColor, 1.0f, 0)); // ! d3dmultisample will not work
-				//V(theApp.m_d3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CW));
-				//V(theApp.m_d3dDevice->SetRenderTarget(0, m_SwapChainBuffer->m_ptr));
-				//V(theApp.m_d3dDevice->SetDepthStencilSurface(m_DepthStencil->m_ptr));
-				my::ModelViewerCamera * model_view_camera = dynamic_cast<my::ModelViewerCamera *>(m_Camera.get());
-				theApp.m_SkyLightCam->m_Eye = theApp.m_SkyLightCam->AlignUnit(model_view_camera->m_LookAt, my::Vector2(theApp.SHADOW_MAP_SIZE, theApp.SHADOW_MAP_SIZE));
-				theApp.m_SkyLightCam->UpdateViewProj();
-				theApp.OnRender(theApp.m_d3dDevice, m_SwapChainBuffer->m_ptr, m_DepthStencil->m_ptr, &m_SwapChainBufferDesc, this, theApp.m_fAbsoluteTime, theApp.m_fElapsedTime);
-				V(theApp.m_d3dDevice->GetRenderTargetData(m_PositionRT->GetSurfaceLevel(0), m_OffscreenPositionRT->m_ptr));
-				V(theApp.m_d3dDevice->SetRenderTarget(0, m_SwapChainBuffer->m_ptr));
-
-				swprintf_s(&m_ScrInfo[0][0], m_ScrInfo[0].size(), L"PerformanceSec: %.3f", EndPerformanceCount());
-				for (unsigned int PassID = 0; PassID < RenderPipeline::PassTypeNum; PassID++)
-				{
-					swprintf_s(&m_ScrInfo[1+PassID][0], m_ScrInfo[1+PassID].size(), L"%S: %d, %d", RenderPipeline::PassTypeToStr(PassID), theApp.m_PassDrawCall[PassID], theApp.m_PassBatchDrawCall[PassID]);
-				}
-
-				V(theApp.m_d3dDevice->SetRenderState(D3DRS_ZENABLE, TRUE));
-				V(theApp.m_d3dDevice->SetRenderState(D3DRS_ZWRITEENABLE, FALSE));
-				V(theApp.m_d3dDevice->SetRenderState(D3DRS_FILLMODE, D3DFILL_WIREFRAME));
-				if (m_bShowCmpHandle && !pFrame->m_selactors.empty())
-				{
-					theApp.m_SimpleSample->SetMatrix(theApp.handle_View, m_Camera->m_View);
-					theApp.m_SimpleSample->SetMatrix(theApp.handle_ViewProj, m_Camera->m_ViewProj);
-					PushLineAABB(pFrame->m_selbox, D3DCOLOR_ARGB(255,255,255,255));
-					CMainFrame::ActorList::const_iterator sel_iter = pFrame->m_selactors.begin();
-					for (; sel_iter != pFrame->m_selactors.end(); sel_iter++)
-					{
-						RenderSelectedActor(theApp.m_d3dDevice, *sel_iter, D3DCOLOR_ARGB(255, 0, 255, 0));
-					}
-				}
-
-				if (m_bShowNavigation)
-				{
-					// https://github.com/recastnavigation/recastnavigation/blob/master/RecastDemo/Source/InputGeom.cpp
-					// InputGeom::drawOffMeshConnections
-					unsigned int conColor = duRGBA(192, 0, 128, 192);
-					unsigned int baseColor = duRGBA(0, 0, 0, 64);
-					depthMask(false);
-
-					begin(DU_DRAW_LINES, 2.0f);
-					for (int i = 0; i < pFrame->m_offMeshConCount; ++i)
-					{
-						float* v = &pFrame->m_offMeshConVerts[i * 3 * 2];
-
-						vertex(v[0], v[1], v[2], baseColor);
-						vertex(v[0], v[1] + 0.2f, v[2], baseColor);
-
-						vertex(v[3], v[4], v[5], baseColor);
-						vertex(v[3], v[4] + 0.2f, v[5], baseColor);
-
-						duAppendCircle(this, v[0], v[1] + 0.1f, v[2], pFrame->m_offMeshConRads[i], baseColor);
-						duAppendCircle(this, v[3], v[4] + 0.1f, v[5], pFrame->m_offMeshConRads[i], baseColor);
-
-						if (true)
-						{
-							duAppendArc(this, v[0], v[1], v[2], v[3], v[4], v[5], 0.25f,
-								(pFrame->m_offMeshConDirs[i] & 1) ? 0.6f : 0.0f, 0.6f, conColor);
-						}
-					}
-					end();
-
-					depthMask(true);
-				}
-
-				if (pFrame->m_Player->m_Node && pFrame->m_PxScene->getVisualizationParameter(physx::PxVisualizationParameter::eSCALE) > 0)
-				{
-					PlayerAgent* agent = pFrame->m_Player->GetFirstComponent<PlayerAgent>();
-					ASSERT(agent);
-					PushLine(pFrame->m_Player->m_Position, pFrame->m_Player->m_Position + agent->m_MoveDir, D3DCOLOR_ARGB(255, 255, 255, 0));
-					PushLine(pFrame->m_Player->m_Position, pFrame->m_Player->m_Position + agent->m_Controller->GetUpDirection(), D3DCOLOR_ARGB(255, 255, 0, 0));
-					PushLine(agent->m_Controller->GetTouchedPosWorld(), agent->m_Controller->GetTouchedPosWorld() + agent->m_Controller->GetContactNormalDownPass(), D3DCOLOR_ARGB(255, 0, 255, 0));
-					PushLine(agent->m_Controller->GetTouchedPosWorld(), agent->m_Controller->GetTouchedPosWorld() + agent->m_Controller->GetContactNormalSidePass(), D3DCOLOR_ARGB(255, 0, 0, 255));
-					my::Vector3 pt = m_Camera->WorldToScreen(pFrame->m_Player->m_Position, my::Vector2((float)m_SwapChainBufferDesc.Width, (float)m_SwapChainBufferDesc.Height));
-					if (pt.z > 0.0f && pt.z < 1.0f)
-					{
-						wchar_t buff[256];
-						swprintf_s(buff, _countof(buff), L"%f", D3DXToDegree(asinf(agent->m_Controller->GetUpDirection().y)));
-						theApp.m_UIRender->PushString(my::Rectangle::LeftTop(floorf(pt.x), floorf(pt.y), 1, 1), buff, D3DCOLOR_ARGB(255, 255, 0, 0), my::Font::AlignLeftTop, theApp.m_Font.get());
-					}
-				}
-
-				V(theApp.m_d3dDevice->SetVertexShader(NULL));
-				V(theApp.m_d3dDevice->SetPixelShader(NULL));
-				V(theApp.m_d3dDevice->SetTexture(0, NULL));
-				V(theApp.m_d3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE));
-				V(theApp.m_d3dDevice->SetRenderState(D3DRS_BLENDOP, D3DBLENDOP_ADD));
-				V(theApp.m_d3dDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA));
-				V(theApp.m_d3dDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA));
-				V(theApp.m_d3dDevice->SetRenderState(D3DRS_ZENABLE, TRUE));
-				V(theApp.m_d3dDevice->SetRenderState(D3DRS_ZWRITEENABLE, FALSE));
-				V(theApp.m_d3dDevice->SetRenderState(D3DRS_LIGHTING, FALSE));
-				V(theApp.m_d3dDevice->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID));
-				V(theApp.m_d3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CW));
-				V(theApp.m_d3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&m_Camera->m_View));
-				V(theApp.m_d3dDevice->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&m_Camera->m_Proj));
-				V(theApp.m_d3dDevice->SetTransform(D3DTS_WORLD, (D3DMATRIX *)&my::Matrix4::identity));
-				DrawHelper::FlushLine(theApp.m_d3dDevice);
-
-				V(theApp.m_d3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE));
-				if (m_bShowCmpHandle && !pFrame->m_selactors.empty())
-				{
-					if (pFrame->m_PaintType == CMainFrame::PaintTypeTerrainHeightField
-						|| pFrame->m_PaintType == CMainFrame::PaintTypeTerrainColor
-						|| pFrame->m_PaintType == CMainFrame::PaintTypeEmitterInstance)
-					{
-						DrawTerrainHeightFieldHandle(pFrame->m_selactors.front()->GetFirstComponent<Terrain>());
-					}
-					else if (pFrame->m_PaintType == CMainFrame::PaintTypeOffmeshConnections)
-					{
-
-					}
-					else
-					{
-						m_PivotScale = m_Camera->CalculateViewportScaler(pFrame->m_Pivot.m_Pos) * 40.0f / m_SwapChainBufferDesc.Height;
-						pFrame->m_Pivot.Draw(theApp.m_d3dDevice, m_Camera.get(), &m_SwapChainBufferDesc, m_PivotScale);
-					}
-				}
-				V(theApp.m_d3dDevice->SetTransform(D3DTS_WORLD, (D3DMATRIX*)&my::Matrix4::identity));
-				DrawHelper::FlushLine(theApp.m_d3dDevice);
-
-				theApp.m_UIRender->Begin();
-				theApp.m_UIRender->SetViewProj(m_UICamera.m_ViewProj);
-				theApp.m_UIRender->SetWorld(my::Matrix4::identity);
-				if (m_bShowGrid)
-				{
-					my::Vector3 pt = m_Camera->WorldToScreen(my::Vector3(12, 0, 0), my::Vector2((float)m_SwapChainBufferDesc.Width, (float)m_SwapChainBufferDesc.Height));
-					if (pt.z > 0.0f && pt.z < 1.0f)
-					{
-						theApp.m_UIRender->PushString(my::Rectangle::LeftTop(floorf(pt.x), floorf(pt.y), 1, 1), L"x", D3DCOLOR_ARGB(255, 255, 255, 0), my::Font::AlignCenterMiddle, theApp.m_Font.get());
-					}
-
-					pt = m_Camera->WorldToScreen(my::Vector3(0, 0, 12), my::Vector2((float)m_SwapChainBufferDesc.Width, (float)m_SwapChainBufferDesc.Height));
-					if (pt.z > 0.0f && pt.z < 1.0f)
-					{
-						theApp.m_UIRender->PushString(my::Rectangle::LeftTop(floorf(pt.x), floorf(pt.y), 1, 1), L"z", D3DCOLOR_ARGB(255, 255, 255, 0), my::Font::AlignCenterMiddle, theApp.m_Font.get());
-					}
-					theApp.m_UIRender->Flush();
-				}
-				pFrame->DialogMgr::Draw(theApp.m_UIRender.get(), theApp.m_fTotalTime, theApp.m_fElapsedTime, my::Vector2(-m_UICamera.m_View._41 * 2, m_UICamera.m_View._42 * 2));
-				if (!pFrame->m_selctls.empty())
-				{
-					RenderSelectedControl(theApp.m_d3dDevice, pFrame->m_selctls.front(), D3DCOLOR_ARGB(255, 0, 255, 0), true);
-					CMainFrame::ControlList::iterator ctrl_iter = pFrame->m_selctls.begin() + 1;
-					for (; ctrl_iter != pFrame->m_selctls.end(); ctrl_iter++)
-					{
-						RenderSelectedControl(theApp.m_d3dDevice, *ctrl_iter, D3DCOLOR_ARGB(255, 255, 255, 255), false);
-					}
-				}
-				theApp.m_UIRender->SetWorld(my::Matrix4::identity);
-				ScrInfoMap::const_iterator info_iter = m_ScrInfo.begin();
-				for (int y = 5; info_iter != m_ScrInfo.end(); info_iter++, y += theApp.m_Font->m_LineHeight)
-				{
-					theApp.m_UIRender->PushString(my::Rectangle::LeftTop(5, (float)y, 500, 10), &info_iter->second[0], D3DCOLOR_ARGB(255,255,255,0), my::Font::AlignLeftTop, theApp.m_Font.get());
-				}
-				theApp.m_UIRender->End();
-
-				swprintf_s(&m_ScrInfo[1 + RenderPipeline::PassTypeNum][0], m_ScrInfo[1 + RenderPipeline::PassTypeNum].size(), L"PassTypeUILayer: %d", theApp.m_UIRender->m_LayerDrawCall);
-
-				V(theApp.m_d3dDevice->EndScene());
+				theApp.m_UIRender->PushString(my::Rectangle::LeftTop(5, (float)y, 500, 10), &info_iter->second[0], D3DCOLOR_ARGB(255, 255, 255, 0), my::Font::AlignLeftTop, theApp.m_Font.get());
 			}
+			theApp.m_UIRender->End();
 
-			if(FAILED(hr = m_d3dSwapChain->Present(NULL, NULL, NULL, NULL, 0)))
-			{
-				if(D3DERR_DEVICELOST == hr || D3DERR_DRIVERINTERNALERROR == hr)
-				{
-					theApp.OnLostDevice();
-					theApp.m_DeviceObjectsReset = false;
-				}
-			}
+			swprintf_s(&m_ScrInfo[1 + RenderPipeline::PassTypeNum][0], m_ScrInfo[1 + RenderPipeline::PassTypeNum].size(), L"PassTypeUILayer: %d", theApp.m_UIRender->m_LayerDrawCall);
+
+			V(theApp.m_d3dDevice->EndScene());
 		}
-		else if (D3DERR_DEVICENOTRESET == theApp.m_d3dDevice->TestCooperativeLevel())
+
+		if (FAILED(hr = m_d3dSwapChain->Present(NULL, NULL, NULL, NULL, 0)))
 		{
-			theApp.ResetD3DDevice();
+			if (D3DERR_DEVICELOST == hr || D3DERR_DRIVERINTERNALERROR == hr)
+			{
+				theApp.OnLostDevice();
+				theApp.m_DeviceObjectsReset = false;
+			}
 		}
+	}
+	else if (D3DERR_DEVICENOTRESET == theApp.m_d3dDevice->TestCooperativeLevel())
+	{
+		theApp.ResetD3DDevice();
 	}
 }
 
@@ -1650,7 +1666,8 @@ void CChildView::OnSize(UINT nType, int cx, int cy)
 	{
 		// ! 在初始化窗口时，会被反复创建多次
 		StartPerformanceCount();
-		ResetD3DSwapChain();
+		OnLostDevice();
+		OnResetDevice();
 		ASSERT(m_Camera);
 		m_Camera->OnViewportChanged(my::Vector2((float)cx, (float)cy) * 0.1f);
 		m_Camera->UpdateViewProj();

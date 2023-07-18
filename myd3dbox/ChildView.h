@@ -18,6 +18,7 @@ class CChildView
 	, public RenderPipeline::IRenderContext
 	, public my::DrawHelper
 	, public duDebugDraw
+	, public my::DeviceResourceBase
 {
 protected: // create from serialization only
 	CChildView();
@@ -70,7 +71,9 @@ public: my::SurfacePtr m_OffscreenPositionRT; protected:
 	virtual void end();
 	virtual unsigned int areaToCol(unsigned int area);
 
-	BOOL ResetD3DSwapChain(void);
+	virtual void OnResetDevice(void);
+	virtual void OnLostDevice(void);
+	virtual void OnDestroyDevice(void);
 	virtual void QueryRenderComponent(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask);
 	void RenderSelectedActor(IDirect3DDevice9 * pd3dDevice, Actor * actor, D3DCOLOR color);
 	void RenderSelectedComponent(IDirect3DDevice9 * pd3dDevice, Component * cmp, D3DCOLOR color);
