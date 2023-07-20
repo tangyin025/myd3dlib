@@ -49,6 +49,7 @@ CNavigationDlg::CNavigationDlg(CWnd* pParent /*=NULL*/)
 	, m_tileSize(32.0f)
 	, m_collisionFilterWord0(theApp.default_physx_shape_filterword0 | theApp.default_player_water_filterword0)
 	, m_walkableFilterWord0(theApp.default_physx_shape_filterword0)
+	, m_tileExceeded(FALSE)
 {
 }
 
@@ -97,6 +98,7 @@ BEGIN_MESSAGE_MAP(CNavigationDlg, CDialogEx)
 	ON_EN_CHANGE(IDC_EDIT6, &CNavigationDlg::OnChangeEdit7)
 	ON_EN_CHANGE(IDC_EDIT7, &CNavigationDlg::OnChangeEdit7)
 	ON_EN_CHANGE(IDC_EDIT20, &CNavigationDlg::OnChangeEdit7)
+	ON_WM_CTLCOLOR()
 END_MESSAGE_MAP()
 
 
@@ -936,8 +938,14 @@ void CNavigationDlg::OnChangeEdit7()
 
 	// Max tiles and max polys affect how the tile IDs are caculated.
 	// There are 22 bits available for identifying a tile and a polygon.
-	int tileBits = rcMin((int)ilog2(nextPow2(tw * th)), 14);
-	if (tileBits > 14) tileBits = 14;
+	int tileBits = (int)ilog2(nextPow2(tw * th));
+	if (tileBits > 14)
+	{
+		tileBits = 14;
+		m_tileExceeded = TRUE;
+	}
+	else
+		m_tileExceeded = FALSE;
 	int polyBits = 22 - tileBits;
 	m_maxTiles = 1 << tileBits;
 	m_maxPolysPerTile = 1 << polyBits;
@@ -945,4 +953,19 @@ void CNavigationDlg::OnChangeEdit7()
 	CString strText;
 	strText.Format(_T("Tiles  %d x %d\nMax Tiles  %d\nMax Polys  %d"), tw, th, m_maxTiles, m_maxPolysPerTile);
 	SetDlgItemText(IDC_STATIC5, strText);
+}
+
+
+HBRUSH CNavigationDlg::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
+{
+	HBRUSH hbr = __super::OnCtlColor(pDC, pWnd, nCtlColor);
+
+	// TODO:  Change any attributes of the DC here
+	if (pWnd->GetDlgCtrlID() == IDC_STATIC5 && m_tileExceeded)
+	{
+		pDC->SetTextColor(RGB(255, 0, 0));
+	}
+
+	// TODO:  Return a different brush if the default is not desired
+	return hbr;
 }

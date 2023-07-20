@@ -123,8 +123,9 @@ Navigation::Navigation(void)
 
 }
 
-Navigation::Navigation(const char* Name)
+Navigation::Navigation(const char* Name, const my::AABB& RootAabb)
 	: Component(Name)
+	, OctRoot(RootAabb.m_min, RootAabb.m_max)
 {
 
 }
@@ -157,6 +158,7 @@ template<class Archive>
 void Navigation::save(Archive& ar, const unsigned int version) const
 {
 	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(Component);
+	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(OctRoot);
 	ar << BOOST_SERIALIZATION_NVP(m_navMesh);
 	int MaxNodes = m_navQuery->getNodePool()->getMaxNodes();
 	ar << BOOST_SERIALIZATION_NVP(MaxNodes);
@@ -166,6 +168,7 @@ template<class Archive>
 void Navigation::load(Archive& ar, const unsigned int version)
 {
 	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(Component);
+	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(OctRoot);
 	ar >> BOOST_SERIALIZATION_NVP(m_navMesh);
 	int MaxNodes;
 	ar >> BOOST_SERIALIZATION_NVP(MaxNodes);

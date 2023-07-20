@@ -66,7 +66,7 @@ protected:
 	Navigation(void);
 
 public:
-	Navigation(const char* Name);
+	Navigation(const char* Name, const my::AABB& RootAabb);
 
 	virtual ~Navigation(void);
 

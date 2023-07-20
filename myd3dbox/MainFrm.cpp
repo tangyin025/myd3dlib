@@ -2065,7 +2065,7 @@ void CMainFrame::OnCreateNavigation()
 		return;
 	}
 
-	NavigationPtr navi_cmp(new Navigation(my::NamedObject::MakeUniqueName((std::string((*actor_iter)->GetName()) + "_navigation").c_str()).c_str()));
+	NavigationPtr navi_cmp(new Navigation(my::NamedObject::MakeUniqueName((std::string((*actor_iter)->GetName()) + "_navigation").c_str()).c_str(), dlg.m_bindingBox));
 	navi_cmp->m_navMesh = dlg.m_navMesh;
 	navi_cmp->BuildQueryAndChunks(2048);
 	(*actor_iter)->InsertComponent(navi_cmp);

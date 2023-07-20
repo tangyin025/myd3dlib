@@ -187,8 +187,6 @@
     <ClInclude Include="include\myUi.h" />
     <ClInclude Include="include\myUtility.h" />
     <ClInclude Include="include\PrintCallStack.h" />
-    <ClInclude Include="include\rapidxml.hpp" />
-    <ClInclude Include="include\rapidxml_print.hpp" />
     <ClInclude Include="include\Win32InputBox.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

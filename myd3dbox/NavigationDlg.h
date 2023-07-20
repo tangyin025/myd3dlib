@@ -76,4 +76,6 @@ public:
 	DWORD m_collisionFilterWord0;
 	DWORD m_walkableFilterWord0;
 	afx_msg void OnChangeEdit7();
+	afx_msg HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
+	BOOL m_tileExceeded;
 };
