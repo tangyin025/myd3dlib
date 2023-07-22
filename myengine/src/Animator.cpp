@@ -621,6 +621,8 @@ void Animator::Update(float fElapsedTime)
 {
 	if (m_Skeleton)
 	{
+		Tick(fElapsedTime, 1.0f);
+
 		my::BoneIndexSet::const_iterator root_iter = m_Skeleton->m_boneRootSet.begin();
 		for (; root_iter != m_Skeleton->m_boneRootSet.end(); root_iter++)
 		{

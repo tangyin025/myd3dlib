@@ -589,12 +589,6 @@ struct ScriptComponent : Component, luabind::wrap_base
 	static void default_Update(Component* ptr, float fElapsedTime)
 	{
 		//ptr->Component::Update(fElapsedTime);
-
-		Animator* animator = ptr->m_Actor->GetFirstComponent<Animator>();
-		if (animator)
-		{
-			animator->Tick(fElapsedTime, 1.0f);
-		}
 	}
 
 	virtual void OnPxThreadSubstep(float dtime)
@@ -2916,7 +2910,6 @@ void LuaContext::Init(void)
 			.def_readwrite("SkeletonPath", &Animator::m_SkeletonPath)
 			.def_readonly("Skeleton", &Animator::m_Skeleton)
 			.def_readonly("anim_pose_hier", &Animator::anim_pose_hier, return_stl_iterator)
-			.def("Tick", &Animator::Tick)
 			.def("ReloadSequenceGroup", &Animator::ReloadSequenceGroup)
 			.def("AddDynamicBone", (void (Animator::*)(int, const my::BoneHierarchy &, float, float, float))&Animator::AddDynamicBone)
 			.def("AddIK", &Animator::AddIK)
