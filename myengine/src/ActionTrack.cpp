@@ -63,29 +63,6 @@ void ActionInst::StopAllTrack(void)
 	}
 }
 
-bool ActionInst::GetDisplacement(float LastTime, float dtime, my::Vector3 & disp)
-{
-	bool ret = false;
-	ActionTrackInstPtrList::iterator track_inst_iter = m_TrackInstList.begin();
-	for (; track_inst_iter != m_TrackInstList.end(); track_inst_iter++)
-	{
-		my::Vector3 local_disp;
-		if ((*track_inst_iter)->GetDisplacement(LastTime, dtime, local_disp))
-		{
-			if (ret)
-			{
-				disp += local_disp;
-			}
-			else
-			{
-				disp = local_disp;
-				ret = true;
-			}
-		}
-	}
-	return ret;
-}
-
 ActionTrackInstPtr ActionTrackAnimation::CreateInstance(Actor * _Actor) const
 {
 	return ActionTrackInstPtr(new ActionTrackAnimationInst(_Actor, boost::static_pointer_cast<const ActionTrackAnimation>(shared_from_this())));

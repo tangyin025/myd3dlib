@@ -72,8 +72,6 @@ public:
 	void Update(float fElapsedTime);
 
 	void StopAllTrack(void);
-
-	bool GetDisplacement(float LastTime, float dtime, my::Vector3 & disp);
 };
 
 class ActionTrack : public boost::enable_shared_from_this<ActionTrack>

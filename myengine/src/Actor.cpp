@@ -1005,7 +1005,6 @@ bool Actor::TickActionAndGetDisplacement(float dtime, my::Vector3 & disp)
 {
 	_ASSERT(PhysxSdk::getSingleton().m_RenderTickMuted);
 
-	bool ret = false;
 	ActionInstPtrList::iterator action_inst_iter = m_ActionInstList.begin();
 	for (; action_inst_iter != m_ActionInstList.end(); action_inst_iter++)
 	{
@@ -1015,22 +1014,17 @@ bool Actor::TickActionAndGetDisplacement(float dtime, my::Vector3 & disp)
 
 		if (action_inst_iter->first->m_Time < action_inst_iter->second)
 		{
-			my::Vector3 local_disp;
-			if (action_inst_iter->first->GetDisplacement(LastTime, dtime, local_disp))
+			ActionInst::ActionTrackInstPtrList::iterator track_inst_iter = action_inst_iter->first->m_TrackInstList.begin();
+			for (; track_inst_iter != action_inst_iter->first->m_TrackInstList.end(); track_inst_iter++)
 			{
-				if (ret)
+				if ((*track_inst_iter)->GetDisplacement(LastTime, dtime, disp))
 				{
-					disp += local_disp;
-				}
-				else
-				{
-					disp = local_disp;
-					ret = true;
+					return true;
 				}
 			}
 		}
 	}
-	return ret;
+	return false;
 }
 
 Component * Actor::GetFirstComponent(DWORD Type)
