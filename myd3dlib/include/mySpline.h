@@ -1,6 +1,5 @@
 #pragma once
 
-#include <boost/shared_ptr.hpp>
 #include <vector>
 #include <boost/serialization/nvp.hpp>
 
@@ -50,11 +49,7 @@ namespace my
 			ar & boost::serialization::make_nvp("SplineNodeList", boost::serialization::base_object<std::vector<SplineNode> >(*this));
 		}
 
-		bool InsertNode(const SplineNode & node, int begin_i, int end_i);
-
 		void AddNode(float x, float y, float k0, float k);
-
-		float Interpolate(float s, int begin_i, int end_i) const;
 
 		float Interpolate(float s, float value) const;
 	};

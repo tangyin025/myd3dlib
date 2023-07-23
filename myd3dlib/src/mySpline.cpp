@@ -1,4 +1,6 @@
 #include "mySpline.h"
+#include <boost/bind.hpp>
+#include <algorithm>
 
 using namespace my;
 
@@ -15,69 +17,37 @@ float SplineNode::Interpolate(const SplineNode & rhs, float s) const
 	return (1 - t) * y + t * rhs.y + t * (1 - t) * (a * (1 - t) + b * t);
 }
 
-bool Spline::InsertNode(const SplineNode & node, int begin_i, int end_i)
-{
-	if(begin_i >= end_i)
-	{
-		insert(begin() + begin_i, node);
-		return true;
-	}
-
-	int mid_i = (begin_i + end_i) / 2;
-
-	if(node.x < operator [](mid_i).x)
-	{
-		return InsertNode(node, begin_i, mid_i);
-	}
-
-	if(node.x == operator [](mid_i).x)
-	{
-		operator [](mid_i) = node;
-		return true;
-	}
-
-	return InsertNode(node, mid_i + 1, end_i);
-}
-
 void Spline::AddNode(float x, float y, float k0, float k)
 {
-	InsertNode(SplineNode(x, y, k0, k), 0, size());
-}
-
-float Spline::Interpolate(float s, int begin_i, int end_i) const
-{
-	if(begin_i >= end_i)
+	iterator iter = std::lower_bound(begin(), end(), x,
+		boost::bind(std::less<float>(), boost::bind(&SplineNode::x, boost::placeholders::_1), boost::placeholders::_2));
+	if (iter != end() && iter->x == x)
 	{
-		if(begin_i >= (int)size())
-			return back().y;
-
-		if(end_i <= 0)
-			return front().y;
-
-		return operator [](begin_i - 1).Interpolate(operator [](begin_i), s);
+		iter->y = y;
+		iter->k0 = k0;
+		iter->k = k;
 	}
-
-	int mid_i = (begin_i + end_i) / 2;
-
-	if(s < operator [](mid_i).x)
+	else
 	{
-		return Interpolate(s, begin_i, mid_i);
+		insert(iter, SplineNode(x, y, k0, k));
 	}
-
-	if(s == operator [](mid_i).x)
-	{
-		return operator [](mid_i).y;
-	}
-
-	return Interpolate(s, mid_i + 1, end_i);
 }
 
 float Spline::Interpolate(float s, float value) const
 {
-	if(!empty())
+	const_iterator iter = std::upper_bound(begin(), end(), s,
+		boost::bind(std::less<float>(), boost::placeholders::_1, boost::bind(&SplineNode::x, boost::placeholders::_2)));
+	if (iter != begin())
 	{
-		return Interpolate(s, 0, size());
+		if (iter != end())
+		{
+			return (iter - 1)->Interpolate(*iter, s);
+		}
+		return (iter - 1)->y;
 	}
-
+	else if (iter != end())
+	{
+		return iter->y;
+	}
 	return value;
 }
