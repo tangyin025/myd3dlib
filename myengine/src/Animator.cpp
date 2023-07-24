@@ -313,9 +313,10 @@ my::BoneList & AnimationNodeSlot::GetPose(my::BoneList & pose, int root_i, const
 
 void AnimationNodeSlot::Play(const std::string & Name, float Rate, float Weight, float BlendTime, float BlendOutTime, bool Loop, int Priority, DWORD_PTR UserData)
 {
-	if (m_SequenceSlot.empty() || m_SequenceSlot.back().m_Priority <= Priority)
+	SequenceList::iterator seq_iter = m_SequenceSlot.insert(std::upper_bound(m_SequenceSlot.begin(), m_SequenceSlot.end(), Priority,
+		boost::bind(std::less<float>(), boost::placeholders::_1, boost::bind(&Sequence::m_Priority, boost::placeholders::_2))));
+	if (seq_iter != m_SequenceSlot.end())
 	{
-		SequenceList::iterator seq_iter = m_SequenceSlot.insert(m_SequenceSlot.end());
 		seq_iter->m_Time = 0;
 		seq_iter->m_Weight = 0;
 		seq_iter->m_Name = Name;
@@ -327,11 +328,6 @@ void AnimationNodeSlot::Play(const std::string & Name, float Rate, float Weight,
 		seq_iter->m_TargetWeight = Weight;
 		seq_iter->m_UserData = UserData;
 		seq_iter->m_Parent = this;
-
-		if (seq_iter != m_SequenceSlot.begin())
-		{
-			StopSlotByIndex(std::distance(m_SequenceSlot.begin(), seq_iter) - 1);
-		}
 	}
 }
 
