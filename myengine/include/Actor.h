@@ -368,7 +368,7 @@ public:
 
 	void CreateAggregate(bool enableSelfCollision);
 
-	boost::shared_ptr<ActionInst> PlayAction(Action * action, float Length);
+	boost::shared_ptr<ActionInst> PlayAction(Action * action, float Rate);
 
 	ActionInstPtrList::iterator StopActionInstIter(ActionInstPtrList::iterator action_inst_iter);
 

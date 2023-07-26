@@ -785,7 +785,7 @@ public:
 	{
 	}
 
-	virtual ActionTrackInstPtr CreateInstance(Actor* _Actor) const
+	virtual ActionTrackInstPtr CreateInstance(Actor* _Actor, float Rate) const
 	{
 		return ActionTrackInstPtr(luabind::call_function<ActionTrackInst*>(m_Creator, _Actor)[luabind::adopt(luabind::result)]);
 	}
@@ -2841,6 +2841,8 @@ void LuaContext::Init(void)
 			.def("AddRevoluteJoint", &Actor::AddRevoluteJoint)
 			.def("AddD6Joint", &Actor::AddD6Joint)
 			.def("PlayAction", &Actor::PlayAction)
+			.def("PlayAction", luabind::tag_function<boost::shared_ptr<ActionInst>(Actor*, Action*)>(
+				boost::bind(&Actor::PlayAction, boost::placeholders::_1, boost::placeholders::_2, 1.0f)))
 			.def("StopActionInst", &Actor::StopActionInst)
 			.def("StopAllActionInst", &Actor::StopAllActionInst)
 			.def("TickActionAndGetDisplacement", &Actor::TickActionAndGetDisplacement, pure_out_value(boost::placeholders::_3))

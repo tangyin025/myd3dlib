@@ -49,7 +49,7 @@ public:
 
 	void RemoveTrack(ActionTrackPtr track);
 
-	ActionInstPtr CreateInstance(Actor * _Actor);
+	ActionInstPtr CreateInstance(Actor * _Actor, float Rate);
 };
 
 class ActionTrackInst;
@@ -65,12 +65,14 @@ public:
 
 	float m_Time;
 
+	float m_Rate;
+
 	typedef std::vector<ActionTrackInstPtr> ActionTrackInstPtrList;
 
 	ActionTrackInstPtrList m_TrackInstList;
 
 public:
-	ActionInst(Actor * _Actor, boost::shared_ptr<const Action> Template);
+	ActionInst(Actor * _Actor, boost::shared_ptr<const Action> Template, float Rate);
 
 	void Update(float fElapsedTime);
 
@@ -88,10 +90,7 @@ public:
 	{
 	}
 
-	virtual ActionTrackInstPtr CreateInstance(Actor * _Actor) const
-	{
-		return ActionTrackInstPtr();
-	}
+	virtual ActionTrackInstPtr CreateInstance(Actor * _Actor, float Rate) const = 0;
 };
 
 typedef boost::shared_ptr<ActionTrack> ActionTrackPtr;
@@ -142,7 +141,7 @@ public:
 	{
 	}
 
-	virtual ActionTrackInstPtr CreateInstance(Actor * _Actor) const;
+	virtual ActionTrackInstPtr CreateInstance(Actor * _Actor, float Rate) const;
 
 	void AddKeyFrame(float Time, const char * SlotName, const char * Name, float Rate, float Weight, float BlendTime, float BlendOutTime, bool Loop, int Prority);
 };
@@ -189,7 +188,7 @@ public:
 
 	virtual ~ActionTrackSound(void);
 
-	virtual ActionTrackInstPtr CreateInstance(Actor * _Actor) const;
+	virtual ActionTrackInstPtr CreateInstance(Actor * _Actor, float Rate) const;
 
 	void AddKeyFrame(float Time, const char * SoundPath, bool Loop, float MinDistance, float MaxDistance);
 };
@@ -287,7 +286,7 @@ public:
 	{
 	}
 
-	virtual ActionTrackInstPtr CreateInstance(Actor * _Actor) const;
+	virtual ActionTrackInstPtr CreateInstance(Actor * _Actor, float Rate) const;
 
 	void AddKeyFrame(float Time, int SpawnCount, float SpawnInterval);
 };
@@ -359,7 +358,7 @@ public:
 	{
 	}
 
-	virtual ActionTrackInstPtr CreateInstance(Actor * _Actor) const;
+	virtual ActionTrackInstPtr CreateInstance(Actor * _Actor, float Rate) const;
 
 	void AddKeyFrame(float Time, float Length);
 };
@@ -405,7 +404,7 @@ public:
 		m_Interpolation.AddNode(1, 1, 0, 0);
 	}
 
-	virtual ActionTrackInstPtr CreateInstance(Actor * _Actor) const;
+	virtual ActionTrackInstPtr CreateInstance(Actor * _Actor, float Rate) const;
 
 	void AddKeyFrame(float Time, float Length);
 };

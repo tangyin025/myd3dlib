@@ -24,20 +24,21 @@ void Action::RemoveTrack(ActionTrackPtr track)
 	}
 }
 
-ActionInstPtr Action::CreateInstance(Actor * _Actor)
+ActionInstPtr Action::CreateInstance(Actor * _Actor, float Rate)
 {
-	return ActionInstPtr(new ActionInst(_Actor, shared_from_this()));
+	return ActionInstPtr(new ActionInst(_Actor, shared_from_this(), Rate));
 }
 
-ActionInst::ActionInst(Actor * _Actor, boost::shared_ptr<const Action> Template)
+ActionInst::ActionInst(Actor * _Actor, boost::shared_ptr<const Action> Template, float Rate)
 	: m_Template(Template)
 	, m_LastTime(0.0f)
 	, m_Time(0.0f)
+	, m_Rate(Rate)
 {
 	Action::ActionTrackPtrList::const_iterator track_iter = m_Template->m_TrackList.begin();
 	for (; track_iter != m_Template->m_TrackList.end(); track_iter++)
 	{
-		m_TrackInstList.push_back((*track_iter)->CreateInstance(_Actor));
+		m_TrackInstList.push_back((*track_iter)->CreateInstance(_Actor, Rate));
 	}
 }
 
@@ -63,7 +64,7 @@ void ActionInst::StopAllTrack(void)
 	}
 }
 
-ActionTrackInstPtr ActionTrackAnimation::CreateInstance(Actor * _Actor) const
+ActionTrackInstPtr ActionTrackAnimation::CreateInstance(Actor * _Actor, float Rate) const
 {
 	return ActionTrackInstPtr(new ActionTrackAnimationInst(_Actor, boost::static_pointer_cast<const ActionTrackAnimation>(shared_from_this())));
 }
@@ -148,7 +149,7 @@ ActionTrackSound::~ActionTrackSound(void)
 	}
 }
 
-ActionTrackInstPtr ActionTrackSound::CreateInstance(Actor * _Actor) const
+ActionTrackInstPtr ActionTrackSound::CreateInstance(Actor * _Actor, float Rate) const
 {
 	return ActionTrackInstPtr(new ActionTrackSoundInst(_Actor, boost::static_pointer_cast<const ActionTrackSound>(shared_from_this())));
 }
@@ -211,7 +212,7 @@ void ActionTrackSoundInst::Stop(void)
 	}
 }
 
-ActionTrackInstPtr ActionTrackEmitter::CreateInstance(Actor * _Actor) const
+ActionTrackInstPtr ActionTrackEmitter::CreateInstance(Actor * _Actor, float Rate) const
 {
 	return ActionTrackInstPtr(new ActionTrackEmitterInst(_Actor, boost::static_pointer_cast<const ActionTrackEmitter>(shared_from_this())));
 }
@@ -345,7 +346,7 @@ void ActionTrackEmitterInst::DoTask(void)
 	m_TaskEvent.SetEvent();
 }
 
-ActionTrackInstPtr ActionTrackVelocity::CreateInstance(Actor * _Actor) const
+ActionTrackInstPtr ActionTrackVelocity::CreateInstance(Actor * _Actor, float Rate) const
 {
 	return ActionTrackInstPtr(new ActionTrackVelocityInst(_Actor, boost::static_pointer_cast<const ActionTrackVelocity>(shared_from_this())));
 }
@@ -383,7 +384,7 @@ bool ActionTrackVelocityInst::GetDisplacement(float LastTime, float dtime, my::V
 	return false;
 }
 
-ActionTrackInstPtr ActionTrackPose::CreateInstance(Actor * _Actor) const
+ActionTrackInstPtr ActionTrackPose::CreateInstance(Actor * _Actor, float Rate) const
 {
 	return ActionTrackInstPtr(new ActionTrackPoseInst(_Actor, boost::static_pointer_cast<const ActionTrackPose>(shared_from_this())));
 }
