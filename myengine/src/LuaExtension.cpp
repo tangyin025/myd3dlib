@@ -2836,10 +2836,6 @@ void LuaContext::Init(void)
 			.property("AttachNum", &Actor::GetAttachNum)
 			.def("GetAttacher", &actor_get_attacher)
 			.def("GetAttachPose", &Actor::GetAttachPose)
-			.def("GetAttachPose", luabind::tag_function<my::Bone(Actor*, int, const my::Vector3&)>(
-				boost::bind(&Actor::GetAttachPose, boost::placeholders::_1, boost::placeholders::_2, boost::placeholders::_3, my::Quaternion::Identity())))
-			.def("GetAttachPose", luabind::tag_function<my::Bone(Actor*, int)>(
-				boost::bind(&Actor::GetAttachPose, boost::placeholders::_1, boost::placeholders::_2, my::Vector3(0, 0, 0), my::Quaternion::Identity())))
 			.def("ClearAllAttach", &Actor::ClearAllAttach)
 			.property("TopBase", &Actor::GetTopBase)
 			.def("AddRevoluteJoint", &Actor::AddRevoluteJoint)
