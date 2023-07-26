@@ -190,7 +190,7 @@ public:
 
 	boost::shared_ptr<physx::PxAggregate> m_Aggregate;
 
-	typedef std::vector<std::pair<boost::shared_ptr<ActionInst>, float> > ActionInstPtrList;
+	typedef std::vector<boost::shared_ptr<ActionInst> > ActionInstPtrList;
 
 	ActionInstPtrList m_ActionInstList;
 

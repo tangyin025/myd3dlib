@@ -2921,8 +2921,9 @@ void LuaContext::Init(void)
 			.def("Draw", (void (LargeImage::*)(my::UIRender*, const my::Rectangle&, DWORD, const my::Rectangle&, int))& LargeImage::Draw)
 
 		, class_<Action, boost::shared_ptr<Action> >("Action")
-			.def(constructor<>())
+			.def(constructor<float>())
 			.def(const_self == other<const Action&>())
+			.def_readwrite("Length", &Action::m_Length)
 			.def("AddTrack", &Action::AddTrack)
 			.def("RemoveTrack", &Action::RemoveTrack)
 

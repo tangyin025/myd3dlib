@@ -24,12 +24,15 @@ class Actor;
 class Action : public boost::enable_shared_from_this<Action>
 {
 public:
+	float m_Length;
+
 	typedef std::vector<ActionTrackPtr> ActionTrackPtrList;
 
 	ActionTrackPtrList m_TrackList;
 
 public:
-	Action(void)
+	Action(float Length)
+		: m_Length(Length)
 	{
 	}
 

@@ -347,9 +347,9 @@ void Actor::Update(float fElapsedTime)
 	ActionInstPtrList::iterator action_inst_iter = m_ActionInstList.begin();
 	for (; action_inst_iter != m_ActionInstList.end(); )
 	{
-		action_inst_iter->first->Update(fElapsedTime);
+		(*action_inst_iter)->Update(fElapsedTime);
 
-		if (action_inst_iter->first->m_LastTime < action_inst_iter->second)
+		if ((*action_inst_iter)->m_LastTime < (*action_inst_iter)->m_Template->m_Length)
 		{
 			action_inst_iter++;
 		}
@@ -962,7 +962,7 @@ void Actor::CreateAggregate(bool enableSelfCollision)
 boost::shared_ptr<ActionInst> Actor::PlayAction(Action * action, float Length)
 {
 	ActionInstPtr action_inst = action->CreateInstance(this);
-	m_ActionInstList.push_back(std::make_pair(action_inst, Length));
+	m_ActionInstList.push_back(action_inst);
 	return action_inst;
 }
 
@@ -970,11 +970,11 @@ Actor::ActionInstPtrList::iterator Actor::StopActionInstIter(ActionInstPtrList::
 {
 	_ASSERT(action_inst_iter != m_ActionInstList.end());
 
-	action_inst_iter->first->StopAllTrack();
+	(*action_inst_iter)->StopAllTrack();
 
 	// ! inst may out of the actor's lifetime
-	ActionInst::ActionTrackInstPtrList::iterator track_inst_iter = action_inst_iter->first->m_TrackInstList.begin();
-	for (; track_inst_iter != action_inst_iter->first->m_TrackInstList.end(); track_inst_iter++)
+	ActionInst::ActionTrackInstPtrList::iterator track_inst_iter = (*action_inst_iter)->m_TrackInstList.begin();
+	for (; track_inst_iter != (*action_inst_iter)->m_TrackInstList.end(); track_inst_iter++)
 	{
 		(*track_inst_iter)->m_Actor = NULL;
 	}
@@ -984,8 +984,7 @@ Actor::ActionInstPtrList::iterator Actor::StopActionInstIter(ActionInstPtrList::
 
 void Actor::StopActionInst(boost::shared_ptr<ActionInst> action_inst)
 {
-	ActionInstPtrList::iterator action_inst_iter = boost::find_if(m_ActionInstList,
-		boost::bind(std::equal_to<const boost::shared_ptr<ActionInst>&>(), boost::bind(&std::pair< boost::shared_ptr<ActionInst>, float>::first, boost::placeholders::_1), action_inst));
+	ActionInstPtrList::iterator action_inst_iter = std::find(m_ActionInstList.begin(), m_ActionInstList.end(), action_inst);
 	if (action_inst_iter != m_ActionInstList.end())
 	{
 		StopActionInstIter(action_inst_iter);
@@ -1008,14 +1007,14 @@ bool Actor::TickActionAndGetDisplacement(float dtime, my::Vector3 & disp)
 	ActionInstPtrList::iterator action_inst_iter = m_ActionInstList.begin();
 	for (; action_inst_iter != m_ActionInstList.end(); action_inst_iter++)
 	{
-		const float LastTime = action_inst_iter->first->m_Time;
+		const float LastTime = (*action_inst_iter)->m_Time;
 
-		action_inst_iter->first->m_Time += dtime;
+		(*action_inst_iter)->m_Time += dtime;
 
-		if (action_inst_iter->first->m_Time < action_inst_iter->second)
+		if ((*action_inst_iter)->m_Time < (*action_inst_iter)->m_Template->m_Length)
 		{
-			ActionInst::ActionTrackInstPtrList::iterator track_inst_iter = action_inst_iter->first->m_TrackInstList.begin();
-			for (; track_inst_iter != action_inst_iter->first->m_TrackInstList.end(); track_inst_iter++)
+			ActionInst::ActionTrackInstPtrList::iterator track_inst_iter = (*action_inst_iter)->m_TrackInstList.begin();
+			for (; track_inst_iter != (*action_inst_iter)->m_TrackInstList.end(); track_inst_iter++)
 			{
 				if ((*track_inst_iter)->GetDisplacement(LastTime, dtime, disp))
 				{

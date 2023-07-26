@@ -14,8 +14,8 @@
 using namespace my;
 
 ActionTbl::ActionTbl(void)
-	: Jump(new Action)
-	, Climb(new Action)
+	: Jump(new Action(0.5f))
+	, Climb(new Action(0.5f))
 {
 	boost::shared_ptr<ActionTrackVelocity> JumpVel(new ActionTrackVelocity);
 	JumpVel->AddKeyFrame(0.0f, 0.1f);
@@ -281,7 +281,7 @@ void PlayerAgent::Update(float fElapsedTime)
 		}
 		boost::dynamic_pointer_cast<ActionTrackVelocity>(ActionTbl::getSingleton().Jump->m_TrackList[0])->m_ParamVelocity =
 			HorizontalVel + Vector3(0, sqrt(-1.0f * 2.0f * theApp.default_physx_scene_gravity.y), 0);
-		m_Actor->PlayAction(ActionTbl::getSingleton().Jump.get(), 0.5f);
+		m_Actor->PlayAction(ActionTbl::getSingleton().Jump.get(), 1.0f);
 		m_Suspending = 0.0f;
 		m_Controller->SetUpDirection(Vector3(0, 1, 0));
 	}
