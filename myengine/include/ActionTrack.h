@@ -151,10 +151,13 @@ class ActionTrackAnimationInst : public ActionTrackInst
 protected:
 	boost::shared_ptr<const ActionTrackAnimation> m_Template;
 
+	float m_Rate;
+
 public:
-	ActionTrackAnimationInst(Actor * _Actor, boost::shared_ptr<const ActionTrackAnimation> Template)
+	ActionTrackAnimationInst(Actor * _Actor, boost::shared_ptr<const ActionTrackAnimation> Template, float Rate)
 		: ActionTrackInst(_Actor)
 		, m_Template(Template)
+		, m_Rate(Rate)
 	{
 	}
 

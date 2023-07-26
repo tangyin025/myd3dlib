@@ -66,7 +66,7 @@ void ActionInst::StopAllTrack(void)
 
 ActionTrackInstPtr ActionTrackAnimation::CreateInstance(Actor * _Actor, float Rate) const
 {
-	return ActionTrackInstPtr(new ActionTrackAnimationInst(_Actor, boost::static_pointer_cast<const ActionTrackAnimation>(shared_from_this())));
+	return ActionTrackInstPtr(new ActionTrackAnimationInst(_Actor, boost::static_pointer_cast<const ActionTrackAnimation>(shared_from_this()), Rate));
 }
 
 void ActionTrackAnimation::AddKeyFrame(float Time, const char * SlotName, const char * Name, float Rate, float Weight, float BlendTime, float BlendOutTime, bool Loop, int Prority)
@@ -101,7 +101,7 @@ void ActionTrackAnimationInst::UpdateTime(float LastTime, float Time)
 			{
 				slot->Play(
 					key_iter->second.Name,
-					key_iter->second.Rate,
+					key_iter->second.Rate * m_Rate,
 					key_iter->second.Weight,
 					key_iter->second.BlendTime,
 					key_iter->second.BlendOutTime,
