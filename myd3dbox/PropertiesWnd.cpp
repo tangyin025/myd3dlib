@@ -585,7 +585,10 @@ void CPropertiesWnd::UpdatePropertiesCloth(CMFCPropertyGridProperty * pComponent
 	pComponent->GetSubItem(PropId + 3)->GetSubItem(1)->SetValue((_variant_t)stretchConfig.stiffnessMultiplier);
 	pComponent->GetSubItem(PropId + 3)->GetSubItem(2)->SetValue((_variant_t)stretchConfig.compressionLimit);
 	pComponent->GetSubItem(PropId + 3)->GetSubItem(3)->SetValue((_variant_t)stretchConfig.stretchLimit);
-	UpdatePropertiesMaterial(pComponent->GetSubItem(PropId + 4), cloth_cmp->m_Material.get());
+	physx::PxClothTetherConfig tetherConfig = cloth_cmp->m_Cloth->getTetherConfig();
+	pComponent->GetSubItem(PropId + 4)->GetSubItem(0)->SetValue((_variant_t)tetherConfig.stiffness);
+	pComponent->GetSubItem(PropId + 4)->GetSubItem(1)->SetValue((_variant_t)tetherConfig.stretchLimit);
+	UpdatePropertiesMaterial(pComponent->GetSubItem(PropId + 5), cloth_cmp->m_Material.get());
 }
 
 void CPropertiesWnd::UpdatePropertiesStaticEmitter(CMFCPropertyGridProperty * pComponent, StaticEmitter * emit_cmp)
@@ -1651,6 +1654,14 @@ void CPropertiesWnd::CreatePropertiesCloth(CMFCPropertyGridProperty * pComponent
 	pStretchVertical->AddSubItem(pProp);
 	pProp = new CSimpleProp(_T("StretchLimit"), (_variant_t)stretchConfig.stretchLimit, NULL, PropertyClothStretchVerticalStretchLimit);
 	pStretchVertical->AddSubItem(pProp);
+
+	physx::PxClothTetherConfig tetherConfig = cloth_cmp->m_Cloth->getTetherConfig();
+	CMFCPropertyGridProperty* pTether = new CSimpleProp(_T("Tether"), PropertyClothTether, TRUE);
+	pComponent->AddSubItem(pTether);
+	pProp = new CSimpleProp(_T("Stiffness"), (_variant_t)tetherConfig.stiffness, NULL, PropertyClothTetherStiffness);
+	pTether->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("StretchLimit"), (_variant_t)tetherConfig.stretchLimit, NULL, PropertyClothTetherStretchLimit);
+	pTether->AddSubItem(pProp);
 
 	CreatePropertiesMaterial(pComponent, _T("Material"), cloth_cmp->m_Material.get());
 }
@@ -2729,7 +2740,7 @@ unsigned int CPropertiesWnd::GetComponentPropCount(DWORD type)
 	case Component::ComponentTypeStaticMesh:
 		return GetComponentPropCount(Component::ComponentTypeComponent) + 6;
 	case Component::ComponentTypeCloth:
-		return GetComponentPropCount(Component::ComponentTypeComponent) + 5;
+		return GetComponentPropCount(Component::ComponentTypeComponent) + 6;
 	case Component::ComponentTypeStaticEmitter:
 		return GetComponentPropCount(Component::ComponentTypeComponent) + 9;
 	case Component::ComponentTypeSphericalEmitter:
@@ -3755,6 +3766,29 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			pStretchVertical->GetSubItem(1)->GetValue().fltVal,
 			pStretchVertical->GetSubItem(2)->GetValue().fltVal,
 			pStretchVertical->GetSubItem(3)->GetValue().fltVal));
+		break;
+	}
+	case PropertyClothTether:
+	case PropertyClothTetherStiffness:
+	case PropertyClothTetherStretchLimit:
+	{
+		CMFCPropertyGridProperty* pTether = NULL;
+		switch (PropertyId)
+		{
+		case PropertyClothTether:
+			pTether = pProp;
+			break;
+		case PropertyClothTetherStiffness:
+		case PropertyClothTetherStretchLimit:
+			pTether = pProp->GetParent();
+			break;
+		}
+		ASSERT(pTether);
+		ClothComponent* cloth_cmp = (ClothComponent*)pTether->GetParent()->GetValue().pulVal;
+		unsigned int PropId = GetComponentPropCount(Component::ComponentTypeComponent);
+		cloth_cmp->m_Cloth->setTetherConfig(physx::PxClothTetherConfig(
+			pTether->GetSubItem(0)->GetValue().fltVal,
+			pTether->GetSubItem(1)->GetValue().fltVal));
 		break;
 	}
 	case PropertyEmitterFaceType:
