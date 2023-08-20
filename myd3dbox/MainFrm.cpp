@@ -1567,6 +1567,14 @@ void CMainFrame::OnComponentCloth()
 	for (int submesh_i = 0; node_submesh != NULL; node_submesh = node_submesh->next_sibling(), submesh_i++)
 	{
 		std::string ClothFabricPath = MeshPath + ".pxclothfabric_" + boost::lexical_cast<std::string>(submesh_i);
+		std::string FullPath = theApp.GetFullPath(ClothFabricPath.c_str());
+		if (!DeleteFileA(FullPath.c_str()))
+		{
+			DWORD code = GetLastError();
+			if (code != ERROR_FILE_NOT_FOUND)
+				THROW_WINEXCEPTION(GetLastError());
+		}
+
 		ClothComponentPtr cloth_cmp(new ClothComponent(my::NamedObject::MakeUniqueName((std::string((*actor_iter)->GetName()) + "_cloth").c_str()).c_str()));
 		cloth_cmp->CreateClothFromMesh(ClothFabricPath.c_str(), mesh, submesh_i, GetGravity());
 		MaterialPtr mtl(new Material());
