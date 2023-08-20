@@ -1149,7 +1149,6 @@ void ClothComponent::load(Archive & ar, const unsigned int version)
 void ClothComponent::OnResetShader(void)
 {
 	handle_World = NULL;
-	handle_dualquat = NULL;
 }
 
 void ClothComponent::CreateClothFromMesh(const char * ClothFabricPath, my::OgreMeshPtr mesh, int sub_mesh_id, const my::Vector3 & gravity)
@@ -1313,13 +1312,6 @@ void ClothComponent::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * sha
 	shader->SetMatrix(handle_World, m_Actor->m_World);
 
 	shader->SetVector(handle_MeshColor, m_MeshColor);
-
-	Animator* animator = m_Actor->GetFirstComponent<Animator>();
-
-	if (animator && !animator->m_DualQuats.empty() && m_VertexElems.elems[D3DDECLUSAGE_BLENDINDICES][0].Type == D3DDECLTYPE_UBYTE4)
-	{
-		shader->SetMatrixArray(handle_dualquat, &animator->m_DualQuats[0], animator->m_DualQuats.size());
-	}
 }
 
 void ClothComponent::SetPxPoseOrbyPxThread(const my::Vector3 & Pos, const my::Quaternion & Rot)
@@ -1356,17 +1348,11 @@ void ClothComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline *
 		_ASSERT(0 != m_VertexStride);
 		if (m_Material && (m_Material->m_PassMask & PassMask))
 		{
-			Animator* animator = m_Actor->GetFirstComponent<Animator>();
 			for (unsigned int PassID = 0; PassID < RenderPipeline::PassTypeNum; PassID++)
 			{
 				if (RenderPipeline::PassTypeToMask(PassID) & (m_Material->m_PassMask & PassMask))
 				{
 					D3DXMACRO macro[2] = { { 0 } };
-					int j = 0;
-					if (animator && m_VertexElems.elems[D3DDECLUSAGE_BLENDINDICES][0].Type == D3DDECLTYPE_UBYTE4)
-					{
-						macro[j++].Name = "SKELETON";
-					}
 					my::Effect* shader = pipeline->QueryShader(RenderPipeline::MeshTypeMesh, macro, m_Material->m_Shader.c_str(), PassID);
 					if (shader)
 					{
@@ -1374,13 +1360,6 @@ void ClothComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline *
 						{
 							BOOST_VERIFY(handle_World = shader->GetParameterByName(NULL, "g_World"));
 							BOOST_VERIFY(handle_MeshColor = shader->GetParameterByName(NULL, "g_MeshColor"));
-						}
-
-						if (!handle_dualquat && animator && m_VertexElems.elems[D3DDECLUSAGE_BLENDINDICES][0].Type == D3DDECLTYPE_UBYTE4)
-						{
-							BOOST_VERIFY(handle_World = shader->GetParameterByName(NULL, "g_World"));
-							BOOST_VERIFY(handle_MeshColor = shader->GetParameterByName(NULL, "g_MeshColor"));
-							BOOST_VERIFY(handle_dualquat = shader->GetParameterByName(NULL, "g_dualquat"));
 						}
 
 						pipeline->PushIndexedPrimitiveUP(PassID, m_Decl, D3DPT_TRIANGLELIST,

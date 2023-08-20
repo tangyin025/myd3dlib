@@ -423,14 +423,11 @@ public:
 
 	D3DXHANDLE handle_MeshColor;
 
-	D3DXHANDLE handle_dualquat;
-
 protected:
 	ClothComponent(void)
 		: m_MeshColor(my::Vector4(1, 1, 1, 1))
 		, handle_World(NULL)
 		, handle_MeshColor(NULL)
-		, handle_dualquat(NULL)
 	{
 	}
 
@@ -440,7 +437,6 @@ public:
 		, m_MeshColor(my::Vector4(1, 1, 1, 1))
 		, handle_World(NULL)
 		, handle_MeshColor(NULL)
-		, handle_dualquat(NULL)
 	{
 	}
 
