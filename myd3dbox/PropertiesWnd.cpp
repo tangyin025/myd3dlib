@@ -580,7 +580,12 @@ void CPropertiesWnd::UpdatePropertiesCloth(CMFCPropertyGridProperty * pComponent
 	pComponent->GetSubItem(PropId + 1)->SetValue((_variant_t)(long)(cloth_cmp->m_MeshColor.w * 255));
 	physx::PxClothFlags flags = cloth_cmp->m_Cloth->getClothFlags();
 	pComponent->GetSubItem(PropId + 2)->SetValue((_variant_t)(VARIANT_BOOL)flags.isSet(physx::PxClothFlag::eSCENE_COLLISION));
-	UpdatePropertiesMaterial(pComponent->GetSubItem(PropId + 3), cloth_cmp->m_Material.get());
+	physx::PxClothStretchConfig stretchConfig = cloth_cmp->m_Cloth->getStretchConfig(physx::PxClothFabricPhaseType::eVERTICAL);
+	pComponent->GetSubItem(PropId + 3)->GetSubItem(0)->SetValue((_variant_t)stretchConfig.stiffness);
+	pComponent->GetSubItem(PropId + 3)->GetSubItem(1)->SetValue((_variant_t)stretchConfig.stiffnessMultiplier);
+	pComponent->GetSubItem(PropId + 3)->GetSubItem(2)->SetValue((_variant_t)stretchConfig.compressionLimit);
+	pComponent->GetSubItem(PropId + 3)->GetSubItem(3)->SetValue((_variant_t)stretchConfig.stretchLimit);
+	UpdatePropertiesMaterial(pComponent->GetSubItem(PropId + 4), cloth_cmp->m_Material.get());
 }
 
 void CPropertiesWnd::UpdatePropertiesStaticEmitter(CMFCPropertyGridProperty * pComponent, StaticEmitter * emit_cmp)
@@ -1634,6 +1639,19 @@ void CPropertiesWnd::CreatePropertiesCloth(CMFCPropertyGridProperty * pComponent
 	physx::PxClothFlags flags = cloth_cmp->m_Cloth->getClothFlags();
 	CMFCPropertyGridProperty * pProp = new CCheckBoxProp(_T("SceneCollision"), (_variant_t)flags.isSet(physx::PxClothFlag::eSCENE_COLLISION), NULL, PropertyClothSceneCollision);
 	pComponent->AddSubItem(pProp);
+
+	physx::PxClothStretchConfig stretchConfig = cloth_cmp->m_Cloth->getStretchConfig(physx::PxClothFabricPhaseType::eVERTICAL);
+	CMFCPropertyGridProperty* pStretchVertical = new CSimpleProp(_T("StretchVertical"), PropertyClothStretchVertical, TRUE);
+	pComponent->AddSubItem(pStretchVertical);
+	pProp = new CSimpleProp(_T("Stiffness"), (_variant_t)stretchConfig.stiffness, NULL, PropertyClothStretchVerticalStiffness);
+	pStretchVertical->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("StiffnessMultiplier"), (_variant_t)stretchConfig.stiffnessMultiplier, NULL, PropertyClothStretchVerticalStiffnessMultiplier);
+	pStretchVertical->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("CompressionLimit"), (_variant_t)stretchConfig.compressionLimit, NULL, PropertyClothStretchVerticalCompressionLimit);
+	pStretchVertical->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("StretchLimit"), (_variant_t)stretchConfig.stretchLimit, NULL, PropertyClothStretchVerticalStretchLimit);
+	pStretchVertical->AddSubItem(pProp);
+
 	CreatePropertiesMaterial(pComponent, _T("Material"), cloth_cmp->m_Material.get());
 }
 
@@ -2711,7 +2729,7 @@ unsigned int CPropertiesWnd::GetComponentPropCount(DWORD type)
 	case Component::ComponentTypeStaticMesh:
 		return GetComponentPropCount(Component::ComponentTypeComponent) + 6;
 	case Component::ComponentTypeCloth:
-		return GetComponentPropCount(Component::ComponentTypeComponent) + 4;
+		return GetComponentPropCount(Component::ComponentTypeComponent) + 5;
 	case Component::ComponentTypeStaticEmitter:
 		return GetComponentPropCount(Component::ComponentTypeComponent) + 9;
 	case Component::ComponentTypeSphericalEmitter:
@@ -3708,6 +3726,35 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		cloth_cmp->m_Cloth->setClothFlag(physx::PxClothFlag::eSCENE_COLLISION, pProp->GetValue().boolVal != 0);
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
+		break;
+	}
+	case PropertyClothStretchVertical:
+	case PropertyClothStretchVerticalStiffness:
+	case PropertyClothStretchVerticalStiffnessMultiplier:
+	case PropertyClothStretchVerticalCompressionLimit:
+	case PropertyClothStretchVerticalStretchLimit:
+	{
+		CMFCPropertyGridProperty* pStretchVertical = NULL;
+		switch (PropertyId)
+		{
+		case PropertyClothStretchVertical:
+			pStretchVertical = pProp;
+			break;
+		case PropertyClothStretchVerticalStiffness:
+		case PropertyClothStretchVerticalStiffnessMultiplier:
+		case PropertyClothStretchVerticalCompressionLimit:
+		case PropertyClothStretchVerticalStretchLimit:
+			pStretchVertical = pProp->GetParent();
+			break;
+		}
+		ASSERT(pStretchVertical);
+		ClothComponent* cloth_cmp = (ClothComponent*)pStretchVertical->GetParent()->GetValue().pulVal;
+		unsigned int PropId = GetComponentPropCount(Component::ComponentTypeComponent);
+		cloth_cmp->m_Cloth->setStretchConfig(physx::PxClothFabricPhaseType::eVERTICAL, physx::PxClothStretchConfig(
+			pStretchVertical->GetSubItem(0)->GetValue().fltVal,
+			pStretchVertical->GetSubItem(1)->GetValue().fltVal,
+			pStretchVertical->GetSubItem(2)->GetValue().fltVal,
+			pStretchVertical->GetSubItem(3)->GetValue().fltVal));
 		break;
 	}
 	case PropertyEmitterFaceType:
