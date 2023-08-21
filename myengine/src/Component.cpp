@@ -1068,16 +1068,6 @@ ClothComponent::~ClothComponent(void)
 namespace boost { 
 	namespace serialization {
 		template<class Archive>
-		inline void serialize(Archive & ar, D3DXATTRIBUTERANGE & t, const unsigned int file_version)
-		{
-			ar & BOOST_SERIALIZATION_NVP(t.AttribId);
-			ar & BOOST_SERIALIZATION_NVP(t.FaceStart);
-			ar & BOOST_SERIALIZATION_NVP(t.FaceCount);
-			ar & BOOST_SERIALIZATION_NVP(t.VertexStart);
-			ar & BOOST_SERIALIZATION_NVP(t.VertexCount);
-		}
-
-		template<class Archive>
 		inline void serialize(Archive & ar, physx::PxClothParticle & t, const unsigned int file_version)
 		{
 			ar & BOOST_SERIALIZATION_NVP(t.pos.x);
@@ -1086,15 +1076,15 @@ namespace boost {
 			ar & BOOST_SERIALIZATION_NVP(t.invWeight);
 		}
 
-		template<class Archive>
-		inline void serialize(Archive & ar, ClothComponent::ClothCollisionSpherePair & t, const unsigned int file_version)
-		{
-			ar & BOOST_SERIALIZATION_NVP(t.first.pos.x);
-			ar & BOOST_SERIALIZATION_NVP(t.first.pos.y);
-			ar & BOOST_SERIALIZATION_NVP(t.first.pos.z);
-			ar & BOOST_SERIALIZATION_NVP(t.first.radius);
-			ar & BOOST_SERIALIZATION_NVP(t.second);
-		}
+		//template<class Archive>
+		//inline void serialize(Archive & ar, ClothComponent::ClothCollisionSpherePair & t, const unsigned int file_version)
+		//{
+		//	ar & BOOST_SERIALIZATION_NVP(t.first.pos.x);
+		//	ar & BOOST_SERIALIZATION_NVP(t.first.pos.y);
+		//	ar & BOOST_SERIALIZATION_NVP(t.first.pos.z);
+		//	ar & BOOST_SERIALIZATION_NVP(t.first.radius);
+		//	ar & BOOST_SERIALIZATION_NVP(t.second);
+		//}
 	}
 }
 
@@ -1116,7 +1106,15 @@ void ClothComponent::save(Archive & ar, const unsigned int version) const
 	ar << BOOST_SERIALIZATION_NVP(m_VertexElems);
 	ar << BOOST_SERIALIZATION_NVP(m_particles);
 	ar << BOOST_SERIALIZATION_NVP(m_ClothFabricPath);
-	ar << BOOST_SERIALIZATION_NVP(m_ClothSpheres);
+	physx::PxClothStretchConfig stretchConfig = m_Cloth->getStretchConfig(physx::PxClothFabricPhaseType::eVERTICAL);
+	ar << BOOST_SERIALIZATION_NVP(stretchConfig.stiffness);
+	ar << BOOST_SERIALIZATION_NVP(stretchConfig.stiffnessMultiplier);
+	ar << BOOST_SERIALIZATION_NVP(stretchConfig.compressionLimit);
+	ar << BOOST_SERIALIZATION_NVP(stretchConfig.stretchLimit);
+	physx::PxClothTetherConfig tetherConfig = m_Cloth->getTetherConfig();
+	ar << BOOST_SERIALIZATION_NVP(tetherConfig.stiffness);
+	ar << BOOST_SERIALIZATION_NVP(tetherConfig.stretchLimit);
+	//ar << BOOST_SERIALIZATION_NVP(m_ClothSpheres);
 }
 
 template<class Archive>
@@ -1143,7 +1141,18 @@ void ClothComponent::load(Archive & ar, const unsigned int version)
 	ar >> boost::serialization::make_nvp("m_ClothFabricPath", ClothFabricPath);
 	CreateClothFromMesh(ClothFabricPath.c_str(), my::OgreMeshPtr(), 0, Vector3(0, 0, 0));
 
-	ar >> BOOST_SERIALIZATION_NVP(m_ClothSpheres);
+	physx::PxClothStretchConfig stretchConfig;
+	ar >> BOOST_SERIALIZATION_NVP(stretchConfig.stiffness);
+	ar >> BOOST_SERIALIZATION_NVP(stretchConfig.stiffnessMultiplier);
+	ar >> BOOST_SERIALIZATION_NVP(stretchConfig.compressionLimit);
+	ar >> BOOST_SERIALIZATION_NVP(stretchConfig.stretchLimit);
+	m_Cloth->setStretchConfig(physx::PxClothFabricPhaseType::eVERTICAL, stretchConfig);
+	physx::PxClothTetherConfig tetherConfig;
+	ar >> BOOST_SERIALIZATION_NVP(tetherConfig.stiffness);
+	ar >> BOOST_SERIALIZATION_NVP(tetherConfig.stretchLimit);
+	m_Cloth->setTetherConfig(tetherConfig);
+
+	//ar >> BOOST_SERIALIZATION_NVP(m_ClothSpheres);
 }
 
 void ClothComponent::OnResetShader(void)
@@ -1433,37 +1442,37 @@ void ClothComponent::OnPxThreadSubstep(float dtime)
 {
 	_ASSERT(m_Actor);
 
-	if (!m_ClothSpheres.empty())
-	{
-		m_ClothSpheresTmp.resize(m_ClothSpheres.size());
-		Animator* animator = m_Actor->GetFirstComponent<Animator>();
-		if (animator && !animator->m_DualQuats.empty() && m_VertexElems.elems[D3DDECLUSAGE_BLENDINDICES][0].Type == D3DDECLTYPE_UBYTE4)
-		{
-			for (unsigned int i = 0; i < m_ClothSpheres.size(); i++)
-			{
-				m_ClothSpheresTmp[i].radius = m_ClothSpheres[i].first.radius;
-				if (m_ClothSpheres[i].second >= 0)
-				{
-					Matrix4 & dual = animator->m_DualQuats[m_ClothSpheres[i].second];
-					m_ClothSpheresTmp[i].pos = (physx::PxVec3 &)TransformList::TransformVertexWithDualQuaternion(
-						(Vector3 &)m_ClothSpheres[i].first.pos, dual);
-				}
-				else
-				{
-					m_ClothSpheresTmp[i].pos = m_ClothSpheres[i].first.pos;
-				}
-			}
-		}
-		else
-		{
-			for (unsigned int i = 0; i < m_ClothSpheres.size(); i++)
-			{
-				m_ClothSpheresTmp[i].pos = m_ClothSpheres[i].first.pos;
-			}
-		}
+	//if (!m_ClothSpheres.empty())
+	//{
+	//	m_ClothSpheresTmp.resize(m_ClothSpheres.size());
+	//	Animator* animator = m_Actor->GetFirstComponent<Animator>();
+	//	if (animator && !animator->m_DualQuats.empty() && m_VertexElems.elems[D3DDECLUSAGE_BLENDINDICES][0].Type == D3DDECLTYPE_UBYTE4)
+	//	{
+	//		for (unsigned int i = 0; i < m_ClothSpheres.size(); i++)
+	//		{
+	//			m_ClothSpheresTmp[i].radius = m_ClothSpheres[i].first.radius;
+	//			if (m_ClothSpheres[i].second >= 0)
+	//			{
+	//				Matrix4 & dual = animator->m_DualQuats[m_ClothSpheres[i].second];
+	//				m_ClothSpheresTmp[i].pos = (physx::PxVec3 &)TransformList::TransformVertexWithDualQuaternion(
+	//					(Vector3 &)m_ClothSpheres[i].first.pos, dual);
+	//			}
+	//			else
+	//			{
+	//				m_ClothSpheresTmp[i].pos = m_ClothSpheres[i].first.pos;
+	//			}
+	//		}
+	//	}
+	//	else
+	//	{
+	//		for (unsigned int i = 0; i < m_ClothSpheres.size(); i++)
+	//		{
+	//			m_ClothSpheresTmp[i].pos = m_ClothSpheres[i].first.pos;
+	//		}
+	//	}
 
-		m_Cloth->setCollisionSpheres(&m_ClothSpheresTmp[0], m_ClothSpheresTmp.size());
-	}
+	//	m_Cloth->setCollisionSpheres(&m_ClothSpheresTmp[0], m_ClothSpheresTmp.size());
+	//}
 }
 
 void EmitterComponent::OnResetShader(void)

@@ -411,13 +411,13 @@ public:
 
 	boost::shared_ptr<physx::PxCloth> m_Cloth;
 
-	typedef std::pair<physx::PxClothCollisionSphere, int> ClothCollisionSpherePair;
+	//typedef std::pair<physx::PxClothCollisionSphere, int> ClothCollisionSpherePair;
 
-	typedef std::vector<ClothCollisionSpherePair> ClothCollisionSpherePairList;
-	
-	ClothCollisionSpherePairList m_ClothSpheres;
+	//typedef std::vector<ClothCollisionSpherePair> ClothCollisionSpherePairList;
+	//
+	//ClothCollisionSpherePairList m_ClothSpheres;
 
-	std::vector<physx::PxClothCollisionSphere> m_ClothSpheresTmp;
+	//std::vector<physx::PxClothCollisionSphere> m_ClothSpheresTmp;
 
 	D3DXHANDLE handle_World;
 
