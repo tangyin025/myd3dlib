@@ -514,6 +514,30 @@ void CChildView::RenderSelectedComponent(IDirect3DDevice9 * pd3dDevice, Componen
 		}
 		break;
 
+	case Component::ComponentTypeCloth:
+		{
+			ClothComponent* cloth_cmp = dynamic_cast<ClothComponent*>(cmp);
+			if (!cloth_cmp->m_VertexData.empty())
+			{
+				my::Effect* shader = theApp.QueryShader(RenderPipeline::MeshTypeMesh, NULL, "shader/mtl_simplecolor.fx", RenderPipeline::PassTypeToMask(RenderPipeline::PassTypeOpaque));
+				if (shader)
+				{
+					shader->SetMatrix(shader->GetParameterByName(NULL, "g_World"), cloth_cmp->m_Actor->m_World);
+					shader->SetVector(shader->GetParameterByName(NULL, "g_MeshColor"), (my::Vector4&)D3DXCOLOR(color));
+					shader->Begin(D3DXFX_DONOTSAVESTATE | D3DXFX_DONOTSAVESAMPLERSTATE | D3DXFX_DONOTSAVESHADERSTATE);
+					shader->BeginPass(RenderPipeline::PassTypeOpaque);
+					V(pd3dDevice->DrawIndexedPrimitiveUP(D3DPT_TRIANGLELIST, 0,
+						cloth_cmp->m_VertexData.size() / cloth_cmp->m_VertexStride,
+						cloth_cmp->m_IndexData.size() / 3,
+						cloth_cmp->m_IndexData.data(),
+						D3DFMT_INDEX16, cloth_cmp->m_VertexData.data(), cloth_cmp->m_VertexStride));
+					shader->EndPass();
+					shader->End();
+				}
+			}
+		}
+		break;
+
 	case Component::ComponentTypeStaticEmitter:
 		{
 			ASSERT(pFrame->m_selactors.size() >= 1 && pFrame->m_selcmp == cmp);

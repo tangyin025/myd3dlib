@@ -219,7 +219,10 @@ static void cloth_component_get_tether(const ClothComponent* self, float& stiffn
 
 static void cloth_component_add_collision_sphere(ClothComponent* self, const my::Vector3& pos, float radius, int boneid)
 {
-	self->m_ClothSphereBones.push_back(std::make_pair(physx::PxClothCollisionSphere((physx::PxVec3&)pos, radius), boneid));
+	physx::PxClothCollisionSphere sphere((physx::PxVec3&)pos, radius);
+	self->m_ClothSphereBones.push_back(std::make_pair(sphere, boneid));
+	self->m_Cloth->addCollisionSphere(sphere);
+	_ASSERT(self->m_ClothSphereBones.size() == self->m_Cloth->getNbCollisionSpheres());
 }
 
 static void cloth_component_add_collision_capsule(ClothComponent* self, int first, int second)

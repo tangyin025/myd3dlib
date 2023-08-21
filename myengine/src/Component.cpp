@@ -1466,9 +1466,9 @@ void ClothComponent::OnPxThreadSubstep(float dtime)
 				m_ClothSpheres[i].radius = m_ClothSphereBones[i].first.radius;
 				if (m_ClothSphereBones[i].second >= 0)
 				{
-					Matrix4 & dual = animator->m_DualQuats[m_ClothSphereBones[i].second];
-					m_ClothSpheres[i].pos = (physx::PxVec3 &)TransformList::TransformVertexWithDualQuaternion(
-						(Vector3 &)m_ClothSphereBones[i].first.pos, dual);
+					Bone bone((Vector3&)m_ClothSphereBones[i].first.pos);
+					bone.TransformSelf(animator->anim_pose_hier[m_ClothSphereBones[i].second]);
+					m_ClothSpheres[i].pos = (physx::PxVec3&)bone.m_position;
 				}
 				else
 				{
