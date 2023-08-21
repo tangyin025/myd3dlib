@@ -1114,6 +1114,7 @@ void ClothComponent::save(Archive & ar, const unsigned int version) const
 	physx::PxClothTetherConfig tetherConfig = m_Cloth->getTetherConfig();
 	ar << BOOST_SERIALIZATION_NVP(tetherConfig.stiffness);
 	ar << BOOST_SERIALIZATION_NVP(tetherConfig.stretchLimit);
+	_ASSERT(m_ClothSphereBones.size() == m_Cloth->getNbCollisionSpheres());
 	ar << BOOST_SERIALIZATION_NVP(m_ClothSphereBones);
 	unsigned int NbCapsules = m_Cloth->getNbCollisionCapsules();
 	std::vector<physx::PxU32> ClothCapsules(NbCapsules * 2);
@@ -1157,6 +1158,8 @@ void ClothComponent::load(Archive & ar, const unsigned int version)
 	m_Cloth->setTetherConfig(tetherConfig);
 
 	ar >> BOOST_SERIALIZATION_NVP(m_ClothSphereBones);
+	m_ClothSpheres.resize(m_ClothSphereBones.size());
+	m_Cloth->setCollisionSpheres(m_ClothSpheres.data(), m_ClothSpheres.size());
 	std::vector<physx::PxU32> ClothCapsules;
 	ar >> BOOST_SERIALIZATION_NVP(ClothCapsules);
 	for (int i = 0; i < ClothCapsules.size(); i += 2)
