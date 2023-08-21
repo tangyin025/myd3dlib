@@ -191,6 +191,32 @@ static boost::iterator_range<shared_obj_list_iter> d3dcontext_get_named_object_l
 	return boost::make_iterator_range(shared_obj_list_iter(objs->begin(), objs), shared_obj_list_iter(objs->end(), objs));
 }
 
+static void cloth_component_set_stretch(ClothComponent* self, physx::PxClothFabricPhaseType::Enum type, float stiffness, float stiffnessMultiplier, float compressionLimit, float stretchLimit)
+{
+	self->m_Cloth->setStretchConfig(type, physx::PxClothStretchConfig(stiffness, stiffnessMultiplier, compressionLimit, stretchLimit));
+}
+
+static void cloth_component_get_stretch(const ClothComponent* self, physx::PxClothFabricPhaseType::Enum type, float & stiffness, float & stiffnessMultiplier, float & compressionLimit, float & stretchLimit)
+{
+	physx::PxClothStretchConfig stretchConfig = self->m_Cloth->getStretchConfig(type);
+	stiffness = stretchConfig.stiffness;
+	stiffnessMultiplier = stretchConfig.stiffnessMultiplier;
+	compressionLimit = stretchConfig.compressionLimit;
+	stretchLimit = stretchConfig.stretchLimit;
+}
+
+static void cloth_component_set_tether(ClothComponent* self, float stiffness, float stretchLimit)
+{
+	self->m_Cloth->setTetherConfig(physx::PxClothTetherConfig(stiffness, stretchLimit));
+}
+
+static void cloth_component_get_tether(const ClothComponent* self, float& stiffness, float& stretchLimit)
+{
+	physx::PxClothTetherConfig tetherConfig = self->m_Cloth->getTetherConfig();
+	stiffness = tetherConfig.stiffness;
+	stretchLimit = tetherConfig.stretchLimit;
+}
+
 class StaticEmitterParticleIterator : public std::iterator<std::forward_iterator_tag, my::Emitter::Particle>
 {
 protected:
@@ -2591,6 +2617,17 @@ void LuaContext::Init(void)
 		, class_<ClothComponent, Component, boost::shared_ptr<Component> >("ClothComponent")
 			.def(constructor<const char *>())
 			.def("CreateClothFromMesh", &ClothComponent::CreateClothFromMesh)
+			.enum_("PxClothFabricPhaseType")
+			[
+				value("eVERTICAL", physx::PxClothFabricPhaseType::eVERTICAL),
+				value("eHORIZONTAL", physx::PxClothFabricPhaseType::eHORIZONTAL),
+				value("eBENDING", physx::PxClothFabricPhaseType::eBENDING),
+				value("eSHEARING", physx::PxClothFabricPhaseType::eSHEARING)
+			]
+			.def("SetStretch", &cloth_component_set_stretch)
+			.def("GetStretch", &cloth_component_get_stretch, pure_out_value(boost::placeholders::_3) + pure_out_value(boost::placeholders::_4) + pure_out_value(boost::placeholders::_5) + pure_out_value(boost::placeholders::_6))
+			.def("SetTether", &cloth_component_set_tether)
+			.def("GetTether", &cloth_component_get_tether, pure_out_value(boost::placeholders::_3) + pure_out_value(boost::placeholders::_4))
 
 		, class_<EmitterComponent, Component, boost::shared_ptr<Component> >("EmitterComponent")
 			.enum_("FaceType")
