@@ -579,16 +579,17 @@ void CPropertiesWnd::UpdatePropertiesCloth(CMFCPropertyGridProperty * pComponent
 	(DYNAMIC_DOWNCAST(CColorProp, pComponent->GetSubItem(PropId + 0)))->SetColor(color);
 	pComponent->GetSubItem(PropId + 1)->SetValue((_variant_t)(long)(cloth_cmp->m_MeshColor.w * 255));
 	physx::PxClothFlags flags = cloth_cmp->m_Cloth->getClothFlags();
-	pComponent->GetSubItem(PropId + 2)->SetValue((_variant_t)(VARIANT_BOOL)flags.isSet(physx::PxClothFlag::eSCENE_COLLISION));
+	pComponent->GetSubItem(PropId + 2)->SetValue((_variant_t)(VARIANT_BOOL)flags.isSet(physx::PxClothFlag::eSWEPT_CONTACT));
+	pComponent->GetSubItem(PropId + 3)->SetValue((_variant_t)(VARIANT_BOOL)flags.isSet(physx::PxClothFlag::eSCENE_COLLISION));
 	physx::PxClothStretchConfig stretchConfig = cloth_cmp->m_Cloth->getStretchConfig(physx::PxClothFabricPhaseType::eVERTICAL);
-	pComponent->GetSubItem(PropId + 3)->GetSubItem(0)->SetValue((_variant_t)stretchConfig.stiffness);
-	pComponent->GetSubItem(PropId + 3)->GetSubItem(1)->SetValue((_variant_t)stretchConfig.stiffnessMultiplier);
-	pComponent->GetSubItem(PropId + 3)->GetSubItem(2)->SetValue((_variant_t)stretchConfig.compressionLimit);
-	pComponent->GetSubItem(PropId + 3)->GetSubItem(3)->SetValue((_variant_t)stretchConfig.stretchLimit);
+	pComponent->GetSubItem(PropId + 4)->GetSubItem(0)->SetValue((_variant_t)stretchConfig.stiffness);
+	pComponent->GetSubItem(PropId + 4)->GetSubItem(1)->SetValue((_variant_t)stretchConfig.stiffnessMultiplier);
+	pComponent->GetSubItem(PropId + 4)->GetSubItem(2)->SetValue((_variant_t)stretchConfig.compressionLimit);
+	pComponent->GetSubItem(PropId + 4)->GetSubItem(3)->SetValue((_variant_t)stretchConfig.stretchLimit);
 	physx::PxClothTetherConfig tetherConfig = cloth_cmp->m_Cloth->getTetherConfig();
-	pComponent->GetSubItem(PropId + 4)->GetSubItem(0)->SetValue((_variant_t)tetherConfig.stiffness);
-	pComponent->GetSubItem(PropId + 4)->GetSubItem(1)->SetValue((_variant_t)tetherConfig.stretchLimit);
-	UpdatePropertiesMaterial(pComponent->GetSubItem(PropId + 5), cloth_cmp->m_Material.get());
+	pComponent->GetSubItem(PropId + 5)->GetSubItem(0)->SetValue((_variant_t)tetherConfig.stiffness);
+	pComponent->GetSubItem(PropId + 5)->GetSubItem(1)->SetValue((_variant_t)tetherConfig.stretchLimit);
+	UpdatePropertiesMaterial(pComponent->GetSubItem(PropId + 6), cloth_cmp->m_Material.get());
 }
 
 void CPropertiesWnd::UpdatePropertiesStaticEmitter(CMFCPropertyGridProperty * pComponent, StaticEmitter * emit_cmp)
@@ -1640,7 +1641,10 @@ void CPropertiesWnd::CreatePropertiesCloth(CMFCPropertyGridProperty * pComponent
 	pComponent->AddSubItem(pAlpha);
 
 	physx::PxClothFlags flags = cloth_cmp->m_Cloth->getClothFlags();
-	CMFCPropertyGridProperty * pProp = new CCheckBoxProp(_T("SceneCollision"), (_variant_t)flags.isSet(physx::PxClothFlag::eSCENE_COLLISION), NULL, PropertyClothSceneCollision);
+	CMFCPropertyGridProperty* pProp = new CCheckBoxProp(_T("SweptContact"), (_variant_t)flags.isSet(physx::PxClothFlag::eSWEPT_CONTACT), NULL, PropertyClothSweptContact);
+	pComponent->AddSubItem(pProp);
+
+	pProp = new CCheckBoxProp(_T("SceneCollision"), (_variant_t)flags.isSet(physx::PxClothFlag::eSCENE_COLLISION), NULL, PropertyClothSceneCollision);
 	pComponent->AddSubItem(pProp);
 
 	physx::PxClothStretchConfig stretchConfig = cloth_cmp->m_Cloth->getStretchConfig(physx::PxClothFabricPhaseType::eVERTICAL);
@@ -2740,7 +2744,7 @@ unsigned int CPropertiesWnd::GetComponentPropCount(DWORD type)
 	case Component::ComponentTypeStaticMesh:
 		return GetComponentPropCount(Component::ComponentTypeComponent) + 6;
 	case Component::ComponentTypeCloth:
-		return GetComponentPropCount(Component::ComponentTypeComponent) + 6;
+		return GetComponentPropCount(Component::ComponentTypeComponent) + 7;
 	case Component::ComponentTypeStaticEmitter:
 		return GetComponentPropCount(Component::ComponentTypeComponent) + 9;
 	case Component::ComponentTypeSphericalEmitter:
@@ -3727,6 +3731,14 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		cloth_cmp->m_MeshColor.y = GetGValue(color) / 255.0f;
 		cloth_cmp->m_MeshColor.z = GetBValue(color) / 255.0f;
 		cloth_cmp->m_MeshColor.w = pProp->GetParent()->GetSubItem(PropId + 1)->GetValue().lVal / 255.0f;
+		my::EventArg arg;
+		pFrame->m_EventAttributeChanged(&arg);
+		break;
+	}
+	case PropertyClothSweptContact:
+	{
+		ClothComponent* cloth_cmp = (ClothComponent*)pProp->GetParent()->GetValue().pulVal;
+		cloth_cmp->m_Cloth->setClothFlag(physx::PxClothFlag::eSWEPT_CONTACT, pProp->GetValue().boolVal != 0);
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;

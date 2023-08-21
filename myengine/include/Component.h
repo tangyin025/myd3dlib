@@ -482,6 +482,10 @@ public:
 	void UpdateVertexData(void);
 
 	void OnPxThreadSubstep(float dtime);
+
+	void SetClothFlags(unsigned int Flags);
+
+	unsigned int GetClothFlags(void) const;
 };
 
 typedef boost::shared_ptr<ClothComponent> ClothComponentPtr;

@@ -2630,6 +2630,15 @@ void LuaContext::Init(void)
 		, class_<ClothComponent, Component, boost::shared_ptr<Component> >("ClothComponent")
 			.def(constructor<const char *>())
 			.def("CreateClothFromMesh", &ClothComponent::CreateClothFromMesh)
+			.enum_("PxClothFlag")
+			[
+				value("eDEFAULT", physx::PxClothFlag::Enum::eDEFAULT),
+				value("eCUDA", physx::PxClothFlag::Enum::eCUDA),
+				value("eGPU", physx::PxClothFlag::Enum::eGPU),
+				value("eSWEPT_CONTACT", physx::PxClothFlag::Enum::eSWEPT_CONTACT),
+				value("eSCENE_COLLISION", physx::PxClothFlag::Enum::eSCENE_COLLISION)
+			]
+			.property("ClothFlags", &ClothComponent::GetClothFlags, &ClothComponent::SetClothFlags)
 			.enum_("PxClothFabricPhaseType")
 			[
 				value("eVERTICAL", physx::PxClothFabricPhaseType::eVERTICAL),

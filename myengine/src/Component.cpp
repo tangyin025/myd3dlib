@@ -1106,6 +1106,8 @@ void ClothComponent::save(Archive & ar, const unsigned int version) const
 	ar << BOOST_SERIALIZATION_NVP(m_VertexElems);
 	ar << BOOST_SERIALIZATION_NVP(m_particles);
 	ar << BOOST_SERIALIZATION_NVP(m_ClothFabricPath);
+	unsigned int ClothFlags = GetClothFlags();
+	ar << BOOST_SERIALIZATION_NVP(ClothFlags);
 	physx::PxClothStretchConfig stretchConfig = m_Cloth->getStretchConfig(physx::PxClothFabricPhaseType::eVERTICAL);
 	ar << BOOST_SERIALIZATION_NVP(stretchConfig.stiffness);
 	ar << BOOST_SERIALIZATION_NVP(stretchConfig.stiffnessMultiplier);
@@ -1145,6 +1147,10 @@ void ClothComponent::load(Archive & ar, const unsigned int version)
 	std::string ClothFabricPath;
 	ar >> boost::serialization::make_nvp("m_ClothFabricPath", ClothFabricPath);
 	CreateClothFromMesh(ClothFabricPath.c_str(), my::OgreMeshPtr(), 0, Vector3(0, 0, 0));
+
+	unsigned int ClothFlags;
+	ar >> BOOST_SERIALIZATION_NVP(ClothFlags);
+	SetClothFlags(ClothFlags);
 
 	physx::PxClothStretchConfig stretchConfig;
 	ar >> BOOST_SERIALIZATION_NVP(stretchConfig.stiffness);
@@ -1486,6 +1492,16 @@ void ClothComponent::OnPxThreadSubstep(float dtime)
 
 		m_Cloth->setCollisionSpheres(&m_ClothSpheres[0], m_ClothSpheres.size());
 	}
+}
+
+void ClothComponent::SetClothFlags(unsigned int Flags)
+{
+	m_Cloth->setClothFlags(physx::PxClothFlags(Flags));
+}
+
+unsigned int ClothComponent::GetClothFlags(void) const
+{
+	return (unsigned int)m_Cloth->getClothFlags();
 }
 
 void EmitterComponent::OnResetShader(void)

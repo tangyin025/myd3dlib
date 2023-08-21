@@ -150,6 +150,7 @@ public:
 		PropertyCloth,
 		PropertyClothColor,
 		PropertyClothAlpha,
+		PropertyClothSweptContact,
 		PropertyClothSceneCollision,
 		PropertyClothStretchVertical,
 		PropertyClothStretchVerticalStiffness,
