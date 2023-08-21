@@ -217,6 +217,16 @@ static void cloth_component_get_tether(const ClothComponent* self, float& stiffn
 	stretchLimit = tetherConfig.stretchLimit;
 }
 
+static void cloth_component_add_collision_sphere(ClothComponent* self, const my::Vector3& pos, float radius, int boneid)
+{
+	self->m_ClothSphereBones.push_back(std::make_pair(physx::PxClothCollisionSphere((physx::PxVec3&)pos, radius), boneid));
+}
+
+static void cloth_component_add_collision_capsule(ClothComponent* self, int first, int second)
+{
+	self->m_Cloth->addCollisionCapsule(first, second);
+}
+
 class StaticEmitterParticleIterator : public std::iterator<std::forward_iterator_tag, my::Emitter::Particle>
 {
 protected:
@@ -2628,6 +2638,8 @@ void LuaContext::Init(void)
 			.def("GetStretch", &cloth_component_get_stretch, pure_out_value(boost::placeholders::_3) + pure_out_value(boost::placeholders::_4) + pure_out_value(boost::placeholders::_5) + pure_out_value(boost::placeholders::_6))
 			.def("SetTether", &cloth_component_set_tether)
 			.def("GetTether", &cloth_component_get_tether, pure_out_value(boost::placeholders::_3) + pure_out_value(boost::placeholders::_4))
+			.def("AddCollisionSphere", &cloth_component_add_collision_sphere)
+			.def("AddCollisionCapsule", &cloth_component_add_collision_capsule)
 
 		, class_<EmitterComponent, Component, boost::shared_ptr<Component> >("EmitterComponent")
 			.enum_("FaceType")
