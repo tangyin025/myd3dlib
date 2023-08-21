@@ -411,13 +411,13 @@ public:
 
 	boost::shared_ptr<physx::PxCloth> m_Cloth;
 
-	//typedef std::pair<physx::PxClothCollisionSphere, int> ClothCollisionSpherePair;
+	typedef std::pair<physx::PxClothCollisionSphere, int> ClothCollisionSpherePair;
 
-	//typedef std::vector<ClothCollisionSpherePair> ClothCollisionSpherePairList;
-	//
-	//ClothCollisionSpherePairList m_ClothSpheres;
+	typedef std::vector<ClothCollisionSpherePair> ClothCollisionSpherePairList;
+	
+	ClothCollisionSpherePairList m_ClothSphereBones;
 
-	//std::vector<physx::PxClothCollisionSphere> m_ClothSpheresTmp;
+	std::vector<physx::PxClothCollisionSphere> m_ClothSpheres;
 
 	D3DXHANDLE handle_World;
 
@@ -479,7 +479,7 @@ public:
 
 	virtual void Update(float fElapsedTime);
 
-	void UpdateCloth(void);
+	void UpdateVertexData(void);
 
 	void OnPxThreadSubstep(float dtime);
 };

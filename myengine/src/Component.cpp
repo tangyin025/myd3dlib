@@ -1076,15 +1076,15 @@ namespace boost {
 			ar & BOOST_SERIALIZATION_NVP(t.invWeight);
 		}
 
-		//template<class Archive>
-		//inline void serialize(Archive & ar, ClothComponent::ClothCollisionSpherePair & t, const unsigned int file_version)
-		//{
-		//	ar & BOOST_SERIALIZATION_NVP(t.first.pos.x);
-		//	ar & BOOST_SERIALIZATION_NVP(t.first.pos.y);
-		//	ar & BOOST_SERIALIZATION_NVP(t.first.pos.z);
-		//	ar & BOOST_SERIALIZATION_NVP(t.first.radius);
-		//	ar & BOOST_SERIALIZATION_NVP(t.second);
-		//}
+		template<class Archive>
+		inline void serialize(Archive & ar, ClothComponent::ClothCollisionSpherePair & t, const unsigned int file_version)
+		{
+			ar & BOOST_SERIALIZATION_NVP(t.first.pos.x);
+			ar & BOOST_SERIALIZATION_NVP(t.first.pos.y);
+			ar & BOOST_SERIALIZATION_NVP(t.first.pos.z);
+			ar & BOOST_SERIALIZATION_NVP(t.first.radius);
+			ar & BOOST_SERIALIZATION_NVP(t.second);
+		}
 	}
 }
 
@@ -1114,7 +1114,11 @@ void ClothComponent::save(Archive & ar, const unsigned int version) const
 	physx::PxClothTetherConfig tetherConfig = m_Cloth->getTetherConfig();
 	ar << BOOST_SERIALIZATION_NVP(tetherConfig.stiffness);
 	ar << BOOST_SERIALIZATION_NVP(tetherConfig.stretchLimit);
-	//ar << BOOST_SERIALIZATION_NVP(m_ClothSpheres);
+	ar << BOOST_SERIALIZATION_NVP(m_ClothSphereBones);
+	unsigned int NbCapsules = m_Cloth->getNbCollisionCapsules();
+	std::vector<physx::PxU32> ClothCapsules(NbCapsules * 2);
+	m_Cloth->getCollisionData(NULL, ClothCapsules.data(), NULL, NULL, NULL);
+	ar << BOOST_SERIALIZATION_NVP(ClothCapsules);
 }
 
 template<class Archive>
@@ -1152,7 +1156,13 @@ void ClothComponent::load(Archive & ar, const unsigned int version)
 	ar >> BOOST_SERIALIZATION_NVP(tetherConfig.stretchLimit);
 	m_Cloth->setTetherConfig(tetherConfig);
 
-	//ar >> BOOST_SERIALIZATION_NVP(m_ClothSpheres);
+	ar >> BOOST_SERIALIZATION_NVP(m_ClothSphereBones);
+	std::vector<physx::PxU32> ClothCapsules;
+	ar >> BOOST_SERIALIZATION_NVP(ClothCapsules);
+	for (int i = 0; i < ClothCapsules.size(); i += 2)
+	{
+		m_Cloth->addCollisionCapsule(ClothCapsules[i + 0], ClothCapsules[i + 1]);
+	}
 }
 
 void ClothComponent::OnResetShader(void)
@@ -1385,10 +1395,10 @@ void ClothComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline *
 
 void ClothComponent::Update(float fElapsedTime)
 {
-	UpdateCloth();
+	UpdateVertexData();
 }
 
-void ClothComponent::UpdateCloth(void)
+void ClothComponent::UpdateVertexData(void)
 {
 	if (m_Cloth)
 	{
@@ -1442,37 +1452,37 @@ void ClothComponent::OnPxThreadSubstep(float dtime)
 {
 	_ASSERT(m_Actor);
 
-	//if (!m_ClothSpheres.empty())
-	//{
-	//	m_ClothSpheresTmp.resize(m_ClothSpheres.size());
-	//	Animator* animator = m_Actor->GetFirstComponent<Animator>();
-	//	if (animator && !animator->m_DualQuats.empty() && m_VertexElems.elems[D3DDECLUSAGE_BLENDINDICES][0].Type == D3DDECLTYPE_UBYTE4)
-	//	{
-	//		for (unsigned int i = 0; i < m_ClothSpheres.size(); i++)
-	//		{
-	//			m_ClothSpheresTmp[i].radius = m_ClothSpheres[i].first.radius;
-	//			if (m_ClothSpheres[i].second >= 0)
-	//			{
-	//				Matrix4 & dual = animator->m_DualQuats[m_ClothSpheres[i].second];
-	//				m_ClothSpheresTmp[i].pos = (physx::PxVec3 &)TransformList::TransformVertexWithDualQuaternion(
-	//					(Vector3 &)m_ClothSpheres[i].first.pos, dual);
-	//			}
-	//			else
-	//			{
-	//				m_ClothSpheresTmp[i].pos = m_ClothSpheres[i].first.pos;
-	//			}
-	//		}
-	//	}
-	//	else
-	//	{
-	//		for (unsigned int i = 0; i < m_ClothSpheres.size(); i++)
-	//		{
-	//			m_ClothSpheresTmp[i].pos = m_ClothSpheres[i].first.pos;
-	//		}
-	//	}
+	if (!m_ClothSphereBones.empty())
+	{
+		m_ClothSpheres.resize(m_ClothSphereBones.size());
+		Animator* animator = m_Actor->GetFirstComponent<Animator>();
+		if (animator && !animator->m_DualQuats.empty() && m_VertexElems.elems[D3DDECLUSAGE_BLENDINDICES][0].Type == D3DDECLTYPE_UBYTE4)
+		{
+			for (unsigned int i = 0; i < m_ClothSphereBones.size(); i++)
+			{
+				m_ClothSpheres[i].radius = m_ClothSphereBones[i].first.radius;
+				if (m_ClothSphereBones[i].second >= 0)
+				{
+					Matrix4 & dual = animator->m_DualQuats[m_ClothSphereBones[i].second];
+					m_ClothSpheres[i].pos = (physx::PxVec3 &)TransformList::TransformVertexWithDualQuaternion(
+						(Vector3 &)m_ClothSphereBones[i].first.pos, dual);
+				}
+				else
+				{
+					m_ClothSpheres[i].pos = m_ClothSphereBones[i].first.pos;
+				}
+			}
+		}
+		else
+		{
+			for (unsigned int i = 0; i < m_ClothSphereBones.size(); i++)
+			{
+				m_ClothSpheres[i].pos = m_ClothSphereBones[i].first.pos;
+			}
+		}
 
-	//	m_Cloth->setCollisionSpheres(&m_ClothSpheresTmp[0], m_ClothSpheresTmp.size());
-	//}
+		m_Cloth->setCollisionSpheres(&m_ClothSpheres[0], m_ClothSpheres.size());
+	}
 }
 
 void EmitterComponent::OnResetShader(void)
