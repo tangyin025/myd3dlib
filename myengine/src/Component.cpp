@@ -1234,6 +1234,9 @@ void ClothComponent::CreateClothFromMesh(const char * ClothFabricPath, my::OgreM
 		desc.points.data = &m_VertexData[0] + m_VertexElems.elems[D3DDECLUSAGE_POSITION][0].Offset;
 		desc.points.count = m_VertexData.size() / m_VertexStride;
 		desc.points.stride = m_VertexStride;
+		desc.invMasses.data = &m_particles[0].invWeight;
+		desc.invMasses.count = m_particles.size();
+		desc.invMasses.stride = sizeof(m_particles[0]);
 		desc.triangles.data = &m_IndexData[0];
 		desc.triangles.count = m_IndexData.size() / 3;
 		desc.triangles.stride = 3 * sizeof(unsigned short);
