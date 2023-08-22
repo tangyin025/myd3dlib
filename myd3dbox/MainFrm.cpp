@@ -1577,6 +1577,8 @@ void CMainFrame::OnComponentCloth()
 
 		ClothComponentPtr cloth_cmp(new ClothComponent(my::NamedObject::MakeUniqueName((std::string((*actor_iter)->GetName()) + "_cloth").c_str()).c_str()));
 		cloth_cmp->CreateClothFromMesh(ClothFabricPath.c_str(), mesh, submesh_i, GetGravity());
+		cloth_cmp->CreateVirtualParticles(mesh, 4);
+
 		MaterialPtr mtl(new Material());
 		mtl->m_Shader = theApp.default_shader;
 		mtl->ParseShaderParameters();

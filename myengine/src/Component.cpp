@@ -1116,6 +1116,12 @@ void ClothComponent::save(Archive & ar, const unsigned int version) const
 	physx::PxClothTetherConfig tetherConfig = m_Cloth->getTetherConfig();
 	ar << BOOST_SERIALIZATION_NVP(tetherConfig.stiffness);
 	ar << BOOST_SERIALIZATION_NVP(tetherConfig.stretchLimit);
+	std::vector<Vector3> ClothVPWeights(m_Cloth->getNbVirtualParticleWeights());
+	m_Cloth->getVirtualParticleWeights((physx::PxVec3*)ClothVPWeights.data());
+	ar << BOOST_SERIALIZATION_NVP(ClothVPWeights);
+	std::vector<unsigned int> ClothVPIndices(m_Cloth->getNbVirtualParticles() * 4);
+	m_Cloth->getVirtualParticles(ClothVPIndices.data());
+	ar << BOOST_SERIALIZATION_NVP(ClothVPIndices);
 	_ASSERT(m_ClothSphereBones.size() == m_Cloth->getNbCollisionSpheres());
 	ar << BOOST_SERIALIZATION_NVP(m_ClothSphereBones);
 	unsigned int NbCapsules = m_Cloth->getNbCollisionCapsules();
@@ -1163,9 +1169,17 @@ void ClothComponent::load(Archive & ar, const unsigned int version)
 	ar >> BOOST_SERIALIZATION_NVP(tetherConfig.stretchLimit);
 	m_Cloth->setTetherConfig(tetherConfig);
 
+	std::vector<Vector3> ClothVPWeights;
+	ar >> BOOST_SERIALIZATION_NVP(ClothVPWeights);
+	std::vector<unsigned int> ClothVPIndices;
+	ar >> BOOST_SERIALIZATION_NVP(ClothVPIndices);
+	m_Cloth->setVirtualParticles(ClothVPIndices.size() / 4, ClothVPIndices.data(), ClothVPWeights.size(), (physx::PxVec3*)ClothVPWeights.data());
+
 	ar >> BOOST_SERIALIZATION_NVP(m_ClothSphereBones);
-	m_ClothSpheres.resize(m_ClothSphereBones.size());
-	m_Cloth->setCollisionSpheres(m_ClothSpheres.data(), m_ClothSpheres.size());
+	for (int i = 0; i < m_ClothSphereBones.size(); i++)
+	{
+		m_Cloth->addCollisionSphere(m_ClothSphereBones[i].first);
+	}
 	std::vector<physx::PxU32> ClothCapsules;
 	ar >> BOOST_SERIALIZATION_NVP(ClothCapsules);
 	for (int i = 0; i < ClothCapsules.size(); i += 2)
@@ -1284,6 +1298,240 @@ void ClothComponent::CreateClothFromMesh(const char * ClothFabricPath, my::OgreM
 
 	m_Cloth.reset(PhysxSdk::getSingleton().m_sdk->createCloth(
 		physx::PxTransform(physx::PxIdentity), *m_ClothFabric, &m_particles[0], physx::PxClothFlags()), PhysxDeleter<physx::PxCloth>());
+
+	//// set solver settings
+	//m_Cloth->setSolverFrequency(240);
+
+	//m_Cloth->setStiffnessFrequency(10.0f);
+
+	//// damp global particle velocity to 90% every 0.1 seconds
+	//m_Cloth->setDampingCoefficient(physx::PxVec3(0.2f)); // damp local particle velocity
+	//m_Cloth->setLinearDragCoefficient(physx::PxVec3(0.2f)); // transfer frame velocity
+	//m_Cloth->setAngularDragCoefficient(physx::PxVec3(0.2f)); // transfer frame rotation
+
+	//// reduce impact of frame acceleration
+	//// x, z: cloth swings out less when walking in a circle
+	//// y: cloth responds less to jump acceleration
+	//m_Cloth->setLinearInertiaScale(physx::PxVec3(0.8f, 0.6f, 0.8f));
+
+	//// leave impact of frame torque at default
+	//m_Cloth->setAngularInertiaScale(physx::PxVec3(1.0f));
+
+	//// reduce centrifugal force of rotating frame
+	//m_Cloth->setCentrifugalInertiaScale(physx::PxVec3(0.3f));
+}
+
+void ClothComponent::CreateVirtualParticles(my::OgreMeshPtr mesh, int level)
+{
+	if (level < 1 || level > 5)
+		return;
+
+	static Vector3 gVirtualParticleWeights[] =
+	{
+		// center point
+		Vector3(1.0f / 3, 1.0f / 3, 1.0f / 3),
+
+		// off-center point
+		Vector3(4.0f / 6, 1.0f / 6, 1.0f / 6),
+
+		// edge point
+		Vector3(1.0f / 2, 1.0f / 2, 0.0f),
+	};
+
+	unsigned int edgeSampleCount[] = { 0, 0, 1, 1, 0, 1 };
+	unsigned int triSampleCount[] = { 0, 1, 0, 1, 3, 3 };
+	unsigned int quadSampleCount[] = { 0, 1, 0, 1, 4, 4 };
+
+	unsigned int numEdgeSamples = edgeSampleCount[level];
+	unsigned int numTriSamples = triSampleCount[level];
+	unsigned int numQuadSamples = quadSampleCount[level];
+
+	unsigned int numTriangles = mesh->GetNumFaces();
+	unsigned char* triangles = (unsigned char*)mesh->LockIndexBuffer();
+
+	unsigned int numQuads = 0;
+	unsigned char* quads = NULL;
+
+	std::vector<unsigned int> indices;
+	indices.reserve(numTriangles * (numTriSamples + 3 * numEdgeSamples)
+		+ numQuads * (numQuadSamples + 4 * numEdgeSamples));
+
+	typedef std::pair<unsigned int, unsigned int> Edge;
+	std::set<Edge> edges;
+
+	for (unsigned int i = 0; i < numTriangles; i++)
+	{
+		unsigned int v0, v1, v2;
+
+		if (!(mesh->GetOptions() & D3DXMESH_32BIT))
+		{
+			unsigned short* triangle = (unsigned short*)triangles;
+			v0 = triangle[0];
+			v1 = triangle[1];
+			v2 = triangle[2];
+		}
+		else
+		{
+			unsigned int* triangle = (unsigned int*)triangles;
+			v0 = triangle[0];
+			v1 = triangle[1];
+			v2 = triangle[2];
+		}
+
+		if (numTriSamples == 1)
+		{
+			indices.push_back(v0);
+			indices.push_back(v1);
+			indices.push_back(v2);
+			indices.push_back(0);
+		}
+
+		if (numTriSamples == 3)
+		{
+			indices.push_back(v0);
+			indices.push_back(v1);
+			indices.push_back(v2);
+			indices.push_back(1);
+
+			indices.push_back(v1);
+			indices.push_back(v2);
+			indices.push_back(v0);
+			indices.push_back(1);
+
+			indices.push_back(v2);
+			indices.push_back(v0);
+			indices.push_back(v1);
+			indices.push_back(1);
+		}
+
+		if (numEdgeSamples == 1)
+		{
+			if (edges.insert(std::make_pair(v0, v1)).second)
+			{
+				indices.push_back(v0);
+				indices.push_back(v1);
+				indices.push_back(v2);
+				indices.push_back(2);
+			}
+
+			if (edges.insert(std::make_pair(v1, v2)).second)
+			{
+				indices.push_back(v1);
+				indices.push_back(v2);
+				indices.push_back(v0);
+				indices.push_back(2);
+			}
+
+			if (edges.insert(std::make_pair(v2, v0)).second)
+			{
+				indices.push_back(v2);
+				indices.push_back(v0);
+				indices.push_back(v1);
+				indices.push_back(2);
+			}
+		}
+
+		if (!(mesh->GetOptions() & D3DXMESH_32BIT))
+			triangles += 3 * sizeof(unsigned short);
+		else
+			triangles += 3 * sizeof(unsigned int);
+	}
+
+	for (unsigned int i = 0; i < numQuads; i++)
+	{
+		unsigned int v0, v1, v2, v3;
+
+		if (!(mesh->GetOptions() & D3DXMESH_32BIT))
+		{
+			unsigned short* quad = (unsigned short*)quads;
+			v0 = quad[0];
+			v1 = quad[1];
+			v2 = quad[2];
+			v3 = quad[3];
+		}
+		else
+		{
+			unsigned int* quad = (unsigned int*)quads;
+			v0 = quad[0];
+			v1 = quad[1];
+			v2 = quad[2];
+			v3 = quad[3];
+		}
+
+		if (numQuadSamples == 1)
+		{
+			indices.push_back(v0);
+			indices.push_back(v2);
+			indices.push_back(v3);
+			indices.push_back(2);
+		}
+
+		if (numQuadSamples == 4)
+		{
+			indices.push_back(v0);
+			indices.push_back(v1);
+			indices.push_back(v2);
+			indices.push_back(1);
+
+			indices.push_back(v1);
+			indices.push_back(v2);
+			indices.push_back(v3);
+			indices.push_back(1);
+
+			indices.push_back(v2);
+			indices.push_back(v3);
+			indices.push_back(v0);
+			indices.push_back(1);
+
+			indices.push_back(v3);
+			indices.push_back(v0);
+			indices.push_back(v1);
+			indices.push_back(1);
+		}
+
+		if (numEdgeSamples == 1)
+		{
+			if (edges.insert(std::make_pair(v0, v1)).second)
+			{
+				indices.push_back(v0);
+				indices.push_back(v1);
+				indices.push_back(v2);
+				indices.push_back(2);
+			}
+
+			if (edges.insert(std::make_pair(v1, v2)).second)
+			{
+				indices.push_back(v1);
+				indices.push_back(v2);
+				indices.push_back(v3);
+				indices.push_back(2);
+			}
+
+			if (edges.insert(std::make_pair(v2, v3)).second)
+			{
+				indices.push_back(v2);
+				indices.push_back(v3);
+				indices.push_back(v0);
+				indices.push_back(2);
+			}
+
+			if (edges.insert(std::make_pair(v3, v0)).second)
+			{
+				indices.push_back(v3);
+				indices.push_back(v0);
+				indices.push_back(v1);
+				indices.push_back(2);
+			}
+		}
+
+		if (!(mesh->GetOptions() & D3DXMESH_32BIT))
+			quads += 4 * sizeof(unsigned short);
+		else
+			quads += 4 * sizeof(unsigned int);
+	}
+
+	m_Cloth->setVirtualParticles(indices.size() / 4,
+		indices.data(), 3, (physx::PxVec3*)gVirtualParticleWeights);
 }
 
 void ClothComponent::RequestResource(void)
