@@ -1099,12 +1099,14 @@ void ClothComponent::save(Archive & ar, const unsigned int version) const
 	ar << BOOST_SERIALIZATION_NVP(VertexSize);
 	ar << boost::serialization::make_nvp("m_VertexData", boost::serialization::binary_object((void *)&m_VertexData[0], VertexSize));
 	ar << BOOST_SERIALIZATION_NVP(m_VertexStride);
-	unsigned int IndexSize = m_IndexData.size() * sizeof(unsigned short);
+	unsigned int IndexSize = m_IndexData.size();
 	ar << BOOST_SERIALIZATION_NVP(IndexSize);
-	ar << boost::serialization::make_nvp("m_IndexData", boost::serialization::binary_object((void *)&m_IndexData[0], IndexSize));
+	ar << boost::serialization::make_nvp("m_IndexData", boost::serialization::binary_object((void *)&m_IndexData[0], IndexSize * sizeof(m_IndexData[0])));
 	ar << BOOST_SERIALIZATION_NVP(m_MeshColor);
 	ar << BOOST_SERIALIZATION_NVP(m_VertexElems);
-	ar << BOOST_SERIALIZATION_NVP(m_particles);
+	unsigned int ParticleSize = m_particles.size();
+	ar << BOOST_SERIALIZATION_NVP(ParticleSize);
+	ar << boost::serialization::make_nvp("m_particles", boost::serialization::binary_object((void*)&m_particles[0], ParticleSize * sizeof(m_particles[0])));
 	ar << BOOST_SERIALIZATION_NVP(m_ClothFabricPath);
 	unsigned int ClothFlags = GetClothFlags();
 	ar << BOOST_SERIALIZATION_NVP(ClothFlags);
@@ -1160,11 +1162,14 @@ void ClothComponent::load(Archive & ar, const unsigned int version)
 	ar >> BOOST_SERIALIZATION_NVP(m_VertexStride);
 	unsigned int IndexSize;
 	ar >> BOOST_SERIALIZATION_NVP(IndexSize);
-	m_IndexData.resize(IndexSize / sizeof(unsigned short));
-	ar >> boost::serialization::make_nvp("m_IndexData", boost::serialization::binary_object((void *)&m_IndexData[0], IndexSize));
+	m_IndexData.resize(IndexSize);
+	ar >> boost::serialization::make_nvp("m_IndexData", boost::serialization::binary_object((void *)&m_IndexData[0], IndexSize * sizeof(m_IndexData[0])));
 	ar >> BOOST_SERIALIZATION_NVP(m_MeshColor);
 	ar >> BOOST_SERIALIZATION_NVP(m_VertexElems);
-	ar >> BOOST_SERIALIZATION_NVP(m_particles);
+	unsigned int ParticleSize;
+	ar >> BOOST_SERIALIZATION_NVP(ParticleSize);
+	m_particles.resize(ParticleSize);
+	ar >> boost::serialization::make_nvp("m_particles", boost::serialization::binary_object((void*)&m_particles[0], ParticleSize * sizeof(m_particles[0])));
 
 	std::string ClothFabricPath;
 	ar >> boost::serialization::make_nvp("m_ClothFabricPath", ClothFabricPath);
