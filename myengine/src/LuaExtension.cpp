@@ -2639,6 +2639,7 @@ void LuaContext::Init(void)
 				value("eSCENE_COLLISION", physx::PxClothFlag::Enum::eSCENE_COLLISION)
 			]
 			.property("ClothFlags", &ClothComponent::GetClothFlags, &ClothComponent::SetClothFlags)
+			.property("ExternalAcceleration", &ClothComponent::GetExternalAcceleration, &ClothComponent::SetExternalAcceleration)
 			.enum_("PxClothFabricPhaseType")
 			[
 				value("eVERTICAL", physx::PxClothFabricPhaseType::eVERTICAL),

@@ -1782,6 +1782,16 @@ unsigned int ClothComponent::GetClothFlags(void) const
 	return (unsigned int)m_Cloth->getClothFlags();
 }
 
+void ClothComponent::SetExternalAcceleration(const my::Vector3& acceleration)
+{
+	m_Cloth->setExternalAcceleration((physx::PxVec3&)acceleration);
+}
+
+my::Vector3 ClothComponent::GetExternalAcceleration(void) const
+{
+	return (my::Vector3&)m_Cloth->getExternalAcceleration();
+}
+
 void EmitterComponent::OnResetShader(void)
 {
 	handle_World = NULL;

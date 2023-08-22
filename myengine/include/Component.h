@@ -488,6 +488,10 @@ public:
 	void SetClothFlags(unsigned int Flags);
 
 	unsigned int GetClothFlags(void) const;
+
+	void SetExternalAcceleration(const my::Vector3& acceleration);
+
+	my::Vector3 GetExternalAcceleration(void) const;
 };
 
 typedef boost::shared_ptr<ClothComponent> ClothComponentPtr;

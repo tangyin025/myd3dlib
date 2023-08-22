@@ -589,7 +589,11 @@ void CPropertiesWnd::UpdatePropertiesCloth(CMFCPropertyGridProperty * pComponent
 	physx::PxClothTetherConfig tetherConfig = cloth_cmp->m_Cloth->getTetherConfig();
 	pComponent->GetSubItem(PropId + 5)->GetSubItem(0)->SetValue((_variant_t)tetherConfig.stiffness);
 	pComponent->GetSubItem(PropId + 5)->GetSubItem(1)->SetValue((_variant_t)tetherConfig.stretchLimit);
-	UpdatePropertiesMaterial(pComponent->GetSubItem(PropId + 6), cloth_cmp->m_Material.get());
+	my::Vector3 acceleration = cloth_cmp->GetExternalAcceleration();
+	pComponent->GetSubItem(PropId + 6)->GetSubItem(0)->SetValue((_variant_t)acceleration.x);
+	pComponent->GetSubItem(PropId + 6)->GetSubItem(1)->SetValue((_variant_t)acceleration.y);
+	pComponent->GetSubItem(PropId + 6)->GetSubItem(2)->SetValue((_variant_t)acceleration.z);
+	UpdatePropertiesMaterial(pComponent->GetSubItem(PropId + 7), cloth_cmp->m_Material.get());
 }
 
 void CPropertiesWnd::UpdatePropertiesStaticEmitter(CMFCPropertyGridProperty * pComponent, StaticEmitter * emit_cmp)
@@ -1666,6 +1670,16 @@ void CPropertiesWnd::CreatePropertiesCloth(CMFCPropertyGridProperty * pComponent
 	pTether->AddSubItem(pProp);
 	pProp = new CSimpleProp(_T("StretchLimit"), (_variant_t)tetherConfig.stretchLimit, NULL, PropertyClothTetherStretchLimit);
 	pTether->AddSubItem(pProp);
+
+	my::Vector3 acceleration = cloth_cmp->GetExternalAcceleration();
+	CMFCPropertyGridProperty* pExternalAcceleration = new CSimpleProp(_T("ExternalAcceleration"), PropertyClothExternalAcceleration, TRUE);
+	pComponent->AddSubItem(pExternalAcceleration);
+	pProp = new CSimpleProp(_T("x"), (_variant_t)acceleration.x, NULL, PropertyClothExternalAccelerationX);
+	pExternalAcceleration->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("y"), (_variant_t)acceleration.y, NULL, PropertyClothExternalAccelerationY);
+	pExternalAcceleration->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("z"), (_variant_t)acceleration.z, NULL, PropertyClothExternalAccelerationZ);
+	pExternalAcceleration->AddSubItem(pProp);
 
 	CreatePropertiesMaterial(pComponent, _T("Material"), cloth_cmp->m_Material.get());
 }
@@ -2744,7 +2758,7 @@ unsigned int CPropertiesWnd::GetComponentPropCount(DWORD type)
 	case Component::ComponentTypeStaticMesh:
 		return GetComponentPropCount(Component::ComponentTypeComponent) + 6;
 	case Component::ComponentTypeCloth:
-		return GetComponentPropCount(Component::ComponentTypeComponent) + 7;
+		return GetComponentPropCount(Component::ComponentTypeComponent) + 8;
 	case Component::ComponentTypeStaticEmitter:
 		return GetComponentPropCount(Component::ComponentTypeComponent) + 9;
 	case Component::ComponentTypeSphericalEmitter:
@@ -3772,7 +3786,6 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		}
 		ASSERT(pStretchVertical);
 		ClothComponent* cloth_cmp = (ClothComponent*)pStretchVertical->GetParent()->GetValue().pulVal;
-		unsigned int PropId = GetComponentPropCount(Component::ComponentTypeComponent);
 		cloth_cmp->m_Cloth->setStretchConfig(physx::PxClothFabricPhaseType::eVERTICAL, physx::PxClothStretchConfig(
 			pStretchVertical->GetSubItem(0)->GetValue().fltVal,
 			pStretchVertical->GetSubItem(1)->GetValue().fltVal,
@@ -3797,10 +3810,34 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		}
 		ASSERT(pTether);
 		ClothComponent* cloth_cmp = (ClothComponent*)pTether->GetParent()->GetValue().pulVal;
-		unsigned int PropId = GetComponentPropCount(Component::ComponentTypeComponent);
 		cloth_cmp->m_Cloth->setTetherConfig(physx::PxClothTetherConfig(
 			pTether->GetSubItem(0)->GetValue().fltVal,
 			pTether->GetSubItem(1)->GetValue().fltVal));
+		break;
+	}
+	case PropertyClothExternalAcceleration:
+	case PropertyClothExternalAccelerationX:
+	case PropertyClothExternalAccelerationY:
+	case PropertyClothExternalAccelerationZ:
+	{
+		CMFCPropertyGridProperty* pExternalAcceleration = NULL;
+		switch (PropertyId)
+		{
+		case PropertyClothExternalAcceleration:
+			pExternalAcceleration = pProp;
+			break;
+		case PropertyClothExternalAccelerationX:
+		case PropertyClothExternalAccelerationY:
+		case PropertyClothExternalAccelerationZ:
+			pExternalAcceleration = pProp->GetParent();
+			break;
+		}
+		ASSERT(pExternalAcceleration);
+		ClothComponent* cloth_cmp = (ClothComponent*)pExternalAcceleration->GetParent()->GetValue().pulVal;
+		cloth_cmp->SetExternalAcceleration(my::Vector3(
+			pExternalAcceleration->GetSubItem(0)->GetValue().fltVal,
+			pExternalAcceleration->GetSubItem(1)->GetValue().fltVal,
+			pExternalAcceleration->GetSubItem(2)->GetValue().fltVal));
 		break;
 	}
 	case PropertyEmitterFaceType:
