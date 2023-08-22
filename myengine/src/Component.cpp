@@ -1134,12 +1134,14 @@ void ClothComponent::save(Archive & ar, const unsigned int version) const
 	physx::PxClothTetherConfig tetherConfig = m_Cloth->getTetherConfig();
 	ar << BOOST_SERIALIZATION_NVP(tetherConfig.stiffness);
 	ar << BOOST_SERIALIZATION_NVP(tetherConfig.stretchLimit);
-	std::vector<Vector3> ClothVPWeights(m_Cloth->getNbVirtualParticleWeights());
-	m_Cloth->getVirtualParticleWeights((physx::PxVec3*)ClothVPWeights.data());
-	ar << BOOST_SERIALIZATION_NVP(ClothVPWeights);
-	std::vector<unsigned int> ClothVPIndices(m_Cloth->getNbVirtualParticles() * 4);
-	m_Cloth->getVirtualParticles(ClothVPIndices.data());
-	ar << BOOST_SERIALIZATION_NVP(ClothVPIndices);
+	std::vector<Vector3> VirtualParticleWeights(m_Cloth->getNbVirtualParticleWeights());
+	m_Cloth->getVirtualParticleWeights((physx::PxVec3*)VirtualParticleWeights.data());
+	ar << BOOST_SERIALIZATION_NVP(VirtualParticleWeights);
+	std::vector<unsigned int> VirtualParticles(m_Cloth->getNbVirtualParticles() * 4);
+	m_Cloth->getVirtualParticles(VirtualParticles.data());
+	unsigned int VirtualParticleSize = VirtualParticles.size();
+	ar << BOOST_SERIALIZATION_NVP(VirtualParticleSize);
+	ar << boost::serialization::make_nvp("VirtualParticle", boost::serialization::binary_object((void*)&VirtualParticles[0], VirtualParticleSize * sizeof(VirtualParticles[0])));
 	_ASSERT(m_ClothSphereBones.size() == m_Cloth->getNbCollisionSpheres());
 	ar << BOOST_SERIALIZATION_NVP(m_ClothSphereBones);
 	unsigned int NbCapsules = m_Cloth->getNbCollisionCapsules();
@@ -1215,11 +1217,13 @@ void ClothComponent::load(Archive & ar, const unsigned int version)
 	ar >> BOOST_SERIALIZATION_NVP(tetherConfig.stretchLimit);
 	m_Cloth->setTetherConfig(tetherConfig);
 
-	std::vector<Vector3> ClothVPWeights;
-	ar >> BOOST_SERIALIZATION_NVP(ClothVPWeights);
-	std::vector<unsigned int> ClothVPIndices;
-	ar >> BOOST_SERIALIZATION_NVP(ClothVPIndices);
-	m_Cloth->setVirtualParticles(ClothVPIndices.size() / 4, ClothVPIndices.data(), ClothVPWeights.size(), (physx::PxVec3*)ClothVPWeights.data());
+	std::vector<Vector3> VirtualParticleWeights;
+	ar >> BOOST_SERIALIZATION_NVP(VirtualParticleWeights);
+	unsigned int VirtualParticleSize;
+	ar >> BOOST_SERIALIZATION_NVP(VirtualParticleSize);
+	std::vector<unsigned int> VirtualParticles(VirtualParticleSize);
+	ar >> boost::serialization::make_nvp("VirtualParticle", boost::serialization::binary_object((void*)&VirtualParticles[0], VirtualParticleSize * sizeof(VirtualParticles[0])));
+	m_Cloth->setVirtualParticles(VirtualParticles.size() / 4, VirtualParticles.data(), VirtualParticleWeights.size(), (physx::PxVec3*)VirtualParticleWeights.data());
 
 	ar >> BOOST_SERIALIZATION_NVP(m_ClothSphereBones);
 	for (int i = 0; i < m_ClothSphereBones.size(); i++)
