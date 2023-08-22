@@ -1108,6 +1108,22 @@ void ClothComponent::save(Archive & ar, const unsigned int version) const
 	ar << BOOST_SERIALIZATION_NVP(m_ClothFabricPath);
 	unsigned int ClothFlags = GetClothFlags();
 	ar << BOOST_SERIALIZATION_NVP(ClothFlags);
+	float SolverFrequency = m_Cloth->getSolverFrequency();
+	ar << BOOST_SERIALIZATION_NVP(SolverFrequency);
+	float StiffnessFrequency = m_Cloth->getStiffnessFrequency();
+	ar << BOOST_SERIALIZATION_NVP(StiffnessFrequency);
+	Vector3 DampingCoefficient = (Vector3&)m_Cloth->getDampingCoefficient();
+	ar << BOOST_SERIALIZATION_NVP(DampingCoefficient);
+	Vector3 LinearDragCoefficient = (Vector3&)m_Cloth->getLinearDragCoefficient();
+	ar << BOOST_SERIALIZATION_NVP(LinearDragCoefficient);
+	Vector3 AngularDragCoefficient = (Vector3&)m_Cloth->getAngularDragCoefficient();
+	ar << BOOST_SERIALIZATION_NVP(AngularDragCoefficient);
+	Vector3 LinearInertiaScale = (Vector3&)m_Cloth->getLinearInertiaScale();
+	ar << BOOST_SERIALIZATION_NVP(LinearInertiaScale);
+	Vector3 AngularInertiaScale = (Vector3&)m_Cloth->getAngularInertiaScale();
+	ar << BOOST_SERIALIZATION_NVP(AngularInertiaScale);
+	Vector3 CentrifugalInertiaScale = (Vector3&)m_Cloth->getCentrifugalInertiaScale();
+	ar << BOOST_SERIALIZATION_NVP(CentrifugalInertiaScale);
 	physx::PxClothStretchConfig stretchConfig = m_Cloth->getStretchConfig(physx::PxClothFabricPhaseType::eVERTICAL);
 	ar << BOOST_SERIALIZATION_NVP(stretchConfig.stiffness);
 	ar << BOOST_SERIALIZATION_NVP(stretchConfig.stiffnessMultiplier);
@@ -1157,6 +1173,31 @@ void ClothComponent::load(Archive & ar, const unsigned int version)
 	unsigned int ClothFlags;
 	ar >> BOOST_SERIALIZATION_NVP(ClothFlags);
 	SetClothFlags(ClothFlags);
+
+	float SolverFrequency;
+	ar >> BOOST_SERIALIZATION_NVP(SolverFrequency);
+	m_Cloth->setSolverFrequency(SolverFrequency);
+	float StiffnessFrequency;
+	ar >> BOOST_SERIALIZATION_NVP(StiffnessFrequency);
+	m_Cloth->setStiffnessFrequency(StiffnessFrequency);
+	Vector3 DampingCoefficient;
+	ar >> BOOST_SERIALIZATION_NVP(DampingCoefficient);
+	m_Cloth->setDampingCoefficient((physx::PxVec3&)DampingCoefficient);
+	Vector3 LinearDragCoefficient;
+	ar >> BOOST_SERIALIZATION_NVP(LinearDragCoefficient);
+	m_Cloth->setLinearDragCoefficient((physx::PxVec3&)LinearDragCoefficient);
+	Vector3 AngularDragCoefficient;
+	ar >> BOOST_SERIALIZATION_NVP(AngularDragCoefficient);
+	m_Cloth->setAngularDragCoefficient((physx::PxVec3&)AngularDragCoefficient);
+	Vector3 LinearInertiaScale;
+	ar >> BOOST_SERIALIZATION_NVP(LinearInertiaScale);
+	m_Cloth->setLinearInertiaScale((physx::PxVec3&)LinearInertiaScale);
+	Vector3 AngularInertiaScale;
+	ar >> BOOST_SERIALIZATION_NVP(AngularInertiaScale);
+	m_Cloth->setAngularInertiaScale((physx::PxVec3&)AngularInertiaScale);
+	Vector3 CentrifugalInertiaScale;
+	ar >> BOOST_SERIALIZATION_NVP(CentrifugalInertiaScale);
+	m_Cloth->setCentrifugalInertiaScale((physx::PxVec3&)CentrifugalInertiaScale);
 
 	physx::PxClothStretchConfig stretchConfig;
 	ar >> BOOST_SERIALIZATION_NVP(stretchConfig.stiffness);
@@ -1298,27 +1339,6 @@ void ClothComponent::CreateClothFromMesh(const char * ClothFabricPath, my::OgreM
 
 	m_Cloth.reset(PhysxSdk::getSingleton().m_sdk->createCloth(
 		physx::PxTransform(physx::PxIdentity), *m_ClothFabric, &m_particles[0], physx::PxClothFlags()), PhysxDeleter<physx::PxCloth>());
-
-	//// set solver settings
-	//m_Cloth->setSolverFrequency(240);
-
-	//m_Cloth->setStiffnessFrequency(10.0f);
-
-	//// damp global particle velocity to 90% every 0.1 seconds
-	//m_Cloth->setDampingCoefficient(physx::PxVec3(0.2f)); // damp local particle velocity
-	//m_Cloth->setLinearDragCoefficient(physx::PxVec3(0.2f)); // transfer frame velocity
-	//m_Cloth->setAngularDragCoefficient(physx::PxVec3(0.2f)); // transfer frame rotation
-
-	//// reduce impact of frame acceleration
-	//// x, z: cloth swings out less when walking in a circle
-	//// y: cloth responds less to jump acceleration
-	//m_Cloth->setLinearInertiaScale(physx::PxVec3(0.8f, 0.6f, 0.8f));
-
-	//// leave impact of frame torque at default
-	//m_Cloth->setAngularInertiaScale(physx::PxVec3(1.0f));
-
-	//// reduce centrifugal force of rotating frame
-	//m_Cloth->setCentrifugalInertiaScale(physx::PxVec3(0.3f));
 }
 
 void ClothComponent::CreateVirtualParticles(my::OgreMeshPtr mesh, int level)

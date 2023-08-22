@@ -1577,7 +1577,43 @@ void CMainFrame::OnComponentCloth()
 
 		ClothComponentPtr cloth_cmp(new ClothComponent(my::NamedObject::MakeUniqueName((std::string((*actor_iter)->GetName()) + "_cloth").c_str()).c_str()));
 		cloth_cmp->CreateClothFromMesh(ClothFabricPath.c_str(), mesh, submesh_i, GetGravity());
+
+		//// set solver settings
+		//cloth_cmp->m_Cloth->setSolverFrequency(240);
+
+		//cloth_cmp->m_Cloth->setStiffnessFrequency(10.0f);
+
+		//// damp global particle velocity to 90% every 0.1 seconds
+		//cloth_cmp->m_Cloth->setDampingCoefficient(physx::PxVec3(0.2f)); // damp local particle velocity
+		//cloth_cmp->m_Cloth->setLinearDragCoefficient(physx::PxVec3(0.2f)); // transfer frame velocity
+		//cloth_cmp->m_Cloth->setAngularDragCoefficient(physx::PxVec3(0.2f)); // transfer frame rotation
+
+		//// reduce impact of frame acceleration
+		//// x, z: cloth swings out less when walking in a circle
+		//// y: cloth responds less to jump acceleration
+		//cloth_cmp->m_Cloth->setLinearInertiaScale(physx::PxVec3(0.8f, 0.6f, 0.8f));
+
+		//// leave impact of frame torque at default
+		//cloth_cmp->m_Cloth->setAngularInertiaScale(physx::PxVec3(1.0f));
+
+		//// reduce centrifugal force of rotating frame
+		//cloth_cmp->m_Cloth->setCentrifugalInertiaScale(physx::PxVec3(0.3f));
+
+		// virtual particles
 		cloth_cmp->CreateVirtualParticles(mesh, 4);
+
+		// ccd
+		cloth_cmp->m_Cloth->setClothFlag(physx::PxClothFlag::eSWEPT_CONTACT, true);
+
+		//// use GPU or not
+		//cloth_cmp->m_Cloth->setClothFlag(physx::PxClothFlag::eCUDA, true);
+
+		//// custom fiber configuration
+		//cloth_cmp->m_Cloth->setStretchConfig(physx::PxClothFabricPhaseType::eVERTICAL, physx::PxClothStretchConfig(1.0f));
+		//cloth_cmp->m_Cloth->setStretchConfig(physx::PxClothFabricPhaseType::eHORIZONTAL, physx::PxClothStretchConfig(1.0f));
+		//cloth_cmp->m_Cloth->setStretchConfig(physx::PxClothFabricPhaseType::eSHEARING, physx::PxClothStretchConfig(0.75f));
+		//cloth_cmp->m_Cloth->setStretchConfig(physx::PxClothFabricPhaseType::eBENDING, physx::PxClothStretchConfig(0.5f));
+		//cloth_cmp->m_Cloth->setTetherConfig(physx::PxClothTetherConfig(1.0f));
 
 		MaterialPtr mtl(new Material());
 		mtl->m_Shader = theApp.default_shader;
