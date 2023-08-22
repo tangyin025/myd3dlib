@@ -1436,6 +1436,7 @@ void ClothComponent::CreateVirtualParticles(my::OgreMeshPtr mesh, int level)
 		else
 			triangles += 3 * sizeof(unsigned int);
 	}
+	mesh->UnlockIndexBuffer();
 
 	for (unsigned int i = 0; i < numQuads; i++)
 	{
