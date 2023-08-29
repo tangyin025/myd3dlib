@@ -599,6 +599,10 @@ void Animator::RequestResource(void)
 
 		my::ResourceMgr::getSingleton().LoadSkeletonAsync(m_SkeletonPath.c_str(), boost::bind(&Animator::OnSkeletonReady, this, boost::placeholders::_1));
 	}
+
+	PhysxScene* scene = dynamic_cast<PhysxScene*>(m_Actor->m_Node->GetTopNode());
+
+	scene->m_EventPxThreadSubstep.connect(boost::bind(&Animator::OnPxThreadSubstep, this, boost::placeholders::_1));
 }
 
 void Animator::ReleaseResource(void)
@@ -611,45 +615,15 @@ void Animator::ReleaseResource(void)
 
 		m_Skeleton.reset();
 	}
+
+	PhysxScene* scene = dynamic_cast<PhysxScene*>(m_Actor->m_Node->GetTopNode());
+
+	scene->m_EventPxThreadSubstep.disconnect(boost::bind(&Animator::OnPxThreadSubstep, this, boost::placeholders::_1));
 }
 
 void Animator::Update(float fElapsedTime)
 {
-	if (m_Skeleton)
-	{
-		Tick(fElapsedTime, 1.0f);
-
-		my::BoneIndexSet::const_iterator root_iter = m_Skeleton->m_boneRootSet.begin();
-		for (; root_iter != m_Skeleton->m_boneRootSet.end(); root_iter++)
-		{
-			GetPose(anim_pose, *root_iter, m_Skeleton->m_boneHierarchy);
-
-			UpdateHierarchyBoneList(*root_iter, Bone(Vector3(0, 0, 0)));
-		}
-
-		DynamicBoneContextMap::iterator db_iter = m_DynamicBones.begin();
-		for (; db_iter != m_DynamicBones.end(); db_iter++)
-		{
-			int particle_i = 0;
-			UpdateDynamicBone(db_iter->second, anim_pose_hier[db_iter->second.parent_i],
-				anim_pose_hier[db_iter->second.parent_i].m_position.transformCoord(m_Actor->m_World), db_iter->first, particle_i, fElapsedTime);
-		}
-
-		IKContextMap::iterator ik_iter = m_Iks.begin();
-		for (; ik_iter != m_Iks.end(); ik_iter++)
-		{
-			UpdateIK(ik_iter->second);
-		}
-
-		for (size_t i = 0; i < bind_pose_hier.size(); i++)
-		{
-			final_pose[i].m_rotation = bind_pose_hier[i].m_rotation.conjugate() * anim_pose_hier[i].m_rotation;
-			final_pose[i].m_position = final_pose[i].m_rotation * -bind_pose_hier[i].m_position + anim_pose_hier[i].m_position;
-		}
-
-		m_DualQuats.resize(m_Skeleton->m_boneBindPose.size());
-		final_pose.BuildDualQuaternionList(m_DualQuats);
-	}
+	Tick(fElapsedTime, 1.0f);
 }
 
 void Animator::Tick(float fElapsedTime, float fTotalWeight)
@@ -659,7 +633,45 @@ void Animator::Tick(float fElapsedTime, float fTotalWeight)
 		m_Childs[0]->Tick(fElapsedTime, fTotalWeight);
 
 		UpdateSequenceGroup();
+
+		if (m_Skeleton)
+		{
+			my::BoneIndexSet::const_iterator root_iter = m_Skeleton->m_boneRootSet.begin();
+			for (; root_iter != m_Skeleton->m_boneRootSet.end(); root_iter++)
+			{
+				GetPose(anim_pose, *root_iter, m_Skeleton->m_boneHierarchy);
+
+				UpdateHierarchyBoneList(*root_iter, Bone(Vector3(0, 0, 0)));
+			}
+
+			DynamicBoneContextMap::iterator db_iter = m_DynamicBones.begin();
+			for (; db_iter != m_DynamicBones.end(); db_iter++)
+			{
+				int particle_i = 0;
+				UpdateDynamicBone(db_iter->second, anim_pose_hier[db_iter->second.parent_i],
+					anim_pose_hier[db_iter->second.parent_i].m_position.transformCoord(m_Actor->m_World), db_iter->first, particle_i, fElapsedTime);
+			}
+
+			IKContextMap::iterator ik_iter = m_Iks.begin();
+			for (; ik_iter != m_Iks.end(); ik_iter++)
+			{
+				UpdateIK(ik_iter->second);
+			}
+
+			for (size_t i = 0; i < bind_pose_hier.size(); i++)
+			{
+				final_pose[i].m_rotation = bind_pose_hier[i].m_rotation.conjugate() * anim_pose_hier[i].m_rotation;
+				final_pose[i].m_position = final_pose[i].m_rotation * -bind_pose_hier[i].m_position + anim_pose_hier[i].m_position;
+			}
+
+			m_DualQuats.resize(m_Skeleton->m_boneBindPose.size());
+			final_pose.BuildDualQuaternionList(m_DualQuats);
+		}
 	}
+}
+
+void Animator::OnPxThreadSubstep(float dtime)
+{
 }
 
 my::BoneList & Animator::GetPose(my::BoneList & pose, int root_i, const my::BoneHierarchy & boneHierarchy) const
