@@ -831,6 +831,8 @@ void CPropertiesWnd::UpdatePropertiesAnimationNodeSequence(CMFCPropertyGridPrope
 			pAnimationNode->GetSubItem(1)->AddOption(ms2ts(anim_iter->first.c_str()).c_str(), TRUE);
 		}
 	}
+
+	pAnimationNode->GetSubItem(2)->SetValue((_variant_t)seq->m_Rate);
 }
 
 void CPropertiesWnd::UpdatePropertiesNavigation(CMFCPropertyGridProperty * pComponent, Navigation * navigation)
@@ -1980,6 +1982,9 @@ void CPropertiesWnd::CreatePropertiesAnimationNodeSequence(CMFCPropertyGridPrope
 			pProp->AddOption(ms2ts(anim_iter->first.c_str()).c_str(), TRUE);
 		}
 	}
+
+	pProp = new CSimpleProp(_T("Rate"), (_variant_t)seq->m_Rate, NULL, PropertyAnimationNodeSequenceRate);
+	pAnimationNode->AddSubItem(pProp);
 }
 
 void CPropertiesWnd::CreatePropertiesNavigation(CMFCPropertyGridProperty * pComponent, Navigation * navigation)
@@ -4241,6 +4246,14 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		AnimationNodeSequence* node = dynamic_cast<AnimationNodeSequence*>((AnimationNode*)pAnimatioNode->GetValue().pulVal);
 		ASSERT(node);
 		node->m_Name = ts2ms(pProp->GetValue().bstrVal);
+		my::EventArg arg;
+		pFrame->m_EventAttributeChanged(&arg);
+		break;
+	}
+	case PropertyAnimationNodeSequenceRate:
+	{
+		AnimationNodeSequence* node = dynamic_cast<AnimationNodeSequence*>((AnimationNode*)pProp->GetParent()->GetValue().pulVal);
+		node->m_Rate = pProp->GetValue().fltVal;
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;

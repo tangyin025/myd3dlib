@@ -235,6 +235,7 @@ public:
 		PropertyAnimationNode,
 		PropertyAnimationNodeType,
 		PropertyAnimationNodeSequenceName,
+		PropertyAnimationNodeSequenceRate,
 		PropertyNavigation,
 		PropertyNavigationOrigin,
 		PropertyNavigationOriginX,
