@@ -849,24 +849,24 @@ void OgreSkeletonAnimation::SaveOgreSkeletonAnimation(const char * path)
 	ofs << "\t</animations>\n";
 	ofs << "</skeleton>\n";
 }
-
-void OgreSkeletonAnimation::AdjustAnimationRoot(const Bone & pose)
-{
-	OgreAnimationMap::iterator anim_iter = m_animationMap.begin();
-	for (; anim_iter != m_animationMap.end(); anim_iter++)
-	{
-		OgreAnimation::iterator pose_iter = anim_iter->second.begin();
-		for (; pose_iter != anim_iter->second.end(); pose_iter++)
-		{
-			BoneIndexSet::const_iterator id_iter = m_boneRootSet.begin();
-			for (; id_iter != m_boneRootSet.end(); id_iter++)
-			{
-				Bone& bone = pose_iter->second[*id_iter];
-				bone.TransformSelf(pose);
-			}
-		}
-	}
-}
+//
+//void OgreSkeletonAnimation::AdjustAnimationRoot(const Bone & pose)
+//{
+//	OgreAnimationMap::iterator anim_iter = m_animationMap.begin();
+//	for (; anim_iter != m_animationMap.end(); anim_iter++)
+//	{
+//		OgreAnimation::iterator pose_iter = anim_iter->second.begin();
+//		for (; pose_iter != anim_iter->second.end(); pose_iter++)
+//		{
+//			BoneIndexSet::const_iterator id_iter = m_boneRootSet.begin();
+//			for (; id_iter != m_boneRootSet.end(); id_iter++)
+//			{
+//				Bone& bone = pose_iter->second[*id_iter];
+//				bone.TransformSelf(pose);
+//			}
+//		}
+//	}
+//}
 
 void OgreSkeletonAnimation::Clear(void)
 {

@@ -50,7 +50,7 @@ void Controller::RequestResource(void)
 
 	m_PxMaterial.reset(PhysxSdk::getSingleton().m_sdk->createMaterial(0.5f, 0.5f, 0.5f), PhysxDeleter<physx::PxMaterial>());
 
-	m_desc.position = physx::PxExtendedVec3(m_Actor->m_Position.x, m_Actor->m_Position.y /*+ m_desc.contactOffset + m_desc.radius + m_desc.height * 0.5f*/, m_Actor->m_Position.z);
+	m_desc.position = physx::PxExtendedVec3(m_Actor->m_Position.x, m_Actor->m_Position.y + m_desc.contactOffset + m_desc.radius + m_desc.height * 0.5f, m_Actor->m_Position.z);
 	m_desc.upDirection = physx::PxVec3(0.0f, 1.0f, 0.0f);
 	m_desc.material = m_PxMaterial.get();
 	m_desc.reportCallback = this;
@@ -107,7 +107,7 @@ void Controller::SetPxPoseOrbyPxThread(const my::Vector3 & Pos, const my::Quater
 {
 	_ASSERT(!m_PxControllerMoveMuted);
 
-	SetPosition(Pos);
+	SetFootPosition(Pos);
 }
 
 void Controller::SetSimulationFilterWord0(unsigned int filterWord0)
@@ -190,7 +190,7 @@ unsigned int Controller::Move(const my::Vector3 & disp, float minDist, float ela
 		moveFlags = m_PxController->move((physx::PxVec3&)disp, minDist, elapsedTime, physx::PxControllerFilters(&physx::PxFilterData(filterWord0, 0, 0, 0), NULL, &scene->m_ControllerFilter), NULL);
 
 		// ! recursively call other Component::SetPxPoseOrbyPxThread
-		m_Actor->SetPxPoseOrbyPxThread(GetPosition(), m_Actor->m_Rotation, this);
+		m_Actor->SetPxPoseOrbyPxThread(GetFootPosition(), m_Actor->m_Rotation, this);
 	}
 
 	return moveFlags;
@@ -332,17 +332,18 @@ my::Vector3 Controller::GetPosition(void) const
 
 my::Vector3 Controller::GetFootOffset(void) const
 {
-	return GetUpDirection() * (GetContactOffset() + GetRadius() + GetHeight() * 0.5f);
+	// ! PhysXCharacterKinematic/src/CctSweptCapsule.cpp, SweptCapsule::computeTemporalBox
+	return Vector3(0, 1, 0) * (GetContactOffset() + GetRadius() + GetHeight() * 0.5f);
 }
 
 void Controller::SetFootPosition(const my::Vector3 & Pos)
 {
-	m_PxController->setFootPosition(physx::PxExtendedVec3(Pos.x, Pos.y, Pos.z));
+	SetPosition(Pos + GetFootOffset());
 }
 
 my::Vector3 Controller::GetFootPosition(void) const
 {
-	return (my::Vector3&)physx::toVec3(m_PxController->getFootPosition());
+	return GetPosition() - GetFootOffset();
 }
 
 const my::Vector3 & Controller::GetContactNormalDownPass(void) const

@@ -122,7 +122,6 @@ void PlayerAgent::RequestResource(void)
 		{
 			m_Skel->AddOgreSkeletonAnimationFromFile(theApp.default_player_anim_list[i].c_str());
 		}
-		m_Skel->AdjustAnimationRoot(Bone(-m_Controller->GetFootOffset() / theApp.default_player_scale));
 
 		m_Animator->AddIK(m_Skel->GetBoneIndex("joint1"), m_Skel->m_boneHierarchy, 0.08f, theApp.default_physx_shape_filterword0);
 		m_Animator->AddIK(m_Skel->GetBoneIndex("joint82"), m_Skel->m_boneHierarchy, 0.08f, theApp.default_physx_shape_filterword0);
@@ -158,7 +157,7 @@ void PlayerAgent::Update(float fElapsedTime)
 		AfxGetMainWnd()->PostMessage(WM_COMMAND, ID_TOOLS_PLAYING);
 	}
 
-	Vector3 pos = m_Controller->GetPosition();
+	Vector3 pos = m_Controller->GetFootPosition();
 	const Vector3& up = m_Controller->GetUpDirection();
 	AnimationNodeBlendListPtr node_run_blend_list = boost::dynamic_pointer_cast<AnimationNodeBlendList>(m_Animator->GetChild(0)->GetChild(0));
 	Quaternion rot;
@@ -244,7 +243,7 @@ void PlayerAgent::Update(float fElapsedTime)
 		m_MoveDir = Vector3(0, 0, 0);
 	}
 
-	model_view_camera->m_LookAt = m_Actor->m_World.getRow<3>().xyz + Vector3(0, 0.5f, 0);
+	model_view_camera->m_LookAt = m_Actor->m_World.getRow<3>().xyz + Vector3(0, m_Controller->GetContactOffset() + m_Controller->GetHeight() + m_Controller->GetRadius(), 0);
 	physx::PxSweepBuffer hit;
 	physx::PxSphereGeometry sphere(0.1f);
 	physx::PxQueryFilterData filterData = physx::PxQueryFilterData(

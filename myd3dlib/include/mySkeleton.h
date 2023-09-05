@@ -267,7 +267,7 @@ namespace my
 
 		void SaveOgreSkeletonAnimation(const char * path);
 
-		void AdjustAnimationRoot(const Bone & pose);
+		//void AdjustAnimationRoot(const Bone & pose);
 
 		void Clear(void);
 
