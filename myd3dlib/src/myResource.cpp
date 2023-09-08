@@ -443,9 +443,11 @@ DWORD AsynchronousIOMgr::IORequestProc(void)
 			}
 			catch (const my::Exception& e)
 			{
+				D3DContext::getSingleton().m_EventLog(e.what().c_str());
 			}
 			catch (const std::exception& e)
 			{
+				D3DContext::getSingleton().m_EventLog(e.what());
 			}
 
 			// ! request list will be modified when set event, shared_ptr must be thread safe

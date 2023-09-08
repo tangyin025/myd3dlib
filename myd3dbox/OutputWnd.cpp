@@ -64,6 +64,7 @@ BEGIN_MESSAGE_MAP(COutputWnd, CDockablePane)
 	ON_WM_CREATE()
 	ON_WM_SIZE()
 	ON_WM_DESTROY()
+	ON_MESSAGE(WM_IDLEUPDATECMDUI, &COutputWnd::OnIdleUpdateCmdUI)
 END_MESSAGE_MAP()
 
 int COutputWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
@@ -113,13 +114,26 @@ void COutputWnd::OnSize(UINT nType, int cx, int cy)
 //	dc.SelectObject(pOldFont);
 //}
 
+static std::list<std::basic_string<TCHAR> > dummy_log;
+static my::CriticalSection dummy_log_sec;
+
 void COutputWnd::OnEventLog(const char * str)
 {
 	std::basic_string<TCHAR> logs = ms2ts(str);
 	boost::trim_if(logs, boost::algorithm::is_any_of(_T("\n\r")));
 	logs.append(_T("\n"));
-	m_wndOutputDebug.SetSel(-1, -1);
-	m_wndOutputDebug.ReplaceSel(logs.c_str());
+	if (!my::D3DContext::getSingleton().m_d3dDeviceSec.TryEnter())
+	{
+		m_wndOutputDebug.SetSel(-1, -1);
+		m_wndOutputDebug.ReplaceSel(logs.c_str());
+	}
+	else
+	{
+		// ! ResourceMgr::LoadIORequestAndWait
+		my::D3DContext::getSingleton().m_d3dDeviceSec.Leave();
+		my::CriticalSectionLock lock(dummy_log_sec);
+		dummy_log.push_back(logs);
+	}
 }
 
 void COutputWnd::OnDestroy()
@@ -128,4 +142,19 @@ void COutputWnd::OnDestroy()
 
 	CDockablePane::OnDestroy();
 	// TODO: Add your message handler code here
+}
+
+
+afx_msg LRESULT COutputWnd::OnIdleUpdateCmdUI(WPARAM wParam, LPARAM lParam)
+{
+	my::CriticalSectionLock lock(dummy_log_sec);
+	std::list<std::basic_string<TCHAR> >::iterator log_iter = dummy_log.begin();
+	for (; log_iter != dummy_log.end(); log_iter++)
+	{
+		m_wndOutputDebug.SetSel(-1, -1);
+		m_wndOutputDebug.ReplaceSel(log_iter->c_str());
+	}
+	dummy_log.clear();
+	lock.Unlock();
+	return CDockablePane::OnIdleUpdateCmdUI(wParam, lParam);
 }
