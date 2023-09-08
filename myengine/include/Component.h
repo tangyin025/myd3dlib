@@ -417,8 +417,6 @@ public:
 	
 	ClothCollisionSpherePairList m_ClothSphereBones;
 
-	std::vector<physx::PxClothCollisionSphere> m_ClothSpheres;
-
 	D3DXHANDLE handle_World;
 
 	D3DXHANDLE handle_MeshColor;

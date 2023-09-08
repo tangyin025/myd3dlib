@@ -1741,34 +1741,35 @@ void ClothComponent::OnPxThreadSubstep(float dtime)
 
 	if (!m_ClothSphereBones.empty())
 	{
-		m_ClothSpheres.resize(m_ClothSphereBones.size());
+		unsigned int NbSpheres = m_ClothSphereBones.size();
+		boost::array<physx::PxClothCollisionSphere, 32> ClothSpheres;
 		Animator* animator = m_Actor->GetFirstComponent<Animator>();
 		if (animator && !animator->m_DualQuats.empty() && m_VertexElems.elems[D3DDECLUSAGE_BLENDINDICES][0].Type == D3DDECLTYPE_UBYTE4)
 		{
-			for (unsigned int i = 0; i < m_ClothSphereBones.size(); i++)
+			for (unsigned int i = 0; i < NbSpheres; i++)
 			{
-				m_ClothSpheres[i].radius = m_ClothSphereBones[i].first.radius;
+				ClothSpheres[i].radius = m_ClothSphereBones[i].first.radius;
 				if (m_ClothSphereBones[i].second >= 0)
 				{
 					Bone bone((Vector3&)m_ClothSphereBones[i].first.pos);
 					bone.TransformSelf(animator->anim_pose_hier[m_ClothSphereBones[i].second]);
-					m_ClothSpheres[i].pos = (physx::PxVec3&)bone.m_position;
+					ClothSpheres[i].pos = (physx::PxVec3&)bone.m_position;
 				}
 				else
 				{
-					m_ClothSpheres[i].pos = m_ClothSphereBones[i].first.pos;
+					ClothSpheres[i].pos = m_ClothSphereBones[i].first.pos;
 				}
 			}
 		}
 		else
 		{
-			for (unsigned int i = 0; i < m_ClothSphereBones.size(); i++)
+			for (unsigned int i = 0; i < NbSpheres; i++)
 			{
-				m_ClothSpheres[i].pos = m_ClothSphereBones[i].first.pos;
+				ClothSpheres[i].pos = m_ClothSphereBones[i].first.pos;
 			}
 		}
 
-		m_Cloth->setCollisionSpheres(&m_ClothSpheres[0], m_ClothSpheres.size());
+		m_Cloth->setCollisionSpheres(ClothSpheres.data(), NbSpheres);
 	}
 }
 

@@ -534,6 +534,20 @@ void CChildView::RenderSelectedComponent(IDirect3DDevice9 * pd3dDevice, Componen
 					shader->EndPass();
 					shader->End();
 				}
+
+				unsigned int NbSpheres = cloth_cmp->m_Cloth->getNbCollisionSpheres();
+				unsigned int NbCapsules = cloth_cmp->m_Cloth->getNbCollisionCapsules();
+				std::vector<physx::PxClothCollisionSphere> ClothSpheres(NbSpheres);
+				std::vector<physx::PxU32> ClothCapsules(NbCapsules * 2);
+				cloth_cmp->m_Cloth->getCollisionData(ClothSpheres.data(), ClothCapsules.data(), NULL, NULL, NULL);
+				std::vector<physx::PxClothCollisionSphere>::iterator sph_iter = ClothSpheres.begin();
+				begin(DU_DRAW_LINES, 2.0f);
+				for (; sph_iter != ClothSpheres.end(); sph_iter++)
+				{
+					my::Vector3 pos = ((my::Vector3&)sph_iter->pos).transformCoord(cloth_cmp->m_Actor->m_World);
+					duAppendCircle(this, pos.x, pos.y, pos.z, sph_iter->radius * cloth_cmp->m_Actor->m_Scale.x, duRGBA(255, 255, 0, 255));
+				}
+				end();
 			}
 		}
 		break;
