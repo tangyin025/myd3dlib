@@ -1765,7 +1765,7 @@ void ClothComponent::OnPxThreadSubstep(float dtime)
 		{
 			for (unsigned int i = 0; i < NbSpheres; i++)
 			{
-				ClothSpheres[i].pos = m_ClothSphereBones[i].first.pos;
+				ClothSpheres[i] = m_ClothSphereBones[i].first;
 			}
 		}
 

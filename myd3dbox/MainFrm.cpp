@@ -444,8 +444,8 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	m_PxScene->setVisualizationParameter(physx::PxVisualizationParameter::eCOLLISION_SHAPES, 1);
 	m_PxScene->setVisualizationParameter(physx::PxVisualizationParameter::eCOLLISION_FNORMALS, 1);
 	m_PxScene->setVisualizationParameter(physx::PxVisualizationParameter::eCOLLISION_AABBS, 1);
-	m_PxScene->setVisualizationParameter(physx::PxVisualizationParameter::eJOINT_LOCAL_FRAMES, 1);
-	m_PxScene->setVisualizationParameter(physx::PxVisualizationParameter::eJOINT_LIMITS, 1);
+	m_PxScene->setVisualizationParameter(physx::PxVisualizationParameter::eJOINT_LOCAL_FRAMES, theApp.default_physx_joint_localframe);
+	m_PxScene->setVisualizationParameter(physx::PxVisualizationParameter::eJOINT_LIMITS, theApp.default_physx_joint_limits);
 
 	m_Player.reset(new Actor(NULL, my::Vector3(0, 0, 0), my::Quaternion::Identity(), my::Vector3(theApp.default_player_scale), my::AABB(-1, 1)));
 	m_Player->InsertComponent(ComponentPtr(new Controller(NULL, theApp.default_player_height, theApp.default_player_radius, 0.1f, 0.5f, 0.0f)));
