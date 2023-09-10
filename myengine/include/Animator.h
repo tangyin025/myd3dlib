@@ -477,9 +477,7 @@ public:
 
 	void SyncSequenceGroupTime(SequenceGroupMap::iterator begin, SequenceGroupMap::iterator end, float Percent);
 
-	void AddDynamicBone(int node_i, const my::BoneHierarchy & boneHierarchy, float mass, float damping, float springConstant);
-
-	static void AddDynamicBone(DynamicBoneContext & context, int node_i, const my::BoneHierarchy & boneHierarchy, float mass, float damping);
+	void AddDynamicBone(int node_i, float mass, float damping, float springConstant);
 
 	void UpdateDynamicBone(DynamicBoneContext & context, const my::Bone & parent, const my::Vector3 & parent_world_pos, int node_i, int & particle_i, float fElapsedTime);
 

@@ -647,6 +647,11 @@ void Animator::Tick(float fElapsedTime, float fTotalWeight)
 			DynamicBoneContextMap::iterator db_iter = m_DynamicBones.begin();
 			for (; db_iter != m_DynamicBones.end(); db_iter++)
 			{
+				if (db_iter->second.parent_i < 0)
+				{
+					db_iter->second.parent_i = m_Skeleton->m_boneHierarchy.FindParent(db_iter->first);
+				}
+
 				int particle_i = 0;
 				UpdateDynamicBone(db_iter->second, anim_pose_hier[db_iter->second.parent_i],
 					anim_pose_hier[db_iter->second.parent_i].m_position.transformCoord(m_Actor->m_World), db_iter->first, particle_i, fElapsedTime);
@@ -805,15 +810,9 @@ void Animator::SyncSequenceGroupTime(SequenceGroupMap::iterator begin, SequenceG
 	}
 }
 
-void Animator::AddDynamicBone(int node_i, const my::BoneHierarchy & boneHierarchy, float mass, float damping, float springConstant)
+void Animator::AddDynamicBone(int node_i, float mass, float damping, float springConstant)
 {
 	_ASSERT(mass > 0);
-
-	int parent_i = boneHierarchy.FindParent(node_i);
-	if (parent_i < 0)
-	{
-		return;
-	}
 
 	std::pair<DynamicBoneContextMap::iterator, bool> res = m_DynamicBones.insert(std::make_pair(node_i, DynamicBoneContext()));
 	if (!res.second)
@@ -821,20 +820,10 @@ void Animator::AddDynamicBone(int node_i, const my::BoneHierarchy & boneHierarch
 		return;
 	}
 
-	res.first->second.parent_i = parent_i;
+	res.first->second.parent_i = -1;
 	res.first->second.springConstant = springConstant;
-	AddDynamicBone(res.first->second, node_i, boneHierarchy, mass, damping);
-}
-
-void Animator::AddDynamicBone(DynamicBoneContext & context, int node_i, const my::BoneHierarchy & boneHierarchy, float mass, float damping)
-{
-	context.m_ParticleList.push_back(Particle(
+	res.first->second.m_ParticleList.push_back(Particle(
 		Vector3(0, 0, 0), Vector3(0, 0, 0), Vector3(0, 0, 0), Vector3(0, 0, 0), 1 / mass, damping));
-	int child_i = boneHierarchy[node_i].m_child;
-	for (; child_i >= 0; child_i = boneHierarchy[child_i].m_sibling)
-	{
-		AddDynamicBone(context, child_i, boneHierarchy, mass, damping);
-	}
 }
 
 void Animator::UpdateDynamicBone(DynamicBoneContext & context, const my::Bone & parent, const my::Vector3& parent_world_pos, int node_i, int & particle_i, float fElapsedTime)
@@ -847,6 +836,11 @@ void Animator::UpdateDynamicBone(DynamicBoneContext & context, const my::Bone & 
 		parent.m_rotation * m_Skeleton->m_boneBindPose[node_i].m_position + parent.m_position,
 		m_Skeleton->m_boneBindPose[node_i].m_rotation * parent.m_rotation);
 	Vector3 target_world_pos = target.m_position.transformCoord(m_Actor->m_World);
+
+	if (context.m_ParticleList.size() <= particle_i)
+	{
+		context.m_ParticleList.resize(particle_i + 1, context.m_ParticleList.back());
+	}
 
 	Particle & particle = context.m_ParticleList[particle_i];
 	particle.clearAccumulator();
