@@ -740,23 +740,22 @@ void OgreSkeletonAnimation::AddOgreSkeletonAnimation(
 	}
 }
 
-void OgreSkeletonAnimation::AddOgreSkeletonAnimationFromMemory(
-	LPSTR pSrcData,
-	UINT srcDataLen)
+void OgreSkeletonAnimation::AddOgreSkeletonAnimationFromFile(const char * path)
 {
-	_ASSERT(0 == pSrcData[srcDataLen - 1]);
+	CachePtr cache = my::ResourceMgr::getSingleton().OpenIStream(path)->GetWholeCache();
+	cache->push_back(0);
 
 	rapidxml::xml_document<char> doc;
 	try
 	{
-		doc.parse<0>(pSrcData);
+		doc.parse<0>((char*)cache->data());
 	}
-	catch (rapidxml::parse_error & e)
+	catch (rapidxml::parse_error& e)
 	{
 		THROW_CUSEXCEPTION(e.what());
 	}
 
-	rapidxml::xml_node<char> * node_root = &doc;
+	rapidxml::xml_node<char>* node_root = &doc;
 	DEFINE_XML_NODE_SIMPLE(skeleton, root);
 	DEFINE_XML_NODE_SIMPLE(bones, skeleton);
 
@@ -764,7 +763,7 @@ void OgreSkeletonAnimation::AddOgreSkeletonAnimationFromMemory(
 	BoneNameMap name_map;
 	ParseBasePoseAndNameMap(base_pose, name_map, node_bones);
 
-	rapidxml::xml_node<char> * node_animations = node_skeleton->first_node("animations");
+	rapidxml::xml_node<char>* node_animations = node_skeleton->first_node("animations");
 	if (node_animations != NULL)
 	{
 		DEFINE_XML_NODE_SIMPLE(animation, animations);
@@ -773,13 +772,6 @@ void OgreSkeletonAnimation::AddOgreSkeletonAnimationFromMemory(
 			AddOgreSkeletonAnimation(node_animation, base_pose, name_map);
 		}
 	}
-}
-
-void OgreSkeletonAnimation::AddOgreSkeletonAnimationFromFile(const char * path)
-{
-	CachePtr cache = my::ResourceMgr::getSingleton().OpenIStream(path)->GetWholeCache();
-	cache->push_back(0);
-	AddOgreSkeletonAnimationFromMemory((char *)&(*cache)[0], cache->size());
 }
 
 void OgreSkeletonAnimation::SaveOgreSkeletonAnimation(const char * path)

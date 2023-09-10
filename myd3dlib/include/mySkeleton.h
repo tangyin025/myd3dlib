@@ -259,10 +259,6 @@ namespace my
 			const BoneList & rhs_base_pose,
 			const BoneNameMap & rhs_name_map);
 
-		void AddOgreSkeletonAnimationFromMemory(
-			LPSTR pSrcData,
-			UINT srcDataLen);
-
 		void AddOgreSkeletonAnimationFromFile(const char * path);
 
 		void SaveOgreSkeletonAnimation(const char * path);
