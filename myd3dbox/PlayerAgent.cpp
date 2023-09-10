@@ -123,8 +123,10 @@ void PlayerAgent::RequestResource(void)
 			m_Skel->AddOgreSkeletonAnimationFromFile(theApp.default_player_anim_list[i].c_str());
 		}
 
-		m_Animator->AddIK(m_Skel->GetBoneIndex("joint1"), m_Skel->m_boneHierarchy, 0.08f, theApp.default_physx_shape_filterword0);
-		m_Animator->AddIK(m_Skel->GetBoneIndex("joint82"), m_Skel->m_boneHierarchy, 0.08f, theApp.default_physx_shape_filterword0);
+		for (int i = 0; i < theApp.default_player_ik_nodes.size(); i++)
+		{
+			m_Animator->AddIK(m_Skel->GetBoneIndex(theApp.default_player_ik_nodes[i].c_str()), 0.08f, theApp.default_physx_shape_filterword0);
+		}
 	}
 }
 

@@ -403,7 +403,7 @@ public:
 	class IKContext
 	{
 	public:
-		int id[3];
+		int id;
 
 		float hitRadius;
 
@@ -483,7 +483,7 @@ public:
 
 	void UpdateDynamicBone(DynamicBoneContext & context, const my::Bone & parent, const my::Vector3 & parent_world_pos, int node_i, int & particle_i, float fElapsedTime);
 
-	void AddIK(int node_i, const my::BoneHierarchy & boneHierarchy, float hitRadius, unsigned int filterWord0);
+	void AddIK(int node_i, float hitRadius, unsigned int filterWord0);
 
 	void UpdateIK(IKContext & ik);
 

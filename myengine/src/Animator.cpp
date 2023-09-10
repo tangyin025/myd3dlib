@@ -874,7 +874,7 @@ void Animator::UpdateDynamicBone(DynamicBoneContext & context, const my::Bone & 
 	}
 }
 
-void Animator::AddIK(int node_i, const my::BoneHierarchy & boneHierarchy, float hitRadius, unsigned int filterWord0)
+void Animator::AddIK(int node_i, float hitRadius, unsigned int filterWord0)
 {
 	std::pair<IKContextMap::iterator, bool> res = m_Iks.insert(std::make_pair(node_i, IKContext()));
 	if (!res.second)
@@ -882,19 +882,8 @@ void Animator::AddIK(int node_i, const my::BoneHierarchy & boneHierarchy, float 
 		return;
 	}
 
-	int child_i = node_i;
-	for (int i = 0; i < _countof(res.first->second.id); i++, child_i = boneHierarchy[child_i].m_child)
-	{
-		if (child_i < 0)
-		{
-			m_Iks.erase(node_i);
-			return;
-		}
-		res.first->second.id[i] = child_i;
-	}
-
+	res.first->second.id = node_i;
 	res.first->second.hitRadius = hitRadius;
-
 	res.first->second.filterWord0 = filterWord0;
 }
 
@@ -907,10 +896,15 @@ void Animator::UpdateIK(IKContext & ik)
 	PhysxScene * scene = dynamic_cast<PhysxScene *>(m_Actor->m_Node->GetTopNode());
 	_ASSERT(scene);
 
+	const int ids[3] = {
+		ik.id,
+		m_Skeleton->m_boneHierarchy[ik.id].m_child,
+		m_Skeleton->m_boneHierarchy[m_Skeleton->m_boneHierarchy[ik.id].m_child].m_child };
+
 	const Vector3 pos[3] = {
-		anim_pose_hier[ik.id[0]].m_position,
-		anim_pose_hier[ik.id[1]].m_position,
-		anim_pose_hier[ik.id[2]].m_position };
+		anim_pose_hier[ids[0]].m_position,
+		anim_pose_hier[ids[1]].m_position,
+		anim_pose_hier[ids[2]].m_position };
 	const Vector3 dir[3] = { pos[1] - pos[0], pos[2] - pos[1], pos[2] - pos[0] };
 	const float length[3] = { dir[0].magnitude(), dir[1].magnitude(), dir[2].magnitude() };
 	if (length[0] < EPSILON_E12 || length[1] < EPSILON_E12 || length[2] < EPSILON_E12)
@@ -937,13 +931,13 @@ void Animator::UpdateIK(IKContext & ik)
 			Quaternion::RotationAxis(normal[1].cross(normal[0]), new_theta[1] - theta[1]) };
 
 		TransformHierarchyBoneList(anim_pose_hier, m_Skeleton->m_boneHierarchy,
-			ik.id[0], rot[0], anim_pose_hier[ik.id[0]].m_position);
+			ids[0], rot[0], anim_pose_hier[ids[0]].m_position);
 
 		TransformHierarchyBoneList(anim_pose_hier, m_Skeleton->m_boneHierarchy,
-			ik.id[1], rot[1], anim_pose_hier[ik.id[1]].m_position);
+			ids[1], rot[1], anim_pose_hier[ids[1]].m_position);
 
 		TransformHierarchyBoneList(anim_pose_hier, m_Skeleton->m_boneHierarchy,
-			ik.id[2], rot[1].conjugate() * rot[0].conjugate(), anim_pose_hier[ik.id[2]].m_position);
+			ids[2], rot[1].conjugate() * rot[0].conjugate(), anim_pose_hier[ids[2]].m_position);
 	}
 }
 
