@@ -1547,20 +1547,25 @@ void CMainFrame::OnComponentCloth()
 	my::CachePtr cache = my::FileIStream::Open(dlg.GetPathName())->GetWholeCache();
 	cache->push_back(0);
 	rapidxml::xml_document<char> doc;
+	my::OgreMeshPtr mesh(new my::OgreMesh());
 	try
 	{
 		doc.parse<0>((char*)&(*cache)[0]);
+
+		mesh->CreateMeshFromOgreXml(&doc, true, D3DXMESH_MANAGED);
 	}
 	catch (rapidxml::parse_error& e)
 	{
 		theApp.m_EventLog(e.what());
 		return;
 	}
+	catch (my::Exception& e)
+	{
+		theApp.m_EventLog(e.what().c_str());
+		return;
+	}
 
 	const rapidxml::xml_node<char>* node_root = &doc;
-	my::OgreMeshPtr mesh(new my::OgreMesh());
-	mesh->CreateMeshFromOgreXml(node_root, true, D3DXMESH_MANAGED);
-
 	DEFINE_XML_NODE_SIMPLE(mesh, root);
 	DEFINE_XML_NODE_SIMPLE(submeshes, mesh);
 	DEFINE_XML_NODE_SIMPLE(submesh, submeshes);
