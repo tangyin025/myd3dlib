@@ -73,6 +73,8 @@ IDB_CLASS_VIEW_24       BITMAP                  "res\\classview_hc.bmp"
 
 IDB_CLASS_VIEW          BITMAP                  "res\\classview.bmp"
 
+IDR_TOOLBAR1            BITMAP                  "res\\toolbar1.bmp"
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -478,6 +480,17 @@ BEGIN
     0
 END
 
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Toolbar
+//
+
+IDR_TOOLBAR1 TOOLBAR 16, 15
+BEGIN
+    BUTTON      ID_EXPAND_ALL
+END
+
 #endif    // Chinese (Simplified, PRC) resources
 /////////////////////////////////////////////////////////////////////////////
 
@@ -653,18 +666,6 @@ END
 
 /////////////////////////////////////////////////////////////////////////////
 //
-// Icon
-//
-
-// Icon with lowest ID value placed first to ensure application icon
-// remains consistent on all systems.
-IDR_MAINFRAME           ICON                    "res\\myd3dbox.ico"
-
-IDR_aaaTYPE             ICON                    "res\\myd3dboxDoc.ico"
-
-
-/////////////////////////////////////////////////////////////////////////////
-//
 // Toolbar
 //
 
@@ -737,6 +738,18 @@ BEGIN
     BUTTON      ID_TOOLS_SNAPSHOT
     BUTTON      ID_APP_ABOUT
 END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDR_MAINFRAME           ICON                    "res\\myd3dbox.ico"
+
+IDR_aaaTYPE             ICON                    "res\\myd3dboxDoc.ico"
 
 
 /////////////////////////////////////////////////////////////////////////////

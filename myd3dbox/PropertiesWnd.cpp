@@ -216,8 +216,8 @@ CPropertiesWnd::~CPropertiesWnd()
 BEGIN_MESSAGE_MAP(CPropertiesWnd, CDockablePane)
 	ON_WM_CREATE()
 	ON_WM_SIZE()
-	//ON_COMMAND(ID_EXPAND_ALL, OnExpandAllProperties)
-	//ON_UPDATE_COMMAND_UI(ID_EXPAND_ALL, OnUpdateExpandAllProperties)
+	ON_COMMAND(ID_EXPAND_ALL, OnExpandAllProperties)
+	ON_UPDATE_COMMAND_UI(ID_EXPAND_ALL, OnUpdateExpandAllProperties)
 	//ON_COMMAND(ID_SORTPROPERTIES, OnSortProperties)
 	//ON_UPDATE_COMMAND_UI(ID_SORTPROPERTIES, OnUpdateSortProperties)
 	//ON_COMMAND(ID_PROPERTIES1, OnProperties1)
@@ -246,10 +246,10 @@ void CPropertiesWnd::AdjustLayout()
 	//m_wndObjectCombo.GetWindowRect(&rectCombo);
 
 	int cyCmb = 0;//rectCombo.Size().cy;
-	int cyTlb = 0;//m_wndToolBar.CalcFixedLayout(FALSE, TRUE).cy;
+	int cyTlb = m_wndToolBar.CalcFixedLayout(FALSE, TRUE).cy;
 
 	//m_wndObjectCombo.SetWindowPos(NULL, rectClient.left, rectClient.top, rectClient.Width(), 200, SWP_NOACTIVATE | SWP_NOZORDER);
-	//m_wndToolBar.SetWindowPos(NULL, rectClient.left, rectClient.top + cyCmb, rectClient.Width(), cyTlb, SWP_NOACTIVATE | SWP_NOZORDER);
+	m_wndToolBar.SetWindowPos(NULL, rectClient.left, rectClient.top + cyCmb, rectClient.Width(), cyTlb, SWP_NOACTIVATE | SWP_NOZORDER);
 	m_wndPropList.SetWindowPos(NULL, rectClient.left, rectClient.top + cyCmb + cyTlb, rectClient.Width(), rectClient.Height() -(cyCmb+cyTlb), SWP_NOACTIVATE | SWP_NOZORDER);
 }
 
@@ -1303,7 +1303,7 @@ void CPropertiesWnd::CreatePropertiesActor(Actor * actor)
 	pProp = new CSimpleProp(_T("maxz"), (_variant_t)actor->m_aabb.m_max.z, NULL, PropertyActorMaxZ);
 	pAABB->AddSubItem(pProp);
 
-	CMFCPropertyGridProperty * pPosition = new CMFCPropertyGridProperty(_T("Position"), PropertyActorPos, TRUE);
+	CMFCPropertyGridProperty * pPosition = new CSimpleProp(_T("Position"), PropertyActorPos, TRUE);
 	pActor->AddSubItem(pPosition);
 	pProp = new CSimpleProp(_T("x"), (_variant_t)actor->m_Position.x, NULL, PropertyActorPosX);
 	pPosition->AddSubItem(pProp);
@@ -1744,7 +1744,7 @@ void CPropertiesWnd::CreatePropertiesStaticEmitterParticle(CMFCPropertyGridPrope
 	CMFCPropertyGridProperty * pParticle = new CSimpleProp(strTitle, MAKELONG(chunkid.x, chunkid.y), FALSE);
 	pParticle->SetValue((_variant_t)instid);
 	pParentProp->AddSubItem(pParticle);
-	CMFCPropertyGridProperty * pPosition = new CMFCPropertyGridProperty(_T("Position"), PropertyEmitterParticlePosition, TRUE);
+	CMFCPropertyGridProperty * pPosition = new CSimpleProp(_T("Position"), PropertyEmitterParticlePosition, TRUE);
 	pParticle->AddSubItem(pPosition);
 	CMFCPropertyGridProperty * pProp = new CSimpleProp(_T("x"), (_variant_t)particle->m_Position.x, NULL, PropertyEmitterParticlePositionX);
 	pPosition->AddSubItem(pProp);
@@ -1755,7 +1755,7 @@ void CPropertiesWnd::CreatePropertiesStaticEmitterParticle(CMFCPropertyGridPrope
 	pProp = new CSimpleProp(_T("w"), (_variant_t)particle->m_Position.w, NULL, PropertyEmitterParticlePositionW);
 	pPosition->AddSubItem(pProp);
 
-	CMFCPropertyGridProperty * pVelocity = new CMFCPropertyGridProperty(_T("Velocity"), PropertyEmitterParticleVelocity, TRUE);
+	CMFCPropertyGridProperty * pVelocity = new CSimpleProp(_T("Velocity"), PropertyEmitterParticleVelocity, TRUE);
 	pParticle->AddSubItem(pVelocity);
 	pProp = new CSimpleProp(_T("x"), (_variant_t)particle->m_Velocity.x, NULL, PropertyEmitterParticleVelocityX);
 	pVelocity->AddSubItem(pProp);
@@ -1774,14 +1774,14 @@ void CPropertiesWnd::CreatePropertiesStaticEmitterParticle(CMFCPropertyGridPrope
 	CMFCPropertyGridProperty * pAlpha = new CSliderProp(_T("Alpha"), (long)(particle->m_Color.w * 255), NULL, PropertyEmitterParticleColorAlpha);
 	pParticle->AddSubItem(pAlpha);
 
-	CMFCPropertyGridProperty * pSize = new CMFCPropertyGridProperty(_T("Size"), PropertyEmitterParticleSize, TRUE);
+	CMFCPropertyGridProperty * pSize = new CSimpleProp(_T("Size"), PropertyEmitterParticleSize, TRUE);
 	pParticle->AddSubItem(pSize);
 	pProp = new CSimpleProp(_T("x"), (_variant_t)particle->m_Size.x, NULL, PropertyEmitterParticleSizeX);
 	pSize->AddSubItem(pProp);
 	pProp = new CSimpleProp(_T("y"), (_variant_t)particle->m_Size.y, NULL, PropertyEmitterParticleSizeY);
 	pSize->AddSubItem(pProp);
 
-	pProp = new CMFCPropertyGridProperty(_T("Angle"), (_variant_t)D3DXToDegree(particle->m_Angle), NULL, PropertyEmitterParticleAngle);
+	pProp = new CSimpleProp(_T("Angle"), (_variant_t)D3DXToDegree(particle->m_Angle), NULL, PropertyEmitterParticleAngle);
 	pParticle->AddSubItem(pProp);
 }
 
@@ -1992,7 +1992,7 @@ void CPropertiesWnd::CreatePropertiesNavigation(CMFCPropertyGridProperty * pComp
 	ASSERT(pComponent->GetSubItemsCount() == GetComponentPropCount(Component::ComponentTypeComponent));
 
 	const dtNavMeshParams * params = navigation->m_navMesh->getParams();
-	CMFCPropertyGridProperty* pOrigin = new CMFCPropertyGridProperty(_T("Origin"), PropertyNavigationOrigin, TRUE);
+	CMFCPropertyGridProperty* pOrigin = new CSimpleProp(_T("Origin"), PropertyNavigationOrigin, TRUE);
 	pOrigin->Enable(FALSE);
 	pComponent->AddSubItem(pOrigin);
 	CMFCPropertyGridProperty* pProp = new CSimpleProp(_T("x"), (_variant_t)params->orig[0], NULL, PropertyNavigationOriginX);
@@ -3004,17 +3004,17 @@ int CPropertiesWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 	InitPropList();
 
-	//m_wndToolBar.Create(this, AFX_DEFAULT_TOOLBAR_STYLE, IDR_PROPERTIES);
-	//m_wndToolBar.LoadToolBar(IDR_PROPERTIES, 0, 0, TRUE /* Is locked */);
+	m_wndToolBar.Create(this, AFX_DEFAULT_TOOLBAR_STYLE, IDR_TOOLBAR1);
+	m_wndToolBar.LoadToolBar(IDR_TOOLBAR1, 0, 0, TRUE /* Is locked */);
 	//m_wndToolBar.CleanUpLockedImages();
 	//m_wndToolBar.LoadBitmap(theApp.m_bHiColorIcons ? IDB_PROPERTIES_HC : IDR_PROPERTIES, 0, 0, TRUE /* Locked */);
 
-	//m_wndToolBar.SetPaneStyle(m_wndToolBar.GetPaneStyle() | CBRS_TOOLTIPS | CBRS_FLYBY);
-	//m_wndToolBar.SetPaneStyle(m_wndToolBar.GetPaneStyle() & ~(CBRS_GRIPPER | CBRS_SIZE_DYNAMIC | CBRS_BORDER_TOP | CBRS_BORDER_BOTTOM | CBRS_BORDER_LEFT | CBRS_BORDER_RIGHT));
-	//m_wndToolBar.SetOwner(this);
+	m_wndToolBar.SetPaneStyle(m_wndToolBar.GetPaneStyle() | CBRS_TOOLTIPS | CBRS_FLYBY);
+	m_wndToolBar.SetPaneStyle(m_wndToolBar.GetPaneStyle() & ~(CBRS_GRIPPER | CBRS_SIZE_DYNAMIC | CBRS_BORDER_TOP | CBRS_BORDER_BOTTOM | CBRS_BORDER_LEFT | CBRS_BORDER_RIGHT));
+	m_wndToolBar.SetOwner(this);
 
-	//// All commands will be routed via this control , not via the parent frame:
-	//m_wndToolBar.SetRouteCommandsViaFrame(FALSE);
+	// All commands will be routed via this control , not via the parent frame:
+	m_wndToolBar.SetRouteCommandsViaFrame(FALSE);
 	(DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_EventSelectionChanged.connect(boost::bind(&CPropertiesWnd::OnSelectionChanged, this, boost::placeholders::_1));
 	(DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_EventPivotModeChanged.connect(boost::bind(&CPropertiesWnd::OnSelectionChanged, this, boost::placeholders::_1));
 	(DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_EventAttributeChanged.connect(boost::bind(&CPropertiesWnd::OnSelectionChanged, this, boost::placeholders::_1));
@@ -3038,15 +3038,38 @@ void CPropertiesWnd::OnSize(UINT nType, int cx, int cy)
 	CDockablePane::OnSize(nType, cx, cy);
 	AdjustLayout();
 }
-//
-//void CPropertiesWnd::OnExpandAllProperties()
-//{
-//	m_wndPropList.ExpandAll();
-//}
-//
-//void CPropertiesWnd::OnUpdateExpandAllProperties(CCmdUI* pCmdUI)
-//{
-//}
+
+void CPropertiesWnd::OnExpandAllProperties()
+{
+	if (m_wndPropList.IsAlphabeticMode())
+	{
+		return;
+	}
+
+	CMainFrame* pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
+	ASSERT_VALID(pFrame);
+	CMainFrame::ActorList::iterator actor_iter = pFrame->m_selactors.begin();
+	if (actor_iter == pFrame->m_selactors.end())
+	{
+		return;
+	}
+
+	for (int i = 0; i < m_wndPropList.GetPropertyCount(); i++)
+	{
+		CMFCPropertyGridProperty* pProp = m_wndPropList.GetProperty(i);
+		for (int j = 0; j < pProp->GetSubItemsCount(); j++)
+		{
+			CSimpleProp* pSubItem = DYNAMIC_DOWNCAST(CSimpleProp, pProp->GetSubItem(j));
+			pSubItem->ExpandDeep(FALSE);
+		}
+	}
+
+	m_wndPropList.AdjustLayout();
+}
+
+void CPropertiesWnd::OnUpdateExpandAllProperties(CCmdUI* pCmdUI)
+{
+}
 //
 //void CPropertiesWnd::OnSortProperties()
 //{

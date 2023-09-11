@@ -61,7 +61,7 @@ public:
 protected:
 	CFont m_fntPropList;
 	CComboBox m_wndObjectCombo;
-	//CPropertiesToolBar m_wndToolBar;
+	CPropertiesToolBar m_wndToolBar;
 	CMFCPropertyGridCtrl m_wndPropList;
 	BOOL m_OnPropertyChangeMuted;
 public:
@@ -582,8 +582,8 @@ protected:
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 	afx_msg void OnDestroy();
 	afx_msg void OnSize(UINT nType, int cx, int cy);
-	//afx_msg void OnExpandAllProperties();
-	//afx_msg void OnUpdateExpandAllProperties(CCmdUI* pCmdUI);
+	afx_msg void OnExpandAllProperties();
+	afx_msg void OnUpdateExpandAllProperties(CCmdUI* pCmdUI);
 	//afx_msg void OnSortProperties();
 	//afx_msg void OnUpdateSortProperties(CCmdUI* pCmdUI);
 	//afx_msg void OnProperties1();

@@ -37,6 +37,11 @@ public:
 
 	static INT GetSubIndexInParent(CMFCPropertyGridProperty * pProp);
 
+	void ExpandDeep(BOOL bExpand = TRUE)
+	{
+		CMFCPropertyGridProperty::ExpandDeep(bExpand);
+	}
+
 	virtual void SetValue(const COleVariant& varValue);
 
 	DECLARE_DYNAMIC(CSimpleProp)
