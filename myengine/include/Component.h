@@ -28,6 +28,8 @@ class Component;
 
 typedef boost::shared_ptr<Component> ComponentPtr;
 
+class Animator;
+
 class Component
 	: public my::NamedObject
 	, public my::ShaderResourceBase
@@ -479,7 +481,7 @@ public:
 
 	virtual void Update(float fElapsedTime);
 
-	void UpdateVertexData(void);
+	void UpdateVertexData(physx::PxClothParticle * particles, unsigned int NbParticles, Animator* animator);
 
 	void OnPxThreadSubstep(float dtime);
 

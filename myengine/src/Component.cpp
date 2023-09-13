@@ -1094,6 +1094,8 @@ void ClothComponent::save(Archive & ar, const unsigned int version) const
 	ActorSerializationContext* pxar = dynamic_cast<ActorSerializationContext*>(&ar);
 	_ASSERT(pxar);
 
+	const_cast<ClothComponent*>(this)->UpdateVertexData(const_cast<physx::PxClothParticle*>(m_particles.data()), m_particles.size(), NULL);
+
 	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(Component);
 	unsigned int VertexSize = m_VertexData.size();
 	ar << BOOST_SERIALIZATION_NVP(VertexSize);
@@ -1682,57 +1684,56 @@ void ClothComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline *
 
 void ClothComponent::Update(float fElapsedTime)
 {
-	UpdateVertexData();
-}
-
-void ClothComponent::UpdateVertexData(void)
-{
 	if (m_Cloth)
 	{
 		_ASSERT(m_particles.size() == m_VertexData.size() / m_VertexStride);
-		physx::PxClothParticleData * readData = m_Cloth->lockParticleData(physx::PxDataAccessFlag::eWRITABLE);
+		physx::PxClothParticleData* readData = m_Cloth->lockParticleData(physx::PxDataAccessFlag::eWRITABLE);
 		if (readData)
 		{
-			unsigned char * pVertices = &m_VertexData[0];
-			const DWORD NbParticles = m_Cloth->getNbParticles();
-			Animator* animator = m_Actor->GetFirstComponent<Animator>();
-			if (animator && !animator->m_DualQuats.empty() && m_VertexElems.elems[D3DDECLUSAGE_BLENDINDICES][0].Type == D3DDECLTYPE_UBYTE4)
+			UpdateVertexData(readData->particles, m_Cloth->getNbParticles(), m_Actor->GetFirstComponent<Animator>());
+
+			readData->unlock();
+		}
+	}
+}
+
+void ClothComponent::UpdateVertexData(physx::PxClothParticle* particles, unsigned int NbParticles, Animator* animator)
+{
+	unsigned char* pVertices = &m_VertexData[0];
+	if (animator && !animator->m_DualQuats.empty() && m_VertexElems.elems[D3DDECLUSAGE_BLENDINDICES][0].Type == D3DDECLTYPE_UBYTE4)
+	{
+		for (unsigned int i = 0; i < NbParticles; i++)
+		{
+			void* pVertex = pVertices + i * m_VertexStride;
+			if (particles[i].invWeight == 0)
 			{
-				for (unsigned int i = 0; i < NbParticles; i++)
-				{
-					void * pVertex = pVertices + i * m_VertexStride;
-					if (readData->particles[i].invWeight == 0)
-					{
-						my::Vector3 pos = animator->m_DualQuats.TransformVertexWithDualQuaternionList(
-							(my::Vector3 &)m_particles[i].pos,
-							m_VertexElems.GetBlendIndices(pVertex),
-							m_VertexElems.GetBlendWeight(pVertex));
-						readData->particles[i].pos = (physx::PxVec3 &)pos;
-						m_VertexElems.SetPosition(pVertex, pos);
-					}
-					else
-					{
-						m_VertexElems.SetPosition(pVertex, (my::Vector3 &)readData->particles[i].pos);
-					}
-				}
+				my::Vector3 pos = animator->m_DualQuats.TransformVertexWithDualQuaternionList(
+					(my::Vector3&)m_particles[i].pos,
+					m_VertexElems.GetBlendIndices(pVertex),
+					m_VertexElems.GetBlendWeight(pVertex));
+				particles[i].pos = (physx::PxVec3&)pos;
+				m_VertexElems.SetPosition(pVertex, pos);
 			}
 			else
 			{
-				for (unsigned int i = 0; i < NbParticles; i++)
-				{
-					void * pVertex = pVertices + i * m_VertexStride;
-					m_VertexElems.SetPosition(pVertex, (my::Vector3 &)readData->particles[i].pos);
-				}
+				m_VertexElems.SetPosition(pVertex, (my::Vector3&)particles[i].pos);
 			}
-			readData->unlock();
-
-			my::OgreMesh::ComputeNormalFrame(
-				pVertices, NbParticles, m_VertexStride, &m_IndexData[0], true, m_IndexData.size() / 3, m_VertexElems);
-
-			my::OgreMesh::ComputeTangentFrame(
-				pVertices, NbParticles, m_VertexStride, &m_IndexData[0], true, m_IndexData.size() / 3, m_VertexElems);
 		}
 	}
+	else
+	{
+		for (unsigned int i = 0; i < NbParticles; i++)
+		{
+			void* pVertex = pVertices + i * m_VertexStride;
+			m_VertexElems.SetPosition(pVertex, (my::Vector3&)particles[i].pos);
+		}
+	}
+
+	my::OgreMesh::ComputeNormalFrame(
+		pVertices, NbParticles, m_VertexStride, &m_IndexData[0], true, m_IndexData.size() / 3, m_VertexElems);
+
+	my::OgreMesh::ComputeTangentFrame(
+		pVertices, NbParticles, m_VertexStride, &m_IndexData[0], true, m_IndexData.size() / 3, m_VertexElems);
 }
 
 void ClothComponent::OnPxThreadSubstep(float dtime)
