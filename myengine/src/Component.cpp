@@ -1177,7 +1177,8 @@ void ClothComponent::load(Archive & ar, const unsigned int version)
 
 	std::string ClothFabricPath;
 	ar >> boost::serialization::make_nvp("m_ClothFabricPath", ClothFabricPath);
-	CreateClothFromMesh(ClothFabricPath.c_str(), my::OgreMeshPtr(), 0, Vector3(0, 0, 0));
+	boost::shared_ptr<physx::PxClothMeshQuadifier> quadifier;
+	CreateClothFromMesh(ClothFabricPath.c_str(), my::OgreMeshPtr(), 0, Vector3(0, 0, 0), quadifier);
 
 	unsigned int ClothFlags;
 	ar >> BOOST_SERIALIZATION_NVP(ClothFlags);
@@ -1225,7 +1226,10 @@ void ClothComponent::load(Archive & ar, const unsigned int version)
 	ar >> BOOST_SERIALIZATION_NVP(VirtualParticleSize);
 	std::vector<unsigned int> VirtualParticles(VirtualParticleSize);
 	ar >> boost::serialization::make_nvp("VirtualParticle", boost::serialization::binary_object((void*)&VirtualParticles[0], VirtualParticleSize * sizeof(VirtualParticles[0])));
-	m_Cloth->setVirtualParticles(VirtualParticles.size() / 4, VirtualParticles.data(), VirtualParticleWeights.size(), (physx::PxVec3*)VirtualParticleWeights.data());
+	if (!VirtualParticles.empty())
+	{
+		m_Cloth->setVirtualParticles(VirtualParticles.size() / 4, VirtualParticles.data(), VirtualParticleWeights.size(), (physx::PxVec3*)VirtualParticleWeights.data());
+	}
 
 	ar >> BOOST_SERIALIZATION_NVP(m_ClothSphereBones);
 	for (int i = 0; i < m_ClothSphereBones.size(); i++)
@@ -1245,7 +1249,7 @@ void ClothComponent::OnResetShader(void)
 	handle_World = NULL;
 }
 
-void ClothComponent::CreateClothFromMesh(const char * ClothFabricPath, my::OgreMeshPtr mesh, int sub_mesh_id, const my::Vector3 & gravity)
+void ClothComponent::CreateClothFromMesh(const char * ClothFabricPath, my::OgreMeshPtr mesh, int sub_mesh_id, const my::Vector3 & gravity, boost::shared_ptr<physx::PxClothMeshQuadifier> & quadifier)
 {
 	if (m_VertexData.empty())
 	{
@@ -1335,9 +1339,11 @@ void ClothComponent::CreateClothFromMesh(const char * ClothFabricPath, my::OgreM
 		desc.triangles.count = m_IndexData.size() / 3;
 		desc.triangles.stride = 3 * sizeof(unsigned short);
 		desc.flags |= physx::PxMeshFlag::e16_BIT_INDICES;
+		quadifier.reset(new physx::PxClothMeshQuadifier(desc));
 
+		physx::PxClothMeshDesc desc2 = quadifier->getDescriptor();
 		physx::PxDefaultFileOutputStream writeBuffer(my::ResourceMgr::getSingleton().GetFullPath(ClothFabricPath).c_str());
-		physx::PxClothFabricCooker cooker(desc, (physx::PxVec3&)gravity, true);
+		physx::PxClothFabricCooker cooker(desc2, (physx::PxVec3&)gravity, true);
 		cooker.save(writeBuffer, true);
 	}
 
@@ -1352,22 +1358,10 @@ void ClothComponent::CreateClothFromMesh(const char * ClothFabricPath, my::OgreM
 		physx::PxTransform(physx::PxIdentity), *m_ClothFabric, &m_particles[0], physx::PxClothFlags()), PhysxDeleter<physx::PxCloth>());
 }
 
-void ClothComponent::CreateVirtualParticles(my::OgreMeshPtr mesh, int level)
+void ClothComponent::CreateVirtualParticles(const physx::PxClothMeshDesc & meshDesc, int level)
 {
 	if (level < 1 || level > 5)
 		return;
-
-	static Vector3 gVirtualParticleWeights[] =
-	{
-		// center point
-		Vector3(1.0f / 3, 1.0f / 3, 1.0f / 3),
-
-		// off-center point
-		Vector3(4.0f / 6, 1.0f / 6, 1.0f / 6),
-
-		// edge point
-		Vector3(1.0f / 2, 1.0f / 2, 0.0f),
-	};
 
 	unsigned int edgeSampleCount[] = { 0, 0, 1, 1, 0, 1 };
 	unsigned int triSampleCount[] = { 0, 1, 0, 1, 3, 3 };
@@ -1377,11 +1371,11 @@ void ClothComponent::CreateVirtualParticles(my::OgreMeshPtr mesh, int level)
 	unsigned int numTriSamples = triSampleCount[level];
 	unsigned int numQuadSamples = quadSampleCount[level];
 
-	unsigned int numTriangles = mesh->GetNumFaces();
-	unsigned char* triangles = (unsigned char*)mesh->LockIndexBuffer();
+	unsigned int numTriangles = meshDesc.triangles.count;
+	unsigned char* triangles = (unsigned char*)meshDesc.triangles.data;
 
-	unsigned int numQuads = 0;
-	unsigned char* quads = NULL;
+	unsigned int numQuads = meshDesc.quads.count;
+	unsigned char* quads = (unsigned char*)meshDesc.quads.data;
 
 	std::vector<unsigned int> indices;
 	indices.reserve(numTriangles * (numTriSamples + 3 * numEdgeSamples)
@@ -1394,7 +1388,7 @@ void ClothComponent::CreateVirtualParticles(my::OgreMeshPtr mesh, int level)
 	{
 		unsigned int v0, v1, v2;
 
-		if (!(mesh->GetOptions() & D3DXMESH_32BIT))
+		if (meshDesc.flags & physx::PxMeshFlag::e16_BIT_INDICES)
 		{
 			unsigned short* triangle = (unsigned short*)triangles;
 			v0 = triangle[0];
@@ -1462,18 +1456,14 @@ void ClothComponent::CreateVirtualParticles(my::OgreMeshPtr mesh, int level)
 			}
 		}
 
-		if (!(mesh->GetOptions() & D3DXMESH_32BIT))
-			triangles += 3 * sizeof(unsigned short);
-		else
-			triangles += 3 * sizeof(unsigned int);
+		triangles += meshDesc.triangles.stride;
 	}
-	mesh->UnlockIndexBuffer();
 
 	for (unsigned int i = 0; i < numQuads; i++)
 	{
 		unsigned int v0, v1, v2, v3;
 
-		if (!(mesh->GetOptions() & D3DXMESH_32BIT))
+		if (meshDesc.flags & physx::PxMeshFlag::e16_BIT_INDICES)
 		{
 			unsigned short* quad = (unsigned short*)quads;
 			v0 = quad[0];
@@ -1556,14 +1546,25 @@ void ClothComponent::CreateVirtualParticles(my::OgreMeshPtr mesh, int level)
 			}
 		}
 
-		if (!(mesh->GetOptions() & D3DXMESH_32BIT))
-			quads += 4 * sizeof(unsigned short);
-		else
-			quads += 4 * sizeof(unsigned int);
+		quads += meshDesc.quads.stride;
 	}
+
+	static const Vector3 gVirtualParticleWeights[] =
+	{
+		// center point
+		Vector3(1.0f / 3, 1.0f / 3, 1.0f / 3),
+
+		// off-center point
+		Vector3(4.0f / 6, 1.0f / 6, 1.0f / 6),
+
+		// edge point
+		Vector3(1.0f / 2, 1.0f / 2, 0.0f),
+	};
 
 	m_Cloth->setVirtualParticles(indices.size() / 4,
 		indices.data(), 3, (physx::PxVec3*)gVirtualParticleWeights);
+
+	return;
 }
 
 void ClothComponent::RequestResource(void)

@@ -463,9 +463,9 @@ public:
 
 	virtual void OnResetShader(void);
 
-	void CreateClothFromMesh(const char * ClothFabricPath, my::OgreMeshPtr mesh, int sub_mesh_id, const my::Vector3 & gravity);
+	void CreateClothFromMesh(const char * ClothFabricPath, my::OgreMeshPtr mesh, int sub_mesh_id, const my::Vector3 & gravity, boost::shared_ptr<physx::PxClothMeshQuadifier> & quadifier);
 
-	void CreateVirtualParticles(my::OgreMeshPtr mesh, int level);
+	void CreateVirtualParticles(const physx::PxClothMeshDesc & meshDesc, int level);
 
 	virtual void RequestResource(void);
 

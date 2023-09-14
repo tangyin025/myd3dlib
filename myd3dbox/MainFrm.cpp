@@ -1581,7 +1581,8 @@ void CMainFrame::OnComponentCloth()
 		}
 
 		ClothComponentPtr cloth_cmp(new ClothComponent(my::NamedObject::MakeUniqueName((std::string((*actor_iter)->GetName()) + "_cloth").c_str()).c_str()));
-		cloth_cmp->CreateClothFromMesh(ClothFabricPath.c_str(), mesh, submesh_i, GetGravity());
+		boost::shared_ptr<physx::PxClothMeshQuadifier> quadifier;
+		cloth_cmp->CreateClothFromMesh(ClothFabricPath.c_str(), mesh, submesh_i, GetGravity(), quadifier);
 
 		//// set solver settings
 		//cloth_cmp->m_Cloth->setSolverFrequency(240);
@@ -1605,7 +1606,7 @@ void CMainFrame::OnComponentCloth()
 		//cloth_cmp->m_Cloth->setCentrifugalInertiaScale(physx::PxVec3(0.3f));
 
 		// virtual particles
-		cloth_cmp->CreateVirtualParticles(mesh, 4);
+		cloth_cmp->CreateVirtualParticles(quadifier->getDescriptor(), 4);
 
 		// ccd
 		cloth_cmp->m_Cloth->setClothFlag(physx::PxClothFlag::eSWEPT_CONTACT, true);
