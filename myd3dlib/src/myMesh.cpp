@@ -715,7 +715,7 @@ void Mesh::ComputeNormalFrame(
 	void * pVertices,
 	DWORD NumVerts,
 	DWORD VertexStride,
-	void * pIndices,
+	const void * pIndices,
 	bool bIndices16,
 	DWORD NumFaces,
 	const D3DVertexElementSet & VertexElems)
@@ -794,7 +794,7 @@ void Mesh::ComputeTangentFrame(
 	void * pVertices,
 	DWORD NumVerts,
 	DWORD VertexStride,
-	void * pIndices,
+	const void * pIndices,
 	bool bIndices16,
 	DWORD NumFaces,
 	const D3DVertexElementSet & VertexElems)

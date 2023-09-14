@@ -347,7 +347,7 @@ namespace my
 			void * pVertices,
 			DWORD NumVerts,
 			DWORD VertexStride,
-			void * pIndices,
+			const void * pIndices,
 			bool bIndices16,
 			DWORD NumFaces,
 			const D3DVertexElementSet & VertexElems);
@@ -356,7 +356,7 @@ namespace my
 			void * pVertices,
 			DWORD NumVerts,
 			DWORD VertexStride,
-			void * pIndices,
+			const void * pIndices,
 			bool bIndices16,
 			DWORD NumFaces,
 			const D3DVertexElementSet & VertexElems);

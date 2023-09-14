@@ -481,7 +481,7 @@ public:
 
 	virtual void Update(float fElapsedTime);
 
-	void UpdateVertexData(physx::PxClothParticle * particles, unsigned int NbParticles, Animator* animator);
+	void UpdateVertexData(unsigned char * pVertices, const physx::PxClothParticle * particles, unsigned int NbParticles, Animator* animator) const;
 
 	void OnPxThreadSubstep(float dtime);
 
