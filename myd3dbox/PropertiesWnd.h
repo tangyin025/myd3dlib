@@ -152,6 +152,8 @@ public:
 		PropertyClothAlpha,
 		PropertyClothSweptContact,
 		PropertyClothSceneCollision,
+		PropertyClothSolverFrequency,
+		PropertyClothStiffnessFrequency,
 		PropertyClothStretchVertical,
 		PropertyClothStretchVerticalStiffness,
 		PropertyClothStretchVerticalStiffnessMultiplier,
