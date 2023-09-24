@@ -583,19 +583,20 @@ void CPropertiesWnd::UpdatePropertiesCloth(CMFCPropertyGridProperty * pComponent
 	pComponent->GetSubItem(PropId + 3)->SetValue((_variant_t)(VARIANT_BOOL)flags.isSet(physx::PxClothFlag::eSCENE_COLLISION));
 	pComponent->GetSubItem(PropId + 4)->SetValue((_variant_t)cloth_cmp->m_Cloth->getSolverFrequency());
 	pComponent->GetSubItem(PropId + 5)->SetValue((_variant_t)cloth_cmp->m_Cloth->getStiffnessFrequency());
+	pComponent->GetSubItem(PropId + 7)->SetValue((_variant_t)cloth_cmp->m_Cloth->getNbVirtualParticles());
 	physx::PxClothStretchConfig stretchConfig = cloth_cmp->m_Cloth->getStretchConfig(physx::PxClothFabricPhaseType::eVERTICAL);
-	pComponent->GetSubItem(PropId + 6)->GetSubItem(0)->SetValue((_variant_t)stretchConfig.stiffness);
-	pComponent->GetSubItem(PropId + 6)->GetSubItem(1)->SetValue((_variant_t)stretchConfig.stiffnessMultiplier);
-	pComponent->GetSubItem(PropId + 6)->GetSubItem(2)->SetValue((_variant_t)stretchConfig.compressionLimit);
-	pComponent->GetSubItem(PropId + 6)->GetSubItem(3)->SetValue((_variant_t)stretchConfig.stretchLimit);
+	pComponent->GetSubItem(PropId + 8)->GetSubItem(0)->SetValue((_variant_t)stretchConfig.stiffness);
+	pComponent->GetSubItem(PropId + 8)->GetSubItem(1)->SetValue((_variant_t)stretchConfig.stiffnessMultiplier);
+	pComponent->GetSubItem(PropId + 8)->GetSubItem(2)->SetValue((_variant_t)stretchConfig.compressionLimit);
+	pComponent->GetSubItem(PropId + 8)->GetSubItem(3)->SetValue((_variant_t)stretchConfig.stretchLimit);
 	physx::PxClothTetherConfig tetherConfig = cloth_cmp->m_Cloth->getTetherConfig();
-	pComponent->GetSubItem(PropId + 7)->GetSubItem(0)->SetValue((_variant_t)tetherConfig.stiffness);
-	pComponent->GetSubItem(PropId + 7)->GetSubItem(1)->SetValue((_variant_t)tetherConfig.stretchLimit);
+	pComponent->GetSubItem(PropId + 9)->GetSubItem(0)->SetValue((_variant_t)tetherConfig.stiffness);
+	pComponent->GetSubItem(PropId + 9)->GetSubItem(1)->SetValue((_variant_t)tetherConfig.stretchLimit);
 	my::Vector3 acceleration = cloth_cmp->GetExternalAcceleration();
-	pComponent->GetSubItem(PropId + 8)->GetSubItem(0)->SetValue((_variant_t)acceleration.x);
-	pComponent->GetSubItem(PropId + 8)->GetSubItem(1)->SetValue((_variant_t)acceleration.y);
-	pComponent->GetSubItem(PropId + 8)->GetSubItem(2)->SetValue((_variant_t)acceleration.z);
-	UpdatePropertiesMaterial(pComponent->GetSubItem(PropId + 9), cloth_cmp->m_Material.get());
+	pComponent->GetSubItem(PropId + 10)->GetSubItem(0)->SetValue((_variant_t)acceleration.x);
+	pComponent->GetSubItem(PropId + 10)->GetSubItem(1)->SetValue((_variant_t)acceleration.y);
+	pComponent->GetSubItem(PropId + 10)->GetSubItem(2)->SetValue((_variant_t)acceleration.z);
+	UpdatePropertiesMaterial(pComponent->GetSubItem(PropId + 11), cloth_cmp->m_Material.get());
 }
 
 void CPropertiesWnd::UpdatePropertiesStaticEmitter(CMFCPropertyGridProperty * pComponent, StaticEmitter * emit_cmp)
@@ -1659,6 +1660,16 @@ void CPropertiesWnd::CreatePropertiesCloth(CMFCPropertyGridProperty * pComponent
 	pComponent->AddSubItem(pProp);
 
 	pProp = new CSimpleProp(_T("StiffnessFrequency"), (_variant_t)cloth_cmp->m_Cloth->getStiffnessFrequency(), NULL, PropertyClothStiffnessFrequency);
+	pComponent->AddSubItem(pProp);
+
+	CComboProp* pVirtualParticleLevel = new CComboProp(_T("VirtualParticleLevel"), _T(""), NULL, PropertyClothVirtualParticleLevel);
+	for (unsigned int i = 0; i < 6; i++)
+	{
+		pVirtualParticleLevel->AddOption(boost::lexical_cast<std::basic_string<TCHAR> >(i).c_str(), TRUE);
+	}
+	pComponent->AddSubItem(pVirtualParticleLevel);
+	pProp = new CSimpleProp(_T("VirtualParticleNum"), (_variant_t)cloth_cmp->m_Cloth->getNbVirtualParticles(), NULL, PropertyClothVirtualParticleNum);
+	pProp->Enable(FALSE);
 	pComponent->AddSubItem(pProp);
 
 	physx::PxClothStretchConfig stretchConfig = cloth_cmp->m_Cloth->getStretchConfig(physx::PxClothFabricPhaseType::eVERTICAL);
@@ -2771,7 +2782,7 @@ unsigned int CPropertiesWnd::GetComponentPropCount(DWORD type)
 	case Component::ComponentTypeStaticMesh:
 		return GetComponentPropCount(Component::ComponentTypeComponent) + 6;
 	case Component::ComponentTypeCloth:
-		return GetComponentPropCount(Component::ComponentTypeComponent) + 10;
+		return GetComponentPropCount(Component::ComponentTypeComponent) + 12;
 	case Component::ComponentTypeStaticEmitter:
 		return GetComponentPropCount(Component::ComponentTypeComponent) + 9;
 	case Component::ComponentTypeSphericalEmitter:
@@ -3813,6 +3824,30 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	{
 		ClothComponent* cloth_cmp = (ClothComponent*)pProp->GetParent()->GetValue().pulVal;
 		cloth_cmp->m_Cloth->setStiffnessFrequency(pProp->GetValue().fltVal);
+		my::EventArg arg;
+		pFrame->m_EventAttributeChanged(&arg);
+		break;
+	}
+	case PropertyClothVirtualParticleLevel:
+	{
+		ClothComponent* cloth_cmp = (ClothComponent*)pProp->GetParent()->GetValue().pulVal;
+		int i = (DYNAMIC_DOWNCAST(CComboProp, pProp))->m_iSelIndex;
+
+		physx::PxClothMeshDesc desc;
+		desc.points.data = &cloth_cmp->m_particles[0].pos;
+		desc.points.count = cloth_cmp->m_particles.size();
+		desc.points.stride = sizeof(cloth_cmp->m_particles[0]);
+		desc.invMasses.data = &cloth_cmp->m_particles[0].invWeight;
+		desc.invMasses.count = cloth_cmp->m_particles.size();
+		desc.invMasses.stride = sizeof(cloth_cmp->m_particles[0]);
+		desc.triangles.data = &cloth_cmp->m_IndexData[0];
+		desc.triangles.count = cloth_cmp->m_IndexData.size() / 3;
+		desc.triangles.stride = 3 * sizeof(unsigned short);
+		desc.flags |= physx::PxMeshFlag::e16_BIT_INDICES;
+
+		physx::PxClothMeshQuadifier quadifier(desc);
+		physx::PxClothMeshDesc desc2 = quadifier.getDescriptor();
+		cloth_cmp->CreateVirtualParticles(desc2, i);
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;

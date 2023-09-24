@@ -1177,8 +1177,7 @@ void ClothComponent::load(Archive & ar, const unsigned int version)
 
 	std::string ClothFabricPath;
 	ar >> boost::serialization::make_nvp("m_ClothFabricPath", ClothFabricPath);
-	boost::shared_ptr<physx::PxClothMeshQuadifier> quadifier;
-	CreateClothFromMesh(ClothFabricPath.c_str(), my::OgreMeshPtr(), 0, Vector3(0, 0, 0), quadifier);
+	CreateClothFromMesh(ClothFabricPath.c_str(), my::OgreMeshPtr(), 0, Vector3(0, 0, 0));
 
 	unsigned int ClothFlags;
 	ar >> BOOST_SERIALIZATION_NVP(ClothFlags);
@@ -1249,7 +1248,7 @@ void ClothComponent::OnResetShader(void)
 	handle_World = NULL;
 }
 
-void ClothComponent::CreateClothFromMesh(const char * ClothFabricPath, my::OgreMeshPtr mesh, int sub_mesh_id, const my::Vector3 & gravity, boost::shared_ptr<physx::PxClothMeshQuadifier> & quadifier)
+void ClothComponent::CreateClothFromMesh(const char * ClothFabricPath, my::OgreMeshPtr mesh, int sub_mesh_id, const my::Vector3 & gravity)
 {
 	if (m_VertexData.empty())
 	{
@@ -1329,9 +1328,9 @@ void ClothComponent::CreateClothFromMesh(const char * ClothFabricPath, my::OgreM
 		_ASSERT(!m_VertexData.empty());
 
 		physx::PxClothMeshDesc desc;
-		desc.points.data = &m_VertexData[0] + m_VertexElems.elems[D3DDECLUSAGE_POSITION][0].Offset;
-		desc.points.count = m_VertexData.size() / m_VertexStride;
-		desc.points.stride = m_VertexStride;
+		desc.points.data = &m_particles[0].pos;
+		desc.points.count = m_particles.size();
+		desc.points.stride = sizeof(m_particles[0]);
 		desc.invMasses.data = &m_particles[0].invWeight;
 		desc.invMasses.count = m_particles.size();
 		desc.invMasses.stride = sizeof(m_particles[0]);
@@ -1339,9 +1338,9 @@ void ClothComponent::CreateClothFromMesh(const char * ClothFabricPath, my::OgreM
 		desc.triangles.count = m_IndexData.size() / 3;
 		desc.triangles.stride = 3 * sizeof(unsigned short);
 		desc.flags |= physx::PxMeshFlag::e16_BIT_INDICES;
-		quadifier.reset(new physx::PxClothMeshQuadifier(desc));
 
-		physx::PxClothMeshDesc desc2 = quadifier->getDescriptor();
+		physx::PxClothMeshQuadifier quadifier(desc);
+		physx::PxClothMeshDesc desc2 = quadifier.getDescriptor();
 		physx::PxDefaultFileOutputStream writeBuffer(my::ResourceMgr::getSingleton().GetFullPath(ClothFabricPath).c_str());
 		physx::PxClothFabricCooker cooker(desc2, (physx::PxVec3&)gravity, true);
 		cooker.save(writeBuffer, true);

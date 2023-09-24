@@ -154,6 +154,8 @@ public:
 		PropertyClothSceneCollision,
 		PropertyClothSolverFrequency,
 		PropertyClothStiffnessFrequency,
+		PropertyClothVirtualParticleLevel,
+		PropertyClothVirtualParticleNum,
 		PropertyClothStretchVertical,
 		PropertyClothStretchVerticalStiffness,
 		PropertyClothStretchVerticalStiffnessMultiplier,
