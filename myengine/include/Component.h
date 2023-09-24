@@ -465,7 +465,7 @@ public:
 
 	void CreateClothFromMesh(const char * ClothFabricPath, my::OgreMeshPtr mesh, int sub_mesh_id, const my::Vector3 & gravity);
 
-	void CreateVirtualParticles(const physx::PxClothMeshDesc & meshDesc, int level);
+	void CreateVirtualParticles(int level);
 
 	virtual void RequestResource(void);
 

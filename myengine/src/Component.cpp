@@ -1357,10 +1357,25 @@ void ClothComponent::CreateClothFromMesh(const char * ClothFabricPath, my::OgreM
 		physx::PxTransform(physx::PxIdentity), *m_ClothFabric, &m_particles[0], physx::PxClothFlags()), PhysxDeleter<physx::PxCloth>());
 }
 
-void ClothComponent::CreateVirtualParticles(const physx::PxClothMeshDesc & meshDesc, int level)
+void ClothComponent::CreateVirtualParticles(int level)
 {
 	if (level < 1 || level > 5)
 		return;
+
+	physx::PxClothMeshDesc desc;
+	desc.points.data = &m_particles[0].pos;
+	desc.points.count = m_particles.size();
+	desc.points.stride = sizeof(m_particles[0]);
+	desc.invMasses.data = &m_particles[0].invWeight;
+	desc.invMasses.count = m_particles.size();
+	desc.invMasses.stride = sizeof(m_particles[0]);
+	desc.triangles.data = &m_IndexData[0];
+	desc.triangles.count = m_IndexData.size() / 3;
+	desc.triangles.stride = 3 * sizeof(unsigned short);
+	desc.flags |= physx::PxMeshFlag::e16_BIT_INDICES;
+
+	physx::PxClothMeshQuadifier quadifier(desc);
+	physx::PxClothMeshDesc desc2 = quadifier.getDescriptor();
 
 	unsigned int edgeSampleCount[] = { 0, 0, 1, 1, 0, 1 };
 	unsigned int triSampleCount[] = { 0, 1, 0, 1, 3, 3 };
@@ -1370,11 +1385,11 @@ void ClothComponent::CreateVirtualParticles(const physx::PxClothMeshDesc & meshD
 	unsigned int numTriSamples = triSampleCount[level];
 	unsigned int numQuadSamples = quadSampleCount[level];
 
-	unsigned int numTriangles = meshDesc.triangles.count;
-	unsigned char* triangles = (unsigned char*)meshDesc.triangles.data;
+	unsigned int numTriangles = desc2.triangles.count;
+	unsigned char* triangles = (unsigned char*)desc2.triangles.data;
 
-	unsigned int numQuads = meshDesc.quads.count;
-	unsigned char* quads = (unsigned char*)meshDesc.quads.data;
+	unsigned int numQuads = desc2.quads.count;
+	unsigned char* quads = (unsigned char*)desc2.quads.data;
 
 	std::vector<unsigned int> indices;
 	indices.reserve(numTriangles * (numTriSamples + 3 * numEdgeSamples)
@@ -1387,7 +1402,7 @@ void ClothComponent::CreateVirtualParticles(const physx::PxClothMeshDesc & meshD
 	{
 		unsigned int v0, v1, v2;
 
-		if (meshDesc.flags & physx::PxMeshFlag::e16_BIT_INDICES)
+		if (desc2.flags & physx::PxMeshFlag::e16_BIT_INDICES)
 		{
 			unsigned short* triangle = (unsigned short*)triangles;
 			v0 = triangle[0];
@@ -1455,14 +1470,14 @@ void ClothComponent::CreateVirtualParticles(const physx::PxClothMeshDesc & meshD
 			}
 		}
 
-		triangles += meshDesc.triangles.stride;
+		triangles += desc2.triangles.stride;
 	}
 
 	for (unsigned int i = 0; i < numQuads; i++)
 	{
 		unsigned int v0, v1, v2, v3;
 
-		if (meshDesc.flags & physx::PxMeshFlag::e16_BIT_INDICES)
+		if (desc2.flags & physx::PxMeshFlag::e16_BIT_INDICES)
 		{
 			unsigned short* quad = (unsigned short*)quads;
 			v0 = quad[0];
@@ -1545,7 +1560,7 @@ void ClothComponent::CreateVirtualParticles(const physx::PxClothMeshDesc & meshD
 			}
 		}
 
-		quads += meshDesc.quads.stride;
+		quads += desc2.quads.stride;
 	}
 
 	static const Vector3 gVirtualParticleWeights[] =

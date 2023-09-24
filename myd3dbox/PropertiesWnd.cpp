@@ -3832,22 +3832,10 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	{
 		ClothComponent* cloth_cmp = (ClothComponent*)pProp->GetParent()->GetValue().pulVal;
 		int i = (DYNAMIC_DOWNCAST(CComboProp, pProp))->m_iSelIndex;
-
-		physx::PxClothMeshDesc desc;
-		desc.points.data = &cloth_cmp->m_particles[0].pos;
-		desc.points.count = cloth_cmp->m_particles.size();
-		desc.points.stride = sizeof(cloth_cmp->m_particles[0]);
-		desc.invMasses.data = &cloth_cmp->m_particles[0].invWeight;
-		desc.invMasses.count = cloth_cmp->m_particles.size();
-		desc.invMasses.stride = sizeof(cloth_cmp->m_particles[0]);
-		desc.triangles.data = &cloth_cmp->m_IndexData[0];
-		desc.triangles.count = cloth_cmp->m_IndexData.size() / 3;
-		desc.triangles.stride = 3 * sizeof(unsigned short);
-		desc.flags |= physx::PxMeshFlag::e16_BIT_INDICES;
-
-		physx::PxClothMeshQuadifier quadifier(desc);
-		physx::PxClothMeshDesc desc2 = quadifier.getDescriptor();
-		cloth_cmp->CreateVirtualParticles(desc2, i);
+		cloth_cmp->CreateVirtualParticles(i);
+		unsigned int PropId = GetComponentPropCount(Component::ComponentTypeComponent);
+		pProp->GetParent()->GetSubItem(PropId + 7)->SetValue((_variant_t)cloth_cmp->m_Cloth->getNbVirtualParticles());
+		m_wndPropList.InvalidateRect(pProp->GetParent()->GetSubItem(PropId + 7)->GetRect());
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;

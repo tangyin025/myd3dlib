@@ -1605,21 +1605,7 @@ void CMainFrame::OnComponentCloth()
 		//cloth_cmp->m_Cloth->setCentrifugalInertiaScale(physx::PxVec3(0.3f));
 
 		//// virtual particles
-		//physx::PxClothMeshDesc desc;
-		//desc.points.data = &cloth_cmp->m_particles[0].pos;
-		//desc.points.count = cloth_cmp->m_particles.size();
-		//desc.points.stride = sizeof(cloth_cmp->m_particles[0]);
-		//desc.invMasses.data = &cloth_cmp->m_particles[0].invWeight;
-		//desc.invMasses.count = cloth_cmp->m_particles.size();
-		//desc.invMasses.stride = sizeof(cloth_cmp->m_particles[0]);
-		//desc.triangles.data = &cloth_cmp->m_IndexData[0];
-		//desc.triangles.count = cloth_cmp->m_IndexData.size() / 3;
-		//desc.triangles.stride = 3 * sizeof(unsigned short);
-		//desc.flags |= physx::PxMeshFlag::e16_BIT_INDICES;
-
-		//physx::PxClothMeshQuadifier quadifier(desc);
-		//physx::PxClothMeshDesc desc2 = quadifier.getDescriptor();
-		//cloth_cmp->CreateVirtualParticles(desc2, 4);
+		//cloth_cmp->CreateVirtualParticles(4);
 
 		// ccd
 		cloth_cmp->m_Cloth->setClothFlag(physx::PxClothFlag::eSWEPT_CONTACT, true);
