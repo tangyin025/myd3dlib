@@ -2630,6 +2630,7 @@ void LuaContext::Init(void)
 		, class_<ClothComponent, Component, boost::shared_ptr<Component> >("ClothComponent")
 			.def(constructor<const char *>())
 			.def("CreateClothFromMesh", &ClothComponent::CreateClothFromMesh)
+			.def("CreateVirtualParticles", &ClothComponent::CreateVirtualParticles)
 			.enum_("PxClothFlag")
 			[
 				value("eDEFAULT", physx::PxClothFlag::Enum::eDEFAULT),
