@@ -9,10 +9,6 @@
 #include "myStateChart.h"
 #include <boost/intrusive/list.hpp>
 #include "SceneContext.h"
-extern "C"
-{
-#include <lua.h>
-}
 
 class dtNavMesh;
 
@@ -34,7 +30,7 @@ struct PlayerData : public my::DeviceResourceBase
 
 	int auras[32];
 
-	lua_Number aurastatus[_countof(auras)];
+	float aurastatus[_countof(auras)];
 
 	int items[1024];
 
@@ -98,12 +94,12 @@ struct PlayerData : public my::DeviceResourceBase
 		return my::Subscribe(auras, i);
 	}
 
-	void setaurastatus(int i, lua_Number value)
+	void setaurastatus(int i, float value)
 	{
 		my::Subscribe(aurastatus, i) = value;
 	}
 
-	lua_Number getaurastatus(int i) const
+	float getaurastatus(int i) const
 	{
 		return my::Subscribe(aurastatus, i);
 	}
