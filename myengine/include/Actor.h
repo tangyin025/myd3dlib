@@ -378,19 +378,19 @@ public:
 
 	bool TickActionAndGetDisplacement(float dtime, my::Vector3 & disp);
 
-	Component * GetFirstComponent(DWORD Type);
+	Component * GetFirstComponent(DWORD Type, unsigned int startid);
 
-	const Component * GetFirstComponent(DWORD Type) const;
+	const Component * GetFirstComponent(DWORD Type, unsigned int startid) const;
 
 	template <typename ComponentType>
 	ComponentType * GetFirstComponent(void)
 	{
-		return dynamic_cast<ComponentType*>(GetFirstComponent(ComponentType::TypeID));
+		return dynamic_cast<ComponentType*>(GetFirstComponent(ComponentType::TypeID, 0));
 	}
 
 	template <typename ComponentType>
 	const ComponentType * GetFirstComponent(void) const
 	{
-		return dynamic_cast<const ComponentType*>(GetFirstComponent(ComponentType::TypeID));
+		return dynamic_cast<const ComponentType*>(GetFirstComponent(ComponentType::TypeID, 0));
 	}
 };

@@ -1033,7 +1033,7 @@ BOOL CMainFrame::SaveFileContext(LPCTSTR lpszPathName)
 		virtual bool OnQueryEntity(my::OctEntity* oct_entity, const my::AABB& aabb, my::IntersectionTests::IntersectionType)
 		{
 			Actor* actor = dynamic_cast<Actor*>(oct_entity);
-			if (Component* cmp = actor->GetFirstComponent(Component::ComponentTypeScript))
+			if (Component* cmp = actor->GetFirstComponent(Component::ComponentTypeScript, 0))
 			{
 				CString msg;
 				msg.Format(_T("invalid serialization: %S.%S"), actor->GetName(), cmp->GetName());

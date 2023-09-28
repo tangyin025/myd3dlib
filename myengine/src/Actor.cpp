@@ -1028,27 +1028,25 @@ bool Actor::TickActionAndGetDisplacement(float dtime, my::Vector3 & disp)
 	return false;
 }
 
-Component * Actor::GetFirstComponent(DWORD Type)
+Component * Actor::GetFirstComponent(DWORD Type, unsigned int startid)
 {
-	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
-	for (; cmp_iter != m_Cmps.end(); cmp_iter++)
+	for (unsigned int i = startid; i < m_Cmps.size(); i++)
 	{
-		if ((*cmp_iter)->GetComponentType() == Type)
+		if (m_Cmps[i]->GetComponentType() == Type)
 		{
-			return cmp_iter->get();
+			return m_Cmps[i].get();
 		}
 	}
 	return NULL;
 }
 
-const Component * Actor::GetFirstComponent(DWORD Type) const
+const Component * Actor::GetFirstComponent(DWORD Type, unsigned int startid) const
 {
-	ComponentPtrList::const_iterator cmp_iter = m_Cmps.begin();
-	for (; cmp_iter != m_Cmps.end(); cmp_iter++)
+	for (unsigned int i = startid; i < m_Cmps.size(); i++)
 	{
-		if ((*cmp_iter)->GetComponentType() == Type)
+		if (m_Cmps[i]->GetComponentType() == Type)
 		{
-			return cmp_iter->get();
+			return m_Cmps[i].get();
 		}
 	}
 	return NULL;
