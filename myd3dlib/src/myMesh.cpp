@@ -1013,7 +1013,7 @@ void OgreMesh::CreateMeshFromOgreXml(
 				THROW_CUSEXCEPTION("!triangle_list");
 			}
 
-			m_MaterialNameList.push_back(attr_material ? attr_material->value() : "aaa");
+			m_MaterialNameList.push_back(attr_material ? attr_material->value() : "_missing_material_");
 
 			DEFINE_XML_NODE_SIMPLE(faces, submesh);
 			DEFINE_XML_ATTRIBUTE_INT_SIMPLE(count, faces);
