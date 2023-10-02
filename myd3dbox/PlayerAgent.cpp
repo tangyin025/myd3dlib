@@ -104,10 +104,10 @@ void PlayerAgent::RequestResource(void)
 	VERIFY(m_Animator = m_Actor->GetFirstComponent<Animator>());
 
 	AnimationNodePtr node_run_blend_list(new NodeRunBlendList("node_run_blend_list", this));
-	node_run_blend_list->SetChild(0, AnimationNodePtr(new AnimationNodeSequence("clip_drop")));
-	node_run_blend_list->SetChild(1, AnimationNodePtr(new AnimationNodeSequence("clip_stand")));
-	node_run_blend_list->SetChild(2, AnimationNodePtr(new AnimationNodeSequence("clip_run", 1.0f, true, "move")));
-	node_run_blend_list->SetChild(3, AnimationNodePtr(new AnimationNodeSequence("clip_run", 1.0f, true, "move")));
+	node_run_blend_list->SetChild(0, AnimationNodePtr(new AnimationNodeSequence("drop")));
+	node_run_blend_list->SetChild(1, AnimationNodePtr(new AnimationNodeSequence("stand")));
+	node_run_blend_list->SetChild(2, AnimationNodePtr(new AnimationNodeSequence("run", 1.0f, true, "move")));
+	node_run_blend_list->SetChild(3, AnimationNodePtr(new AnimationNodeSequence("run", 1.0f, true, "move")));
 
 	AnimationNodeSlotPtr node_run_blend_list_slot(new AnimationNodeSlot("node_run_blend_list_slot"));
 	node_run_blend_list_slot->SetChild(0, node_run_blend_list);
