@@ -209,7 +209,7 @@ void Thread::CloseThread(void)
 	}
 }
 
-std::string Window::GetWindowMessageStr(UINT message)
+const char * Window::GetWindowMessageStr(UINT message)
 {
 	switch(message)
 	{

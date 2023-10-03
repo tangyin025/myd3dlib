@@ -194,7 +194,7 @@ namespace my
 		: public CWindowImpl<Window, CWindow, CWinTraits<WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX, 0> >
 	{
 	public:
-		static std::string GetWindowMessageStr(UINT message);
+		static const char * GetWindowMessageStr(UINT message);
 
 	public:
 		Window(void);

@@ -1182,6 +1182,17 @@ void CMainFrame::OnActivate(UINT nState, CWnd* pWndOther, BOOL bMinimized)
 	{
 		m_wndScript.m_editScript.CheckFileChange();
 	}
+	else
+	{
+		CChildView* pView = DYNAMIC_DOWNCAST(CChildView, GetActiveView());
+		ASSERT_VALID(pView);
+
+		my::ModelViewerCamera* model_view_camera = dynamic_cast<my::ModelViewerCamera*>(pView->m_Camera.get());
+		if (model_view_camera->m_DragMode != my::ModelViewerCamera::DragModeNone)
+		{
+			model_view_camera->m_DragMode = my::ModelViewerCamera::DragModeNone;
+		}
+	}
 }
 
 void CMainFrame::OnFileNew()
