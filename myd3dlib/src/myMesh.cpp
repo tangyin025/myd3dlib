@@ -1054,7 +1054,7 @@ void OgreMesh::CreateMeshFromOgreXml(
 				THROW_CUSEXCEPTION("!triangle_list");
 			}
 
-			m_MaterialNameList.push_back(attr_material ? attr_material->value() : "aaa");
+			m_MaterialNameList.push_back(attr_material ? attr_material->value() : "_missing_material_");
 
 			DEFINE_XML_NODE(node_geometry, node_submesh, geometry);
 			DEFINE_XML_ATTRIBUTE_INT_SIMPLE(vertexcount, geometry);
@@ -1558,7 +1558,7 @@ void OgreMesh::AppendMesh(OgreMesh* other, DWORD AttribId, const Matrix4& trans)
 	rang.VertexCount = other->m_AttribTable[AttribId].VertexCount;
 	m_AttribTable.push_back(rang);
 	SetAttributeTable(&m_AttribTable[0], m_AttribTable.size());
-	m_MaterialNameList.push_back("aaa");
+	m_MaterialNameList.push_back(other->m_MaterialNameList[AttribId]);
 }
 
 void OgreMesh::CombineMesh(OgreMesh* other, DWORD AttribId, const Matrix4& trans)
