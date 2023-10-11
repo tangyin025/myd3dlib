@@ -800,8 +800,6 @@ BOOL CMainApp::OnIdle(LONG lCount)
 	// TODO: Add your specialized code here and/or call the base class
 	Clock::UpdateClock();
 
-	LeaveDeviceSection();
-
 	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
 	CChildView * pView = DYNAMIC_DOWNCAST(CChildView, pFrame->GetActiveView());
@@ -810,6 +808,8 @@ BOOL CMainApp::OnIdle(LONG lCount)
 	{
 		pFrame->dogc(LUA_GCSTEP, 1);
 	}
+
+	LeaveDeviceSection();
 
 	if (!m_IORequestList.empty())
 	{
