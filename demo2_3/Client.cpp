@@ -34,6 +34,9 @@
 #define new new( _CLIENT_BLOCK, __FILE__, __LINE__ )
 #endif
 
+#define DEFAULT_UI_RES_X 1280
+#define DEFAULT_UI_RES_Y 720
+
 using namespace my;
 
 class EffectUIRender
@@ -769,8 +772,8 @@ Client::Client(void)
 	std::vector<std::string> path_list;
 	desc.add_options()
 		("path", boost::program_options::value(&path_list)->default_value(boost::assign::list_of("Media")("..\\demo2_3\\Media"), ""), "Path")
-		("width", boost::program_options::value(&m_WindowBackBufferWidthAtModeChange)->default_value(800), "Width")
-		("height", boost::program_options::value(&m_WindowBackBufferHeightAtModeChange)->default_value(600), "Height")
+		("width", boost::program_options::value(&m_WindowBackBufferWidthAtModeChange)->default_value(DEFAULT_UI_RES_X), "Width")
+		("height", boost::program_options::value(&m_WindowBackBufferHeightAtModeChange)->default_value(DEFAULT_UI_RES_Y), "Height")
 		("windowed", boost::program_options::value(&m_WindowedModeAtFirstCreate)->default_value(true), "Windowed")
 		("presentinterval", boost::program_options::value(&m_PresentIntervalAtFirstCreate)->default_value(D3DPRESENT_INTERVAL_IMMEDIATE), "Presentation Interval")
 		("joystickaxisdeadzone", boost::program_options::value(&m_JoystickAxisDeadZone)->default_value(3276), "Joystick Axis Dead Zone")
@@ -1142,7 +1145,7 @@ HRESULT Client::OnResetDevice(
 
 	boost::dynamic_pointer_cast<my::PerspectiveCamera>(m_Camera)->m_Aspect = (float)pBackBufferSurfaceDesc->Width / pBackBufferSurfaceDesc->Height;
 
-	DialogMgr::SetDlgViewport(Vector2(600 * boost::dynamic_pointer_cast<my::PerspectiveCamera>(m_Camera)->m_Aspect, 600), D3DXToRadian(75.0f));
+	DialogMgr::SetDlgViewport(Vector2(DEFAULT_UI_RES_Y * boost::dynamic_pointer_cast<my::PerspectiveCamera>(m_Camera)->m_Aspect, DEFAULT_UI_RES_Y), D3DXToRadian(75.0f));
 
 	FontLibrary::m_Scale = Vector2(pBackBufferSurfaceDesc->Height / DialogMgr::GetDlgViewport().y);
 
