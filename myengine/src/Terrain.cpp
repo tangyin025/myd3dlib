@@ -1106,7 +1106,9 @@ TerrainStream::TerrainStream(Terrain* terrain)
 
 TerrainStream::~TerrainStream(void)
 {
-	Flush();
+	//Flush();
+
+	_ASSERT(m_VertDirty.origin() + m_VertDirty.num_elements() == std::find(m_VertDirty.origin(), m_VertDirty.origin() + m_VertDirty.num_elements(), true));
 }
 
 void TerrainStream::Flush(void)
