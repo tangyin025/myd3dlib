@@ -100,7 +100,7 @@ public:
 	PaintShape m_PaintShape;
 	enum PaintMode
 	{
-		PaintModeGreater,
+		PaintModeAssign,
 	};
 	PaintMode m_PaintMode;
 	float m_PaintRadius;

@@ -2908,14 +2908,13 @@ void CChildView::OnPaintTerrainHeightField(const my::Ray& ray, TerrainStream& ts
 					float dist = offset.magnitude() / LocalPaintRadius;
 					if (dist <= 1)
 					{
-						float LocalHeight = pFrame->m_PaintHeight * pFrame->m_PaintSpline.Interpolate(1 - dist, 1) / tstr.m_terrain->m_Actor->m_Scale.y;
+						float LocalPaintHeight = pFrame->m_PaintHeight / tstr.m_terrain->m_Actor->m_Scale.y;
 						switch (pFrame->m_PaintMode)
 						{
-						case CMainFrame::PaintModeGreater:
-							LocalHeight = my::Max(LocalHeight, tstr.GetPos(i, j).y);
+						case CMainFrame::PaintModeAssign:
+							tstr.SetPos(i, j, my::Vector3(j, my::Lerp(tstr.GetPos(i, j).y, LocalPaintHeight, pFrame->m_PaintSpline.Interpolate(1 - dist, 1)), i));
 							break;
 						}
-						tstr.SetPos(i, j, my::Vector3(j, LocalHeight, i));
 					}
 				}
 			}

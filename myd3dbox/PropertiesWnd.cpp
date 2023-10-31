@@ -167,9 +167,9 @@ static LPCTSTR g_PaintShape[CMainFrame::PaintShapeCircle + 1] =
 	_T("Circle"),
 };
 
-static LPCTSTR g_PaintMode[CMainFrame::PaintModeGreater + 1] =
+static LPCTSTR g_PaintMode[CMainFrame::PaintModeAssign + 1] =
 {
-	_T("Greater"),
+	_T("Assign"),
 };
 
 static CPropertiesWnd::PassMaskDesc g_FontAlignDesc[] =
