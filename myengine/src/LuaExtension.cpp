@@ -1155,7 +1155,6 @@ void LuaContext::Init(void)
 			.def_readwrite("g", &my::Vector4::y)
 			.def_readwrite("b", &my::Vector4::z)
 			.def_readwrite("a", &my::Vector4::w)
-			.def_readwrite("rgb", &my::Vector4::xyz)
 			.def(const_self == other<const my::Vector4 &>())
 			.def(-const_self)
 			.def(const_self + other<const my::Vector4 &>())
@@ -1177,6 +1176,11 @@ void LuaContext::Init(void)
 			.def("transform", &my::Vector4::transform)
 			.def("transformTranspose", &my::Vector4::transformTranspose)
 			.property("xz", &my::Vector4::xz)
+			.scope
+			[
+				def("FromArgb", &my::Vector4::FromArgb)
+			]
+			.property("argb", &my::Vector4::toArgb)
 
 		, class_<my::Rectangle>("Rectangle")
 			.def(constructor<float, float, float, float>())
@@ -3352,15 +3356,6 @@ void LuaContext::Init(void)
 			.def("SweepBox", luabind::tag_function<bool(PhysxSpatialIndex*, float, float, float, const my::Vector3&, const my::Quaternion&, const my::Vector3&, float, float&)>(
 				boost::bind(&PhysxSpatialIndex::Sweep, boost::placeholders::_1, boost::bind(boost::value_factory<physx::PxBoxGeometry>(), boost::placeholders::_2, boost::placeholders::_3, boost::placeholders::_4), boost::placeholders::_5, boost::placeholders::_6, boost::placeholders::_7, boost::placeholders::_8, boost::placeholders::_9)), pure_out_value(boost::placeholders::_9))
 			.def("CalculateAABB", &PhysxSpatialIndex::CalculateAABB)
-
-		, class_<D3DXCOLOR>("D3DXCOLOR")
-			.def(constructor<DWORD>())
-			.def(constructor<float, float, float, float>())
-			.def_readwrite("r", &D3DXCOLOR::r)
-			.def_readwrite("g", &D3DXCOLOR::g)
-			.def_readwrite("b", &D3DXCOLOR::b)
-			.def_readwrite("a", &D3DXCOLOR::a)
-			.property("argb", &D3DXCOLOR::operator DWORD)
 
 		, class_<boost::regex>("regex")
 			.def(constructor<const char *>())

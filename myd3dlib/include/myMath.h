@@ -1116,6 +1116,20 @@ namespace my
 			return Vector2(x, z);
 		}
 
+		static Vector4 FromArgb(DWORD argb)
+		{
+			return Vector4(
+				(argb >> 16 & 0xff) / 255.f,
+				(argb >> 8 & 0xff) / 255.f,
+				(argb & 0xff) / 255.f,
+				(argb >> 24 & 0xff) / 255.f);
+		}
+
+		DWORD toArgb(void) const
+		{
+			return D3DCOLOR_COLORVALUE(x, y, z, w);
+		}
+
 		static const Vector4 zero;
 
 		static const Vector4 one;
