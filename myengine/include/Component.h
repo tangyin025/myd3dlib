@@ -530,14 +530,6 @@ public:
 
 	VelocityType m_EmitterVelType;
 
-	//enum PrimitiveType
-	//{
-	//	PrimitiveTypeTri = 0,
-	//	PrimitiveTypeQuad = 1,
-	//};
-
-	//PrimitiveType m_EmitterPrimitiveType;
-
 	D3DXHANDLE handle_World;
 
 protected:

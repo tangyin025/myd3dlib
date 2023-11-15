@@ -84,6 +84,14 @@ class StaticEmitter
 public:
 	enum { TypeID = ComponentTypeStaticEmitter };
 
+	enum PrimitiveType
+	{
+		PrimitiveTypeTri = 0,
+		PrimitiveTypeQuad = 1,
+	};
+
+	PrimitiveType m_EmitterPrimitiveType;
+
 	float m_ChunkWidth;
 
 	std::string m_ChunkPath;
@@ -102,13 +110,17 @@ public:
 
 protected:
 	StaticEmitter(void)
+		: m_EmitterPrimitiveType(PrimitiveTypeQuad)
+		, m_ChunkWidth(1.0f)
+		, m_ChunkLodScale(1.0f)
 	{
 	}
 
 public:
-	StaticEmitter(const char* Name, const my::AABB & LocalRootAabb, float ChunkWidth, FaceType _FaceType, SpaceType _SpaceType, VelocityType _VelocityType)
+	StaticEmitter(const char* Name, const my::AABB & LocalRootAabb, float ChunkWidth, FaceType _FaceType, SpaceType _SpaceType, VelocityType _VelocityType, PrimitiveType _PrimitiveType)
 		: EmitterComponent(Name, _FaceType, _SpaceType, _VelocityType)
 		, OctRoot(LocalRootAabb.m_min, LocalRootAabb.m_max)
+		, m_EmitterPrimitiveType(_PrimitiveType)
 		, m_ChunkWidth(ChunkWidth)
 		, m_ChunkLodScale(1.0f)
 	{

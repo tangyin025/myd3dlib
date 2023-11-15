@@ -2682,15 +2682,15 @@ void LuaContext::Init(void)
 				value("VelocityTypeVel", EmitterComponent::VelocityTypeVel)
 			]
 			.def_readwrite("EmitterVelType", &EmitterComponent::m_EmitterVelType)
-			//.enum_("PrimitiveType")
-			//[
-			//	value("PrimitiveTypeTri", EmitterComponent::PrimitiveTypeTri),
-			//	value("PrimitiveTypeQuad", EmitterComponent::PrimitiveTypeQuad)
-			//]
-			//.def_readwrite("EmitterPrimitiveType", &EmitterComponent::m_EmitterPrimitiveType)
 
 		, class_<StaticEmitter, bases<EmitterComponent, my::AABB>, boost::shared_ptr<Component> >("StaticEmitter")
-			.def(constructor<const char *, const my::AABB &, float, EmitterComponent::FaceType, EmitterComponent::SpaceType, EmitterComponent::VelocityType>())
+			.def(constructor<const char *, const my::AABB &, float, EmitterComponent::FaceType, EmitterComponent::SpaceType, EmitterComponent::VelocityType, StaticEmitter::PrimitiveType>())
+			.enum_("PrimitiveType")
+			[
+				value("PrimitiveTypeTri", StaticEmitter::PrimitiveTypeTri),
+				value("PrimitiveTypeQuad", StaticEmitter::PrimitiveTypeQuad)
+			]
+			.def_readwrite("EmitterPrimitiveType", &StaticEmitter::m_EmitterPrimitiveType)
 			.def_readonly("ChunkWidth", &StaticEmitter::m_ChunkWidth)
 			.def_readwrite("ChunkPath", &StaticEmitter::m_ChunkPath)
 			.def_readwrite("ChunkLodScale", &StaticEmitter::m_ChunkLodScale)

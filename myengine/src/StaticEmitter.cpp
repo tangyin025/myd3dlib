@@ -121,6 +121,7 @@ void StaticEmitter::save(Archive& ar, const unsigned int version) const
 {
 	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(EmitterComponent);
 	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(OctRoot);
+	ar << BOOST_SERIALIZATION_NVP(m_EmitterPrimitiveType);
 	ar << BOOST_SERIALIZATION_NVP(m_ChunkWidth);
 	ar << BOOST_SERIALIZATION_NVP(m_ChunkPath);
 	ar << BOOST_SERIALIZATION_NVP(m_ChunkLodScale);
@@ -142,6 +143,7 @@ void StaticEmitter::load(Archive& ar, const unsigned int version)
 	ClearAllEntity();
 	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(EmitterComponent);
 	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(OctRoot);
+	ar >> BOOST_SERIALIZATION_NVP(m_EmitterPrimitiveType);
 	ar >> BOOST_SERIALIZATION_NVP(m_ChunkWidth);
 	ar >> BOOST_SERIALIZATION_NVP(m_ChunkPath);
 	ar >> BOOST_SERIALIZATION_NVP(m_ChunkLodScale);
@@ -257,12 +259,19 @@ void StaticEmitter::AddToPipeline(const my::Frustum& frustum, RenderPipeline* pi
 
 			if (chunk->m_Lod >= 0 && chunk->m_buff)
 			{
-				emit_cmp->AddParticlePairToPipeline(pipeline, pipeline->m_ParticleVb.m_ptr, pipeline->m_ParticleIb.m_ptr, pipeline->m_ParticleIEDecl,
-					RenderPipeline::m_ParticlePrimitiveInfo[RenderPipeline::ParticlePrimitiveQuad][RenderPipeline::ParticlePrimitiveMinVertexIndex],
-					RenderPipeline::m_ParticlePrimitiveInfo[RenderPipeline::ParticlePrimitiveQuad][RenderPipeline::ParticlePrimitiveNumVertices],
-					RenderPipeline::m_ParticlePrimitiveInfo[RenderPipeline::ParticlePrimitiveQuad][RenderPipeline::ParticlePrimitiveStartIndex],
-					RenderPipeline::m_ParticlePrimitiveInfo[RenderPipeline::ParticlePrimitiveQuad][RenderPipeline::ParticlePrimitivePrimitiveCount],
-					PassMask, chunk->m_buff->data(), chunk->m_buff->size() >> chunk->m_Lod, NULL, 0);
+				switch (emit_cmp->m_EmitterPrimitiveType)
+				{
+				case PrimitiveTypeTri:
+				case PrimitiveTypeQuad:
+					_ASSERT(emit_cmp->m_EmitterPrimitiveType < RenderPipeline::ParticlePrimitiveTypeCount);
+					emit_cmp->AddParticlePairToPipeline(pipeline, pipeline->m_ParticleVb.m_ptr, pipeline->m_ParticleIb.m_ptr, pipeline->m_ParticleIEDecl,
+						RenderPipeline::m_ParticlePrimitiveInfo[emit_cmp->m_EmitterPrimitiveType][RenderPipeline::ParticlePrimitiveMinVertexIndex],
+						RenderPipeline::m_ParticlePrimitiveInfo[emit_cmp->m_EmitterPrimitiveType][RenderPipeline::ParticlePrimitiveNumVertices],
+						RenderPipeline::m_ParticlePrimitiveInfo[emit_cmp->m_EmitterPrimitiveType][RenderPipeline::ParticlePrimitiveStartIndex],
+						RenderPipeline::m_ParticlePrimitiveInfo[emit_cmp->m_EmitterPrimitiveType][RenderPipeline::ParticlePrimitivePrimitiveCount],
+						PassMask, chunk->m_buff->data(), chunk->m_buff->size() >> chunk->m_Lod, NULL, 0);
+					break;
+				}
 			}
 			return true;
 		}
