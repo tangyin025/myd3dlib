@@ -63,10 +63,10 @@ namespace boost
 		size_t seed = 0;
 		boost::hash_combine(seed, key.get<0>());
 		boost::hash_combine(seed, key.get<1>());
-		boost::hash_combine(seed, key.get<2>());
 		boost::hash_combine(seed, key.get<3>());
 		boost::hash_combine(seed, key.get<4>());
-		boost::hash_combine(seed, *key.get<5>());
+		boost::hash_combine(seed, key.get<5>());
+		boost::hash_combine(seed, *key.get<6>());
 		return seed;
 	}
 }
@@ -83,8 +83,8 @@ inline bool RenderPipeline::EmitterInstanceAtomKey::operator == (const EmitterIn
 {
 	return get<0>() == rhs.get<0>()
 		&& get<1>() == rhs.get<1>()
-		&& get<2>() == rhs.get<2>()
 		&& get<3>() == rhs.get<3>()
 		&& get<4>() == rhs.get<4>()
-		&& *get<5>() == *rhs.get<5>();
+		&& get<5>() == rhs.get<5>()
+		&& *get<6>() == *rhs.get<6>();
 }

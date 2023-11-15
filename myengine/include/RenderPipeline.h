@@ -426,6 +426,7 @@ public:
 	class EmitterInstanceAtomKey : public boost::tuple<
 		IDirect3DVertexBuffer9 *,
 		IDirect3DIndexBuffer9 *,
+		IDirect3DVertexDeclaration9 *,
 		UINT,
 		const my::Matrix4 *,
 		my::Effect *,
@@ -436,12 +437,13 @@ public:
 		EmitterInstanceAtomKey(
 			IDirect3DVertexBuffer9 * pVB,
 			IDirect3DIndexBuffer9 * pIB,
+			IDirect3DVertexDeclaration9 * pDecl,
 			UINT MinVertexIndex,
 			const my::Matrix4 * world,
 			my::Effect * shader,
 			Material* mtl,
 			LPARAM lparam)
-			: tuple(pVB, pIB, MinVertexIndex, world, shader, mtl, lparam)
+			: tuple(pVB, pIB, pDecl, MinVertexIndex, world, shader, mtl, lparam)
 		{
 		}
 
@@ -645,6 +647,7 @@ public:
 		unsigned int PassID,
 		IDirect3DVertexBuffer9* pVB,
 		IDirect3DIndexBuffer9* pIB,
+		IDirect3DVertexDeclaration9* pDecl,
 		UINT MinVertexIndex,
 		UINT NumVertices,
 		UINT StartIndex,

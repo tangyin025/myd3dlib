@@ -991,22 +991,22 @@ void RenderPipeline::RenderAllObjects(
 						pd3dDevice,
 						PassID,
 						pRC,
-						m_ParticleIEDecl,
+						emitter_inst_iter->first.get<2>(),
 						emitter_inst_iter->first.get<0>(),
 						emitter_inst_iter->first.get<1>(),
 						m_ParticleInstanceData.m_ptr,
 						emitter_inst_iter->second.PrimitiveType,
-						0, emitter_inst_iter->first.get<2>(),
+						0, emitter_inst_iter->first.get<3>(),
 						emitter_inst_iter->second.NumVertices,
 						m_ParticleVertStride,
 						emitter_inst_iter->second.StartIndex,
 						emitter_inst_iter->second.PrimitiveCount,
 						PARTICLE_INSTANCE_MAX,
 						m_ParticleInstanceStride,
-						emitter_inst_iter->first.get<4>(),
-						emitter_inst_iter->second.cmps.front().get<0>(),
 						emitter_inst_iter->first.get<5>(),
-						emitter_inst_iter->first.get<6>());
+						emitter_inst_iter->second.cmps.front().get<0>(),
+						emitter_inst_iter->first.get<6>(),
+						emitter_inst_iter->first.get<7>());
 					m_PassDrawCall[PassID]++;
 					NumParticles += Count;
 					NumTotalInstances = 0;
@@ -1028,22 +1028,22 @@ void RenderPipeline::RenderAllObjects(
 					pd3dDevice,
 					PassID,
 					pRC,
-					m_ParticleIEDecl,
+					emitter_inst_iter->first.get<2>(),
 					emitter_inst_iter->first.get<0>(),
 					emitter_inst_iter->first.get<1>(),
 					m_ParticleInstanceData.m_ptr,
 					emitter_inst_iter->second.PrimitiveType,
-					0, emitter_inst_iter->first.get<2>(),
+					0, emitter_inst_iter->first.get<3>(),
 					emitter_inst_iter->second.NumVertices,
 					m_ParticleVertStride,
 					emitter_inst_iter->second.StartIndex,
 					emitter_inst_iter->second.PrimitiveCount,
 					NumTotalInstances,
 					m_ParticleInstanceStride,
-					emitter_inst_iter->first.get<4>(),
-					emitter_inst_iter->second.cmps.front().get<0>(),
 					emitter_inst_iter->first.get<5>(),
-					emitter_inst_iter->first.get<6>());
+					emitter_inst_iter->second.cmps.front().get<0>(),
+					emitter_inst_iter->first.get<6>(),
+					emitter_inst_iter->first.get<7>());
 				m_PassDrawCall[PassID]++;
 			}
 		}
@@ -1374,6 +1374,7 @@ void RenderPipeline::PushEmitter(
 	unsigned int PassID,
 	IDirect3DVertexBuffer9* pVB,
 	IDirect3DIndexBuffer9* pIB,
+	IDirect3DVertexDeclaration9* pDecl,
 	UINT MinVertexIndex,
 	UINT NumVertices,
 	UINT StartIndex,
@@ -1392,7 +1393,7 @@ void RenderPipeline::PushEmitter(
 //	_ASSERT(desc.Size == NumVertices * m_ParticleVertStride);
 //#endif
 
-	EmitterInstanceAtomKey key(pVB, pIB, MinVertexIndex,
+	EmitterInstanceAtomKey key(pVB, pIB, pDecl, MinVertexIndex,
 		dynamic_cast<EmitterComponent *>(cmp)->m_EmitterSpaceType == EmitterComponent::SpaceTypeWorld ? &Matrix4::identity : &cmp->m_Actor->m_World, shader, mtl, lparam);
 	std::pair<EmitterInstanceAtomMap::iterator, bool> res = m_Pass[PassID].m_EmitterInstanceMap.insert(std::make_pair(key, EmitterInstanceAtom()));
 	if (res.second)
