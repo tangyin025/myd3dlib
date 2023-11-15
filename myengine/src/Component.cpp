@@ -1851,7 +1851,16 @@ void EmitterComponent::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * s
 	}
 }
 
-void EmitterComponent::AddParticlePairToPipeline(RenderPipeline* pipeline, unsigned int PassMask, my::Emitter::Particle* particles1, unsigned int particle_num1, my::Emitter::Particle* particles2, unsigned int particle_num2)
+void EmitterComponent::AddParticlePairToPipeline(
+	RenderPipeline* pipeline,
+	IDirect3DVertexBuffer9* pVB,
+	IDirect3DIndexBuffer9* pIB,
+	IDirect3DVertexDeclaration9* pDecl,
+	UINT MinVertexIndex,
+	UINT NumVertices,
+	UINT StartIndex,
+	UINT PrimitiveCount,
+	unsigned int PassMask, my::Emitter::Particle* particles1, unsigned int particle_num1, my::Emitter::Particle* particles2, unsigned int particle_num2)
 {
 	_ASSERT(m_Material && (m_Material->m_PassMask & PassMask));
 
@@ -1902,22 +1911,14 @@ void EmitterComponent::AddParticlePairToPipeline(RenderPipeline* pipeline, unsig
 
 				if (particle_num1 > 0)
 				{
-					pipeline->PushEmitter(PassID, pipeline->m_ParticleVb.m_ptr, pipeline->m_ParticleIb.m_ptr, pipeline->m_ParticleIEDecl,
-						RenderPipeline::m_ParticlePrimitiveInfo[m_EmitterPrimitiveType][RenderPipeline::ParticlePrimitiveMinVertexIndex],
-						RenderPipeline::m_ParticlePrimitiveInfo[m_EmitterPrimitiveType][RenderPipeline::ParticlePrimitiveNumVertices],
-						RenderPipeline::m_ParticlePrimitiveInfo[m_EmitterPrimitiveType][RenderPipeline::ParticlePrimitiveStartIndex],
-						RenderPipeline::m_ParticlePrimitiveInfo[m_EmitterPrimitiveType][RenderPipeline::ParticlePrimitivePrimitiveCount],
-						particles1, particle_num1, shader, this, m_Material.get(), 0);
+					pipeline->PushEmitter(PassID, pVB, pIB, pDecl, MinVertexIndex, NumVertices,
+						StartIndex, PrimitiveCount, particles1, particle_num1, shader, this, m_Material.get(), 0);
 				}
 
 				if (particle_num2 > 0)
 				{
-					pipeline->PushEmitter(PassID, pipeline->m_ParticleVb.m_ptr, pipeline->m_ParticleIb.m_ptr, pipeline->m_ParticleIEDecl,
-						RenderPipeline::m_ParticlePrimitiveInfo[m_EmitterPrimitiveType][RenderPipeline::ParticlePrimitiveMinVertexIndex],
-						RenderPipeline::m_ParticlePrimitiveInfo[m_EmitterPrimitiveType][RenderPipeline::ParticlePrimitiveNumVertices],
-						RenderPipeline::m_ParticlePrimitiveInfo[m_EmitterPrimitiveType][RenderPipeline::ParticlePrimitiveStartIndex],
-						RenderPipeline::m_ParticlePrimitiveInfo[m_EmitterPrimitiveType][RenderPipeline::ParticlePrimitivePrimitiveCount],
-						particles2, particle_num2, shader, this, m_Material.get(), 0);
+					pipeline->PushEmitter(PassID, pVB, pIB, pDecl, MinVertexIndex, NumVertices,
+						StartIndex, PrimitiveCount, particles2, particle_num2, shader, this, m_Material.get(), 0);
 				}
 			}
 		}
@@ -1957,7 +1958,12 @@ void CircularEmitter::AddToPipeline(const my::Frustum & frustum, RenderPipeline 
 
 		ParticleList::array_range array_two = m_ParticleList.array_two();
 
-		AddParticlePairToPipeline(pipeline, PassMask, array_one.first, array_one.second, array_two.first, array_two.second);
+		AddParticlePairToPipeline(pipeline, pipeline->m_ParticleVb.m_ptr, pipeline->m_ParticleIb.m_ptr, pipeline->m_ParticleIEDecl,
+			RenderPipeline::m_ParticlePrimitiveInfo[RenderPipeline::ParticlePrimitiveQuad][RenderPipeline::ParticlePrimitiveMinVertexIndex],
+			RenderPipeline::m_ParticlePrimitiveInfo[RenderPipeline::ParticlePrimitiveQuad][RenderPipeline::ParticlePrimitiveNumVertices],
+			RenderPipeline::m_ParticlePrimitiveInfo[RenderPipeline::ParticlePrimitiveQuad][RenderPipeline::ParticlePrimitiveStartIndex],
+			RenderPipeline::m_ParticlePrimitiveInfo[RenderPipeline::ParticlePrimitiveQuad][RenderPipeline::ParticlePrimitivePrimitiveCount],
+			PassMask, array_one.first, array_one.second, array_two.first, array_two.second);
 	}
 }
 

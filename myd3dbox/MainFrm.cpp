@@ -1694,7 +1694,7 @@ void CMainFrame::OnComponentSphericalemitter()
 		return;
 	}
 
-	SphericalEmitterPtr sphe_emit_cmp(new SphericalEmitter(my::NamedObject::MakeUniqueName((std::string((*actor_iter)->GetName()) + "_sphe_emit").c_str()).c_str(), 4096, EmitterComponent::FaceTypeCamera, EmitterComponent::SpaceTypeLocal, EmitterComponent::VelocityTypeVel, EmitterComponent::PrimitiveTypeQuad));
+	SphericalEmitterPtr sphe_emit_cmp(new SphericalEmitter(my::NamedObject::MakeUniqueName((std::string((*actor_iter)->GetName()) + "_sphe_emit").c_str()).c_str(), 4096, EmitterComponent::FaceTypeCamera, EmitterComponent::SpaceTypeLocal, EmitterComponent::VelocityTypeVel));
 	sphe_emit_cmp->m_ParticleLifeTime=10.0f;
 	sphe_emit_cmp->m_SpawnInterval=1/100.0f;
 	sphe_emit_cmp->m_SpawnSpeed=5;

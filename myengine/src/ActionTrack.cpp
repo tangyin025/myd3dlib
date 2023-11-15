@@ -231,7 +231,7 @@ ActionTrackEmitterInst::ActionTrackEmitterInst(Actor * _Actor, boost::shared_ptr
 	, m_TaskEvent(NULL, TRUE, TRUE, NULL)
 {
 	m_WorldEmitterCmp.reset(new CircularEmitter(NamedObject::MakeUniqueName("ActionTrackEmitterInst_cmp").c_str(),
-		m_Template->m_EmitterCapacity, (EmitterComponent::FaceType)m_Template->m_EmitterFaceType, (EmitterComponent::SpaceType)m_Template->m_EmitterSpaceType, EmitterComponent::VelocityTypeNone, EmitterComponent::PrimitiveTypeQuad));
+		m_Template->m_EmitterCapacity, (EmitterComponent::FaceType)m_Template->m_EmitterFaceType, (EmitterComponent::SpaceType)m_Template->m_EmitterSpaceType, EmitterComponent::VelocityTypeNone));
 	m_WorldEmitterCmp->SetMaterial(m_Template->m_EmitterMaterial->Clone());
 
 	//if (!m_Actor->m_Node)

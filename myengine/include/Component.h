@@ -530,13 +530,13 @@ public:
 
 	VelocityType m_EmitterVelType;
 
-	enum PrimitiveType
-	{
-		PrimitiveTypeTri = 0,
-		PrimitiveTypeQuad = 1,
-	};
+	//enum PrimitiveType
+	//{
+	//	PrimitiveTypeTri = 0,
+	//	PrimitiveTypeQuad = 1,
+	//};
 
-	PrimitiveType m_EmitterPrimitiveType;
+	//PrimitiveType m_EmitterPrimitiveType;
 
 	D3DXHANDLE handle_World;
 
@@ -545,18 +545,16 @@ protected:
 		: m_EmitterFaceType(FaceTypeX)
 		, m_EmitterSpaceType(SpaceTypeWorld)
 		, m_EmitterVelType(VelocityTypeNone)
-		, m_EmitterPrimitiveType(PrimitiveTypeQuad)
 		, handle_World(NULL)
 	{
 	}
 
 public:
-	EmitterComponent(const char * Name, FaceType _FaceType, SpaceType _SpaceType, VelocityType _VelocityType, PrimitiveType _PrimitiveType)
+	EmitterComponent(const char * Name, FaceType _FaceType, SpaceType _SpaceType, VelocityType _VelocityType)
 		: Component(Name)
 		, m_EmitterFaceType(_FaceType)
 		, m_EmitterSpaceType(_SpaceType)
 		, m_EmitterVelType(_VelocityType)
-		, m_EmitterPrimitiveType(_PrimitiveType)
 		, handle_World(NULL)
 	{
 	}
@@ -570,7 +568,6 @@ public:
 		ar & BOOST_SERIALIZATION_NVP(m_EmitterFaceType);
 		ar & BOOST_SERIALIZATION_NVP(m_EmitterSpaceType);
 		ar & BOOST_SERIALIZATION_NVP(m_EmitterVelType);
-		ar & BOOST_SERIALIZATION_NVP(m_EmitterPrimitiveType);
 	}
 
 	virtual DWORD GetComponentType(void) const
@@ -582,7 +579,16 @@ public:
 
 	virtual void OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, LPARAM lparam);
 
-	void AddParticlePairToPipeline(RenderPipeline* pipeline, unsigned int PassMask, my::Emitter::Particle* particles1, unsigned int particle_num1, my::Emitter::Particle* particles2, unsigned int particle_num2);
+	void AddParticlePairToPipeline(
+		RenderPipeline* pipeline,
+		IDirect3DVertexBuffer9* pVB,
+		IDirect3DIndexBuffer9* pIB,
+		IDirect3DVertexDeclaration9* pDecl,
+		UINT MinVertexIndex,
+		UINT NumVertices,
+		UINT StartIndex,
+		UINT PrimitiveCount,
+		unsigned int PassMask, my::Emitter::Particle* particles1, unsigned int particle_num1, my::Emitter::Particle* particles2, unsigned int particle_num2);
 };
 
 typedef boost::shared_ptr<EmitterComponent> EmitterComponentPtr;
@@ -600,8 +606,8 @@ protected:
 	}
 
 public:
-	CircularEmitter(const char * Name, unsigned int Capacity, FaceType _FaceType, SpaceType _SpaceType, VelocityType _VelocityType, PrimitiveType _PrimitiveType)
-		: EmitterComponent(Name, _FaceType, _SpaceType, _VelocityType, _PrimitiveType)
+	CircularEmitter(const char * Name, unsigned int Capacity, FaceType _FaceType, SpaceType _SpaceType, VelocityType _VelocityType)
+		: EmitterComponent(Name, _FaceType, _SpaceType, _VelocityType)
 		, Emitter(Capacity)
 	{
 	}
@@ -688,8 +694,8 @@ protected:
 	}
 
 public:
-	SphericalEmitter(const char * Name, unsigned int Capacity, FaceType _FaceType, SpaceType _SpaceType, VelocityType _VelocityType, PrimitiveType _PrimitiveType)
-		: CircularEmitter(Name, Capacity, _FaceType, _SpaceType, _VelocityType, _PrimitiveType)
+	SphericalEmitter(const char * Name, unsigned int Capacity, FaceType _FaceType, SpaceType _SpaceType, VelocityType _VelocityType)
+		: CircularEmitter(Name, Capacity, _FaceType, _SpaceType, _VelocityType)
 		, m_ParticleLifeTime(FLT_MAX)
 		, m_SpawnInterval(FLT_MAX)
 		, m_HalfSpawnArea(0,0,0)

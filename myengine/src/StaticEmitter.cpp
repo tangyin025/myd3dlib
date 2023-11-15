@@ -257,7 +257,12 @@ void StaticEmitter::AddToPipeline(const my::Frustum& frustum, RenderPipeline* pi
 
 			if (chunk->m_Lod >= 0 && chunk->m_buff)
 			{
-				emit_cmp->AddParticlePairToPipeline(pipeline, PassMask, chunk->m_buff->data(), chunk->m_buff->size() >> chunk->m_Lod, NULL, 0);
+				emit_cmp->AddParticlePairToPipeline(pipeline, pipeline->m_ParticleVb.m_ptr, pipeline->m_ParticleIb.m_ptr, pipeline->m_ParticleIEDecl,
+					RenderPipeline::m_ParticlePrimitiveInfo[RenderPipeline::ParticlePrimitiveQuad][RenderPipeline::ParticlePrimitiveMinVertexIndex],
+					RenderPipeline::m_ParticlePrimitiveInfo[RenderPipeline::ParticlePrimitiveQuad][RenderPipeline::ParticlePrimitiveNumVertices],
+					RenderPipeline::m_ParticlePrimitiveInfo[RenderPipeline::ParticlePrimitiveQuad][RenderPipeline::ParticlePrimitiveStartIndex],
+					RenderPipeline::m_ParticlePrimitiveInfo[RenderPipeline::ParticlePrimitiveQuad][RenderPipeline::ParticlePrimitivePrimitiveCount],
+					PassMask, chunk->m_buff->data(), chunk->m_buff->size() >> chunk->m_Lod, NULL, 0);
 			}
 			return true;
 		}

@@ -2682,15 +2682,15 @@ void LuaContext::Init(void)
 				value("VelocityTypeVel", EmitterComponent::VelocityTypeVel)
 			]
 			.def_readwrite("EmitterVelType", &EmitterComponent::m_EmitterVelType)
-			.enum_("PrimitiveType")
-			[
-				value("PrimitiveTypeTri", EmitterComponent::PrimitiveTypeTri),
-				value("PrimitiveTypeQuad", EmitterComponent::PrimitiveTypeQuad)
-			]
-			.def_readwrite("EmitterPrimitiveType", &EmitterComponent::m_EmitterPrimitiveType)
+			//.enum_("PrimitiveType")
+			//[
+			//	value("PrimitiveTypeTri", EmitterComponent::PrimitiveTypeTri),
+			//	value("PrimitiveTypeQuad", EmitterComponent::PrimitiveTypeQuad)
+			//]
+			//.def_readwrite("EmitterPrimitiveType", &EmitterComponent::m_EmitterPrimitiveType)
 
 		, class_<StaticEmitter, bases<EmitterComponent, my::AABB>, boost::shared_ptr<Component> >("StaticEmitter")
-			.def(constructor<const char *, const my::AABB &, float, EmitterComponent::FaceType, EmitterComponent::SpaceType, EmitterComponent::VelocityType, EmitterComponent::PrimitiveType>())
+			.def(constructor<const char *, const my::AABB &, float, EmitterComponent::FaceType, EmitterComponent::SpaceType, EmitterComponent::VelocityType>())
 			.def_readonly("ChunkWidth", &StaticEmitter::m_ChunkWidth)
 			.def_readwrite("ChunkPath", &StaticEmitter::m_ChunkPath)
 			.def_readwrite("ChunkLodScale", &StaticEmitter::m_ChunkLodScale)
@@ -2702,14 +2702,14 @@ void LuaContext::Init(void)
 			.def("Spawn", &StaticEmitterStream::Spawn)
 
 		, class_<CircularEmitter, EmitterComponent, boost::shared_ptr<Component> >("CircularEmitter")
-			.def(constructor<const char*, unsigned int, EmitterComponent::FaceType, EmitterComponent::SpaceType, EmitterComponent::VelocityType, EmitterComponent::PrimitiveType>())
+			.def(constructor<const char*, unsigned int, EmitterComponent::FaceType, EmitterComponent::SpaceType, EmitterComponent::VelocityType>())
 			.def_readonly("ParticleList", &CircularEmitter::m_ParticleList, return_stl_iterator)
 			.property("Capacity", &CircularEmitter::GetCapacity, &CircularEmitter::SetCapacity)
 			.def("Spawn", &CircularEmitter::Spawn)
 			.def("RemoveAllParticle", &CircularEmitter::RemoveAllParticle)
 
 		, class_<SphericalEmitter, CircularEmitter, boost::shared_ptr<Component> >("SphericalEmitter")
-			.def(constructor<const char *, unsigned int, EmitterComponent::FaceType, EmitterComponent::SpaceType, EmitterComponent::VelocityType, EmitterComponent::PrimitiveType>())
+			.def(constructor<const char *, unsigned int, EmitterComponent::FaceType, EmitterComponent::SpaceType, EmitterComponent::VelocityType>())
 			.def_readwrite("ParticleLifeTime", &SphericalEmitter::m_ParticleLifeTime)
 			.def_readwrite("SpawnInterval", &SphericalEmitter::m_SpawnInterval)
 			.def_readwrite("HalfSpawnArea", &SphericalEmitter::m_HalfSpawnArea)
