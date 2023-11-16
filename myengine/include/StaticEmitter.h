@@ -88,9 +88,18 @@ public:
 	{
 		PrimitiveTypeTri = 0,
 		PrimitiveTypeQuad = 1,
+		PrimitiveTypeMesh = 2,
 	};
 
 	PrimitiveType m_EmitterPrimitiveType;
+
+	std::string m_MeshPath;
+
+	int m_MeshSubMeshId;
+
+	my::OgreMeshPtr m_Mesh;
+
+	CComPtr<IDirect3DVertexDeclaration9> m_Decl;
 
 	float m_ChunkWidth;
 
@@ -149,6 +158,8 @@ public:
 	{
 		return TypeID;
 	}
+
+	void OnMeshReady(my::DeviceResourceBasePtr res);
 
 	virtual void RequestResource(void);
 

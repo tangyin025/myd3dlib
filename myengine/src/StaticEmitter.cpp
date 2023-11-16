@@ -1,6 +1,7 @@
 #include "StaticEmitter.h"
 #include "Actor.h"
 #include "myResource.h"
+#include "myDxutApp.h"
 #include "Material.h"
 #include "libc.h"
 #include <boost/archive/polymorphic_xml_iarchive.hpp>
@@ -122,6 +123,8 @@ void StaticEmitter::save(Archive& ar, const unsigned int version) const
 	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(EmitterComponent);
 	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(OctRoot);
 	ar << BOOST_SERIALIZATION_NVP(m_EmitterPrimitiveType);
+	ar << BOOST_SERIALIZATION_NVP(m_MeshPath);
+	ar << BOOST_SERIALIZATION_NVP(m_MeshSubMeshId);
 	ar << BOOST_SERIALIZATION_NVP(m_ChunkWidth);
 	ar << BOOST_SERIALIZATION_NVP(m_ChunkPath);
 	ar << BOOST_SERIALIZATION_NVP(m_ChunkLodScale);
@@ -144,6 +147,8 @@ void StaticEmitter::load(Archive& ar, const unsigned int version)
 	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(EmitterComponent);
 	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(OctRoot);
 	ar >> BOOST_SERIALIZATION_NVP(m_EmitterPrimitiveType);
+	ar >> BOOST_SERIALIZATION_NVP(m_MeshPath);
+	ar >> BOOST_SERIALIZATION_NVP(m_MeshSubMeshId);
 	ar >> BOOST_SERIALIZATION_NVP(m_ChunkWidth);
 	ar >> BOOST_SERIALIZATION_NVP(m_ChunkPath);
 	ar >> BOOST_SERIALIZATION_NVP(m_ChunkLodScale);
@@ -162,14 +167,42 @@ void StaticEmitter::load(Archive& ar, const unsigned int version)
 	}
 }
 
+void StaticEmitter::OnMeshReady(my::DeviceResourceBasePtr res)
+{
+	OgreMeshPtr mesh = boost::dynamic_pointer_cast<my::OgreMesh>(res);
+
+	if (m_MeshSubMeshId >= mesh->m_AttribTable.size())
+	{
+		THROW_CUSEXCEPTION(str_printf("invalid sub mesh id %d for %s", m_MeshSubMeshId, res->m_Key));
+	}
+
+	m_Mesh = mesh;
+}
+
 void StaticEmitter::RequestResource(void)
 {
 	EmitterComponent::RequestResource();
+
+	if (!m_MeshPath.empty())
+	{
+		_ASSERT(!m_Mesh);
+
+		my::ResourceMgr::getSingleton().LoadMeshAsync(m_MeshPath.c_str(), boost::bind(&StaticEmitter::OnMeshReady, this, boost::placeholders::_1));
+	}
 }
 
 void StaticEmitter::ReleaseResource(void)
 {
 	EmitterComponent::ReleaseResource();
+
+	if (!m_MeshPath.empty())
+	{
+		my::ResourceMgr::getSingleton().RemoveIORequestCallback(m_MeshPath.c_str(), boost::bind(&StaticEmitter::OnMeshReady, this, boost::placeholders::_1));
+
+		m_Mesh.reset();
+
+		m_Decl.Release();
+	}
 
 	ChunkSet::iterator chunk_iter = m_ViewedChunks.begin();
 	for (; chunk_iter != m_ViewedChunks.end(); chunk_iter++)
@@ -263,6 +296,7 @@ void StaticEmitter::AddToPipeline(const my::Frustum& frustum, RenderPipeline* pi
 				{
 				case PrimitiveTypeTri:
 				case PrimitiveTypeQuad:
+				{
 					_ASSERT(emit_cmp->m_EmitterPrimitiveType < RenderPipeline::ParticlePrimitiveTypeCount);
 					emit_cmp->AddParticlePairToPipeline(pipeline, pipeline->m_ParticleVb.m_ptr, pipeline->m_ParticleIb.m_ptr, pipeline->m_ParticleIEDecl,
 						RenderPipeline::m_ParticlePrimitiveInfo[emit_cmp->m_EmitterPrimitiveType][RenderPipeline::ParticlePrimitiveMinVertexIndex],
@@ -271,6 +305,35 @@ void StaticEmitter::AddToPipeline(const my::Frustum& frustum, RenderPipeline* pi
 						RenderPipeline::m_ParticlePrimitiveInfo[emit_cmp->m_EmitterPrimitiveType][RenderPipeline::ParticlePrimitivePrimitiveCount],
 						PassMask, chunk->m_buff->data(), chunk->m_buff->size() >> chunk->m_Lod, NULL, 0);
 					break;
+				}
+				case PrimitiveTypeMesh:
+				{
+					if (emit_cmp->m_Mesh)
+					{
+						if (!emit_cmp->m_Decl)
+						{
+							std::vector<D3DVERTEXELEMENT9> ve = emit_cmp->m_Mesh->m_VertexElems.BuildVertexElementList(0);
+							std::vector<D3DVERTEXELEMENT9> ie = pipeline->m_ParticleInstanceElems.BuildVertexElementList(1);
+							ve.insert(ve.end(), ie.begin(), ie.end());
+							D3DVERTEXELEMENT9 ve_end = D3DDECL_END();
+							ve.push_back(ve_end);
+
+							HRESULT hr;
+							if (FAILED(hr = my::D3DContext::getSingleton().m_d3dDevice->CreateVertexDeclaration(&ve[0], &emit_cmp->m_Decl)))
+							{
+								THROW_D3DEXCEPTION(hr);
+							}
+						}
+
+						emit_cmp->AddParticlePairToPipeline(pipeline, emit_cmp->m_Mesh->m_Vb.m_ptr, emit_cmp->m_Mesh->m_Ib.m_ptr, emit_cmp->m_Decl,
+							emit_cmp->m_Mesh->m_AttribTable[emit_cmp->m_MeshSubMeshId].VertexStart,
+							emit_cmp->m_Mesh->m_AttribTable[emit_cmp->m_MeshSubMeshId].VertexCount,
+							emit_cmp->m_Mesh->m_AttribTable[emit_cmp->m_MeshSubMeshId].FaceStart * 3,
+							emit_cmp->m_Mesh->m_AttribTable[emit_cmp->m_MeshSubMeshId].FaceCount,
+							PassMask, chunk->m_buff->data(), chunk->m_buff->size() >> chunk->m_Lod, NULL, 0);
+					}
+					break;
+				}
 				}
 			}
 			return true;

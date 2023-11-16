@@ -142,10 +142,11 @@ static LPCTSTR g_EmitterVelType[EmitterComponent::VelocityTypeVel + 1] =
 	_T("Velocity"),
 };
 
-static LPCTSTR g_EmitterPrimitiveType[StaticEmitter::PrimitiveTypeQuad + 1] =
+static LPCTSTR g_EmitterPrimitiveType[StaticEmitter::PrimitiveTypeMesh + 1] =
 {
 	_T("Triangle"),
 	_T("Quad"),
+	_T("Mesh...")
 };
 
 static LPCTSTR g_AnimationNodeType[] =
@@ -4034,6 +4035,26 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		StaticEmitter* emit_cmp = (StaticEmitter*)pProp->GetParent()->GetValue().pulVal;
 		int i = (DYNAMIC_DOWNCAST(CComboProp, pProp))->m_iSelIndex;
 		ASSERT(i >= 0 && i < _countof(g_EmitterPrimitiveType));
+		if (i == StaticEmitter::PrimitiveTypeMesh)
+		{
+			CFileDialog dlg(TRUE, NULL, NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, this);
+			if (dlg.DoModal() != IDOK)
+			{
+				return 0;
+			}
+
+			bool requested = emit_cmp->IsRequested();
+			if (requested)
+			{
+				emit_cmp->ReleaseResource();
+			}
+			emit_cmp->m_MeshPath = theApp.GetRelativePath(ts2ms((LPCTSTR)dlg.GetPathName()).c_str());
+			emit_cmp->m_MeshSubMeshId = 0;
+			if (requested)
+			{
+				emit_cmp->RequestResource();
+			}
+		}
 		emit_cmp->m_EmitterPrimitiveType = (StaticEmitter::PrimitiveType)i;
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
