@@ -418,6 +418,7 @@ public:
 	{
 		D3DPRIMITIVETYPE PrimitiveType;
 		UINT NumVertices;
+		DWORD VertexStride;
 		UINT StartIndex;
 		UINT PrimitiveCount;
 		std::vector<boost::tuple<Component*, my::Emitter::Particle*, unsigned int> > cmps;
@@ -650,6 +651,7 @@ public:
 		IDirect3DVertexDeclaration9* pDecl,
 		UINT MinVertexIndex,
 		UINT NumVertices,
+		DWORD VertexStride,
 		UINT StartIndex,
 		UINT PrimitiveCount,
 		my::Emitter::Particle* particles,

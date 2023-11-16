@@ -301,6 +301,7 @@ void StaticEmitter::AddToPipeline(const my::Frustum& frustum, RenderPipeline* pi
 					emit_cmp->AddParticlePairToPipeline(pipeline, pipeline->m_ParticleVb.m_ptr, pipeline->m_ParticleIb.m_ptr, pipeline->m_ParticleIEDecl,
 						RenderPipeline::m_ParticlePrimitiveInfo[emit_cmp->m_EmitterPrimitiveType][RenderPipeline::ParticlePrimitiveMinVertexIndex],
 						RenderPipeline::m_ParticlePrimitiveInfo[emit_cmp->m_EmitterPrimitiveType][RenderPipeline::ParticlePrimitiveNumVertices],
+						pipeline->m_ParticleVertStride,
 						RenderPipeline::m_ParticlePrimitiveInfo[emit_cmp->m_EmitterPrimitiveType][RenderPipeline::ParticlePrimitiveStartIndex],
 						RenderPipeline::m_ParticlePrimitiveInfo[emit_cmp->m_EmitterPrimitiveType][RenderPipeline::ParticlePrimitivePrimitiveCount],
 						PassMask, chunk->m_buff->data(), chunk->m_buff->size() >> chunk->m_Lod, NULL, 0);
@@ -328,6 +329,7 @@ void StaticEmitter::AddToPipeline(const my::Frustum& frustum, RenderPipeline* pi
 						emit_cmp->AddParticlePairToPipeline(pipeline, emit_cmp->m_Mesh->m_Vb.m_ptr, emit_cmp->m_Mesh->m_Ib.m_ptr, emit_cmp->m_Decl,
 							emit_cmp->m_Mesh->m_AttribTable[emit_cmp->m_MeshSubMeshId].VertexStart,
 							emit_cmp->m_Mesh->m_AttribTable[emit_cmp->m_MeshSubMeshId].VertexCount,
+							emit_cmp->m_Mesh->GetNumBytesPerVertex(),
 							emit_cmp->m_Mesh->m_AttribTable[emit_cmp->m_MeshSubMeshId].FaceStart * 3,
 							emit_cmp->m_Mesh->m_AttribTable[emit_cmp->m_MeshSubMeshId].FaceCount,
 							PassMask, chunk->m_buff->data(), chunk->m_buff->size() >> chunk->m_Lod, NULL, 0);

@@ -1858,6 +1858,7 @@ void EmitterComponent::AddParticlePairToPipeline(
 	IDirect3DVertexDeclaration9* pDecl,
 	UINT MinVertexIndex,
 	UINT NumVertices,
+	DWORD VertexStride,
 	UINT StartIndex,
 	UINT PrimitiveCount,
 	unsigned int PassMask, my::Emitter::Particle* particles1, unsigned int particle_num1, my::Emitter::Particle* particles2, unsigned int particle_num2)
@@ -1911,13 +1912,13 @@ void EmitterComponent::AddParticlePairToPipeline(
 
 				if (particle_num1 > 0)
 				{
-					pipeline->PushEmitter(PassID, pVB, pIB, pDecl, MinVertexIndex, NumVertices,
+					pipeline->PushEmitter(PassID, pVB, pIB, pDecl, MinVertexIndex, NumVertices, VertexStride,
 						StartIndex, PrimitiveCount, particles1, particle_num1, shader, this, m_Material.get(), 0);
 				}
 
 				if (particle_num2 > 0)
 				{
-					pipeline->PushEmitter(PassID, pVB, pIB, pDecl, MinVertexIndex, NumVertices,
+					pipeline->PushEmitter(PassID, pVB, pIB, pDecl, MinVertexIndex, NumVertices, VertexStride,
 						StartIndex, PrimitiveCount, particles2, particle_num2, shader, this, m_Material.get(), 0);
 				}
 			}
@@ -1961,6 +1962,7 @@ void CircularEmitter::AddToPipeline(const my::Frustum & frustum, RenderPipeline 
 		AddParticlePairToPipeline(pipeline, pipeline->m_ParticleVb.m_ptr, pipeline->m_ParticleIb.m_ptr, pipeline->m_ParticleIEDecl,
 			RenderPipeline::m_ParticlePrimitiveInfo[RenderPipeline::ParticlePrimitiveQuad][RenderPipeline::ParticlePrimitiveMinVertexIndex],
 			RenderPipeline::m_ParticlePrimitiveInfo[RenderPipeline::ParticlePrimitiveQuad][RenderPipeline::ParticlePrimitiveNumVertices],
+			pipeline->m_ParticleVertStride,
 			RenderPipeline::m_ParticlePrimitiveInfo[RenderPipeline::ParticlePrimitiveQuad][RenderPipeline::ParticlePrimitiveStartIndex],
 			RenderPipeline::m_ParticlePrimitiveInfo[RenderPipeline::ParticlePrimitiveQuad][RenderPipeline::ParticlePrimitivePrimitiveCount],
 			PassMask, array_one.first, array_one.second, array_two.first, array_two.second);

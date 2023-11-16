@@ -996,7 +996,7 @@ void RenderPipeline::RenderAllObjects(
 						emitter_inst_iter->second.PrimitiveType,
 						0, emitter_inst_iter->first.get<3>(),
 						emitter_inst_iter->second.NumVertices,
-						m_ParticleVertStride,
+						emitter_inst_iter->second.VertexStride,
 						emitter_inst_iter->second.StartIndex,
 						emitter_inst_iter->second.PrimitiveCount,
 						PARTICLE_INSTANCE_MAX,
@@ -1033,7 +1033,7 @@ void RenderPipeline::RenderAllObjects(
 					emitter_inst_iter->second.PrimitiveType,
 					0, emitter_inst_iter->first.get<3>(),
 					emitter_inst_iter->second.NumVertices,
-					m_ParticleVertStride,
+					emitter_inst_iter->second.VertexStride,
 					emitter_inst_iter->second.StartIndex,
 					emitter_inst_iter->second.PrimitiveCount,
 					NumTotalInstances,
@@ -1375,6 +1375,7 @@ void RenderPipeline::PushEmitter(
 	IDirect3DVertexDeclaration9* pDecl,
 	UINT MinVertexIndex,
 	UINT NumVertices,
+	DWORD VertexStride,
 	UINT StartIndex,
 	UINT PrimitiveCount,
 	my::Emitter::Particle* particles,
@@ -1398,6 +1399,7 @@ void RenderPipeline::PushEmitter(
 	{
 		res.first->second.PrimitiveType = D3DPT_TRIANGLELIST;
 		res.first->second.NumVertices = NumVertices;
+		res.first->second.VertexStride = VertexStride;
 		res.first->second.StartIndex = StartIndex;
 		res.first->second.PrimitiveCount = PrimitiveCount;
 	}
@@ -1405,6 +1407,7 @@ void RenderPipeline::PushEmitter(
 	{
 		_ASSERT(res.first->second.PrimitiveType == D3DPT_TRIANGLELIST);
 		_ASSERT(res.first->second.NumVertices == NumVertices);
+		_ASSERT(res.first->second.VertexStride = VertexStride);
 		_ASSERT(res.first->second.StartIndex == StartIndex);
 		_ASSERT(res.first->second.PrimitiveCount == PrimitiveCount);
 		_ASSERT(!res.first->second.cmps.empty());
