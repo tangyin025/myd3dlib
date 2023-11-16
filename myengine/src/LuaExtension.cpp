@@ -2691,6 +2691,8 @@ void LuaContext::Init(void)
 				value("PrimitiveTypeQuad", StaticEmitter::PrimitiveTypeQuad)
 			]
 			.def_readwrite("EmitterPrimitiveType", &StaticEmitter::m_EmitterPrimitiveType)
+			.def_readwrite("MeshPath", &StaticEmitter::m_MeshPath)
+			.def_readwrite("MeshSubMeshId", &StaticEmitter::m_MeshSubMeshId)
 			.def_readonly("ChunkWidth", &StaticEmitter::m_ChunkWidth)
 			.def_readwrite("ChunkPath", &StaticEmitter::m_ChunkPath)
 			.def_readwrite("ChunkLodScale", &StaticEmitter::m_ChunkLodScale)

@@ -120,6 +120,7 @@ public:
 protected:
 	StaticEmitter(void)
 		: m_EmitterPrimitiveType(PrimitiveTypeQuad)
+		, m_MeshSubMeshId(0)
 		, m_ChunkWidth(1.0f)
 		, m_ChunkLodScale(1.0f)
 	{
@@ -130,6 +131,7 @@ public:
 		: EmitterComponent(Name, _FaceType, _SpaceType, _VelocityType)
 		, OctRoot(LocalRootAabb.m_min, LocalRootAabb.m_max)
 		, m_EmitterPrimitiveType(_PrimitiveType)
+		, m_MeshSubMeshId(0)
 		, m_ChunkWidth(ChunkWidth)
 		, m_ChunkLodScale(1.0f)
 	{

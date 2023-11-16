@@ -123,8 +123,11 @@ void StaticEmitter::save(Archive& ar, const unsigned int version) const
 	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(EmitterComponent);
 	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(OctRoot);
 	ar << BOOST_SERIALIZATION_NVP(m_EmitterPrimitiveType);
-	ar << BOOST_SERIALIZATION_NVP(m_MeshPath);
-	ar << BOOST_SERIALIZATION_NVP(m_MeshSubMeshId);
+	if (m_EmitterPrimitiveType == PrimitiveTypeMesh)
+	{
+		ar << BOOST_SERIALIZATION_NVP(m_MeshPath);
+		ar << BOOST_SERIALIZATION_NVP(m_MeshSubMeshId);
+	}
 	ar << BOOST_SERIALIZATION_NVP(m_ChunkWidth);
 	ar << BOOST_SERIALIZATION_NVP(m_ChunkPath);
 	ar << BOOST_SERIALIZATION_NVP(m_ChunkLodScale);
@@ -147,8 +150,11 @@ void StaticEmitter::load(Archive& ar, const unsigned int version)
 	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(EmitterComponent);
 	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(OctRoot);
 	ar >> BOOST_SERIALIZATION_NVP(m_EmitterPrimitiveType);
-	ar >> BOOST_SERIALIZATION_NVP(m_MeshPath);
-	ar >> BOOST_SERIALIZATION_NVP(m_MeshSubMeshId);
+	if (m_EmitterPrimitiveType == PrimitiveTypeMesh)
+	{
+		ar >> BOOST_SERIALIZATION_NVP(m_MeshPath);
+		ar >> BOOST_SERIALIZATION_NVP(m_MeshSubMeshId);
+	}
 	ar >> BOOST_SERIALIZATION_NVP(m_ChunkWidth);
 	ar >> BOOST_SERIALIZATION_NVP(m_ChunkPath);
 	ar >> BOOST_SERIALIZATION_NVP(m_ChunkLodScale);
