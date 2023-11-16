@@ -189,6 +189,8 @@ public:
 		PropertyEmitterParticleSizeY,
 		PropertyEmitterParticleAngle,
 		PropertyStaticEmitterPrimitiveType,
+		PropertyStaticEmitterMeshPath,
+		PropertyStaticEmitterMeshSubMeshId,
 		PropertyStaticEmitterChunkWidth,
 		PropertyStaticEmitterChunkPath,
 		PropertyStaticEmitterChunkLodScale,
