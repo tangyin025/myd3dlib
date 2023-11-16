@@ -1322,6 +1322,9 @@ void OgreMesh::CreateMeshFromOgreXml(
 	SetAttributeTable(&m_AttribTable[0], m_AttribTable.size());
 	ResourceMgr::getSingleton().LeaveDeviceSection();
 
+	m_Vb.Create(GetVertexBuffer().Detach());
+	m_Ib.Create(GetIndexBuffer().Detach());
+
 	if (bComputeTangentFrame)
 	{
 		//std::vector<DWORD> adjacency(GetNumFaces() * 3);

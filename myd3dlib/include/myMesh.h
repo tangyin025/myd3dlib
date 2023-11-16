@@ -399,6 +399,10 @@ namespace my
 
 		CComPtr<IDirect3DVertexDeclaration9> m_Decl;
 
+		VertexBuffer m_Vb;
+
+		IndexBuffer m_Ib;
+
 		//std::vector<DWORD> m_Adjacency;
 
 	public:

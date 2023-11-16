@@ -877,8 +877,8 @@ void RenderPipeline::RenderAllObjects(
 			PassID,
 			pRC,
 			mesh_iter->mesh->m_Decl,
-			mesh_iter->mesh->GetVertexBuffer(),
-			mesh_iter->mesh->GetIndexBuffer(),
+			mesh_iter->mesh->m_Vb.m_ptr,
+			mesh_iter->mesh->m_Ib.m_ptr,
 			D3DPT_TRIANGLELIST,
 			0, rang.VertexStart,
 			rang.VertexCount,
@@ -915,8 +915,8 @@ void RenderPipeline::RenderAllObjects(
 				PassID,
 				pRC,
 				mesh_inst_iter->second.m_Decl,
-				mesh->GetVertexBuffer(),
-				mesh->GetIndexBuffer(),
+				mesh->m_Vb.m_ptr,
+				mesh->m_Ib.m_ptr,
 				m_MeshInstanceData.m_ptr,
 				D3DPT_TRIANGLELIST,
 				0, mesh->m_AttribTable[AttribId].VertexStart,
@@ -939,12 +939,10 @@ void RenderPipeline::RenderAllObjects(
 	{
 		if (!mesh_bat_iter->second.cmps.empty())
 		{
-			CComPtr<IDirect3DVertexBuffer9> pVB = mesh_bat_iter->first->GetVertexBuffer();
-			CComPtr<IDirect3DIndexBuffer9> pIB = mesh_bat_iter->first->GetIndexBuffer();
 			HRESULT hr;
-			V(pd3dDevice->SetStreamSource(0, pVB, 0, mesh_bat_iter->first->GetNumBytesPerVertex()));
+			V(pd3dDevice->SetStreamSource(0, mesh_bat_iter->first->m_Vb.m_ptr, 0, mesh_bat_iter->first->GetNumBytesPerVertex()));
 			V(pd3dDevice->SetVertexDeclaration(mesh_bat_iter->first->m_Decl));
-			V(pd3dDevice->SetIndices(pIB));
+			V(pd3dDevice->SetIndices(mesh_bat_iter->first->m_Ib.m_ptr));
 			mesh_bat_iter->second.cmps.front().get<0>()->OnSetShader(pd3dDevice, mesh_bat_iter->second.shader, mesh_bat_iter->second.lparam);
 			const UINT passes = mesh_bat_iter->second.shader->Begin(D3DXFX_DONOTSAVESTATE | D3DXFX_DONOTSAVESAMPLERSTATE | D3DXFX_DONOTSAVESHADERSTATE);
 			_ASSERT(PassID < passes);
