@@ -23,15 +23,12 @@ float4 TransformPosWS(VS_INPUT In)
 #if EMITTER_FACE_TYPE == 0
 	float3 Offset = RotateAngleAxis(
 		float3(In.Pos0.z, In.Pos0.y * In.SizeAngleTime.y, -In.Pos0.x * In.SizeAngleTime.x), In.SizeAngleTime.z, float3(1, 0, 0));
-	Pos = mul(float4(Pos.xyz + Offset, Pos.w), g_World);
 #elif EMITTER_FACE_TYPE == 1
 	float3 Offset = RotateAngleAxis(
 		float3(In.Pos0.x * In.SizeAngleTime.x, In.Pos0.z, -In.Pos0.y * In.SizeAngleTime.y), In.SizeAngleTime.z, float3(0, 1, 0));
-	Pos = mul(float4(Pos.xyz + Offset, Pos.w), g_World);
 #elif EMITTER_FACE_TYPE == 2
 	float3 Offset = RotateAngleAxis(
 		float3(In.Pos0.x * In.SizeAngleTime.x, In.Pos0.y * In.SizeAngleTime.y, In.Pos0.z), In.SizeAngleTime.z, float3(0, 0, 1));
-	Pos = mul(float4(Pos.xyz + Offset, Pos.w), g_World);
 #elif EMITTER_FACE_TYPE == 3
 	// 注意，右手系空间Dir朝着屏幕向外
 	float3 Right = float3(g_View[0][0],g_View[1][0],g_View[2][0]);
@@ -39,7 +36,6 @@ float4 TransformPosWS(VS_INPUT In)
 	float3 Dir = float3(g_View[0][2],g_View[1][2],g_View[2][2]);
 	float3 Offset = RotateAngleAxis(
 		Right * In.Pos0.x * In.SizeAngleTime.x + Up * In.Pos0.y * In.SizeAngleTime.y + Dir * In.Pos0.z, In.SizeAngleTime.z, Dir);
-	Pos = mul(Pos, g_World) + float4(Offset, 0);
 #elif EMITTER_FACE_TYPE == 4
 	float s, c;
 	sincos(In.SizeAngleTime.z, s, c);
@@ -48,15 +44,14 @@ float4 TransformPosWS(VS_INPUT In)
 	float3 Dir = float3(s, 0, c);
 	float3 Offset =
 		Right * In.Pos0.x * In.SizeAngleTime.x + Up * In.Pos0.y * In.SizeAngleTime.y + Dir * In.Pos0.z;
-	Pos = mul(float4(Pos.xyz + Offset, Pos.w), g_World);
 #elif EMITTER_FACE_TYPE == 5
 	float3 Right = float3(g_View[0][0],g_View[1][0],g_View[2][0]);
 	float3 Up = float3(0, 1, 0);
 	float3 Dir = cross(Right, Up);
 	float3 Offset = RotateAngleAxis(
 		Right * In.Pos0.x * In.SizeAngleTime.x + Up * In.Pos0.y * In.SizeAngleTime.y + Dir * In.Pos0.z, In.SizeAngleTime.z, Dir);
-	Pos = mul(Pos, g_World) + float4(Offset, 0);
 #endif
+	Pos = mul(Pos, g_World) + float4(Offset, 0);
 	return Pos;
 }
 
