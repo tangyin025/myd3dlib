@@ -310,6 +310,10 @@ HRESULT RenderPipeline::OnCreateDevice(
 	offset += sizeof(my::Vector3);
 	m_ParticleVertElems.InsertTexcoordElement(offset, 0);
 	offset += sizeof(my::Vector2);
+	m_ParticleVertElems.InsertNormalElement(offset, 0);
+	offset += sizeof(my::Vector3);
+	m_ParticleVertElems.InsertTangentElement(offset, 0);
+	offset += sizeof(my::Vector3);
 	_ASSERT(m_ParticleVertStride == offset);
 
 	offset = 0;
@@ -437,19 +441,33 @@ HRESULT RenderPipeline::OnResetDevice(
 	unsigned char * pVertices = (unsigned char *)m_ParticleVb.Lock(0, 0, 0);
 	m_ParticleVertElems.SetPosition(pVertices + m_ParticleVertStride * 0, Vector3(0.0f, 1.0f, 0.0f));
 	m_ParticleVertElems.SetTexcoord(pVertices + m_ParticleVertStride * 0, Vector2(0.5f, 0.0f));
+	m_ParticleVertElems.SetNormal(pVertices + m_ParticleVertStride * 0, Vector3(0.0f, 0.0f, 1.0f));
+	m_ParticleVertElems.SetTangent(pVertices + m_ParticleVertStride * 0, Vector3(1.0f, 0.0f, 0.0f));
 	m_ParticleVertElems.SetPosition(pVertices + m_ParticleVertStride * 1, Vector3(-0.5f, 0.0f, 0.0f));
 	m_ParticleVertElems.SetTexcoord(pVertices + m_ParticleVertStride * 1, Vector2(0.0f, 1.0f));
+	m_ParticleVertElems.SetNormal(pVertices + m_ParticleVertStride * 1, Vector3(0.0f, 0.0f, 1.0f));
+	m_ParticleVertElems.SetTangent(pVertices + m_ParticleVertStride * 1, Vector3(1.0f, 0.0f, 0.0f));
 	m_ParticleVertElems.SetPosition(pVertices + m_ParticleVertStride * 2, Vector3(0.5f, 0.0f, 0.0f));
 	m_ParticleVertElems.SetTexcoord(pVertices + m_ParticleVertStride * 2, Vector2(1.0f, 1.0f));
+	m_ParticleVertElems.SetNormal(pVertices + m_ParticleVertStride * 2, Vector3(0.0f, 0.0f, 1.0f));
+	m_ParticleVertElems.SetTangent(pVertices + m_ParticleVertStride * 2, Vector3(1.0f, 0.0f, 0.0f));
 
 	m_ParticleVertElems.SetPosition(pVertices + m_ParticleVertStride * 3, Vector3(-0.5f, 0.5f, 0.0f));
 	m_ParticleVertElems.SetTexcoord(pVertices + m_ParticleVertStride * 3, Vector2(0.0f, 0.0f));
+	m_ParticleVertElems.SetNormal(pVertices + m_ParticleVertStride * 3, Vector3(0.0f, 0.0f, 1.0f));
+	m_ParticleVertElems.SetTangent(pVertices + m_ParticleVertStride * 3, Vector3(1.0f, 0.0f, 0.0f));
 	m_ParticleVertElems.SetPosition(pVertices + m_ParticleVertStride * 4, Vector3(-0.5f, -0.5f, 0.0f));
 	m_ParticleVertElems.SetTexcoord(pVertices + m_ParticleVertStride * 4, Vector2(0.0f, 1.0f));
+	m_ParticleVertElems.SetNormal(pVertices + m_ParticleVertStride * 4, Vector3(0.0f, 0.0f, 1.0f));
+	m_ParticleVertElems.SetTangent(pVertices + m_ParticleVertStride * 4, Vector3(1.0f, 0.0f, 0.0f));
 	m_ParticleVertElems.SetPosition(pVertices + m_ParticleVertStride * 5, Vector3(0.5f, 0.5f, 0.0f));
 	m_ParticleVertElems.SetTexcoord(pVertices + m_ParticleVertStride * 5, Vector2(1.0f, 0.0f));
+	m_ParticleVertElems.SetNormal(pVertices + m_ParticleVertStride * 5, Vector3(0.0f, 0.0f, 1.0f));
+	m_ParticleVertElems.SetTangent(pVertices + m_ParticleVertStride * 5, Vector3(1.0f, 0.0f, 0.0f));
 	m_ParticleVertElems.SetPosition(pVertices + m_ParticleVertStride * 6, Vector3(0.5f, -0.5f, 0.0f));
 	m_ParticleVertElems.SetTexcoord(pVertices + m_ParticleVertStride * 6, Vector2(1.0f, 1.0f));
+	m_ParticleVertElems.SetNormal(pVertices + m_ParticleVertStride * 6, Vector3(0.0f, 0.0f, 1.0f));
+	m_ParticleVertElems.SetTangent(pVertices + m_ParticleVertStride * 6, Vector3(1.0f, 0.0f, 0.0f));
 	m_ParticleVb.Unlock();
 
 	_ASSERT(!m_ParticleIb.m_ptr);

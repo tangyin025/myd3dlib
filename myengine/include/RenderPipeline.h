@@ -57,7 +57,7 @@ public:
 
 	my::D3DVertexElementSet m_ParticleInstanceElems;
 
-	static const DWORD m_ParticleVertStride = 20;
+	static const DWORD m_ParticleVertStride = 44;
 
 	static const DWORD m_ParticleInstanceStride = 64;
 
