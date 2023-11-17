@@ -8,10 +8,15 @@ struct NORMAL_VS_OUTPUT
 	float3 PosVS			: TEXCOORD0;
 };
 
+float4 TransformPosWS2(VS_INPUT In)
+{
+	return TransformPosWS(In);
+}
+
 NORMAL_VS_OUTPUT NormalVS( VS_INPUT In )
 {
 	NORMAL_VS_OUTPUT Output;
-	float4 PosWS = TransformPosWS(In);
+	float4 PosWS = TransformPosWS2(In);
 	Output.Pos = mul(PosWS, g_ViewProj);
 	Output.Normal = mul(TransformNormal(In), (float3x3)g_View);
 	Output.PosVS = mul(PosWS, g_View).xyz;
@@ -39,7 +44,7 @@ struct OPAQUE_VS_OUTPUT
 OPAQUE_VS_OUTPUT OpaqueVS( VS_INPUT In )
 {
     OPAQUE_VS_OUTPUT Output;
-	float4 PosWS = TransformPosWS(In);
+	float4 PosWS = TransformPosWS2(In);
 	Output.Pos = mul(PosWS, g_ViewProj);
 	Output.Color = float4(lerp(_BaseColorTop, _BaseColorBottom, In.Tex0.y), 1.0);
 	Output.ShadowCoord = mul(PosWS, g_SkyLightViewProj);
@@ -49,9 +54,16 @@ OPAQUE_VS_OUTPUT OpaqueVS( VS_INPUT In )
 
 float4 OpaquePS( OPAQUE_VS_OUTPUT In ) : COLOR0
 { 
+	float3 SkyLightDir = normalize(float3(g_SkyLightView[0][2], g_SkyLightView[1][2], g_SkyLightView[2][2]));
+	float3 SkyLightDirVS = mul(SkyLightDir, (float3x3)g_View);
+	float LightAmount = GetLigthAmount(In.ShadowCoord);
+	float3 NormalVS = tex2D(NormalRTSampler, (In.Pos.xy + 0.5f) / g_ScreenDim).xyz;
+	float3 SkyDiffuse = saturate(dot(NormalVS, SkyLightDirVS) * LightAmount) * g_SkyLightColor.xyz;
+	float3 Ref = Reflection(NormalVS, In.ViewVS);
+	float SkySpecular = pow(saturate(dot(Ref, SkyLightDirVS) * LightAmount), 1.0) * g_SkyLightColor.w;
 	float4 ScreenLight = tex2D(LightRTSampler, (In.Pos.xy + 0.5f) / g_ScreenDim);
-	float3 Final = In.Color.xyz * ScreenLight.xyz;
-	return float4(In.Color.xyz, 1);
+	float3 Final = In.Color.xyz * In.Color.xyz * (ScreenLight.xyz + SkyDiffuse) + 0.1 * (ScreenLight.w + SkySpecular);
+	return float4(Final, 1);
 }
 
 technique RenderScene
