@@ -2686,7 +2686,10 @@ void CChildView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 						{
 							StaticEmitter* static_emit_cmp = dynamic_cast<StaticEmitter*>(cmp_iter->get());
 							StaticEmitter::ChunkMap::const_iterator chunk_iter = static_emit_cmp->m_Chunks.find(std::make_pair(pFrame->m_selchunkid.x, pFrame->m_selchunkid.y));
-							ASSERT(chunk_iter != static_emit_cmp->m_Chunks.end());
+							if (static_emit_cmp->m_Chunks.end() == chunk_iter)
+							{
+								chunk_iter = static_emit_cmp->m_Chunks.begin();
+							}
 							my::AABB chunk_box = chunk_iter->second.m_OctAabb->transform(static_emit_cmp->m_Actor->m_World);
 							float chunk_radius = chunk_box.Extent().magnitude() * 0.5f;
 							if ((model_view_camera->m_LookAt - chunk_box.Center()).magnitudeSq() > EPSILON_E6 * EPSILON_E6
@@ -2700,7 +2703,10 @@ void CChildView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 						{
 							StaticMesh* static_mesh_cmp = dynamic_cast<StaticMesh*>(cmp_iter->get());
 							StaticMesh::ChunkMap::const_iterator chunk_iter = static_mesh_cmp->m_Chunks.find(pFrame->m_selchunkid.x);
-							ASSERT(chunk_iter != static_mesh_cmp->m_Chunks.end());
+							if (static_mesh_cmp->m_Chunks.end() == chunk_iter)
+							{
+								chunk_iter = static_mesh_cmp->m_Chunks.begin();
+							}
 							my::AABB chunk_box = chunk_iter->second.m_OctAabb->transform(static_mesh_cmp->m_Actor->m_World);
 							float chunk_radius = chunk_box.Extent().magnitude() * 0.5f;
 							if ((model_view_camera->m_LookAt - chunk_box.Center()).magnitudeSq() > EPSILON_E6 * EPSILON_E6
