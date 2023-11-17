@@ -1,5 +1,14 @@
 float3 _BaseColorTop = float3(0.5,1,0.19);
 float3 _BaseColorBottom = float3(0.12,0.63,0.15);
+texture _NoiseMap:MaterialParameter<string path="texture/noiseTexture.png";>;
+
+sampler sampler_NoiseMap = sampler_state
+{
+    Texture = <_NoiseMap>;
+    MipFilter = LINEAR;
+    MinFilter = LINEAR;
+    MagFilter = LINEAR;
+};
 
 struct NORMAL_VS_OUTPUT
 {
@@ -10,7 +19,13 @@ struct NORMAL_VS_OUTPUT
 
 float4 TransformPosWS2(VS_INPUT In)
 {
-	return TransformPosWS(In);
+	float4 Pos = In.Pos;
+	float2 uv = Pos.xz / 10 + g_Time * float2(0.1, 0.1);
+	float waveSample = tex2Dlod(sampler_NoiseMap, float4(uv, 0, 0));
+	Pos.x += sin(waveSample) * (1 - In.Tex0.y);
+	Pos.z += sin(waveSample) * (1 - In.Tex0.y);
+	Pos.xyz += mul(In.PosInst, g_World);
+	return Pos;
 }
 
 NORMAL_VS_OUTPUT NormalVS( VS_INPUT In )
@@ -47,6 +62,9 @@ OPAQUE_VS_OUTPUT OpaqueVS( VS_INPUT In )
 	float4 PosWS = TransformPosWS2(In);
 	Output.Pos = mul(PosWS, g_ViewProj);
 	Output.Color = float4(lerp(_BaseColorTop, _BaseColorBottom, In.Tex0.y), 1.0);
+	// float4 uv = float4(PosWS.xz / 16, 0, 0);
+	// uv.xy += g_Time * float2(0.1,0.2);
+	// Output.Color = tex2Dlod(sampler_NoiseMap, uv);
 	Output.ShadowCoord = mul(PosWS, g_SkyLightViewProj);
 	Output.ViewVS = mul(g_Eye - PosWS.xyz, (float3x3)g_View); // ! dont normalize here
 	return Output;
