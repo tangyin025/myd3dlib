@@ -2688,7 +2688,8 @@ void LuaContext::Init(void)
 			.enum_("PrimitiveType")
 			[
 				value("PrimitiveTypeTri", StaticEmitter::PrimitiveTypeTri),
-				value("PrimitiveTypeQuad", StaticEmitter::PrimitiveTypeQuad)
+				value("PrimitiveTypeQuad", StaticEmitter::PrimitiveTypeQuad),
+				value("PrimitiveTypeMesh", StaticEmitter::PrimitiveTypeMesh)
 			]
 			.def_readwrite("EmitterPrimitiveType", &StaticEmitter::m_EmitterPrimitiveType)
 			.def_readwrite("MeshPath", &StaticEmitter::m_MeshPath)
