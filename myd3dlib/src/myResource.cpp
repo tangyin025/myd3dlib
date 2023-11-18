@@ -615,25 +615,22 @@ HRESULT ResourceMgr::Open(
 	char path[MAX_PATH] = { '\0' };
 	if (IncludeType == D3DXINC_LOCAL)
 	{
-		PathCombineA(path, m_EffectInclude.c_str(), pFileName);
+		PathCombineA(path, m_LocalInclude.c_str(), pFileName);
 		if (CheckPath(path))
 		{
 			goto open_stream;
 		}
 	}
 
+	for (std::vector<std::string>::iterator dir_iter = m_SystemIncludes.begin(); dir_iter != m_SystemIncludes.end(); dir_iter++)
 	{
-		std::vector<std::string>::iterator dir_iter = m_SystemIncludes.begin();
-		for (; dir_iter != m_SystemIncludes.end(); dir_iter++)
+		PathCombineA(path, dir_iter->c_str(), pFileName);
+		if (CheckPath(path))
 		{
-			PathCombineA(path, dir_iter->c_str(), pFileName);
-			if (CheckPath(path))
-			{
-				goto open_stream;
-			}
+			goto open_stream;
 		}
-		return E_FAIL;
 	}
+	return E_FAIL;
 
 open_stream:
 	CachePtr cache = OpenIStream(path)->GetWholeCache();
@@ -646,8 +643,9 @@ open_stream:
 HRESULT ResourceMgr::Close(
 	LPCVOID pData)
 {
-	_ASSERT(m_CacheSet.end() != m_CacheSet.find(pData));
-	m_CacheSet.erase(pData);
+	CacheSet::iterator cache_iter = m_CacheSet.find(pData);
+	_ASSERT(cache_iter != m_CacheSet.end());
+	m_CacheSet.erase(cache_iter);
 	return S_OK;
 }
 
@@ -1394,8 +1392,8 @@ void EffectIORequest::CreateResource(LPDIRECT3DDEVICE9 pd3dDevice)
 	}
 
 	EffectPtr res(new Effect());
-	ResourceMgr::getSingleton().m_EffectInclude = boost::replace_all_copy(m_path, "/", "\\");
-	PathRemoveFileSpecA(&ResourceMgr::getSingleton().m_EffectInclude[0]);
+	ResourceMgr::getSingleton().m_LocalInclude = boost::replace_all_copy(m_path, "/", "\\");
+	PathRemoveFileSpecA(&ResourceMgr::getSingleton().m_LocalInclude[0]);
 	res->CreateEffect(&(*m_cache)[0], m_cache->size(), &m_d3dmacros[0], ResourceMgr::getSingletonPtr(), 0, ResourceMgr::getSingleton().m_EffectPool);
 	m_res = res;
 }

@@ -161,9 +161,9 @@ my::Effect * RenderPipeline::QueryShader(MeshType mesh_type, const D3DXMACRO* pD
 	oss << "#include \"" << name << "\"" << std::endl;
 	std::string source = oss.str();
 
-	my::ResourceMgr::getSingleton().m_EffectInclude = path;
-	boost::replace_all(my::ResourceMgr::getSingleton().m_EffectInclude, "/", "\\");
-	PathRemoveFileSpecA(&my::ResourceMgr::getSingleton().m_EffectInclude[0]);
+	my::ResourceMgr::getSingleton().m_LocalInclude = path;
+	boost::replace_all(my::ResourceMgr::getSingleton().m_LocalInclude, "/", "\\");
+	PathRemoveFileSpecA(&my::ResourceMgr::getSingleton().m_LocalInclude[0]);
 
 	CComPtr<ID3DXBuffer> err;
 	CComPtr<ID3DXEffectCompiler> compiler;

@@ -349,7 +349,7 @@ namespace my
 
 		CComPtr<ID3DXEffectPool> m_EffectPool;
 
-		std::string m_EffectInclude;
+		std::string m_LocalInclude;
 
 		std::vector<std::string> m_SystemIncludes;
 
