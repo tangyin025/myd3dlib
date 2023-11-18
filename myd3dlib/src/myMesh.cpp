@@ -1660,7 +1660,15 @@ void OgreMesh::SaveOgreMesh(const char * path, bool useSharedGeom)
 	// write shared geometry (if used)
 	if (useSharedGeom)
 	{
-		ofs << "\t<sharedgeometry vertexcount=\"" << GetNumVertices() << "\">\n";
+		unsigned int vertexcount = 0;
+		for (int i = 0; i < m_AttribTable.size(); i++)
+		{
+			if (m_AttribTable[i].VertexStart + m_AttribTable[i].VertexCount > vertexcount)
+			{
+				vertexcount = m_AttribTable[i].VertexStart + m_AttribTable[i].VertexCount;
+			}
+		}
+		ofs << "\t<sharedgeometry vertexcount=\"" << vertexcount << "\">\n";
 		ofs << "\t\t<vertexbuffer positions=\"true\" normals=";
 		bool normals = m_VertexElems.elems[D3DDECLUSAGE_NORMAL][0].Type == D3DDECLTYPE_FLOAT3;
 		if (normals)
@@ -1680,7 +1688,7 @@ void OgreMesh::SaveOgreMesh(const char * path, bool useSharedGeom)
 		else
 			ofs << 0 << "\">\n";
 		// write vertex data
-		for (DWORD i = 0; i < GetNumVertices(); i++)
+		for (DWORD i = 0; i < vertexcount; i++)
 		{
 			ofs << "\t\t\t<vertex>\n";
 			//write vertex position

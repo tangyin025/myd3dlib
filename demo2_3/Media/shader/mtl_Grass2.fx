@@ -22,8 +22,8 @@ float4 TransformPosWS2(VS_INPUT In)
 	float4 Pos = In.Pos;
 	float2 uv = Pos.xz / 10 + g_Time * float2(0.1, 0.1);
 	float waveSample = tex2Dlod(sampler_NoiseMap, float4(uv, 0, 0));
-	Pos.x += sin(waveSample) * (1 - In.Tex0.y);
-	Pos.z += sin(waveSample) * (1 - In.Tex0.y);
+	Pos.x += sin(waveSample) * (1 - In.Tex0.y) * 0.3;
+	Pos.z += sin(waveSample) * (1 - In.Tex0.y) * 0.3;
 	Pos.xyz += mul(In.PosInst, g_World);
 	return Pos;
 }
