@@ -351,13 +351,11 @@ namespace my
 
 		std::string m_EffectInclude;
 
+		std::vector<std::string> m_SystemIncludes;
+
 		typedef boost::unordered_map<LPCVOID, CachePtr> CacheSet;
 
 		CacheSet m_CacheSet;
-
-		typedef boost::unordered_map<std::string, const char *> HeaderMap;
-
-		HeaderMap m_HeaderMap;
 
 	public:
 		ResourceMgr(void)

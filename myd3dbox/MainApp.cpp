@@ -391,6 +391,7 @@ BOOL CMainApp::InitInstance()
 	std::vector<std::string> path_list;
 	desc.add_options()
 		("path", boost::program_options::value(&path_list)->default_value(boost::assign::list_of("..\\demo2_3\\Media")("Media"), ""), "Path")
+		("shaderinclude", boost::program_options::value(&m_SystemIncludes)->default_value(boost::assign::list_of("shader"), ""), "Shader Include")
 		("default_fov", boost::program_options::value(&default_fov)->default_value(60.0f), "Default fov")
 		("default_physx_scene_flags", boost::program_options::value(&default_physx_scene_flags)->default_value(physx::PxSceneFlag::eENABLE_PCM | physx::PxSceneFlag::eENABLE_ACTIVETRANSFORMS | physx::PxSceneFlag::eENABLE_CCD), "Default physx scene flags")
 		("default_physx_scene_gravity", boost::program_options::value(&default_physx_scene_gravity)->default_value(my::Vector3::Gravity, ""), "Default physx scene gravity")

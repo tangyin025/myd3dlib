@@ -772,6 +772,7 @@ Client::Client(void)
 	std::vector<std::string> path_list;
 	desc.add_options()
 		("path", boost::program_options::value(&path_list)->default_value(boost::assign::list_of("Media")("..\\demo2_3\\Media"), ""), "Path")
+		("shaderinclude", boost::program_options::value(&m_SystemIncludes)->default_value(boost::assign::list_of("shader"), ""), "Shader Include")
 		("width", boost::program_options::value(&m_WindowBackBufferWidthAtModeChange)->default_value(DEFAULT_UI_RES_X), "Width")
 		("height", boost::program_options::value(&m_WindowBackBufferHeightAtModeChange)->default_value(DEFAULT_UI_RES_Y), "Height")
 		("windowed", boost::program_options::value(&m_WindowedModeAtFirstCreate)->default_value(true), "Windowed")

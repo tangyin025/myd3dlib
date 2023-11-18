@@ -612,33 +612,35 @@ HRESULT ResourceMgr::Open(
 	LPCVOID * ppData,
 	UINT * pBytes)
 {
-	CachePtr cache;
-	std::string path(MAX_PATH, '\0');
-	HeaderMap::const_iterator header_iter = m_HeaderMap.find(pFileName);
-	if (header_iter != m_HeaderMap.end())
+	char path[MAX_PATH] = { '\0' };
+	if (IncludeType == D3DXINC_LOCAL)
 	{
-		path = header_iter->second;
-	}
-	else
-	{
-		PathCombineA(&path[0], m_EffectInclude.c_str(), pFileName);
-	}
-
-	switch(IncludeType)
-	{
-	case D3DXINC_SYSTEM:
-	case D3DXINC_LOCAL:
-		if(CheckPath(path.c_str()))
+		PathCombineA(path, m_EffectInclude.c_str(), pFileName);
+		if (CheckPath(path))
 		{
-			cache = OpenIStream(path.c_str())->GetWholeCache();
-			*ppData = &(*cache)[0];
-			*pBytes = cache->size();
-			_ASSERT(m_CacheSet.end() == m_CacheSet.find(*ppData));
-			m_CacheSet[*ppData] = cache;
-			return S_OK;
+			goto open_stream;
 		}
 	}
-	return E_FAIL;
+
+	{
+		std::vector<std::string>::iterator dir_iter = m_SystemIncludes.begin();
+		for (; dir_iter != m_SystemIncludes.end(); dir_iter++)
+		{
+			PathCombineA(path, dir_iter->c_str(), pFileName);
+			if (CheckPath(path))
+			{
+				goto open_stream;
+			}
+		}
+		return E_FAIL;
+	}
+
+open_stream:
+	CachePtr cache = OpenIStream(path)->GetWholeCache();
+	*ppData = cache->data();
+	*pBytes = (UINT)cache->size();
+	BOOST_VERIFY(m_CacheSet.insert(std::make_pair(*ppData, cache)).second);
+	return S_OK;
 }
 
 HRESULT ResourceMgr::Close(
