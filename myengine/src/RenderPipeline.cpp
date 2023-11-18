@@ -76,12 +76,12 @@ RenderPipeline::~RenderPipeline(void)
 {
 }
 
-static size_t _hash_value(RenderPipeline::MeshType mesh_type, const D3DXMACRO* pDefines, const char * name)
+static size_t _hash_value(RenderPipeline::MeshType mesh_type, const D3DXMACRO* pDefines, const char * path)
 {
 	// ! maybe hash conflict
 	size_t seed = 0;
 	boost::hash_combine(seed, mesh_type);
-	boost::hash_combine(seed, std::string(name));
+	boost::hash_combine(seed, std::string(path));
 	if (pDefines)
 	{
 		const D3DXMACRO* macro_iter = pDefines;
@@ -99,8 +99,7 @@ static size_t _hash_value(RenderPipeline::MeshType mesh_type, const D3DXMACRO* p
 
 my::Effect * RenderPipeline::QueryShader(MeshType mesh_type, const D3DXMACRO* pDefines, const char * path, unsigned int PassID)
 {
-	const char * name = PathFindFileNameA(path);
-	size_t seed = _hash_value(mesh_type, pDefines, name);
+	size_t seed = _hash_value(mesh_type, pDefines, path);
 	ShaderCacheMap::iterator shader_iter = m_ShaderCache.find(seed);
 	if (shader_iter != m_ShaderCache.end())
 	{
@@ -158,7 +157,7 @@ my::Effect * RenderPipeline::QueryShader(MeshType mesh_type, const D3DXMACRO* pD
 		break;
 	}
 	oss << "\"" << std::endl;
-	oss << "#include \"" << name << "\"" << std::endl;
+	oss << "#include \"" << PathFindFileNameA(path) << "\"" << std::endl;
 	std::string source = oss.str();
 
 	my::ResourceMgr::getSingleton().m_LocalInclude = path;
