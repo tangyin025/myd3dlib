@@ -177,3 +177,8 @@ float2 TileUV(float2 uv, float2 TileSize, float id)
 	float2 pos = float2(fmod(frame, tiles.x), floor(frame / tiles.x));
 	return (pos + uv) * TileSize;
 }
+
+float SplineInterpolate(float t)
+{
+	return t + t * (1 - t) * ((t - 1) + t);
+}

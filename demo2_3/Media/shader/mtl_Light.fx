@@ -32,7 +32,7 @@ float4 LightPS( LIGHT_VS_OUTPUT In ) : COLOR0
 	float3 ViewVS = In.EyeVS - PosVS;
 	float3 Ref = Reflection(NormalVS, ViewVS);
 	float Specular = pow(saturate(dot(Ref, LightDir)), SpecularVS.x);
-	return float4(In.Color.xyz * diffuse, In.Color.w * Specular) * saturate(1 - LightDist / In.LightVS.w);
+	return float4(In.Color.xyz * diffuse, In.Color.w * Specular) * (1 - SplineInterpolate(clamp(LightDist / In.LightVS.w, 0, 1)));
 }
 
 technique RenderScene
