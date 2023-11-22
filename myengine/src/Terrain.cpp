@@ -784,7 +784,8 @@ void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 				{
 					if (RenderPipeline::PassTypeToMask(PassID) & (mtl->m_PassMask & PassMask))
 					{
-						Effect* shader = pipeline->QueryShader(RenderPipeline::MeshTypeTerrain, NULL, mtl->m_Shader.c_str(), PassID);
+						D3DXMACRO macro[2] = { { "MESH_TYPE", "2" }, { 0 } };
+						Effect* shader = pipeline->QueryShader(macro, mtl->m_Shader.c_str(), PassID);
 						if (shader)
 						{
 							if (!terrain->handle_World)
@@ -839,7 +840,8 @@ void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 				{
 					if (RenderPipeline::PassTypeToMask(PassID) & (m_Material->m_PassMask & PassMask))
 					{
-						Effect* shader = pipeline->QueryShader(RenderPipeline::MeshTypeTerrain, NULL, m_Material->m_Shader.c_str(), PassID);
+						D3DXMACRO macro[2] = { { "MESH_TYPE", "2" }, { 0 } };
+						Effect* shader = pipeline->QueryShader(macro, m_Material->m_Shader.c_str(), PassID);
 						if (shader)
 						{
 							if (!handle_World)

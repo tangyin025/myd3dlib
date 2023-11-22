@@ -1,3 +1,4 @@
+#include "CommonVert.hlsl"
 
 texture g_Texture:MaterialParameter<string path="texture/flare.dds";>;
 

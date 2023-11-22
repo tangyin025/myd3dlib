@@ -840,8 +840,8 @@ void MeshComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline * 
 			{
 				if (RenderPipeline::PassTypeToMask(PassID) & (m_Material->m_PassMask & PassMask))
 				{
-					D3DXMACRO macro[3] = { {0} };
-					int j = 0;
+					D3DXMACRO macro[4] = { { "MESH_TYPE", "0" }, { 0 } };
+					int j = 1;
 					if (m_InstanceType == InstanceTypeInstance)
 					{
 						macro[j++].Name = "INSTANCE";
@@ -850,7 +850,7 @@ void MeshComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline * 
 					{
 						macro[j++].Name = "SKELETON";
 					}
-					my::Effect* shader = pipeline->QueryShader(RenderPipeline::MeshTypeMesh, macro, m_Material->m_Shader.c_str(), PassID);
+					my::Effect* shader = pipeline->QueryShader(macro, m_Material->m_Shader.c_str(), PassID);
 					if (shader)
 					{
 						if (!handle_World)
@@ -1678,8 +1678,8 @@ void ClothComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline *
 			{
 				if (RenderPipeline::PassTypeToMask(PassID) & (m_Material->m_PassMask & PassMask))
 				{
-					D3DXMACRO macro[2] = { { 0 } };
-					my::Effect* shader = pipeline->QueryShader(RenderPipeline::MeshTypeMesh, macro, m_Material->m_Shader.c_str(), PassID);
+					D3DXMACRO macro[2] = { { "MESH_TYPE", "0" }, { 0 } };
+					my::Effect* shader = pipeline->QueryShader(macro, m_Material->m_Shader.c_str(), PassID);
 					if (shader)
 					{
 						if (!handle_World)
@@ -1869,40 +1869,9 @@ void EmitterComponent::AddParticlePairToPipeline(
 	{
 		if (RenderPipeline::PassTypeToMask(PassID) & (m_Material->m_PassMask & PassMask))
 		{
-			D3DXMACRO macro[3] = { {0} };
-			macro[0].Name = "EMITTER_FACE_TYPE";
-			switch (m_EmitterFaceType)
-			{
-			default:
-				macro[0].Definition = "0";
-				break;
-			case FaceTypeY:
-				macro[0].Definition = "1";
-				break;
-			case FaceTypeZ:
-				macro[0].Definition = "2";
-				break;
-			case FaceTypeCamera:
-				macro[0].Definition = "3";
-				break;
-			case FaceTypeAngle:
-				macro[0].Definition = "4";
-				break;
-			case FaceTypeAngleCamera:
-				macro[0].Definition = "5";
-				break;
-			}
-			macro[1].Name = "EMITTER_VEL_TYPE";
-			switch (m_EmitterVelType)
-			{
-			default:
-				macro[1].Definition = "0";
-				break;
-			case VelocityTypeVel:
-				macro[1].Definition = "1";
-				break;
-			}
-			my::Effect* shader = pipeline->QueryShader(RenderPipeline::MeshTypeParticle, macro, m_Material->m_Shader.c_str(), PassID);
+			const char* num[] = { "0", "1", "2", "3", "4", "5" };
+			D3DXMACRO macro[4] = { { "MESH_TYPE", "1" }, { "EMITTER_FACE_TYPE", num[m_EmitterFaceType] }, { "EMITTER_VEL_TYPE", num[m_EmitterVelType] }, { 0 } };
+			my::Effect* shader = pipeline->QueryShader(macro, m_Material->m_Shader.c_str(), PassID);
 			if (shader)
 			{
 				if (!handle_World)

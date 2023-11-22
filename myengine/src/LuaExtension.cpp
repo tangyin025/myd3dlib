@@ -904,6 +904,9 @@ extern boost::iterator_range<shared_cmp_list_iter> controller_get_geom_stream(co
 static my::Effect* renderpipeline_query_shader(RenderPipeline* self, RenderPipeline::MeshType mesh_type, const luabind::object& macro, const char* path, unsigned int PassID)
 {
 	std::vector<D3DXMACRO> macs;
+	const char* num[] = { "0", "1", "2" };
+	D3DXMACRO m0 = { "MESH_TYPE", num[mesh_type] };
+	macs.push_back(m0);
 	luabind::iterator iter(macro), end;
 	for (; iter != end; iter++)
 	{
@@ -914,7 +917,7 @@ static my::Effect* renderpipeline_query_shader(RenderPipeline* self, RenderPipel
 	}
 	D3DXMACRO m = { 0 };
 	macs.push_back(m);
-	return self->QueryShader(mesh_type, macs.data(), path, PassID);
+	return self->QueryShader(macs.data(), path, PassID);
 }
 
 static bool physxscene_raycast(PhysxScene* self,

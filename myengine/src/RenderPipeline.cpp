@@ -8,6 +8,7 @@
 #include "myEffect.h"
 #include "Component.h"
 #include "Actor.h"
+#include "libc.h"
 #include <boost/regex.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
@@ -76,11 +77,10 @@ RenderPipeline::~RenderPipeline(void)
 {
 }
 
-static size_t _hash_value(RenderPipeline::MeshType mesh_type, const D3DXMACRO* pDefines, const char * path)
+static size_t _hash_value(const D3DXMACRO* pDefines, const char * path)
 {
 	// ! maybe hash conflict
 	size_t seed = 0;
-	boost::hash_combine(seed, mesh_type);
 	boost::hash_combine(seed, std::string(path));
 	if (pDefines)
 	{
@@ -97,68 +97,23 @@ static size_t _hash_value(RenderPipeline::MeshType mesh_type, const D3DXMACRO* p
 	return seed;
 }
 
-my::Effect * RenderPipeline::QueryShader(MeshType mesh_type, const D3DXMACRO* pDefines, const char * path, unsigned int PassID)
+my::Effect * RenderPipeline::QueryShader(const D3DXMACRO* pDefines, const char * path, unsigned int PassID)
 {
-	size_t seed = _hash_value(mesh_type, pDefines, path);
+	size_t seed = _hash_value(pDefines, path);
 	ShaderCacheMap::iterator shader_iter = m_ShaderCache.find(seed);
 	if (shader_iter != m_ShaderCache.end())
 	{
 		return shader_iter->second.get();
 	}
 
-	std::ostringstream logoss;
-	logoss << "Build Shader: ";
-	switch (mesh_type)
+	if (!ResourceMgr::getSingleton().CheckPath(path))
 	{
-	case RenderPipeline::MeshTypeMesh:
-		logoss << "MeshMesh";
-		break;
-	case RenderPipeline::MeshTypeParticle:
-		logoss << "MeshParticle";
-		break;
-	case RenderPipeline::MeshTypeTerrain:
-		logoss << "MeshTerrain";
-		break;
-	default:
-		logoss << "MeshUnknown";
-		break;
+		my::D3DContext::getSingleton().m_EventLog(str_printf("Check Path failed: %s", path).c_str());
+		m_ShaderCache.insert(std::make_pair(seed, my::EffectPtr()));
+		return NULL;
 	}
-	if (pDefines)
-	{
-		const D3DXMACRO* macro_iter = pDefines;
-		for (; macro_iter->Name; macro_iter++)
-		{
-			logoss << "_" << macro_iter->Name;
-			if (macro_iter->Definition)
-			{
-				logoss << "_" << macro_iter->Definition;
-			}
-		}
-	}
-	logoss << "_" << path;
-	my::D3DContext::getSingleton().m_EventLog(logoss.str().c_str());
 
-	std::ostringstream oss;
-	oss << "#include \"CommonHeader.hlsl\"" << std::endl;
-	oss << "#include \"";
-	switch (mesh_type)
-	{
-	case RenderPipeline::MeshTypeMesh:
-		oss << "MeshMesh.hlsl";
-		break;
-	case RenderPipeline::MeshTypeParticle:
-		oss << "MeshParticle.hlsl";
-		break;
-	case RenderPipeline::MeshTypeTerrain:
-		oss << "MeshTerrain.hlsl";
-		break;
-	default:
-		oss << "MeshUnknown.hlsl";
-		break;
-	}
-	oss << "\"" << std::endl;
-	oss << "#include \"" << PathFindFileNameA(path) << "\"" << std::endl;
-	std::string source = oss.str();
+	CachePtr cache = ResourceMgr::getSingleton().OpenIStream(path)->GetWholeCache();
 
 	my::ResourceMgr::getSingleton().m_LocalInclude = path;
 	boost::replace_all(my::ResourceMgr::getSingleton().m_LocalInclude, "/", "\\");
@@ -166,7 +121,7 @@ my::Effect * RenderPipeline::QueryShader(MeshType mesh_type, const D3DXMACRO* pD
 
 	CComPtr<ID3DXBuffer> err;
 	CComPtr<ID3DXEffectCompiler> compiler;
-	if (FAILED(D3DXCreateEffectCompiler(source.c_str(), (UINT)source.length(), pDefines,
+	if (FAILED(D3DXCreateEffectCompiler((LPCSTR)cache->data(), (UINT)cache->size(), pDefines,
 		my::ResourceMgr::getSingletonPtr(), D3DXSHADER_PACKMATRIX_COLUMNMAJOR | D3DXSHADER_OPTIMIZATION_LEVEL3 | D3DXFX_LARGEADDRESSAWARE, &compiler, &err)))
 	{
 		my::D3DContext::getSingleton().m_EventLog(err ? (char *)err->GetBufferPointer() : "QueryShader failed");

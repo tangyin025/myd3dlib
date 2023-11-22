@@ -1,3 +1,4 @@
+#include "CommonVert.hlsl"
 
 texture g_DiffuseTexture0:MaterialParameter<string path="texture/Red.dds";>;
 texture g_NormalTexture0:MaterialParameter<string path="texture/Normal.dds";>;

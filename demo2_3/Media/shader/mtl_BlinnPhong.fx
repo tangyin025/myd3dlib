@@ -1,3 +1,4 @@
+#include "CommonVert.hlsl"
 
 texture g_DiffuseTexture:MaterialParameter<string path="texture/Checker.bmp";>;
 texture g_NormalTexture:MaterialParameter<string path="texture/Normal.dds";>;

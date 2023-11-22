@@ -1,3 +1,4 @@
+#include "CommonVert.hlsl"
 
 float g_FresExp:MaterialParameter = 4.0;
 float g_ReflStrength:MaterialParameter = 1.0;

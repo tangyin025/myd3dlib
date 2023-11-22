@@ -1,3 +1,4 @@
+#include "CommonVert.hlsl"
 
 struct LIGHT_VS_OUTPUT
 {

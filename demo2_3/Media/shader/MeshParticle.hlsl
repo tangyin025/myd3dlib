@@ -1,3 +1,4 @@
+#include <CommonHeader.hlsl>
 
 struct VS_INPUT
 {

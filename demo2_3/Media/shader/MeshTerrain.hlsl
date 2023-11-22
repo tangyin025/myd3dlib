@@ -1,3 +1,4 @@
+#include <CommonHeader.hlsl>
 
 float2 g_TerrainSize;
 

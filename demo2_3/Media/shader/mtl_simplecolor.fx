@@ -1,3 +1,4 @@
+#include "CommonVert.hlsl"
 
 struct TRANSPARENT_VS_OUTPUT
 {

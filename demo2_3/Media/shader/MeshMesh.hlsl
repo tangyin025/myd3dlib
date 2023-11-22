@@ -1,3 +1,4 @@
+#include <CommonHeader.hlsl>
 
 float4 g_MeshColor;
 

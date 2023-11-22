@@ -121,7 +121,8 @@ void StaticMesh::AddToPipeline(const my::Frustum& frustum, RenderPipeline* pipel
 			{
 				if (RenderPipeline::PassTypeToMask(PassID) & (mesh_cmp->m_Material->m_PassMask & PassMask))
 				{
-					my::Effect* shader = pipeline->QueryShader(RenderPipeline::MeshTypeMesh, NULL, mesh_cmp->m_Material->m_Shader.c_str(), PassID);
+					D3DXMACRO macro[2] = { { "MESH_TYPE", "0" }, { 0 } };
+					my::Effect* shader = pipeline->QueryShader(macro, mesh_cmp->m_Material->m_Shader.c_str(), PassID);
 					if (shader)
 					{
 						if (!mesh_cmp->handle_World)
