@@ -901,18 +901,16 @@ typedef boost::shared_container_iterator<cmp_list> shared_cmp_list_iter;
 
 extern boost::iterator_range<shared_cmp_list_iter> controller_get_geom_stream(const Controller* self);
 
-static my::Effect* renderpipeline_query_shader(RenderPipeline* self, RenderPipeline::MeshType mesh_type, const luabind::object& macro, const char* path, unsigned int PassID)
+static my::Effect* renderpipeline_query_shader(RenderPipeline* self, const luabind::object& macro, const char* path, unsigned int PassID)
 {
 	std::vector<D3DXMACRO> macs;
-	const char* num[] = { "0", "1", "2" };
-	D3DXMACRO m0 = { "MESH_TYPE", num[mesh_type] };
-	macs.push_back(m0);
+	std::vector<std::string> strs;
 	luabind::iterator iter(macro), end;
 	for (; iter != end; iter++)
 	{
-		std::string key = boost::lexical_cast<std::string>(iter.key());
-		std::string value = boost::lexical_cast<std::string>(*iter);
-		D3DXMACRO m = { key.c_str(),value.c_str() };
+		strs.push_back(boost::lexical_cast<std::string>(iter.key()));
+		strs.push_back(boost::lexical_cast<std::string>(*iter));
+		D3DXMACRO m = { (strs.rbegin() + 1)->c_str(), strs.rbegin()->c_str() };
 		macs.push_back(m);
 	}
 	D3DXMACRO m = { 0 };
@@ -3069,13 +3067,13 @@ void LuaContext::Init(void)
 			.def("GetDisplacement", &ActionTrackInst::GetDisplacement, &ScriptActionTrackInst::default_GetDisplacement)
 
 		, class_<RenderPipeline>("RenderPipeline")
-			.enum_("MeshType")
-			[
-				luabind::value("MeshTypeMesh", RenderPipeline::MeshTypeMesh),
-				luabind::value("MeshTypeParticle", RenderPipeline::MeshTypeParticle),
-				luabind::value("MeshTypeTerrain", RenderPipeline::MeshTypeTerrain),
-				luabind::value("MeshTypeNum", RenderPipeline::MeshTypeNum)
-			]
+			//.enum_("MeshType")
+			//[
+			//	luabind::value("MeshTypeMesh", RenderPipeline::MeshTypeMesh),
+			//	luabind::value("MeshTypeParticle", RenderPipeline::MeshTypeParticle),
+			//	luabind::value("MeshTypeTerrain", RenderPipeline::MeshTypeTerrain),
+			//	luabind::value("MeshTypeNum", RenderPipeline::MeshTypeNum)
+			//]
 			.enum_("PassType")
 			[
 				luabind::value("PassTypeShadow", RenderPipeline::PassTypeShadow),
