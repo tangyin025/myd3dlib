@@ -758,14 +758,15 @@ void Font::DrawString(
 
 				const CharacterInfo* info = get_character_info(*p);
 
-				if (align & Font::AlignMultiLine && x + info->horiAdvance > rect.r)
-				{
-					break;
-				}
-
 				draw_character(x + info->horiBearingX, y - info->horiBearingY, info);
 
 				x += info->horiAdvance;
+
+				if (align & Font::AlignMultiLine && x + info->horiAdvance > rect.r)
+				{
+					p++;
+					break;
+				}
 			}
 		}
 	}
@@ -814,14 +815,15 @@ void Font::DrawString(
 
 				const CharacterInfo* info = get_character_info(*p);
 
-				if (align & Font::AlignMultiLine && y + info->vertAdvance > rect.b)
-				{
-					break;
-				}
-
 				draw_character(x - info->vertBearingX, y + info->vertBearingY, info);
 
 				y += info->vertAdvance;
+
+				if (align & Font::AlignMultiLine && y + info->vertAdvance > rect.b)
+				{
+					p++;
+					break;
+				}
 			}
 		}
 	}
