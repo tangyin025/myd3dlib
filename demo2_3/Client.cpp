@@ -352,14 +352,6 @@ static int os_exit(lua_State * L)
 	return 0;
 }
 
-static void PlayerData_moveitems(PlayerData* self, int src, int count, int dst)
-{
-	_ASSERT(src + count <= _countof(PlayerData::items));
-	_ASSERT(dst + count <= _countof(PlayerData::items));
-	std::copy(&self->items[src], &self->items[src + count], &self->items[dst]);
-	std::copy(&self->itemstatus[src], &self->itemstatus[src + count], &self->itemstatus[dst]);
-}
-
 typedef std::vector<Actor*> ActorList;
 
 typedef boost::shared_container_iterator<ActorList> shared_actor_list_iter;
@@ -400,94 +392,6 @@ static void client_add_state_adopt(Client* self, StateBase* state, StateBase* pa
 static bool client_file_exists(Client* self, const char* u8path)
 {
 	return PathFileExists(u8tots(u8path).c_str());
-}
-
-PlayerData::PlayerData(void)
-	: savetime(0)
-	, sceneid(0)
-	, pos(0, 0, 0)
-	, angle(D3DXToRadian(0))
-{
-	std::fill_n(attrs, _countof(attrs), 0);
-	std::fill_n(quests, _countof(quests), 0);
-	std::fill_n(auras, _countof(auras), 0);
-	std::fill_n(aurastatus, _countof(aurastatus), 0);
-	std::fill_n(items, _countof(items), 0);
-	std::fill_n(itemstatus, _countof(itemstatus), 0);
-}
-
-PlayerData::~PlayerData(void)
-{
-}
-
-//BOOST_CLASS_VERSION(PlayerData, 1)
-
-namespace boost {
-	namespace serialization {
-		template<> struct version<PlayerData>
-		{
-			static const int value = 1000;
-		};
-	}
-}
-
-template<class Archive>
-void PlayerData::save(Archive& ar, const unsigned int version) const
-{
-	ar << BOOST_SERIALIZATION_NVP(savetime);
-	ar << BOOST_SERIALIZATION_NVP(sceneid);
-	ar << BOOST_SERIALIZATION_NVP(pos);
-	ar << BOOST_SERIALIZATION_NVP(angle);
-	ar << BOOST_SERIALIZATION_NVP(attrs);
-	ar << BOOST_SERIALIZATION_NVP(quests);
-	ar << BOOST_SERIALIZATION_NVP(auras);
-	ar << BOOST_SERIALIZATION_NVP(aurastatus);
-	ar << BOOST_SERIALIZATION_NVP(items);
-	ar << BOOST_SERIALIZATION_NVP(itemstatus);
-}
-
-template<class Archive>
-void PlayerData::load(Archive& ar, const unsigned int version)
-{
-	if (version < boost::serialization::version<PlayerData>::value)
-	{
-		return;
-	}
-
-	_ASSERT(boost::serialization::version<PlayerData>::value == version);
-
-	ar >> BOOST_SERIALIZATION_NVP(savetime);
-	ar >> BOOST_SERIALIZATION_NVP(sceneid);
-	ar >> BOOST_SERIALIZATION_NVP(pos);
-	ar >> BOOST_SERIALIZATION_NVP(angle);
-	ar >> BOOST_SERIALIZATION_NVP(attrs);
-	ar >> BOOST_SERIALIZATION_NVP(quests);
-	ar >> BOOST_SERIALIZATION_NVP(auras);
-	ar >> BOOST_SERIALIZATION_NVP(aurastatus);
-	ar >> BOOST_SERIALIZATION_NVP(items);
-	ar >> BOOST_SERIALIZATION_NVP(itemstatus);
-}
-
-PlayerDataRequest::PlayerDataRequest(const PlayerData* data, const char* path, int Priority)
-	: IORequest(Priority)
-	, m_path(path)
-{
-	m_res.reset(new PlayerData(*data));
-}
-
-void PlayerDataRequest::LoadResource(void)
-{
-	boost::shared_ptr<PlayerData> ret = boost::dynamic_pointer_cast<PlayerData>(m_res);
-	_ASSERT(ret);
-	ret->savetime = time(NULL);
-
-	std::ofstream ofs(m_path, std::ios::out, _SH_DENYRW);
-	boost::archive::xml_oarchive oa(ofs);
-	oa << boost::serialization::make_nvp("PlayerData", ret);
-}
-
-void PlayerDataRequest::CreateResource(LPDIRECT3DDEVICE9 pd3dDevice)
-{
 }
 
 struct ScriptStateBase : StateBase, luabind::wrap_base
@@ -982,45 +886,6 @@ HRESULT Client::OnCreateDevice(
 	[
 		luabind::class_<Console, my::Dialog, boost::shared_ptr<Console> >("Console")
 
-		, luabind::class_<PlayerData, my::DeviceResourceBase, boost::shared_ptr<my::DeviceResourceBase> >("PlayerData")
-			.def(luabind::constructor<>())
-			.enum_("ATTRIBUTE")
-			[
-				luabind::value("ATTR_EQUIP0", 0),
-				luabind::value("ATTR_EQUIP1", 1),
-				luabind::value("ATTR_EQUIP2", 2),
-				luabind::value("ATTR_WEAPON0", 3),
-				luabind::value("ATTR_WEAPON1", 4),
-				luabind::value("ATTR_WEAPON2", 5),
-				luabind::value("ATTR_AMMO0", 6),
-				luabind::value("ATTR_AMMO1", 7),
-				luabind::value("ATTR_AMMO2", 8),
-				luabind::value("ATTR_HEALTH", 9),
-				luabind::value("ATTR_MAX_HEALTH", 10),
-				luabind::value("ATTR_ITEM_CAPACITY", 11),
-				luabind::value("ATTR_COUNT", _countof(PlayerData::attrs)),
-				luabind::value("QUEST_COUNT", _countof(PlayerData::quests)),
-				luabind::value("AURA_COUNT", _countof(PlayerData::auras)),
-				luabind::value("MAX_ITEM_NUM", _countof(PlayerData::items))
-			]
-			.def_readonly("savetime", &PlayerData::savetime)
-			.def_readwrite("sceneid", &PlayerData::sceneid)
-			.def_readwrite("pos", &PlayerData::pos)
-			.def_readwrite("angle", &PlayerData::angle)
-			.def("setattr", &PlayerData::setattr)
-			.def("getattr", &PlayerData::getattr)
-			.def("setquest", &PlayerData::setquest)
-			.def("getquest", &PlayerData::getquest)
-			.def("setaura", &PlayerData::setaura)
-			.def("getaura", &PlayerData::getaura)
-			.def("setaurastatus", &PlayerData::setaurastatus)
-			.def("getaurastatus", &PlayerData::getaurastatus)
-			.def("setitem", &PlayerData::setitem)
-			.def("getitem", &PlayerData::getitem)
-			.def("setitemstatus", &PlayerData::setitemstatus)
-			.def("getitemstatus", &PlayerData::getitemstatus)
-			.def("moveitems", &PlayerData_moveitems)
-
 		, luabind::class_<StateBase, ScriptStateBase/*, boost::shared_ptr<StateBase>*/ >("StateBase")
 			.def(luabind::constructor<>())
 			.property("IsActivated", &StateBase::IsActivated)
@@ -1116,9 +981,6 @@ HRESULT Client::OnCreateDevice(
 			.def("LoadSceneAsync", &Client::LoadSceneAsync<luabind::object>)
 			.def("LoadScene", &Client::LoadScene)
 			.def("GetLoadSceneProgress", &Client::GetLoadSceneProgress, luabind::pure_out_value(boost::placeholders::_4) + luabind::pure_out_value(boost::placeholders::_5) + luabind::pure_out_value(boost::placeholders::_6) + luabind::pure_out_value(boost::placeholders::_7))
-			.def("LoadPlayerData", &Client::LoadPlayerData)
-			.def("SavePlayerDataAsync", &Client::SavePlayerDataAsync<luabind::object>)
-			.def("SavePlayerData", &Client::SavePlayerData)
 
 		//, luabind::def("res2scene", (boost::shared_ptr<SceneContext>(*)(const boost::shared_ptr<my::DeviceResourceBase>&)) & boost::dynamic_pointer_cast<SceneContext, my::DeviceResourceBase>)
 	];
@@ -1869,7 +1731,7 @@ boost::shared_ptr<SceneContext> Client::LoadScene(const char * path, const char 
 	return boost::dynamic_pointer_cast<SceneContext>(cb.m_res);
 }
 
-void Client::GetLoadSceneProgress(const char * path, const char * prefix, int & ActorListSize, int & ActorProgress, int & DialogListSize, int & DialogProgress)
+void Client::GetLoadSceneProgress(const char* path, const char* prefix, int& ActorListSize, int& ActorProgress, int& DialogListSize, int& DialogProgress)
 {
 	_ASSERT(IsMainThread());
 
@@ -1908,21 +1770,4 @@ void Client::GetLoadSceneProgress(const char * path, const char * prefix, int & 
 	ActorProgress = 0;
 	DialogListSize = INT_MAX;
 	DialogProgress = 0;
-}
-
-boost::shared_ptr<PlayerData> Client::LoadPlayerData(const char * path)
-{
-	boost::shared_ptr<PlayerData> ret;
-	my::IStreamBuff buff(my::FileIStream::Open(u8tots(path).c_str()));
-	std::istream ifs(&buff);
-	boost::archive::xml_iarchive ia(ifs);
-	ia >> boost::serialization::make_nvp("PlayerData", ret);
-	return ret;
-}
-
-void Client::SavePlayerData(const PlayerData * data, const char * path)
-{
-	SimpleResourceCallback cb;
-	IORequestPtr request(new PlayerDataRequest(data, path, INT_MAX));
-	LoadIORequestAndWait(path, request, boost::bind(&SimpleResourceCallback::OnResourceReady, &cb, boost::placeholders::_1));
 }

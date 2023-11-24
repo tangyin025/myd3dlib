@@ -12,7 +12,7 @@ require "Action.lua"
 -- mesh2:SaveOgreMesh("Media/mesh/Cylinder.mesh.xml")
 
 -- 创建Player主体
-player=Actor("local_player",Vector3(0,3,0),Quaternion.Identity(),Vector3(0.01,0.01,0.01),AABB(-1,1))
+player=Actor("local_player",Vector3(0,3,0),Quaternion.Identity(),Vector3(0.01,0.01,0.01),AABB(-100,100))
 local controller_cmp=Controller(NamedObject.MakeUniqueName("controller_cmp"),1.5,0.1,0.1,0.5,0)
 player:InsertComponent(controller_cmp)
 
@@ -75,7 +75,7 @@ function PlayerBehavior:ReleaseResource()
 end
 function PlayerBehavior:Update(elapsedTime)
 	-- 更新角色位置
-	self.Actor:SetPose(controller_cmp.Position)
+	self.Actor:SetPose(controller_cmp.FootPosition)
 	self.velocity.y=self.velocity.y-9.81*elapsedTime
 	local speed=2
 	local direction=Vector3(0,0,0)
@@ -137,7 +137,7 @@ function PlayerBehavior:Update(elapsedTime)
 	
 	-- 更新相机
 	local LookMatrix=Matrix4.RotationYawPitchRoll(client.Camera.Euler.y,client.Camera.Euler.x,client.Camera.Euler.z)
-	client.Camera.Eye=self.Actor.Position+Vector3(0,0.75,0)+LookMatrix.row2.xyz*self.LookDist
+	client.Camera.Eye=self.Actor.Position+Vector3(0,controller_cmp.Height,0)+LookMatrix.row2.xyz*self.LookDist
 	client.SkyLightCam.Eye=self.Actor.Position
 	client.ViewedCenter=self.Actor.Position
 
