@@ -15,6 +15,7 @@
 #include <luabind/out_value_policy.hpp>
 #include <luabind/adopt_policy.hpp>
 #include <luabind/tag_function.hpp>
+#include <boost/functional/value_factory.hpp>
 #include "LuaExtension.inl"
 #include <boost/archive/polymorphic_iarchive.hpp>
 #include <boost/archive/polymorphic_oarchive.hpp>
@@ -377,16 +378,6 @@ static boost::iterator_range<shared_actor_list_iter> client_query_entity(Client*
 	Callback cb;
 	self->QueryEntity(aabb, &cb);
 	return boost::make_iterator_range(shared_actor_list_iter(cb.acts->begin(), cb.acts), shared_actor_list_iter(cb.acts->end(), cb.acts));
-}
-
-static void client_add_state_adopt(Client* self, StateBase* state)
-{
-	self->AddState(StateBasePtr(state));
-}
-
-static void client_add_state_adopt(Client* self, StateBase* state, StateBase* parent)
-{
-	self->AddState(StateBasePtr(state), parent);
 }
 
 static bool client_file_exists(Client* self, const char* u8path)
@@ -969,8 +960,10 @@ HRESULT Client::OnCreateDevice(
 			.property("AllEntityAABB", luabind::tag_function<AABB(Client*)>(
 				boost::bind(&Client::GetAllEntityAABB, boost::placeholders::_1, AABB::Invalid())))
 			.def("QueryEntity", &client_query_entity, luabind::return_stl_iterator)
-			.def("AddStateAdopt", (void(*)(Client*, StateBase*)) & client_add_state_adopt, luabind::adopt(boost::placeholders::_2))
-			.def("AddStateAdopt", (void(*)(Client*, StateBase*, StateBase*)) & client_add_state_adopt, luabind::adopt(boost::placeholders::_2)) // ! luabind::class_::def does not support default arguments (Release build.)
+			.def("AddStateAdopt", luabind::tag_function<void(Client*, StateBase*)>(
+				boost::bind(&Client::AddState, boost::placeholders::_1, boost::bind(boost::value_factory<StateBasePtr>(), boost::placeholders::_2))), luabind::adopt(boost::placeholders::_2))
+			.def("AddStateAdopt", luabind::tag_function<void(Client*, StateBase*, StateBase*)>(
+				boost::bind(&Client::AddState, boost::placeholders::_1, boost::bind(boost::value_factory<StateBasePtr>(), boost::placeholders::_2), boost::placeholders::_3)), luabind::adopt(boost::placeholders::_2))
 			.def("FileExists", &client_file_exists)
 			.def("AddTransition", &Client::AddTransition)
 			.def("ProcessEvent", &Client::ProcessEvent)
