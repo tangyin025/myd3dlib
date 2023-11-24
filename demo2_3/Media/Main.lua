@@ -25,7 +25,7 @@ function Actor2Behavior:__init(name)
 end
 function Actor2Behavior:RequestResource()
 	Component.RequestResource(self)
-	self.Actor:PlayAction(SAction.act_sound,9999)
+	self.Actor:PlayAction(SAction.act_sound)
 end
 local actor2_behavior=Actor2Behavior(NamedObject.MakeUniqueName("actor_behavior"))
 actor2:InsertComponentAdopt(actor2_behavior)
@@ -54,7 +54,7 @@ cmp4.QueryFilterWord0=1
 
 -- 搞一个trigger
 actor5=Actor(NamedObject.MakeUniqueName("actor"),Vector3(3,1,0),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1))
-local cmp5=StaticEmitter(NamedObject.MakeUniqueName("mesh_cmp"),actor5.aabb,3,EmitterComponent.FaceTypeCamera,EmitterComponent.SpaceTypeLocal,EmitterComponent.VelocityTypeNone,EmitterComponent.PrimitiveTypeQuad)
+local cmp5=StaticEmitter(NamedObject.MakeUniqueName("mesh_cmp"),actor5.aabb,3,EmitterComponent.FaceTypeCamera,EmitterComponent.SpaceTypeLocal,EmitterComponent.VelocityTypeNone,StaticEmitter.PrimitiveTypeQuad)
 actor5:InsertComponent(cmp5)
 actor5:CreateRigidActor(Actor.eRIGID_STATIC)
 cmp5:CreateBoxShape(Vector3(0,0,0),Quaternion(0,0,0,1),1,1,1)
@@ -118,13 +118,13 @@ client:LoadSceneAsync("scene01.xml", "scene01_", function(res)
 	end
 	function Actor6Behavior:RequestResource()
 		Component.RequestResource(self)
-		self.Actor:PlayAction(SAction.act_pose,100)
+		self.Actor:PlayAction(SAction.act_pose)
 	end
 	local actor6_behavior=Actor6Behavior(NamedObject.MakeUniqueName('actor_behavior'))
 	actor6:InsertComponentAdopt(actor6_behavior)	
 
 	-- SPlayer.player:Detach(actor3);actor3:SetRigidBodyFlag(Actor.eKINEMATIC,false);for cmp in actor3.Cmps do cmp.SimulationFilterWord0=1;cmp.QueryFilterWord0=1 end;SPlayer.player:Detach(actor4);actor4:SetRigidBodyFlag(Actor.eKINEMATIC,false);for cmp in actor4.Cmps do cmp.SimulationFilterWord0=1;cmp.QueryFilterWord0=1 end
-	-- SPlayer.player:PlayAction(SAction.act_moving,3)
+	-- SPlayer.player:PlayAction(SAction.act_moving)
 
 end, 0)
 	

@@ -53,8 +53,8 @@ animator_cmp:ReloadSequenceGroup()
 animator_cmp.SkeletonPath="character/casual19_m_highpoly.skeleton.xml"
 client:LoadSkeletonAsync(animator_cmp.SkeletonPath, function(res)
 	-- arg.self:AddJiggleBone("Bip01_R_Forearm",0.01,0.01,-10)
-	animator_cmp:AddIK(res:GetBoneIndex("Bip01_L_Thigh"), res.boneHierarchy, 0.1, 1)
-	animator_cmp:AddIK(res:GetBoneIndex("Bip01_R_Thigh"), res.boneHierarchy, 0.1, 1)
+	animator_cmp:AddIK(res:GetBoneIndex("Bip01_L_Thigh"), 0.1, 1)
+	animator_cmp:AddIK(res:GetBoneIndex("Bip01_R_Thigh"), 0.1, 1)
 end, 0)
 -- player:InsertComponent(animator_cmp)
 
@@ -67,7 +67,7 @@ function PlayerBehavior:__init(name)
 end
 function PlayerBehavior:RequestResource()
 	Component.RequestResource(self)
-	self.Actor:PlayAction(SAction.act_tuowei,9999)
+	self.Actor:PlayAction(SAction.act_tuowei)
 	client.Camera.Euler=Vector3(0,0,0)
 end
 function PlayerBehavior:ReleaseResource()
@@ -83,7 +83,7 @@ function PlayerBehavior:Update(elapsedTime)
 		-- 键盘按下事件
 		if client.keyboard:IsKeyPress(57) then
 			self.velocity.y=5.0
-			self.Actor:PlayAction(SAction.act_jump,5)
+			self.Actor:PlayAction(SAction.act_jump)
 		end
 		
 		if client.keyboard:IsKeyDown(17) then
