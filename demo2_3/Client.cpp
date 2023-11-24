@@ -867,6 +867,8 @@ HRESULT Client::OnCreateDevice(
 
 	m_Console = ConsolePtr(new Console());
 
+	DialogMgr::InsertDlg(m_Console.get());
+
 	LuaContext::Init();
 	lua_pushcfunction(m_State, lua_print);
 	lua_setglobal(m_State, "print");
@@ -984,16 +986,6 @@ HRESULT Client::OnCreateDevice(
 
 		//, luabind::def("res2scene", (boost::shared_ptr<SceneContext>(*)(const boost::shared_ptr<my::DeviceResourceBase>&)) & boost::dynamic_pointer_cast<SceneContext, my::DeviceResourceBase>)
 	];
-	luabind::globals(m_State)["client"] = this;
-
-	m_Console->SetVisible(!ExecuteCode(m_InitScript.c_str()));
-
-	DialogMgr::InsertDlg(m_Console.get());
-
-	if (m_Console->GetVisible())
-	{
-		m_Console->SetFocused(true);
-	}
 
 	m_EventLog("Client::OnCreateDevice");
 

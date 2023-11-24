@@ -1,12 +1,8 @@
 #include "stdafx.h"
 #include "Client.h"
-#include <boost/archive/polymorphic_iarchive.hpp>
-#include <boost/archive/polymorphic_oarchive.hpp>
-#include <boost/serialization/shared_ptr.hpp>
-#include <boost/serialization/deque.hpp>
-#include <boost/serialization/vector.hpp>
 #include <fstream>
 #include <PrintCallStack.h>
+#include <luabind/luabind.hpp>
 
 using namespace my;
 
@@ -30,6 +26,15 @@ public:
 		{
 			return hr;
 		}
+
+		luabind::module(m_State)
+		[
+			luabind::class_<Demo, Client>("Demo")
+		];
+
+		luabind::globals(m_State)["client"] = this;
+
+		m_Console->SetVisible(!ExecuteCode(m_InitScript.c_str()));
 
 		// ========================================================================================================
 		// Ê¾Àý´úÂë
