@@ -9,10 +9,6 @@
 #include "myStateChart.h"
 #include <boost/intrusive/list.hpp>
 #include "SceneContext.h"
-//
-//class dtNavMesh;
-//
-//class dtNavMeshQuery;
 
 class StateBase
 	: public my::StateChart<StateBase, std::string>
