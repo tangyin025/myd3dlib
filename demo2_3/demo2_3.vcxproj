@@ -187,16 +187,12 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Net\Socket.cpp" />
-    <ClCompile Include="Net\SocketAPI.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Client.h" />
     <ClInclude Include="Console.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="stdafx.h" />
-    <ClInclude Include="Net\Socket.h" />
-    <ClInclude Include="Net\SocketAPI.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\clipper\clipper.vcxproj">

@@ -13,9 +13,6 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav</Extensions>
     </Filter>
-    <Filter Include="Net">
-      <UniqueIdentifier>{880b6dd8-95cc-4564-8cf6-c5cd91417a78}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Console.cpp">
@@ -27,12 +24,6 @@
     <ClCompile Include="stdafx.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Net\Socket.cpp">
-      <Filter>Net</Filter>
-    </ClCompile>
-    <ClCompile Include="Net\SocketAPI.cpp">
-      <Filter>Net</Filter>
-    </ClCompile>
     <ClCompile Include="Client.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -43,12 +34,6 @@
     </ClInclude>
     <ClInclude Include="stdafx.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Net\Socket.h">
-      <Filter>Net</Filter>
-    </ClInclude>
-    <ClInclude Include="Net\SocketAPI.h">
-      <Filter>Net</Filter>
     </ClInclude>
     <ClInclude Include="resource.h">
       <Filter>Header Files</Filter>
