@@ -31,12 +31,9 @@ class NodeRunBlendList : public AnimationNodeBlendList
 public:
 	PlayerAgent* m_Agent;
 
-	float m_Rate;
-
 	NodeRunBlendList(const char* Name, PlayerAgent* Agent)
 		: AnimationNodeBlendList(Name, 4)
 		, m_Agent(Agent)
-		, m_Rate(1.0f)
 	{
 	}
 
@@ -49,7 +46,6 @@ public:
 			if (GetTargetWeight(0) < 0.5f)
 			{
 				SetActiveChild(0, 0.5f);
-				m_Rate = 1.0f;
 			}
 		}
 		else if (GetTargetWeight(3) < 0.5f && Up.y < theApp.default_player_climb_enter_slope
@@ -59,7 +55,7 @@ public:
 			{
 				SetActiveChild(3, 0.1f);
 			}
-			m_Rate = m_Agent->m_Steering->m_Speed / 2.6f;
+			dynamic_cast<AnimationNodeSequence*>(m_Childs[3].get())->m_Rate = m_Agent->m_Steering->m_Speed / 2.6f;
 		}
 		else if (m_Agent->m_Steering->m_Speed > 0.1f)
 		{
@@ -67,17 +63,16 @@ public:
 			{
 				SetActiveChild(2, 0.1f);
 			}
-			m_Rate = m_Agent->m_Steering->m_Speed / 2.6f;
+			dynamic_cast<AnimationNodeSequence*>(m_Childs[2].get())->m_Rate = m_Agent->m_Steering->m_Speed / 2.6f;
 		}
 		else
 		{
 			if (GetTargetWeight(1) < 0.5f)
 			{
 				SetActiveChild(1, 0.1f);
-				m_Rate = 1.0f;
 			}
 		}
-		AnimationNodeBlendList::Tick(fElapsedTime * m_Rate, fTotalWeight);
+		AnimationNodeBlendList::Tick(fElapsedTime, fTotalWeight);
 	}
 };
 
