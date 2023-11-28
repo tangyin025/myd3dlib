@@ -1004,11 +1004,6 @@ static void xml_document_parse(rapidxml::xml_document<char>* self, const char* u
 	self->parse<0>((char*)&(*cache)[0]);
 }
 
-static void paths_add_paths(ClipperLib::Paths& paths, const ClipperLib::Paths& rhs)
-{
-	paths.insert(paths.end(), rhs.begin(), rhs.end());
-}
-
 LuaContext::LuaContext(void)
 	: m_State(NULL)
 {
@@ -3500,7 +3495,6 @@ void LuaContext::Init(void)
 		, class_<ClipperLib::Paths>("Paths")
 			.def(constructor<>())
 			.def("AddPath", (void (ClipperLib::Paths::*)(const ClipperLib::Path&))& ClipperLib::Paths::push_back)
-			.def("AddPaths", &paths_add_paths)
 			.property("PathNum", &ClipperLib::Paths::size)
 			.def("GetPath", (ClipperLib::Path& (ClipperLib::Paths::*)(size_t))& ClipperLib::Paths::at)
 
