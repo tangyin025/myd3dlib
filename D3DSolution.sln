@@ -85,8 +85,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "minilua", "LuaJIT\minilua.v
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libzip", "libzip\libzip.vcxproj", "{91BEAA70-570B-440B-81AC-83EB114E83C6}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "clipper", "clipper\clipper.vcxproj", "{F6E2AB08-8A89-4DDC-9968-4343F1955F82}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -271,14 +269,6 @@ Global
 		{91BEAA70-570B-440B-81AC-83EB114E83C6}.Release|Win32.Build.0 = Release|Win32
 		{91BEAA70-570B-440B-81AC-83EB114E83C6}.Release|x64.ActiveCfg = Release|x64
 		{91BEAA70-570B-440B-81AC-83EB114E83C6}.Release|x64.Build.0 = Release|x64
-		{F6E2AB08-8A89-4DDC-9968-4343F1955F82}.Debug|Win32.ActiveCfg = Debug|Win32
-		{F6E2AB08-8A89-4DDC-9968-4343F1955F82}.Debug|Win32.Build.0 = Debug|Win32
-		{F6E2AB08-8A89-4DDC-9968-4343F1955F82}.Debug|x64.ActiveCfg = Debug|x64
-		{F6E2AB08-8A89-4DDC-9968-4343F1955F82}.Debug|x64.Build.0 = Debug|x64
-		{F6E2AB08-8A89-4DDC-9968-4343F1955F82}.Release|Win32.ActiveCfg = Release|Win32
-		{F6E2AB08-8A89-4DDC-9968-4343F1955F82}.Release|Win32.Build.0 = Release|Win32
-		{F6E2AB08-8A89-4DDC-9968-4343F1955F82}.Release|x64.ActiveCfg = Release|x64
-		{F6E2AB08-8A89-4DDC-9968-4343F1955F82}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
