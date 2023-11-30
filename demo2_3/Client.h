@@ -10,58 +10,6 @@
 #include <boost/intrusive/list.hpp>
 #include "SceneContext.h"
 
-class StateBase
-	: public my::StateChart<StateBase, std::string>
-{
-public:
-	StateBase(void)
-	{
-	}
-
-	virtual ~StateBase(void)
-	{
-	}
-
-	virtual void OnAdd(void)
-	{
-	}
-
-	virtual void OnEnter(void)
-	{
-	}
-
-	virtual void OnExit(void)
-	{
-	}
-
-	virtual void OnUpdate(float fElapsedTime)
-	{
-	}
-
-	virtual void OnActorRequestResource(Actor * actor)
-	{
-	}
-
-	virtual void OnActorReleaseResource(Actor * actor)
-	{
-	}
-
-	virtual void OnGUI(my::UIRender * ui_render, float fElapsedTime, const my::Vector2 & Viewport)
-	{
-	}
-
-	virtual void OnControlFocus(my::Control * control)
-	{
-	}
-
-	virtual bool OnControllerFilter(Controller * a, Controller * b)
-	{
-		return true;
-	}
-};
-
-typedef boost::shared_ptr<StateBase> StateBasePtr;
-
 class Client
 	: public my::DxutApp
 	, public my::FontLibrary
@@ -71,7 +19,6 @@ class Client
 	, public my::ParallelTaskManager
 	, public my::DrawHelper
 	, public my::OctRoot
-	, public my::StateChart<StateBase, std::string>
 	, public LuaContext
 	, public RenderPipeline
 	, public RenderPipeline::IRenderContext
@@ -148,12 +95,6 @@ public:
 
 	ViewedActorSet m_ViewedActors;
 
-	bool m_Activated;
-
-	typedef boost::signals2::signal<void(bool)> ActivateEvent;
-
-	ActivateEvent m_ActivateEvent;
-
 	int m_ShowCursorCount;
 
 public:
@@ -220,13 +161,17 @@ public:
 
 	virtual void OnControlSound(boost::shared_ptr<my::Wav> wav);
 
-	virtual void OnControlFocus(my::Control * control);
-
 	virtual std::wstring OnControlTranslate(const std::string& u8str);
 
-	virtual bool OnControllerFilter(const physx::PxController& a, const physx::PxController& b);
-
 	void SetTranslation(const std::string& key, const std::wstring& text);
+
+	virtual void OnPreUpdate(double fTime, float fElapsedTime);
+
+	virtual void OnActorRequest(Actor* actor);
+
+	virtual void OnActorRelease(Actor* actor);
+
+	virtual void OnPostUIRender(my::UIRender* ui_render, double fTime, float fElapsedTime);
 
 	template <typename T>
 	void LoadSceneAsync(const char * path, const char * prefix, const T & callback, int Priority = 0)

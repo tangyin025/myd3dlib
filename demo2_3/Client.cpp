@@ -382,175 +382,6 @@ static bool client_file_exists(Client* self, const char* u8path)
 	return PathFileExists(u8tots(u8path).c_str());
 }
 
-struct ScriptStateBase : StateBase, luabind::wrap_base
-{
-	ScriptStateBase(void)
-	{
-	}
-
-	virtual ~ScriptStateBase(void)
-	{
-	}
-
-	virtual void OnAdd(void)
-	{
-		try
-		{
-			luabind::wrap_base::call<void>("OnAdd");
-		}
-		catch (const luabind::error& e)
-		{
-			my::D3DContext::getSingleton().m_EventLog(lua_tostring(e.state(), -1));
-		}
-	}
-
-	static void default_OnAdd(StateBase * ptr)
-	{
-		ptr->StateBase::OnAdd();
-	}
-
-	virtual void OnEnter(void)
-	{
-		try
-		{
-			luabind::wrap_base::call<void>("OnEnter");
-		}
-		catch (const luabind::error& e)
-		{
-			my::D3DContext::getSingleton().m_EventLog(lua_tostring(e.state(), -1));
-		}
-	}
-
-	static void default_OnEnter(StateBase * ptr)
-	{
-		ptr->StateBase::OnEnter();
-	}
-
-	virtual void OnExit(void)
-	{
-		try
-		{
-			luabind::wrap_base::call<void>("OnExit");
-		}
-		catch (const luabind::error& e)
-		{
-			my::D3DContext::getSingleton().m_EventLog(lua_tostring(e.state(), -1));
-		}
-	}
-
-	static void default_OnExit(StateBase * ptr)
-	{
-		ptr->StateBase::OnExit();
-	}
-
-	virtual void OnUpdate(float fElapsedTime)
-	{
-		try
-		{
-			luabind::wrap_base::call<void>("OnUpdate", fElapsedTime);
-		}
-		catch (const luabind::error& e)
-		{
-			my::D3DContext::getSingleton().m_EventLog(lua_tostring(e.state(), -1));
-		}
-	}
-
-	static void default_OnUpdate(StateBase * ptr, float fElapsedTime)
-	{
-		ptr->StateBase::OnUpdate(fElapsedTime);
-	}
-
-	virtual void OnActorRequestResource(Actor * actor)
-	{
-		try
-		{
-			luabind::wrap_base::call<void>("OnActorRequestResource", actor);
-		}
-		catch (const luabind::error& e)
-		{
-			my::D3DContext::getSingleton().m_EventLog(lua_tostring(e.state(), -1));
-		}
-	}
-
-	static void default_OnActorRequestResource(StateBase * ptr, Actor * actor)
-	{
-		ptr->StateBase::OnActorRequestResource(actor);
-	}
-
-	virtual void OnActorReleaseResource(Actor * actor)
-	{
-		try
-		{
-			luabind::wrap_base::call<void>("OnActorReleaseResource", actor);
-		}
-		catch (const luabind::error& e)
-		{
-			my::D3DContext::getSingleton().m_EventLog(lua_tostring(e.state(), -1));
-		}
-	}
-
-	static void default_OnActorReleaseResource(StateBase * ptr, Actor * actor)
-	{
-		ptr->StateBase::OnActorReleaseResource(actor);
-	}
-
-	virtual void OnGUI(my::UIRender * ui_render, float fElapsedTime, const my::Vector2 & Viewport)
-	{
-		my::CriticalSectionLock lock(LuaContext::getSingleton().m_StateSec);
-
-		try
-		{
-			luabind::wrap_base::call<void>("OnGUI", ui_render, fElapsedTime, Viewport);
-		}
-		catch (const luabind::error& e)
-		{
-			my::D3DContext::getSingleton().m_EventLog(lua_tostring(e.state(), -1));
-		}
-	}
-
-	static void default_OnGUI(StateBase * ptr, my::UIRender * ui_render, float fElapsedTime, const my::Vector2 & Viewport)
-	{
-		ptr->StateBase::OnGUI(ui_render, fElapsedTime, Viewport);
-	}
-
-	virtual void OnControlFocus(my::Control* control)
-	{
-		try
-		{
-			luabind::wrap_base::call<void>("OnControlFocus", control);
-		}
-		catch (const luabind::error& e)
-		{
-			my::D3DContext::getSingleton().m_EventLog(lua_tostring(e.state(), -1));
-		}
-	}
-
-	static void default_OnControlFocus(StateBase* ptr, my::Control* control)
-	{
-		ptr->StateBase::OnControlFocus(control);
-	}
-
-	virtual bool OnControllerFilter(Controller * a, Controller * b)
-	{
-		//my::CriticalSectionLock lock(LuaContext::getSingleton().m_StateSec);
-
-		try
-		{
-			return luabind::wrap_base::call<bool>("OnControllerFilter", a, b);
-		}
-		catch (const luabind::error& e)
-		{
-			my::D3DContext::getSingleton().m_EventLog(lua_tostring(e.state(), -1));
-		}
-		return false;
-	}
-
-	static bool default_OnControllerFilter(StateBase * ptr, Controller * a, Controller * b)
-	{
-		return ptr->StateBase::OnControllerFilter(a, b);
-	}
-};
-
 namespace boost
 {
 	namespace program_options
@@ -653,7 +484,6 @@ Client::Client(void)
 	, InputMgr(KeyCount)
 	, m_UIRender(new EffectUIRender())
 	, m_ViewedCenter(0, 0, 0)
-	, m_Activated(false)
 	, m_ShowCursorCount(0)
 {
 	char buff[MAX_PATH];
@@ -876,19 +706,6 @@ HRESULT Client::OnCreateDevice(
 	[
 		luabind::class_<Console, my::Dialog, boost::shared_ptr<Console> >("Console")
 
-		, luabind::class_<StateBase, ScriptStateBase/*, boost::shared_ptr<StateBase>*/ >("StateBase")
-			.def(luabind::constructor<>())
-			.property("IsActivated", &StateBase::IsActivated)
-			.def("OnAdd", &StateBase::OnAdd, &ScriptStateBase::default_OnAdd)
-			.def("OnEnter", &StateBase::OnEnter, &ScriptStateBase::default_OnEnter)
-			.def("OnExit", &StateBase::OnExit, &ScriptStateBase::default_OnExit)
-			.def("OnUpdate", &StateBase::OnUpdate, &ScriptStateBase::default_OnUpdate)
-			.def("OnControlFocus", &StateBase::OnControlFocus, &ScriptStateBase::default_OnControlFocus)
-			.def("OnActorRequestResource", &StateBase::OnActorRequestResource, &ScriptStateBase::default_OnActorRequestResource)
-			.def("OnActorReleaseResource", &StateBase::OnActorReleaseResource, &ScriptStateBase::default_OnActorReleaseResource)
-			.def("OnGUI", &StateBase::OnGUI, &ScriptStateBase::default_OnGUI)
-			.def("OnControllerFilter", &StateBase::OnControllerFilter, &ScriptStateBase::default_OnControllerFilter)
-
 		, luabind::class_<Client, luabind::bases<my::DxutApp, my::ResourceMgr, RenderPipeline, PhysxScene> >("Client")
 			.def_readonly("wnd", &Client::m_wnd)
 			.def_readwrite("Camera", &Client::m_Camera)
@@ -957,14 +774,7 @@ HRESULT Client::OnCreateDevice(
 			.property("AllEntityAABB", luabind::tag_function<AABB(Client*)>(
 				boost::bind(&Client::GetAllEntityAABB, boost::placeholders::_1, AABB::Invalid())))
 			.def("QueryEntity", &client_query_entity, luabind::return_stl_iterator)
-			.def("AddStateAdopt", luabind::tag_function<void(Client*, StateBase*)>(
-				boost::bind(&Client::AddState, boost::placeholders::_1, boost::bind(boost::value_factory<StateBasePtr>(), boost::placeholders::_2))), luabind::adopt(boost::placeholders::_2))
-			.def("AddStateAdopt", luabind::tag_function<void(Client*, StateBase*, StateBase*)>(
-				boost::bind(&Client::AddState, boost::placeholders::_1, boost::bind(boost::value_factory<StateBasePtr>(), boost::placeholders::_2), boost::placeholders::_3)), luabind::adopt(boost::placeholders::_2))
 			.def("FileExists", &client_file_exists)
-			.def("AddTransition", &Client::AddTransition)
-			.def("ProcessEvent", &Client::ProcessEvent)
-			.def("ClearAllState", &Client::ClearAllState)
 			//.def("OnControlSound", &Client::OnControlSound)
 			.def("GetTranslation", &Client::OnControlTranslate)
 			.def("SetTranslation", &Client::SetTranslation)
@@ -1074,8 +884,6 @@ void Client::OnDestroyDevice(void)
 
 	ParallelTaskManager::StopParallelThread();
 
-	ClearAllState();
-
 	ClearAllEntity();
 
 	RemoveAllDlg();
@@ -1174,11 +982,7 @@ void Client::OnFrameTick(
 		}
 	}
 
-	StateBase * curr_iter = m_Current;
-	for (; curr_iter != NULL; curr_iter = curr_iter->m_Current)
-	{
-		curr_iter->OnUpdate(fElapsedTime * m_fTimeScale);
-	}
+	OnPreUpdate(fTime, fElapsedTime);
 
 	struct Callback : public OctNode::QueryCallback
 	{
@@ -1228,11 +1032,7 @@ void Client::OnFrameTick(
 
 				actor->RequestResource();
 
-				StateBase* curr_iter = m_client->m_Current;
-				for (; curr_iter != NULL; curr_iter = curr_iter->m_Current)
-				{
-					curr_iter->OnActorRequestResource(actor);
-				}
+				m_client->OnActorRequest(actor);
 
 				m_client->m_ViewedActors.insert(insert_actor_iter, *actor);
 			}
@@ -1269,11 +1069,7 @@ void Client::OnFrameTick(
 		{
 			actor_iter->ReleaseResource();
 
-			StateBase* curr_iter = m_Current;
-			for (; curr_iter != NULL; curr_iter = curr_iter->m_Current)
-			{
-				curr_iter->OnActorReleaseResource(&*actor_iter);
-			}
+			OnActorRelease(&*actor_iter);
 
 			actor_iter = m_ViewedActors.erase(actor_iter);
 		}
@@ -1363,11 +1159,9 @@ void Client::OnUIRender(
 	float fElapsedTime)
 {
 	DialogMgr::Draw(ui_render, m_fAbsoluteTime, fElapsedTime, DialogMgr::GetDlgViewport());
-	StateBase* curr_iter = m_Current;
-	for (; curr_iter != NULL; curr_iter = curr_iter->m_Current)
-	{
-		curr_iter->OnGUI(ui_render, fElapsedTime, DialogMgr::GetDlgViewport());
-	}
+
+	OnPostUIRender(ui_render, fTime, fElapsedTime);
+
 	_ASSERT(m_Font);
 	ui_render->SetWorld(Matrix4::identity);
 	ScrInfoMap::const_iterator info_iter = m_ScrInfo.begin();
@@ -1412,28 +1206,6 @@ LRESULT Client::MsgProc(
 		{
 			m_Console->MoveToFront();
 		}
-		*pbNoFurtherProcessing = true;
-		return 0;
-	}
-
-	if (uMsg == WM_ACTIVATE)
-	{
-		if (LOWORD(wParam) == WA_ACTIVE
-			|| LOWORD(wParam) == WA_CLICKACTIVE)
-		{
-			m_Activated = true;
-
-			if (m_DeviceObjectsCreated)
-			{
-				OnControlFocus(Control::s_FocusControl);
-			}
-		}
-		else
-		{
-			m_Activated = false;
-		}
-
-		m_ActivateEvent(m_Activated);
 		*pbNoFurtherProcessing = true;
 		return 0;
 	}
@@ -1635,11 +1407,7 @@ void Client::RemoveEntity(my::OctEntity * entity)
 	{
 		actor->ReleaseResource();
 
-		StateBase* curr_iter = m_Current;
-		for (; curr_iter != NULL; curr_iter = curr_iter->m_Current)
-		{
-			curr_iter->OnActorReleaseResource(actor);
-		}
+		OnActorRelease(actor);
 	}
 
 	actor->StopAllActionInst();
@@ -1668,15 +1436,6 @@ void Client::OnControlSound(boost::shared_ptr<my::Wav> wav)
 	SoundContext::Play(wav, false);
 }
 
-void Client::OnControlFocus(my::Control * control)
-{
-	StateBase* curr_iter = m_Current;
-	for (; curr_iter != NULL; curr_iter = curr_iter->m_Current)
-	{
-		curr_iter->OnControlFocus(control);
-	}
-}
-
 std::wstring Client::OnControlTranslate(const std::string& u8str)
 {
 	TranslationMap::iterator trans_iter = m_TranslationMap.find(u8str);
@@ -1687,21 +1446,29 @@ std::wstring Client::OnControlTranslate(const std::string& u8str)
 	return D3DContext::OnControlTranslate(u8str);
 }
 
-bool Client::OnControllerFilter(const physx::PxController& a, const physx::PxController& b)
-{
-	StateBase* active_leaf = GetActiveLeaf();
-	if (active_leaf && a.getUserData() && b.getUserData())
-	{
-		Controller* controller0 = static_cast<Controller*>((Component*)a.getUserData());
-		Controller* controller1 = static_cast<Controller*>((Component*)b.getUserData());
-		return active_leaf->OnControllerFilter(controller0, controller1);
-	}
-	return PhysxScene::OnControllerFilter(a, b);
-}
-
 void Client::SetTranslation(const std::string& key, const std::wstring& text)
 {
 	m_TranslationMap[key] = text;
+}
+
+void Client::OnPreUpdate(double fTime, float fElapsedTime)
+{
+
+}
+
+void Client::OnActorRequest(Actor* actor)
+{
+
+}
+
+void Client::OnActorRelease(Actor* actor)
+{
+
+}
+
+void Client::OnPostUIRender(my::UIRender* ui_render, double fTime, float fElapsedTime)
+{
+
 }
 
 boost::shared_ptr<SceneContext> Client::LoadScene(const char * path, const char * prefix)
