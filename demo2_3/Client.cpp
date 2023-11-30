@@ -410,77 +410,12 @@ namespace boost
 				throw boost::program_options::validation_error(boost::program_options::validation_error::invalid_option_value);
 			}
 		}
-
-		void validate(boost::any& v,
-			const std::vector<std::string>& values,
-			my::InputMgr::KeyPairList*, int)
-		{
-			//                      2                3                        4           5             6              7                      8             9                     10               11
-			static boost::regex r("((KeyboardButton)|(KeyboardNegativeButton)|(MouseMove)|(MouseButton)|(JoystickAxis)|(JoystickNegativeAxis)|(JoystickPov)|(JoystickNegativePov)|(JoystickButton))(\\d+)");
-
-			// Make sure no previous assignment to 'a' was made.
-			boost::program_options::validators::check_first_occurrence(v);
-			// Extract the first string from 'values'. If there is more than
-			// one string, it's an error, and exception will be thrown.
-			const std::string& s = boost::program_options::validators::get_single_string(values);
-
-			// Do regex match and convert the interesting part to
-			// int.
-			std::string::const_iterator s_iter = s.begin();
-			boost::smatch match;
-			my::InputMgr::KeyPairList res;
-			for (; boost::regex_search(s_iter, s.end(), match, r, boost::match_default); s_iter = match[0].second)
-			{
-				_ASSERT(match[11].matched);
-				if (match[2].matched)
-				{
-					res.push_back(std::make_pair(my::InputMgr::KeyboardButton, boost::lexical_cast<int>(match[11])));
-				}
-				else if (match[3].matched)
-				{
-					res.push_back(std::make_pair(my::InputMgr::KeyboardNegativeButton, boost::lexical_cast<int>(match[11])));
-				}
-				else if (match[4].matched)
-				{
-					res.push_back(std::make_pair(my::InputMgr::MouseMove, boost::lexical_cast<int>(match[11])));
-				}
-				else if (match[5].matched)
-				{
-					res.push_back(std::make_pair(my::InputMgr::MouseButton, boost::lexical_cast<int>(match[11])));
-				}
-				else if (match[6].matched)
-				{
-					res.push_back(std::make_pair(my::InputMgr::JoystickAxis, boost::lexical_cast<int>(match[11])));
-				}
-				else if (match[7].matched)
-				{
-					res.push_back(std::make_pair(my::InputMgr::JoystickNegativeAxis, boost::lexical_cast<int>(match[11])));
-				}
-				else if (match[8].matched)
-				{
-					res.push_back(std::make_pair(my::InputMgr::JoystickPov, boost::lexical_cast<int>(match[11])));
-				}
-				else if (match[9].matched)
-				{
-					res.push_back(std::make_pair(my::InputMgr::JoystickNegativePov, boost::lexical_cast<int>(match[11])));
-				}
-				else if (match[10].matched)
-				{
-					res.push_back(std::make_pair(my::InputMgr::JoystickButton, boost::lexical_cast<int>(match[11])));
-				}
-			}
-			if (s_iter != s.end())
-			{
-				throw boost::program_options::validation_error(boost::program_options::validation_error::invalid_option_value);
-			}
-			v = boost::any(res);
-		}
 	}
 }
 
 Client::Client(void)
 	: OctRoot(-4096, 4096)
-	, InputMgr(KeyCount)
+	, InputMgr(32)
 	, m_UIRender(new EffectUIRender())
 	, m_ViewedCenter(0, 0, 0)
 	, m_ShowCursorCount(0)
@@ -512,24 +447,6 @@ Client::Client(void)
 		("fontfaceindex", boost::program_options::value(&m_InitFontFaceIndex)->default_value(0), "Font Face Index")
 		("uieffect", boost::program_options::value(&m_InitUIEffect)->default_value("shader/UIEffect.fx"), "UI Effect")
 		("script", boost::program_options::value(&m_InitScript)->default_value("dofile 'Main.lua'"), "Script")
-		("languageid", boost::program_options::value(&m_InitLanguageId)->default_value("eng"), "Language Id")
-		("keyuihorizontal", boost::program_options::value(&m_InitBindKeys[KeyUIHorizontal])->default_value(InputMgr::KeyPairList(), ""), "Key UI Horizontal")
-		("keyuivertical", boost::program_options::value(&m_InitBindKeys[KeyUIVertical])->default_value(InputMgr::KeyPairList(), ""), "Key UI Vertical")
-		("keyuiconfirm", boost::program_options::value(&m_InitBindKeys[KeyUIConfirm])->default_value(InputMgr::KeyPairList(), ""), "Key UI Confirm")
-		("keyuicancel", boost::program_options::value(&m_InitBindKeys[KeyUICancel])->default_value(InputMgr::KeyPairList(), ""), "Key UI Cancel")
-		("keyhorizontal", boost::program_options::value(&m_InitBindKeys[KeyHorizontal])->default_value(InputMgr::KeyPairList(), ""), "Key Horizontal")
-		("keyvertical", boost::program_options::value(&m_InitBindKeys[KeyVertical])->default_value(InputMgr::KeyPairList(), ""), "Key Vertical")
-		("keymousex", boost::program_options::value(&m_InitBindKeys[KeyMouseX])->default_value(InputMgr::KeyPairList(), ""), "Key Mouse X")
-		("keymousey", boost::program_options::value(&m_InitBindKeys[KeyMouseY])->default_value(InputMgr::KeyPairList(), ""), "Key Mouse Y")
-		("keyjump", boost::program_options::value(&m_InitBindKeys[KeyJump])->default_value(InputMgr::KeyPairList(), ""), "Key Jump")
-		("keyfire", boost::program_options::value(&m_InitBindKeys[KeyFire])->default_value(InputMgr::KeyPairList(), ""), "Key Fire")
-		("keyaction", boost::program_options::value(&m_InitBindKeys[KeyAction])->default_value(InputMgr::KeyPairList(), ""), "Key Action")
-		("keylock", boost::program_options::value(&m_InitBindKeys[KeyLock])->default_value(InputMgr::KeyPairList(), ""), "Key Lock")
-		("keymenu", boost::program_options::value(&m_InitBindKeys[KeyMenu])->default_value(InputMgr::KeyPairList(), ""), "Key Menu")
-		("keyweapon1", boost::program_options::value(&m_InitBindKeys[KeyWeapon1])->default_value(InputMgr::KeyPairList(), ""), "Key Weapon1")
-		("keyweapon2", boost::program_options::value(&m_InitBindKeys[KeyWeapon2])->default_value(InputMgr::KeyPairList(), ""), "Key Weapon2")
-		("keyweapon3", boost::program_options::value(&m_InitBindKeys[KeyWeapon3])->default_value(InputMgr::KeyPairList(), ""), "Key Weapon3")
-		("keyweapon4", boost::program_options::value(&m_InitBindKeys[KeyWeapon4])->default_value(InputMgr::KeyPairList(), ""), "Key Weapon4")
 		("vieweddist", boost::program_options::value(&m_ViewedDist)->default_value(1000.0f), "Viewed Distance")
 		("actorcullingthreshold", boost::program_options::value(&m_ActorCullingThreshold)->default_value(10.0f), "Actor Culling Threshold")
 		("shownavigation", boost::program_options::value(&m_ShowNavigation)->default_value(false), "Show Navigation")
@@ -549,15 +466,6 @@ Client::Client(void)
 		else
 		{
 			ResourceMgr::RegisterZipDir(*path_iter);
-		}
-	}
-
-	for (int Key = KeyUIHorizontal; Key < KeyCount; Key++)
-	{
-		InputMgr::KeyPairList::const_iterator value_iter = m_InitBindKeys[Key].begin();
-		for (; value_iter != m_InitBindKeys[Key].end(); value_iter++)
-		{
-			InputMgr::BindKey(Key, value_iter->first, value_iter->second);
 		}
 	}
 
@@ -718,32 +626,10 @@ HRESULT Client::OnCreateDevice(
 			.def_readonly("listener", &Client::m_listener)
 			.def_readonly("Font", &Client::m_Font)
 			.def_readonly("Console", &Client::m_Console)
-			.def_readonly("LanguageId", &Client::m_InitLanguageId)
 			.def_readwrite("ViewedCenter", &Client::m_ViewedCenter)
 			.def_readwrite("ViewedDist", &Client::m_ViewedDist)
 			.def_readwrite("ActorCullingThreshold", &Client::m_ActorCullingThreshold)
 			.def_readwrite("ShowNavigation", &Client::m_ShowNavigation)
-			.enum_("Key")
-			[
-				luabind::value("KeyUIHorizontal", Client::KeyUIHorizontal),
-				luabind::value("KeyUIVertical", Client::KeyUIVertical),
-				luabind::value("KeyUIConfirm", Client::KeyUIConfirm),
-				luabind::value("KeyUICancel", Client::KeyUICancel),
-				luabind::value("KeyHorizontal", Client::KeyHorizontal),
-				luabind::value("KeyVertical", Client::KeyVertical),
-				luabind::value("KeyMouseX", Client::KeyMouseX),
-				luabind::value("KeyMouseY", Client::KeyMouseY),
-				luabind::value("KeyJump", Client::KeyJump),
-				luabind::value("KeyFire", Client::KeyFire),
-				luabind::value("KeyAction", Client::KeyAction),
-				luabind::value("KeyLock", Client::KeyLock),
-				luabind::value("KeyMenu", Client::KeyMenu),
-				luabind::value("KeyWeapon1", Client::KeyWeapon1),
-				luabind::value("KeyWeapon2", Client::KeyWeapon2),
-				luabind::value("KeyWeapon3", Client::KeyWeapon3),
-				luabind::value("KeyWeapon4", Client::KeyWeapon4),
-				luabind::value("KeyCount", Client::KeyCount)
-			]
 			.def_readonly("keyboard", &Client::m_keyboard)
 			.def_readonly("mouse", &Client::m_mouse)
 			.def_readonly("joystick", &Client::m_joystick)
@@ -928,53 +814,7 @@ void Client::OnFrameTick(
 
 	if (InputMgr::Capture(fTime, fElapsedTime))
 	{
-		bool bNoFurtherProcessing = false;
-		if (IsKeyPress(KeyUIHorizontal))
-		{
-			if (GetKeyAxisRaw(KeyUIHorizontal) < 32767)
-			{
-				bNoFurtherProcessing = DialogMgr::MsgProc(m_wnd->m_hWnd, WM_KEYDOWN, VK_LEFT, 0);
-			}
-			else
-			{
-				bNoFurtherProcessing = DialogMgr::MsgProc(m_wnd->m_hWnd, WM_KEYDOWN, VK_RIGHT, 0);
-			}
-		}
-
-		if (IsKeyPress(KeyUIVertical))
-		{
-			if (GetKeyAxisRaw(KeyUIVertical) < 32767)
-			{
-				bNoFurtherProcessing = DialogMgr::MsgProc(m_wnd->m_hWnd, WM_KEYDOWN, VK_UP, 0);
-			}
-			else
-			{
-				bNoFurtherProcessing = DialogMgr::MsgProc(m_wnd->m_hWnd, WM_KEYDOWN, VK_DOWN, 0);
-			}
-		}
-
-		if (IsKeyPress(KeyUIConfirm))
-		{
-			bNoFurtherProcessing = DialogMgr::MsgProc(m_wnd->m_hWnd, WM_KEYDOWN, VK_RETURN, 0);
-		}
-		else if (IsKeyRelease(KeyUIConfirm))
-		{
-			bNoFurtherProcessing = DialogMgr::MsgProc(m_wnd->m_hWnd, WM_KEYUP, VK_RETURN, 0);
-		}
-		
-		if (IsKeyPress(KeyUICancel))
-		{
-			bNoFurtherProcessing = DialogMgr::MsgProc(m_wnd->m_hWnd, WM_KEYDOWN, VK_ESCAPE, 0);
-		}
-		else if (IsKeyRelease(KeyUICancel))
-		{
-			bNoFurtherProcessing = DialogMgr::MsgProc(m_wnd->m_hWnd, WM_KEYUP, VK_ESCAPE, 0);
-		}
-
-		if (bNoFurtherProcessing)
-		{
-			InputMgr::Capture(fTime, fElapsedTime);
-		}
+		OnPostCapture(fTime, fElapsedTime);
 	}
 
 	OnPreUpdate(fTime, fElapsedTime);
@@ -1429,6 +1269,11 @@ void Client::RemoveEntity(my::OctEntity * entity)
 void Client::OnControlSound(boost::shared_ptr<my::Wav> wav)
 {
 	SoundContext::Play(wav, false);
+}
+
+void Client::OnPostCapture(double fTime, float fElapsedTime)
+{
+
 }
 
 void Client::OnPreUpdate(double fTime, float fElapsedTime)

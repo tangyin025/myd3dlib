@@ -52,32 +52,6 @@ public:
 
 	std::string m_InitScript;
 
-	std::string m_InitLanguageId;
-
-	enum Key
-	{
-		KeyUIHorizontal,
-		KeyUIVertical,
-		KeyUIConfirm,
-		KeyUICancel,
-		KeyHorizontal,
-		KeyVertical,
-		KeyMouseX,
-		KeyMouseY,
-		KeyJump,
-		KeyFire,
-		KeyAction,
-		KeyLock,
-		KeyMenu,
-		KeyWeapon1,
-		KeyWeapon2,
-		KeyWeapon3,
-		KeyWeapon4,
-		KeyCount,
-	};
-
-	boost::array<InputMgr::KeyPairList, KeyCount> m_InitBindKeys;
-
 	my::Vector3 m_ViewedCenter;
 
 	float m_ViewedDist;
@@ -155,6 +129,8 @@ public:
 	virtual void RemoveEntity(my::OctEntity * entity);
 
 	virtual void OnControlSound(boost::shared_ptr<my::Wav> wav);
+
+	virtual void OnPostCapture(double fTime, float fElapsedTime);
 
 	virtual void OnPreUpdate(double fTime, float fElapsedTime);
 
