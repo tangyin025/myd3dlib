@@ -34,7 +34,7 @@ public:
 
 		luabind::globals(m_State)["client"] = this;
 
-		m_Console->SetVisible(!ExecuteCode(m_InitScript.c_str()));
+		m_Console->SetVisible(!ExecuteCode("dofile 'Main.lua'"));
 
 		// ========================================================================================================
 		// Ê¾Àý´úÂë

@@ -50,8 +50,6 @@ public:
 
 	std::string m_InitUIEffect;
 
-	std::string m_InitScript;
-
 	my::Vector3 m_ViewedCenter;
 
 	float m_ViewedDist;
