@@ -16,7 +16,6 @@
 #include <luabind/adopt_policy.hpp>
 #include <luabind/tag_function.hpp>
 #include <boost/functional/value_factory.hpp>
-#include "LuaExtension.inl"
 #include <boost/archive/polymorphic_iarchive.hpp>
 #include <boost/archive/polymorphic_oarchive.hpp>
 #include <boost/archive/xml_iarchive.hpp>
@@ -776,8 +775,6 @@ HRESULT Client::OnCreateDevice(
 			.def("QueryEntity", &client_query_entity, luabind::return_stl_iterator)
 			.def("FileExists", &client_file_exists)
 			//.def("OnControlSound", &Client::OnControlSound)
-			.def("GetTranslation", &Client::OnControlTranslate)
-			.def("SetTranslation", &Client::SetTranslation)
 			.def("Play", (SoundEventPtr(SoundContext::*)(my::WavPtr, bool)) & Client::Play)
 			.def("Play", (SoundEventPtr(SoundContext::*)(my::WavPtr, bool, const my::Vector3&, const my::Vector3&, float, float)) & Client::Play)
 			.def("LoadSceneAsync", &Client::LoadSceneAsync<luabind::object>)
@@ -911,8 +908,6 @@ void Client::OnDestroyDevice(void)
 	RenderPipeline::OnDestroyDevice();
 
 	InputMgr::Destroy();
-
-	::ClipCursor(NULL);
 
 	DxutApp::OnDestroyDevice();
 }
@@ -1434,21 +1429,6 @@ void Client::RemoveEntity(my::OctEntity * entity)
 void Client::OnControlSound(boost::shared_ptr<my::Wav> wav)
 {
 	SoundContext::Play(wav, false);
-}
-
-std::wstring Client::OnControlTranslate(const std::string& u8str)
-{
-	TranslationMap::iterator trans_iter = m_TranslationMap.find(u8str);
-	if (trans_iter != m_TranslationMap.end())
-	{
-		return trans_iter->second;
-	}
-	return D3DContext::OnControlTranslate(u8str);
-}
-
-void Client::SetTranslation(const std::string& key, const std::wstring& text)
-{
-	m_TranslationMap[key] = text;
 }
 
 void Client::OnPreUpdate(double fTime, float fElapsedTime)

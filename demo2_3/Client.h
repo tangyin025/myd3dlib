@@ -78,10 +78,6 @@ public:
 
 	boost::array<InputMgr::KeyPairList, KeyCount> m_InitBindKeys;
 
-	typedef boost::unordered_map<std::string, std::wstring> TranslationMap;
-
-	TranslationMap m_TranslationMap;
-
 	my::Vector3 m_ViewedCenter;
 
 	float m_ViewedDist;
@@ -159,10 +155,6 @@ public:
 	virtual void RemoveEntity(my::OctEntity * entity);
 
 	virtual void OnControlSound(boost::shared_ptr<my::Wav> wav);
-
-	virtual std::wstring OnControlTranslate(const std::string& u8str);
-
-	void SetTranslation(const std::string& key, const std::wstring& text);
 
 	virtual void OnPreUpdate(double fTime, float fElapsedTime);
 
