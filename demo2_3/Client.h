@@ -6,7 +6,6 @@
 #include "Actor.h"
 #include "PhysxContext.h"
 #include "SoundContext.h"
-#include "myStateChart.h"
 #include <boost/intrusive/list.hpp>
 #include "SceneContext.h"
 

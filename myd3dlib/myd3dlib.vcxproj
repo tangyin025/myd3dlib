@@ -149,7 +149,6 @@
     <ClCompile Include="src\mySkeleton.cpp" />
     <ClCompile Include="src\mySound.cpp" />
     <ClCompile Include="src\mySpline.cpp" />
-    <ClCompile Include="src\myStateChart.cpp" />
     <ClCompile Include="src\myTask.cpp" />
     <ClCompile Include="src\myTexture.cpp" />
     <ClCompile Include="src\myThread.cpp" />
@@ -180,7 +179,6 @@
     <ClInclude Include="include\mySkeleton.h" />
     <ClInclude Include="include\mySound.h" />
     <ClInclude Include="include\mySpline.h" />
-    <ClInclude Include="include\myStateChart.h" />
     <ClInclude Include="include\myTask.h" />
     <ClInclude Include="include\myTexture.h" />
     <ClInclude Include="include\myThread.h" />
