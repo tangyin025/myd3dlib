@@ -180,6 +180,11 @@ static std::string PrintCallStack(void)
 	return osstr.str();
 }
 
+static bool FileExists(const char* u8_path)
+{
+	return PathFileExists(u8tots(u8_path).c_str());
+}
+
 typedef std::vector<my::NamedObject*> obj_list;
 
 typedef boost::shared_container_iterator<obj_list> shared_obj_list_iter;
@@ -1788,6 +1793,8 @@ void LuaContext::Init(void)
 		, def("PrintCallStack", (std::string (*)(void))& PrintCallStack)
 
 		, def("CopyFile", &CopyFileA)
+
+		, def("FileExists", &FileExists)
 
 		, class_<my::NamedObject>("NamedObject")
 			.scope

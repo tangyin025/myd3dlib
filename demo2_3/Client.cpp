@@ -376,11 +376,6 @@ static boost::iterator_range<shared_actor_list_iter> client_query_entity(Client*
 	return boost::make_iterator_range(shared_actor_list_iter(cb.acts->begin(), cb.acts), shared_actor_list_iter(cb.acts->end(), cb.acts));
 }
 
-static bool client_file_exists(Client* self, const char* u8path)
-{
-	return PathFileExists(u8tots(u8path).c_str());
-}
-
 namespace boost
 {
 	namespace program_options
@@ -658,7 +653,6 @@ HRESULT Client::OnCreateDevice(
 			.property("AllEntityAABB", luabind::tag_function<AABB(Client*)>(
 				boost::bind(&Client::GetAllEntityAABB, boost::placeholders::_1, AABB::Invalid())))
 			.def("QueryEntity", &client_query_entity, luabind::return_stl_iterator)
-			.def("FileExists", &client_file_exists)
 			//.def("OnControlSound", &Client::OnControlSound)
 			.def("Play", (SoundEventPtr(SoundContext::*)(my::WavPtr, bool)) & Client::Play)
 			.def("Play", (SoundEventPtr(SoundContext::*)(my::WavPtr, bool, const my::Vector3&, const my::Vector3&, float, float)) & Client::Play)
