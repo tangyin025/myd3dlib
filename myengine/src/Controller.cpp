@@ -322,12 +322,22 @@ const my::Vector3 & Controller::GetUpDirection(void) const
 
 void Controller::SetPosition(const my::Vector3 & Pos)
 {
-	m_PxController->setPosition(physx::PxExtendedVec3(Pos.x, Pos.y, Pos.z));
+	m_desc.position = physx::PxExtendedVec3(Pos.x, Pos.y, Pos.z);
+
+	if (m_PxController)
+	{
+		m_PxController->setPosition(m_desc.position);
+	}
 }
 
 my::Vector3 Controller::GetPosition(void) const
 {
-	return (my::Vector3&)physx::toVec3(m_PxController->getPosition());
+	if (m_PxController)
+	{
+		return (my::Vector3&)physx::toVec3(m_PxController->getPosition());
+	}
+
+	return (my::Vector3&)m_desc.position;
 }
 
 my::Vector3 Controller::GetFootOffset(void) const
