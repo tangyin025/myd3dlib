@@ -122,17 +122,18 @@ void COutputWnd::OnEventLog(const char * str)
 	std::basic_string<TCHAR> logs = ms2ts(str);
 	boost::trim_if(logs, boost::algorithm::is_any_of(_T("\n\r")));
 	logs.append(_T("\n"));
-	if (!my::D3DContext::getSingleton().m_d3dDeviceSec.TryEnter())
-	{
-		m_wndOutputDebug.SetSel(-1, -1);
-		m_wndOutputDebug.ReplaceSel(logs.c_str());
-	}
-	else
+	if (GetCurrentThreadId() != my::D3DContext::getSingleton().m_d3dThreadId
+		&& my::D3DContext::getSingleton().m_d3dDeviceSec.TryEnter())
 	{
 		// ! ResourceMgr::LoadIORequestAndWait
 		my::D3DContext::getSingleton().m_d3dDeviceSec.Leave();
 		my::CriticalSectionLock lock(dummy_log_sec);
 		dummy_log.push_back(logs);
+	}
+	else
+	{
+		m_wndOutputDebug.SetSel(-1, -1);
+		m_wndOutputDebug.ReplaceSel(logs.c_str());
 	}
 }
 

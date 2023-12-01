@@ -63,7 +63,7 @@ namespace my
 		, public Clock
 	{
 	public:
-		DWORD m_d3dThreadId;
+		const DWORD m_d3dThreadId;
 
 		CComPtr<IDirect3D9> m_d3d9;
 

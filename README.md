@@ -26,8 +26,6 @@ Lua 5.1.5<br>
 Luabind 0.9.1<br>
 LuaJIT 2.1<br>
 minimp3<br>
-FastNoiseLite 1.0.3<br>
-clipper 6.4.2<br>
 stb_image 2.27<br>
 
 screenshots
