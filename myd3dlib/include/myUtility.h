@@ -8,6 +8,31 @@
 
 namespace my
 {
+	class BoxPrimitive
+	{
+	public:
+		union
+		{
+			struct
+			{
+				const Vector3 _v0, _v1, _v2, _v3, _v4, _v5, _v6, _v7;
+			};
+
+			struct
+			{
+				const Vector3 v[8];
+			};
+		};
+
+		static const int i[36];
+
+		BoxPrimitive(const AABB& aabb);
+
+		BoxPrimitive(float hx, float hy, float hz);
+
+		BoxPrimitive(float hx, float hy, float hz, const Matrix4& world);
+	};
+
 	class DrawHelper
 	{
 	protected:

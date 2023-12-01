@@ -7,6 +7,53 @@
 
 using namespace my;
 
+const int BoxPrimitive::i[36] = {
+	0, 1, 2, 2, 3, 0,
+	1, 5, 6, 6, 2, 1,
+	5, 4, 7, 7, 6, 5,
+	4, 0, 3, 3, 7, 4,
+	2, 6, 7, 7, 3, 2,
+	0, 4, 5, 5, 1, 0};
+
+BoxPrimitive::BoxPrimitive(const AABB& aabb)
+	: _v0(aabb.m_min.x, aabb.m_min.y, aabb.m_min.z)
+	, _v1(aabb.m_min.x, aabb.m_min.y, aabb.m_max.z)
+	, _v2(aabb.m_min.x, aabb.m_max.y, aabb.m_max.z)
+	, _v3(aabb.m_min.x, aabb.m_max.y, aabb.m_min.z)
+	, _v4(aabb.m_max.x, aabb.m_min.y, aabb.m_min.z)
+	, _v5(aabb.m_max.x, aabb.m_min.y, aabb.m_max.z)
+	, _v6(aabb.m_max.x, aabb.m_max.y, aabb.m_max.z)
+	, _v7(aabb.m_max.x, aabb.m_max.y, aabb.m_min.z)
+{
+
+}
+
+BoxPrimitive::BoxPrimitive(float hx, float hy, float hz)
+	: _v0(-hx, -hy, -hz)
+	, _v1(-hx, -hy, hz)
+	, _v2(-hx, hy, hz)
+	, _v3(-hx, hy, -hz)
+	, _v4(hx, -hy, -hz)
+	, _v5(hx, -hy, hz)
+	, _v6(hx, hy, hz)
+	, _v7(hx, hy, -hz)
+{
+
+}
+
+BoxPrimitive::BoxPrimitive(float hx, float hy, float hz, const Matrix4& world)
+	: _v0(Vector3(-hx, -hy, -hz).transformCoord(world))
+	, _v1(Vector3(-hx, -hy, hz).transformCoord(world))
+	, _v2(Vector3(-hx, hy, hz).transformCoord(world))
+	, _v3(Vector3(-hx, hy, -hz).transformCoord(world))
+	, _v4(Vector3(hx, -hy, -hz).transformCoord(world))
+	, _v5(Vector3(hx, -hy, hz).transformCoord(world))
+	, _v6(Vector3(hx, hy, hz).transformCoord(world))
+	, _v7(Vector3(hx, hy, -hz).transformCoord(world))
+{
+
+}
+
 void DrawHelper::FlushLine(IDirect3DDevice9 * pd3dDevice)
 {
 	HRESULT hr;
@@ -38,36 +85,26 @@ void DrawHelper::PushLine(const Vector3 & v0, const Vector3 & v1, D3DCOLOR color
 
 void DrawHelper::PushLineAABB(const AABB & aabb, D3DCOLOR color)
 {
-	const Vector3 v[8] = {
-		Vector3(aabb.m_min.x, aabb.m_min.y, aabb.m_min.z),
-		Vector3(aabb.m_min.x, aabb.m_min.y, aabb.m_max.z),
-		Vector3(aabb.m_min.x, aabb.m_max.y, aabb.m_max.z),
-		Vector3(aabb.m_min.x, aabb.m_max.y, aabb.m_min.z),
-		Vector3(aabb.m_max.x, aabb.m_min.y, aabb.m_min.z),
-		Vector3(aabb.m_max.x, aabb.m_min.y, aabb.m_max.z),
-		Vector3(aabb.m_max.x, aabb.m_max.y, aabb.m_max.z),
-		Vector3(aabb.m_max.x, aabb.m_max.y, aabb.m_min.z) };
-
-	PushLine(v[0], v[1], color); PushLine(v[1], v[2], color); PushLine(v[2], v[3], color); PushLine(v[3], v[0], color);
-	PushLine(v[4], v[5], color); PushLine(v[5], v[6], color); PushLine(v[6], v[7], color); PushLine(v[7], v[4], color);
-	PushLine(v[0], v[4], color); PushLine(v[1], v[5], color); PushLine(v[2], v[6], color); PushLine(v[3], v[7], color);
+	const BoxPrimitive box(aabb);
+	for (int i = 0; i < _countof(BoxPrimitive::i); i += 6)
+	{
+		PushLine(box.v[box.i[i + 0]], box.v[box.i[i + 1]], color);
+		PushLine(box.v[box.i[i + 1]], box.v[box.i[i + 2]], color);
+		PushLine(box.v[box.i[i + 3]], box.v[box.i[i + 4]], color);
+		PushLine(box.v[box.i[i + 4]], box.v[box.i[i + 5]], color);
+	}
 }
 
 void DrawHelper::PushLineBox(float hx, float hy, float hz, const Matrix4 & world, D3DCOLOR color)
 {
-	const Vector3 v[8] = {
-		Vector3(-hx, -hy, -hz).transformCoord(world),
-		Vector3(-hx, -hy,  hz).transformCoord(world),
-		Vector3(-hx,  hy,  hz).transformCoord(world),
-		Vector3(-hx,  hy, -hz).transformCoord(world),
-		Vector3( hx, -hy, -hz).transformCoord(world),
-		Vector3( hx, -hy,  hz).transformCoord(world),
-		Vector3( hx,  hy,  hz).transformCoord(world),
-		Vector3( hx,  hy, -hz).transformCoord(world) };
-
-	PushLine(v[0], v[1], color); PushLine(v[1], v[2], color); PushLine(v[2], v[3], color); PushLine(v[3], v[0], color);
-	PushLine(v[4], v[5], color); PushLine(v[5], v[6], color); PushLine(v[6], v[7], color); PushLine(v[7], v[4], color);
-	PushLine(v[0], v[4], color); PushLine(v[1], v[5], color); PushLine(v[2], v[6], color); PushLine(v[3], v[7], color);
+	const BoxPrimitive box(hx, hy, hz, world);
+	for (int i = 0; i < _countof(BoxPrimitive::i); i += 6)
+	{
+		PushLine(box.v[box.i[i + 0]], box.v[box.i[i + 1]], color);
+		PushLine(box.v[box.i[i + 1]], box.v[box.i[i + 2]], color);
+		PushLine(box.v[box.i[i + 3]], box.v[box.i[i + 4]], color);
+		PushLine(box.v[box.i[i + 4]], box.v[box.i[i + 5]], color);
+	}
 }
 
 void DrawHelper::PushLineGrid(float length, float linesEvery, unsigned subLines, D3DCOLOR GridColor, D3DCOLOR AxisColor, const Matrix4 & Transform)
