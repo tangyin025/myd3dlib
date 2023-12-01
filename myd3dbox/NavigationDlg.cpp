@@ -365,30 +365,18 @@ public:
 					{
 						physx::PxBoxGeometry geom;
 						VERIFY(cmp->m_PxShape->getBoxGeometry(geom));
-						my::Mesh mesh;
-						mesh.CreateBox(geom.halfExtents.x * 2, geom.halfExtents.y * 2, geom.halfExtents.z * 2);
-						D3DVERTEXELEMENT9 d3delems[MAX_FVF_DECL_SIZE];
-						mesh.GetDeclaration(d3delems);
-						my::D3DVertexElementSet elems(d3delems);
 						physx::PxTransform localPose = cmp->m_PxShape->getLocalPose();
 						my::Matrix4 World = my::Matrix4::Compose(
 							my::Vector3::one, (my::Quaternion&)localPose.q, (my::Vector3&)localPose.p) * my::Matrix4::Compose(my::Vector3::one, actor->m_Rotation, actor->m_Position);
-						void* pVertices = mesh.LockVertexBuffer(D3DLOCK_READONLY);
-						_ASSERT(!(mesh.GetOptions() & D3DXMESH_32BIT));
-						unsigned short* pIndices = (unsigned short*)mesh.LockIndexBuffer(D3DLOCK_READONLY);
-						for (int i = 0; i < (int)mesh.GetNumFaces(); i++)
+						const my::BoxPrimitive box(geom.halfExtents.x, geom.halfExtents.y, geom.halfExtents.z, World);
+						for (int i = 0; i < _countof(my::BoxPrimitive::i); i += 3)
 						{
-							unsigned char* pV0 = (unsigned char*)pVertices + pIndices[i * 3 + 0] * mesh.GetNumBytesPerVertex();
-							unsigned char* pV1 = (unsigned char*)pVertices + pIndices[i * 3 + 1] * mesh.GetNumBytesPerVertex();
-							unsigned char* pV2 = (unsigned char*)pVertices + pIndices[i * 3 + 2] * mesh.GetNumBytesPerVertex();
-							my::Vector3 v0 = elems.GetPosition(pV0).transformCoord(World);
-							my::Vector3 v1 = elems.GetPosition(pV1).transformCoord(World);
-							my::Vector3 v2 = elems.GetPosition(pV2).transformCoord(World);
+							const my::Vector3& v0 = box.v[box.i[i + 0]];
+							const my::Vector3& v1 = box.v[box.i[i + 1]];
+							const my::Vector3& v2 = box.v[box.i[i + 2]];
 							my::Vector3 Normal = (v1 - v0).cross(v2 - v0).normalize();
 							rcRasterizeTriangle(m_ctx, &v0.x, &v1.x, &v2.x, (cmp->GetQueryFilterWord0() & pdlg->m_walkableFilterWord0) && Normal.y > walkableThr ? RC_WALKABLE_AREA : 0, *ptask->m_solid, ptask->m_cfg.walkableClimb);
 						}
-						mesh.UnlockVertexBuffer();
-						mesh.UnlockIndexBuffer();
 						break;
 					}
 					case physx::PxGeometryType::eCONVEXMESH:
