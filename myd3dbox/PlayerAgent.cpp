@@ -45,8 +45,9 @@ public:
 		{
 			if (GetTargetWeight(0) < 0.5f)
 			{
-				SetActiveChild(0, 0.5f);
+				SetActiveChild(0, 0.3f);
 			}
+			dynamic_cast<AnimationNodeSequence*>(m_Childs[0].get())->m_Rate = m_Agent->m_Steering->m_Speed / 5.2f;
 		}
 		else if (GetTargetWeight(3) < 0.5f && Up.y < theApp.default_player_climb_enter_slope
 			|| GetTargetWeight(3) >= 0.5f && Up.y <= theApp.default_player_climb_leave_slope)
@@ -99,8 +100,8 @@ void PlayerAgent::RequestResource(void)
 	VERIFY(m_Animator = m_Actor->GetFirstComponent<Animator>());
 
 	AnimationNodePtr node_run_blend_list(new NodeRunBlendList("node_run_blend_list", this));
-	node_run_blend_list->SetChild(0, AnimationNodePtr(new AnimationNodeSequence("clip_drop")));
-	node_run_blend_list->SetChild(1, AnimationNodePtr(new AnimationNodeSequence("clip_stand")));
+	node_run_blend_list->SetChild(0, AnimationNodePtr(new AnimationNodeSequence("clip_drop", 1.0f, true, "move")));
+	node_run_blend_list->SetChild(1, AnimationNodePtr(new AnimationNodeSequence("clip_stand", 1.0f, true, "idle")));
 	node_run_blend_list->SetChild(2, AnimationNodePtr(new AnimationNodeSequence("clip_run", 1.0f, true, "move")));
 	node_run_blend_list->SetChild(3, AnimationNodePtr(new AnimationNodeSequence("clip_climb", 1.0f, true, "move")));
 
