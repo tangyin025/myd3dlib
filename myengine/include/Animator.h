@@ -202,13 +202,13 @@ public:
 
 	void Play(const std::string & Name, float Rate, float Weight, float BlendTime, float BlendOutTime, bool Loop, int Priority, DWORD_PTR UserData);
 
-	void StopSlotByIndex(int i);
+	void StopSlotByIndex(int i, float BlendOutTime);
 
-	void StopSlotByUserData(DWORD_PTR UserData);
+	void StopSlotByUserData(DWORD_PTR UserData, float BlendOutTime);
 
-	//bool IsPlaying(void) const;
+	bool IsPlaying(void) const;
 
-	//void Stop(void);
+	void StopAllSlot(float BlendOutTime);
 };
 
 typedef boost::shared_ptr<AnimationNodeSlot> AnimationNodeSlotPtr;
