@@ -213,11 +213,11 @@ void AnimationNodeSequence::Advance(float fElapsedTime)
 {
 	if (m_Loop)
 	{
-		m_Time = fmod(m_Time + fElapsedTime * m_Rate, GetLength());
+		m_Time = my::Wrap(m_Time + fElapsedTime * m_Rate, 0.0f, GetLength());
 	}
 	else
 	{
-		m_Time = my::Min(m_Time + fElapsedTime * m_Rate, GetLength());
+		m_Time = my::Clamp(m_Time + fElapsedTime * m_Rate, 0.0f, GetLength());
 	}
 }
 
