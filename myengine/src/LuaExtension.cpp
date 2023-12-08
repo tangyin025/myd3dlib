@@ -906,11 +906,11 @@ typedef boost::shared_container_iterator<cmp_list> shared_cmp_list_iter;
 
 extern boost::iterator_range<shared_cmp_list_iter> controller_get_geom_stream(const Controller* self);
 
-static my::Effect* renderpipeline_query_shader(RenderPipeline* self, const luabind::object& macro, const char* path, unsigned int PassID)
+static my::Effect* renderpipeline_query_shader(RenderPipeline* self, const luabind::object& macros, const char* path, unsigned int PassID)
 {
 	std::vector<D3DXMACRO> macs;
 	std::vector<std::string> strs;
-	luabind::iterator iter(macro), end;
+	luabind::iterator iter(macros), end;
 	for (; iter != end; iter++)
 	{
 		strs.push_back(boost::lexical_cast<std::string>(iter.key()));
