@@ -495,7 +495,7 @@ physx::PxControllerBehaviorFlags Controller::getBehaviorFlags(const physx::PxSha
 
 physx::PxControllerBehaviorFlags Controller::getBehaviorFlags(const physx::PxController & controller)
 {
-	return physx::PxControllerBehaviorFlag::eCCT_CAN_RIDE_ON_OBJECT;
+	return physx::PxControllerBehaviorFlag::eCCT_SLIDE;
 }
 
 physx::PxControllerBehaviorFlags Controller::getBehaviorFlags(const physx::PxObstacle & obstacle)
