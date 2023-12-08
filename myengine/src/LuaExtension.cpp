@@ -167,10 +167,10 @@ static DWORD ARGB(int a, int r, int g, int b)
 	return D3DCOLOR_ARGB(a,r,g,b);
 }
 
-static bool Counter(const unsigned int c)
+static unsigned int Counter(void)
 {
-	static unsigned int g_c = 0;
-	return 0 == (g_c = (g_c + 1) % c);
+	static unsigned int c = 0;
+	return ++c;
 }
 
 static std::string PrintCallStack(void)
