@@ -298,27 +298,30 @@ my::BoneList & AnimationNodeSlot::GetPose(my::BoneList & pose, int root_i, const
 {
 	bool init_pose = false;
 
-	float fTotalWeight = 1.0f;
+	float fTotalWeight = 0.0f;
 
 	SequenceList::const_iterator seq_iter = m_SequenceSlot.begin();
 	for (; seq_iter != m_SequenceSlot.end(); seq_iter++)
 	{
-		if (!init_pose)
+		if (seq_iter->m_Weight > 0.0f)
 		{
-			seq_iter->GetPose(pose, root_i, boneHierarchy);
-			init_pose = true;
-		}
-		else
-		{
-			my::BoneList OtherPose(pose.size());
-			seq_iter->GetPose(OtherPose, root_i, boneHierarchy);
-			pose.LerpSelf(OtherPose, boneHierarchy, root_i, seq_iter->m_Weight);
-		}
+			fTotalWeight += seq_iter->m_Weight;
 
-		fTotalWeight -= seq_iter->m_Weight;
+			if (!init_pose)
+			{
+				seq_iter->GetPose(pose, root_i, boneHierarchy);
+				init_pose = true;
+			}
+			else
+			{
+				my::BoneList OtherPose(pose.size());
+				seq_iter->GetPose(OtherPose, root_i, boneHierarchy);
+				pose.LerpSelf(OtherPose, boneHierarchy, root_i, seq_iter->m_Weight / fTotalWeight);
+			}
+		}
 	}
 
-	if (m_Childs[0] && fTotalWeight > EPSILON_E6)
+	if (m_Childs[0] && fTotalWeight < 1 - EPSILON_E6)
 	{
 		if (!init_pose)
 		{
@@ -328,7 +331,7 @@ my::BoneList & AnimationNodeSlot::GetPose(my::BoneList & pose, int root_i, const
 		{
 			my::BoneList OtherPose(pose.size());
 			m_Childs[0]->GetPose(OtherPose, root_i, boneHierarchy);
-			pose.LerpSelf(OtherPose, boneHierarchy, root_i, fTotalWeight);
+			pose.LerpSelf(OtherPose, boneHierarchy, root_i, 1 - fTotalWeight);
 		}
 	}
 	return pose;
@@ -524,10 +527,14 @@ my::BoneList & AnimationNodeBlendList::GetPose(my::BoneList & pose, int root_i, 
 {
 	bool init_pose = false;
 
+	float fTotalWeight = 0.0f;
+
 	for (int i = 0; i < m_TargetWeight.size(); i++)
 	{
 		if (m_Childs[i] && m_Weight[i] > 0.0f)
 		{
+			fTotalWeight += m_Weight[i];
+
 			if (!init_pose)
 			{
 				m_Childs[i]->GetPose(pose, root_i, boneHierarchy);
@@ -537,7 +544,7 @@ my::BoneList & AnimationNodeBlendList::GetPose(my::BoneList & pose, int root_i, 
 			{
 				my::BoneList OtherPose(pose.size());
 				m_Childs[i]->GetPose(OtherPose, root_i, boneHierarchy);
-				pose.LerpSelf(OtherPose, boneHierarchy, root_i, m_Weight[i]);
+				pose.LerpSelf(OtherPose, boneHierarchy, root_i, m_Weight[i] / fTotalWeight);
 			}
 		}
 	}
