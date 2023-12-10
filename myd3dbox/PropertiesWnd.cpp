@@ -897,8 +897,8 @@ void CPropertiesWnd::UpdatePropertiesControl(my::Control * control)
 	pControl->GetSubItem(11)->SetValue((_variant_t)ms2ts(theApp.GetFullPath(control->m_Skin->m_Image->m_TexturePath.c_str()).c_str()).c_str());
 	pControl->GetSubItem(12)->GetSubItem(0)->SetValue((_variant_t)control->m_Skin->m_Image->m_Rect.left);
 	pControl->GetSubItem(12)->GetSubItem(1)->SetValue((_variant_t)control->m_Skin->m_Image->m_Rect.top);
-	pControl->GetSubItem(12)->GetSubItem(2)->SetValue((_variant_t)control->m_Skin->m_Image->m_Rect.Width());
-	pControl->GetSubItem(12)->GetSubItem(3)->SetValue((_variant_t)control->m_Skin->m_Image->m_Rect.Height());
+	pControl->GetSubItem(12)->GetSubItem(2)->SetValue((_variant_t)(long)control->m_Skin->m_Image->m_Rect.Width());
+	pControl->GetSubItem(12)->GetSubItem(3)->SetValue((_variant_t)(long)control->m_Skin->m_Image->m_Rect.Height());
 	pControl->GetSubItem(13)->GetSubItem(0)->SetValue((_variant_t)control->m_Skin->m_Image->m_Border.left);
 	pControl->GetSubItem(13)->GetSubItem(1)->SetValue((_variant_t)control->m_Skin->m_Image->m_Border.top);
 	pControl->GetSubItem(13)->GetSubItem(2)->SetValue((_variant_t)control->m_Skin->m_Image->m_Border.right);
@@ -1002,8 +1002,8 @@ void CPropertiesWnd::UpdatePropertiesProgressBar(CMFCPropertyGridProperty * pCon
 	pControl->GetSubItem(PropId + 1)->SetValue((_variant_t)ms2ts(theApp.GetFullPath(skin->m_ForegroundImage->m_TexturePath.c_str()).c_str()).c_str());
 	pControl->GetSubItem(PropId + 2)->GetSubItem(0)->SetValue((_variant_t)skin->m_ForegroundImage->m_Rect.left);
 	pControl->GetSubItem(PropId + 2)->GetSubItem(1)->SetValue((_variant_t)skin->m_ForegroundImage->m_Rect.top);
-	pControl->GetSubItem(PropId + 2)->GetSubItem(2)->SetValue((_variant_t)skin->m_ForegroundImage->m_Rect.Width());
-	pControl->GetSubItem(PropId + 2)->GetSubItem(3)->SetValue((_variant_t)skin->m_ForegroundImage->m_Rect.Height());
+	pControl->GetSubItem(PropId + 2)->GetSubItem(2)->SetValue((_variant_t)(long)skin->m_ForegroundImage->m_Rect.Width());
+	pControl->GetSubItem(PropId + 2)->GetSubItem(3)->SetValue((_variant_t)(long)skin->m_ForegroundImage->m_Rect.Height());
 	pControl->GetSubItem(PropId + 3)->GetSubItem(0)->SetValue((_variant_t)skin->m_ForegroundImage->m_Border.left);
 	pControl->GetSubItem(PropId + 3)->GetSubItem(1)->SetValue((_variant_t)skin->m_ForegroundImage->m_Border.top);
 	pControl->GetSubItem(PropId + 3)->GetSubItem(2)->SetValue((_variant_t)skin->m_ForegroundImage->m_Border.right);
@@ -1025,8 +1025,8 @@ void CPropertiesWnd::UpdatePropertiesButton(CMFCPropertyGridProperty * pControl,
 	pControl->GetSubItem(PropId + 2)->SetValue((_variant_t)ms2ts(theApp.GetFullPath(skin->m_DisabledImage->m_TexturePath.c_str()).c_str()).c_str());
 	pControl->GetSubItem(PropId + 3)->GetSubItem(0)->SetValue((_variant_t)skin->m_DisabledImage->m_Rect.left);
 	pControl->GetSubItem(PropId + 3)->GetSubItem(1)->SetValue((_variant_t)skin->m_DisabledImage->m_Rect.top);
-	pControl->GetSubItem(PropId + 3)->GetSubItem(2)->SetValue((_variant_t)skin->m_DisabledImage->m_Rect.Width());
-	pControl->GetSubItem(PropId + 3)->GetSubItem(3)->SetValue((_variant_t)skin->m_DisabledImage->m_Rect.Height());
+	pControl->GetSubItem(PropId + 3)->GetSubItem(2)->SetValue((_variant_t)(long)skin->m_DisabledImage->m_Rect.Width());
+	pControl->GetSubItem(PropId + 3)->GetSubItem(3)->SetValue((_variant_t)(long)skin->m_DisabledImage->m_Rect.Height());
 	pControl->GetSubItem(PropId + 4)->GetSubItem(0)->SetValue((_variant_t)skin->m_DisabledImage->m_Border.left);
 	pControl->GetSubItem(PropId + 4)->GetSubItem(1)->SetValue((_variant_t)skin->m_DisabledImage->m_Border.top);
 	pControl->GetSubItem(PropId + 4)->GetSubItem(2)->SetValue((_variant_t)skin->m_DisabledImage->m_Border.right);
@@ -1035,8 +1035,8 @@ void CPropertiesWnd::UpdatePropertiesButton(CMFCPropertyGridProperty * pControl,
 	pControl->GetSubItem(PropId + 5)->SetValue((_variant_t)ms2ts(theApp.GetFullPath(skin->m_PressedImage->m_TexturePath.c_str()).c_str()).c_str());
 	pControl->GetSubItem(PropId + 6)->GetSubItem(0)->SetValue((_variant_t)skin->m_PressedImage->m_Rect.left);
 	pControl->GetSubItem(PropId + 6)->GetSubItem(1)->SetValue((_variant_t)skin->m_PressedImage->m_Rect.top);
-	pControl->GetSubItem(PropId + 6)->GetSubItem(2)->SetValue((_variant_t)skin->m_PressedImage->m_Rect.Width());
-	pControl->GetSubItem(PropId + 6)->GetSubItem(3)->SetValue((_variant_t)skin->m_PressedImage->m_Rect.Height());
+	pControl->GetSubItem(PropId + 6)->GetSubItem(2)->SetValue((_variant_t)(long)skin->m_PressedImage->m_Rect.Width());
+	pControl->GetSubItem(PropId + 6)->GetSubItem(3)->SetValue((_variant_t)(long)skin->m_PressedImage->m_Rect.Height());
 	pControl->GetSubItem(PropId + 7)->GetSubItem(0)->SetValue((_variant_t)skin->m_PressedImage->m_Border.left);
 	pControl->GetSubItem(PropId + 7)->GetSubItem(1)->SetValue((_variant_t)skin->m_PressedImage->m_Border.top);
 	pControl->GetSubItem(PropId + 7)->GetSubItem(2)->SetValue((_variant_t)skin->m_PressedImage->m_Border.right);
@@ -1045,8 +1045,8 @@ void CPropertiesWnd::UpdatePropertiesButton(CMFCPropertyGridProperty * pControl,
 	pControl->GetSubItem(PropId + 8)->SetValue((_variant_t)ms2ts(theApp.GetFullPath(skin->m_MouseOverImage->m_TexturePath.c_str()).c_str()).c_str());
 	pControl->GetSubItem(PropId + 9)->GetSubItem(0)->SetValue((_variant_t)skin->m_MouseOverImage->m_Rect.left);
 	pControl->GetSubItem(PropId + 9)->GetSubItem(1)->SetValue((_variant_t)skin->m_MouseOverImage->m_Rect.top);
-	pControl->GetSubItem(PropId + 9)->GetSubItem(2)->SetValue((_variant_t)skin->m_MouseOverImage->m_Rect.Width());
-	pControl->GetSubItem(PropId + 9)->GetSubItem(3)->SetValue((_variant_t)skin->m_MouseOverImage->m_Rect.Height());
+	pControl->GetSubItem(PropId + 9)->GetSubItem(2)->SetValue((_variant_t)(long)skin->m_MouseOverImage->m_Rect.Width());
+	pControl->GetSubItem(PropId + 9)->GetSubItem(3)->SetValue((_variant_t)(long)skin->m_MouseOverImage->m_Rect.Height());
 	pControl->GetSubItem(PropId + 10)->GetSubItem(0)->SetValue((_variant_t)skin->m_MouseOverImage->m_Border.left);
 	pControl->GetSubItem(PropId + 10)->GetSubItem(1)->SetValue((_variant_t)skin->m_MouseOverImage->m_Border.top);
 	pControl->GetSubItem(PropId + 10)->GetSubItem(2)->SetValue((_variant_t)skin->m_MouseOverImage->m_Border.right);
@@ -1087,8 +1087,8 @@ void CPropertiesWnd::UpdatePropertiesEditBox(CMFCPropertyGridProperty * pControl
 	pControl->GetSubItem(PropId + 1)->SetValue((_variant_t)ms2ts(theApp.GetFullPath(skin->m_DisabledImage->m_TexturePath.c_str()).c_str()).c_str());
 	pControl->GetSubItem(PropId + 2)->GetSubItem(0)->SetValue((_variant_t)skin->m_DisabledImage->m_Rect.left);
 	pControl->GetSubItem(PropId + 2)->GetSubItem(1)->SetValue((_variant_t)skin->m_DisabledImage->m_Rect.top);
-	pControl->GetSubItem(PropId + 2)->GetSubItem(2)->SetValue((_variant_t)skin->m_DisabledImage->m_Rect.Width());
-	pControl->GetSubItem(PropId + 2)->GetSubItem(3)->SetValue((_variant_t)skin->m_DisabledImage->m_Rect.Height());
+	pControl->GetSubItem(PropId + 2)->GetSubItem(2)->SetValue((_variant_t)(long)skin->m_DisabledImage->m_Rect.Width());
+	pControl->GetSubItem(PropId + 2)->GetSubItem(3)->SetValue((_variant_t)(long)skin->m_DisabledImage->m_Rect.Height());
 	pControl->GetSubItem(PropId + 3)->GetSubItem(0)->SetValue((_variant_t)skin->m_DisabledImage->m_Border.left);
 	pControl->GetSubItem(PropId + 3)->GetSubItem(1)->SetValue((_variant_t)skin->m_DisabledImage->m_Border.top);
 	pControl->GetSubItem(PropId + 3)->GetSubItem(2)->SetValue((_variant_t)skin->m_DisabledImage->m_Border.right);
@@ -1097,8 +1097,8 @@ void CPropertiesWnd::UpdatePropertiesEditBox(CMFCPropertyGridProperty * pControl
 	pControl->GetSubItem(PropId + 4)->SetValue((_variant_t)ms2ts(theApp.GetFullPath(skin->m_FocusedImage->m_TexturePath.c_str()).c_str()).c_str());
 	pControl->GetSubItem(PropId + 5)->GetSubItem(0)->SetValue((_variant_t)skin->m_FocusedImage->m_Rect.left);
 	pControl->GetSubItem(PropId + 5)->GetSubItem(1)->SetValue((_variant_t)skin->m_FocusedImage->m_Rect.top);
-	pControl->GetSubItem(PropId + 5)->GetSubItem(2)->SetValue((_variant_t)skin->m_FocusedImage->m_Rect.Width());
-	pControl->GetSubItem(PropId + 5)->GetSubItem(3)->SetValue((_variant_t)skin->m_FocusedImage->m_Rect.Height());
+	pControl->GetSubItem(PropId + 5)->GetSubItem(2)->SetValue((_variant_t)(long)skin->m_FocusedImage->m_Rect.Width());
+	pControl->GetSubItem(PropId + 5)->GetSubItem(3)->SetValue((_variant_t)(long)skin->m_FocusedImage->m_Rect.Height());
 	pControl->GetSubItem(PropId + 6)->GetSubItem(0)->SetValue((_variant_t)skin->m_FocusedImage->m_Border.left);
 	pControl->GetSubItem(PropId + 6)->GetSubItem(1)->SetValue((_variant_t)skin->m_FocusedImage->m_Border.top);
 	pControl->GetSubItem(PropId + 6)->GetSubItem(2)->SetValue((_variant_t)skin->m_FocusedImage->m_Border.right);
@@ -1115,8 +1115,8 @@ void CPropertiesWnd::UpdatePropertiesEditBox(CMFCPropertyGridProperty * pControl
 	pControl->GetSubItem(PropId + 11)->SetValue((_variant_t)ms2ts(theApp.GetFullPath(skin->m_CaretImage->m_TexturePath.c_str()).c_str()).c_str());
 	pControl->GetSubItem(PropId + 12)->GetSubItem(0)->SetValue((_variant_t)skin->m_CaretImage->m_Rect.left);
 	pControl->GetSubItem(PropId + 12)->GetSubItem(1)->SetValue((_variant_t)skin->m_CaretImage->m_Rect.top);
-	pControl->GetSubItem(PropId + 12)->GetSubItem(2)->SetValue((_variant_t)skin->m_CaretImage->m_Rect.Width());
-	pControl->GetSubItem(PropId + 12)->GetSubItem(3)->SetValue((_variant_t)skin->m_CaretImage->m_Rect.Height());
+	pControl->GetSubItem(PropId + 12)->GetSubItem(2)->SetValue((_variant_t)(long)skin->m_CaretImage->m_Rect.Width());
+	pControl->GetSubItem(PropId + 12)->GetSubItem(3)->SetValue((_variant_t)(long)skin->m_CaretImage->m_Rect.Height());
 	pControl->GetSubItem(PropId + 13)->GetSubItem(0)->SetValue((_variant_t)skin->m_CaretImage->m_Border.left);
 	pControl->GetSubItem(PropId + 13)->GetSubItem(1)->SetValue((_variant_t)skin->m_CaretImage->m_Border.top);
 	pControl->GetSubItem(PropId + 13)->GetSubItem(2)->SetValue((_variant_t)skin->m_CaretImage->m_Border.right);
@@ -1144,8 +1144,8 @@ void CPropertiesWnd::UpdatePropertiesScrollBar(CMFCPropertyGridProperty * pContr
 	pControl->GetSubItem(PropId + 5)->SetValue((_variant_t)ms2ts(theApp.GetFullPath(skin->m_UpBtnNormalImage->m_TexturePath.c_str()).c_str()).c_str());
 	pControl->GetSubItem(PropId + 6)->GetSubItem(0)->SetValue((_variant_t)skin->m_UpBtnNormalImage->m_Rect.left);
 	pControl->GetSubItem(PropId + 6)->GetSubItem(1)->SetValue((_variant_t)skin->m_UpBtnNormalImage->m_Rect.top);
-	pControl->GetSubItem(PropId + 6)->GetSubItem(2)->SetValue((_variant_t)skin->m_UpBtnNormalImage->m_Rect.Width());
-	pControl->GetSubItem(PropId + 6)->GetSubItem(3)->SetValue((_variant_t)skin->m_UpBtnNormalImage->m_Rect.Height());
+	pControl->GetSubItem(PropId + 6)->GetSubItem(2)->SetValue((_variant_t)(long)skin->m_UpBtnNormalImage->m_Rect.Width());
+	pControl->GetSubItem(PropId + 6)->GetSubItem(3)->SetValue((_variant_t)(long)skin->m_UpBtnNormalImage->m_Rect.Height());
 	pControl->GetSubItem(PropId + 7)->GetSubItem(0)->SetValue((_variant_t)skin->m_UpBtnNormalImage->m_Border.left);
 	pControl->GetSubItem(PropId + 7)->GetSubItem(1)->SetValue((_variant_t)skin->m_UpBtnNormalImage->m_Border.top);
 	pControl->GetSubItem(PropId + 7)->GetSubItem(2)->SetValue((_variant_t)skin->m_UpBtnNormalImage->m_Border.right);
@@ -1154,8 +1154,8 @@ void CPropertiesWnd::UpdatePropertiesScrollBar(CMFCPropertyGridProperty * pContr
 	pControl->GetSubItem(PropId + 8)->SetValue((_variant_t)ms2ts(theApp.GetFullPath(skin->m_UpBtnDisabledImage->m_TexturePath.c_str()).c_str()).c_str());
 	pControl->GetSubItem(PropId + 9)->GetSubItem(0)->SetValue((_variant_t)skin->m_UpBtnDisabledImage->m_Rect.left);
 	pControl->GetSubItem(PropId + 9)->GetSubItem(1)->SetValue((_variant_t)skin->m_UpBtnDisabledImage->m_Rect.top);
-	pControl->GetSubItem(PropId + 9)->GetSubItem(2)->SetValue((_variant_t)skin->m_UpBtnDisabledImage->m_Rect.Width());
-	pControl->GetSubItem(PropId + 9)->GetSubItem(3)->SetValue((_variant_t)skin->m_UpBtnDisabledImage->m_Rect.Height());
+	pControl->GetSubItem(PropId + 9)->GetSubItem(2)->SetValue((_variant_t)(long)skin->m_UpBtnDisabledImage->m_Rect.Width());
+	pControl->GetSubItem(PropId + 9)->GetSubItem(3)->SetValue((_variant_t)(long)skin->m_UpBtnDisabledImage->m_Rect.Height());
 	pControl->GetSubItem(PropId + 10)->GetSubItem(1)->SetValue((_variant_t)skin->m_UpBtnDisabledImage->m_Border.top);
 	pControl->GetSubItem(PropId + 10)->GetSubItem(2)->SetValue((_variant_t)skin->m_UpBtnDisabledImage->m_Border.right);
 	pControl->GetSubItem(PropId + 10)->GetSubItem(3)->SetValue((_variant_t)skin->m_UpBtnDisabledImage->m_Border.bottom);
@@ -1164,8 +1164,8 @@ void CPropertiesWnd::UpdatePropertiesScrollBar(CMFCPropertyGridProperty * pContr
 	pControl->GetSubItem(PropId + 11)->SetValue((_variant_t)ms2ts(theApp.GetFullPath(skin->m_DownBtnNormalImage->m_TexturePath.c_str()).c_str()).c_str());
 	pControl->GetSubItem(PropId + 12)->GetSubItem(0)->SetValue((_variant_t)skin->m_DownBtnNormalImage->m_Rect.left);
 	pControl->GetSubItem(PropId + 12)->GetSubItem(1)->SetValue((_variant_t)skin->m_DownBtnNormalImage->m_Rect.top);
-	pControl->GetSubItem(PropId + 12)->GetSubItem(2)->SetValue((_variant_t)skin->m_DownBtnNormalImage->m_Rect.Width());
-	pControl->GetSubItem(PropId + 12)->GetSubItem(3)->SetValue((_variant_t)skin->m_DownBtnNormalImage->m_Rect.Height());
+	pControl->GetSubItem(PropId + 12)->GetSubItem(2)->SetValue((_variant_t)(long)skin->m_DownBtnNormalImage->m_Rect.Width());
+	pControl->GetSubItem(PropId + 12)->GetSubItem(3)->SetValue((_variant_t)(long)skin->m_DownBtnNormalImage->m_Rect.Height());
 	pControl->GetSubItem(PropId + 13)->GetSubItem(0)->SetValue((_variant_t)skin->m_DownBtnNormalImage->m_Border.left);
 	pControl->GetSubItem(PropId + 13)->GetSubItem(1)->SetValue((_variant_t)skin->m_DownBtnNormalImage->m_Border.top);
 	pControl->GetSubItem(PropId + 13)->GetSubItem(2)->SetValue((_variant_t)skin->m_DownBtnNormalImage->m_Border.right);
@@ -1174,8 +1174,8 @@ void CPropertiesWnd::UpdatePropertiesScrollBar(CMFCPropertyGridProperty * pContr
 	pControl->GetSubItem(PropId + 14)->SetValue((_variant_t)ms2ts(theApp.GetFullPath(skin->m_DownBtnDisabledImage->m_TexturePath.c_str()).c_str()).c_str());
 	pControl->GetSubItem(PropId + 15)->GetSubItem(0)->SetValue((_variant_t)skin->m_DownBtnDisabledImage->m_Rect.left);
 	pControl->GetSubItem(PropId + 15)->GetSubItem(1)->SetValue((_variant_t)skin->m_DownBtnDisabledImage->m_Rect.top);
-	pControl->GetSubItem(PropId + 15)->GetSubItem(2)->SetValue((_variant_t)skin->m_DownBtnDisabledImage->m_Rect.Width());
-	pControl->GetSubItem(PropId + 15)->GetSubItem(3)->SetValue((_variant_t)skin->m_DownBtnDisabledImage->m_Rect.Height());
+	pControl->GetSubItem(PropId + 15)->GetSubItem(2)->SetValue((_variant_t)(long)skin->m_DownBtnDisabledImage->m_Rect.Width());
+	pControl->GetSubItem(PropId + 15)->GetSubItem(3)->SetValue((_variant_t)(long)skin->m_DownBtnDisabledImage->m_Rect.Height());
 	pControl->GetSubItem(PropId + 16)->GetSubItem(0)->SetValue((_variant_t)skin->m_DownBtnDisabledImage->m_Border.left);
 	pControl->GetSubItem(PropId + 16)->GetSubItem(1)->SetValue((_variant_t)skin->m_DownBtnDisabledImage->m_Border.top);
 	pControl->GetSubItem(PropId + 16)->GetSubItem(2)->SetValue((_variant_t)skin->m_DownBtnDisabledImage->m_Border.right);
@@ -1184,8 +1184,8 @@ void CPropertiesWnd::UpdatePropertiesScrollBar(CMFCPropertyGridProperty * pContr
 	pControl->GetSubItem(PropId + 17)->SetValue((_variant_t)ms2ts(theApp.GetFullPath(skin->m_ThumbBtnNormalImage->m_TexturePath.c_str()).c_str()).c_str());
 	pControl->GetSubItem(PropId + 18)->GetSubItem(0)->SetValue((_variant_t)skin->m_ThumbBtnNormalImage->m_Rect.left);
 	pControl->GetSubItem(PropId + 18)->GetSubItem(1)->SetValue((_variant_t)skin->m_ThumbBtnNormalImage->m_Rect.top);
-	pControl->GetSubItem(PropId + 18)->GetSubItem(2)->SetValue((_variant_t)skin->m_ThumbBtnNormalImage->m_Rect.Width());
-	pControl->GetSubItem(PropId + 18)->GetSubItem(3)->SetValue((_variant_t)skin->m_ThumbBtnNormalImage->m_Rect.Height());
+	pControl->GetSubItem(PropId + 18)->GetSubItem(2)->SetValue((_variant_t)(long)skin->m_ThumbBtnNormalImage->m_Rect.Width());
+	pControl->GetSubItem(PropId + 18)->GetSubItem(3)->SetValue((_variant_t)(long)skin->m_ThumbBtnNormalImage->m_Rect.Height());
 	pControl->GetSubItem(PropId + 19)->GetSubItem(1)->SetValue((_variant_t)skin->m_ThumbBtnNormalImage->m_Border.top);
 	pControl->GetSubItem(PropId + 19)->GetSubItem(0)->SetValue((_variant_t)skin->m_ThumbBtnNormalImage->m_Border.left);
 	pControl->GetSubItem(PropId + 19)->GetSubItem(2)->SetValue((_variant_t)skin->m_ThumbBtnNormalImage->m_Border.right);
@@ -1228,8 +1228,8 @@ void CPropertiesWnd::UpdatePropertiesComboBox(CMFCPropertyGridProperty * pContro
 	pControl->GetSubItem(PropId + 6)->SetValue((_variant_t)ms2ts(theApp.GetFullPath(skin->m_DropdownImage->m_TexturePath.c_str()).c_str()).c_str());
 	pControl->GetSubItem(PropId + 7)->GetSubItem(0)->SetValue((_variant_t)skin->m_DropdownImage->m_Rect.left);
 	pControl->GetSubItem(PropId + 7)->GetSubItem(1)->SetValue((_variant_t)skin->m_DropdownImage->m_Rect.top);
-	pControl->GetSubItem(PropId + 7)->GetSubItem(2)->SetValue((_variant_t)skin->m_DropdownImage->m_Rect.Width());
-	pControl->GetSubItem(PropId + 7)->GetSubItem(3)->SetValue((_variant_t)skin->m_DropdownImage->m_Rect.Height());
+	pControl->GetSubItem(PropId + 7)->GetSubItem(2)->SetValue((_variant_t)(long)skin->m_DropdownImage->m_Rect.Width());
+	pControl->GetSubItem(PropId + 7)->GetSubItem(3)->SetValue((_variant_t)(long)skin->m_DropdownImage->m_Rect.Height());
 	pControl->GetSubItem(PropId + 8)->GetSubItem(0)->SetValue((_variant_t)skin->m_DropdownImage->m_Border.left);
 	pControl->GetSubItem(PropId + 8)->GetSubItem(1)->SetValue((_variant_t)skin->m_DropdownImage->m_Border.top);
 	pControl->GetSubItem(PropId + 8)->GetSubItem(2)->SetValue((_variant_t)skin->m_DropdownImage->m_Border.right);
@@ -1243,8 +1243,8 @@ void CPropertiesWnd::UpdatePropertiesComboBox(CMFCPropertyGridProperty * pContro
 	pControl->GetSubItem(PropId + 12)->SetValue((_variant_t)ms2ts(theApp.GetFullPath(skin->m_DropdownItemMouseOverImage->m_TexturePath.c_str()).c_str()).c_str());
 	pControl->GetSubItem(PropId + 13)->GetSubItem(0)->SetValue((_variant_t)skin->m_DropdownItemMouseOverImage->m_Rect.left);
 	pControl->GetSubItem(PropId + 13)->GetSubItem(1)->SetValue((_variant_t)skin->m_DropdownItemMouseOverImage->m_Rect.top);
-	pControl->GetSubItem(PropId + 13)->GetSubItem(2)->SetValue((_variant_t)skin->m_DropdownItemMouseOverImage->m_Rect.Width());
-	pControl->GetSubItem(PropId + 13)->GetSubItem(3)->SetValue((_variant_t)skin->m_DropdownItemMouseOverImage->m_Rect.Height());
+	pControl->GetSubItem(PropId + 13)->GetSubItem(2)->SetValue((_variant_t)(long)skin->m_DropdownItemMouseOverImage->m_Rect.Width());
+	pControl->GetSubItem(PropId + 13)->GetSubItem(3)->SetValue((_variant_t)(long)skin->m_DropdownItemMouseOverImage->m_Rect.Height());
 	pControl->GetSubItem(PropId + 14)->GetSubItem(0)->SetValue((_variant_t)skin->m_DropdownItemMouseOverImage->m_Border.left);
 	pControl->GetSubItem(PropId + 14)->GetSubItem(1)->SetValue((_variant_t)skin->m_DropdownItemMouseOverImage->m_Border.top);
 	pControl->GetSubItem(PropId + 14)->GetSubItem(2)->SetValue((_variant_t)skin->m_DropdownItemMouseOverImage->m_Border.right);
@@ -2105,9 +2105,9 @@ void CPropertiesWnd::CreatePropertiesControl(my::Control * control)
 	pImageRect->AddSubItem(pProp);
 	pProp = new CSimpleProp(_T("top"), (_variant_t)control->m_Skin->m_Image->m_Rect.top, NULL, PropertyControlImageRectTop);
 	pImageRect->AddSubItem(pProp);
-	pProp = new CSimpleProp(_T("Width"), (_variant_t)control->m_Skin->m_Image->m_Rect.Width(), NULL, PropertyControlImageRectWidth);
+	pProp = new CSimpleProp(_T("Width"), (_variant_t)(long)control->m_Skin->m_Image->m_Rect.Width(), NULL, PropertyControlImageRectWidth);
 	pImageRect->AddSubItem(pProp);
-	pProp = new CSimpleProp(_T("Height"), (_variant_t)control->m_Skin->m_Image->m_Rect.Height(), NULL, PropertyControlImageRectHeight);
+	pProp = new CSimpleProp(_T("Height"), (_variant_t)(long)control->m_Skin->m_Image->m_Rect.Height(), NULL, PropertyControlImageRectHeight);
 	pImageRect->AddSubItem(pProp);
 
 	CMFCPropertyGridProperty* pImageBorder = new CSimpleProp(_T("ImageBorder"), PropertyControlImageBorder, TRUE);
@@ -2231,9 +2231,9 @@ void CPropertiesWnd::CreatePropertiesProgressBar(CMFCPropertyGridProperty * pCon
 	pForegroundImageRect->AddSubItem(pProp);
 	pProp = new CSimpleProp(_T("top"), (_variant_t)skin->m_ForegroundImage->m_Rect.top, NULL, PropertyProgressBarForegroundImageRectTop);
 	pForegroundImageRect->AddSubItem(pProp);
-	pProp = new CSimpleProp(_T("Width"), (_variant_t)skin->m_ForegroundImage->m_Rect.Width(), NULL, PropertyProgressBarForegroundImageRectWidth);
+	pProp = new CSimpleProp(_T("Width"), (_variant_t)(long)skin->m_ForegroundImage->m_Rect.Width(), NULL, PropertyProgressBarForegroundImageRectWidth);
 	pForegroundImageRect->AddSubItem(pProp);
-	pProp = new CSimpleProp(_T("Height"), (_variant_t)skin->m_ForegroundImage->m_Rect.Height(), NULL, PropertyProgressBarForegroundImageRectHeight);
+	pProp = new CSimpleProp(_T("Height"), (_variant_t)(long)skin->m_ForegroundImage->m_Rect.Height(), NULL, PropertyProgressBarForegroundImageRectHeight);
 	pForegroundImageRect->AddSubItem(pProp);
 
 	CMFCPropertyGridProperty* pForegroundImageBorder = new CSimpleProp(_T("ForegroundImageBorder"), PropertyProgressBarForegroundImageBorder, TRUE);
@@ -2269,9 +2269,9 @@ void CPropertiesWnd::CreatePropertiesButton(CMFCPropertyGridProperty * pControl,
 	pDisabledImageRect->AddSubItem(pProp);
 	pProp = new CSimpleProp(_T("top"), (_variant_t)skin->m_DisabledImage->m_Rect.top, NULL, PropertyButtonDisabledImageRectTop);
 	pDisabledImageRect->AddSubItem(pProp);
-	pProp = new CSimpleProp(_T("Width"), (_variant_t)skin->m_DisabledImage->m_Rect.Width(), NULL, PropertyButtonDisabledImageRectWidth);
+	pProp = new CSimpleProp(_T("Width"), (_variant_t)(long)skin->m_DisabledImage->m_Rect.Width(), NULL, PropertyButtonDisabledImageRectWidth);
 	pDisabledImageRect->AddSubItem(pProp);
-	pProp = new CSimpleProp(_T("Height"), (_variant_t)skin->m_DisabledImage->m_Rect.Height(), NULL, PropertyButtonDisabledImageRectHeight);
+	pProp = new CSimpleProp(_T("Height"), (_variant_t)(long)skin->m_DisabledImage->m_Rect.Height(), NULL, PropertyButtonDisabledImageRectHeight);
 	pDisabledImageRect->AddSubItem(pProp);
 
 	CMFCPropertyGridProperty* pDisabledImageBorder = new CSimpleProp(_T("DisabledImageBorder"), PropertyButtonDisabledImageBorder, TRUE);
@@ -2294,9 +2294,9 @@ void CPropertiesWnd::CreatePropertiesButton(CMFCPropertyGridProperty * pControl,
 	pPressedImageRect->AddSubItem(pProp);
 	pProp = new CSimpleProp(_T("top"), (_variant_t)skin->m_PressedImage->m_Rect.top, NULL, PropertyButtonPressedImageRectTop);
 	pPressedImageRect->AddSubItem(pProp);
-	pProp = new CSimpleProp(_T("Width"), (_variant_t)skin->m_PressedImage->m_Rect.Width(), NULL, PropertyButtonPressedImageRectWidth);
+	pProp = new CSimpleProp(_T("Width"), (_variant_t)(long)skin->m_PressedImage->m_Rect.Width(), NULL, PropertyButtonPressedImageRectWidth);
 	pPressedImageRect->AddSubItem(pProp);
-	pProp = new CSimpleProp(_T("Height"), (_variant_t)skin->m_PressedImage->m_Rect.Height(), NULL, PropertyButtonPressedImageRectHeight);
+	pProp = new CSimpleProp(_T("Height"), (_variant_t)(long)skin->m_PressedImage->m_Rect.Height(), NULL, PropertyButtonPressedImageRectHeight);
 	pPressedImageRect->AddSubItem(pProp);
 
 	CMFCPropertyGridProperty* pPressedImageBorder = new CSimpleProp(_T("PressedImageBorder"), PropertyButtonPressedImageBorder, TRUE);
@@ -2319,9 +2319,9 @@ void CPropertiesWnd::CreatePropertiesButton(CMFCPropertyGridProperty * pControl,
 	pMouseOverImageRect->AddSubItem(pProp);
 	pProp = new CSimpleProp(_T("top"), (_variant_t)skin->m_MouseOverImage->m_Rect.top, NULL, PropertyButtonMouseOverImageRectTop);
 	pMouseOverImageRect->AddSubItem(pProp);
-	pProp = new CSimpleProp(_T("Width"), (_variant_t)skin->m_MouseOverImage->m_Rect.Width(), NULL, PropertyButtonMouseOverImageRectWidth);
+	pProp = new CSimpleProp(_T("Width"), (_variant_t)(long)skin->m_MouseOverImage->m_Rect.Width(), NULL, PropertyButtonMouseOverImageRectWidth);
 	pMouseOverImageRect->AddSubItem(pProp);
-	pProp = new CSimpleProp(_T("Height"), (_variant_t)skin->m_MouseOverImage->m_Rect.Height(), NULL, PropertyButtonMouseOverImageRectHeight);
+	pProp = new CSimpleProp(_T("Height"), (_variant_t)(long)skin->m_MouseOverImage->m_Rect.Height(), NULL, PropertyButtonMouseOverImageRectHeight);
 	pMouseOverImageRect->AddSubItem(pProp);
 
 	CMFCPropertyGridProperty* pMouseOverImageBorder = new CSimpleProp(_T("MouseOverImageBorder"), PropertyButtonMouseOverImageBorder, TRUE);
@@ -2379,9 +2379,9 @@ void CPropertiesWnd::CreatePropertiesEditBox(CMFCPropertyGridProperty * pControl
 	pDisabledImageRect->AddSubItem(pProp);
 	pProp = new CSimpleProp(_T("top"), (_variant_t)skin->m_DisabledImage->m_Rect.top, NULL, PropertyEditBoxDisabledImageRectTop);
 	pDisabledImageRect->AddSubItem(pProp);
-	pProp = new CSimpleProp(_T("Width"), (_variant_t)skin->m_DisabledImage->m_Rect.Width(), NULL, PropertyEditBoxDisabledImageRectWidth);
+	pProp = new CSimpleProp(_T("Width"), (_variant_t)(long)skin->m_DisabledImage->m_Rect.Width(), NULL, PropertyEditBoxDisabledImageRectWidth);
 	pDisabledImageRect->AddSubItem(pProp);
-	pProp = new CSimpleProp(_T("Height"), (_variant_t)skin->m_DisabledImage->m_Rect.Height(), NULL, PropertyEditBoxDisabledImageRectHeight);
+	pProp = new CSimpleProp(_T("Height"), (_variant_t)(long)skin->m_DisabledImage->m_Rect.Height(), NULL, PropertyEditBoxDisabledImageRectHeight);
 	pDisabledImageRect->AddSubItem(pProp);
 
 	CMFCPropertyGridProperty* pDisabledImageBorder = new CSimpleProp(_T("DisabledImageBorder"), PropertyEditBoxDisabledImageBorder, TRUE);
@@ -2404,9 +2404,9 @@ void CPropertiesWnd::CreatePropertiesEditBox(CMFCPropertyGridProperty * pControl
 	pFocusedImageRect->AddSubItem(pProp);
 	pProp = new CSimpleProp(_T("top"), (_variant_t)skin->m_FocusedImage->m_Rect.top, NULL, PropertyEditBoxFocusedImageRectTop);
 	pFocusedImageRect->AddSubItem(pProp);
-	pProp = new CSimpleProp(_T("Width"), (_variant_t)skin->m_FocusedImage->m_Rect.Width(), NULL, PropertyEditBoxFocusedImageRectWidth);
+	pProp = new CSimpleProp(_T("Width"), (_variant_t)(long)skin->m_FocusedImage->m_Rect.Width(), NULL, PropertyEditBoxFocusedImageRectWidth);
 	pFocusedImageRect->AddSubItem(pProp);
-	pProp = new CSimpleProp(_T("Height"), (_variant_t)skin->m_FocusedImage->m_Rect.Height(), NULL, PropertyEditBoxFocusedImageRectHeight);
+	pProp = new CSimpleProp(_T("Height"), (_variant_t)(long)skin->m_FocusedImage->m_Rect.Height(), NULL, PropertyEditBoxFocusedImageRectHeight);
 	pFocusedImageRect->AddSubItem(pProp);
 
 	CMFCPropertyGridProperty* pFocusedImageBorder = new CSimpleProp(_T("FocusedImageBorder"), PropertyEditBoxFocusedImageBorder, TRUE);
@@ -2443,9 +2443,9 @@ void CPropertiesWnd::CreatePropertiesEditBox(CMFCPropertyGridProperty * pControl
 	pCaretImageRect->AddSubItem(pProp);
 	pProp = new CSimpleProp(_T("top"), (_variant_t)skin->m_CaretImage->m_Rect.top, NULL, PropertyEditBoxCaretImageRectTop);
 	pCaretImageRect->AddSubItem(pProp);
-	pProp = new CSimpleProp(_T("Width"), (_variant_t)skin->m_CaretImage->m_Rect.Width(), NULL, PropertyEditBoxCaretImageRectWidth);
+	pProp = new CSimpleProp(_T("Width"), (_variant_t)(long)skin->m_CaretImage->m_Rect.Width(), NULL, PropertyEditBoxCaretImageRectWidth);
 	pCaretImageRect->AddSubItem(pProp);
-	pProp = new CSimpleProp(_T("Height"), (_variant_t)skin->m_CaretImage->m_Rect.Height(), NULL, PropertyEditBoxCaretImageRectHeight);
+	pProp = new CSimpleProp(_T("Height"), (_variant_t)(long)skin->m_CaretImage->m_Rect.Height(), NULL, PropertyEditBoxCaretImageRectHeight);
 	pCaretImageRect->AddSubItem(pProp);
 
 	CMFCPropertyGridProperty* pCaretImageBorder = new CSimpleProp(_T("CaretImageBorder"), PropertyEditBoxCaretImageBorder, TRUE);
@@ -2486,9 +2486,9 @@ void CPropertiesWnd::CreatePropertiesScrollBar(CMFCPropertyGridProperty * pContr
 	pScrollBarUpBtnNormalImageRect->AddSubItem(pProp);
 	pProp = new CSimpleProp(_T("top"), (_variant_t)skin->m_UpBtnNormalImage->m_Rect.top, NULL, PropertyScrollBarUpBtnNormalImageRectTop);
 	pScrollBarUpBtnNormalImageRect->AddSubItem(pProp);
-	pProp = new CSimpleProp(_T("Width"), (_variant_t)skin->m_UpBtnNormalImage->m_Rect.Width(), NULL, PropertyScrollBarUpBtnNormalImageRectWidth);
+	pProp = new CSimpleProp(_T("Width"), (_variant_t)(long)skin->m_UpBtnNormalImage->m_Rect.Width(), NULL, PropertyScrollBarUpBtnNormalImageRectWidth);
 	pScrollBarUpBtnNormalImageRect->AddSubItem(pProp);
-	pProp = new CSimpleProp(_T("Height"), (_variant_t)skin->m_UpBtnNormalImage->m_Rect.Height(), NULL, PropertyScrollBarUpBtnNormalImageRectHeight);
+	pProp = new CSimpleProp(_T("Height"), (_variant_t)(long)skin->m_UpBtnNormalImage->m_Rect.Height(), NULL, PropertyScrollBarUpBtnNormalImageRectHeight);
 	pScrollBarUpBtnNormalImageRect->AddSubItem(pProp);
 
 	CMFCPropertyGridProperty* pScrollBarUpBtnNormalImageBorder = new CSimpleProp(_T("ScrollBarUpBtnNormalImageBorder"), PropertyScrollBarUpBtnNormalImageBorder, TRUE);
@@ -2511,9 +2511,9 @@ void CPropertiesWnd::CreatePropertiesScrollBar(CMFCPropertyGridProperty * pContr
 	pScrollBarUpBtnDisabledImageRect->AddSubItem(pProp);
 	pProp = new CSimpleProp(_T("top"), (_variant_t)skin->m_UpBtnDisabledImage->m_Rect.top, NULL, PropertyScrollBarUpBtnDisabledImageRectTop);
 	pScrollBarUpBtnDisabledImageRect->AddSubItem(pProp);
-	pProp = new CSimpleProp(_T("Width"), (_variant_t)skin->m_UpBtnDisabledImage->m_Rect.Width(), NULL, PropertyScrollBarUpBtnDisabledImageRectWidth);
+	pProp = new CSimpleProp(_T("Width"), (_variant_t)(long)skin->m_UpBtnDisabledImage->m_Rect.Width(), NULL, PropertyScrollBarUpBtnDisabledImageRectWidth);
 	pScrollBarUpBtnDisabledImageRect->AddSubItem(pProp);
-	pProp = new CSimpleProp(_T("Height"), (_variant_t)skin->m_UpBtnDisabledImage->m_Rect.Height(), NULL, PropertyScrollBarUpBtnDisabledImageRectHeight);
+	pProp = new CSimpleProp(_T("Height"), (_variant_t)(long)skin->m_UpBtnDisabledImage->m_Rect.Height(), NULL, PropertyScrollBarUpBtnDisabledImageRectHeight);
 	pScrollBarUpBtnDisabledImageRect->AddSubItem(pProp);
 
 	CMFCPropertyGridProperty* pScrollBarUpBtnDisabledImageBorder = new CSimpleProp(_T("ScrollBarUpBtnDisabledImageBorder"), PropertyScrollBarUpBtnDisabledImageBorder, TRUE);
@@ -2536,9 +2536,9 @@ void CPropertiesWnd::CreatePropertiesScrollBar(CMFCPropertyGridProperty * pContr
 	pScrollBarDownBtnNormalImageRect->AddSubItem(pProp);
 	pProp = new CSimpleProp(_T("top"), (_variant_t)skin->m_DownBtnNormalImage->m_Rect.top, NULL, PropertyScrollBarDownBtnNormalImageRectTop);
 	pScrollBarDownBtnNormalImageRect->AddSubItem(pProp);
-	pProp = new CSimpleProp(_T("Width"), (_variant_t)skin->m_DownBtnNormalImage->m_Rect.Width(), NULL, PropertyScrollBarDownBtnNormalImageRectWidth);
+	pProp = new CSimpleProp(_T("Width"), (_variant_t)(long)skin->m_DownBtnNormalImage->m_Rect.Width(), NULL, PropertyScrollBarDownBtnNormalImageRectWidth);
 	pScrollBarDownBtnNormalImageRect->AddSubItem(pProp);
-	pProp = new CSimpleProp(_T("Height"), (_variant_t)skin->m_DownBtnNormalImage->m_Rect.Height(), NULL, PropertyScrollBarDownBtnNormalImageRectHeight);
+	pProp = new CSimpleProp(_T("Height"), (_variant_t)(long)skin->m_DownBtnNormalImage->m_Rect.Height(), NULL, PropertyScrollBarDownBtnNormalImageRectHeight);
 	pScrollBarDownBtnNormalImageRect->AddSubItem(pProp);
 
 	CMFCPropertyGridProperty* pScrollBarDownBtnNormalImageBorder = new CSimpleProp(_T("ScrollBarDownBtnNormalImageBorder"), PropertyScrollBarDownBtnNormalImageBorder, TRUE);
@@ -2561,9 +2561,9 @@ void CPropertiesWnd::CreatePropertiesScrollBar(CMFCPropertyGridProperty * pContr
 	pScrollBarDownBtnDisabledImageRect->AddSubItem(pProp);
 	pProp = new CSimpleProp(_T("top"), (_variant_t)skin->m_DownBtnDisabledImage->m_Rect.top, NULL, PropertyScrollBarDownBtnDisabledImageRectTop);
 	pScrollBarDownBtnDisabledImageRect->AddSubItem(pProp);
-	pProp = new CSimpleProp(_T("Width"), (_variant_t)skin->m_DownBtnDisabledImage->m_Rect.Width(), NULL, PropertyScrollBarDownBtnDisabledImageRectWidth);
+	pProp = new CSimpleProp(_T("Width"), (_variant_t)(long)skin->m_DownBtnDisabledImage->m_Rect.Width(), NULL, PropertyScrollBarDownBtnDisabledImageRectWidth);
 	pScrollBarDownBtnDisabledImageRect->AddSubItem(pProp);
-	pProp = new CSimpleProp(_T("Height"), (_variant_t)skin->m_DownBtnDisabledImage->m_Rect.Height(), NULL, PropertyScrollBarDownBtnDisabledImageRectHeight);
+	pProp = new CSimpleProp(_T("Height"), (_variant_t)(long)skin->m_DownBtnDisabledImage->m_Rect.Height(), NULL, PropertyScrollBarDownBtnDisabledImageRectHeight);
 	pScrollBarDownBtnDisabledImageRect->AddSubItem(pProp);
 
 	CMFCPropertyGridProperty* pScrollBarDownBtnDisabledImageBorder = new CSimpleProp(_T("ScrollBarDownBtnDisabledImageBorder"), PropertyScrollBarDownBtnDisabledImageBorder, TRUE);
@@ -2586,9 +2586,9 @@ void CPropertiesWnd::CreatePropertiesScrollBar(CMFCPropertyGridProperty * pContr
 	pScrollBarThumbBtnNormalImageRect->AddSubItem(pProp);
 	pProp = new CSimpleProp(_T("top"), (_variant_t)skin->m_ThumbBtnNormalImage->m_Rect.top, NULL, PropertyScrollBarThumbBtnNormalImageRectTop);
 	pScrollBarThumbBtnNormalImageRect->AddSubItem(pProp);
-	pProp = new CSimpleProp(_T("Width"), (_variant_t)skin->m_ThumbBtnNormalImage->m_Rect.Width(), NULL, PropertyScrollBarThumbBtnNormalImageRectWidth);
+	pProp = new CSimpleProp(_T("Width"), (_variant_t)(long)skin->m_ThumbBtnNormalImage->m_Rect.Width(), NULL, PropertyScrollBarThumbBtnNormalImageRectWidth);
 	pScrollBarThumbBtnNormalImageRect->AddSubItem(pProp);
-	pProp = new CSimpleProp(_T("Height"), (_variant_t)skin->m_ThumbBtnNormalImage->m_Rect.Height(), NULL, PropertyScrollBarThumbBtnNormalImageRectHeight);
+	pProp = new CSimpleProp(_T("Height"), (_variant_t)(long)skin->m_ThumbBtnNormalImage->m_Rect.Height(), NULL, PropertyScrollBarThumbBtnNormalImageRectHeight);
 	pScrollBarThumbBtnNormalImageRect->AddSubItem(pProp);
 
 	CMFCPropertyGridProperty* pScrollBarThumbBtnNormalImageBorder = new CSimpleProp(_T("ScrollBarThumbBtnNormalImageBorder"), PropertyScrollBarThumbBtnNormalImageBorder, TRUE);
@@ -2656,9 +2656,9 @@ void CPropertiesWnd::CreatePropertiesComboBox(CMFCPropertyGridProperty * pContro
 	pDropdownImageRect->AddSubItem(pProp);
 	pProp = new CSimpleProp(_T("top"), (_variant_t)skin->m_DropdownImage->m_Rect.top, NULL, PropertyComboBoxDropdownImageRectTop);
 	pDropdownImageRect->AddSubItem(pProp);
-	pProp = new CSimpleProp(_T("Width"), (_variant_t)skin->m_DropdownImage->m_Rect.Width(), NULL, PropertyComboBoxDropdownImageRectWidth);
+	pProp = new CSimpleProp(_T("Width"), (_variant_t)(long)skin->m_DropdownImage->m_Rect.Width(), NULL, PropertyComboBoxDropdownImageRectWidth);
 	pDropdownImageRect->AddSubItem(pProp);
-	pProp = new CSimpleProp(_T("Height"), (_variant_t)skin->m_DropdownImage->m_Rect.Height(), NULL, PropertyComboBoxDropdownImageRectHeight);
+	pProp = new CSimpleProp(_T("Height"), (_variant_t)(long)skin->m_DropdownImage->m_Rect.Height(), NULL, PropertyComboBoxDropdownImageRectHeight);
 	pDropdownImageRect->AddSubItem(pProp);
 
 	CMFCPropertyGridProperty* pDropdownImageBorder = new CSimpleProp(_T("DropdownImageBorder"), PropertyComboBoxDropdownImageBorder, TRUE);
@@ -2695,9 +2695,9 @@ void CPropertiesWnd::CreatePropertiesComboBox(CMFCPropertyGridProperty * pContro
 	pDropdownItemMouseOverImageRect->AddSubItem(pProp);
 	pProp = new CSimpleProp(_T("top"), (_variant_t)skin->m_DropdownItemMouseOverImage->m_Rect.top, NULL, PropertyComboBoxDropdownItemMouseOverImageRectTop);
 	pDropdownItemMouseOverImageRect->AddSubItem(pProp);
-	pProp = new CSimpleProp(_T("Width"), (_variant_t)skin->m_DropdownItemMouseOverImage->m_Rect.Width(), NULL, PropertyComboBoxDropdownItemMouseOverImageRectWidth);
+	pProp = new CSimpleProp(_T("Width"), (_variant_t)(long)skin->m_DropdownItemMouseOverImage->m_Rect.Width(), NULL, PropertyComboBoxDropdownItemMouseOverImageRectWidth);
 	pDropdownItemMouseOverImageRect->AddSubItem(pProp);
-	pProp = new CSimpleProp(_T("Height"), (_variant_t)skin->m_DropdownItemMouseOverImage->m_Rect.Height(), NULL, PropertyComboBoxDropdownItemMouseOverImageRectHeight);
+	pProp = new CSimpleProp(_T("Height"), (_variant_t)(long)skin->m_DropdownItemMouseOverImage->m_Rect.Height(), NULL, PropertyComboBoxDropdownItemMouseOverImageRectHeight);
 	pDropdownItemMouseOverImageRect->AddSubItem(pProp);
 
 	CMFCPropertyGridProperty* pDropdownItemMouseOverImageBorder = new CSimpleProp(_T("DropdownItemMouseOverImageBorder"), PropertyComboBoxDropdownItemMouseOverImageBorder, TRUE);
