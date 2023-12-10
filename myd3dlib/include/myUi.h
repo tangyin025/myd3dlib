@@ -95,10 +95,6 @@ namespace my
 
 		VertexList & GetVertexList(const BaseTexture * texture);
 
-		void PushRectangle(const Rectangle & rect, D3DCOLOR color, const CRect & WindowRect, const BaseTexture * texture);
-
-		void PushRectangle(const Rectangle & rect, D3DCOLOR color, const CRect & WindowRect, const BaseTexture * texture, const Rectangle & clip);
-
 		void PushRectangle(const Rectangle & rect, D3DCOLOR color, const CRect & WindowRect, const CSize & TileSize, const BaseTexture * texture);
 
 		void PushRectangle(const Rectangle & rect, D3DCOLOR color, const CRect & WindowRect, const CSize & TileSize, const BaseTexture * texture, const Rectangle & clip);

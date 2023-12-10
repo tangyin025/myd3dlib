@@ -480,20 +480,6 @@ UIRender::VertexList & UIRender::GetVertexList(const BaseTexture * texture)
 	return m_Layer.back().second;
 }
 
-void UIRender::PushRectangle(const my::Rectangle & rect, D3DCOLOR color, const CRect & WindowRect, const BaseTexture * texture)
-{
-	D3DSURFACE_DESC desc = texture->GetLevelDesc();
-	Rectangle UvRect((float)WindowRect.left / desc.Width, (float)WindowRect.top / desc.Height, (float)WindowRect.right / desc.Width, (float)WindowRect.bottom / desc.Height);
-	PushRectangleSimple(GetVertexList(texture), rect, UvRect, color);
-}
-
-void UIRender::PushRectangle(const my::Rectangle & rect, D3DCOLOR color, const CRect & WindowRect, const BaseTexture * texture, const Rectangle & clip)
-{
-	D3DSURFACE_DESC desc = texture->GetLevelDesc();
-	Rectangle UvRect((float)WindowRect.left / desc.Width, (float)WindowRect.top / desc.Height, (float)WindowRect.right / desc.Width, (float)WindowRect.bottom / desc.Height);
-	PushRectangleSimple(GetVertexList(texture), rect, UvRect, color, clip);
-}
-
 void UIRender::PushRectangle(const Rectangle & rect, D3DCOLOR color, const CRect & WindowRect, const CSize & TileSize, const BaseTexture * texture)
 {
 	D3DSURFACE_DESC desc = texture->GetLevelDesc();
@@ -736,14 +722,7 @@ void ControlImage::Draw(UIRender * ui_render, const Rectangle & rect, DWORD colo
 	{
 		if (m_Border.right == 0 && m_Border.bottom == 0)
 		{
-			if (m_Border.left == 0 && m_Border.top == 0)
-			{
-				ui_render->PushRectangle(rect, color, m_Rect, m_Texture.get());
-			}
-			else
-			{
-				ui_render->PushRectangle(rect, color, m_Rect, (CSize&)m_Border.TopLeft(), m_Texture.get());
-			}
+			ui_render->PushRectangle(rect, color, m_Rect, CSize(Max(m_Border.left, 1l), Max(m_Border.top, 1l)), m_Texture.get());
 		}
 		else
 		{
@@ -758,14 +737,7 @@ void ControlImage::Draw(UIRender * ui_render, const Rectangle & rect, DWORD colo
 	{
 		if (m_Border.right == 0 && m_Border.bottom == 0)
 		{
-			if (m_Border.left == 0 && m_Border.top == 0)
-			{
-				ui_render->PushRectangle(rect, color, m_Rect, m_Texture.get(), clip);
-			}
-			else
-			{
-				ui_render->PushRectangle(rect, color, m_Rect, (CSize&)m_Border.TopLeft(), m_Texture.get(), clip);
-			}
+			ui_render->PushRectangle(rect, color, m_Rect, CSize(Max(m_Border.left, 1l), Max(m_Border.top, 1l)), m_Texture.get(), clip);
 		}
 		else
 		{
