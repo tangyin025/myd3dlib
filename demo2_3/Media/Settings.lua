@@ -663,15 +663,15 @@ function OnWindowedFullScreenChanged()
 	end
 end
 
-local function MAKELONG(low, high)
+function MAKELONG(low, high)
 	return bit.tobit(bit.bor(bit.band(low,0xffff),bit.lshift(bit.band(high,0xffff),16)))
 end
 
-local function LOWORD(value)
+function LOWORD(value)
 	return bit.band(value,0xffff)
 end
 
-local function HIWORD(value)
+function HIWORD(value)
 	return bit.rshift(bit.band(bit.tobit(value),0xffff0000),16)
 end
 
