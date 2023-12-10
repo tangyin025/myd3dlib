@@ -4591,11 +4591,13 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			break;
 		}
 		my::Control* control = (my::Control *)pControl->GetValue().pulVal;
-		control->m_Skin->m_Image->m_Rect.SetRect(
-			pControl->GetSubItem(12)->GetSubItem(0)->GetValue().intVal,
-			pControl->GetSubItem(12)->GetSubItem(1)->GetValue().intVal,
-			pControl->GetSubItem(12)->GetSubItem(2)->GetValue().intVal,
-			pControl->GetSubItem(12)->GetSubItem(3)->GetValue().intVal);
+		control->m_Skin->m_Image->m_Rect = CRect(
+			CPoint(
+				pControl->GetSubItem(12)->GetSubItem(0)->GetValue().intVal,
+				pControl->GetSubItem(12)->GetSubItem(1)->GetValue().intVal),
+			CSize(
+				pControl->GetSubItem(12)->GetSubItem(2)->GetValue().intVal,
+				pControl->GetSubItem(12)->GetSubItem(3)->GetValue().intVal));
 		control->m_Skin->m_Image->m_Border.SetRect(
 			pControl->GetSubItem(13)->GetSubItem(0)->GetValue().intVal,
 			pControl->GetSubItem(13)->GetSubItem(1)->GetValue().intVal,
@@ -4759,11 +4761,13 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		my::ProgressBar* progressbar = dynamic_cast<my::ProgressBar*>((my::Control*)pControl->GetValue().pulVal);
 		my::ProgressBarSkinPtr skin = boost::dynamic_pointer_cast<my::ProgressBarSkin>(progressbar->m_Skin);
 		unsigned int PropId = GetControlPropCount(my::Control::ControlTypeStatic);
-		skin->m_ForegroundImage->m_Rect.SetRect(
-			pControl->GetSubItem(PropId + 2)->GetSubItem(0)->GetValue().intVal,
-			pControl->GetSubItem(PropId + 2)->GetSubItem(1)->GetValue().intVal,
-			pControl->GetSubItem(PropId + 2)->GetSubItem(2)->GetValue().intVal,
-			pControl->GetSubItem(PropId + 2)->GetSubItem(3)->GetValue().intVal);
+		skin->m_ForegroundImage->m_Rect = CRect(
+			CPoint(
+				pControl->GetSubItem(PropId + 2)->GetSubItem(0)->GetValue().intVal,
+				pControl->GetSubItem(PropId + 2)->GetSubItem(1)->GetValue().intVal),
+			CSize(
+				pControl->GetSubItem(PropId + 2)->GetSubItem(2)->GetValue().intVal,
+				pControl->GetSubItem(PropId + 2)->GetSubItem(3)->GetValue().intVal));
 		skin->m_ForegroundImage->m_Border.SetRect(
 			pControl->GetSubItem(PropId + 3)->GetSubItem(0)->GetValue().intVal,
 			pControl->GetSubItem(PropId + 3)->GetSubItem(1)->GetValue().intVal,
@@ -4842,11 +4846,13 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		my::Button* button = dynamic_cast<my::Button*>((my::Control*)pControl->GetValue().pulVal);
 		my::ButtonSkinPtr skin = boost::dynamic_pointer_cast<my::ButtonSkin>(button->m_Skin);
 		unsigned int PropId = GetControlPropCount(my::Control::ControlTypeStatic);
-		skin->m_DisabledImage->m_Rect.SetRect(
-			pControl->GetSubItem(PropId + 3)->GetSubItem(0)->GetValue().intVal,
-			pControl->GetSubItem(PropId + 3)->GetSubItem(1)->GetValue().intVal,
-			pControl->GetSubItem(PropId + 3)->GetSubItem(2)->GetValue().intVal,
-			pControl->GetSubItem(PropId + 3)->GetSubItem(3)->GetValue().intVal);
+		skin->m_DisabledImage->m_Rect = CRect(
+			CPoint(
+				pControl->GetSubItem(PropId + 3)->GetSubItem(0)->GetValue().intVal,
+				pControl->GetSubItem(PropId + 3)->GetSubItem(1)->GetValue().intVal),
+			CSize(
+				pControl->GetSubItem(PropId + 3)->GetSubItem(2)->GetValue().intVal,
+				pControl->GetSubItem(PropId + 3)->GetSubItem(3)->GetValue().intVal));
 		skin->m_DisabledImage->m_Border.SetRect(
 			pControl->GetSubItem(PropId + 4)->GetSubItem(0)->GetValue().intVal,
 			pControl->GetSubItem(PropId + 4)->GetSubItem(1)->GetValue().intVal,
@@ -4909,11 +4915,13 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		my::Button* button = dynamic_cast<my::Button*>((my::Control*)pControl->GetValue().pulVal);
 		my::ButtonSkinPtr skin = boost::dynamic_pointer_cast<my::ButtonSkin>(button->m_Skin);
 		unsigned int PropId = GetControlPropCount(my::Control::ControlTypeStatic);
-		skin->m_PressedImage->m_Rect.SetRect(
-			pControl->GetSubItem(PropId + 6)->GetSubItem(0)->GetValue().intVal,
-			pControl->GetSubItem(PropId + 6)->GetSubItem(1)->GetValue().intVal,
-			pControl->GetSubItem(PropId + 6)->GetSubItem(2)->GetValue().intVal,
-			pControl->GetSubItem(PropId + 6)->GetSubItem(3)->GetValue().intVal);
+		skin->m_PressedImage->m_Rect = CRect(
+			CPoint(
+				pControl->GetSubItem(PropId + 6)->GetSubItem(0)->GetValue().intVal,
+				pControl->GetSubItem(PropId + 6)->GetSubItem(1)->GetValue().intVal),
+			CSize(
+				pControl->GetSubItem(PropId + 6)->GetSubItem(2)->GetValue().intVal,
+				pControl->GetSubItem(PropId + 6)->GetSubItem(3)->GetValue().intVal));
 		skin->m_PressedImage->m_Border.SetRect(
 			pControl->GetSubItem(PropId + 7)->GetSubItem(0)->GetValue().intVal,
 			pControl->GetSubItem(PropId + 7)->GetSubItem(1)->GetValue().intVal,
@@ -4976,11 +4984,13 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		my::Button* button = dynamic_cast<my::Button*>((my::Control*)pControl->GetValue().pulVal);
 		my::ButtonSkinPtr skin = boost::dynamic_pointer_cast<my::ButtonSkin>(button->m_Skin);
 		unsigned int PropId = GetControlPropCount(my::Control::ControlTypeStatic);
-		skin->m_MouseOverImage->m_Rect.SetRect(
-			pControl->GetSubItem(PropId + 9)->GetSubItem(0)->GetValue().intVal,
-			pControl->GetSubItem(PropId + 9)->GetSubItem(1)->GetValue().intVal,
-			pControl->GetSubItem(PropId + 9)->GetSubItem(2)->GetValue().intVal,
-			pControl->GetSubItem(PropId + 9)->GetSubItem(3)->GetValue().intVal);
+		skin->m_MouseOverImage->m_Rect = CRect(
+			CPoint(
+				pControl->GetSubItem(PropId + 9)->GetSubItem(0)->GetValue().intVal,
+				pControl->GetSubItem(PropId + 9)->GetSubItem(1)->GetValue().intVal),
+			CSize(
+				pControl->GetSubItem(PropId + 9)->GetSubItem(2)->GetValue().intVal,
+				pControl->GetSubItem(PropId + 9)->GetSubItem(3)->GetValue().intVal));
 		skin->m_MouseOverImage->m_Border.SetRect(
 			pControl->GetSubItem(PropId + 10)->GetSubItem(0)->GetValue().intVal,
 			pControl->GetSubItem(PropId + 10)->GetSubItem(1)->GetValue().intVal,
@@ -5096,11 +5106,13 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		my::EditBox* button = dynamic_cast<my::EditBox*>((my::Control*)pControl->GetValue().pulVal);
 		my::EditBoxSkinPtr skin = boost::dynamic_pointer_cast<my::EditBoxSkin>(button->m_Skin);
 		unsigned int PropId = GetControlPropCount(my::Control::ControlTypeStatic);
-		skin->m_DisabledImage->m_Rect.SetRect(
-			pControl->GetSubItem(PropId + 2)->GetSubItem(0)->GetValue().intVal,
-			pControl->GetSubItem(PropId + 2)->GetSubItem(1)->GetValue().intVal,
-			pControl->GetSubItem(PropId + 2)->GetSubItem(2)->GetValue().intVal,
-			pControl->GetSubItem(PropId + 2)->GetSubItem(3)->GetValue().intVal);
+		skin->m_DisabledImage->m_Rect = CRect(
+			CPoint(
+				pControl->GetSubItem(PropId + 2)->GetSubItem(0)->GetValue().intVal,
+				pControl->GetSubItem(PropId + 2)->GetSubItem(1)->GetValue().intVal),
+			CSize(
+				pControl->GetSubItem(PropId + 2)->GetSubItem(2)->GetValue().intVal,
+				pControl->GetSubItem(PropId + 2)->GetSubItem(3)->GetValue().intVal));
 		skin->m_DisabledImage->m_Border.SetRect(
 			pControl->GetSubItem(PropId + 3)->GetSubItem(0)->GetValue().intVal,
 			pControl->GetSubItem(PropId + 3)->GetSubItem(1)->GetValue().intVal,
@@ -5163,11 +5175,13 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		my::EditBox* editbox = dynamic_cast<my::EditBox*>((my::Control*)pControl->GetValue().pulVal);
 		my::EditBoxSkinPtr skin = boost::dynamic_pointer_cast<my::EditBoxSkin>(editbox->m_Skin);
 		unsigned int PropId = GetControlPropCount(my::Control::ControlTypeStatic);
-		skin->m_FocusedImage->m_Rect.SetRect(
-			pControl->GetSubItem(PropId + 5)->GetSubItem(0)->GetValue().intVal,
-			pControl->GetSubItem(PropId + 5)->GetSubItem(1)->GetValue().intVal,
-			pControl->GetSubItem(PropId + 5)->GetSubItem(2)->GetValue().intVal,
-			pControl->GetSubItem(PropId + 5)->GetSubItem(3)->GetValue().intVal);
+		skin->m_FocusedImage->m_Rect = CRect(
+			CPoint(
+				pControl->GetSubItem(PropId + 5)->GetSubItem(0)->GetValue().intVal,
+				pControl->GetSubItem(PropId + 5)->GetSubItem(1)->GetValue().intVal),
+			CSize(
+				pControl->GetSubItem(PropId + 5)->GetSubItem(2)->GetValue().intVal,
+				pControl->GetSubItem(PropId + 5)->GetSubItem(3)->GetValue().intVal));
 		skin->m_FocusedImage->m_Border.SetRect(
 			pControl->GetSubItem(PropId + 6)->GetSubItem(0)->GetValue().intVal,
 			pControl->GetSubItem(PropId + 6)->GetSubItem(1)->GetValue().intVal,
@@ -5256,11 +5270,13 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		my::EditBox* button = dynamic_cast<my::EditBox*>((my::Control*)pControl->GetValue().pulVal);
 		my::EditBoxSkinPtr skin = boost::dynamic_pointer_cast<my::EditBoxSkin>(button->m_Skin);
 		unsigned int PropId = GetControlPropCount(my::Control::ControlTypeStatic);
-		skin->m_CaretImage->m_Rect.SetRect(
-			pControl->GetSubItem(PropId + 12)->GetSubItem(0)->GetValue().intVal,
-			pControl->GetSubItem(PropId + 12)->GetSubItem(1)->GetValue().intVal,
-			pControl->GetSubItem(PropId + 12)->GetSubItem(2)->GetValue().intVal,
-			pControl->GetSubItem(PropId + 12)->GetSubItem(3)->GetValue().intVal);
+		skin->m_CaretImage->m_Rect = CRect(
+			CPoint(
+				pControl->GetSubItem(PropId + 12)->GetSubItem(0)->GetValue().intVal,
+				pControl->GetSubItem(PropId + 12)->GetSubItem(1)->GetValue().intVal),
+			CSize(
+				pControl->GetSubItem(PropId + 12)->GetSubItem(2)->GetValue().intVal,
+				pControl->GetSubItem(PropId + 12)->GetSubItem(3)->GetValue().intVal));
 		skin->m_CaretImage->m_Border.SetRect(
 			pControl->GetSubItem(PropId + 13)->GetSubItem(0)->GetValue().intVal,
 			pControl->GetSubItem(PropId + 13)->GetSubItem(1)->GetValue().intVal,
@@ -5341,11 +5357,13 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		my::ScrollBar* scrollbar = dynamic_cast<my::ScrollBar*>((my::Control*)pControl->GetValue().pulVal);
 		my::ScrollBarSkinPtr skin = boost::dynamic_pointer_cast<my::ScrollBarSkin>(scrollbar->m_Skin);
 		unsigned int PropId = GetControlPropCount(my::Control::ControlTypeControl);
-		skin->m_UpBtnNormalImage->m_Rect.SetRect(
-			pControl->GetSubItem(PropId + 6)->GetSubItem(0)->GetValue().intVal,
-			pControl->GetSubItem(PropId + 6)->GetSubItem(1)->GetValue().intVal,
-			pControl->GetSubItem(PropId + 6)->GetSubItem(2)->GetValue().intVal,
-			pControl->GetSubItem(PropId + 6)->GetSubItem(3)->GetValue().intVal);
+		skin->m_UpBtnNormalImage->m_Rect = CRect(
+			CPoint(
+				pControl->GetSubItem(PropId + 6)->GetSubItem(0)->GetValue().intVal,
+				pControl->GetSubItem(PropId + 6)->GetSubItem(1)->GetValue().intVal),
+			CSize(
+				pControl->GetSubItem(PropId + 6)->GetSubItem(2)->GetValue().intVal,
+				pControl->GetSubItem(PropId + 6)->GetSubItem(3)->GetValue().intVal));
 		skin->m_UpBtnNormalImage->m_Border.SetRect(
 			pControl->GetSubItem(PropId + 7)->GetSubItem(0)->GetValue().intVal,
 			pControl->GetSubItem(PropId + 7)->GetSubItem(1)->GetValue().intVal,
@@ -5408,11 +5426,13 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		my::ScrollBar* scrollbar = dynamic_cast<my::ScrollBar*>((my::Control*)pControl->GetValue().pulVal);
 		my::ScrollBarSkinPtr skin = boost::dynamic_pointer_cast<my::ScrollBarSkin>(scrollbar->m_Skin);
 		unsigned int PropId = GetControlPropCount(my::Control::ControlTypeControl);
-		skin->m_UpBtnDisabledImage->m_Rect.SetRect(
-			pControl->GetSubItem(PropId + 9)->GetSubItem(0)->GetValue().intVal,
-			pControl->GetSubItem(PropId + 9)->GetSubItem(1)->GetValue().intVal,
-			pControl->GetSubItem(PropId + 9)->GetSubItem(2)->GetValue().intVal,
-			pControl->GetSubItem(PropId + 9)->GetSubItem(3)->GetValue().intVal);
+		skin->m_UpBtnDisabledImage->m_Rect = CRect(
+			CPoint(
+				pControl->GetSubItem(PropId + 9)->GetSubItem(0)->GetValue().intVal,
+				pControl->GetSubItem(PropId + 9)->GetSubItem(1)->GetValue().intVal),
+			CSize(
+				pControl->GetSubItem(PropId + 9)->GetSubItem(2)->GetValue().intVal,
+				pControl->GetSubItem(PropId + 9)->GetSubItem(3)->GetValue().intVal));
 		skin->m_UpBtnDisabledImage->m_Border.SetRect(
 			pControl->GetSubItem(PropId + 10)->GetSubItem(0)->GetValue().intVal,
 			pControl->GetSubItem(PropId + 10)->GetSubItem(1)->GetValue().intVal,
@@ -5475,11 +5495,13 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		my::ScrollBar* scrollbar = dynamic_cast<my::ScrollBar*>((my::Control*)pControl->GetValue().pulVal);
 		my::ScrollBarSkinPtr skin = boost::dynamic_pointer_cast<my::ScrollBarSkin>(scrollbar->m_Skin);
 		unsigned int PropId = GetControlPropCount(my::Control::ControlTypeControl);
-		skin->m_DownBtnNormalImage->m_Rect.SetRect(
-			pControl->GetSubItem(PropId + 12)->GetSubItem(0)->GetValue().intVal,
-			pControl->GetSubItem(PropId + 12)->GetSubItem(1)->GetValue().intVal,
-			pControl->GetSubItem(PropId + 12)->GetSubItem(2)->GetValue().intVal,
-			pControl->GetSubItem(PropId + 12)->GetSubItem(3)->GetValue().intVal);
+		skin->m_DownBtnNormalImage->m_Rect = CRect(
+			CPoint(
+				pControl->GetSubItem(PropId + 12)->GetSubItem(0)->GetValue().intVal,
+				pControl->GetSubItem(PropId + 12)->GetSubItem(1)->GetValue().intVal),
+			CSize(
+				pControl->GetSubItem(PropId + 12)->GetSubItem(2)->GetValue().intVal,
+				pControl->GetSubItem(PropId + 12)->GetSubItem(3)->GetValue().intVal));
 		skin->m_DownBtnNormalImage->m_Border.SetRect(
 			pControl->GetSubItem(PropId + 13)->GetSubItem(0)->GetValue().intVal,
 			pControl->GetSubItem(PropId + 13)->GetSubItem(1)->GetValue().intVal,
@@ -5542,11 +5564,13 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		my::ScrollBar* scrollbar = dynamic_cast<my::ScrollBar*>((my::Control*)pControl->GetValue().pulVal);
 		my::ScrollBarSkinPtr skin = boost::dynamic_pointer_cast<my::ScrollBarSkin>(scrollbar->m_Skin);
 		unsigned int PropId = GetControlPropCount(my::Control::ControlTypeControl);
-		skin->m_DownBtnDisabledImage->m_Rect.SetRect(
-			pControl->GetSubItem(PropId + 15)->GetSubItem(0)->GetValue().intVal,
-			pControl->GetSubItem(PropId + 15)->GetSubItem(1)->GetValue().intVal,
-			pControl->GetSubItem(PropId + 15)->GetSubItem(2)->GetValue().intVal,
-			pControl->GetSubItem(PropId + 15)->GetSubItem(3)->GetValue().intVal);
+		skin->m_DownBtnDisabledImage->m_Rect = CRect(
+			CPoint(
+				pControl->GetSubItem(PropId + 15)->GetSubItem(0)->GetValue().intVal,
+				pControl->GetSubItem(PropId + 15)->GetSubItem(1)->GetValue().intVal),
+			CSize(
+				pControl->GetSubItem(PropId + 15)->GetSubItem(2)->GetValue().intVal,
+				pControl->GetSubItem(PropId + 15)->GetSubItem(3)->GetValue().intVal));
 		skin->m_DownBtnDisabledImage->m_Border.SetRect(
 			pControl->GetSubItem(PropId + 16)->GetSubItem(0)->GetValue().intVal,
 			pControl->GetSubItem(PropId + 16)->GetSubItem(1)->GetValue().intVal,
@@ -5609,11 +5633,13 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		my::ScrollBar* scrollbar = dynamic_cast<my::ScrollBar*>((my::Control*)pControl->GetValue().pulVal);
 		my::ScrollBarSkinPtr skin = boost::dynamic_pointer_cast<my::ScrollBarSkin>(scrollbar->m_Skin);
 		unsigned int PropId = GetControlPropCount(my::Control::ControlTypeControl);
-		skin->m_ThumbBtnNormalImage->m_Rect.SetRect(
-			pControl->GetSubItem(PropId + 18)->GetSubItem(0)->GetValue().intVal,
-			pControl->GetSubItem(PropId + 18)->GetSubItem(1)->GetValue().intVal,
-			pControl->GetSubItem(PropId + 18)->GetSubItem(2)->GetValue().intVal,
-			pControl->GetSubItem(PropId + 18)->GetSubItem(3)->GetValue().intVal);
+		skin->m_ThumbBtnNormalImage->m_Rect = CRect(
+			CPoint(
+				pControl->GetSubItem(PropId + 18)->GetSubItem(0)->GetValue().intVal,
+				pControl->GetSubItem(PropId + 18)->GetSubItem(1)->GetValue().intVal),
+			CSize(
+				pControl->GetSubItem(PropId + 18)->GetSubItem(2)->GetValue().intVal,
+				pControl->GetSubItem(PropId + 18)->GetSubItem(3)->GetValue().intVal));
 		skin->m_ThumbBtnNormalImage->m_Border.SetRect(
 			pControl->GetSubItem(PropId + 19)->GetSubItem(0)->GetValue().intVal,
 			pControl->GetSubItem(PropId + 19)->GetSubItem(1)->GetValue().intVal,
@@ -5740,11 +5766,13 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		my::ComboBox* combobox = dynamic_cast<my::ComboBox*>((my::Control*)pControl->GetValue().pulVal);
 		my::ComboBoxSkinPtr skin = boost::dynamic_pointer_cast<my::ComboBoxSkin>(combobox->m_Skin);
 		unsigned int PropId = GetControlPropCount(my::Control::ControlTypeButton);
-		skin->m_DropdownImage->m_Rect.SetRect(
-			pControl->GetSubItem(PropId + 7)->GetSubItem(0)->GetValue().intVal,
-			pControl->GetSubItem(PropId + 7)->GetSubItem(1)->GetValue().intVal,
-			pControl->GetSubItem(PropId + 7)->GetSubItem(2)->GetValue().intVal,
-			pControl->GetSubItem(PropId + 7)->GetSubItem(3)->GetValue().intVal);
+		skin->m_DropdownImage->m_Rect = CRect(
+			CPoint(
+				pControl->GetSubItem(PropId + 7)->GetSubItem(0)->GetValue().intVal,
+				pControl->GetSubItem(PropId + 7)->GetSubItem(1)->GetValue().intVal),
+			CSize(
+				pControl->GetSubItem(PropId + 7)->GetSubItem(2)->GetValue().intVal,
+				pControl->GetSubItem(PropId + 7)->GetSubItem(3)->GetValue().intVal));
 		skin->m_DropdownImage->m_Border.SetRect(
 			pControl->GetSubItem(PropId + 8)->GetSubItem(0)->GetValue().intVal,
 			pControl->GetSubItem(PropId + 8)->GetSubItem(1)->GetValue().intVal,
@@ -5831,11 +5859,13 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		my::ComboBox* combobox = dynamic_cast<my::ComboBox*>((my::Control*)pControl->GetValue().pulVal);
 		my::ComboBoxSkinPtr skin = boost::dynamic_pointer_cast<my::ComboBoxSkin>(combobox->m_Skin);
 		unsigned int PropId = GetControlPropCount(my::Control::ControlTypeButton);
-		skin->m_DropdownItemMouseOverImage->m_Rect.SetRect(
-			pControl->GetSubItem(PropId + 13)->GetSubItem(0)->GetValue().intVal,
-			pControl->GetSubItem(PropId + 13)->GetSubItem(1)->GetValue().intVal,
-			pControl->GetSubItem(PropId + 13)->GetSubItem(2)->GetValue().intVal,
-			pControl->GetSubItem(PropId + 13)->GetSubItem(3)->GetValue().intVal);
+		skin->m_DropdownItemMouseOverImage->m_Rect = CRect(
+			CPoint(
+				pControl->GetSubItem(PropId + 13)->GetSubItem(0)->GetValue().intVal,
+				pControl->GetSubItem(PropId + 13)->GetSubItem(1)->GetValue().intVal),
+			CSize(
+				pControl->GetSubItem(PropId + 13)->GetSubItem(2)->GetValue().intVal,
+				pControl->GetSubItem(PropId + 13)->GetSubItem(3)->GetValue().intVal));
 		skin->m_DropdownItemMouseOverImage->m_Border.SetRect(
 			pControl->GetSubItem(PropId + 14)->GetSubItem(0)->GetValue().intVal,
 			pControl->GetSubItem(PropId + 14)->GetSubItem(1)->GetValue().intVal,
