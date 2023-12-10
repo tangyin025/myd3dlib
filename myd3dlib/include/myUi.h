@@ -99,6 +99,10 @@ namespace my
 
 		void PushRectangle(const Rectangle & rect, D3DCOLOR color, const Rectangle & WindowRect, const BaseTexture * texture, const Rectangle & clip);
 
+		void PushRectangle(const Rectangle & rect, D3DCOLOR color, const Rectangle & WindowRect, const CSize & TileSize, const BaseTexture * texture);
+
+		void PushRectangle(const Rectangle & rect, D3DCOLOR color, const Rectangle & WindowRect, const CSize & TileSize, const BaseTexture * texture, const Rectangle & clip);
+
 		void PushRectangle(const Rectangle & rect, D3DCOLOR color, const Rectangle & WindowRect, const BaseTexture * texture, const Matrix4 & transform);
 
 		void PushRectangle(const Rectangle & rect, D3DCOLOR color, const Rectangle & WindowRect, const BaseTexture * texture, const Matrix4 & transform, const Rectangle & clip);
