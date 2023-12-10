@@ -164,33 +164,6 @@ namespace boost
 	{
 		void validate(boost::any& v,
 			const std::vector<std::string>& values,
-			my::Rectangle* , int)
-		{
-			static boost::regex r("([+-]?(\\d*[.])?\\d+),([+-]?(\\d*[.])?\\d+),([+-]?(\\d*[.])?\\d+),([+-]?(\\d*[.])?\\d+)");
-
-			// Make sure no previous assignment to 'a' was made.
-			boost::program_options::validators::check_first_occurrence(v);
-			// Extract the first string from 'values'. If there is more than
-			// one string, it's an error, and exception will be thrown.
-			const std::string& s = boost::program_options::validators::get_single_string(values);
-
-			// Do regex match and convert the interesting part to
-			// int.
-			boost::smatch match;
-			if (boost::regex_match(s, match, r)) {
-				v = boost::any(my::Rectangle::LeftTop(
-					boost::lexical_cast<float>(match[1]),
-					boost::lexical_cast<float>(match[3]),
-					boost::lexical_cast<float>(match[5]),
-					boost::lexical_cast<float>(match[7])));
-			}
-			else {
-				throw boost::program_options::validation_error(boost::program_options::validation_error::invalid_option_value);
-			}
-		}
-
-		void validate(boost::any& v,
-			const std::vector<std::string>& values,
 			my::Vector2*, int)
 		{
 			static boost::regex r("([+-]?(\\d*[.])?\\d+),([+-]?(\\d*[.])?\\d+)");
@@ -242,9 +215,9 @@ namespace boost
 
 		void validate(boost::any& v,
 			const std::vector<std::string>& values,
-			my::Vector4*, int)
+			CRect*, int)
 		{
-			static boost::regex r("([+-]?(\\d*[.])?\\d+),([+-]?(\\d*[.])?\\d+),([+-]?(\\d*[.])?\\d+),([+-]?(\\d*[.])?\\d+)");
+			static boost::regex r("(\\d+),(\\d+),(\\d+),(\\d+)");
 
 			// Make sure no previous assignment to 'a' was made.
 			boost::program_options::validators::check_first_occurrence(v);
@@ -256,11 +229,11 @@ namespace boost
 			// int.
 			boost::smatch match;
 			if (boost::regex_match(s, match, r)) {
-				v = boost::any(my::Vector4(
-					boost::lexical_cast<float>(match[1]),
-					boost::lexical_cast<float>(match[3]),
-					boost::lexical_cast<float>(match[5]),
-					boost::lexical_cast<float>(match[7])));
+				v = boost::any(CRect(
+					boost::lexical_cast<int>(match[1]),
+					boost::lexical_cast<int>(match[2]),
+					boost::lexical_cast<int>(match[3]),
+					boost::lexical_cast<int>(match[4])));
 			}
 			else {
 				throw boost::program_options::validation_error(boost::program_options::validation_error::invalid_option_value);
@@ -421,127 +394,127 @@ BOOL CMainApp::InitInstance()
 		("default_terrain_water_level", boost::program_options::value(&default_terrain_water_level)->default_value(150.0f), "Default terrain water level")
 		("default_dialog_color", boost::program_options::value<D3DCOLOR>(&default_dialog_color)->default_value(D3DCOLOR_ARGB(255,255,255,255)), "Default dialog color")
 		("default_dialog_img", boost::program_options::value(&default_dialog_img)->default_value("texture/White.dds"), "Default dialog img")
-		("default_dialog_img_rect", boost::program_options::value<my::Rectangle>(&default_dialog_img_rect)->default_value(my::Rectangle::LeftTop(1,1,2,2), ""), "Default dialog img rect")
-		("default_dialog_img_border", boost::program_options::value<my::Vector4>(&default_dialog_img_border)->default_value(my::Vector4(0,0,0,0), ""), "Default dialog img border")
+		("default_dialog_img_rect", boost::program_options::value<CRect>(&default_dialog_img_rect)->default_value(CRect(1,1,3,3), ""), "Default dialog img rect")
+		("default_dialog_img_border", boost::program_options::value<CRect>(&default_dialog_img_border)->default_value(CRect(0,0,0,0), ""), "Default dialog img border")
 		("default_static_text_color", boost::program_options::value<D3DCOLOR>(&default_static_text_color)->default_value(D3DCOLOR_ARGB(255,0,0,0)), "Default static text color")
 		("default_static_text_align", boost::program_options::value<my::Font::Align>(&default_static_text_align)->default_value(my::Font::AlignLeftTop), "Default static text align")
 		("default_progressbar_img", boost::program_options::value(&default_progressbar_img)->default_value("texture/White.dds"), "Default progressbar img")
-		("default_progressbar_img_rect", boost::program_options::value<my::Rectangle>(&default_progressbar_img_rect)->default_value(my::Rectangle::LeftTop(1,1,2,2), ""), "Default progressbar img rect")
-		("default_progressbar_img_border", boost::program_options::value<my::Vector4>(&default_progressbar_img_border)->default_value(my::Vector4(0,0,0,0), ""), "Default progressbar img border")
+		("default_progressbar_img_rect", boost::program_options::value<CRect>(&default_progressbar_img_rect)->default_value(CRect(1,1,3,3), ""), "Default progressbar img rect")
+		("default_progressbar_img_border", boost::program_options::value<CRect>(&default_progressbar_img_border)->default_value(CRect(0,0,0,0), ""), "Default progressbar img border")
 		("default_progressbar_text_color", boost::program_options::value<D3DCOLOR>(&default_progressbar_text_color)->default_value(D3DCOLOR_ARGB(255,0,0,0)), "Default progressbar text color")
 		("default_progressbar_text_align", boost::program_options::value<my::Font::Align>(&default_progressbar_text_align)->default_value(my::Font::AlignLeftMiddle), "Default progressbar text align")
 		("default_progressbar_foregroundimg", boost::program_options::value(&default_progressbar_foregroundimg)->default_value("texture/Red.dds"), "Default progressbar foregroundimg")
-		("default_progressbar_foregroundimg_rect", boost::program_options::value<my::Rectangle>(&default_progressbar_foregroundimg_rect)->default_value(my::Rectangle::LeftTop(1,1,2,2), ""), "Default progressbar foregroundimg rect")
-		("default_progressbar_foregroundimg_border", boost::program_options::value<my::Vector4>(&default_progressbar_foregroundimg_border)->default_value(my::Vector4(0,0,0,0), ""), "Default progressbar foregroundimg border")
+		("default_progressbar_foregroundimg_rect", boost::program_options::value<CRect>(&default_progressbar_foregroundimg_rect)->default_value(CRect(1,1,3,3), ""), "Default progressbar foregroundimg rect")
+		("default_progressbar_foregroundimg_border", boost::program_options::value<CRect>(&default_progressbar_foregroundimg_border)->default_value(CRect(0,0,0,0), ""), "Default progressbar foregroundimg border")
 		("default_button_img", boost::program_options::value(&default_button_img)->default_value("texture/White.dds"), "Default button img")
-		("default_button_img_rect", boost::program_options::value<my::Rectangle>(&default_button_img_rect)->default_value(my::Rectangle::LeftTop(1,1,2,2), ""), "Default button img rect")
-		("default_button_img_border", boost::program_options::value<my::Vector4>(&default_button_img_border)->default_value(my::Vector4(0,0,0,0), ""), "Default button img border")
+		("default_button_img_rect", boost::program_options::value<CRect>(&default_button_img_rect)->default_value(CRect(1,1,3,3), ""), "Default button img rect")
+		("default_button_img_border", boost::program_options::value<CRect>(&default_button_img_border)->default_value(CRect(0,0,0,0), ""), "Default button img border")
 		("default_button_text_color", boost::program_options::value<D3DCOLOR>(&default_button_text_color)->default_value(D3DCOLOR_ARGB(255,0,0,0)), "Default button text color")
 		("default_button_text_align", boost::program_options::value<my::Font::Align>(&default_button_text_align)->default_value(my::Font::AlignCenterMiddle), "Default button text align")
 		("default_button_pressed_offset", boost::program_options::value<my::Vector2>(&default_button_pressed_offset)->default_value(my::Vector2(1, 2), "1,2"), "Default button pressed offset")
 		("default_button_disabledimg", boost::program_options::value(&default_button_disabledimg)->default_value("texture/White.dds"), "Default button disabledimg")
-		("default_button_disabledimg_rect", boost::program_options::value<my::Rectangle>(&default_button_disabledimg_rect)->default_value(my::Rectangle::LeftTop(1,1,2,2), ""), "Default button disabledimg rect")
-		("default_button_disabledimg_border", boost::program_options::value<my::Vector4>(&default_button_disabledimg_border)->default_value(my::Vector4(0,0,0,0), ""), "Default button disabledimg border")
+		("default_button_disabledimg_rect", boost::program_options::value<CRect>(&default_button_disabledimg_rect)->default_value(CRect(1,1,3,3), ""), "Default button disabledimg rect")
+		("default_button_disabledimg_border", boost::program_options::value<CRect>(&default_button_disabledimg_border)->default_value(CRect(0,0,0,0), ""), "Default button disabledimg border")
 		("default_button_pressedimg", boost::program_options::value(&default_button_pressedimg)->default_value("texture/White.dds"), "Default button pressedimg")
-		("default_button_pressedimg_rect", boost::program_options::value<my::Rectangle>(&default_button_pressedimg_rect)->default_value(my::Rectangle::LeftTop(1,1,2,2), ""), "Default button pressedimg rect")
-		("default_button_pressedimg_border", boost::program_options::value<my::Vector4>(&default_button_pressedimg_border)->default_value(my::Vector4(0,0,0,0), ""), "Default button pressedimg border")
+		("default_button_pressedimg_rect", boost::program_options::value<CRect>(&default_button_pressedimg_rect)->default_value(CRect(1,1,3,3), ""), "Default button pressedimg rect")
+		("default_button_pressedimg_border", boost::program_options::value<CRect>(&default_button_pressedimg_border)->default_value(CRect(0,0,0,0), ""), "Default button pressedimg border")
 		("default_button_mouseoverimg", boost::program_options::value(&default_button_mouseoverimg)->default_value("texture/White.dds"), "Default button mouseoverimg")
-		("default_button_mouseoverimg_rect", boost::program_options::value<my::Rectangle>(&default_button_mouseoverimg_rect)->default_value(my::Rectangle::LeftTop(1,1,2,2), ""), "Default button mouseoverimg rect")
-		("default_button_mouseoverimg_border", boost::program_options::value<my::Vector4>(&default_button_mouseoverimg_border)->default_value(my::Vector4(0,0,0,0), ""), "Default button mouseoverimg border")
+		("default_button_mouseoverimg_rect", boost::program_options::value<CRect>(&default_button_mouseoverimg_rect)->default_value(CRect(1,1,3,3), ""), "Default button mouseoverimg rect")
+		("default_button_mouseoverimg_border", boost::program_options::value<CRect>(&default_button_mouseoverimg_border)->default_value(CRect(0,0,0,0), ""), "Default button mouseoverimg border")
 		("default_editbox_color", boost::program_options::value<D3DCOLOR>(&default_editbox_color)->default_value(D3DCOLOR_ARGB(255,255,255,255)), "Default editbox color")
 		("default_editbox_text_color", boost::program_options::value<D3DCOLOR>(&default_editbox_text_color)->default_value(D3DCOLOR_ARGB(255,0,0,0)), "Default editbox text color")
 		("default_editbox_text_align", boost::program_options::value<my::Font::Align>(&default_editbox_text_align)->default_value(my::Font::AlignLeftMiddle), "Default editbox text align")
 		("default_editbox_img", boost::program_options::value(&default_editbox_img)->default_value("texture/White.dds"), "Default editbox img")
-		("default_editbox_img_rect", boost::program_options::value<my::Rectangle>(&default_editbox_img_rect)->default_value(my::Rectangle::LeftTop(1,1,2,2), ""), "Default editbox img rect")
-		("default_editbox_img_border", boost::program_options::value<my::Vector4>(&default_editbox_img_border)->default_value(my::Vector4(0,0,0,0), ""), "Default editbox img border")
+		("default_editbox_img_rect", boost::program_options::value<CRect>(&default_editbox_img_rect)->default_value(CRect(1,1,3,3), ""), "Default editbox img rect")
+		("default_editbox_img_border", boost::program_options::value<CRect>(&default_editbox_img_border)->default_value(CRect(0,0,0,0), ""), "Default editbox img border")
 		("default_editbox_disabledimg", boost::program_options::value(&default_editbox_disabledimg)->default_value("texture/White.dds"), "Default button disabledimg")
-		("default_editbox_disabledimg_rect", boost::program_options::value<my::Rectangle>(&default_editbox_disabledimg_rect)->default_value(my::Rectangle::LeftTop(1,1,2,2), ""), "Default editbox disabledimg rect")
-		("default_editbox_disabledimg_border", boost::program_options::value<my::Vector4>(&default_editbox_disabledimg_border)->default_value(my::Vector4(0,0,0,0), ""), "Default editbox disabledimg border")
+		("default_editbox_disabledimg_rect", boost::program_options::value<CRect>(&default_editbox_disabledimg_rect)->default_value(CRect(1,1,3,3), ""), "Default editbox disabledimg rect")
+		("default_editbox_disabledimg_border", boost::program_options::value<CRect>(&default_editbox_disabledimg_border)->default_value(CRect(0,0,0,0), ""), "Default editbox disabledimg border")
 		("default_editbox_focusedimg", boost::program_options::value(&default_editbox_focusedimg)->default_value("texture/White.dds"), "Default editbox focusedimg")
-		("default_editbox_focusedimg_rect", boost::program_options::value<my::Rectangle>(&default_editbox_focusedimg_rect)->default_value(my::Rectangle::LeftTop(1,1,2,2), ""), "Default editbox focusedimg rect")
-		("default_editbox_focusedimg_border", boost::program_options::value<my::Vector4>(&default_editbox_focusedimg_border)->default_value(my::Vector4(0,0,0,0), ""), "Default editbox focusedimg border")
+		("default_editbox_focusedimg_rect", boost::program_options::value<CRect>(&default_editbox_focusedimg_rect)->default_value(CRect(1,1,3,3), ""), "Default editbox focusedimg rect")
+		("default_editbox_focusedimg_border", boost::program_options::value<CRect>(&default_editbox_focusedimg_border)->default_value(CRect(0,0,0,0), ""), "Default editbox focusedimg border")
 		("default_editbox_sel_bk_color", boost::program_options::value<D3DCOLOR>(&default_editbox_sel_bk_color)->default_value(D3DCOLOR_ARGB(255,0,0,0)), "Default editbox sel_bk color")
 		("default_editbox_caret_color", boost::program_options::value<D3DCOLOR>(&default_editbox_caret_color)->default_value(D3DCOLOR_ARGB(255,0,0,0)), "Default editbox caret color")
 		("default_editbox_caretimg", boost::program_options::value(&default_editbox_caretimg)->default_value("texture/White.dds"), "Default editbox caretimg")
-		("default_editbox_caretimg_rect", boost::program_options::value<my::Rectangle>(&default_editbox_caretimg_rect)->default_value(my::Rectangle::LeftTop(1,1,2,2), ""), "Default editbox caretimg rect")
-		("default_editbox_caretimg_border", boost::program_options::value<my::Vector4>(&default_editbox_caretimg_border)->default_value(my::Vector4(0,0,0,0), ""), "Default editbox caretimg border")
+		("default_editbox_caretimg_rect", boost::program_options::value<CRect>(&default_editbox_caretimg_rect)->default_value(CRect(1,1,3,3), ""), "Default editbox caretimg rect")
+		("default_editbox_caretimg_border", boost::program_options::value<CRect>(&default_editbox_caretimg_border)->default_value(CRect(0,0,0,0), ""), "Default editbox caretimg border")
 		("default_checkbox_img", boost::program_options::value(&default_checkbox_img)->default_value("texture/White.dds"), "Default checkbox img")
-		("default_checkbox_img_rect", boost::program_options::value<my::Rectangle>(&default_checkbox_img_rect)->default_value(my::Rectangle::LeftTop(1,1,2,2), ""), "Default checkbox img rect")
-		("default_checkbox_img_border", boost::program_options::value<my::Vector4>(&default_checkbox_img_border)->default_value(my::Vector4(0,0,0,0), ""), "Default checkbox img border")
+		("default_checkbox_img_rect", boost::program_options::value<CRect>(&default_checkbox_img_rect)->default_value(CRect(1,1,3,3), ""), "Default checkbox img rect")
+		("default_checkbox_img_border", boost::program_options::value<CRect>(&default_checkbox_img_border)->default_value(CRect(0,0,0,0), ""), "Default checkbox img border")
 		("default_checkbox_text_color", boost::program_options::value<D3DCOLOR>(&default_checkbox_text_color)->default_value(D3DCOLOR_ARGB(255,0,0,0)), "Default checkbox text color")
 		("default_checkbox_text_align", boost::program_options::value<my::Font::Align>(&default_checkbox_text_align)->default_value(my::Font::AlignLeftMiddle), "Default checkbox text align")
 		("default_checkbox_pressed_offset", boost::program_options::value<my::Vector2>(&default_checkbox_pressed_offset)->default_value(my::Vector2(1, 2), "1,2"), "Default checkbox pressed offset")
 		("default_checkbox_disabledimg", boost::program_options::value(&default_checkbox_disabledimg)->default_value("texture/White.dds"), "Default checkbox disabledimg")
-		("default_checkbox_disabledimg_rect", boost::program_options::value<my::Rectangle>(&default_checkbox_disabledimg_rect)->default_value(my::Rectangle::LeftTop(1,1,2,2), ""), "Default checkbox disabledimg rect")
-		("default_checkbox_disabledimg_border", boost::program_options::value<my::Vector4>(&default_checkbox_disabledimg_border)->default_value(my::Vector4(0,0,0,0), ""), "Default checkbox disabledimg border")
+		("default_checkbox_disabledimg_rect", boost::program_options::value<CRect>(&default_checkbox_disabledimg_rect)->default_value(CRect(1,1,3,3), ""), "Default checkbox disabledimg rect")
+		("default_checkbox_disabledimg_border", boost::program_options::value<CRect>(&default_checkbox_disabledimg_border)->default_value(CRect(0,0,0,0), ""), "Default checkbox disabledimg border")
 		("default_checkbox_pressedimg", boost::program_options::value(&default_checkbox_pressedimg)->default_value("texture/White.dds"), "Default checkbox pressedimg")
-		("default_checkbox_pressedimg_rect", boost::program_options::value<my::Rectangle>(&default_checkbox_pressedimg_rect)->default_value(my::Rectangle::LeftTop(1,1,2,2), ""), "Default checkbox pressedimg rect")
-		("default_checkbox_pressedimg_border", boost::program_options::value<my::Vector4>(&default_checkbox_pressedimg_border)->default_value(my::Vector4(0,0,0,0), ""), "Default checkbox pressedimg border")
+		("default_checkbox_pressedimg_rect", boost::program_options::value<CRect>(&default_checkbox_pressedimg_rect)->default_value(CRect(1,1,3,3), ""), "Default checkbox pressedimg rect")
+		("default_checkbox_pressedimg_border", boost::program_options::value<CRect>(&default_checkbox_pressedimg_border)->default_value(CRect(0,0,0,0), ""), "Default checkbox pressedimg border")
 		("default_checkbox_mouseoverimg", boost::program_options::value(&default_checkbox_mouseoverimg)->default_value("texture/White.dds"), "Default checkbox mouseoverimg")
-		("default_checkbox_mouseoverimg_rect", boost::program_options::value<my::Rectangle>(&default_checkbox_mouseoverimg_rect)->default_value(my::Rectangle::LeftTop(1,1,2,2), ""), "Default checkbox mouseoverimg rect")
-		("default_checkbox_mouseoverimg_border", boost::program_options::value<my::Vector4>(&default_checkbox_mouseoverimg_border)->default_value(my::Vector4(0,0,0,0), ""), "Default checkbox mouseoverimg border")
+		("default_checkbox_mouseoverimg_rect", boost::program_options::value<CRect>(&default_checkbox_mouseoverimg_rect)->default_value(CRect(1,1,3,3), ""), "Default checkbox mouseoverimg rect")
+		("default_checkbox_mouseoverimg_border", boost::program_options::value<CRect>(&default_checkbox_mouseoverimg_border)->default_value(CRect(0,0,0,0), ""), "Default checkbox mouseoverimg border")
 		("default_combobox_img", boost::program_options::value(&default_combobox_img)->default_value("texture/White.dds"), "Default combobox img")
-		("default_combobox_img_rect", boost::program_options::value<my::Rectangle>(&default_combobox_img_rect)->default_value(my::Rectangle::LeftTop(1,1,2,2), ""), "Default combobox img rect")
-		("default_combobox_img_border", boost::program_options::value<my::Vector4>(&default_combobox_img_border)->default_value(my::Vector4(0,0,0,0), ""), "Default combobox img border")
+		("default_combobox_img_rect", boost::program_options::value<CRect>(&default_combobox_img_rect)->default_value(CRect(1,1,3,3), ""), "Default combobox img rect")
+		("default_combobox_img_border", boost::program_options::value<CRect>(&default_combobox_img_border)->default_value(CRect(0,0,0,0), ""), "Default combobox img border")
 		("default_combobox_text_color", boost::program_options::value<D3DCOLOR>(&default_combobox_text_color)->default_value(D3DCOLOR_ARGB(255,0,0,0)), "Default combobox text color")
 		("default_combobox_text_align", boost::program_options::value<my::Font::Align>(&default_combobox_text_align)->default_value(my::Font::AlignCenterMiddle), "Default combobox text align")
 		("default_combobox_pressed_offset", boost::program_options::value<my::Vector2>(&default_combobox_pressed_offset)->default_value(my::Vector2(1, 2), "1,2"), "Default combobox pressed offset")
 		("default_combobox_disabledimg", boost::program_options::value(&default_combobox_disabledimg)->default_value("texture/White.dds"), "Default combobox disabledimg")
-		("default_combobox_disabledimg_rect", boost::program_options::value<my::Rectangle>(&default_combobox_disabledimg_rect)->default_value(my::Rectangle::LeftTop(1,1,2,2), ""), "Default combobox disabledimg rect")
-		("default_combobox_disabledimg_border", boost::program_options::value<my::Vector4>(&default_combobox_disabledimg_border)->default_value(my::Vector4(0,0,0,0), ""), "Default combobox disabledimg border")
+		("default_combobox_disabledimg_rect", boost::program_options::value<CRect>(&default_combobox_disabledimg_rect)->default_value(CRect(1,1,3,3), ""), "Default combobox disabledimg rect")
+		("default_combobox_disabledimg_border", boost::program_options::value<CRect>(&default_combobox_disabledimg_border)->default_value(CRect(0,0,0,0), ""), "Default combobox disabledimg border")
 		("default_combobox_pressedimg", boost::program_options::value(&default_combobox_pressedimg)->default_value("texture/White.dds"), "Default combobox pressedimg")
-		("default_combobox_pressedimg_rect", boost::program_options::value<my::Rectangle>(&default_combobox_pressedimg_rect)->default_value(my::Rectangle::LeftTop(1,1,2,2), ""), "Default combobox pressedimg rect")
-		("default_combobox_pressedimg_border", boost::program_options::value<my::Vector4>(&default_combobox_pressedimg_border)->default_value(my::Vector4(0,0,0,0), ""), "Default combobox pressedimg border")
+		("default_combobox_pressedimg_rect", boost::program_options::value<CRect>(&default_combobox_pressedimg_rect)->default_value(CRect(1,1,3,3), ""), "Default combobox pressedimg rect")
+		("default_combobox_pressedimg_border", boost::program_options::value<CRect>(&default_combobox_pressedimg_border)->default_value(CRect(0,0,0,0), ""), "Default combobox pressedimg border")
 		("default_combobox_mouseoverimg", boost::program_options::value(&default_combobox_mouseoverimg)->default_value("texture/White.dds"), "Default combobox mouseoverimg")
-		("default_combobox_mouseoverimg_rect", boost::program_options::value<my::Rectangle>(&default_combobox_mouseoverimg_rect)->default_value(my::Rectangle::LeftTop(1,1,2,2), ""), "Default combobox mouseoverimg rect")
-		("default_combobox_mouseoverimg_border", boost::program_options::value<my::Vector4>(&default_combobox_mouseoverimg_border)->default_value(my::Vector4(0,0,0,0), ""), "Default combobox mouseoverimg border")
+		("default_combobox_mouseoverimg_rect", boost::program_options::value<CRect>(&default_combobox_mouseoverimg_rect)->default_value(CRect(1,1,3,3), ""), "Default combobox mouseoverimg rect")
+		("default_combobox_mouseoverimg_border", boost::program_options::value<CRect>(&default_combobox_mouseoverimg_border)->default_value(CRect(0,0,0,0), ""), "Default combobox mouseoverimg border")
 		("default_combobox_dropdownimg", boost::program_options::value(&default_combobox_dropdownimg)->default_value("texture/White.dds"), "Default combobox dropdownimg")
-		("default_combobox_dropdownimg_rect", boost::program_options::value<my::Rectangle>(&default_combobox_dropdownimg_rect)->default_value(my::Rectangle::LeftTop(1,1,2,2), ""), "Default combobox dropdownimg rect")
-		("default_combobox_dropdownimg_border", boost::program_options::value<my::Vector4>(&default_combobox_dropdownimg_border)->default_value(my::Vector4(0,0,0,0), ""), "Default combobox dropdownimg border")
+		("default_combobox_dropdownimg_rect", boost::program_options::value<CRect>(&default_combobox_dropdownimg_rect)->default_value(CRect(1,1,3,3), ""), "Default combobox dropdownimg rect")
+		("default_combobox_dropdownimg_border", boost::program_options::value<CRect>(&default_combobox_dropdownimg_border)->default_value(CRect(0,0,0,0), ""), "Default combobox dropdownimg border")
 		("default_combobox_dropdownitem_text_color", boost::program_options::value<D3DCOLOR>(&default_combobox_dropdownitem_text_color)->default_value(D3DCOLOR_ARGB(255,0,0,0)), "Default combobox dropdownitem text color")
 		("default_combobox_dropdownitem_text_align", boost::program_options::value<my::Font::Align>(&default_combobox_dropdownitem_text_align)->default_value(my::Font::AlignCenterMiddle), "Default combobox dropdownitem text align")
 		("default_combobox_dropdownitem_mouseoverimg", boost::program_options::value(&default_combobox_dropdownitem_mouseoverimg)->default_value("texture/White.dds"), "Default combobox dropdownitem_mouseoverimg")
-		("default_combobox_dropdownitem_mouseoverimg_rect", boost::program_options::value<my::Rectangle>(&default_combobox_dropdownitem_mouseoverimg_rect)->default_value(my::Rectangle::LeftTop(1,1,2,2), ""), "Default combobox dropdownitem_mouseoverimg rect")
-		("default_combobox_dropdownitem_mouseoverimg_border", boost::program_options::value<my::Vector4>(&default_combobox_dropdownitem_mouseoverimg_border)->default_value(my::Vector4(0,0,0,0), ""), "Default combobox dropdownitem_mouseoverimg border")
+		("default_combobox_dropdownitem_mouseoverimg_rect", boost::program_options::value<CRect>(&default_combobox_dropdownitem_mouseoverimg_rect)->default_value(CRect(1,1,3,3), ""), "Default combobox dropdownitem_mouseoverimg rect")
+		("default_combobox_dropdownitem_mouseoverimg_border", boost::program_options::value<CRect>(&default_combobox_dropdownitem_mouseoverimg_border)->default_value(CRect(0,0,0,0), ""), "Default combobox dropdownitem_mouseoverimg border")
 		("default_combobox_scrollbarupbtn_normalimg", boost::program_options::value(&default_combobox_scrollbarupbtn_normalimg)->default_value("texture/White.dds"), "Default combobox scrollbarupbtn normalimg")
-		("default_combobox_scrollbarupbtn_normalimg_rect", boost::program_options::value<my::Rectangle>(&default_combobox_scrollbarupbtn_normalimg_rect)->default_value(my::Rectangle::LeftTop(1,1,2,2), ""), "Default combobox scrollbarupbtn normalimg rect")
-		("default_combobox_scrollbarupbtn_normalimg_border", boost::program_options::value<my::Vector4>(&default_combobox_scrollbarupbtn_normalimg_border)->default_value(my::Vector4(0,0,0,0), ""), "Default combobox scrollbarupbtn normalimg border")
+		("default_combobox_scrollbarupbtn_normalimg_rect", boost::program_options::value<CRect>(&default_combobox_scrollbarupbtn_normalimg_rect)->default_value(CRect(1,1,3,3), ""), "Default combobox scrollbarupbtn normalimg rect")
+		("default_combobox_scrollbarupbtn_normalimg_border", boost::program_options::value<CRect>(&default_combobox_scrollbarupbtn_normalimg_border)->default_value(CRect(0,0,0,0), ""), "Default combobox scrollbarupbtn normalimg border")
 		("default_combobox_scrollbarupbtn_disabledimg", boost::program_options::value(&default_combobox_scrollbarupbtn_disabledimg)->default_value("texture/White.dds"), "Default combobox scrollbarupbtn disabledimg")
-		("default_combobox_scrollbarupbtn_disabledimg_rect", boost::program_options::value<my::Rectangle>(&default_combobox_scrollbarupbtn_disabledimg_rect)->default_value(my::Rectangle::LeftTop(1,1,2,2), ""), "Default combobox scrollbarupbtn disabledimg rect")
-		("default_combobox_scrollbarupbtn_disabledimg_border", boost::program_options::value<my::Vector4>(&default_combobox_scrollbarupbtn_disabledimg_border)->default_value(my::Vector4(0,0,0,0), ""), "Default combobox scrollbarupbtn disabledimg border")
+		("default_combobox_scrollbarupbtn_disabledimg_rect", boost::program_options::value<CRect>(&default_combobox_scrollbarupbtn_disabledimg_rect)->default_value(CRect(1,1,3,3), ""), "Default combobox scrollbarupbtn disabledimg rect")
+		("default_combobox_scrollbarupbtn_disabledimg_border", boost::program_options::value<CRect>(&default_combobox_scrollbarupbtn_disabledimg_border)->default_value(CRect(0,0,0,0), ""), "Default combobox scrollbarupbtn disabledimg border")
 		("default_combobox_scrollbardownbtn_normalimg", boost::program_options::value(&default_combobox_scrollbardownbtn_normalimg)->default_value("texture/White.dds"), "Default combobox scrollbardownbtn normalimg")
-		("default_combobox_scrollbardownbtn_normalimg_rect", boost::program_options::value<my::Rectangle>(&default_combobox_scrollbardownbtn_normalimg_rect)->default_value(my::Rectangle::LeftTop(1,1,2,2), ""), "Default combobox scrollbardownbtn normalimg rect")
-		("default_combobox_scrollbardownbtn_normalimg_border", boost::program_options::value<my::Vector4>(&default_combobox_scrollbardownbtn_normalimg_border)->default_value(my::Vector4(0,0,0,0), ""), "Default combobox scrollbardownbtn normalimg border")
+		("default_combobox_scrollbardownbtn_normalimg_rect", boost::program_options::value<CRect>(&default_combobox_scrollbardownbtn_normalimg_rect)->default_value(CRect(1,1,3,3), ""), "Default combobox scrollbardownbtn normalimg rect")
+		("default_combobox_scrollbardownbtn_normalimg_border", boost::program_options::value<CRect>(&default_combobox_scrollbardownbtn_normalimg_border)->default_value(CRect(0,0,0,0), ""), "Default combobox scrollbardownbtn normalimg border")
 		("default_combobox_scrollbardownbtn_disabledimg", boost::program_options::value(&default_combobox_scrollbardownbtn_disabledimg)->default_value("texture/White.dds"), "Default combobox scrollbardownbtn disabledimg")
-		("default_combobox_scrollbardownbtn_disabledimg_rect", boost::program_options::value<my::Rectangle>(&default_combobox_scrollbardownbtn_disabledimg_rect)->default_value(my::Rectangle::LeftTop(1,1,2,2), "143,16,16"), "Default combobox scrollbardownbtn disabledimg rect")
-		("default_combobox_scrollbardownbtn_disabledimg_border", boost::program_options::value<my::Vector4>(&default_combobox_scrollbardownbtn_disabledimg_border)->default_value(my::Vector4(0,0,0,0), ""), "Default combobox scrollbardownbtn disabledimg border")
+		("default_combobox_scrollbardownbtn_disabledimg_rect", boost::program_options::value<CRect>(&default_combobox_scrollbardownbtn_disabledimg_rect)->default_value(CRect(1,1,3,3), "143,16,16"), "Default combobox scrollbardownbtn disabledimg rect")
+		("default_combobox_scrollbardownbtn_disabledimg_border", boost::program_options::value<CRect>(&default_combobox_scrollbardownbtn_disabledimg_border)->default_value(CRect(0,0,0,0), ""), "Default combobox scrollbardownbtn disabledimg border")
 		("default_combobox_scrollbarthumbbtn_normalimg", boost::program_options::value(&default_combobox_scrollbarthumbbtn_normalimg)->default_value("texture/White.dds"), "Default combobox scrollbarthumbbtn normalimg")
-		("default_combobox_scrollbarthumbbtn_normalimg_rect", boost::program_options::value<my::Rectangle>(&default_combobox_scrollbarthumbbtn_normalimg_rect)->default_value(my::Rectangle::LeftTop(1,1,2,2), ""), "Default combobox scrollbarthumbbtn normalimg rect")
-		("default_combobox_scrollbarthumbbtn_normalimg_border", boost::program_options::value<my::Vector4>(&default_combobox_scrollbarthumbbtn_normalimg_border)->default_value(my::Vector4(0,0,0,0), ""), "Default combobox scrollbarthumbbtn normalimg border")
+		("default_combobox_scrollbarthumbbtn_normalimg_rect", boost::program_options::value<CRect>(&default_combobox_scrollbarthumbbtn_normalimg_rect)->default_value(CRect(1,1,3,3), ""), "Default combobox scrollbarthumbbtn normalimg rect")
+		("default_combobox_scrollbarthumbbtn_normalimg_border", boost::program_options::value<CRect>(&default_combobox_scrollbarthumbbtn_normalimg_border)->default_value(CRect(0,0,0,0), ""), "Default combobox scrollbarthumbbtn normalimg border")
 		("default_combobox_scrollbar_img", boost::program_options::value(&default_combobox_scrollbar_img)->default_value("texture/White.dds"), "Default combobox scrollbar img")
-		("default_combobox_scrollbar_img_rect", boost::program_options::value<my::Rectangle>(&default_combobox_scrollbar_img_rect)->default_value(my::Rectangle::LeftTop(1,1,2,2), ""), "Default combobox scrollbar img rect")
-		("default_combobox_scrollbar_img_border", boost::program_options::value<my::Vector4>(&default_combobox_scrollbar_img_border)->default_value(my::Vector4(0,0,0,0), ""), "Default combobox scrollbar img border")
+		("default_combobox_scrollbar_img_rect", boost::program_options::value<CRect>(&default_combobox_scrollbar_img_rect)->default_value(CRect(1,1,3,3), ""), "Default combobox scrollbar img rect")
+		("default_combobox_scrollbar_img_border", boost::program_options::value<CRect>(&default_combobox_scrollbar_img_border)->default_value(CRect(0,0,0,0), ""), "Default combobox scrollbar img border")
 		("default_listbox_img", boost::program_options::value(&default_listbox_img)->default_value("texture/White.dds"), "Default listbox img")
-		("default_listbox_img_rect", boost::program_options::value<my::Rectangle>(&default_listbox_img_rect)->default_value(my::Rectangle::LeftTop(1,1,2,2), ""), "Default listbox img rect")
-		("default_listbox_img_border", boost::program_options::value<my::Vector4>(&default_listbox_img_border)->default_value(my::Vector4(0,0,0,0), ""), "Default listbox img border")
+		("default_listbox_img_rect", boost::program_options::value<CRect>(&default_listbox_img_rect)->default_value(CRect(1,1,3,3), ""), "Default listbox img rect")
+		("default_listbox_img_border", boost::program_options::value<CRect>(&default_listbox_img_border)->default_value(CRect(0,0,0,0), ""), "Default listbox img border")
 		("default_listbox_scrollbarupbtn_normalimg", boost::program_options::value(&default_listbox_scrollbarupbtn_normalimg)->default_value("texture/White.dds"), "Default listbox scrollbarupbtn normalimg")
-		("default_listbox_scrollbarupbtn_normalimg_rect", boost::program_options::value<my::Rectangle>(&default_listbox_scrollbarupbtn_normalimg_rect)->default_value(my::Rectangle::LeftTop(1,1,2,2), ""), "Default listbox scrollbarupbtn normalimg rect")
-		("default_listbox_scrollbarupbtn_normalimg_border", boost::program_options::value<my::Vector4>(&default_listbox_scrollbarupbtn_normalimg_border)->default_value(my::Vector4(0,0,0,0), ""), "Default listbox scrollbarupbtn normalimg border")
+		("default_listbox_scrollbarupbtn_normalimg_rect", boost::program_options::value<CRect>(&default_listbox_scrollbarupbtn_normalimg_rect)->default_value(CRect(1,1,3,3), ""), "Default listbox scrollbarupbtn normalimg rect")
+		("default_listbox_scrollbarupbtn_normalimg_border", boost::program_options::value<CRect>(&default_listbox_scrollbarupbtn_normalimg_border)->default_value(CRect(0,0,0,0), ""), "Default listbox scrollbarupbtn normalimg border")
 		("default_listbox_scrollbarupbtn_disabledimg", boost::program_options::value(&default_listbox_scrollbarupbtn_disabledimg)->default_value("texture/White.dds"), "Default listbox scrollbarupbtn disabledimg")
-		("default_listbox_scrollbarupbtn_disabledimg_rect", boost::program_options::value<my::Rectangle>(&default_listbox_scrollbarupbtn_disabledimg_rect)->default_value(my::Rectangle::LeftTop(1,1,2,2), ""), "Default listbox scrollbarupbtn disabledimg rect")
-		("default_listbox_scrollbarupbtn_disabledimg_border", boost::program_options::value<my::Vector4>(&default_listbox_scrollbarupbtn_disabledimg_border)->default_value(my::Vector4(0,0,0,0), ""), "Default listbox scrollbarupbtn disabledimg border")
+		("default_listbox_scrollbarupbtn_disabledimg_rect", boost::program_options::value<CRect>(&default_listbox_scrollbarupbtn_disabledimg_rect)->default_value(CRect(1,1,3,3), ""), "Default listbox scrollbarupbtn disabledimg rect")
+		("default_listbox_scrollbarupbtn_disabledimg_border", boost::program_options::value<CRect>(&default_listbox_scrollbarupbtn_disabledimg_border)->default_value(CRect(0,0,0,0), ""), "Default listbox scrollbarupbtn disabledimg border")
 		("default_listbox_scrollbardownbtn_normalimg", boost::program_options::value(&default_listbox_scrollbardownbtn_normalimg)->default_value("texture/White.dds"), "Default listbox scrollbardownbtn normalimg")
-		("default_listbox_scrollbardownbtn_normalimg_rect", boost::program_options::value<my::Rectangle>(&default_listbox_scrollbardownbtn_normalimg_rect)->default_value(my::Rectangle::LeftTop(1,1,2,2), ""), "Default listbox scrollbardownbtn normalimg rect")
-		("default_listbox_scrollbardownbtn_normalimg_border", boost::program_options::value<my::Vector4>(&default_listbox_scrollbardownbtn_normalimg_border)->default_value(my::Vector4(0,0,0,0), ""), "Default listbox scrollbardownbtn normalimg border")
+		("default_listbox_scrollbardownbtn_normalimg_rect", boost::program_options::value<CRect>(&default_listbox_scrollbardownbtn_normalimg_rect)->default_value(CRect(1,1,3,3), ""), "Default listbox scrollbardownbtn normalimg rect")
+		("default_listbox_scrollbardownbtn_normalimg_border", boost::program_options::value<CRect>(&default_listbox_scrollbardownbtn_normalimg_border)->default_value(CRect(0,0,0,0), ""), "Default listbox scrollbardownbtn normalimg border")
 		("default_listbox_scrollbardownbtn_disabledimg", boost::program_options::value(&default_listbox_scrollbardownbtn_disabledimg)->default_value("texture/White.dds"), "Default listbox scrollbardownbtn disabledimg")
-		("default_listbox_scrollbardownbtn_disabledimg_rect", boost::program_options::value<my::Rectangle>(&default_listbox_scrollbardownbtn_disabledimg_rect)->default_value(my::Rectangle::LeftTop(1,1,2,2), "143,16,16"), "Default listbox scrollbardownbtn disabledimg rect")
-		("default_listbox_scrollbardownbtn_disabledimg_border", boost::program_options::value<my::Vector4>(&default_listbox_scrollbardownbtn_disabledimg_border)->default_value(my::Vector4(0,0,0,0), ""), "Default listbox scrollbardownbtn disabledimg border")
+		("default_listbox_scrollbardownbtn_disabledimg_rect", boost::program_options::value<CRect>(&default_listbox_scrollbardownbtn_disabledimg_rect)->default_value(CRect(1,1,3,3), "143,16,16"), "Default listbox scrollbardownbtn disabledimg rect")
+		("default_listbox_scrollbardownbtn_disabledimg_border", boost::program_options::value<CRect>(&default_listbox_scrollbardownbtn_disabledimg_border)->default_value(CRect(0,0,0,0), ""), "Default listbox scrollbardownbtn disabledimg border")
 		("default_listbox_scrollbarthumbbtn_normalimg", boost::program_options::value(&default_listbox_scrollbarthumbbtn_normalimg)->default_value("texture/White.dds"), "Default listbox scrollbarthumbbtn normalimg")
-		("default_listbox_scrollbarthumbbtn_normalimg_rect", boost::program_options::value<my::Rectangle>(&default_listbox_scrollbarthumbbtn_normalimg_rect)->default_value(my::Rectangle::LeftTop(1,1,2,2), ""), "Default listbox scrollbarthumbbtn normalimg rect")
-		("default_listbox_scrollbarthumbbtn_normalimg_border", boost::program_options::value<my::Vector4>(&default_listbox_scrollbarthumbbtn_normalimg_border)->default_value(my::Vector4(0,0,0,0), ""), "Default listbox scrollbarthumbbtn normalimg border")
+		("default_listbox_scrollbarthumbbtn_normalimg_rect", boost::program_options::value<CRect>(&default_listbox_scrollbarthumbbtn_normalimg_rect)->default_value(CRect(1,1,3,3), ""), "Default listbox scrollbarthumbbtn normalimg rect")
+		("default_listbox_scrollbarthumbbtn_normalimg_border", boost::program_options::value<CRect>(&default_listbox_scrollbarthumbbtn_normalimg_border)->default_value(CRect(0,0,0,0), ""), "Default listbox scrollbarthumbbtn normalimg border")
 		("default_listbox_scrollbar_img", boost::program_options::value(&default_listbox_scrollbar_img)->default_value("texture/White.dds"), "Default listbox scrollbar img")
-		("default_listbox_scrollbar_img_rect", boost::program_options::value<my::Rectangle>(&default_listbox_scrollbar_img_rect)->default_value(my::Rectangle::LeftTop(1,1,2,2), ""), "Default listbox scrollbar img rect")
-		("default_listbox_scrollbar_img_border", boost::program_options::value<my::Vector4>(&default_listbox_scrollbar_img_border)->default_value(my::Vector4(0,0,0,0), ""), "Default listbox scrollbar img border")
+		("default_listbox_scrollbar_img_rect", boost::program_options::value<CRect>(&default_listbox_scrollbar_img_rect)->default_value(CRect(1,1,3,3), ""), "Default listbox scrollbar img rect")
+		("default_listbox_scrollbar_img_border", boost::program_options::value<CRect>(&default_listbox_scrollbar_img_border)->default_value(CRect(0,0,0,0), ""), "Default listbox scrollbar img border")
 		("default_player_scale", boost::program_options::value(&default_player_scale)->default_value(1.0f), "Default player scale")
 		("default_player_height", boost::program_options::value(&default_player_height)->default_value(1.0f), "Default player height")
 		("default_player_radius", boost::program_options::value(&default_player_radius)->default_value(0.5f), "Default player radius")

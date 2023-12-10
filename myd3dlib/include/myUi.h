@@ -95,25 +95,25 @@ namespace my
 
 		VertexList & GetVertexList(const BaseTexture * texture);
 
-		void PushRectangle(const Rectangle & rect, D3DCOLOR color, const Rectangle & WindowRect, const BaseTexture * texture);
+		void PushRectangle(const Rectangle & rect, D3DCOLOR color, const CRect & WindowRect, const BaseTexture * texture);
 
-		void PushRectangle(const Rectangle & rect, D3DCOLOR color, const Rectangle & WindowRect, const BaseTexture * texture, const Rectangle & clip);
+		void PushRectangle(const Rectangle & rect, D3DCOLOR color, const CRect & WindowRect, const BaseTexture * texture, const Rectangle & clip);
 
-		void PushRectangle(const Rectangle & rect, D3DCOLOR color, const Rectangle & WindowRect, const CSize & TileSize, const BaseTexture * texture);
+		void PushRectangle(const Rectangle & rect, D3DCOLOR color, const CRect & WindowRect, const CSize & TileSize, const BaseTexture * texture);
 
-		void PushRectangle(const Rectangle & rect, D3DCOLOR color, const Rectangle & WindowRect, const CSize & TileSize, const BaseTexture * texture, const Rectangle & clip);
+		void PushRectangle(const Rectangle & rect, D3DCOLOR color, const CRect & WindowRect, const CSize & TileSize, const BaseTexture * texture, const Rectangle & clip);
 
-		void PushRectangle(const Rectangle & rect, D3DCOLOR color, const Rectangle & WindowRect, const BaseTexture * texture, const Matrix4 & transform);
+		void PushRectangle(const Rectangle & rect, D3DCOLOR color, const CRect & WindowRect, const BaseTexture * texture, const Matrix4 & transform);
 
-		void PushRectangle(const Rectangle & rect, D3DCOLOR color, const Rectangle & WindowRect, const BaseTexture * texture, const Matrix4 & transform, const Rectangle & clip);
+		void PushRectangle(const Rectangle & rect, D3DCOLOR color, const CRect & WindowRect, const BaseTexture * texture, const Matrix4 & transform, const Rectangle & clip);
 
 		static void PushWindowSimple(VertexList & vertex_list, const Rectangle & rect, const Rectangle & InRect, const Rectangle & OutUvRect, const Rectangle & InUvRect, DWORD color);
 
 		static void PushWindowSimple(VertexList & vertex_list, const Rectangle & rect, const Rectangle & InRect, const Rectangle & OutUvRect, const Rectangle & InUvRect, DWORD color, const Rectangle & clip);
 
-		void PushWindow(const Rectangle & rect, DWORD color, const Rectangle & WindowRect, const Vector4 & WindowBorder, const BaseTexture * texture);
+		void PushWindow(const Rectangle & rect, DWORD color, const CRect & WindowRect, const CRect & WindowBorder, const BaseTexture * texture);
 
-		void PushWindow(const Rectangle & rect, DWORD color, const Rectangle & WindowRect, const Vector4 & WindowBorder, const BaseTexture * texture, const Rectangle & clip);
+		void PushWindow(const Rectangle & rect, DWORD color, const CRect & WindowRect, const CRect & WindowBorder, const BaseTexture * texture, const Rectangle & clip);
 
 		void PushCharacter(float x, float y, const Font::CharacterInfo* info, Font* font, D3DCOLOR color);
 
@@ -141,9 +141,9 @@ namespace my
 
 		BaseTexturePtr m_Texture;
 
-		Rectangle m_Rect;
+		CRect m_Rect;
 
-		Vector4 m_Border;
+		CRect m_Border;
 
 		bool m_Requested;
 
@@ -156,12 +156,18 @@ namespace my
 
 		virtual ~ControlImage(void);
 
+		friend class boost::serialization::access;
+
 		template<class Archive>
-		void serialize(Archive & ar, const unsigned int version)
+		void save(Archive& ar, const unsigned int version) const;
+
+		template<class Archive>
+		void load(Archive& ar, const unsigned int version);
+
+		template<class Archive>
+		void serialize(Archive& ar, const unsigned int version)
 		{
-			ar & BOOST_SERIALIZATION_NVP(m_TexturePath);
-			ar & BOOST_SERIALIZATION_NVP(m_Rect);
-			ar & BOOST_SERIALIZATION_NVP(m_Border);
+			boost::serialization::split_member(ar, *this, version);
 		}
 
 		bool IsRequested(void) const

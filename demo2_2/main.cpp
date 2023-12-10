@@ -313,19 +313,19 @@ public:
 		m_Dlg->m_Skin.reset(new ControlSkin());
 		m_Dlg->m_Skin->m_Image.reset(new ControlImage());
 		m_Dlg->m_Skin->m_Image->m_Texture = m_Tex;
-		m_Dlg->m_Skin->m_Image->m_Rect = my::Rectangle(0, 0, desc.Width, desc.Height);
+		m_Dlg->m_Skin->m_Image->m_Rect.SetRect(0, 0, desc.Width, desc.Height);
 		m_Dlg->m_EventMouseClick = boost::bind(&Demo::OnMouseClick, this, boost::placeholders::_1);
 		DialogMgr::InsertDlg(m_Dlg.get());
 
 		ControlImagePtr image(new ControlImage());
 		image->m_Texture = LoadTexture("texture/CommonUI.png");
-		image->m_Rect = Rectangle::LeftTop(52, 43, 16, 16);
-		image->m_Border = Vector4(7, 7, 7, 7);
+		image->m_Rect.SetRect(52, 43, 16, 16);
+		image->m_Border.SetRect(7, 7, 7, 7);
 
 		ControlImagePtr image2(new ControlImage());
 		image2->m_Texture = LoadTexture("texture/CommonUI.png");
-		image2->m_Rect = Rectangle::LeftTop(1, 43, 16, 16);
-		image2->m_Border = Vector4(7, 7, 7, 7);
+		image2->m_Rect.SetRect(1, 43, 16, 16);
+		image2->m_Border.SetRect(7, 7, 7, 7);
 
 		ListBoxSkinPtr skin(new ListBoxSkin());
 		skin->m_Image = image2;
