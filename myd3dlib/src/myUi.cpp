@@ -734,9 +734,16 @@ void ControlImage::Draw(UIRender * ui_render, const Rectangle & rect, DWORD colo
 {
 	if (m_Texture)
 	{
-		if (m_Border.left == 0 && m_Border.top == 0 && m_Border.right == 0 && m_Border.bottom == 0)
+		if (m_Border.right == 0 && m_Border.bottom == 0)
 		{
-			ui_render->PushRectangle(rect, color, m_Rect, m_Texture.get());
+			if (m_Border.left == 0 && m_Border.top == 0)
+			{
+				ui_render->PushRectangle(rect, color, m_Rect, m_Texture.get());
+			}
+			else
+			{
+				ui_render->PushRectangle(rect, color, m_Rect, (CSize&)m_Border.TopLeft(), m_Texture.get());
+			}
 		}
 		else
 		{
@@ -749,9 +756,16 @@ void ControlImage::Draw(UIRender * ui_render, const Rectangle & rect, DWORD colo
 {
 	if (m_Texture)
 	{
-		if (m_Border.left == 0 && m_Border.top == 0 && m_Border.right == 0 && m_Border.bottom == 0)
+		if (m_Border.right == 0 && m_Border.bottom == 0)
 		{
-			ui_render->PushRectangle(rect, color, m_Rect, m_Texture.get(), clip);
+			if (m_Border.left == 0 && m_Border.top == 0)
+			{
+				ui_render->PushRectangle(rect, color, m_Rect, m_Texture.get(), clip);
+			}
+			else
+			{
+				ui_render->PushRectangle(rect, color, m_Rect, (CSize&)m_Border.TopLeft(), m_Texture.get(), clip);
+			}
 		}
 		else
 		{
