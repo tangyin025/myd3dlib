@@ -29,6 +29,7 @@
 #include <boost/assign/list_of.hpp>
 #include <boost/shared_container_iterator.hpp>
 #include "DebugDraw.h"
+#include "LuaExtension.inl"
 
 #ifdef _DEBUG
 #define new new( _CLIENT_BLOCK, __FILE__, __LINE__ )
