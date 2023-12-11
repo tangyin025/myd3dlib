@@ -314,12 +314,13 @@ namespace my
 
 	class Wav;
 
-	class IStreamBuff : public std::streambuf
+	template <class _Elem>
+	class IStreamBuff : public std::basic_streambuf<_Elem, std::char_traits<_Elem>>
 	{
 	protected:
 		IStreamPtr fptr_;
 		const std::size_t put_back_;
-		std::vector<char> buffer_;
+		std::vector<_Elem> buffer_;
 
 	public:
 		IStreamBuff(IStreamPtr fptr, size_t buff_sz = 1024, size_t put_back = 1)
@@ -327,11 +328,36 @@ namespace my
 			, put_back_(max(put_back, size_t(1)))
 			, buffer_(max(buff_sz, put_back_) + put_back_)
 		{
-			char *end = &buffer_.front() + buffer_.size();
+			_Elem*end = &buffer_.front() + buffer_.size();
 			setg(end, end, end);
 		}
 
-		std::streambuf::int_type underflow(void);
+		virtual int_type underflow(void)
+		{
+			if (gptr() < egptr()) // buffer not exhausted
+				return traits_type::to_int_type(*gptr());
+
+			_Elem* base = &buffer_.front();
+			_Elem* start = base;
+
+			if (eback() == base) // true when this isn't the first fill
+			{
+				// Make arrangements for putback characters
+				std::memmove(base, egptr() - put_back_, put_back_ * sizeof(_Elem));
+				start += put_back_;
+			}
+
+			// start is now the start of the buffer, proper.
+			// Read from fptr_ in to the provided buffer
+			size_t n = fptr_->read(start, (buffer_.size() - (start - base)) * sizeof(_Elem));
+			if (n == 0)
+				return traits_type::eof();
+
+			// Set buffer pointers
+			setg(base, start, start + n);
+
+			return traits_type::to_int_type(*gptr());
+		}
 	};
 
 	class ResourceMgr

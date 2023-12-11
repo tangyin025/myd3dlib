@@ -707,6 +707,16 @@ void CMainApp::OnDestroyDevice(void)
 	m_UIRender.reset();
 }
 
+const std::wstring & CMainApp::OnControlTranslate(const std::wstring& wstr)
+{
+	DictionaryNode::childmap::iterator iter = m_dicts.m_children->find(wstr);
+	if (iter != m_dicts.m_children->end())
+	{
+		return iter->second.m_data;
+	}
+	return wstr;
+}
+
 // CAboutDlg dialog used for App About
 
 class CAboutDlg : public CDialog

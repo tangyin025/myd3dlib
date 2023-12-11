@@ -1384,7 +1384,7 @@ void OgreMesh::CreateMeshFromObjInFile(
 	bool bComputeTangentFrame,
 	DWORD dwMeshOptions)
 {
-	my::IStreamBuff buff(my::FileIStream::Open(pFilename));
+	my::IStreamBuff<char> buff(my::FileIStream::Open(pFilename));
 	std::istream ifs(&buff);
 	CreateMeshFromObjInStream(ifs, bComputeTangentFrame, dwMeshOptions);
 }

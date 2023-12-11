@@ -16,7 +16,7 @@ void SceneContextRequest::LoadResource(void)
 {
 	if (ResourceMgr::getSingleton().CheckPath(m_path.c_str()))
 	{
-		my::IStreamBuff buff(ResourceMgr::getSingleton().OpenIStream(m_path.c_str()));
+		my::IStreamBuff<char> buff(ResourceMgr::getSingleton().OpenIStream(m_path.c_str()));
 		std::istream ifs(&buff);
 		LPCSTR Ext = PathFindExtensionA(m_path.c_str());
 		boost::shared_ptr<boost::archive::polymorphic_iarchive> ia = Actor::GetIArchive(ifs, Ext);

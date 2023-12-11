@@ -543,33 +543,6 @@ void AsynchronousIOMgr::StopIORequestProc(void)
 	m_Threads.clear();
 }
 
-std::streambuf::int_type IStreamBuff::underflow(void)
-{
-	if (gptr() < egptr()) // buffer not exhausted
-		return traits_type::to_int_type(*gptr());
-
-	char *base = &buffer_.front();
-	char *start = base;
-
-	if (eback() == base) // true when this isn't the first fill
-	{
-		// Make arrangements for putback characters
-		std::memmove(base, egptr() - put_back_, put_back_);
-		start += put_back_;
-	}
-
-	// start is now the start of the buffer, proper.
-	// Read from fptr_ in to the provided buffer
-	size_t n = fptr_->read(start, buffer_.size() - (start - base));
-	if (n == 0)
-		return traits_type::eof();
-
-	// Set buffer pointers
-	setg(base, start, start + n);
-
-	return traits_type::to_int_type(*gptr());
-}
-
 HRESULT ResourceMgr::OnCreateDevice(
 	IDirect3DDevice9 * pd3dDevice,
 	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)

@@ -11,6 +11,7 @@
 #include "RenderPipeline.h"
 #include "PhysxContext.h"
 #include "SceneContext.h"
+#include "DictionaryNode.h"
 
 // CMainApp:
 // See myd3dbox.cpp for the implementation of this class
@@ -206,6 +207,7 @@ public:
 	BOOL m_bNeedDraw;
 	my::EventSignal m_EventNamedObjectCreate;
 	my::EventSignal m_EventNamedObjectDestroy;
+	DictionaryNode m_dicts;
 
 	struct NamedObjectEventArgs : public my::EventArg
 	{
@@ -233,6 +235,7 @@ public:
 		const D3DSURFACE_DESC * pBackBufferSurfaceDesc);
 	virtual void OnLostDevice(void);
 	virtual void OnDestroyDevice(void);
+	virtual const std::wstring & OnControlTranslate(const std::wstring& wstr);
 
 // Implementation
 	UINT  m_nAppLook;

@@ -46,6 +46,7 @@
 #include "rapidxml.hpp"
 #include <lualib.h>
 #include "TerrainToObjDlg.h"
+#include <boost/property_tree/info_parser.hpp>
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -283,6 +284,19 @@ static boost::iterator_range<shared_actor_list_iter> cmainframe_get_all_acts(con
 	Callback cb;
 	self->QueryAllEntity(&cb);
 	return boost::make_iterator_range(shared_actor_list_iter(cb.acts->begin(), cb.acts), shared_actor_list_iter(cb.acts->end(), cb.acts));
+}
+
+static void cmainapp_load_dictionary(CMainApp* self, const std::wstring& path)
+{
+	my::IStreamBuff<wchar_t> buff(self->OpenIStream(ws2ms(path.c_str()).c_str()));
+	std::wistream ifs(&buff);
+
+	// ! skip utf bom, https://www.unicode.org/faq/utf_bom.html#bom1
+	wchar_t header[1];
+	ifs.read(header, _countof(header));
+	_ASSERT(header[0] == 0xFEFF);
+
+	boost::property_tree::read_info<DictionaryNode, wchar_t>(ifs, self->m_dicts);
 }
 
 static void spawn_terrain_pos_2_emitter(TerrainStream* tstr, StaticEmitterStream* estr, float terrain_local_x, float terrain_local_z, const my::Matrix4 & trans)
@@ -948,6 +962,7 @@ void CMainFrame::InitFileContext()
 			.def_readonly("Font", &CMainApp::m_Font)
 			.def_readonly("keyboard", &CMainApp::m_keyboard)
 			.def_readonly("mouse", &CMainApp::m_mouse)
+			.def("LoadDictionary", &cmainapp_load_dictionary)
 
 		, luabind::def("spawn_terrain_pos_2_emitter", &spawn_terrain_pos_2_emitter)
 	];
