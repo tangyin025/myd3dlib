@@ -153,7 +153,10 @@ namespace my
 		{
 		}
 
-		virtual std::wstring OnControlTranslate(const std::string& u8str);
+		virtual const wchar_t * OnControlTranslate(const std::wstring & wstr)
+		{
+			return wstr.c_str();
+		}
 	};
 
 	class DxutApp

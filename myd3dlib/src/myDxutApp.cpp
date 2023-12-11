@@ -249,11 +249,6 @@ NamedObject * D3DContext::GetNamedObject(const char * Name)
 	return NULL;
 }
 
-std::wstring D3DContext::OnControlTranslate(const std::string& u8str)
-{
-	return u8tows(u8str.c_str());
-}
-
 bool DxutApp::IsDeviceAcceptable(
 	D3DCAPS9 * pCaps,
 	D3DFORMAT AdapterFormat,

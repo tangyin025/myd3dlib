@@ -590,7 +590,7 @@ namespace my
 
 		void OnFontReady(my::DeviceResourceBasePtr res);
 
-		void DrawString(UIRender * ui_render, const wchar_t * str, const Rectangle & rect);
+		void DrawString(UIRender * ui_render, const std::wstring & text, const Rectangle & rect);
 	};
 
 	typedef boost::shared_ptr<StaticSkin> StaticSkinPtr;
