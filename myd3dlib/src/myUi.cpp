@@ -1800,11 +1800,11 @@ void StaticSkin::DrawString(UIRender* ui_render, const std::wstring& text, const
 	{
 		if (!(m_TextOutlineColor & D3DCOLOR_ARGB(255, 0, 0, 0)))
 		{
-			ui_render->PushString(rect, D3DContext::getSingleton().OnControlTranslate(text), m_TextColor, m_TextAlign, m_Font.get());
+			ui_render->PushString(rect, D3DContext::getSingleton().OnControlTranslate(text).c_str(), m_TextColor, m_TextAlign, m_Font.get());
 		}
 		else
 		{
-			ui_render->PushString(rect, D3DContext::getSingleton().OnControlTranslate(text), m_TextColor, m_TextAlign, m_TextOutlineColor, m_TextOutlineWidth, m_Font.get());
+			ui_render->PushString(rect, D3DContext::getSingleton().OnControlTranslate(text).c_str(), m_TextColor, m_TextAlign, m_TextOutlineColor, m_TextOutlineWidth, m_Font.get());
 		}
 	}
 }

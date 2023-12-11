@@ -153,9 +153,9 @@ namespace my
 		{
 		}
 
-		virtual const wchar_t * OnControlTranslate(const std::wstring & wstr)
+		virtual const std::wstring & OnControlTranslate(const std::wstring & wstr)
 		{
-			return wstr.c_str();
+			return wstr;
 		}
 	};
 

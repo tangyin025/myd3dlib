@@ -1946,7 +1946,6 @@ void LuaContext::Init(void)
 			.def_readwrite("TextAlign", &my::StaticSkin::m_TextAlign)
 			.def_readwrite("TextOutlineColor", &my::StaticSkin::m_TextOutlineColor)
 			.def_readwrite("TextOutlineWidth", &my::StaticSkin::m_TextOutlineWidth)
-			.def("DrawString", &my::StaticSkin::DrawString)
 
 		, class_<my::Static, my::Control, boost::shared_ptr<my::Control> >("Static")
 			.def(constructor<const char *>())
