@@ -11,6 +11,7 @@
 #include <boost/regex.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/assign/list_of.hpp>
+#include <boost/property_tree/info_parser.hpp>
 extern "C"
 {
 #include <lua.h>
@@ -385,6 +386,7 @@ BOOL CMainApp::InitInstance()
 		("default_font_path", boost::program_options::value(&default_font_path)->default_value("font/wqy-microhei.ttc"), "Default font")
 		("default_font_height", boost::program_options::value(&default_font_height)->default_value(13), "Default font height")
 		("default_font_face_index", boost::program_options::value(&default_font_face_index)->default_value(0), "Default font face index")
+		("default_dictionary_file", boost::program_options::value(&default_dictionary_file), "Default dictionary file")
 		("default_texture", boost::program_options::value(&default_texture)->default_value("texture/Checker.bmp"), "Default texture")
 		("default_normal_texture", boost::program_options::value(&default_normal_texture)->default_value("texture/Normal.dds"), "Default normal texture")
 		("default_specular_texture", boost::program_options::value(&default_specular_texture)->default_value("texture/White.dds"), "Default specular texture")
@@ -555,6 +557,11 @@ BOOL CMainApp::InitInstance()
 
 	boost::algorithm::replace_all(default_tool_script_pattern, "/", "\\");
 
+	if (!default_dictionary_file.empty())
+	{
+		LoadDictionary(default_dictionary_file.c_str());
+	}
+
 	_ASSERT(GetCurrentThreadId() == D3DContext::getSingleton().m_d3dThreadId);
 
 	if (!PhysxSdk::Init())
@@ -709,8 +716,8 @@ void CMainApp::OnDestroyDevice(void)
 
 const std::wstring & CMainApp::OnControlTranslate(const std::wstring& wstr)
 {
-	DictionaryNode::childmap::iterator iter = m_dicts.m_children->find(wstr);
-	if (iter != m_dicts.m_children->end())
+	DictionaryNode::childmap::iterator iter = m_Dicts.m_children->find(wstr);
+	if (iter != m_Dicts.m_children->end())
 	{
 		return iter->second.m_data;
 	}
@@ -882,4 +889,17 @@ void CMainApp::OnNamedObjectDestroy(my::NamedObject* Object)
 {
 	NamedObjectEventArgs arg(Object);
 	m_EventNamedObjectDestroy(&arg);
+}
+
+void CMainApp::LoadDictionary(const char* path)
+{
+	my::IStreamBuff<wchar_t> buff(OpenIStream(path));
+	std::wistream ifs(&buff);
+
+	// ! skip utf bom, https://www.unicode.org/faq/utf_bom.html#bom1
+	wchar_t header[1];
+	ifs.read(header, _countof(header));
+	_ASSERT(header[0] == 0xFEFF);
+
+	boost::property_tree::read_info<DictionaryNode, wchar_t>(ifs, m_Dicts);
 }

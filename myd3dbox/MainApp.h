@@ -33,6 +33,7 @@ public:
 	HRESULT hr;
 	my::UIRenderPtr m_UIRender;
 	my::FontPtr m_Font;
+	DictionaryNode m_Dicts;
 
 	// cfg
 	float default_fov;
@@ -55,6 +56,7 @@ public:
 	std::string default_font_path;
 	int default_font_height;
 	int default_font_face_index;
+	std::string default_dictionary_file;
 	std::string default_texture;
 	std::string default_normal_texture;
 	std::string default_specular_texture;
@@ -207,7 +209,6 @@ public:
 	BOOL m_bNeedDraw;
 	my::EventSignal m_EventNamedObjectCreate;
 	my::EventSignal m_EventNamedObjectDestroy;
-	DictionaryNode m_dicts;
 
 	struct NamedObjectEventArgs : public my::EventArg
 	{
@@ -252,6 +253,8 @@ public:
 	virtual CDocument* OpenDocumentFile(LPCTSTR lpszFileName);
 	virtual void OnNamedObjectCreate(my::NamedObject* Object);
 	virtual void OnNamedObjectDestroy(my::NamedObject* Object);
+public:
+	void LoadDictionary(const char* path);
 };
 
 extern CMainApp theApp;
