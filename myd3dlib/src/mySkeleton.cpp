@@ -678,7 +678,9 @@ void OgreSkeletonAnimation::AddOgreSkeletonAnimation(
 		m_animationMap.erase(anim_iter);
 	}
 
-	anim_iter = m_animationMap.insert(m_animationMap.begin(), std::make_pair(attr_name->value(), OgreAnimation()));
+	std::pair<OgreAnimationMap::iterator, bool> res = m_animationMap.insert(std::make_pair(attr_name->value(), OgreAnimation()));
+	_ASSERT(res.second);
+	anim_iter = res.first;
 
 	DEFINE_XML_ATTRIBUTE_FLOAT_SIMPLE(length, animation);
 

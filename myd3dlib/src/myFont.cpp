@@ -393,7 +393,7 @@ const Font::CharacterInfo * Font::InsertCharacter(
 	}
 
 	std::pair<CharacterMap::iterator, bool> res = m_characterMap.insert(std::make_pair(character, info));
-	BOOST_VERIFY(res.second);
+	_ASSERT(res.second);
 	return &res.first->second;
 }
 
