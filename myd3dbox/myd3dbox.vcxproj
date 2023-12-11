@@ -223,6 +223,7 @@
     <ClCompile Include="ChildView.cpp" />
     <ClCompile Include="CtrlProps.cpp" />
     <ClCompile Include="DeleteCmpsDlg.cpp" />
+    <ClCompile Include="DictionaryNode.cpp" />
     <ClCompile Include="DragableTreeCtrl.cpp" />
     <ClCompile Include="EnvironmentWnd.cpp" />
     <ClCompile Include="ImportHeightDlg.cpp" />

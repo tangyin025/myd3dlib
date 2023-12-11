@@ -178,6 +178,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\myd3dbox\DictionaryNode.cpp" />
     <ClCompile Include="Client.cpp" />
     <ClCompile Include="Console.cpp" />
     <ClCompile Include="main.cpp" />
@@ -189,6 +190,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\myd3dbox\DictionaryNode.h" />
     <ClInclude Include="Client.h" />
     <ClInclude Include="Console.h" />
     <ClInclude Include="resource.h" />

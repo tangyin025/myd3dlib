@@ -8,9 +8,9 @@ class DictionaryNode
 public:
 	std::wstring m_data;
 
-	typedef std::map<std::wstring, DictionaryNode> childmap;
+	typedef boost::unordered_map<std::wstring, DictionaryNode> childmap;
 	
-	childmap * m_children;
+	boost::shared_ptr<childmap> m_children;
 
 	DictionaryNode(void)
 		: m_children(new childmap())
@@ -27,7 +27,7 @@ public:
 	{
 		boost::swap(m_data, rhs.m_data);
 		// Void pointers, no ADL necessary
-		std::swap(m_children, rhs.m_children);
+		m_children.swap(rhs.m_children);
 	}
 
 	std::wstring & data()
@@ -45,5 +45,7 @@ public:
 	{
 		m_data = value;
 	}
+
+	void LoadFromFile(const char* path);
 };
 

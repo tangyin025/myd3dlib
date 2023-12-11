@@ -253,8 +253,6 @@ public:
 	virtual CDocument* OpenDocumentFile(LPCTSTR lpszFileName);
 	virtual void OnNamedObjectCreate(my::NamedObject* Object);
 	virtual void OnNamedObjectDestroy(my::NamedObject* Object);
-public:
-	void LoadDictionary(const char* path);
 };
 
 extern CMainApp theApp;

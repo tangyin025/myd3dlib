@@ -11,7 +11,6 @@
 #include <boost/regex.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/assign/list_of.hpp>
-#include <boost/property_tree/info_parser.hpp>
 extern "C"
 {
 #include <lua.h>
@@ -559,7 +558,7 @@ BOOL CMainApp::InitInstance()
 
 	if (!default_dictionary_file.empty())
 	{
-		LoadDictionary(default_dictionary_file.c_str());
+		m_Dicts.LoadFromFile(default_dictionary_file.c_str());
 	}
 
 	_ASSERT(GetCurrentThreadId() == D3DContext::getSingleton().m_d3dThreadId);
@@ -889,17 +888,4 @@ void CMainApp::OnNamedObjectDestroy(my::NamedObject* Object)
 {
 	NamedObjectEventArgs arg(Object);
 	m_EventNamedObjectDestroy(&arg);
-}
-
-void CMainApp::LoadDictionary(const char* path)
-{
-	my::IStreamBuff<wchar_t> buff(OpenIStream(path));
-	std::wistream ifs(&buff);
-
-	// ! skip utf bom, https://www.unicode.org/faq/utf_bom.html#bom1
-	wchar_t header[1];
-	ifs.read(header, _countof(header));
-	_ASSERT(header[0] == 0xFEFF);
-
-	boost::property_tree::read_info<DictionaryNode, wchar_t>(ifs, m_Dicts);
 }

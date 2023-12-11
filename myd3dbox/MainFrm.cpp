@@ -287,7 +287,7 @@ static boost::iterator_range<shared_actor_list_iter> cmainframe_get_all_acts(con
 
 static void cmainapp_load_dictionary(CMainApp* self, const std::wstring& path)
 {
-	self->LoadDictionary(ws2ms(path.c_str()).c_str());
+	self->m_Dicts.LoadFromFile(ws2ms(path.c_str()).c_str());
 }
 
 static void spawn_terrain_pos_2_emitter(TerrainStream* tstr, StaticEmitterStream* estr, float terrain_local_x, float terrain_local_z, const my::Matrix4 & trans)
