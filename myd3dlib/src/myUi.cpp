@@ -722,7 +722,7 @@ void ControlImage::Draw(UIRender * ui_render, const Rectangle & rect, DWORD colo
 	{
 		if (m_Border.right == 0 && m_Border.bottom == 0)
 		{
-			ui_render->PushRectangle(rect, color, m_Rect, CSize(Max(m_Border.left, 1l), Max(m_Border.top, 1l)), m_Texture.get());
+			ui_render->PushRectangle(rect, color, m_Rect, CSize(Clamp(m_Border.left, 1l, 32l), Clamp(m_Border.top, 1l, 32l)), m_Texture.get());
 		}
 		else
 		{
@@ -737,7 +737,7 @@ void ControlImage::Draw(UIRender * ui_render, const Rectangle & rect, DWORD colo
 	{
 		if (m_Border.right == 0 && m_Border.bottom == 0)
 		{
-			ui_render->PushRectangle(rect, color, m_Rect, CSize(Max(m_Border.left, 1l), Max(m_Border.top, 1l)), m_Texture.get(), clip);
+			ui_render->PushRectangle(rect, color, m_Rect, CSize(Clamp(m_Border.left, 1l, 32l), Clamp(m_Border.top, 1l, 32l)), m_Texture.get(), clip);
 		}
 		else
 		{
