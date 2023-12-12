@@ -51,9 +51,6 @@
     <ClInclude Include="include\SoundContext.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\LargeImage.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\Steering.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -102,9 +99,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\SoundContext.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\LargeImage.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Steering.cpp">

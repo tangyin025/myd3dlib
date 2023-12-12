@@ -141,7 +141,6 @@
     <ClInclude Include="include\Animator.h" />
     <ClInclude Include="include\Component.h" />
     <ClInclude Include="include\Controller.h" />
-    <ClInclude Include="include\LargeImage.h" />
     <ClInclude Include="include\LuaExtension.h" />
     <ClInclude Include="include\Material.h" />
     <ClInclude Include="include\NavigationSerialization.h" />
@@ -165,7 +164,6 @@
       <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">/bigobj %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <ClCompile Include="src\Controller.cpp" />
-    <ClCompile Include="src\LargeImage.cpp" />
     <ClCompile Include="src\LuaExtension.cpp">
       <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">/bigobj %(AdditionalOptions)</AdditionalOptions>
       <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">/bigobj %(AdditionalOptions)</AdditionalOptions>

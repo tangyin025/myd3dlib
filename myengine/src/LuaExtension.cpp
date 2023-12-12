@@ -34,7 +34,6 @@ extern "C" {
 #include "StaticEmitter.h"
 #include "Controller.h"
 #include "NavigationSerialization.h"
-#include "LargeImage.h"
 #include "SoundContext.h"
 #include "ActionTrack.h"
 #include "Steering.h"
@@ -2991,14 +2990,6 @@ void LuaContext::Init(void)
 			.def("AddIK", &Animator::AddIK)
 			.def("DrawDebugBone", &Animator::DrawDebugBone)
 			.def("GetBone", &animator_get_bone)
-
-		, class_<LargeImage/*, my::ControlImage*/, boost::shared_ptr<LargeImage> >("LargeImage")
-			.def(constructor<>())
-			.def_readwrite("TexturePath", &LargeImage::m_TexturePath)
-			.def("RequestResource", &LargeImage::RequestResource)
-			.def("ReleaseResource", &LargeImage::ReleaseResource)
-			//.def("Draw", (void (LargeImage::*)(my::UIRender*, const my::Rectangle&, DWORD))& LargeImage::Draw)
-			.def("Draw", (void (LargeImage::*)(my::UIRender*, const my::Rectangle&, DWORD, const my::Rectangle&, int))& LargeImage::Draw)
 
 		, class_<Action, boost::shared_ptr<Action> >("Action")
 			.def(constructor<float>())
