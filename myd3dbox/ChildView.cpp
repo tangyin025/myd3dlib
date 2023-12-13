@@ -678,7 +678,9 @@ void CChildView::RenderSelectedControl(IDirect3DDevice9 * pd3dDevice, my::Contro
 	{
 		wchar_t buff[256];
 		swprintf_s(buff, _countof(buff), L"%f, %f, %f, %f", ctl->m_x.offset, ctl->m_y.offset, ctl->m_Width.offset, ctl->m_Height.offset);
-		theApp.m_UIRender->PushString(my::Rectangle::LeftTop(floorf(ctl->m_Rect.l), floorf(ctl->m_Rect.t), 1, 1), buff, D3DCOLOR_ARGB(255, 255, 0, 255), my::Font::AlignLeftTop, theApp.m_Font.get());
+		my::Vector3 pos = my::Vector3(ctl->m_Rect.l, ctl->m_Rect.t, 0).transformCoord(dlg->m_World);
+		my::Vector3 pt = m_UICamera.WorldToScreen(pos, my::Vector2((float)m_SwapChainBufferDesc.Width, (float)m_SwapChainBufferDesc.Height));
+		theApp.m_UIRender->PushString(my::Rectangle::LeftTop(floorf(pt.x), floorf(pt.y), 1, 1), buff, D3DCOLOR_ARGB(255, 255, 0, 255), my::Font::AlignLeftTop, theApp.m_Font.get());
 	}
 }
 
