@@ -502,6 +502,18 @@ public:
 		PropertyListBoxItemSizeY,
 		PropertyListBoxItemCount,
 		PropertyDialogEnableDrag,
+		PropertyDialogPos,
+		PropertyDialogPosX,
+		PropertyDialogPosY,
+		PropertyDialogPosZ,
+		PropertyDialogRot,
+		PropertyDialogRotX,
+		PropertyDialogRotY,
+		PropertyDialogRotZ,
+		PropertyDialogScale,
+		PropertyDialogScaleX,
+		PropertyDialogScaleY,
+		PropertyDialogScaleZ,
 		PropertyCount
 	};
 	CMFCPropertyGridProperty * m_pProp[PropertyCount];

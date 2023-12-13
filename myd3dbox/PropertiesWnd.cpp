@@ -1280,7 +1280,19 @@ void CPropertiesWnd::UpdatePropertiesDialog(CMFCPropertyGridProperty * pControl,
 		return;
 	}
 
+	my::Vector3 Pos, Scale; my::Quaternion Rot;
+	dialog->m_World.Decompose(Scale, Rot, Pos);
 	pControl->GetSubItem(PropId + 0)->SetValue((_variant_t)(VARIANT_BOOL)dialog->m_EnableDrag);
+	pControl->GetSubItem(PropId + 1)->GetSubItem(0)->SetValue((_variant_t)Pos.x);
+	pControl->GetSubItem(PropId + 1)->GetSubItem(1)->SetValue((_variant_t)Pos.y);
+	pControl->GetSubItem(PropId + 1)->GetSubItem(2)->SetValue((_variant_t)Pos.z);
+	my::Vector3 angle = Rot.toEulerAngles();
+	pControl->GetSubItem(PropId + 2)->GetSubItem(0)->SetValue((_variant_t)D3DXToDegree(angle.x));
+	pControl->GetSubItem(PropId + 2)->GetSubItem(1)->SetValue((_variant_t)D3DXToDegree(angle.y));
+	pControl->GetSubItem(PropId + 2)->GetSubItem(2)->SetValue((_variant_t)D3DXToDegree(angle.z));
+	pControl->GetSubItem(PropId + 3)->GetSubItem(0)->SetValue((_variant_t)Scale.x);
+	pControl->GetSubItem(PropId + 3)->GetSubItem(1)->SetValue((_variant_t)Scale.y);
+	pControl->GetSubItem(PropId + 3)->GetSubItem(2)->SetValue((_variant_t)Scale.z);
 }
 
 void CPropertiesWnd::CreatePropertiesActor(Actor * actor)
@@ -2741,6 +2753,36 @@ void CPropertiesWnd::CreatePropertiesDialog(CMFCPropertyGridProperty * pControl,
 
 	CMFCPropertyGridProperty* pEnableDrag = new CCheckBoxProp(_T("EnableDrag"), dialog->m_EnableDrag, NULL, PropertyDialogEnableDrag);
 	pControl->AddSubItem(pEnableDrag);
+
+	my::Vector3 Pos, Scale; my::Quaternion Rot;
+	dialog->m_World.Decompose(Scale, Rot, Pos);
+	CMFCPropertyGridProperty* pPosition = new CSimpleProp(_T("Position"), PropertyDialogPos, TRUE);
+	pControl->AddSubItem(pPosition);
+	CMFCPropertyGridProperty* pProp = new CSimpleProp(_T("x"), (_variant_t)Pos.x, NULL, PropertyDialogPosX);
+	pPosition->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("y"), (_variant_t)Pos.y, NULL, PropertyDialogPosY);
+	pPosition->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("z"), (_variant_t)Pos.z, NULL, PropertyDialogPosZ);
+	pPosition->AddSubItem(pProp);
+
+	my::Vector3 angle = Rot.toEulerAngles();
+	CMFCPropertyGridProperty* pRotate = new CSimpleProp(_T("Rotate"), PropertyDialogRot, TRUE);
+	pControl->AddSubItem(pRotate);
+	pProp = new CSimpleProp(_T("x"), (_variant_t)D3DXToDegree(angle.x), NULL, PropertyDialogRotX);
+	pRotate->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("y"), (_variant_t)D3DXToDegree(angle.y), NULL, PropertyDialogRotY);
+	pRotate->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("z"), (_variant_t)D3DXToDegree(angle.z), NULL, PropertyDialogRotZ);
+	pRotate->AddSubItem(pProp);
+
+	CMFCPropertyGridProperty* pScale = new CSimpleProp(_T("Scale"), PropertyDialogScale, TRUE);
+	pControl->AddSubItem(pScale);
+	pProp = new CSimpleProp(_T("x, y, z"), (_variant_t)Scale.x, NULL, PropertyDialogScaleX);
+	pScale->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("y"), (_variant_t)Scale.y, NULL, PropertyDialogScaleY);
+	pScale->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("z"), (_variant_t)Scale.z, NULL, PropertyDialogScaleZ);
+	pScale->AddSubItem(pProp);
 }
 
 CPropertiesWnd::Property CPropertiesWnd::GetComponentProp(DWORD type)
@@ -5950,6 +5992,58 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	{
 		my::Dialog* dialog = dynamic_cast<my::Dialog*>((my::Control*)pProp->GetParent()->GetValue().pulVal);
 		dialog->m_EnableDrag = pProp->GetValue().boolVal;
+		my::EventArg arg;
+		pFrame->m_EventAttributeChanged(&arg);
+		break;
+	}
+	case PropertyDialogPos:
+	case PropertyDialogPosX:
+	case PropertyDialogPosY:
+	case PropertyDialogPosZ:
+	case PropertyDialogRot:
+	case PropertyDialogRotX:
+	case PropertyDialogRotY:
+	case PropertyDialogRotZ:
+	case PropertyDialogScale:
+	case PropertyDialogScaleX:
+	case PropertyDialogScaleY:
+	case PropertyDialogScaleZ:
+	{
+		CMFCPropertyGridProperty* pControl = NULL;
+		switch (PropertyId)
+		{
+		case PropertyDialogPosX:
+		case PropertyDialogPosY:
+		case PropertyDialogPosZ:
+		case PropertyDialogRotX:
+		case PropertyDialogRotY:
+		case PropertyDialogRotZ:
+		case PropertyDialogScaleX:
+		case PropertyDialogScaleY:
+		case PropertyDialogScaleZ:
+			pControl = pProp->GetParent()->GetParent();
+			break;
+		case PropertyDialogPos:
+		case PropertyDialogRot:
+		case PropertyDialogScale:
+			pControl = pProp->GetParent();
+			break;
+		}
+		my::Dialog* dialog = dynamic_cast<my::Dialog*>((my::Control*)pControl->GetValue().pulVal);
+		unsigned int PropId = GetControlPropCount(my::Control::ControlTypeControl);
+		dialog->m_World = my::Matrix4::Compose(
+			my::Vector3(
+				pControl->GetSubItem(PropId + 3)->GetSubItem(0)->GetValue().fltVal,
+				pControl->GetSubItem(PropId + 3)->GetSubItem(1)->GetValue().fltVal,
+				pControl->GetSubItem(PropId + 3)->GetSubItem(2)->GetValue().fltVal),
+			my::Quaternion::RotationEulerAngles(
+				D3DXToRadian(pControl->GetSubItem(PropId + 2)->GetSubItem(0)->GetValue().fltVal),
+				D3DXToRadian(pControl->GetSubItem(PropId + 2)->GetSubItem(1)->GetValue().fltVal),
+				D3DXToRadian(pControl->GetSubItem(PropId + 2)->GetSubItem(2)->GetValue().fltVal)),
+			my::Vector3(
+				pControl->GetSubItem(PropId + 1)->GetSubItem(0)->GetValue().fltVal,
+				pControl->GetSubItem(PropId + 1)->GetSubItem(1)->GetValue().fltVal,
+				pControl->GetSubItem(PropId + 1)->GetSubItem(2)->GetValue().fltVal));
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
