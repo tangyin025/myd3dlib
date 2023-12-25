@@ -453,8 +453,14 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	m_PxScene->setVisualizationParameter(physx::PxVisualizationParameter::eJOINT_LIMITS, theApp.default_physx_joint_limits);
 
 	m_Player.reset(new Actor(NULL, my::Vector3(0, 0, 0), my::Quaternion::Identity(), my::Vector3(theApp.default_player_scale), my::AABB(-1, 1)));
-	m_Player->InsertComponent(ComponentPtr(new Controller(NULL, theApp.default_player_height, theApp.default_player_radius, 0.1f, 0.5f, 0.0f)));
-	m_Player->InsertComponent(ComponentPtr(new Steering(NULL, theApp.default_player_run_speed, theApp.default_player_breaking_speed, 0.0f, NULL)));
+	m_Player->InsertComponent(ComponentPtr(new Controller(NULL,
+		theApp.default_player_height,
+		theApp.default_player_radius,
+		theApp.default_player_contact_offset,
+		theApp.default_player_step_offset, 0.0f)));
+	m_Player->InsertComponent(ComponentPtr(new Steering(NULL,
+		theApp.default_player_run_speed,
+		theApp.default_player_breaking_speed, 0.0f, NULL)));
 	m_Player->InsertComponent(ComponentPtr(new PlayerAgent(NULL)));
 	m_Player->InsertComponent(ComponentPtr(new Animator(NULL)));
 	if (!theApp.default_player_anim_list.empty())
