@@ -2788,6 +2788,8 @@ void LuaContext::Init(void)
 			.property("TouchedPosLocal", &Controller::GetTouchedPosLocal)
 
 		, class_<Navigation, Component, boost::shared_ptr<Component> >("Navigation")
+			.def(constructor<const char*, const my::AABB&>())
+			.def_readwrite("ChunkLodScale", &Navigation::m_ChunkLodScale)
 
 		, class_<Steering, Component, boost::shared_ptr<Component> >("Steering")
 			.enum_("CrowdAgentState")

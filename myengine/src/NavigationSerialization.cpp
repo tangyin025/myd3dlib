@@ -126,6 +126,7 @@ Navigation::Navigation(void)
 Navigation::Navigation(const char* Name, const my::AABB& RootAabb)
 	: Component(Name)
 	, OctRoot(RootAabb.m_min, RootAabb.m_max)
+	, m_ChunkLodScale(1.0f)
 {
 
 }
@@ -160,6 +161,7 @@ void Navigation::save(Archive& ar, const unsigned int version) const
 	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(Component);
 	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(OctRoot);
 	ar << BOOST_SERIALIZATION_NVP(m_navMesh);
+	ar << BOOST_SERIALIZATION_NVP(m_ChunkLodScale);
 	int MaxNodes = m_navQuery->getNodePool()->getMaxNodes();
 	ar << BOOST_SERIALIZATION_NVP(MaxNodes);
 }
@@ -170,6 +172,7 @@ void Navigation::load(Archive& ar, const unsigned int version)
 	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(Component);
 	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(OctRoot);
 	ar >> BOOST_SERIALIZATION_NVP(m_navMesh);
+	ar >> BOOST_SERIALIZATION_NVP(m_ChunkLodScale);
 	int MaxNodes;
 	ar >> BOOST_SERIALIZATION_NVP(MaxNodes);
 
@@ -208,13 +211,13 @@ void Navigation::DebugDraw(struct duDebugDraw * dd, const my::Frustum & frustum,
 		const dtNavMesh* mesh;
 		const dtNavMeshQuery* query;
 		const Vector3& ViewPos;
-		const Actor* actor;
-		Callback(duDebugDraw* _dd, const dtNavMesh* _mesh, const dtNavMeshQuery* _query, const Vector3& _ViewPos, const Actor* _actor)
+		const Navigation* navi;
+		Callback(duDebugDraw* _dd, const dtNavMesh* _mesh, const dtNavMeshQuery* _query, const Vector3& _ViewPos, const Navigation* _navi)
 			: dd(_dd)
 			, mesh(_mesh)
 			, query(_query)
 			, ViewPos(_ViewPos)
-			, actor(_actor)
+			, navi(_navi)
 		{
 		}
 		virtual bool OnQueryEntity(my::OctEntity* oct_entity, const my::AABB& aabb, my::IntersectionTests::IntersectionType)
@@ -222,7 +225,7 @@ void Navigation::DebugDraw(struct duDebugDraw * dd, const my::Frustum & frustum,
 			NavigationTileChunk* chunk = dynamic_cast<NavigationTileChunk*>(oct_entity);
 			const dtMeshTile* tile = mesh->getTile(chunk->m_tileId);
 			_ASSERT(aabb == AABB(*(Vector3*)tile->header->bmin, *(Vector3*)tile->header->bmax));
-			int lod = actor->CalculateLod((aabb.Center() - ViewPos).magnitude2D());
+			int lod = navi->m_Actor->CalculateLod((aabb.Center() - ViewPos).magnitude2D() / navi->m_ChunkLodScale);
 			if (lod <= 0)
 			{
 				drawMeshTile(dd, *mesh, query, tile, DU_DRAWNAVMESH_OFFMESHCONS | DU_DRAWNAVMESH_CLOSEDLIST /*| DU_DRAWNAVMESH_COLOR_TILES*/);
@@ -231,6 +234,6 @@ void Navigation::DebugDraw(struct duDebugDraw * dd, const my::Frustum & frustum,
 		}
 	};
 
-	Callback cb(dd, m_navMesh.get(), m_navQuery.get(), TargetPos, m_Actor);
+	Callback cb(dd, m_navMesh.get(), m_navQuery.get(), TargetPos, this);
 	QueryEntity(frustum, &cb);
 }
