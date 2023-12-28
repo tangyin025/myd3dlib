@@ -161,9 +161,9 @@ void Navigation::save(Archive& ar, const unsigned int version) const
 	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(Component);
 	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(OctRoot);
 	ar << BOOST_SERIALIZATION_NVP(m_navMesh);
-	ar << BOOST_SERIALIZATION_NVP(m_ChunkLodScale);
 	int MaxNodes = m_navQuery->getNodePool()->getMaxNodes();
 	ar << BOOST_SERIALIZATION_NVP(MaxNodes);
+	ar << BOOST_SERIALIZATION_NVP(m_ChunkLodScale);
 }
 
 template<class Archive>
@@ -172,9 +172,9 @@ void Navigation::load(Archive& ar, const unsigned int version)
 	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(Component);
 	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(OctRoot);
 	ar >> BOOST_SERIALIZATION_NVP(m_navMesh);
-	ar >> BOOST_SERIALIZATION_NVP(m_ChunkLodScale);
 	int MaxNodes;
 	ar >> BOOST_SERIALIZATION_NVP(MaxNodes);
+	ar >> BOOST_SERIALIZATION_NVP(m_ChunkLodScale);
 
 	if (m_navMesh)
 	{
