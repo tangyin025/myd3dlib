@@ -240,7 +240,7 @@ Steering::CrowdAgentState Steering::SeekTarget(const my::Vector3& Target, float 
 		int reqPathCount = 0;
 
 		// Quick search towards the goal.
-		static const int MAX_ITER = 20;
+		static const int MAX_ITER = 32;
 		dtStatus status = 0;
 		status = m_navi->m_navQuery->initSlicedFindPath(path[0], m_targetRef, &m_agentPos.x, &m_targetRefPos.x, &filter);
 		status = m_navi->m_navQuery->updateSlicedFindPath(MAX_ITER, 0);
