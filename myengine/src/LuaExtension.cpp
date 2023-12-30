@@ -376,6 +376,25 @@ static my::Vector3 steering_get_corner(const Steering* self, int i)
 	return my::Vector3(0, 0, 0);
 }
 
+static unsigned char steering_get_corner_flag(const Steering* self, int i)
+{
+	if (i < self->m_ncorners)
+	{
+		return self->m_cornerFlags[i];
+	}
+	return 0;
+}
+
+static int steering_get_npath(const Steering* self)
+{
+	return self->m_corridor.getPathCount();
+}
+
+static unsigned int steering_get_path(const Steering* self, int i)
+{
+	return self->m_corridor.getPath()[i];
+}
+
 struct ScriptControl : my::Control, luabind::wrap_base
 {
 	ScriptControl(const char* Name)
@@ -2812,6 +2831,15 @@ void LuaContext::Init(void)
 			.def("SeekDir", &Steering::SeekDir)
 			.def("SeekTarget", &Steering::SeekTarget, pure_out_value(boost::placeholders::_5) + pure_out_value(boost::placeholders::_6) + pure_out_value(boost::placeholders::_7))
 			.def("GetCorner", &steering_get_corner)
+			.enum_("dtStraightPathFlags")
+			[
+				value("DT_STRAIGHTPATH_START", DT_STRAIGHTPATH_START),
+				value("DT_STRAIGHTPATH_END", DT_STRAIGHTPATH_END),
+				value("DT_STRAIGHTPATH_OFFMESH_CONNECTION", DT_STRAIGHTPATH_OFFMESH_CONNECTION)
+			]
+			.def("GetCornerFlag", &steering_get_corner_flag)
+			.property("npath", &steering_get_npath)
+			.def("GetPath", &steering_get_path)
 
 		, class_<ActorEventArg, my::EventArg>("ActorEventArg")
 			.def_readonly("self", &ActorEventArg::self)
