@@ -2318,64 +2318,64 @@ PxControllerCollisionFlags Controller::move(SweptVolume& volume, const PxVec3& o
 	PX_ASSERT(!capsuleUserData.size());
 	PX_ASSERT(!capsules.size());
 
-	{
-		PX_PROFILE_ZONE("CharacterController.filterCandidateControllers", getContextId());
-
-		// Experiment - to do better
-		const PxU32 nbControllers = mManager->getNbControllers();
-		Controller** controllers = mManager->getControllers();
-
-		for(PxU32 i=0;i<nbControllers;i++)
-		{
-			Controller* currentController = controllers[i];
-			if(currentController==this)
-				continue;
-
-			bool keepController = true;
-			if(filters.mCCTFilterCallback)
-				keepController = filters.mCCTFilterCallback->filter(*getPxController(), *currentController->getPxController());
-
-			if(keepController)
-			{
-				if(currentController->mType==PxControllerShapeType::eBOX)
-				{
-					// PT: TODO: optimize this
-					BoxController* BC = static_cast<BoxController*>(currentController);
-					PxExtendedBox obb;
-					BC->getOBB(obb);
-
-					boxes.pushBack(obb);
-
-#ifdef REMOVED
-					if(renderBuffer /*&& (debugRenderFlags & PxControllerDebugRenderFlag::eOBSTACLES)*/)
-					{
-						RenderOutput out(*renderBuffer);
-						out << gCCTBoxDebugColor;
-
-						out << PxTransform(toVec3(obb.center), obb.rot);
-
-						out << DebugBox(obb.extents, true);
-					}
-#endif
-					const size_t code = encodeUserObject(i, USER_OBJECT_CCT);
-					boxUserData.pushBack(reinterpret_cast<const void*>(code));
-				}
-				else if(currentController->mType==PxControllerShapeType::eCAPSULE)
-				{
-					CapsuleController* CC = static_cast<CapsuleController*>(currentController);
-
-					// PT: TODO: optimize this
-					PxExtendedCapsule worldCapule;
-					CC->getCapsule(worldCapule);
-					capsules.pushBack(worldCapule);
-
-					const size_t code = encodeUserObject(i, USER_OBJECT_CCT);
-					capsuleUserData.pushBack(reinterpret_cast<const void*>(code));
-				}
-				else PX_ASSERT(0);
-			}
-		}
-	}
+//	{
+//		PX_PROFILE_ZONE("CharacterController.filterCandidateControllers", getContextId());
+//
+//		// Experiment - to do better
+//		const PxU32 nbControllers = mManager->getNbControllers();
+//		Controller** controllers = mManager->getControllers();
+//
+//		for(PxU32 i=0;i<nbControllers;i++)
+//		{
+//			Controller* currentController = controllers[i];
+//			if(currentController==this)
+//				continue;
+//
+//			bool keepController = true;
+//			if(filters.mCCTFilterCallback)
+//				keepController = filters.mCCTFilterCallback->filter(*getPxController(), *currentController->getPxController());
+//
+//			if(keepController)
+//			{
+//				if(currentController->mType==PxControllerShapeType::eBOX)
+//				{
+//					// PT: TODO: optimize this
+//					BoxController* BC = static_cast<BoxController*>(currentController);
+//					PxExtendedBox obb;
+//					BC->getOBB(obb);
+//
+//					boxes.pushBack(obb);
+//
+//#ifdef REMOVED
+//					if(renderBuffer /*&& (debugRenderFlags & PxControllerDebugRenderFlag::eOBSTACLES)*/)
+//					{
+//						RenderOutput out(*renderBuffer);
+//						out << gCCTBoxDebugColor;
+//
+//						out << PxTransform(toVec3(obb.center), obb.rot);
+//
+//						out << DebugBox(obb.extents, true);
+//					}
+//#endif
+//					const size_t code = encodeUserObject(i, USER_OBJECT_CCT);
+//					boxUserData.pushBack(reinterpret_cast<const void*>(code));
+//				}
+//				else if(currentController->mType==PxControllerShapeType::eCAPSULE)
+//				{
+//					CapsuleController* CC = static_cast<CapsuleController*>(currentController);
+//
+//					// PT: TODO: optimize this
+//					PxExtendedCapsule worldCapule;
+//					CC->getCapsule(worldCapule);
+//					capsules.pushBack(worldCapule);
+//
+//					const size_t code = encodeUserObject(i, USER_OBJECT_CCT);
+//					capsuleUserData.pushBack(reinterpret_cast<const void*>(code));
+//				}
+//				else PX_ASSERT(0);
+//			}
+//		}
+//	}
 
 	const ObstacleContext* obstacles = NULL;
 	if(obstacleContext)
