@@ -58,8 +58,6 @@ public:
 
 	boost::shared_ptr<dtNavMeshQuery> m_navQuery;
 
-	float m_ChunkLodScale;
-
 	typedef std::vector<NavigationTileChunkPtr> TileChunkList;
 
 	TileChunkList m_Chunks;

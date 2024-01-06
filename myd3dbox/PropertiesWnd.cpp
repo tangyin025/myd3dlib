@@ -859,7 +859,6 @@ void CPropertiesWnd::UpdatePropertiesNavigation(CMFCPropertyGridProperty * pComp
 	pComponent->GetSubItem(PropId + 2)->SetValue((_variant_t)params->tileHeight);
 	pComponent->GetSubItem(PropId + 3)->SetValue((_variant_t)params->maxTiles);
 	pComponent->GetSubItem(PropId + 4)->SetValue((_variant_t)params->maxPolys);
-	pComponent->GetSubItem(PropId + 5)->SetValue((_variant_t)navigation->m_ChunkLodScale);
 }
 
 void CPropertiesWnd::UpdatePropertiesControl(my::Control * control)
@@ -2051,9 +2050,6 @@ void CPropertiesWnd::CreatePropertiesNavigation(CMFCPropertyGridProperty * pComp
 	pProp = new CSimpleProp(_T("MaxPolys"), (_variant_t)params->maxPolys, NULL, PropertyNavigationMaxPolys);
 	pProp->Enable(FALSE);
 	pComponent->AddSubItem(pProp);
-
-	pProp = new CSimpleProp(_T("ChunkLodScale"), (_variant_t)navigation->m_ChunkLodScale, NULL, PropertyNavigationChunkLodScale);
-	pComponent->AddSubItem(pProp);
 }
 
 void CPropertiesWnd::CreatePropertiesControl(my::Control * control)
@@ -2840,7 +2836,7 @@ unsigned int CPropertiesWnd::GetComponentPropCount(DWORD type)
 	case Component::ComponentTypeAnimator:
 		return GetComponentPropCount(Component::ComponentTypeComponent) + 2;
 	case Component::ComponentTypeNavigation:
-		return GetComponentPropCount(Component::ComponentTypeComponent) + 6;
+		return GetComponentPropCount(Component::ComponentTypeComponent) + 5;
 	}
 
 	ASSERT(Component::ComponentTypeComponent == type);
@@ -4392,14 +4388,6 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	{
 		AnimationNodeSequence* node = dynamic_cast<AnimationNodeSequence*>((AnimationNode*)pProp->GetParent()->GetValue().pulVal);
 		node->m_Rate = pProp->GetValue().fltVal;
-		my::EventArg arg;
-		pFrame->m_EventAttributeChanged(&arg);
-		break;
-	}
-	case PropertyNavigationChunkLodScale:
-	{
-		Navigation* navi = dynamic_cast<Navigation*>((Component*)pProp->GetParent()->GetValue().pulVal);
-		navi->m_ChunkLodScale = pProp->GetValue().fltVal;
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;

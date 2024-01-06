@@ -251,7 +251,6 @@ public:
 		PropertyNavigationTileHeight,
 		PropertyNavigationMaxTiles,
 		PropertyNavigationMaxPolys,
-		PropertyNavigationChunkLodScale,
 		PropertyPaint,
 		PropertyPaintShape,
 		PropertyPaintMode,
