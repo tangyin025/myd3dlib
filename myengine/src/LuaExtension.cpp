@@ -184,15 +184,82 @@ static bool FileExists(const char* u8_path)
 	return PathFileExists(u8tots(u8_path).c_str());
 }
 
-typedef std::vector<my::NamedObject*> obj_list;
-
-typedef boost::shared_container_iterator<obj_list> shared_obj_list_iter;
-
-static boost::iterator_range<shared_obj_list_iter> d3dcontext_get_named_object_list(my::D3DContext* self)
+class NamedObjectFilterIterator : public std::iterator<std::forward_iterator_tag, my::NamedObject*>
 {
-	boost::shared_ptr<obj_list> objs(new obj_list());
-	boost::range::transform(self->m_NamedObjects, std::back_inserter(*objs), boost::bind(&my::D3DContext::NamedObjectMap::value_type::second, boost::placeholders::_1));
-	return boost::make_iterator_range(shared_obj_list_iter(objs->begin(), objs), shared_obj_list_iter(objs->end(), objs));
+protected:
+	boost::regex reg;
+	my::D3DContext::NamedObjectMap::iterator obj_iter;
+
+	void goto_next_matched_obj(void)
+	{
+		boost::smatch match;
+		for (; obj_iter != my::D3DContext::getSingleton().m_NamedObjects.end()
+			&& !boost::regex_match(obj_iter->first, match, reg); obj_iter++)
+		{
+			;
+		}
+	}
+
+public:
+	explicit NamedObjectFilterIterator(
+		const char* expr,
+		my::D3DContext::NamedObjectMap::iterator _obj_iter)
+		: reg(expr)
+		, obj_iter(_obj_iter)
+	{
+		goto_next_matched_obj();
+	}
+	// Assignment operator
+	NamedObjectFilterIterator& operator=(const NamedObjectFilterIterator& src)
+	{
+		reg = src.reg;
+		obj_iter = src.obj_iter;
+	}
+	// Dereference an iterator
+	my::NamedObject* operator*()
+	{
+		// When the value is one step more than the last, it's an end iterator
+		if (obj_iter == my::D3DContext::getSingleton().m_NamedObjects.end())
+		{
+			throw std::logic_error("Cannot dereference an end iterator.");
+		}
+		return obj_iter->second;
+	}
+	// Prefix increment operator
+	NamedObjectFilterIterator& operator++()
+	{
+		// When the value is one step more than the last, it's an end iterator
+		if (obj_iter == my::D3DContext::getSingleton().m_NamedObjects.end())
+		{
+			throw std::logic_error("Cannot dereference an end iterator.");
+		}
+		obj_iter++;
+		goto_next_matched_obj();
+		return *this;
+	}
+	// Postfix increment operator
+	NamedObjectFilterIterator operator++(int)
+	{
+		NamedObjectFilterIterator temp = *this;
+		temp++;                                      // Increment the value by the range step
+		return temp;                                 // The iterator before it's incremented
+	}
+	// Comparisons
+	bool operator==(const NamedObjectFilterIterator& iter) const
+	{
+		return obj_iter == iter.obj_iter;
+	}
+	bool operator!=(const NamedObjectFilterIterator& iter) const
+	{
+		return obj_iter != iter.obj_iter;
+	}
+};
+
+static boost::iterator_range<NamedObjectFilterIterator> d3dcontext_filter_named_object_list(my::D3DContext* self, const char* expr)
+{
+	return boost::make_iterator_range(
+		NamedObjectFilterIterator(expr, my::D3DContext::getSingleton().m_NamedObjects.begin()),
+		NamedObjectFilterIterator(expr, my::D3DContext::getSingleton().m_NamedObjects.end()));
 }
 
 static void cloth_component_set_stretch(ClothComponent* self, physx::PxClothFabricPhaseType::Enum type, float stiffness, float stiffnessMultiplier, float compressionLimit, float stretchLimit)
@@ -2220,7 +2287,7 @@ void LuaContext::Init(void)
 			.def_readonly("TotalTime", &my::D3DContext::m_fTotalTime)
 			.def_readonly("DeviceSettings", &my::D3DContext::m_DeviceSettings, copy(result))
 			.def_readonly("BackBufferSurfaceDesc", &my::D3DContext::m_BackBufferSurfaceDesc)
-			.property("NamedObjects", &d3dcontext_get_named_object_list, return_stl_iterator)
+			.def("FilterNamedObjects", &d3dcontext_filter_named_object_list, return_stl_iterator)
 			.def("GetNamedObject", &my::D3DContext::GetNamedObject)
 
 		, class_<my::DxutApp, bases<my::D3DContext, CD3D9Enumeration> >("DxutApp")
