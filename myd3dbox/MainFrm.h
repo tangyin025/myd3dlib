@@ -19,6 +19,28 @@ class dtNavMesh;
 
 class dtNavMeshQuery;
 
+class OffmeshConnectionChunk
+	: public my::OctEntity
+{
+public:
+	float m_Verts[3 * 2];
+	float m_Rad;
+	unsigned char m_Dir;
+	unsigned char m_Area;
+	unsigned short m_Flag;
+	unsigned int m_Id;
+
+	OffmeshConnectionChunk(void)
+	{
+	}
+
+	virtual ~OffmeshConnectionChunk(void)
+	{
+	}
+};
+
+typedef boost::shared_ptr<OffmeshConnectionChunk> OffmeshConnectionChunkPtr;
+
 class CMainFrame : public CFrameWndEx
 	, public my::DialogMgr
 	, public my::OctRoot
@@ -47,14 +69,9 @@ public:
 	DialogPtrList m_DialogList;
 	float m_hitPos[3];
 	bool m_hitPosSet;
-	static const int MAX_OFFMESH_CONNECTIONS = 256;
-	float m_offMeshConVerts[MAX_OFFMESH_CONNECTIONS * 3 * 2];
-	float m_offMeshConRads[MAX_OFFMESH_CONNECTIONS];
-	unsigned char m_offMeshConDirs[MAX_OFFMESH_CONNECTIONS];
-	unsigned char m_offMeshConAreas[MAX_OFFMESH_CONNECTIONS];
-	unsigned short m_offMeshConFlags[MAX_OFFMESH_CONNECTIONS];
-	unsigned int m_offMeshConId[MAX_OFFMESH_CONNECTIONS];
-	int m_offMeshConCount;
+	my::OctRoot m_offMeshConRoot;
+	typedef std::vector<OffmeshConnectionChunkPtr> OffmeshConnectionChunkList;
+	OffmeshConnectionChunkList m_offMeshConChunks;
 	Pivot m_Pivot;
 	typedef std::vector<Actor *> ActorList;
 	ActorList m_selactors;

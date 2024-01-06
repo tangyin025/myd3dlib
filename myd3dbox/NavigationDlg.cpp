@@ -703,6 +703,33 @@ public:
 				}
 			}
 
+			struct Callback : public my::OctNode::QueryCallback
+			{
+				std::vector<float> m_offMeshConVerts;
+				std::vector<float> m_offMeshConRads;
+				std::vector<unsigned char> m_offMeshConDirs;
+				std::vector<unsigned char> m_offMeshConAreas;
+				std::vector<unsigned short> m_offMeshConFlags;
+				std::vector<unsigned int> m_offMeshConId;
+				Callback(void)
+				{
+				}
+				virtual bool OnQueryEntity(my::OctEntity* oct_entity, const my::AABB& aabb, my::IntersectionTests::IntersectionType)
+				{
+					OffmeshConnectionChunk* chunk = dynamic_cast<OffmeshConnectionChunk*>(oct_entity);
+					m_offMeshConVerts.insert(m_offMeshConVerts.end(), &chunk->m_Verts[0], &chunk->m_Verts[3 * 2]);
+					m_offMeshConRads.push_back(chunk->m_Rad);
+					m_offMeshConDirs.push_back(chunk->m_Dir);
+					m_offMeshConAreas.push_back(chunk->m_Area);
+					m_offMeshConFlags.push_back(chunk->m_Flag);
+					m_offMeshConId.push_back(chunk->m_Id);
+					return true;
+				}
+			};
+			Callback cb2;
+			pFrame->m_offMeshConRoot.QueryEntity(cb.bindingBox, &cb2);
+			ASSERT(cb2.m_offMeshConVerts.size() == cb2.m_offMeshConRads.size() * 3 * 2);
+
 			dtNavMeshCreateParams params;
 			memset(&params, 0, sizeof(params));
 			params.verts = m_pmesh->verts;
@@ -717,13 +744,13 @@ public:
 			params.detailVertsCount = m_dmesh->nverts;
 			params.detailTris = m_dmesh->tris;
 			params.detailTriCount = m_dmesh->ntris;
-			params.offMeshConVerts = pFrame->m_offMeshConVerts;
-			params.offMeshConRad = pFrame->m_offMeshConRads;
-			params.offMeshConDir = pFrame->m_offMeshConDirs;
-			params.offMeshConAreas = pFrame->m_offMeshConAreas;
-			params.offMeshConFlags = pFrame->m_offMeshConFlags;
-			params.offMeshConUserID = pFrame->m_offMeshConId;
-			params.offMeshConCount = pFrame->m_offMeshConCount;
+			params.offMeshConVerts = cb2.m_offMeshConVerts.data();
+			params.offMeshConRad = cb2.m_offMeshConRads.data();
+			params.offMeshConDir = cb2.m_offMeshConDirs.data();
+			params.offMeshConAreas = cb2.m_offMeshConAreas.data();
+			params.offMeshConFlags = cb2.m_offMeshConFlags.data();
+			params.offMeshConUserID = cb2.m_offMeshConId.data();
+			params.offMeshConCount = cb2.m_offMeshConRads.size();
 			params.walkableHeight = pdlg->m_agentHeight;
 			params.walkableRadius = pdlg->m_agentRadius;
 			params.walkableClimb = pdlg->m_agentMaxClimb;

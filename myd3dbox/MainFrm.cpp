@@ -391,7 +391,7 @@ CMainFrame::CMainFrame()
 	: OctRoot(-4096, 4096)
 	, m_bEatAltUp(FALSE)
 	, m_hitPosSet(false)
-	, m_offMeshConCount(0)
+	, m_offMeshConRoot(-4096, 4096)
 	, m_selcmp(NULL)
 	, m_selchunkid(0, 0)
 	, m_selinstid(0)
@@ -973,7 +973,8 @@ void CMainFrame::ClearFileContext()
 	m_ActorList.clear();
 	m_DialogList.clear();
 	m_hitPosSet = false;
-	m_offMeshConCount = 0;
+	m_offMeshConRoot.ClearAllEntity();
+	m_offMeshConChunks.clear();
 	ASSERT(m_selactors.empty());
 	m_selcmp = NULL;
 	m_selchunkid.SetPoint(0, 0);

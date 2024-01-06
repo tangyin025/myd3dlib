@@ -1552,30 +1552,45 @@ void CChildView::OnPaint()
 			{
 				// https://github.com/recastnavigation/recastnavigation/blob/master/RecastDemo/Source/InputGeom.cpp
 				// InputGeom::drawOffMeshConnections
-				unsigned int conColor = duRGBA(192, 0, 128, 192);
-				unsigned int baseColor = duRGBA(0, 0, 0, 64);
 				depthMask(false);
 
-				begin(DU_DRAW_LINES, 2.0f);
-				for (int i = 0; i < pFrame->m_offMeshConCount; ++i)
+				struct Callback : public my::OctNode::QueryCallback
 				{
-					float* v = &pFrame->m_offMeshConVerts[i * 3 * 2];
-
-					vertex(v[0], v[1], v[2], baseColor);
-					vertex(v[0], v[1] + 0.2f, v[2], baseColor);
-
-					vertex(v[3], v[4], v[5], baseColor);
-					vertex(v[3], v[4] + 0.2f, v[5], baseColor);
-
-					duAppendCircle(this, v[0], v[1] + 0.1f, v[2], pFrame->m_offMeshConRads[i], baseColor);
-					duAppendCircle(this, v[3], v[4] + 0.1f, v[5], pFrame->m_offMeshConRads[i], baseColor);
-
-					if (true)
+					duDebugDraw* dd;
+					Callback(duDebugDraw* _dd)
+						: dd(_dd)
 					{
-						duAppendArc(this, v[0], v[1], v[2], v[3], v[4], v[5], 0.25f,
-							(pFrame->m_offMeshConDirs[i] & 1) ? 0.6f : 0.0f, 0.6f, conColor);
 					}
-				}
+					virtual bool OnQueryEntity(my::OctEntity* oct_entity, const my::AABB& aabb, my::IntersectionTests::IntersectionType)
+					{
+						unsigned int conColor = duRGBA(192, 0, 128, 192);
+						unsigned int baseColor = duRGBA(0, 0, 0, 64);
+						OffmeshConnectionChunk* chunk = dynamic_cast<OffmeshConnectionChunk*>(oct_entity);
+
+						float* v = &chunk->m_Verts[0];
+
+						dd->vertex(v[0], v[1], v[2], baseColor);
+						dd->vertex(v[0], v[1] + 0.2f, v[2], baseColor);
+
+						dd->vertex(v[3], v[4], v[5], baseColor);
+						dd->vertex(v[3], v[4] + 0.2f, v[5], baseColor);
+
+						duAppendCircle(dd, v[0], v[1] + 0.1f, v[2], chunk->m_Rad, baseColor);
+						duAppendCircle(dd, v[3], v[4] + 0.1f, v[5], chunk->m_Rad, baseColor);
+
+						if (true)
+						{
+							duAppendArc(dd, v[0], v[1], v[2], v[3], v[4], v[5], 0.25f,
+								(chunk->m_Dir & 1) ? 0.6f : 0.0f, 0.6f, conColor);
+						}
+						return true;
+					}
+				};
+
+				begin(DU_DRAW_LINES, 2.0f);
+				Callback cb(this);
+				my::AABB viewbox(model_view_camera->m_LookAt, 33.0f);
+				pFrame->m_offMeshConRoot.QueryEntity(viewbox, &cb);
 				end();
 
 				depthMask(true);
@@ -1802,7 +1817,7 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 		my::Vector3 pos = (*(my::Vector4*)lrc.pBits).xyz;
 		m_OffscreenPositionRT->UnlockRect();
 
-		if (pos != my::Vector3::zero && pFrame->m_offMeshConCount < CMainFrame::MAX_OFFMESH_CONNECTIONS)
+		if (pos != my::Vector3::zero)
 		{
 			pos = pos.transformCoord(m_Camera->m_View.inverse());
 
@@ -1816,15 +1831,20 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 			{
 				// https://github.com/recastnavigation/recastnavigation/blob/master/RecastDemo/Source/InputGeom.cpp
 				// InputGeom::addOffMeshConnection
-				float* v = &pFrame->m_offMeshConVerts[pFrame->m_offMeshConCount * 3 * 2];
+				OffmeshConnectionChunkPtr chunk(new OffmeshConnectionChunk());
+				float* v = &chunk->m_Verts[0];
 				rcVcopy(&v[0], pFrame->m_hitPos);
 				rcVcopy(&v[3], &pos.x);
-				pFrame->m_offMeshConRads[pFrame->m_offMeshConCount] = theApp.default_player_radius;
-				pFrame->m_offMeshConDirs[pFrame->m_offMeshConCount] = !(nFlags & MK_CONTROL);
-				pFrame->m_offMeshConAreas[pFrame->m_offMeshConCount] = Navigation::SAMPLE_POLYAREA_JUMP;
-				pFrame->m_offMeshConFlags[pFrame->m_offMeshConCount] = Navigation::SAMPLE_POLYFLAGS_JUMP;
-				pFrame->m_offMeshConId[pFrame->m_offMeshConCount] = 1000 + pFrame->m_offMeshConCount;
-				pFrame->m_offMeshConCount++;
+				chunk->m_Rad = theApp.default_player_radius;
+				chunk->m_Dir = !(nFlags & MK_CONTROL);
+				chunk->m_Area = Navigation::SAMPLE_POLYAREA_JUMP;
+				chunk->m_Flag = Navigation::SAMPLE_POLYFLAGS_JUMP;
+				chunk->m_Id = 1000 + pFrame->m_offMeshConChunks.size();
+				pFrame->m_offMeshConChunks.insert(pFrame->m_offMeshConChunks.end(), chunk);
+				my::AABB box(
+					my::Min(v[0], v[3]), my::Min(v[1], v[4]), my::Min(v[2], v[5]),
+					my::Max(v[0], v[3]), my::Max(v[1], v[4]), my::Max(v[2], v[5]));
+				pFrame->m_offMeshConRoot.AddEntity(chunk.get(), box, 1.0f, 0.01f);
 				pFrame->m_hitPosSet = false;
 			}
 			Invalidate();
