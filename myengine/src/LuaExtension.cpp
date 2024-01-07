@@ -2874,6 +2874,24 @@ void LuaContext::Init(void)
 			.property("TouchedPosLocal", &Controller::GetTouchedPosLocal)
 
 		, class_<Navigation, Component, boost::shared_ptr<Component> >("Navigation")
+			.enum_("SamplePolyAreas")
+			[
+				value("SAMPLE_POLYAREA_GROUND", Navigation::SAMPLE_POLYAREA_GROUND),
+				value("SAMPLE_POLYAREA_WATER", Navigation::SAMPLE_POLYAREA_WATER),
+				value("SAMPLE_POLYAREA_ROAD", Navigation::SAMPLE_POLYAREA_ROAD),
+				value("SAMPLE_POLYAREA_DOOR", Navigation::SAMPLE_POLYAREA_DOOR),
+				value("SAMPLE_POLYAREA_GRASS", Navigation::SAMPLE_POLYAREA_GRASS),
+				value("SAMPLE_POLYAREA_JUMP", Navigation::SAMPLE_POLYAREA_JUMP)
+			]
+			.enum_("SamplePolyFlags")
+			[
+				value("SAMPLE_POLYFLAGS_WALK", Navigation::SAMPLE_POLYFLAGS_WALK),
+				value("SAMPLE_POLYFLAGS_SWIM", Navigation::SAMPLE_POLYFLAGS_SWIM),
+				value("SAMPLE_POLYFLAGS_DOOR", Navigation::SAMPLE_POLYFLAGS_DOOR),
+				value("SAMPLE_POLYFLAGS_JUMP", Navigation::SAMPLE_POLYFLAGS_JUMP),
+				value("SAMPLE_POLYFLAGS_DISABLED", Navigation::SAMPLE_POLYFLAGS_DISABLED),
+				value("SAMPLE_POLYFLAGS_ALL", Navigation::SAMPLE_POLYFLAGS_ALL)
+			]
 			//.def(constructor<const char*, const my::AABB&>())
 
 		, class_<Steering, Component, boost::shared_ptr<Component> >("Steering")

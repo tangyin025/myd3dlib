@@ -67,7 +67,7 @@ public:
 	ActorPtrList m_ActorList;
 	typedef std::vector<my::DialogPtr> DialogPtrList;
 	DialogPtrList m_DialogList;
-	float m_hitPos[3];
+	my::Vector3 m_hitPos;
 	bool m_hitPosSet;
 	my::OctRoot m_offMeshConRoot;
 	typedef std::vector<OffmeshConnectionChunkPtr> OffmeshConnectionChunkList;
@@ -156,6 +156,7 @@ public:
 	bool ExecuteCode(const char * code);
 	void AddEntity(my::OctEntity * entity, const my::AABB & aabb, float minblock, float threshold);
 	void RemoveEntity(my::OctEntity * entity);
+	void addOffMeshConnection(const my::Vector3& v0, const my::Vector3& v1, float rad, unsigned char bidir, unsigned char area, unsigned short flags);
 
 // Implementation
 public:

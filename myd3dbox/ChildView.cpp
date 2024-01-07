@@ -1812,6 +1812,8 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 
 	if (pFrame->m_PaintType == CMainFrame::PaintTypeOffmeshConnections)
 	{
+		// https://github.com/recastnavigation/recastnavigation/blob/master/RecastDemo/Source/OffMeshConnectionTool.cpp
+		// OffMeshConnectionTool::handleClick
 		CRect rc(point, CSize(1, 1));
 		D3DLOCKED_RECT lrc = m_OffscreenPositionRT->LockRect(&rc, D3DLOCK_READONLY);
 		my::Vector3 pos = (*(my::Vector4*)lrc.pBits).xyz;
@@ -1824,27 +1826,15 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 			// Create offmesh connections
 			if (!pFrame->m_hitPosSet)
 			{
-				rcVcopy(pFrame->m_hitPos, &pos.x);
+				pFrame->m_hitPos = pos;
 				pFrame->m_hitPosSet = true;
 			}
 			else
 			{
-				// https://github.com/recastnavigation/recastnavigation/blob/master/RecastDemo/Source/InputGeom.cpp
-				// InputGeom::addOffMeshConnection
-				OffmeshConnectionChunkPtr chunk(new OffmeshConnectionChunk());
-				float* v = &chunk->m_Verts[0];
-				rcVcopy(&v[0], pFrame->m_hitPos);
-				rcVcopy(&v[3], &pos.x);
-				chunk->m_Rad = theApp.default_player_radius;
-				chunk->m_Dir = !(nFlags & MK_CONTROL);
-				chunk->m_Area = Navigation::SAMPLE_POLYAREA_JUMP;
-				chunk->m_Flag = Navigation::SAMPLE_POLYFLAGS_JUMP;
-				chunk->m_Id = 1000 + pFrame->m_offMeshConChunks.size();
-				pFrame->m_offMeshConChunks.insert(pFrame->m_offMeshConChunks.end(), chunk);
-				my::AABB box(
-					my::Min(v[0], v[3]), my::Min(v[1], v[4]), my::Min(v[2], v[5]),
-					my::Max(v[0], v[3]), my::Max(v[1], v[4]), my::Max(v[2], v[5]));
-				pFrame->m_offMeshConRoot.AddEntity(chunk.get(), box, 1.0f, 0.01f);
+				const unsigned char area = Navigation::SAMPLE_POLYAREA_JUMP;
+				const unsigned short flags = Navigation::SAMPLE_POLYFLAGS_JUMP;
+				pFrame->addOffMeshConnection(pFrame->m_hitPos, pos,
+					theApp.default_player_radius, !(nFlags & MK_CONTROL) ? 1 : 0, area, flags);
 				pFrame->m_hitPosSet = false;
 			}
 			Invalidate();

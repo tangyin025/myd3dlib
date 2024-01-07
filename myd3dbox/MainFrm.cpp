@@ -952,6 +952,7 @@ void CMainFrame::InitFileContext()
 			.def_readonly("selctls", &CMainFrame::m_selctls, luabind::return_stl_iterator)
 			.property("ActiveView", &CMainFrame::GetActiveView)
 			.def_readonly("RenderingView", &CMainFrame::m_RenderingView)
+			.def("addOffMeshConnection", &CMainFrame::addOffMeshConnection)
 
 		, luabind::class_<CMainApp, luabind::bases<my::D3DContext, my::ResourceMgr, RenderPipeline> >("MainApp")
 			.def_readonly("MainWnd", &CMainApp::m_pMainWnd)
@@ -1160,6 +1161,25 @@ void CMainFrame::RemoveEntity(my::OctEntity * entity)
 	ASSERT(HaveNode(entity->m_Node));
 
 	OctNode::RemoveEntity(entity);
+}
+
+void CMainFrame::addOffMeshConnection(const my::Vector3& v0, const my::Vector3& v1, float rad, unsigned char bidir, unsigned char area, unsigned short flags)
+{
+	OffmeshConnectionChunkPtr chunk(new OffmeshConnectionChunk());
+	float* v = &chunk->m_Verts[0];
+	chunk->m_Rad = rad;
+	chunk->m_Dir = bidir;
+	chunk->m_Area = area;
+	chunk->m_Flag = flags;
+	chunk->m_Id = 1000 + m_offMeshConChunks.size();
+	rcVcopy(&v[0], &v0.x);
+	rcVcopy(&v[3], &v1.x);
+	m_offMeshConChunks.insert(m_offMeshConChunks.end(), chunk);
+
+	my::AABB box(
+		my::Min(v0.x, v1.x), my::Min(v0.y, v1.y), my::Min(v0.z, v1.z),
+		my::Max(v0.x, v1.x), my::Max(v0.y, v1.y), my::Max(v0.z, v1.z));
+	m_offMeshConRoot.AddEntity(chunk.get(), box, 1.0f, 0.01f);
 }
 
 void CMainFrame::OnDestroy()
