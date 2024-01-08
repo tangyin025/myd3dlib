@@ -114,7 +114,10 @@ void NamedObject::SetName(const char * Name)
 
 	if (Name && Name[0] != '\0')
 	{
-		BOOST_VERIFY(D3DContext::getSingleton().RegisterNamedObject(Name, this));
+		if (!D3DContext::getSingleton().RegisterNamedObject(Name, this))
+		{
+			THROW_CUSEXCEPTION("NamedObject::SetName failed");
+		}
 	}
 }
 
