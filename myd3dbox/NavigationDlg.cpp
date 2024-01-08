@@ -47,8 +47,6 @@ CNavigationDlg::CNavigationDlg(CWnd* pParent /*=NULL*/)
 	, m_maxTiles(0)
 	, m_maxPolysPerTile(0)
 	, m_tileSize(32.0f)
-	, m_collisionFilterWord0(theApp.default_physx_shape_filterword0 | theApp.default_player_water_filterword0)
-	, m_walkableFilterWord0(theApp.default_physx_shape_filterword0)
 	, m_tileExceeded(FALSE)
 {
 }
@@ -84,8 +82,6 @@ void CNavigationDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Check(pDX, IDC_CHECK3, m_filterWalkableLowHeightSpans);
 	DDX_Radio(pDX, IDC_RADIO1, m_partitionType);
 	DDX_Text(pDX, IDC_EDIT20, m_tileSize);
-	DDX_Text(pDX, IDC_EDIT21, m_collisionFilterWord0);
-	DDX_Text(pDX, IDC_EDIT22, m_walkableFilterWord0);
 }
 
 
@@ -314,7 +310,7 @@ public:
 				for (; cmp_iter != actor->m_Cmps.end(); cmp_iter++)
 				{
 					const Component* cmp = cmp_iter->get();
-					if (!(cmp->GetQueryFilterWord0() & pdlg->m_collisionFilterWord0))
+					if (!(cmp->GetQueryFilterWord0() & (theApp.default_physx_shape_filterword0 | theApp.default_player_water_filterword0)))
 					{
 						continue;
 					}
@@ -356,7 +352,7 @@ public:
 								float sh = my::Max(fabs(plane.normal.x * ptask->m_cfg.cs / plane.normal.y), fabs(plane.normal.z * ptask->m_cfg.cs / plane.normal.y));
 								unsigned short smin = my::Clamp((int)floorf((sy - sh - ptask->m_cfg.bmin[1]) * ich), 0, RC_SPAN_MAX_HEIGHT);
 								unsigned short smax = my::Max((int)ceilf((sy - ptask->m_cfg.bmin[1]) * ich), smin + 1);
-								rcAddSpan(m_ctx, *ptask->m_solid, x, z, smin, smax, (cmp->GetQueryFilterWord0() & pdlg->m_walkableFilterWord0) && plane.normal.y > walkableThr ? RC_WALKABLE_AREA : 0, ptask->m_cfg.walkableClimb);
+								rcAddSpan(m_ctx, *ptask->m_solid, x, z, smin, smax, plane.normal.y <= walkableThr ? 0 : RC_WALKABLE_AREA, ptask->m_cfg.walkableClimb);
 							}
 						}
 						break;
@@ -375,7 +371,7 @@ public:
 							const my::Vector3& v1 = box.v[box.i[i + 1]];
 							const my::Vector3& v2 = box.v[box.i[i + 2]];
 							my::Vector3 Normal = (v1 - v0).cross(v2 - v0).normalize();
-							rcRasterizeTriangle(m_ctx, &v0.x, &v1.x, &v2.x, (cmp->GetQueryFilterWord0() & pdlg->m_walkableFilterWord0) && Normal.y > walkableThr ? RC_WALKABLE_AREA : 0, *ptask->m_solid, ptask->m_cfg.walkableClimb);
+							rcRasterizeTriangle(m_ctx, &v0.x, &v1.x, &v2.x, Normal.y <= walkableThr ? 0 : RC_WALKABLE_AREA, *ptask->m_solid, ptask->m_cfg.walkableClimb);
 						}
 						break;
 					}
@@ -409,7 +405,7 @@ public:
 								my::Vector3 v0 = ((my::Vector3&)verts[polys[hullpoly.mIndexBase + 0]]).transformCoord(actor->m_World);
 								my::Vector3 v1 = ((my::Vector3&)verts[polys[hullpoly.mIndexBase + j - 1]]).transformCoord(actor->m_World);
 								my::Vector3 v2 = ((my::Vector3&)verts[polys[hullpoly.mIndexBase + j - 0]]).transformCoord(actor->m_World);
-								rcRasterizeTriangle(m_ctx, &v0.x, &v1.x, &v2.x, (cmp->GetQueryFilterWord0() & pdlg->m_walkableFilterWord0) && hullpoly.mPlane[1] > walkableThr ? RC_WALKABLE_AREA : 0, *ptask->m_solid, ptask->m_cfg.walkableClimb);
+								rcRasterizeTriangle(m_ctx, &v0.x, &v1.x, &v2.x, hullpoly.mPlane[1] <= walkableThr ? 0 : RC_WALKABLE_AREA, * ptask->m_solid, ptask->m_cfg.walkableClimb);
 							}
 						}
 						break;
@@ -447,7 +443,7 @@ public:
 								v2 = ((my::Vector3&)verts[tris[i * 3 + 2]]).transformCoord(actor->m_World);
 							}
 							my::Vector3 Normal = (v1 - v0).cross(v2 - v0).normalize();
-							rcRasterizeTriangle(m_ctx, &v0.x, &v1.x, &v2.x, (cmp->GetQueryFilterWord0() & pdlg->m_walkableFilterWord0) && Normal.y > walkableThr ? RC_WALKABLE_AREA : 0, * ptask->m_solid, ptask->m_cfg.walkableClimb);
+							rcRasterizeTriangle(m_ctx, &v0.x, &v1.x, &v2.x, Normal.y <= walkableThr ? 0 : RC_WALKABLE_AREA, * ptask->m_solid, ptask->m_cfg.walkableClimb);
 						}
 						break;
 					}
@@ -482,8 +478,8 @@ public:
 										my::Vector3 Normal[2] = {
 											(v1 - v0).cross(v3 - v0).normalize(),
 											(v1 - v3).cross(v2 - v3).normalize() };
-										rcRasterizeTriangle(m_ctx, &v0.x, &v1.x, &v3.x, (tstr.m_terrain->GetQueryFilterWord0() & pdlg->m_walkableFilterWord0) && Normal[0].y > walkableThr ? RC_WALKABLE_AREA : 0, *ptask->m_solid, ptask->m_cfg.walkableClimb);
-										rcRasterizeTriangle(m_ctx, &v3.x, &v1.x, &v2.x, (tstr.m_terrain->GetQueryFilterWord0() & pdlg->m_walkableFilterWord0) && Normal[1].y > walkableThr ? RC_WALKABLE_AREA : 0, *ptask->m_solid, ptask->m_cfg.walkableClimb);
+										rcRasterizeTriangle(m_ctx, &v0.x, &v1.x, &v3.x, Normal[0].y <= walkableThr ? 0 : RC_WALKABLE_AREA, *ptask->m_solid, ptask->m_cfg.walkableClimb);
+										rcRasterizeTriangle(m_ctx, &v3.x, &v1.x, &v2.x, Normal[1].y <= walkableThr ? 0 : RC_WALKABLE_AREA, *ptask->m_solid, ptask->m_cfg.walkableClimb);
 									}
 								}
 								return true;
