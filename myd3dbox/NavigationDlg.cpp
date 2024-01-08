@@ -352,7 +352,7 @@ public:
 								float sh = my::Max(fabs(plane.normal.x * ptask->m_cfg.cs / plane.normal.y), fabs(plane.normal.z * ptask->m_cfg.cs / plane.normal.y));
 								unsigned short smin = my::Clamp((int)floorf((sy - sh - ptask->m_cfg.bmin[1]) * ich), 0, RC_SPAN_MAX_HEIGHT);
 								unsigned short smax = my::Max((int)ceilf((sy - ptask->m_cfg.bmin[1]) * ich), smin + 1);
-								rcAddSpan(m_ctx, *ptask->m_solid, x, z, smin, smax, plane.normal.y <= walkableThr ? 0 : Navigation::SAMPLE_POLYAREA_ROAD, ptask->m_cfg.walkableClimb);
+								rcAddSpan(m_ctx, *ptask->m_solid, x, z, smin, smax, plane.normal.y <= walkableThr ? 0 : RC_WALKABLE_AREA, ptask->m_cfg.walkableClimb);
 							}
 						}
 						break;
@@ -444,7 +444,7 @@ public:
 							}
 							my::Vector3 Normal = (v1 - v0).cross(v2 - v0).normalize();
 							rcRasterizeTriangle(m_ctx, &v0.x, &v1.x, &v2.x, Normal.y <= walkableThr ? 0
-								: (cmp->GetQueryFilterWord0() & theApp.default_player_water_filterword0 ? Navigation::SAMPLE_POLYAREA_WATER : RC_WALKABLE_AREA), * ptask->m_solid, ptask->m_cfg.walkableClimb);
+								: (cmp->GetQueryFilterWord0() & theApp.default_player_water_filterword0 ? Navigation::SAMPLE_POLYAREA_WATER : Navigation::SAMPLE_POLYAREA_DOOR), * ptask->m_solid, ptask->m_cfg.walkableClimb);
 						}
 						break;
 					}
@@ -479,8 +479,8 @@ public:
 										my::Vector3 Normal[2] = {
 											(v1 - v0).cross(v3 - v0).normalize(),
 											(v1 - v3).cross(v2 - v3).normalize() };
-										rcRasterizeTriangle(m_ctx, &v0.x, &v1.x, &v3.x, Normal[0].y <= walkableThr ? 0 : Navigation::SAMPLE_POLYAREA_ROAD, *ptask->m_solid, ptask->m_cfg.walkableClimb);
-										rcRasterizeTriangle(m_ctx, &v3.x, &v1.x, &v2.x, Normal[1].y <= walkableThr ? 0 : Navigation::SAMPLE_POLYAREA_ROAD, *ptask->m_solid, ptask->m_cfg.walkableClimb);
+										rcRasterizeTriangle(m_ctx, &v0.x, &v1.x, &v3.x, Normal[0].y <= walkableThr ? 0 : RC_WALKABLE_AREA, *ptask->m_solid, ptask->m_cfg.walkableClimb);
+										rcRasterizeTriangle(m_ctx, &v3.x, &v1.x, &v2.x, Normal[1].y <= walkableThr ? 0 : RC_WALKABLE_AREA, *ptask->m_solid, ptask->m_cfg.walkableClimb);
 									}
 								}
 								return true;
