@@ -114,7 +114,7 @@ my::Vector3 Steering::SeekDir(my::Vector3 Force, float dtime)
 	return newVelocity;
 }
 
-Steering::CrowdAgentState Steering::SeekTarget(const my::Vector3& Target, float dtime, unsigned int filterWord0, my::Vector3 & desiredVel, my::Vector3 & startPos, my::Vector3 & endPos)
+Steering::CrowdAgentState Steering::SeekTarget(const my::Vector3& Target, const dtQueryFilter & filter, float dtime, unsigned int filterWord0, my::Vector3 & desiredVel, my::Vector3 & startPos, my::Vector3 & endPos)
 {
 	// https://github.com/recastnavigation/recastnavigation/blob/master/DetourCrowd/Source/DetourCrowd.cpp
 	// dtCrowd::update
@@ -161,7 +161,6 @@ Steering::CrowdAgentState Steering::SeekTarget(const my::Vector3& Target, float 
 	static const int CHECK_LOOKAHEAD = 10;
 	static const float TARGET_REPLAN_DELAY = 1.0; // seconds
 	bool replan = false;
-	dtQueryFilter filter;
 	const float m_agentPlacementHalfExtents[3] = { 5,5,5 };// { controller->GetRadius() * 2.0f, controller->GetHeight() * 1.5f, controller->GetRadius() * 2.0f };
 	if ((m_targetPos - Target).magnitudeSq() > EPSILON_E6 || !m_navi->m_navQuery->isValidPolyRef(m_targetRef, &filter))
 	{

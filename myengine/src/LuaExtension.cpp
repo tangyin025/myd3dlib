@@ -2894,6 +2894,15 @@ void LuaContext::Init(void)
 			]
 			//.def(constructor<const char*, const my::AABB&>())
 
+		, class_<dtQueryFilter>("dtQueryFilter")
+			.def(constructor<>())
+			.def("getAreaCost", &dtQueryFilter::getAreaCost)
+			.def("setAreaCost", &dtQueryFilter::setAreaCost)
+			.def("getIncludeFlags", &dtQueryFilter::getIncludeFlags)
+			.def("setIncludeFlags", &dtQueryFilter::setIncludeFlags)
+			.def("getExcludeFlags", &dtQueryFilter::getExcludeFlags)
+			.def("setExcludeFlags", &dtQueryFilter::setExcludeFlags)
+
 		, class_<Steering, Component, boost::shared_ptr<Component> >("Steering")
 			.enum_("CrowdAgentState")
 			[
@@ -2913,7 +2922,7 @@ void LuaContext::Init(void)
 			.def_readonly("targetRefPos", &Steering::m_targetRefPos)
 			.def_readonly("ncorners", &Steering::m_ncorners)
 			.def("SeekDir", &Steering::SeekDir)
-			.def("SeekTarget", &Steering::SeekTarget, pure_out_value(boost::placeholders::_5) + pure_out_value(boost::placeholders::_6) + pure_out_value(boost::placeholders::_7))
+			.def("SeekTarget", &Steering::SeekTarget, pure_out_value(boost::placeholders::_6) + pure_out_value(boost::placeholders::_7) + pure_out_value(boost::placeholders::_8))
 			.def("GetCorner", &steering_get_corner)
 			.enum_("dtStraightPathFlags")
 			[
