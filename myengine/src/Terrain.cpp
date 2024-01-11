@@ -861,17 +861,18 @@ void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 	}
 }
 
+float Terrain::CalculateHeightScale(void) const
+{
+	AABB aabb = CalculateAABB();
+	_ASSERT(aabb.IsValid());
+	return Max(fabs(aabb.m_max.y), fabs(aabb.m_min.y)) / SHRT_MAX;
+}
+
 void Terrain::CreateHeightFieldShape(TerrainStream * tstr, const char * HeightFieldPath, const my::Vector3 & ActorScale)
 {
 	_ASSERT(!m_PxShape);
 
-	AABB aabb = CalculateAABB();
-	if (!aabb.IsValid())
-	{
-		return;
-	}
-
-	float HeightScale = Max(fabs(aabb.m_max.y), fabs(aabb.m_min.y)) / SHRT_MAX;
+	float HeightScale = CalculateHeightScale();
 
 	if (tstr)
 	{

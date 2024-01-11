@@ -450,49 +450,40 @@ public:
 					}
 					case physx::PxGeometryType::eHEIGHTFIELD:
 					{
-						struct Callback : public my::OctNode::QueryCallback
-						{
-							const CNavigationDlg* pdlg;
-							rcContext* m_ctx;
-							BuildTileMeshTask* ptask;
-							const float walkableThr;
-							TerrainStream tstr;
-							Callback(const CNavigationDlg* _pdlg, rcContext* ctx, BuildTileMeshTask* _ptask, float _walkableThr, Terrain* terrain)
-								: pdlg(_pdlg)
-								, m_ctx(ctx)
-								, ptask(_ptask)
-								, walkableThr(_walkableThr)
-								, tstr(terrain)
-							{
-							}
-							virtual bool OnQueryEntity(my::OctEntity* oct_entity, const my::AABB& aabb, my::IntersectionTests::IntersectionType)
-							{
-								TerrainChunk* chunk = dynamic_cast<TerrainChunk*>(oct_entity);
-								for (int m = 0; m < (int)tstr.m_terrain->m_ChunkSize; m++)
-								{
-									for (int n = 0; n < (int)tstr.m_terrain->m_ChunkSize; n++)
-									{
-										my::Vector3 v0 = tstr.GetPos(chunk->m_Row * tstr.m_terrain->m_ChunkSize + m + 0, chunk->m_Col * tstr.m_terrain->m_ChunkSize + n + 0).transformCoord(tstr.m_terrain->m_Actor->m_World);
-										my::Vector3 v1 = tstr.GetPos(chunk->m_Row * tstr.m_terrain->m_ChunkSize + m + 1, chunk->m_Col * tstr.m_terrain->m_ChunkSize + n + 0).transformCoord(tstr.m_terrain->m_Actor->m_World);
-										my::Vector3 v2 = tstr.GetPos(chunk->m_Row * tstr.m_terrain->m_ChunkSize + m + 1, chunk->m_Col * tstr.m_terrain->m_ChunkSize + n + 1).transformCoord(tstr.m_terrain->m_Actor->m_World);
-										my::Vector3 v3 = tstr.GetPos(chunk->m_Row * tstr.m_terrain->m_ChunkSize + m + 0, chunk->m_Col * tstr.m_terrain->m_ChunkSize + n + 1).transformCoord(tstr.m_terrain->m_Actor->m_World);
-										my::Vector3 Normal[2] = {
-											(v1 - v0).cross(v3 - v0).normalize(),
-											(v1 - v3).cross(v2 - v3).normalize() };
-										rcRasterizeTriangle(m_ctx, &v0.x, &v1.x, &v3.x, Normal[0].y <= walkableThr ? 0 : RC_WALKABLE_AREA, *ptask->m_solid, ptask->m_cfg.walkableClimb);
-										rcRasterizeTriangle(m_ctx, &v3.x, &v1.x, &v2.x, Normal[1].y <= walkableThr ? 0 : RC_WALKABLE_AREA, *ptask->m_solid, ptask->m_cfg.walkableClimb);
-									}
-								}
-								return true;
-							}
-						};
 						Terrain* terrain = dynamic_cast<Terrain*>(cmp_iter->get());
-						if (!terrain)
+						boost::shared_ptr<physx::PxHeightField> heightField;
+						if (!terrain->m_PxHeightField)
 						{
-							m_ctx->log(RC_LOG_ERROR, "buildNavigation: invalid terrain component");
+							PhysxInputData readBuffer(my::ResourceMgr::getSingleton().OpenIStream(terrain->m_PxHeightFieldPath.c_str()));
+							heightField.reset(PhysxSdk::getSingleton().m_sdk->createHeightField(readBuffer), PhysxDeleter<physx::PxHeightField>());
+						}
+						else
+						{
+							heightField.reset(terrain->m_PxHeightField->is<physx::PxHeightField>(), PhysxDeleter<physx::PxHeightField>());
+							heightField->acquireReference();
+						}
+						my::Vector3 halfExt = bindingBox.Extent() * 0.5f;
+						physx::PxBoxGeometry box(halfExt.x, halfExt.y, halfExt.z);
+						physx::PxHeightFieldGeometry hfGeom(heightField.get(), physx::PxMeshGeometryFlags(), terrain->CalculateHeightScale() * terrain->m_Actor->m_Scale.y, terrain->m_Actor->m_Scale.x, terrain->m_Actor->m_Scale.z);
+						std::vector<physx::PxU32> results(2048);
+						bool overflow;
+						physx::PxU32 count = physx::PxMeshQuery::findOverlapHeightField(
+							box, physx::PxTransform((physx::PxVec3&)bindingBox.Center()),
+							hfGeom, physx::PxTransform((physx::PxVec3&)terrain->m_Actor->m_Position, (physx::PxQuat&)terrain->m_Actor->m_Rotation),
+							results.data(), results.size(), 0, overflow);
+						if (overflow)
+						{
+							m_ctx->log(RC_LOG_ERROR, "buildNavigation: findOverlapHeightField overflow");
 							continue;
 						}
-						terrain->QueryEntity(bindingBox.transform(terrain->m_Actor->m_World.inverse()), &Callback(pdlg, m_ctx, ptask, walkableThr, terrain));
+						for (unsigned int i = 0; i < count; i++)
+						{
+							physx::PxTriangle tri;
+							physx::PxMeshQuery::getTriangle(hfGeom, physx::PxTransform((physx::PxVec3&)terrain->m_Actor->m_Position, (physx::PxQuat&)terrain->m_Actor->m_Rotation), results[i], tri);
+							physx::PxVec3 normal;
+							tri.normal(normal);
+							rcRasterizeTriangle(m_ctx, &tri.verts[0].x, &tri.verts[1].x, &tri.verts[2].x, normal.y <= walkableThr ? 0 : RC_WALKABLE_AREA, *ptask->m_solid, ptask->m_cfg.walkableClimb);
+						}
 						break;
 					}
 					}
