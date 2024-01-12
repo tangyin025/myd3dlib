@@ -873,41 +873,41 @@ bool CChildView::OverlapTestFrustumAndComponent(const my::Frustum & frustum, con
 		break;
 
 	case Component::ComponentTypeStaticEmitter:
-		{
-			StaticEmitter * static_emit_cmp = dynamic_cast<StaticEmitter*>(cmp);
-			struct Callback : public my::OctNode::QueryCallback
-			{
-				CChildView * pView;
-				const my::Frustum & frustum;
-				const my::Frustum & local_ftm;
-				EmitterComponent * emitter;
-				bool ret;
-				Callback(CChildView * _pView, const my::Frustum & _frustum, const my::Frustum & _local_ftm, EmitterComponent * _emitter)
-					: pView(_pView)
-					, frustum(_frustum)
-					, local_ftm(_local_ftm)
-					, emitter(_emitter)
-					, ret(false)
-				{
-				}
-				virtual bool OnQueryEntity(my::OctEntity * oct_entity, const my::AABB & aabb, my::IntersectionTests::IntersectionType)
-				{
-					StaticEmitterChunk* chunk = dynamic_cast<StaticEmitterChunk*>(oct_entity);
-					if (chunk->m_buff && chunk->m_Lod >= 0 && chunk->m_Lod < StaticEmitter::LastLod)
-					{
-						if (pView->OverlapTestFrustumAndParticles(frustum, local_ftm, emitter, &(*chunk->m_buff)[0], chunk->m_buff->size() >> chunk->m_Lod))
-						{
-							ret = true;
-							return false;
-						}
-					}
-					return true;
-				}
-			};
-			Callback cb(this, frustum, local_ftm, static_emit_cmp);
-			static_emit_cmp->QueryEntity(local_ftm, &cb);
-			return cb.ret;
-		}
+		//{
+		//	StaticEmitter * static_emit_cmp = dynamic_cast<StaticEmitter*>(cmp);
+		//	struct Callback : public my::OctNode::QueryCallback
+		//	{
+		//		CChildView * pView;
+		//		const my::Frustum & frustum;
+		//		const my::Frustum & local_ftm;
+		//		EmitterComponent * emitter;
+		//		bool ret;
+		//		Callback(CChildView * _pView, const my::Frustum & _frustum, const my::Frustum & _local_ftm, EmitterComponent * _emitter)
+		//			: pView(_pView)
+		//			, frustum(_frustum)
+		//			, local_ftm(_local_ftm)
+		//			, emitter(_emitter)
+		//			, ret(false)
+		//		{
+		//		}
+		//		virtual bool OnQueryEntity(my::OctEntity * oct_entity, const my::AABB & aabb, my::IntersectionTests::IntersectionType)
+		//		{
+		//			StaticEmitterChunk* chunk = dynamic_cast<StaticEmitterChunk*>(oct_entity);
+		//			if (chunk->m_buff && chunk->m_Lod >= 0 && chunk->m_Lod < StaticEmitter::LastLod)
+		//			{
+		//				if (pView->OverlapTestFrustumAndParticles(frustum, local_ftm, emitter, &(*chunk->m_buff)[0], chunk->m_buff->size() >> chunk->m_Lod))
+		//				{
+		//					ret = true;
+		//					return false;
+		//				}
+		//			}
+		//			return true;
+		//		}
+		//	};
+		//	Callback cb(this, frustum, local_ftm, static_emit_cmp);
+		//	static_emit_cmp->QueryEntity(local_ftm, &cb);
+		//	return cb.ret;
+		//}
 		break;
 
 	case Component::ComponentTypeCircularEmitter:
