@@ -74,6 +74,7 @@
 #define IDC_EDIT18                      1028
 #define IDC_EDIT19                      1029
 #define IDC_BUTTON4                     1030
+#define IDC_STATIC6                     1030
 #define IDC_EDIT20                      1031
 #define IDC_LIST1                       1032
 #define IDC_CHECK4                      1033

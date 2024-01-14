@@ -97,6 +97,7 @@ BEGIN_MESSAGE_MAP(CNavigationDlg, CDialogEx)
 	ON_EN_CHANGE(IDC_EDIT7, &CNavigationDlg::OnChangeEdit7)
 	ON_EN_CHANGE(IDC_EDIT20, &CNavigationDlg::OnChangeEdit7)
 	ON_WM_CTLCOLOR()
+	ON_EN_CHANGE(IDC_EDIT21, &CNavigationDlg::OnChangeEdit21)
 END_MESSAGE_MAP()
 
 
@@ -116,6 +117,7 @@ BOOL CNavigationDlg::OnInitDialog()
 
 	// TODO:  Add extra initialization here
 	OnChangeEdit7();
+	OnChangeEdit21();
 
 	return TRUE;  // return TRUE unless you set the focus to a control
 				  // EXCEPTION: OCX Property Pages should return FALSE
@@ -814,6 +816,17 @@ void CNavigationDlg::OnOK()
 		return;
 	}
 
+	CString strText;
+	GetDlgItemText(IDC_STATIC6, strText);
+	if (!strText.IsEmpty())
+	{
+		strText.Format(_T("Overwrite existed '%s'?"), m_AssetPath);
+		if (IDCANCEL == AfxMessageBox(strText, MB_OKCANCEL))
+		{
+			return;
+		}
+	}
+
 	m_navMesh.reset(dtAllocNavMesh(), dtFreeNavMesh);
 	if (!m_navMesh)
 	{
@@ -975,4 +988,27 @@ HBRUSH CNavigationDlg::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 
 	// TODO:  Return a different brush if the default is not desired
 	return hbr;
+}
+
+
+void CNavigationDlg::OnChangeEdit21()
+{
+	// TODO:  If this is a RICHEDIT control, the control will not
+	// send this notification unless you override the __super::OnInitDialog()
+	// function and call CRichEditCtrl().SetEventMask()
+	// with the ENM_CHANGE flag ORed into the mask.
+
+	// TODO:  Add your control notification handler code here
+	CString strText;
+	GetDlgItemText(IDC_EDIT21, strText);
+	std::string FullPath = theApp.GetFullPath(ts2ms((LPCTSTR)strText).c_str());
+	WIN32_FIND_DATAA data;
+	HANDLE h = FindFirstFileA(FullPath.c_str(), &data);
+	if (h == INVALID_HANDLE_VALUE)
+	{
+		SetDlgItemText(IDC_STATIC6, _T(""));
+		return;
+	}
+	SetDlgItemText(IDC_STATIC6, _T("Existed !"));
+	FindClose(h);
 }
