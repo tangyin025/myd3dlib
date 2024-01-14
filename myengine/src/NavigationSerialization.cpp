@@ -5,6 +5,7 @@
 #include <DetourNode.h>
 #include "DetourDebugDraw.h"
 #include "Actor.h"
+#include "myResource.h"
 #include <boost/serialization/split_free.hpp>
 #include <boost/archive/polymorphic_xml_iarchive.hpp>
 #include <boost/archive/polymorphic_xml_oarchive.hpp>
@@ -20,6 +21,8 @@
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/binary_object.hpp>
 #include <boost/serialization/export.hpp>
+#include <fstream>
+#include "libc.h"
 
 static const int NAVMESHSET_MAGIC = 'M' << 24 | 'S' << 16 | 'E' << 8 | 'T'; //'MSET';
 
@@ -154,14 +157,20 @@ namespace boost {
 	} // namespace serialization
 } // namespace boost
 
+void Navigation::SaveNavMesh(boost::shared_ptr<dtNavMesh> m_navMesh, LPCTSTR path)
+{
+	std::ofstream ofs(path, std::ios::binary, _SH_DENYRW);
+	LPCTSTR Ext = PathFindExtension(path);
+	boost::shared_ptr<boost::archive::polymorphic_oarchive> oa = Actor::GetOArchive(ofs, ts2ms(Ext).c_str());
+	*oa << BOOST_SERIALIZATION_NVP(m_navMesh);
+}
+
 template<class Archive>
 void Navigation::save(Archive& ar, const unsigned int version) const
 {
 	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(Component);
 	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(OctRoot);
-	ar << BOOST_SERIALIZATION_NVP(m_navMesh);
-	int MaxNodes = m_navQuery->getNodePool()->getMaxNodes();
-	ar << BOOST_SERIALIZATION_NVP(MaxNodes);
+	ar << BOOST_SERIALIZATION_NVP(m_navMeshPath);
 }
 
 template<class Archive>
@@ -169,13 +178,22 @@ void Navigation::load(Archive& ar, const unsigned int version)
 {
 	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(Component);
 	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(OctRoot);
-	ar >> BOOST_SERIALIZATION_NVP(m_navMesh);
-	int MaxNodes;
-	ar >> BOOST_SERIALIZATION_NVP(MaxNodes);
+	ar >> BOOST_SERIALIZATION_NVP(m_navMeshPath);
 
-	if (m_navMesh)
+	if (!m_navMeshPath.empty())
 	{
-		BuildQueryAndChunks(MaxNodes);
+		m_navMesh.reset(new dtNavMesh());
+
+		IStreamBuff<char> buff(ResourceMgr::getSingleton().OpenIStream(m_navMeshPath.c_str()));
+		std::istream ifs(&buff);
+		LPCSTR Ext = PathFindExtensionA(m_navMeshPath.c_str());
+		boost::shared_ptr<boost::archive::polymorphic_iarchive> ia = Actor::GetIArchive(ifs, Ext);
+		*ia >> BOOST_SERIALIZATION_NVP(m_navMesh);
+
+		if (m_navMesh)
+		{
+			BuildQueryAndChunks(2048);
+		}
 	}
 }
 

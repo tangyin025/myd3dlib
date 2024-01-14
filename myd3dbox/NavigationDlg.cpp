@@ -48,6 +48,7 @@ CNavigationDlg::CNavigationDlg(CWnd* pParent /*=NULL*/)
 	, m_maxPolysPerTile(0)
 	, m_tileSize(32.0f)
 	, m_tileExceeded(FALSE)
+	, m_AssetPath(_T(""))
 {
 }
 
@@ -82,6 +83,7 @@ void CNavigationDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Check(pDX, IDC_CHECK3, m_filterWalkableLowHeightSpans);
 	DDX_Radio(pDX, IDC_RADIO1, m_partitionType);
 	DDX_Text(pDX, IDC_EDIT20, m_tileSize);
+	DDX_Text(pDX, IDC_EDIT21, m_AssetPath);
 }
 
 
@@ -908,6 +910,8 @@ void CNavigationDlg::OnOK()
 
 	// Show performance stats.
 	duLogBuildTimes(*this, this->getAccumulatedTime(RC_TIMER_TOTAL));
+
+	Navigation::SaveNavMesh(m_navMesh, ms2ts(theApp.GetFullPath(ts2ms((LPCTSTR)m_AssetPath).c_str()).c_str()).c_str());
 
 	CDialogEx::OnOK();
 }

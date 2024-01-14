@@ -2135,14 +2135,17 @@ void CMainFrame::OnCreateNavigation()
 		return;
 	}
 
+	NavigationPtr navi_cmp(new Navigation(my::NamedObject::MakeUniqueName((std::string((*actor_iter)->GetName()) + "_navigation").c_str()).c_str(), GetAllEntityAABB(my::AABB::Invalid())));
+
 	CNavigationDlg dlg;
-	dlg.m_bindingBox = GetAllEntityAABB(my::AABB::Invalid());
+	dlg.m_bindingBox = *navi_cmp;
+	dlg.m_AssetPath.Format(_T("terrain/%s"), ms2ts(navi_cmp->GetName()).c_str());
 	if (dlg.DoModal() != IDOK)
 	{
 		return;
 	}
 
-	NavigationPtr navi_cmp(new Navigation(my::NamedObject::MakeUniqueName((std::string((*actor_iter)->GetName()) + "_navigation").c_str()).c_str(), dlg.m_bindingBox));
+	navi_cmp->m_navMeshPath = ts2ms((LPCTSTR)dlg.m_AssetPath);
 	navi_cmp->m_navMesh = dlg.m_navMesh;
 	navi_cmp->BuildQueryAndChunks(2048);
 	(*actor_iter)->InsertComponent(navi_cmp);

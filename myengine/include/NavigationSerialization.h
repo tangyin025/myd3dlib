@@ -54,6 +54,8 @@ public:
 		SAMPLE_POLYFLAGS_ALL = 0xffff	// All abilities.
 	};
 
+	std::string m_navMeshPath;
+
 	boost::shared_ptr<dtNavMesh> m_navMesh;
 
 	boost::shared_ptr<dtNavMeshQuery> m_navQuery;
@@ -71,6 +73,8 @@ public:
 	virtual ~Navigation(void);
 
 	friend class boost::serialization::access;
+
+	static void SaveNavMesh(boost::shared_ptr<dtNavMesh> m_navMesh, LPCTSTR path);
 
 	template<class Archive>
 	void save(Archive& ar, const unsigned int version) const;

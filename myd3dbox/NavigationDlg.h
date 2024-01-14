@@ -76,4 +76,5 @@ public:
 	afx_msg void OnChangeEdit7();
 	afx_msg HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
 	BOOL m_tileExceeded;
+	CString m_AssetPath;
 };
