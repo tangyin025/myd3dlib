@@ -243,6 +243,7 @@ public:
 		PropertyAnimationNodeSequenceName,
 		PropertyAnimationNodeSequenceRate,
 		PropertyNavigation,
+		PropertyNavigationNavMeshPath,
 		PropertyNavigationOrigin,
 		PropertyNavigationOriginX,
 		PropertyNavigationOriginY,

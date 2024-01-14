@@ -844,21 +844,22 @@ void CPropertiesWnd::UpdatePropertiesNavigation(CMFCPropertyGridProperty * pComp
 {
 	unsigned int PropId = GetComponentPropCount(Component::ComponentTypeComponent);
 	CMFCPropertyGridProperty* pProp = pComponent->GetSubItem(PropId);
-	if (!pProp || pProp->GetData() != PropertyNavigationOrigin)
+	if (!pProp || pProp->GetData() != PropertyNavigationNavMeshPath)
 	{
 		RemovePropertiesFrom(pComponent, PropId);
 		CreatePropertiesNavigation(pComponent, navigation);
 		return;
 	}
 
+	pComponent->GetSubItem(PropId + 0)->SetValue((_variant_t)ms2ts(navigation->m_navMeshPath.c_str()).c_str());
 	const dtNavMeshParams* params = navigation->m_navMesh->getParams();
-	pComponent->GetSubItem(PropId + 0)->GetSubItem(0)->SetValue((_variant_t)params->orig[0]);
-	pComponent->GetSubItem(PropId + 0)->GetSubItem(1)->SetValue((_variant_t)params->orig[1]);
-	pComponent->GetSubItem(PropId + 0)->GetSubItem(2)->SetValue((_variant_t)params->orig[2]);
-	pComponent->GetSubItem(PropId + 1)->SetValue((_variant_t)params->tileWidth);
-	pComponent->GetSubItem(PropId + 2)->SetValue((_variant_t)params->tileHeight);
-	pComponent->GetSubItem(PropId + 3)->SetValue((_variant_t)params->maxTiles);
-	pComponent->GetSubItem(PropId + 4)->SetValue((_variant_t)params->maxPolys);
+	pComponent->GetSubItem(PropId + 1)->GetSubItem(0)->SetValue((_variant_t)params->orig[0]);
+	pComponent->GetSubItem(PropId + 1)->GetSubItem(1)->SetValue((_variant_t)params->orig[1]);
+	pComponent->GetSubItem(PropId + 1)->GetSubItem(2)->SetValue((_variant_t)params->orig[2]);
+	pComponent->GetSubItem(PropId + 2)->SetValue((_variant_t)params->tileWidth);
+	pComponent->GetSubItem(PropId + 3)->SetValue((_variant_t)params->tileHeight);
+	pComponent->GetSubItem(PropId + 4)->SetValue((_variant_t)params->maxTiles);
+	pComponent->GetSubItem(PropId + 5)->SetValue((_variant_t)params->maxPolys);
 }
 
 void CPropertiesWnd::UpdatePropertiesControl(my::Control * control)
@@ -2024,11 +2025,15 @@ void CPropertiesWnd::CreatePropertiesNavigation(CMFCPropertyGridProperty * pComp
 {
 	ASSERT(pComponent->GetSubItemsCount() == GetComponentPropCount(Component::ComponentTypeComponent));
 
+	CMFCPropertyGridProperty* pProp = new CSimpleProp(_T("NavMeshPath"), (_variant_t)ms2ts(navigation->m_navMeshPath.c_str()).c_str(), NULL, PropertyNavigationNavMeshPath);
+	pProp->Enable(FALSE);
+	pComponent->AddSubItem(pProp);
+
 	const dtNavMeshParams * params = navigation->m_navMesh->getParams();
 	CMFCPropertyGridProperty* pOrigin = new CSimpleProp(_T("Origin"), PropertyNavigationOrigin, TRUE);
 	pOrigin->Enable(FALSE);
 	pComponent->AddSubItem(pOrigin);
-	CMFCPropertyGridProperty* pProp = new CSimpleProp(_T("x"), (_variant_t)params->orig[0], NULL, PropertyNavigationOriginX);
+	pProp = new CSimpleProp(_T("x"), (_variant_t)params->orig[0], NULL, PropertyNavigationOriginX);
 	pProp->Enable(FALSE);
 	pOrigin->AddSubItem(pProp);
 	pProp = new CSimpleProp(_T("y"), (_variant_t)params->orig[1], NULL, PropertyNavigationOriginY);
@@ -2836,7 +2841,7 @@ unsigned int CPropertiesWnd::GetComponentPropCount(DWORD type)
 	case Component::ComponentTypeAnimator:
 		return GetComponentPropCount(Component::ComponentTypeComponent) + 2;
 	case Component::ComponentTypeNavigation:
-		return GetComponentPropCount(Component::ComponentTypeComponent) + 5;
+		return GetComponentPropCount(Component::ComponentTypeComponent) + 6;
 	}
 
 	ASSERT(Component::ComponentTypeComponent == type);
