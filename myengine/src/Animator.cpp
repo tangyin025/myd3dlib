@@ -795,32 +795,48 @@ void Animator::ReloadSequenceGroupWalker(AnimationNode * node)
 
 void Animator::UpdateSequenceGroup(void)
 {
+	Actor* TopActor = m_Actor->GetTopActor();
+
+	Animator* TopAnimator = TopActor->GetFirstComponent<Animator>();
+
 	SequenceGroupMap::iterator seq_iter = m_SequenceGroup.begin();
 	while (seq_iter != m_SequenceGroup.end())
 	{
-		SequenceGroupMap::iterator master_seq_iter = seq_iter;
-		SequenceGroupMap::iterator next_seq_iter = seq_iter;
-		for (next_seq_iter++; next_seq_iter != m_SequenceGroup.end() && next_seq_iter->first == seq_iter->first; next_seq_iter++)
+		SequenceGroupMap::iterator master_seq_iter, next_seq_iter;
+
+		if (!TopAnimator || TopAnimator == this || (master_seq_iter = TopAnimator->m_SequenceGroup.find(seq_iter->first)) == TopAnimator->m_SequenceGroup.end())
 		{
-			if (next_seq_iter->second->m_Weight > master_seq_iter->second->m_Weight)
+			master_seq_iter = seq_iter;
+
+			next_seq_iter = seq_iter;
+
+			for (next_seq_iter++; next_seq_iter != m_SequenceGroup.end() && next_seq_iter->first == seq_iter->first; next_seq_iter++)
 			{
-				master_seq_iter = next_seq_iter;
+				if (next_seq_iter->second->m_Weight > master_seq_iter->second->m_Weight)
+				{
+					master_seq_iter = next_seq_iter;
+				}
 			}
-		}
 
-		_ASSERT(master_seq_iter != m_SequenceGroup.end());
-		if (master_seq_iter->second->m_Weight > EPSILON_E3)
-		{
+			_ASSERT(master_seq_iter != m_SequenceGroup.end());
+
 			master_seq_iter->second->Advance(master_seq_iter->second->m_LastElapsedTime);
-
-			float Time = master_seq_iter->second->m_Time;
-
-			float Percent = Time / master_seq_iter->second->GetLength();
-
-			SyncSequenceGroupTime(seq_iter, next_seq_iter, Percent);
-
-			master_seq_iter->second->m_Time = Time;
 		}
+		else
+		{
+			_ASSERT(master_seq_iter != TopAnimator->m_SequenceGroup.end());
+
+			next_seq_iter = m_SequenceGroup.upper_bound(seq_iter->first);
+		}
+
+		float Time = master_seq_iter->second->m_Time;
+
+		float Percent = Time / master_seq_iter->second->GetLength();
+
+		SyncSequenceGroupTime(seq_iter, next_seq_iter, Percent);
+
+		master_seq_iter->second->m_Time = Time;
+
 		seq_iter = next_seq_iter;
 	}
 }

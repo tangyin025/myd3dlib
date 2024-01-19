@@ -920,11 +920,11 @@ void Actor::ClearAllAttach(void)
 	}
 }
 
-Actor * Actor::GetTopBase(void)
+Actor * Actor::GetTopActor(void)
 {
 	if (m_Base)
 	{
-		return m_Base->GetTopBase();
+		return m_Base->GetTopActor();
 	}
 	return this;
 }
