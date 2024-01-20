@@ -795,16 +795,14 @@ void Animator::ReloadSequenceGroupWalker(AnimationNode * node)
 
 void Animator::UpdateSequenceGroup(void)
 {
-	Actor* TopActor = m_Actor->GetTopActor();
-
-	Animator* TopAnimator = TopActor->GetFirstComponent<Animator>();
+	Animator* BaseAnimator = m_Actor->m_Base ? m_Actor->m_Base->GetFirstComponent<Animator>() : NULL;
 
 	SequenceGroupMap::iterator seq_iter = m_SequenceGroup.begin();
 	while (seq_iter != m_SequenceGroup.end())
 	{
 		SequenceGroupMap::iterator master_seq_iter, next_seq_iter;
 
-		if (!TopAnimator || TopAnimator == this || (master_seq_iter = TopAnimator->m_SequenceGroup.find(seq_iter->first)) == TopAnimator->m_SequenceGroup.end())
+		if (!BaseAnimator || BaseAnimator == this || (master_seq_iter = BaseAnimator->m_SequenceGroup.find(seq_iter->first)) == BaseAnimator->m_SequenceGroup.end())
 		{
 			master_seq_iter = seq_iter;
 
@@ -824,7 +822,7 @@ void Animator::UpdateSequenceGroup(void)
 		}
 		else
 		{
-			_ASSERT(master_seq_iter != TopAnimator->m_SequenceGroup.end());
+			_ASSERT(master_seq_iter != BaseAnimator->m_SequenceGroup.end());
 
 			next_seq_iter = m_SequenceGroup.upper_bound(seq_iter->first);
 		}

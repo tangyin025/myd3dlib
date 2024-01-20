@@ -360,8 +360,6 @@ public:
 
 	void ClearAllAttach(void);
 
-	Actor * GetTopActor(void);
-
 	physx::PxRevoluteJoint * AddRevoluteJoint(Actor * actor0, const my::Bone & localFrame0, Actor * actor1, const my::Bone & localFrame1);
 
 	physx::PxD6Joint * AddD6Joint(Actor * actor0, const my::Bone & localFrame0, Actor * actor1, const my::Bone & localFrame1);

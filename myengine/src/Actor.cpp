@@ -920,15 +920,6 @@ void Actor::ClearAllAttach(void)
 	}
 }
 
-Actor * Actor::GetTopActor(void)
-{
-	if (m_Base)
-	{
-		return m_Base->GetTopActor();
-	}
-	return this;
-}
-
 physx::PxRevoluteJoint * Actor::AddRevoluteJoint(Actor * actor0, const my::Bone & localFrame0, Actor * actor1, const my::Bone & localFrame1)
 {
 	physx::PxRevoluteJoint* joint = physx::PxRevoluteJointCreate(*PhysxSdk::getSingleton().m_sdk,
