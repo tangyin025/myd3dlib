@@ -77,8 +77,7 @@ SoundContext::BufferEventPairList::iterator SoundContext::GetIdleBuffer(my::WavP
 	}
 	lock.Unlock();
 
-	m_pool.insert(m_pool.begin(), BufferEventPair());
-	BufferEventPairList::iterator buff_event_iter = m_pool.begin();
+	BufferEventPairList::iterator buff_event_iter = m_pool.insert(m_pool.begin(), BufferEventPair());
 	buff_event_iter->first.Create(pDsb);
 
 	unsigned char* buffer1, * buffer2;
