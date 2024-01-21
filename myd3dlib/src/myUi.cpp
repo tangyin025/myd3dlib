@@ -1183,10 +1183,7 @@ bool Control::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM l
 			if (HitTest(pt))
 			{
 				m_bPressed = true;
-				if (CanHaveFocus())
-				{
-					SetFocusControl(this);
-				}
+				SetFocused(true);
 				SetCaptureControl(this);
 				return true;
 			}
