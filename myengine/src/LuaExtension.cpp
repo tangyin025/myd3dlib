@@ -3056,6 +3056,7 @@ void LuaContext::Init(void)
 			.property("ChildNum", luabind::tag_function<size_t (const AnimationNode*)>(
 				boost::bind(&AnimationNode::AnimationNodePtrList::size, boost::bind(&AnimationNode::m_Childs, boost::placeholders::_1))))
 			.def("RemoveChild", &AnimationNode::RemoveChild)
+			.property("TopNode", (AnimationNode* (AnimationNode::*)(void))& AnimationNode::GetTopNode)
 			.def("FindSubNode", (AnimationNode* (AnimationNode::*)(const std::string&))& AnimationNode::FindSubNode)
 
 		, class_<AnimationNodeSequence, AnimationNode, boost::shared_ptr<AnimationNode> >("AnimationNodeSequence")
