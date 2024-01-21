@@ -4298,7 +4298,7 @@ void Dialog::MoveToFront(void) const
 	{
 		DialogMgr::DialogList::const_iterator self_iter = std::find(m_Manager->m_DlgList.begin(), m_Manager->m_DlgList.end(), this);
 		_ASSERT(self_iter != m_Manager->m_DlgList.end());
-		m_Manager->m_DlgList.splice(m_Manager->m_DlgList.end(), m_Manager->m_DlgList, self_iter, std::next(self_iter, 1));
+		m_Manager->m_DlgList.splice(m_Manager->m_DlgList.end(), m_Manager->m_DlgList, self_iter, std::next(self_iter));
 	}
 }
 

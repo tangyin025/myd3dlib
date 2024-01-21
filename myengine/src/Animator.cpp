@@ -795,7 +795,7 @@ void Animator::ReloadSequenceGroupWalker(AnimationNode * node)
 
 void Animator::UpdateSequenceGroup(void)
 {
-	Animator* BaseAnimator = m_Actor->m_Base ? m_Actor->m_Base->GetFirstComponent<Animator>() : NULL;
+	Animator* const BaseAnimator = m_Actor->m_Base ? m_Actor->m_Base->GetFirstComponent<Animator>() : NULL;
 
 	SequenceGroupMap::iterator seq_iter = m_SequenceGroup.begin();
 	while (seq_iter != m_SequenceGroup.end())
@@ -819,30 +819,30 @@ void Animator::UpdateSequenceGroup(void)
 			_ASSERT(master_seq_iter != m_SequenceGroup.end());
 
 			master_seq_iter->second->Advance(master_seq_iter->second->m_LastElapsedTime);
+
+			const float Time = master_seq_iter->second->m_Time;
+
+			const float Percent = Time / master_seq_iter->second->GetLength();
+
+			SyncSequenceGroupTime(seq_iter, master_seq_iter, Percent);
+
+			SyncSequenceGroupTime(std::next(master_seq_iter), next_seq_iter, Percent);
 		}
 		else
 		{
 			_ASSERT(master_seq_iter != BaseAnimator->m_SequenceGroup.end());
 
 			next_seq_iter = m_SequenceGroup.upper_bound(seq_iter->first);
+
+			const float Time = master_seq_iter->second->m_Time;
+
+			const float Percent = Time / master_seq_iter->second->GetLength();
+
+			SyncSequenceGroupTime(seq_iter, next_seq_iter, Percent);
 		}
-
-		float Time = master_seq_iter->second->m_Time;
-
-		float Percent = Time / master_seq_iter->second->GetLength();
-
-		SyncSequenceGroupTime(seq_iter, next_seq_iter, Percent);
-
-		master_seq_iter->second->m_Time = Time;
 
 		seq_iter = next_seq_iter;
 	}
-}
-
-void Animator::SyncSequenceGroupTime(const std::string & Group, float Percent)
-{
-	std::pair<SequenceGroupMap::iterator, SequenceGroupMap::iterator> range = m_SequenceGroup.equal_range(Group);
-	SyncSequenceGroupTime(range.first, range.second, Percent);
 }
 
 void Animator::SyncSequenceGroupTime(SequenceGroupMap::iterator begin, SequenceGroupMap::iterator end, float Percent)

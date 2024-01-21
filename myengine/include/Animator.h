@@ -473,8 +473,6 @@ public:
 
 	void UpdateSequenceGroup(void);
 
-	void SyncSequenceGroupTime(const std::string & Group, float Percent);
-
 	void SyncSequenceGroupTime(SequenceGroupMap::iterator begin, SequenceGroupMap::iterator end, float Percent);
 
 	void AddDynamicBone(int node_i, float mass, float damping, float springConstant);
