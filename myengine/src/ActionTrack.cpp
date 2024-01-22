@@ -188,14 +188,21 @@ void ActionTrackSoundInst::UpdateTime(float LastTime, float Time)
 		event_iter = m_Events.erase(event_iter);
 	}
 
+	const Vector3 listener_pos = SoundContext::getSingleton().m_listener->GetPosition();
+
 	ActionTrackSound::KeyFrameMap::const_iterator key_iter = m_Template->m_Keys.lower_bound(LastTime);
 	ActionTrackSound::KeyFrameMap::const_iterator key_end = m_Template->m_Keys.lower_bound(Time);
 	for (; key_iter != key_end; key_iter++)
 	{
 		if (key_iter->second.Sound)
 		{
-			m_Events.push_back(SoundContext::getSingleton().Play(
-				key_iter->second.Sound, key_iter->second.Loop, m_Actor->m_World.getRow<3>().xyz, my::Vector3(0, 0, 0), key_iter->second.MinDistance, key_iter->second.MaxDistance));
+			const Vector3& pos = m_Actor->m_World.getRow<3>().xyz;
+
+			if (key_iter->second.Loop || listener_pos.distanceSq(pos) < key_iter->second.MaxDistance * key_iter->second.MaxDistance)
+			{
+				m_Events.push_back(SoundContext::getSingleton().Play(
+					key_iter->second.Sound, key_iter->second.Loop, pos, my::Vector3(0, 0, 0), key_iter->second.MinDistance, key_iter->second.MaxDistance));
+			}
 		}
 	}
 }
