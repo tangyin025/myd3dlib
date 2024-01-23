@@ -820,13 +820,9 @@ void Animator::UpdateSequenceGroup(void)
 
 			master_seq_iter->second->Advance(master_seq_iter->second->m_LastElapsedTime);
 
-			const float Time = master_seq_iter->second->m_Time;
+			SyncSequenceGroupTime(seq_iter, master_seq_iter, master_seq_iter->second);
 
-			const float Percent = Time / master_seq_iter->second->GetLength();
-
-			SyncSequenceGroupTime(seq_iter, master_seq_iter, Percent);
-
-			SyncSequenceGroupTime(std::next(master_seq_iter), next_seq_iter, Percent);
+			SyncSequenceGroupTime(std::next(master_seq_iter), next_seq_iter, master_seq_iter->second);
 		}
 		else
 		{
@@ -834,23 +830,23 @@ void Animator::UpdateSequenceGroup(void)
 
 			next_seq_iter = m_SequenceGroup.upper_bound(seq_iter->first);
 
-			const float Time = master_seq_iter->second->m_Time;
-
-			const float Percent = Time / master_seq_iter->second->GetLength();
-
-			SyncSequenceGroupTime(seq_iter, next_seq_iter, Percent);
+			SyncSequenceGroupTime(seq_iter, next_seq_iter, master_seq_iter->second);
 		}
 
 		seq_iter = next_seq_iter;
 	}
 }
 
-void Animator::SyncSequenceGroupTime(SequenceGroupMap::iterator begin, SequenceGroupMap::iterator end, float Percent)
+void Animator::SyncSequenceGroupTime(SequenceGroupMap::iterator begin, SequenceGroupMap::iterator end, AnimationNodeSequence * master)
 {
 	SequenceGroupMap::iterator seq_iter = begin;
 	for (; seq_iter != end; seq_iter++)
 	{
-		seq_iter->second->m_Time = Lerp(0.0f, seq_iter->second->GetLength(), Percent);
+		_ASSERT(seq_iter->second != master);
+
+		seq_iter->second->m_LastElapsedTime = master->m_LastElapsedTime;
+
+		seq_iter->second->m_Time = master->m_Time;
 	}
 }
 

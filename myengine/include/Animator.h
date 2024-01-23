@@ -473,7 +473,7 @@ public:
 
 	void UpdateSequenceGroup(void);
 
-	void SyncSequenceGroupTime(SequenceGroupMap::iterator begin, SequenceGroupMap::iterator end, float Percent);
+	void SyncSequenceGroupTime(SequenceGroupMap::iterator begin, SequenceGroupMap::iterator end, AnimationNodeSequence * master);
 
 	void AddDynamicBone(int node_i, float mass, float damping, float springConstant);
 
