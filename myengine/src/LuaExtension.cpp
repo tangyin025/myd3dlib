@@ -649,6 +649,8 @@ struct ScriptComponent : Component, luabind::wrap_base
 		ptr->m_Actor->m_EventPxThreadControllerHit.connect(boost::bind(&Component::OnPxThreadControllerHit, ptr, boost::placeholders::_1));
 
 		ptr->m_Actor->m_EventPxThreadObstacleHit.connect(boost::bind(&Component::OnPxThreadObstacleHit, ptr, boost::placeholders::_1));
+
+		ptr->m_Actor->m_EventAnimation.connect(boost::bind(&Component::OnAnimationEvent, ptr, boost::placeholders::_1));
 	}
 
 	virtual void ReleaseResource(void)
@@ -682,6 +684,8 @@ struct ScriptComponent : Component, luabind::wrap_base
 		ptr->m_Actor->m_EventPxThreadControllerHit.disconnect(boost::bind(&Component::OnPxThreadControllerHit, ptr, boost::placeholders::_1));
 
 		ptr->m_Actor->m_EventPxThreadObstacleHit.disconnect(boost::bind(&Component::OnPxThreadObstacleHit, ptr, boost::placeholders::_1));
+
+		ptr->m_Actor->m_EventAnimation.disconnect(boost::bind(&Component::OnAnimationEvent, ptr, boost::placeholders::_1));
 	}
 
 	virtual void OnSetShader(IDirect3DDevice9* pd3dDevice, my::Effect* shader, LPARAM lparam)
@@ -825,6 +829,23 @@ struct ScriptComponent : Component, luabind::wrap_base
 	static void default_OnPxThreadObstacleHit(Component* ptr, my::EventArg* arg)
 	{
 		//ptr->Component::OnPxThreadObstacleHit(arg);
+	}
+
+	virtual void OnAnimationEvent(my::EventArg* arg)
+	{
+		try
+		{
+			luabind::wrap_base::call<void>("OnAnimationEvent", arg);
+		}
+		catch (const luabind::error& e)
+		{
+			my::D3DContext::getSingleton().m_EventLog(lua_tostring(e.state(), -1));
+		}
+	}
+
+	static void default_OnAnimationEvent(Component* ptr, my::EventArg* arg)
+	{
+		//ptr->Component::OnAnimationEvent(arg);
 	}
 
 	virtual void OnGUI(my::UIRender* ui_render, float fElapsedTime, const my::Vector2 & Viewport)
@@ -2660,6 +2681,7 @@ void LuaContext::Init(void)
 			.def("OnPxThreadShapeHit", &Component::OnPxThreadShapeHit, &ScriptComponent::default_OnPxThreadShapeHit)
 			.def("OnPxThreadControllerHit", &Component::OnPxThreadControllerHit, &ScriptComponent::default_OnPxThreadControllerHit)
 			.def("OnPxThreadObstacleHit", &Component::OnPxThreadObstacleHit, &ScriptComponent::default_OnPxThreadObstacleHit)
+			.def("OnAnimationEvent", &Component::OnAnimationEvent, &ScriptComponent::default_OnAnimationEvent)
 			.def("OnGUI", &Component::OnGUI, &ScriptComponent::default_OnGUI)
 			.def("CalculateAABB", &Component::CalculateAABB)
 			.def("AddToPipeline", &Component::AddToPipeline, &ScriptComponent::default_AddToPipeline)
@@ -2963,6 +2985,10 @@ void LuaContext::Init(void)
 			.def_readonly("other", &ControllerHitEventArg::other)
 			.def_readonly("other_cmp", &ControllerHitEventArg::other_cmp)
 
+		, class_< AnimationEventArg, ActorEventArg>("AnimationEventArg")
+			.def_readonly("seq", &AnimationEventArg::seq)
+			.def_readonly("id", &AnimationEventArg::id)
+
 		, class_<Actor, bases<my::NamedObject, my::OctEntity>, boost::shared_ptr<Actor> >("Actor")
 			.def(constructor<const char *, const my::Vector3 &, const my::Quaternion &, const my::Vector3 &, const my::AABB &>())
 			.def(const_self == other<const Actor&>())
@@ -3071,6 +3097,7 @@ void LuaContext::Init(void)
 			.def_readwrite("Loop", &AnimationNodeSequence::m_Loop)
 			.def_readwrite("Group", &AnimationNodeSequence::m_Group)
 			.property("Length", &AnimationNodeSequence::GetLength)
+			.def("AddEvent", &AnimationNodeSequence::AddEvent)
 
 		, class_<AnimationNodeSlot, AnimationNode, boost::shared_ptr<AnimationNode> >("AnimationNodeSlot")
 			.def(constructor<const char*>())
@@ -3098,9 +3125,6 @@ void LuaContext::Init(void)
 		, class_<AnimationNodeRate, AnimationNode, boost::shared_ptr<AnimationNode> >("AnimationNodeRate")
 			.def(constructor<const char*>())
 			.def_readwrite("Rate", &AnimationNodeRate::m_Rate)
-
-		, class_<AnimationEventArg, my::EventArg>("AnimationEventArg")
-			.def_readonly("self", &AnimationEventArg::self)
 
 		, class_<Animator, bases<Component, AnimationNode>, boost::shared_ptr<Component> >("Animator") // ! luabind::bases for accessing AnimationNodeSlot properties from boost::shared_ptr<Component>
 			.def(constructor<const char*>())

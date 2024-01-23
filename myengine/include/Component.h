@@ -175,6 +175,10 @@ public:
 	{
 	}
 
+	virtual void OnAnimationEvent(my::EventArg * arg)
+	{
+	}
+
 	virtual void OnGUI(my::UIRender * ui_render, float fElapsedTime, const my::Vector2 & Viewport)
 	{
 	}

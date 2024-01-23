@@ -135,6 +135,22 @@ public:
 	}
 };
 
+class AnimationNodeSequence;
+
+struct AnimationEventArg : public ActorEventArg
+{
+public:
+	AnimationNodeSequence * seq;
+	unsigned int id;
+
+	AnimationEventArg(Actor* _self, Component* _self_cmp, AnimationNodeSequence* _seq, unsigned int _id)
+		: ActorEventArg(_self, _self_cmp)
+		, seq(_seq)
+		, id(_id)
+	{
+	}
+};
+
 struct ViewedActorTag;
 
 class Actor
@@ -203,6 +219,8 @@ public:
 	my::EventSignal m_EventPxThreadControllerHit;
 
 	my::EventSignal m_EventPxThreadObstacleHit;
+
+	my::EventSignal m_EventAnimation;
 
 protected:
 	Actor(void)

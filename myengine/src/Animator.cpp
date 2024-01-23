@@ -211,13 +211,57 @@ void AnimationNodeSequence::Tick(float fElapsedTime, float fTotalWeight)
 
 void AnimationNodeSequence::Advance(float fElapsedTime)
 {
-	if (m_Loop)
+	const float NewTime = m_Time + fElapsedTime * m_Rate;
+
+	const float Length = GetLength();
+
+	const float OldTime = m_Time;
+
+	if (m_Rate >= 0)
 	{
-		m_Time = my::Wrap(m_Time + fElapsedTime * m_Rate, 0.0f, GetLength());
+		if (NewTime < Length)
+		{
+			m_Time = NewTime;
+
+			TriggerEvent(OldTime, NewTime);
+		}
+		else if (m_Loop)
+		{
+			m_Time = fmodf(NewTime, Length);
+
+			TriggerEvent(OldTime, Length);
+
+			TriggerEvent(0, m_Time);
+		}
+		else
+		{
+			m_Time = Length;
+
+			TriggerEvent(OldTime, Length);
+		}
 	}
 	else
 	{
-		m_Time = my::Clamp(m_Time + fElapsedTime * m_Rate, 0.0f, GetLength());
+		if (NewTime >= 0)
+		{
+			m_Time = NewTime;
+
+			TriggerEvent(NewTime, OldTime);
+		}
+		else if (m_Loop)
+		{
+			m_Time = Length + fmodf(NewTime, Length);
+
+			TriggerEvent(0, OldTime);
+
+			TriggerEvent(m_Time, Length);
+		}
+		else
+		{
+			m_Time = 0;
+
+			TriggerEvent(0, OldTime);
+		}
 	}
 }
 
@@ -232,6 +276,24 @@ float AnimationNodeSequence::GetLength(void) const
 		return anim->GetLength();
 	}
 	return FLT_MAX;
+}
+
+void AnimationNodeSequence::AddEvent(float time, unsigned int id)
+{
+	m_Events.insert(std::make_pair(time, id));
+}
+
+void AnimationNodeSequence::TriggerEvent(float begin, float end)
+{
+	EventMap::const_iterator evt_iter = m_Events.lower_bound(begin);
+
+	if (evt_iter != m_Events.end() && evt_iter->first < end)
+	{
+		Animator* Root = dynamic_cast<Animator*>(GetTopNode());
+
+		AnimationEventArg arg(Root->m_Actor, Root, this, evt_iter->second);
+		Root->m_Actor->m_EventAnimation(&arg);
+	}
 }
 
 my::BoneList & AnimationNodeSequence::GetPose(my::BoneList & pose, int root_i, const my::BoneHierarchy & boneHierarchy) const

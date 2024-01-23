@@ -84,6 +84,10 @@ public:
 
 	std::string m_Group;
 
+	typedef std::map<float, unsigned int> EventMap;
+
+	EventMap m_Events;
+
 protected:
 	friend class Animator;
 
@@ -135,6 +139,10 @@ public:
 	virtual my::BoneList & GetPose(my::BoneList & pose, int root_i, const my::BoneHierarchy & boneHierarchy) const;
 
 	float GetLength(void) const;
+
+	void AddEvent(float time, unsigned int id);
+
+	void TriggerEvent(float begin, float end);
 };
 
 typedef boost::shared_ptr<AnimationNodeSequence> AnimationNodeSequencePtr;
@@ -342,17 +350,6 @@ typedef boost::shared_ptr<AnimationNodeRate> AnimationNodeRateBySpeedPtr;
 class Actor;
 
 class Animator;
-
-struct AnimationEventArg : public my::EventArg
-{
-public:
-	Animator * self;
-
-	AnimationEventArg(Animator * _self)
-		: self(_self)
-	{
-	}
-};
 
 namespace my
 {
