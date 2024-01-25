@@ -672,3 +672,8 @@ void Wav::CreateWavFromFileInMemory(
 
 	CreateWavFromMmio(hmmio);
 }
+
+size_t Wav::SecToBlockByte(const WAVEFORMATEX& fmt, float sec)
+{
+	return size_t(sec * fmt.nSamplesPerSec) * fmt.nChannels * fmt.wBitsPerSample / 8;
+}

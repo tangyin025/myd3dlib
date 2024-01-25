@@ -179,6 +179,8 @@ public:
 	{
 		std::string SoundPath;
 		my::WavPtr Sound;
+		float StartSec;
+		float EndSec;
 		bool Loop;
 		float MinDistance;
 		float MaxDistance;
@@ -199,7 +201,7 @@ public:
 
 	virtual ActionTrackInstPtr CreateInstance(Actor * _Actor, float Rate) const;
 
-	void AddKeyFrame(float Time, const char * SoundPath, bool Loop, float MinDistance, float MaxDistance);
+	void AddKeyFrame(float Time, const char * SoundPath, float StartSec, float EndSec, bool Loop, float MinDistance, float MaxDistance);
 };
 
 class ActionTrackSoundInst : public ActionTrackInst

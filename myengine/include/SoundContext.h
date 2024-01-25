@@ -35,11 +35,11 @@ public:
 
 	void ReleaseIdleBuffer(float fElapsedTime);
 
-	BufferEventPairList::iterator GetIdleBuffer(my::WavPtr wav, DWORD flags);
+	BufferEventPairList::iterator GetIdleBuffer(my::WavPtr wav, size_t startbyte, DWORD bytes, DWORD flags);
 
-	SoundEventPtr Play(my::WavPtr wav, bool Loop);
+	SoundEventPtr Play(my::WavPtr wav, float StartSec, float EndSec, bool Loop);
 
-	SoundEventPtr Play(my::WavPtr wav, bool Loop, const my::Vector3 & pos, const my::Vector3 & vel = my::Vector3(0, 0, 0), float min_dist = 1.0f, float max_dist = 1.0e9f);
+	SoundEventPtr Play(my::WavPtr wav, float StartSec, float EndSec, bool Loop, const my::Vector3 & pos, const my::Vector3 & vel = my::Vector3(0, 0, 0), float min_dist = 1.0f, float max_dist = 1.0e9f);
 };
 
 class SoundEvent

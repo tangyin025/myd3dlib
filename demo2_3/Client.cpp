@@ -670,8 +670,8 @@ HRESULT Client::OnCreateDevice(
 			//.def("OnControlSound", &Client::OnControlSound)
 			//.def("GetTranslation", &Client::OnControlTranslate)
 			.def("LoadDictionary", &client_load_dictionary)
-			.def("Play", (SoundEventPtr(SoundContext::*)(my::WavPtr, bool)) & Client::Play)
-			.def("Play", (SoundEventPtr(SoundContext::*)(my::WavPtr, bool, const my::Vector3&, const my::Vector3&, float, float)) & Client::Play)
+			.def("Play", (SoundEventPtr(SoundContext::*)(my::WavPtr, float, float, bool)) & Client::Play)
+			.def("Play", (SoundEventPtr(SoundContext::*)(my::WavPtr, float, float, bool, const my::Vector3&, const my::Vector3&, float, float)) & Client::Play)
 			.def("LoadSceneAsync", &Client::LoadSceneAsync<luabind::object>)
 			.def("LoadScene", &Client::LoadScene)
 			.def("GetLoadSceneProgress", &Client::GetLoadSceneProgress, luabind::pure_out_value(boost::placeholders::_4) + luabind::pure_out_value(boost::placeholders::_5) + luabind::pure_out_value(boost::placeholders::_6) + luabind::pure_out_value(boost::placeholders::_7))
@@ -1277,7 +1277,7 @@ void Client::RemoveEntity(my::OctEntity * entity)
 
 void Client::OnControlSound(boost::shared_ptr<my::Wav> wav)
 {
-	SoundContext::Play(wav, false);
+	SoundContext::Play(wav, 0, 60.0f, false);
 }
 
 const std::wstring& Client::OnControlTranslate(const std::wstring& wstr)

@@ -56,14 +56,18 @@ void SoundContext::ReleaseIdleBuffer(float fElapsedTime)
 	}
 }
 
-SoundContext::BufferEventPairList::iterator SoundContext::GetIdleBuffer(my::WavPtr wav, DWORD flags)
+SoundContext::BufferEventPairList::iterator SoundContext::GetIdleBuffer(my::WavPtr wav, size_t startbyte, DWORD bytes, DWORD flags)
 {
+	_ASSERT(startbyte % wav->wavfmt->nBlockAlign == 0 && startbyte < wav->child.cksize);
+
+	_ASSERT(bytes % wav->wavfmt->nBlockAlign == 0 && startbyte + bytes <= wav->child.cksize);
+
 	_ASSERT(!(flags & DSBCAPS_CTRL3D) || wav->wavfmt->nChannels == 1);
 
 	DSBUFFERDESC dsbd;
 	dsbd.dwSize = sizeof(dsbd);
 	dsbd.dwFlags = flags;
-	dsbd.dwBufferBytes = wav->child.cksize;
+	dsbd.dwBufferBytes = bytes;
 	dsbd.dwReserved = 0;
 	dsbd.lpwfxFormat = wav->wavfmt.get();
 	dsbd.guid3DAlgorithm = DS3DALG_DEFAULT;
@@ -82,24 +86,28 @@ SoundContext::BufferEventPairList::iterator SoundContext::GetIdleBuffer(my::WavP
 
 	unsigned char* buffer1, * buffer2;
 	DWORD bytes1, bytes2;
-	buff_event_iter->first.Lock(0, wav->child.cksize, (LPVOID*)&buffer1, &bytes1, (LPVOID*)&buffer2, &bytes2, DSBLOCK_ENTIREBUFFER);
-	_ASSERT(bytes1 + bytes2 == wav->child.cksize);
+	buff_event_iter->first.Lock(0, bytes, (LPVOID*)&buffer1, &bytes1, (LPVOID*)&buffer2, &bytes2, DSBLOCK_ENTIREBUFFER);
+	_ASSERT(bytes1 + bytes2 == bytes);
 	if (buffer1)
 	{
-		memcpy(buffer1, &wav->buffer[0], bytes1);
+		memcpy(buffer1, &wav->buffer[startbyte], bytes1);
 	}
 	if (buffer2)
 	{
-		memcpy(buffer2, &wav->buffer[bytes1], bytes2);
+		memcpy(buffer2, &wav->buffer[startbyte + bytes1], bytes2);
 	}
 	buff_event_iter->first.Unlock(buffer1, bytes1, buffer2, bytes2);
 
 	return buff_event_iter;
 }
 
-SoundEventPtr SoundContext::Play(my::WavPtr wav, bool Loop)
+SoundEventPtr SoundContext::Play(my::WavPtr wav, float StartSec, float EndSec, bool Loop)
 {
-	BufferEventPairList::iterator buff_event_iter = GetIdleBuffer(wav, DSBCAPS_CTRLVOLUME | DSBCAPS_LOCDEFER);
+	const size_t startbyte = Wav::SecToBlockByte(*wav->wavfmt, StartSec);
+
+	const size_t endbyte = Min((size_t)wav->child.cksize, Wav::SecToBlockByte(*wav->wavfmt, EndSec));
+
+	BufferEventPairList::iterator buff_event_iter = GetIdleBuffer(wav, startbyte, endbyte - startbyte, DSBCAPS_CTRLVOLUME | DSBCAPS_LOCDEFER);
 
 	if (buff_event_iter != m_pool.end())
 	{
@@ -112,9 +120,13 @@ SoundEventPtr SoundContext::Play(my::WavPtr wav, bool Loop)
 	return SoundEventPtr();
 }
 
-SoundEventPtr SoundContext::Play(my::WavPtr wav, bool Loop, const my::Vector3 & pos, const my::Vector3 & vel, float min_dist, float max_dist)
+SoundEventPtr SoundContext::Play(my::WavPtr wav, float StartSec, float EndSec, bool Loop, const my::Vector3 & pos, const my::Vector3 & vel, float min_dist, float max_dist)
 {
-	BufferEventPairList::iterator buff_event_iter = GetIdleBuffer(wav, DSBCAPS_CTRL3D | DSBCAPS_CTRLVOLUME | DSBCAPS_LOCDEFER | DSBCAPS_MUTE3DATMAXDISTANCE);
+	const size_t startbyte = Wav::SecToBlockByte(*wav->wavfmt, StartSec);
+
+	const size_t endbyte = Min((size_t)wav->child.cksize, Wav::SecToBlockByte(*wav->wavfmt, EndSec));
+
+	BufferEventPairList::iterator buff_event_iter = GetIdleBuffer(wav, startbyte, endbyte - startbyte, DSBCAPS_CTRL3D | DSBCAPS_CTRLVOLUME | DSBCAPS_LOCDEFER | DSBCAPS_MUTE3DATMAXDISTANCE);
 
 	if (buff_event_iter != m_pool.end())
 	{

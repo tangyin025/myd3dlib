@@ -451,7 +451,7 @@ public:
 		{
 			my::WavPtr wav(new Wav());
 			wav->CreateWavFromFile(_T("../demo2_3/Media/sound/jaguar.wav"));
-			SoundContext::Play(wav, false, Vector3(-3,0,0), Vector3(0,0,0), 1.0f, 5.0f);
+			SoundContext::Play(wav, 0, 60.0f, false, Vector3(-3,0,0), Vector3(0,0,0), 1.0f, 5.0f);
 		}
 
 		if (m_keyboard->IsKeyPress(KC_2))

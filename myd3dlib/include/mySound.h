@@ -319,6 +319,8 @@ namespace my
 		void CreateWavFromFileInMemory(
 			LPCVOID Memory,
 			DWORD SizeOfMemory);
+
+		static size_t SecToBlockByte(const WAVEFORMATEX & fmt, float sec);
 	};
 
 	typedef boost::shared_ptr<Wav> WavPtr;

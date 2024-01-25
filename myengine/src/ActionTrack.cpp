@@ -154,11 +154,13 @@ ActionTrackInstPtr ActionTrackSound::CreateInstance(Actor * _Actor, float Rate) 
 	return ActionTrackInstPtr(new ActionTrackSoundInst(_Actor, boost::static_pointer_cast<const ActionTrackSound>(shared_from_this())));
 }
 
-void ActionTrackSound::AddKeyFrame(float Time, const char * SoundPath, bool Loop, float MinDistance, float MaxDistance)
+void ActionTrackSound::AddKeyFrame(float Time, const char * SoundPath, float StartSec, float EndSec, bool Loop, float MinDistance, float MaxDistance)
 {
 	KeyFrameMap::iterator key_iter = m_Keys.insert(std::make_pair(Time, KeyFrame()));
 	_ASSERT(key_iter != m_Keys.end());
 	key_iter->second.SoundPath = SoundPath;
+	key_iter->second.StartSec = StartSec;
+	key_iter->second.EndSec = EndSec;
 	key_iter->second.Loop = Loop;
 	key_iter->second.MinDistance = MinDistance;
 	key_iter->second.MaxDistance = MaxDistance;
@@ -201,7 +203,7 @@ void ActionTrackSoundInst::UpdateTime(float LastTime, float Time)
 			if (key_iter->second.Loop || listener_pos.distanceSq(pos) < key_iter->second.MaxDistance * key_iter->second.MaxDistance)
 			{
 				m_Events.push_back(SoundContext::getSingleton().Play(
-					key_iter->second.Sound, key_iter->second.Loop, pos, my::Vector3(0, 0, 0), key_iter->second.MinDistance, key_iter->second.MaxDistance));
+					key_iter->second.Sound, key_iter->second.StartSec, key_iter->second.EndSec, key_iter->second.Loop, pos, my::Vector3(0, 0, 0), key_iter->second.MinDistance, key_iter->second.MaxDistance));
 			}
 		}
 	}
