@@ -375,7 +375,7 @@ public:
 							const my::Vector3& v1 = box.v[box.i[i + 1]];
 							const my::Vector3& v2 = box.v[box.i[i + 2]];
 							my::Vector3 Normal = (v1 - v0).cross(v2 - v0).normalize();
-							rcRasterizeTriangle(m_ctx, &v0.x, &v1.x, &v2.x, Normal.y <= walkableThr ? 0 : RC_WALKABLE_AREA, *ptask->m_solid, ptask->m_cfg.walkableClimb);
+							rcRasterizeTriangle(m_ctx, &v0.x, &v1.x, &v2.x, Normal.y <= walkableThr ? 0 : Navigation::SAMPLE_POLYAREA_DOOR, *ptask->m_solid, ptask->m_cfg.walkableClimb);
 						}
 						break;
 					}
@@ -409,7 +409,7 @@ public:
 								my::Vector3 v0 = ((my::Vector3&)verts[polys[hullpoly.mIndexBase + 0]]).transformCoord(actor->m_World);
 								my::Vector3 v1 = ((my::Vector3&)verts[polys[hullpoly.mIndexBase + j - 1]]).transformCoord(actor->m_World);
 								my::Vector3 v2 = ((my::Vector3&)verts[polys[hullpoly.mIndexBase + j - 0]]).transformCoord(actor->m_World);
-								rcRasterizeTriangle(m_ctx, &v0.x, &v1.x, &v2.x, hullpoly.mPlane[1] <= walkableThr ? 0 : RC_WALKABLE_AREA, * ptask->m_solid, ptask->m_cfg.walkableClimb);
+								rcRasterizeTriangle(m_ctx, &v0.x, &v1.x, &v2.x, hullpoly.mPlane[1] <= walkableThr ? 0 : Navigation::SAMPLE_POLYAREA_DOOR, * ptask->m_solid, ptask->m_cfg.walkableClimb);
 							}
 						}
 						break;
