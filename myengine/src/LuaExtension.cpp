@@ -51,6 +51,7 @@ extern "C" {
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/xml_parser.hpp>
 #include <boost/property_tree/info_parser.hpp>
+#include <random>
 
 static int add_file_and_line(lua_State * L)
 {
@@ -1115,6 +1116,21 @@ static void xml_document_parse(rapidxml::xml_document<char>* self, const char* u
 	self->parse<0>((char*)&(*cache)[0]);
 }
 
+static LUA_NUMBER mt19937_random(std::mt19937* self)
+{
+	return self->operator()() / (LUA_NUMBER)UINT_MAX;
+}
+
+static unsigned int mt19937_random(std::mt19937* self, unsigned int m)
+{
+	return self->operator()() % m + 1;
+}
+
+static unsigned int mt19937_random(std::mt19937* self, unsigned int m, unsigned int n)
+{
+	return self->operator()() % (n - m + 1) + m;
+}
+
 LuaContext::LuaContext(void)
 	: m_State(NULL)
 {
@@ -1135,9 +1151,7 @@ void LuaContext::Init(void)
 	using namespace luabind;
 
 	module(m_State)[
-		def("srand", &srand)
-
-		, def("Lerp", &my::Lerp<float>)
+		def("Lerp", &my::Lerp<float>)
 
 		, def("Clamp", &my::Clamp<float>)
 
@@ -3553,6 +3567,13 @@ void LuaContext::Init(void)
 			.property("data", (const std::string& (boost::property_tree::ptree::*)()const)& boost::property_tree::ptree::data)
 			.def("get", luabind::tag_function<std::string(boost::property_tree::ptree*,const char*,const std::string&)>(
 				boost::bind(&boost::property_tree::ptree::get<std::string>, boost::placeholders::_1, boost::bind(boost::value_factory<boost::property_tree::path>(), boost::placeholders::_2, '/'), boost::placeholders::_3)))
+
+		, class_<std::mt19937>("mt19937")
+			.def(constructor<>())
+			.def(constructor<unsigned int>())
+			.def("random", (LUA_NUMBER(*)(std::mt19937*))& mt19937_random)
+			.def("random", (unsigned int(*)(std::mt19937*, unsigned int))& mt19937_random)
+			.def("random", (unsigned int(*)(std::mt19937*, unsigned int, unsigned int))& mt19937_random)
 
 		//, class_<FastNoiseLite>("FastNoiseLite")
 		//	.def(constructor<int>())
