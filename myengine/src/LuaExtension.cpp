@@ -434,6 +434,20 @@ static void animation_node_set_child_adopt(AnimationNode* self, int i, ScriptAni
 	self->SetChild(i, AnimationNodePtr(node));
 }
 
+static bool navigation_find_nearest_poly(const Navigation* self, const my::Vector3& center, const my::Vector3& halfext, const dtQueryFilter* filter, unsigned int& nearestRef, my::Vector3& nearestPt)
+{
+	dtStatus status = self->m_navQuery->findNearestPoly(&center.x, &halfext.x, filter, &nearestRef, &nearestPt.x);
+	return dtStatusSucceed(status);
+}
+
+static bool navigation_find_path(const Navigation* self, unsigned int startRef, unsigned int endRef, const my::Vector3& startPos, const my::Vector3& endPos, const dtQueryFilter* filter, int maxPath)
+{
+	std::vector<dtPolyRef> path(maxPath);
+	int pathCount;
+	dtStatus status = self->m_navQuery->findPath(startRef, endRef, &startPos.x, &endPos.x, filter, path.data(), &pathCount, maxPath);
+	return dtStatusSucceed(status);
+}
+
 static my::Vector3 steering_get_corner(const Steering* self, int i)
 {
 	if (i < self->m_ncorners)
@@ -2929,6 +2943,8 @@ void LuaContext::Init(void)
 				value("SAMPLE_POLYFLAGS_ALL", Navigation::SAMPLE_POLYFLAGS_ALL)
 			]
 			//.def(constructor<const char*, const my::AABB&>())
+			.def("findNearestPoly", &navigation_find_nearest_poly, pure_out_value(boost::placeholders::_5) + pure_out_value(boost::placeholders::_6))
+			.def("findPath", &navigation_find_path)
 
 		, class_<dtQueryFilter>("dtQueryFilter")
 			.def(constructor<>())
