@@ -440,24 +440,16 @@ static bool navigation_find_nearest_poly(const Navigation* self, const my::Vecto
 	return dtStatusSucceed(status);
 }
 
-typedef std::vector<dtPolyRef> poly_ref_list;
-
-typedef boost::shared_container_iterator<poly_ref_list> shared_poly_ref_list_iter;
-
-static boost::iterator_range<shared_poly_ref_list_iter> navigation_find_path(const Navigation* self, unsigned int startRef, unsigned int endRef, const my::Vector3& startPos, const my::Vector3& endPos, const dtQueryFilter* filter, int maxPath)
+static bool navigation_find_path(const Navigation* self, unsigned int startRef, unsigned int endRef, const my::Vector3& startPos, const my::Vector3& endPos, const dtQueryFilter* filter, int maxPath, int& pathCount, unsigned int& lastPolyRef)
 {
-	boost::shared_ptr<poly_ref_list> path(new poly_ref_list(maxPath));
-	int pathCount;
-	dtStatus status = self->m_navQuery->findPath(startRef, endRef, &startPos.x, &endPos.x, filter, path->data(), &pathCount, maxPath);
+	std::vector<dtPolyRef> path(maxPath);
+	dtStatus status = self->m_navQuery->findPath(startRef, endRef, &startPos.x, &endPos.x, filter, path.data(), &pathCount, maxPath);
 	if (dtStatusSucceed(status))
 	{
-		path->resize(pathCount);
+		lastPolyRef = path[pathCount - 1];
+		return true;
 	}
-	else
-	{
-		path->clear();
-	}
-	return boost::make_iterator_range(shared_poly_ref_list_iter(path->begin(), path), shared_poly_ref_list_iter(path->end(), path));
+	return false;
 }
 
 static my::Vector3 steering_get_corner(const Steering* self, int i)
@@ -2956,7 +2948,7 @@ void LuaContext::Init(void)
 			]
 			//.def(constructor<const char*, const my::AABB&>())
 			.def("findNearestPoly", &navigation_find_nearest_poly, pure_out_value(boost::placeholders::_5) + pure_out_value(boost::placeholders::_6))
-			.def("findPath", &navigation_find_path, return_stl_iterator)
+			.def("findPath", &navigation_find_path, pure_out_value(boost::placeholders::_8) + pure_out_value(boost::placeholders::_9))
 
 		, class_<dtQueryFilter>("dtQueryFilter")
 			.def(constructor<>())
