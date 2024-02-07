@@ -3134,7 +3134,7 @@ void LuaContext::Init(void)
 			.def("AddEvent", &AnimationNodeSequence::AddEvent)
 
 		, class_<AnimationNodeSlot, AnimationNode, boost::shared_ptr<AnimationNode> >("AnimationNodeSlot")
-			.def(constructor<const char*>())
+			.def(constructor<const char*, unsigned int>())
 			.def("Play", &AnimationNodeSlot::Play)
 			.def("StopSlotByUserData", &AnimationNodeSlot::StopSlotByUserData)
 			.property("IsPlaying", &AnimationNodeSlot::IsPlaying)

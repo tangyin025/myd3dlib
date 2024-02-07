@@ -185,23 +185,28 @@ public:
 
 protected:
 	AnimationNodeSlot(void)
-		: m_SequenceSlot(2)
 	{
 	}
 
 public:
-	AnimationNodeSlot(const char * Name)
+	AnimationNodeSlot(const char * Name, unsigned int ChildNum)
 		: AnimationNode(Name, 1)
-		, m_SequenceSlot(2)
+		, m_SequenceSlot(my::Max(2u, ChildNum))
 	{
 	}
 
 	friend class boost::serialization::access;
 
 	template<class Archive>
-	void serialize(Archive & ar, const unsigned int version)
+	void save(Archive& ar, const unsigned int version) const;
+
+	template<class Archive>
+	void load(Archive& ar, const unsigned int version);
+
+	template<class Archive>
+	void serialize(Archive& ar, const unsigned int version)
 	{
-		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(AnimationNode);
+		boost::serialization::split_member(ar, *this, version);
 	}
 
 	virtual void Tick(float fElapsedTime, float fTotalWeight);
