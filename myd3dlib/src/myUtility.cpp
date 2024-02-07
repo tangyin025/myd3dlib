@@ -139,15 +139,14 @@ void DrawHelper::PushTriangle(const Vector3& v0, const Vector3& v1, const Vector
 	PushTriangleVertex(v2.x, v2.y, v2.z, color);
 }
 
-bool Timer::Step(void)
+bool Timer::Step(const float interval)
 {
-	if (m_RemainingTime >= m_Interval)
+	if (m_RemainingTime >= interval)
 	{
-		m_RemainingTime -= m_Interval;
+		m_RemainingTime -= interval;
 
 		return true;
 	}
-
 	return false;
 }
 

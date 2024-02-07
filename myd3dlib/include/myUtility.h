@@ -77,18 +77,15 @@ namespace my
 	class Timer
 	{
 	public:
-		float m_Interval;
-
 		float m_RemainingTime;
 
 	public:
-		Timer(float Interval)
-			: m_Interval(Interval)
-			, m_RemainingTime(0)
+		Timer(void)
+			: m_RemainingTime(0)
 		{
 		}
 
-		bool Step(void);
+		bool Step(const float interval);
 	};
 
 	typedef boost::shared_ptr<Timer> TimerPtr;

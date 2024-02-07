@@ -293,7 +293,7 @@ bool PhysxScene::Advance(float fElapsedTime)
 {
 	m_Timer.m_RemainingTime += my::Min(m_MaxAllowedTimestep, fElapsedTime);
 
-	if (m_Timer.Step())
+	if (m_Timer.Step(m_FrameInterval))
 	{
 		m_Completion0.setContinuation(*m_PxScene->getTaskManager(), NULL);
 
@@ -317,11 +317,11 @@ void PhysxScene::AdvanceSync(float fElapsedTime)
 
 	m_Timer.m_RemainingTime += my::Min(m_MaxAllowedTimestep, fElapsedTime);
 
-	for (; m_Timer.Step(); )
+	for (; m_Timer.Step(m_FrameInterval); )
 	{
-		m_EventPxThreadSubstep(m_Timer.m_Interval);
+		m_EventPxThreadSubstep(m_FrameInterval);
 
-		m_PxScene->simulate(m_Timer.m_Interval, NULL, 0, 0, true);
+		m_PxScene->simulate(m_FrameInterval, NULL, 0, 0, true);
 
 		m_PxScene->fetchResults(true, &m_ErrorState);
 
@@ -332,9 +332,9 @@ void PhysxScene::AdvanceSync(float fElapsedTime)
 void PhysxScene::Substep(StepperTask & completionTask)
 {
 	// ! be aware of multi thread
-	m_EventPxThreadSubstep(m_Timer.m_Interval);
+	m_EventPxThreadSubstep(m_FrameInterval);
 
-	m_PxScene->simulate(m_Timer.m_Interval, &completionTask, 0, 0, true);
+	m_PxScene->simulate(m_FrameInterval, &completionTask, 0, 0, true);
 }
 
 void PhysxScene::SubstepDone(StepperTask * ownerTask)
@@ -343,7 +343,7 @@ void PhysxScene::SubstepDone(StepperTask * ownerTask)
 
 	_ASSERT(0 == m_ErrorState);
 
-	if(m_Timer.Step())
+	if(m_Timer.Step(m_FrameInterval))
 	{
 		StepperTask& task = (ownerTask == &m_Completion0 ? m_Completion1 : m_Completion0);
 

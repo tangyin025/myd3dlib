@@ -2614,8 +2614,7 @@ void LuaContext::Init(void)
 			.def("SetVelocity", &my::Sound3DListener::SetVelocity)
 
 		, class_<my::Timer, boost::shared_ptr<my::Timer> >("Timer")
-			.def(constructor<float>())
-			.def_readonly("Interval", &my::Timer::m_Interval)
+			.def(constructor<>())
 			.def_readwrite("RemainingTime", &my::Timer::m_RemainingTime)
 	];
 
