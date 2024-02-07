@@ -189,9 +189,9 @@ protected:
 	}
 
 public:
-	AnimationNodeSlot(const char * Name, unsigned int ChildNum)
+	AnimationNodeSlot(const char * Name, unsigned int SlotNum)
 		: AnimationNode(Name, 1)
-		, m_SequenceSlot(my::Max(2u, ChildNum))
+		, m_SequenceSlot(my::Max(2u, SlotNum))
 	{
 	}
 
