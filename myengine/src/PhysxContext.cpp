@@ -18,6 +18,7 @@
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/binary_object.hpp>
 #include <boost/serialization/export.hpp>
+#include <boost/scope_exit.hpp>
 #include "CctCharacterControllerManager.h"
 #include "GuIntersectionTriangleBox.h"
 #include "common/GuBoxConversion.h"
@@ -308,6 +309,11 @@ bool PhysxScene::Advance(float fElapsedTime)
 void PhysxScene::AdvanceSync(float fElapsedTime)
 {
 	PhysxSdk::getSingleton().m_RenderTickMuted = true;
+	BOOST_SCOPE_EXIT(void)
+	{
+		PhysxSdk::getSingleton().m_RenderTickMuted = false;
+	}
+	BOOST_SCOPE_EXIT_END
 
 	m_Timer.m_RemainingTime += my::Min(m_MaxAllowedTimestep, fElapsedTime);
 
@@ -321,8 +327,6 @@ void PhysxScene::AdvanceSync(float fElapsedTime)
 
 		_ASSERT(0 == m_ErrorState);
 	}
-
-	PhysxSdk::getSingleton().m_RenderTickMuted = false;
 }
 
 void PhysxScene::Substep(StepperTask & completionTask)
