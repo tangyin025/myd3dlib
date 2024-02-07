@@ -290,20 +290,17 @@ void PhysxScene::TickPostRender(float fElapsedTime)
 
 bool PhysxScene::Advance(float fElapsedTime)
 {
-	if (my::D3DContext::getSingleton().m_fTimeScale > 0)
+	m_Timer.m_RemainingTime += my::Min(m_MaxAllowedTimestep, fElapsedTime);
+
+	if (m_Timer.Step())
 	{
-		m_Timer.m_RemainingTime += my::Min(m_MaxAllowedTimestep, fElapsedTime);
+		m_Completion0.setContinuation(*m_PxScene->getTaskManager(), NULL);
 
-		if (m_Timer.Step())
-		{
-			m_Completion0.setContinuation(*m_PxScene->getTaskManager(), NULL);
+		Substep(m_Completion0);
 
-			Substep(m_Completion0);
+		m_Completion0.removeReference();
 
-			m_Completion0.removeReference();
-
-			return true;
-		}
+		return true;
 	}
 	return false;
 }
@@ -312,20 +309,17 @@ void PhysxScene::AdvanceSync(float fElapsedTime)
 {
 	PhysxSdk::getSingleton().m_RenderTickMuted = true;
 
-	if (my::D3DContext::getSingleton().m_fTimeScale > 0)
+	m_Timer.m_RemainingTime += my::Min(m_MaxAllowedTimestep, fElapsedTime);
+
+	for (; m_Timer.Step(); )
 	{
-		m_Timer.m_RemainingTime += my::Min(m_MaxAllowedTimestep, fElapsedTime);
+		m_EventPxThreadSubstep(m_Timer.m_Interval);
 
-		for (; m_Timer.Step(); )
-		{
-			m_EventPxThreadSubstep(m_Timer.m_Interval * my::D3DContext::getSingleton().m_fTimeScale);
+		m_PxScene->simulate(m_Timer.m_Interval, NULL, 0, 0, true);
 
-			m_PxScene->simulate(m_Timer.m_Interval * my::D3DContext::getSingleton().m_fTimeScale, NULL, 0, 0, true);
+		m_PxScene->fetchResults(true, &m_ErrorState);
 
-			m_PxScene->fetchResults(true, &m_ErrorState);
-
-			_ASSERT(0 == m_ErrorState);
-		}
+		_ASSERT(0 == m_ErrorState);
 	}
 
 	PhysxSdk::getSingleton().m_RenderTickMuted = false;
@@ -334,9 +328,9 @@ void PhysxScene::AdvanceSync(float fElapsedTime)
 void PhysxScene::Substep(StepperTask & completionTask)
 {
 	// ! be aware of multi thread
-	m_EventPxThreadSubstep(m_Timer.m_Interval * my::D3DContext::getSingleton().m_fTimeScale);
+	m_EventPxThreadSubstep(m_Timer.m_Interval);
 
-	m_PxScene->simulate(m_Timer.m_Interval * my::D3DContext::getSingleton().m_fTimeScale, &completionTask, 0, 0, true);
+	m_PxScene->simulate(m_Timer.m_Interval, &completionTask, 0, 0, true);
 }
 
 void PhysxScene::SubstepDone(StepperTask * ownerTask)

@@ -902,7 +902,7 @@ void Client::OnFrameTick(
 
 		actor_iter->UpdateLod(m_Camera->m_Eye, m_ViewedCenter);
 
-		actor_iter->Update(fElapsedTime* m_fTimeScale);
+		actor_iter->Update(fElapsedTime);
 	}
 
 	for (; actor_iter != m_ViewedActors.end(); )
@@ -925,7 +925,7 @@ void Client::OnFrameTick(
 
 	m_Camera->UpdateViewProj();
 
-	m_ControllerMgr->computeInteractions(fElapsedTime* m_fTimeScale, &m_ControllerFilter);
+	m_ControllerMgr->computeInteractions(fElapsedTime, &m_ControllerFilter);
 
 	LuaContext::dogc(LUA_GCCOLLECT, 1);
 

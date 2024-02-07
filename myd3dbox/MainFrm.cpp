@@ -819,7 +819,7 @@ void CMainFrame::OnFrameTick(float fElapsedTime)
 		{
 			if (actor_iter->IsRequested())
 			{
-				actor_iter->Update(fElapsedTime * theApp.m_fTimeScale);
+				actor_iter->Update(fElapsedTime);
 			}
 		}
 	}
@@ -830,7 +830,7 @@ void CMainFrame::OnFrameTick(float fElapsedTime)
 		{
 			if ((*actor_iter)->IsRequested())
 			{
-				(*actor_iter)->Update(fElapsedTime * theApp.m_fTimeScale);
+				(*actor_iter)->Update(fElapsedTime);
 			}
 
 			Actor::AttachList::iterator attach_iter = (*actor_iter)->m_Attaches.begin();
@@ -838,7 +838,7 @@ void CMainFrame::OnFrameTick(float fElapsedTime)
 			{
 				if ((*attach_iter)->IsRequested())
 				{
-					(*attach_iter)->Update(fElapsedTime * theApp.m_fTimeScale);
+					(*attach_iter)->Update(fElapsedTime);
 				}
 			}
 		}
