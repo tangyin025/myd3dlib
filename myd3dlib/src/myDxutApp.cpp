@@ -136,7 +136,9 @@ void Clock::UpdateClock(void)
 
 	m_fAbsoluteTime = qwTime.QuadPart / (double)m_llQPFTicksPerSec;
 
-	m_fElapsedTime = (float)((qwTime.QuadPart - m_llLastElapsedTime) / (double)m_llQPFTicksPerSec);
+	m_fUnscaledElapsedTime = (float)((qwTime.QuadPart - m_llLastElapsedTime) / (double)m_llQPFTicksPerSec);
+
+	m_fElapsedTime = m_fUnscaledElapsedTime * m_fTimeScale;
 
 	m_fTotalTime += m_fElapsedTime;
 

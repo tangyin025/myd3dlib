@@ -1002,9 +1002,9 @@ void Client::OnUIRender(
 	double fTime,
 	float fElapsedTime)
 {
-	DialogMgr::Draw(ui_render, m_fAbsoluteTime, fElapsedTime, DialogMgr::GetDlgViewport());
+	DialogMgr::Draw(ui_render, m_fAbsoluteTime, m_fUnscaledElapsedTime, DialogMgr::GetDlgViewport());
 
-	OnPostUIRender(ui_render, fTime, fElapsedTime);
+	OnPostUIRender(ui_render, m_fAbsoluteTime, m_fUnscaledElapsedTime);
 
 	_ASSERT(m_Font);
 	ui_render->SetWorld(Matrix4::identity);
