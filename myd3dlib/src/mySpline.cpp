@@ -52,28 +52,8 @@ float Spline::Interpolate(float s, float value) const
 	return value;
 }
 
-template <>
-float Tween<float>::Step(float fElapsedTime)
+float Tween::Step(float fElapsedTime)
 {
 	time += fElapsedTime;
 	return SplineNode(0.0f, From, 0.0f, 0.0f).Interpolate(SplineNode(Duration, To, 0.0, 0.0f), time);
-}
-
-template <>
-Vector2 Tween<Vector2>::Step(float fElapsedTime)
-{
-	time += fElapsedTime;
-	return Vector2(
-		SplineNode(0.0f, From.x, 0.0f, 0.0f).Interpolate(SplineNode(Duration, To.x, 0.0, 0.0f), time),
-		SplineNode(0.0f, From.y, 0.0f, 0.0f).Interpolate(SplineNode(Duration, To.y, 0.0, 0.0f), time));
-}
-
-template <>
-Vector3 Tween<Vector3>::Step(float fElapsedTime)
-{
-	time += fElapsedTime;
-	return Vector3(
-		SplineNode(0.0f, From.x, 0.0f, 0.0f).Interpolate(SplineNode(Duration, To.x, 0.0, 0.0f), time),
-		SplineNode(0.0f, From.y, 0.0f, 0.0f).Interpolate(SplineNode(Duration, To.y, 0.0, 0.0f), time),
-		SplineNode(0.0f, From.z, 0.0f, 0.0f).Interpolate(SplineNode(Duration, To.z, 0.0, 0.0f), time));
 }

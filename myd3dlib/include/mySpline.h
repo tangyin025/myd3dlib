@@ -54,17 +54,16 @@ namespace my
 		float Interpolate(float s, float value) const;
 	};
 
-	template <typename T>
 	class Tween
 	{
 	public:
-		const T From, To;
+		const float From, To;
 
 		const float Duration;
 
 		float time;
 
-		Tween(const T& _From, const T& _To, float _Duration)
+		Tween(const float & _From, const float & _To, float _Duration)
 			: From(_From)
 			, To(_To)
 			, Duration(_Duration)
@@ -72,15 +71,6 @@ namespace my
 		{
 		}
 
-		T Step(float fElapsedTime);
+		float Step(float fElapsedTime);
 	};
-
-	template <>
-	float Tween<float>::Step(float fElapsedTime);
-
-	template <>
-	Vector2 Tween<Vector2>::Step(float fElapsedTime);
-
-	template <>
-	Vector3 Tween<Vector3>::Step(float fElapsedTime);
 }
