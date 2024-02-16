@@ -55,5 +55,44 @@ float Spline::Interpolate(float s, float value) const
 float Tween::Step(float fElapsedTime)
 {
 	time += fElapsedTime;
-	return SplineNode(0.0f, From, 0.0f, 0.0f).Interpolate(SplineNode(Duration, To, 0.0, 0.0f), time);
+	return From.Interpolate(To, time);
+}
+
+float Tween::Duration(void) const
+{
+	return To.x;
+}
+
+Shake::Shake(float Duration, float Strength, int Vibrato)
+	: time(0)
+{
+	float shakeMagnitude = Strength;
+	int totIterations = Max(2, (int)(Vibrato * Duration));
+	float decay = shakeMagnitude / (totIterations - 1);
+	AddNode(0.0f, 0.0f, 0.0f, 0.0f);
+	for (int i = 0; i < totIterations; i++)
+	{
+		if (i < totIterations - 1) {
+			float iterationPerc = (i + 1) / (float)totIterations;
+			AddNode(iterationPerc * Duration, i % 2 ? -shakeMagnitude : shakeMagnitude, 0.0f, 0.0f);
+			shakeMagnitude -= decay;
+		}
+		else
+			AddNode(Duration, 0.0f, 0.0f, 0.0f);
+	}
+}
+
+float Shake::Step(float fElapsedTime)
+{
+	time += fElapsedTime;
+	return Interpolate(time, 0.0f);
+}
+
+float Shake::Duration(void) const
+{
+	if (!empty())
+	{
+		return back().x;
+	}
+	return 0.0f;
 }

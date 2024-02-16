@@ -57,20 +57,31 @@ namespace my
 	class Tween
 	{
 	public:
-		const float From, To;
-
-		const float Duration;
+		const SplineNode From, To;
 
 		float time;
 
-		Tween(const float & _From, const float & _To, float _Duration)
-			: From(_From)
-			, To(_To)
-			, Duration(_Duration)
+		Tween(float _From, float _To, float Duration)
+			: From(0.0f, _From, 0.0f, 0.0f)
+			, To(Duration, _To, 0.0f, 0.0f)
 			, time(0)
 		{
 		}
 
 		float Step(float fElapsedTime);
+
+		float Duration(void) const;
+	};
+
+	class Shake : public Spline
+	{
+	public:
+		float time;
+
+		Shake(float Duration, float Strength, int Vibrato);
+
+		float Step(float fElapsedTime);
+
+		float Duration(void) const;
 	};
 }
