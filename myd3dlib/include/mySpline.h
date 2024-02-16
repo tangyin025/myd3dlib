@@ -1,7 +1,7 @@
 #pragma once
 
 #include <vector>
-#include <boost/serialization/nvp.hpp>
+#include "myMath.h"
 
 namespace my
 {
@@ -53,4 +53,34 @@ namespace my
 
 		float Interpolate(float s, float value) const;
 	};
+
+	template <typename T>
+	class Tween
+	{
+	public:
+		const T From, To;
+
+		const float Duration;
+
+		float time;
+
+		Tween(const T& _From, const T& _To, float _Duration)
+			: From(_From)
+			, To(_To)
+			, Duration(_Duration)
+			, time(0)
+		{
+		}
+
+		T Step(float fElapsedTime);
+	};
+
+	template <>
+	float Tween<float>::Step(float fElapsedTime);
+
+	template <>
+	Vector2 Tween<Vector2>::Step(float fElapsedTime);
+
+	template <>
+	Vector3 Tween<Vector3>::Step(float fElapsedTime);
 }

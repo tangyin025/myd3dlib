@@ -1589,6 +1589,14 @@ void LuaContext::Init(void)
 			.def("Interpolate", luabind::tag_function<float(my::Spline*, float)>(
 				boost::bind(&my::Spline::Interpolate, boost::placeholders::_1, boost::placeholders::_2, 0.0f)))
 
+		, class_<my::Tween<float> >("FloatTween")
+			.def(constructor<float, float, float>())
+			.def_readonly("From", &my::Tween<float>::From)
+			.def_readonly("To", &my::Tween<float>::To)
+			.def_readonly("Duration", &my::Tween<float>::Duration)
+			.def_readonly("time", &my::Tween<float>::time)
+			.def("Step", &my::Tween<float>::Step)
+
 		, class_<my::Emitter::Particle>("EmitterParticle")
 			.def_readwrite("Position", &my::Emitter::Particle::m_Position)
 
