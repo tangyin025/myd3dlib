@@ -78,7 +78,7 @@ namespace my
 	public:
 		float time;
 
-		Shake(float Duration, float Strength, int Vibrato);
+		Shake(float Duration, float Strength, int Vibrato, float StartMagnitude);
 
 		float Step(float fElapsedTime);
 

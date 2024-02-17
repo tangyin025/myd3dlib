@@ -63,19 +63,21 @@ float Tween::Duration(void) const
 	return To.x;
 }
 
-Shake::Shake(float Duration, float Strength, int Vibrato)
+Shake::Shake(float Duration, float Strength, int Vibrato, float StartMagnitude)
 	: time(0)
 {
 	float shakeMagnitude = Strength;
 	int totIterations = Max(2, (int)(Vibrato * Duration));
 	float decay = shakeMagnitude / (totIterations - 1);
-	AddNode(0.0f, 0.0f, 0.0f, 0.0f);
+	bool neg = StartMagnitude > 0 ? true : false;
+	AddNode(0.0f, StartMagnitude, 0.0f, 0.0f);
 	for (int i = 0; i < totIterations; i++)
 	{
 		if (i < totIterations - 1) {
 			float iterationPerc = (i + 1) / (float)totIterations;
-			AddNode(iterationPerc * Duration, i % 2 ? -shakeMagnitude : shakeMagnitude, 0.0f, 0.0f);
+			AddNode(iterationPerc * Duration, neg ? -shakeMagnitude : shakeMagnitude, 0.0f, 0.0f);
 			shakeMagnitude -= decay;
+			neg = !neg;
 		}
 		else
 			AddNode(Duration, 0.0f, 0.0f, 0.0f);
