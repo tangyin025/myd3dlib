@@ -91,14 +91,14 @@ static void basetexture_save_texture_to_file(my::BaseTexture* self, const char* 
 	V(D3DXSaveTextureToFile(u8tots(u8_path).c_str(), DestFormat, self->m_ptr, NULL));
 }
 
-static void texture2d_create_texture_from_file(my::Texture2D* self, const char* u8_path, int Width, int Height, int MipLevels, D3DFORMAT Format)
+static void texture2d_create_texture_from_file(my::Texture2D* self, const char* u8_path, int Width, int Height, int MipLevels, D3DFORMAT Format, D3DPOOL Pool)
 {
 //#define D3DX_DEFAULT            ((UINT) -1)
 //#define D3DX_DEFAULT_NONPOW2    ((UINT) -2)
 //#define D3DX_DEFAULT_FLOAT      FLT_MAX
 //#define D3DX_FROM_FILE          ((UINT) -3)
 //#define D3DFMT_FROM_FILE        ((D3DFORMAT) -3)
-	self->CreateTextureFromFile(u8tots(u8_path).c_str(), Width, Height, MipLevels, 0, Format, D3DPOOL_MANAGED, D3DX_DEFAULT, D3DX_DEFAULT, 0, NULL, NULL);
+	self->CreateTextureFromFile(u8tots(u8_path).c_str(), Width, Height, MipLevels, 0, Format, Pool, D3DX_DEFAULT, D3DX_DEFAULT, 0, NULL, NULL);
 }
 
 static void texture2d_set_as_render_target(my::Texture2D* self, int target_id)
@@ -113,6 +113,16 @@ static void texture2d_fill_color(my::Texture2D* self, const RECT* pRect, D3DCOLO
 	HRESULT hr;
 	CComPtr<IDirect3DSurface9> surf = self->GetSurfaceLevel(0);
 	V(my::D3DContext::getSingleton().m_d3dDevice->ColorFill(surf, pRect, color));
+}
+
+static void texture2d_stretch_rect(my::Texture2D* self, const RECT* pDestRect, my::Texture2D* pSourceTexture, const RECT* pSourceRect, D3DTEXTUREFILTERTYPE Filter)
+{
+	HRESULT hr;
+	hr = my::D3DContext::getSingleton().m_d3dDevice->StretchRect(pSourceTexture->GetSurfaceLevel(0), pSourceRect, self->GetSurfaceLevel(0), pDestRect, Filter);
+	if (FAILED(hr))
+	{
+		THROW_D3DEXCEPTION(hr);
+	}
 }
 
 static void cubetexture_load_cube_map_surface_from_file(my::CubeTexture* self, D3DCUBEMAP_FACES FaceType, const char* u8_path)
@@ -1699,6 +1709,7 @@ void LuaContext::Init(void)
 			.enum_("D3DFORMAT")
 			[
 				value("D3DFMT_UNKNOWN", D3DFMT_UNKNOWN),
+				value("D3DFMT_FROM_FILE", D3DFMT_FROM_FILE),
 				//value("D3DFMT_R8G8B8", D3DFMT_R8G8B8),
 				value("D3DFMT_A8R8G8B8", D3DFMT_A8R8G8B8),
 				value("D3DFMT_X8R8G8B8", D3DFMT_X8R8G8B8)
@@ -1740,6 +1751,12 @@ void LuaContext::Init(void)
 				value("D3DPOOL_SYSTEMMEM", D3DPOOL_MANAGED),
 				value("D3DPOOL_SCRATCH", D3DPOOL_SCRATCH)
 			]
+			.enum_("D3DTEXTUREFILTERTYPE")
+			[
+				value("D3DTEXF_NONE", D3DTEXF_NONE),
+				value("D3DTEXF_POINT", D3DTEXF_POINT),
+				value("D3DTEXF_LINEAR", D3DTEXF_LINEAR)
+			]
 
 		, class_<my::Texture2D, my::BaseTexture, boost::shared_ptr<my::DeviceResourceBase> >("Texture2D")
 			.def(constructor<>())
@@ -1749,6 +1766,7 @@ void LuaContext::Init(void)
 			.def("CreateTextureFromFile", &texture2d_create_texture_from_file)
 			.def("SetAsRenderTarget", &texture2d_set_as_render_target)
 			.def("FillColor", &texture2d_fill_color)
+			.def("StretchRect", &texture2d_stretch_rect)
 
 		, class_<my::CubeTexture, my::BaseTexture, boost::shared_ptr<my::DeviceResourceBase> >("CubeTexture")
 			.def(constructor<>())
