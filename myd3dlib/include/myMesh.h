@@ -436,13 +436,13 @@ namespace my
 			bool bComputeTangentFrame = true,
 			DWORD dwMeshOptions = D3DXMESH_MANAGED);
 
-		void CreateMeshFromOther(OgreMesh* other, DWORD AttribId, const Matrix4& trans, unsigned int vertex_capacity, unsigned int face_capacity);
+		void CreateMeshFromOther(OgreMesh* other, DWORD AttribId, const Matrix4& trans, const Matrix4& uv_trans, unsigned int vertex_capacity, unsigned int face_capacity);
 
-		void AppendMesh(OgreMesh* other, DWORD AttribId, const Matrix4& trans);
+		void AppendMesh(OgreMesh* other, DWORD AttribId, const Matrix4& trans, const Matrix4& uv_trans);
 
-		void CombineMesh(OgreMesh* other, DWORD AttribId, const Matrix4& trans);
+		void CombineMesh(OgreMesh* other, DWORD AttribId, const Matrix4& trans, const Matrix4& uv_trans);
 
-		const D3DXATTRIBUTERANGE& AppendToAttrib(const D3DXATTRIBUTERANGE& rang, OgreMesh* other, DWORD AttribId, const Matrix4& trans);
+		const D3DXATTRIBUTERANGE& AppendToAttrib(const D3DXATTRIBUTERANGE& rang, OgreMesh* other, DWORD AttribId, const Matrix4& trans, const Matrix4& uv_trans);
 
 		void SaveOgreMesh(const char * path, bool useSharedGeom);
 

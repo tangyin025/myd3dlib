@@ -1523,7 +1523,7 @@ void OgreMesh::CreateMeshFromObjInStream(
 	}
 }
 
-void OgreMesh::CreateMeshFromOther(OgreMesh* other, DWORD AttribId, const Matrix4& trans, unsigned int vertex_capacity, unsigned int face_capacity)
+void OgreMesh::CreateMeshFromOther(OgreMesh* other, DWORD AttribId, const Matrix4& trans, const Matrix4& uv_trans, unsigned int vertex_capacity, unsigned int face_capacity)
 {
 	DWORD dwMeshOptions = other->GetOptions();
 	if (!(dwMeshOptions & D3DXMESH_32BIT) && Max<DWORD>(vertex_capacity, other->GetNumVertices()) >= USHRT_MAX)
@@ -1544,10 +1544,10 @@ void OgreMesh::CreateMeshFromOther(OgreMesh* other, DWORD AttribId, const Matrix
 
 	CreateMesh(Max<DWORD>(face_capacity, other->GetNumFaces()), Max<DWORD>(vertex_capacity, other->GetNumVertices()), velist.data(), dwMeshOptions);
 
-	AppendMesh(other, AttribId, trans);
+	AppendMesh(other, AttribId, trans, uv_trans);
 }
 
-void OgreMesh::AppendMesh(OgreMesh* other, DWORD AttribId, const Matrix4& trans)
+void OgreMesh::AppendMesh(OgreMesh* other, DWORD AttribId, const Matrix4& trans, const Matrix4& uv_trans)
 {
 	D3DXATTRIBUTERANGE rang = { m_AttribTable.size(), 0, 0, 0, 0 };
 	for (int i = 0; i < m_AttribTable.size(); i++)
@@ -1555,7 +1555,7 @@ void OgreMesh::AppendMesh(OgreMesh* other, DWORD AttribId, const Matrix4& trans)
 		rang.VertexStart = Max(rang.VertexStart, m_AttribTable[i].VertexStart + m_AttribTable[i].VertexCount);
 		rang.FaceStart = Max(rang.FaceStart, m_AttribTable[i].FaceStart + m_AttribTable[i].FaceCount);
 	}
-	AppendToAttrib(rang, other, AttribId, trans);
+	AppendToAttrib(rang, other, AttribId, trans, uv_trans);
 
 	rang.FaceCount = other->m_AttribTable[AttribId].FaceCount;
 	rang.VertexCount = other->m_AttribTable[AttribId].VertexCount;
@@ -1564,21 +1564,21 @@ void OgreMesh::AppendMesh(OgreMesh* other, DWORD AttribId, const Matrix4& trans)
 	m_MaterialNameList.push_back(other->m_MaterialNameList[AttribId]);
 }
 
-void OgreMesh::CombineMesh(OgreMesh* other, DWORD AttribId, const Matrix4& trans)
+void OgreMesh::CombineMesh(OgreMesh* other, DWORD AttribId, const Matrix4& trans, const Matrix4& uv_trans)
 {
 	if (m_AttribTable.empty())
 	{
 		THROW_CUSEXCEPTION("OgreMesh::CombineMesh: m_AttribTable is empty");
 	}
 	D3DXATTRIBUTERANGE& rang = m_AttribTable.back();
-	AppendToAttrib(rang, other, AttribId, trans);
+	AppendToAttrib(rang, other, AttribId, trans, uv_trans);
 
 	rang.FaceCount += other->m_AttribTable[AttribId].FaceCount;
 	rang.VertexCount += other->m_AttribTable[AttribId].VertexCount;
 	SetAttributeTable(&m_AttribTable[0], m_AttribTable.size());
 }
 
-const D3DXATTRIBUTERANGE& OgreMesh::AppendToAttrib(const D3DXATTRIBUTERANGE& rang, OgreMesh* other, DWORD AttribId, const Matrix4& trans)
+const D3DXATTRIBUTERANGE& OgreMesh::AppendToAttrib(const D3DXATTRIBUTERANGE& rang, OgreMesh* other, DWORD AttribId, const Matrix4& trans, const Matrix4& uv_trans)
 {
 	if (rang.VertexStart + rang.VertexCount + other->m_AttribTable[AttribId].VertexCount > GetNumVertices()
 		|| rang.FaceStart + rang.FaceCount + other->m_AttribTable[AttribId].FaceCount > GetNumFaces())
@@ -1614,7 +1614,7 @@ const D3DXATTRIBUTERANGE& OgreMesh::AppendToAttrib(const D3DXATTRIBUTERANGE& ran
 		{
 			if (m_VertexElems.elems[D3DDECLUSAGE_TEXCOORD][j].Type != D3DDECLTYPE_UNUSED)
 			{
-				m_VertexElems.SetTexcoord(pVertex, other->m_VertexElems.GetTexcoord(pOtherVertex, j), j);
+				m_VertexElems.SetTexcoord(pVertex, other->m_VertexElems.GetTexcoord(pOtherVertex, j).transformCoord(uv_trans), j);
 			}
 		}
 	}
