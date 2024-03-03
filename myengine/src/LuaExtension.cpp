@@ -115,10 +115,10 @@ static void texture2d_fill_color(my::Texture2D* self, const RECT* pRect, D3DCOLO
 	V(my::D3DContext::getSingleton().m_d3dDevice->ColorFill(surf, pRect, color));
 }
 
-static void texture2d_stretch_rect(my::Texture2D* self, const RECT* pDestRect, my::Texture2D* pSourceTexture, const RECT* pSourceRect, D3DTEXTUREFILTERTYPE Filter)
+static void texture2d_load_from_texture(my::Texture2D* self, const RECT* pDestRect, my::Texture2D* pSourceTexture, const RECT* pSourceRect, DWORD Filter)
 {
 	HRESULT hr;
-	hr = my::D3DContext::getSingleton().m_d3dDevice->StretchRect(pSourceTexture->GetSurfaceLevel(0), pSourceRect, self->GetSurfaceLevel(0), pDestRect, Filter);
+	hr = D3DXLoadSurfaceFromSurface(self->GetSurfaceLevel(0), NULL, pDestRect, pSourceTexture->GetSurfaceLevel(0), NULL, pSourceRect, Filter, 0);
 	if (FAILED(hr))
 	{
 		THROW_D3DEXCEPTION(hr);
@@ -1712,7 +1712,10 @@ void LuaContext::Init(void)
 				value("D3DFMT_FROM_FILE", D3DFMT_FROM_FILE),
 				//value("D3DFMT_R8G8B8", D3DFMT_R8G8B8),
 				value("D3DFMT_A8R8G8B8", D3DFMT_A8R8G8B8),
-				value("D3DFMT_X8R8G8B8", D3DFMT_X8R8G8B8)
+				value("D3DFMT_X8R8G8B8", D3DFMT_X8R8G8B8),
+				value("D3DFMT_DXT1", D3DFMT_DXT1),
+				value("D3DFMT_DXT3", D3DFMT_DXT3),
+				value("D3DFMT_DXT5", D3DFMT_DXT5)
 			]
 			.def("GenerateMipSubLevels", &basetexture_generate_mip_sub_levels)
 			.def("GetLevelDesc", &my::BaseTexture::GetLevelDesc)
@@ -1751,11 +1754,13 @@ void LuaContext::Init(void)
 				value("D3DPOOL_SYSTEMMEM", D3DPOOL_MANAGED),
 				value("D3DPOOL_SCRATCH", D3DPOOL_SCRATCH)
 			]
-			.enum_("D3DTEXTUREFILTERTYPE")
+			.enum_("D3DXFILTER")
 			[
-				value("D3DTEXF_NONE", D3DTEXF_NONE),
-				value("D3DTEXF_POINT", D3DTEXF_POINT),
-				value("D3DTEXF_LINEAR", D3DTEXF_LINEAR)
+				value("D3DX_FILTER_NONE", D3DX_FILTER_NONE),
+				value("D3DX_FILTER_POINT", D3DX_FILTER_POINT),
+				value("D3DX_FILTER_LINEAR", D3DX_FILTER_LINEAR),
+				value("D3DX_FILTER_TRIANGLE", D3DX_FILTER_TRIANGLE),
+				value("D3DX_FILTER_DITHER", D3DX_FILTER_DITHER)
 			]
 
 		, class_<my::Texture2D, my::BaseTexture, boost::shared_ptr<my::DeviceResourceBase> >("Texture2D")
@@ -1766,7 +1771,7 @@ void LuaContext::Init(void)
 			.def("CreateTextureFromFile", &texture2d_create_texture_from_file)
 			.def("SetAsRenderTarget", &texture2d_set_as_render_target)
 			.def("FillColor", &texture2d_fill_color)
-			.def("StretchRect", &texture2d_stretch_rect)
+			.def("LoadFromTexture", &texture2d_load_from_texture)
 
 		, class_<my::CubeTexture, my::BaseTexture, boost::shared_ptr<my::DeviceResourceBase> >("CubeTexture")
 			.def(constructor<>())
