@@ -83,18 +83,15 @@ void Sprite::SetWorldViewRH(const Matrix4 & World, const Matrix4 & View)
 
 bool RectAssignmentNode::AssignTopRect(const CSize & size, CRect & outRect)
 {
-	_ASSERT(size.cx <= m_rect.Width());
-	_ASSERT(size.cy < m_rect.Height());
-
-	int y = m_rect.top + size.cy;
-	CRect rectUp(m_rect.left, m_rect.top, m_rect.right, y);
-	CRect rectDown(m_rect.left, y, m_rect.right, m_rect.bottom);
+	_ASSERT(size.cx <= Width());
+	_ASSERT(size.cy < Height());
 
 	_ASSERT(NULL == m_lchild);
 	_ASSERT(NULL == m_rchild);
 
-	m_lchild.reset(new RectAssignmentNode(rectUp));
-	m_rchild.reset(new RectAssignmentNode(rectDown));
+	int y = top + size.cy;
+	m_lchild.reset(new RectAssignmentNode(left, top, right, y));
+	m_rchild.reset(new RectAssignmentNode(left, y, right, bottom));
 	bool ret = m_lchild->AssignRect(size, outRect);
 	_ASSERT(ret);
 
@@ -103,18 +100,15 @@ bool RectAssignmentNode::AssignTopRect(const CSize & size, CRect & outRect)
 
 bool RectAssignmentNode::AssignLeftRect(const CSize & size, CRect & outRect)
 {
-	_ASSERT(size.cx < m_rect.Width());
-	_ASSERT(size.cy <= m_rect.Height());
-
-	int x = m_rect.left + size.cx;
-	CRect rectLeft(m_rect.left, m_rect.top, x, m_rect.bottom);
-	CRect rectRight(x, m_rect.top, m_rect.right, m_rect.bottom);
+	_ASSERT(size.cx < Width());
+	_ASSERT(size.cy <= Height());
 
 	_ASSERT(NULL == m_lchild);
 	_ASSERT(NULL == m_rchild);
 
-	m_lchild.reset(new RectAssignmentNode(rectLeft));
-	m_rchild.reset(new RectAssignmentNode(rectRight));
+	int x = left + size.cx;
+	m_lchild.reset(new RectAssignmentNode(left, top, x, bottom));
+	m_rchild.reset(new RectAssignmentNode(x, top, right, bottom));
 	bool ret = m_lchild->AssignRect(size, outRect);
 	_ASSERT(ret);
 
@@ -140,14 +134,14 @@ bool RectAssignmentNode::AssignRect(const CSize & size, CRect & outRect)
 		return true;
 	}
 
-	int width = m_rect.Width();
-	int height = m_rect.Height();
+	int width = Width();
+	int height = Height();
 	if(width == size.cx)
 	{
 		if(height == size.cy)
 		{
 			m_used = true;
-			outRect = m_rect;
+			outRect = *this;
 			return true;
 		}
 		else if(height > size.cy)
@@ -227,7 +221,7 @@ void Font::SetScale(const Vector2 & Scale)
 		THROW_CUSEXCEPTION("FT_Request_Size failed");
 	}
 
-	m_textureRectRoot.reset(new RectAssignmentNode(CRect(0, 0, m_textureDesc.Width, m_textureDesc.Height)));
+	m_textureRectRoot.reset(new RectAssignmentNode(0, 0, m_textureDesc.Width, m_textureDesc.Height));
 
 	m_characterMap.clear();
 }
@@ -336,7 +330,7 @@ void Font::AssignTextureRect(const CSize & size, CRect & outRect)
 
 		CreateFontTexture(m_textureDesc.Width * 2, m_textureDesc.Height * 2);
 
-		m_textureRectRoot.reset(new RectAssignmentNode(CRect(0, 0, m_textureDesc.Width, m_textureDesc.Height)));
+		m_textureRectRoot.reset(new RectAssignmentNode(0, 0, m_textureDesc.Width, m_textureDesc.Height));
 
 		if(!m_textureRectRoot->AssignRect(size, outRect))
 		{

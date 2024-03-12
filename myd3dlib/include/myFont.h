@@ -51,21 +51,19 @@ namespace my
 
 	typedef boost::shared_ptr<RectAssignmentNode> RectAssignmentNodePtr;
 
-	class RectAssignmentNode
+	class RectAssignmentNode : public CRect
 	{
 	public:
 		bool m_used;
-
-		CRect m_rect;
 
 		RectAssignmentNodePtr m_lchild;
 
 		RectAssignmentNodePtr m_rchild;
 
 	public:
-		RectAssignmentNode(const CRect & rect)
-			: m_used(false)
-			, m_rect(rect)
+		RectAssignmentNode(int l, int t, int r, int b)
+			: CRect(l, t, r, b)
+			, m_used(false)
 		{
 		}
 
