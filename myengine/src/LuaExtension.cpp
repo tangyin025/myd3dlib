@@ -1703,6 +1703,7 @@ void LuaContext::Init(void)
 			.def(constructor<tagPOINT, tagSIZE>())
 			.property("Width", &CRect::Width)
 			.property("Height", &CRect::Height)
+			.def("SetRect", (void (CRect::*)(int, int, int, int))& CRect::SetRect)
 
 		, class_<my::DeviceResourceBase, boost::shared_ptr<my::DeviceResourceBase> >("DeviceResourceBase")
 			.def_readonly("Key", &my::DeviceResourceBase::m_Key)
