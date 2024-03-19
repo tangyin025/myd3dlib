@@ -43,7 +43,7 @@ rate_run.Child0=AnimationNodeSequence("run",1.0,true,"move")
 local node_run=AnimationNodeBlendList("node_run",2)
 node_run:SetChildAdopt(0,node_walk)
 node_run.Child1=rate_run
-local node_run_slot=AnimationNodeSlot("node_run_slot")
+local node_run_slot=AnimationNodeSlot("node_run_slot",2)
 node_run_slot:SetChildAdopt(0,node_run)
 
 -- 加载动画资源

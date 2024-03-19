@@ -15,7 +15,7 @@ act_jump:AddTrack(track)
 
 act_sound=Action(9999)
 local track=ActionTrackSound()
-track:AddKeyFrame(0,"sound/drumloop.wav",true,1,5)
+track:AddKeyFrame(0,"sound/drumloop.wav",0,999,true,1,5)
 act_sound:AddTrack(track)
 
 act_tuowei=Action(9999)
