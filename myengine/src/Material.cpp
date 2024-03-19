@@ -150,6 +150,7 @@ void Material::save(Archive & ar, const unsigned int version) const
 	ar << BOOST_SERIALIZATION_NVP(m_CullMode);
 	ar << BOOST_SERIALIZATION_NVP(m_ZEnable);
 	ar << BOOST_SERIALIZATION_NVP(m_ZWriteEnable);
+	ar << BOOST_SERIALIZATION_NVP(m_ZFunc);
 	ar << BOOST_SERIALIZATION_NVP(m_BlendMode);
 	ar << BOOST_SERIALIZATION_NVP(m_ParameterList);
 }
@@ -162,6 +163,7 @@ void Material::load(Archive & ar, const unsigned int version)
 	ar >> BOOST_SERIALIZATION_NVP(m_CullMode);
 	ar >> BOOST_SERIALIZATION_NVP(m_ZEnable);
 	ar >> BOOST_SERIALIZATION_NVP(m_ZWriteEnable);
+	ar >> BOOST_SERIALIZATION_NVP(m_ZFunc);
 	ar >> BOOST_SERIALIZATION_NVP(m_BlendMode);
 	ar >> BOOST_SERIALIZATION_NVP(m_ParameterList);
 }
@@ -172,6 +174,7 @@ bool Material::operator == (const Material & rhs) const
 		&& m_CullMode == rhs.m_CullMode
 		&& m_ZEnable == rhs.m_ZEnable
 		&& m_ZWriteEnable == rhs.m_ZWriteEnable
+		&& m_ZFunc == rhs.m_ZFunc
 		&& m_BlendMode == rhs.m_BlendMode
 		&& m_ParameterList.size() == rhs.m_ParameterList.size())
 	{
@@ -229,10 +232,12 @@ void Material::ReleaseResource(void)
 
 void Material::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, LPARAM lparam, RenderPipeline::IRenderContext * pRC, Actor * actor)
 {
+	// https://learn.microsoft.com/en-us/windows/win32/direct3d9/accurately-profiling-direct3d-api-calls#appendix
 	HRESULT hr;
 	V(pd3dDevice->SetRenderState(D3DRS_CULLMODE, m_CullMode));
 	V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, m_ZEnable ? D3DZB_TRUE : D3DZB_FALSE));
 	V(pd3dDevice->SetRenderState(D3DRS_ZWRITEENABLE, m_ZWriteEnable));
+	V(pd3dDevice->SetRenderState(D3DRS_ZFUNC, m_ZFunc));
 	switch (m_BlendMode)
 	{
 	case BlendModeAlpha:

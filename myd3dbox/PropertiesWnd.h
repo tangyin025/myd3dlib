@@ -136,6 +136,7 @@ public:
 		PropertyMaterialCullMode,
 		PropertyMaterialZEnable,
 		PropertyMaterialZWriteEnable,
+		PropertyMaterialZFunc,
 		PropertyMaterialBlendMode,
 		PropertyMaterialParameterList,
 		PropertyMaterialParameterFloat,

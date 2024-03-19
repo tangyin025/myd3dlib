@@ -2682,11 +2682,22 @@ void LuaContext::Init(void)
 
 	module(m_State)[
 		class_<Material, boost::shared_ptr<Material> >("Material")
-			.enum_("CullMode")
+			.enum_("D3DCULL")
 			[
-				value("CullModeNone", D3DCULL_NONE),
-				value("CullModeCW", D3DCULL_CW),
-				value("CullModeCCW", D3DCULL_CCW)
+				value("D3DCULL_NONE", D3DCULL_NONE),
+				value("D3DCULL_CW", D3DCULL_CW),
+				value("D3DCULL_CCW", D3DCULL_CCW)
+			]
+			.enum_("D3DCMPFUNC")
+			[
+				value("D3DCMP_NEVER", D3DCMP_NEVER),
+				value("D3DCMP_LESS", D3DCMP_LESS),
+				value("D3DCMP_EQUAL", D3DCMP_EQUAL),
+				value("D3DCMP_LESSEQUAL", D3DCMP_LESSEQUAL),
+				value("D3DCMP_GREATER", D3DCMP_GREATER),
+				value("D3DCMP_NOTEQUAL", D3DCMP_NOTEQUAL),
+				value("D3DCMP_GREATEREQUAL", D3DCMP_GREATEREQUAL),
+				value("D3DCMP_ALWAYS", D3DCMP_ALWAYS)
 			]
 			.enum_("BlendMode")
 			[
@@ -2712,6 +2723,7 @@ void LuaContext::Init(void)
 			.def_readwrite("CullMode", &Material::m_CullMode)
 			.def_readwrite("ZEnable", &Material::m_ZEnable)
 			.def_readwrite("ZWriteEnable", &Material::m_ZWriteEnable)
+			.def_readwrite("ZFunc", &Material::m_ZFunc)
 			.def_readwrite("BlendMode", &Material::m_BlendMode)
 			.def("Clone", &Material::Clone)
 			.def("ParseShaderParameters", &Material::ParseShaderParameters)

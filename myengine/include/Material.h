@@ -338,6 +338,8 @@ public:
 
 	bool m_ZWriteEnable;
 
+	DWORD m_ZFunc;
+
 	DWORD m_BlendMode;
 
 	typedef std::vector<MaterialParameterPtr> MaterialParameterPtrList;
@@ -350,6 +352,7 @@ public:
 		, m_CullMode(D3DCULL_CW)
 		, m_ZEnable(true)
 		, m_ZWriteEnable(true)
+		, m_ZFunc(D3DCMP_GREATEREQUAL)
 		, m_BlendMode(BlendModeNone)
 	{
 	}

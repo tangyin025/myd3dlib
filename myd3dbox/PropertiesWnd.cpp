@@ -67,6 +67,18 @@ static const LPCTSTR g_CullModeDesc[] =
 	_T("CCW")
 };
 
+static const LPCTSTR g_ZFuncDesc[] =
+{
+	_T("NEVER"),
+	_T("LESS"),
+	_T("EQUAL"),
+	_T("LESSEQUAL"),
+	_T("GREATER"),
+	_T("NOTEQUAL"),
+	_T("GREATEREQUAL"),
+	_T("ALWAYS")
+};
+
 static const LPCTSTR g_BlendModeDesc[] =
 {
 	_T("None"),
@@ -507,9 +519,10 @@ void CPropertiesWnd::UpdatePropertiesMaterial(CMFCPropertyGridProperty * pMateri
 	pMaterial->GetSubItem(2)->SetValue((_variant_t)g_CullModeDesc[mtl->m_CullMode - 1]);
 	pMaterial->GetSubItem(3)->SetValue((_variant_t)(VARIANT_BOOL)mtl->m_ZEnable);
 	pMaterial->GetSubItem(4)->SetValue((_variant_t)(VARIANT_BOOL)mtl->m_ZWriteEnable);
-	pMaterial->GetSubItem(5)->SetValue((_variant_t)g_BlendModeDesc[mtl->m_BlendMode]);
+	pMaterial->GetSubItem(5)->SetValue((_variant_t)g_ZFuncDesc[mtl->m_ZFunc - 1]);
+	pMaterial->GetSubItem(6)->SetValue((_variant_t)g_BlendModeDesc[mtl->m_BlendMode]);
 
-	CMFCPropertyGridProperty * pParameterList = pMaterial->GetSubItem(6);
+	CMFCPropertyGridProperty * pParameterList = pMaterial->GetSubItem(7);
 	for (unsigned int i = 0; i < mtl->m_ParameterList.size(); i++)
 	{
 		if ((unsigned int)pParameterList->GetSubItemsCount() <= i)
@@ -1581,6 +1594,12 @@ void CPropertiesWnd::CreatePropertiesMaterial(CMFCPropertyGridProperty * pParent
 	pMaterial->AddSubItem(pZEnable);
 	CCheckBoxProp * pZWriteEnable = new CCheckBoxProp(_T("ZWriteEnable"), mtl->m_ZWriteEnable, NULL, PropertyMaterialZWriteEnable);
 	pMaterial->AddSubItem(pZWriteEnable);
+	CComboProp* pZFunc = new CComboProp(_T("ZFunc"), (_variant_t)g_ZFuncDesc[mtl->m_ZFunc - 1], NULL, PropertyMaterialZFunc);
+	for (unsigned int i = 0; i < _countof(g_ZFuncDesc); i++)
+	{
+		pZFunc->AddOption(g_ZFuncDesc[i], TRUE);
+	}
+	pMaterial->AddSubItem(pZFunc);
 	CComboProp * pBlendMode = new CComboProp(_T("BlendMode"), (_variant_t)g_BlendModeDesc[mtl->m_BlendMode], NULL, PropertyMaterialBlendMode);
 	for (unsigned int i = 0; i < _countof(g_BlendModeDesc); i++)
 	{
@@ -3740,6 +3759,16 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	{
 		Material * material = (Material *)pProp->GetParent()->GetValue().pulVal;
 		material->m_ZWriteEnable = pProp->GetValue().boolVal;
+		my::EventArg arg;
+		pFrame->m_EventAttributeChanged(&arg);
+		break;
+	}
+	case PropertyMaterialZFunc:
+	{
+		Material * material = (Material *)pProp->GetParent()->GetValue().pulVal;
+		int i = (DYNAMIC_DOWNCAST(CComboProp, pProp))->m_iSelIndex;
+		ASSERT(i >= 0 && i < _countof(g_ZFuncDesc));
+		material->m_ZFunc = i + 1;
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
