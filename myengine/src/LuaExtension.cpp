@@ -30,7 +30,6 @@ extern "C" {
 #include "Animator.h"
 #include "Actor.h"
 #include "Terrain.h"
-#include "StaticMesh.h"
 #include "StaticEmitter.h"
 #include "Controller.h"
 #include "NavigationSerialization.h"
@@ -2747,7 +2746,6 @@ void LuaContext::Init(void)
 				value("ComponentTypeActor", Component::ComponentTypeActor),
 				value("ComponentTypeController", Component::ComponentTypeController),
 				value("ComponentTypeMesh", Component::ComponentTypeMesh),
-				value("ComponentTypeStaticMesh", Component::ComponentTypeStaticMesh),
 				value("ComponentTypeCloth", Component::ComponentTypeCloth),
 				value("ComponentTypeStaticEmitter", Component::ComponentTypeStaticEmitter),
 				value("ComponentTypeSphericalEmitter", Component::ComponentTypeSphericalEmitter),
@@ -2838,12 +2836,6 @@ void LuaContext::Init(void)
 			.def_readonly("PxMeshPath", &MeshComponent::m_PxMeshPath)
 			.def("CreateTriangleMeshShape", &MeshComponent::CreateTriangleMeshShape)
 			.def("CreateConvexMeshShape", &MeshComponent::CreateConvexMeshShape)
-
-		, class_<StaticMesh, bases<MeshComponent, my::AABB>, boost::shared_ptr<Component> >("StaticMesh")
-			.def(constructor<const char *, const my::AABB &, float>())
-			.def_readonly("ChunkWidth", &StaticMesh::m_ChunkWidth)
-			.def_readwrite("ChunkLodScale", &StaticMesh::m_ChunkLodScale)
-			.def("AddChunk", &StaticMesh::AddChunk)
 
 		, class_<ClothComponent, Component, boost::shared_ptr<Component> >("ClothComponent")
 			.def(constructor<const char *>())

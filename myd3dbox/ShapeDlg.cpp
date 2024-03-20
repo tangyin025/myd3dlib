@@ -117,21 +117,21 @@ void CShapeDlg::OnOK()
 		m_cmp->SetQueryFilterWord0(theApp.default_physx_shape_filterword0);
 		break;
 	case physx::PxGeometryType::eCONVEXMESH:
-		if (m_cmp->GetComponentType() == Component::ComponentTypeMesh || m_cmp->GetComponentType() == Component::ComponentTypeStaticMesh)
+		if (m_cmp->GetComponentType() == Component::ComponentTypeMesh)
 		{
 			MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>(m_cmp);
 			mesh_cmp->CreateConvexMeshShape(
-				theApp.LoadMesh(mesh_cmp->m_MeshPath.c_str()).get(), m_cmp->GetComponentType() == Component::ComponentTypeMesh ? mesh_cmp->m_MeshSubMeshId : -1, ts2ms((LPCTSTR)m_AssetPath).c_str(), m_InflateConvex != FALSE);
+				theApp.LoadMesh(mesh_cmp->m_MeshPath.c_str()).get(), mesh_cmp->m_MeshSubMeshId, ts2ms((LPCTSTR)m_AssetPath).c_str(), m_InflateConvex != FALSE);
 			mesh_cmp->SetSimulationFilterWord0(theApp.default_physx_shape_filterword0);
 			mesh_cmp->SetQueryFilterWord0(theApp.default_physx_shape_filterword0);
 		}
 		break;
 	case physx::PxGeometryType::eTRIANGLEMESH:
-		if (m_cmp->GetComponentType() == Component::ComponentTypeMesh || m_cmp->GetComponentType() == Component::ComponentTypeStaticMesh)
+		if (m_cmp->GetComponentType() == Component::ComponentTypeMesh)
 		{
 			MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>(m_cmp);
 			mesh_cmp->CreateTriangleMeshShape(
-				theApp.LoadMesh(mesh_cmp->m_MeshPath.c_str()).get(), m_cmp->GetComponentType() == Component::ComponentTypeMesh ? mesh_cmp->m_MeshSubMeshId : -1, ts2ms((LPCTSTR)m_AssetPath).c_str());
+				theApp.LoadMesh(mesh_cmp->m_MeshPath.c_str()).get(), mesh_cmp->m_MeshSubMeshId, ts2ms((LPCTSTR)m_AssetPath).c_str());
 			mesh_cmp->SetSimulationFilterWord0(theApp.default_physx_shape_filterword0);
 			mesh_cmp->SetQueryFilterWord0(theApp.default_physx_shape_filterword0);
 		}

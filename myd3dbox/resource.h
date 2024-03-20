@@ -83,11 +83,10 @@
 #define IDC_CHECK7                      1036
 #define IDC_CHECK8                      1037
 #define IDC_CHECK9                      1038
-#define IDC_CHECK10                     1039
-#define IDC_BUTTON1                     1040
-#define IDC_BUTTON2                     1041
-#define IDC_BUTTON3                     1042
-#define IDC_EDIT21                      1043
+#define IDC_BUTTON1                     1039
+#define IDC_BUTTON2                     1040
+#define IDC_BUTTON3                     1041
+#define IDC_EDIT21                      1042
 #define ID_CREATE_COMPONENT             32771
 #define ID_COMPONENT_MESH               32772
 #define ID_COMPONENT_STATICEMITTER      32773
@@ -180,7 +179,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        325
 #define _APS_NEXT_COMMAND_VALUE         32856
-#define _APS_NEXT_CONTROL_VALUE         1044
+#define _APS_NEXT_CONTROL_VALUE         1043
 #define _APS_NEXT_SYMED_VALUE           312
 #endif
 #endif

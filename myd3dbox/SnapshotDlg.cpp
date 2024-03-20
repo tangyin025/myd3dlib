@@ -88,7 +88,6 @@ void CSnapshotDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Check(pDX, IDC_CHECK7, m_ComponentTypes[6]);
 	DDX_Check(pDX, IDC_CHECK8, m_ComponentTypes[7]);
 	DDX_Check(pDX, IDC_CHECK9, m_ComponentTypes[8]);
-	DDX_Check(pDX, IDC_CHECK10, m_ComponentTypes[9]);
 
 	if (pDX->m_bSaveAndValidate)
 	{

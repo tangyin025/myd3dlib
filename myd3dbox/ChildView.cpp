@@ -12,7 +12,6 @@
 #include <Recast.h>
 #include <RecastDebugDraw.h>
 #include "StaticEmitter.h"
-#include "StaticMesh.h"
 #include <boost/scope_exit.hpp>
 #include <boost/range/algorithm/find_if.hpp>
 #include "PlayerAgent.h"
@@ -493,27 +492,6 @@ void CChildView::RenderSelectedComponent(IDirect3DDevice9 * pd3dDevice, Componen
 		}
 		break;
 
-	case Component::ComponentTypeStaticMesh:
-		{
-			MeshComponent* mesh_cmp = dynamic_cast<MeshComponent*>(cmp);
-			if (mesh_cmp->m_Mesh)
-			{
-				D3DXMACRO macro[2] = { { "MESH_TYPE", "0" }, { 0 } };
-				my::Effect* shader = theApp.QueryShader(macro, "shader/mtl_simplecolor.fx", RenderPipeline::PassTypeToMask(RenderPipeline::PassTypeOpaque));
-				if (shader)
-				{
-					shader->SetMatrix(shader->GetParameterByName(NULL, "g_World"), mesh_cmp->m_Actor->m_World);
-					shader->SetVector(shader->GetParameterByName(NULL, "g_MeshColor"), (my::Vector4&)D3DXCOLOR(color));
-					shader->Begin(D3DXFX_DONOTSAVESTATE | D3DXFX_DONOTSAVESAMPLERSTATE | D3DXFX_DONOTSAVESHADERSTATE);
-					shader->BeginPass(RenderPipeline::PassTypeOpaque);
-					mesh_cmp->m_Mesh->DrawSubset(pFrame->m_selchunkid.x);
-					shader->EndPass();
-					shader->End();
-				}
-			}
-		}
-		break;
-
 	case Component::ComponentTypeCloth:
 		{
 			ClothComponent* cloth_cmp = dynamic_cast<ClothComponent*>(cmp);
@@ -823,54 +801,6 @@ bool CChildView::OverlapTestFrustumAndComponent(const my::Frustum & frustum, con
 			}
 		}
 		break;
-	
-	case Component::ComponentTypeStaticMesh:
-		{
-			StaticMesh* static_mesh_cmp = dynamic_cast<StaticMesh*>(cmp);
-			struct Callback : public my::OctNode::QueryCallback
-			{
-				CChildView* pView;
-				const my::Frustum& frustum;
-				const my::Frustum& local_ftm;
-				MeshComponent* mesh_cmp;
-				bool ret;
-				Callback(CChildView* _pView, const my::Frustum& _frustum, const my::Frustum& _local_ftm, MeshComponent* _mesh_cmp)
-					: pView(_pView)
-					, frustum(_frustum)
-					, local_ftm(_local_ftm)
-					, mesh_cmp(_mesh_cmp)
-					, ret(false)
-				{
-				}
-				virtual bool OnQueryEntity(my::OctEntity* oct_entity, const my::AABB& aabb, my::IntersectionTests::IntersectionType)
-				{
-					StaticMeshChunk* chunk = dynamic_cast<StaticMeshChunk*>(oct_entity);
-					if (mesh_cmp->m_Mesh && chunk->m_Lod >= 0 && chunk->m_Lod < StaticMesh::LastLod)
-					{
-						ret = my::Mesh::FrustumTest(local_ftm,
-							mesh_cmp->m_Mesh->LockVertexBuffer(D3DLOCK_READONLY),
-							mesh_cmp->m_Mesh->GetNumVertices(),
-							mesh_cmp->m_Mesh->GetNumBytesPerVertex(),
-							mesh_cmp->m_Mesh->LockIndexBuffer(D3DLOCK_READONLY),
-							!(mesh_cmp->m_Mesh->GetOptions() & D3DXMESH_32BIT),
-							mesh_cmp->m_Mesh->m_AttribTable[chunk->m_SubMeshId].FaceStart,
-							mesh_cmp->m_Mesh->m_AttribTable[chunk->m_SubMeshId].FaceCount,
-							mesh_cmp->m_Mesh->m_VertexElems);
-						mesh_cmp->m_Mesh->UnlockVertexBuffer();
-						mesh_cmp->m_Mesh->UnlockIndexBuffer();
-						if (ret)
-						{
-							return false;
-						}
-					}
-					return true;
-				}
-			};
-			Callback cb(this, frustum, local_ftm, static_mesh_cmp);
-			static_mesh_cmp->QueryEntity(local_ftm, &cb);
-			return cb.ret;
-		}
-		break;
 
 	case Component::ComponentTypeStaticEmitter:
 		//{
@@ -1135,62 +1065,6 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, const 
 				raychunkid.SetPoint(0, 0);
 				rayinstid = 0;
 				return ret;
-			}
-		}
-		break;
-
-	case Component::ComponentTypeStaticMesh:
-		{
-			StaticMesh* static_mesh_cmp = dynamic_cast<StaticMesh*>(cmp);
-			struct Callback : public my::OctNode::QueryCallback
-			{
-				CChildView* pView;
-				const my::Ray& ray;
-				const my::Ray& local_ray;
-				MeshComponent* mesh_cmp;
-				my::RayResult ret;
-				CPoint raychunkid;
-				Callback(CChildView* _pView, const my::Ray& _ray, const my::Ray& _local_ray, MeshComponent* _mesh_cmp)
-					: pView(_pView)
-					, ray(_ray)
-					, local_ray(_local_ray)
-					, mesh_cmp(_mesh_cmp)
-					, ret(false, FLT_MAX)
-					, raychunkid(0, 0)
-				{
-				}
-				virtual bool OnQueryEntity(my::OctEntity* oct_entity, const my::AABB& aabb, my::IntersectionTests::IntersectionType)
-				{
-					StaticMeshChunk* chunk = dynamic_cast<StaticMeshChunk*>(oct_entity);
-					if (mesh_cmp->m_Mesh && chunk->m_Lod >= 0 && chunk->m_Lod < StaticMesh::LastLod)
-					{
-						my::RayResult result = my::Mesh::RayTest(local_ray,
-							mesh_cmp->m_Mesh->LockVertexBuffer(D3DLOCK_READONLY),
-							mesh_cmp->m_Mesh->GetNumVertices(),
-							mesh_cmp->m_Mesh->GetNumBytesPerVertex(),
-							mesh_cmp->m_Mesh->LockIndexBuffer(D3DLOCK_READONLY),
-							!(mesh_cmp->m_Mesh->GetOptions() & D3DXMESH_32BIT),
-							mesh_cmp->m_Mesh->m_AttribTable[chunk->m_SubMeshId].FaceStart,
-							mesh_cmp->m_Mesh->m_AttribTable[chunk->m_SubMeshId].FaceCount,
-							mesh_cmp->m_Mesh->m_VertexElems);
-						mesh_cmp->m_Mesh->UnlockVertexBuffer();
-						mesh_cmp->m_Mesh->UnlockIndexBuffer();
-						if (result.first && result.second < ret.second)
-						{
-							ret = result;
-							raychunkid.SetPoint(chunk->m_SubMeshId, 0);
-						}
-					}
-					return true;
-				}
-			};
-			Callback cb(this, ray, local_ray, static_mesh_cmp);
-			static_mesh_cmp->QueryEntity(local_ray, &cb);
-			if (cb.ret.first)
-			{
-				raychunkid = cb.raychunkid;
-				rayinstid = 0;
-				return cb.ret;
 			}
 		}
 		break;
@@ -2704,23 +2578,6 @@ void CChildView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 								chunk_iter = static_emit_cmp->m_Chunks.begin();
 							}
 							my::AABB chunk_box = chunk_iter->second.m_OctAabb->transform(static_emit_cmp->m_Actor->m_World);
-							float chunk_radius = chunk_box.Extent().magnitude() * 0.5f;
-							if ((model_view_camera->m_LookAt - chunk_box.Center()).magnitudeSq() > EPSILON_E6 * EPSILON_E6
-								|| fabs(model_view_camera->m_Distance - chunk_radius / asin(model_view_camera->m_Fov * 0.5f)) > EPSILON_E6)
-							{
-								focus_box = chunk_box;
-							}
-							break;
-						}
-						else if ((*cmp_iter)->GetComponentType() == Component::ComponentTypeStaticMesh && cmp_iter->get() == pFrame->m_selcmp)
-						{
-							StaticMesh* static_mesh_cmp = dynamic_cast<StaticMesh*>(cmp_iter->get());
-							StaticMesh::ChunkMap::const_iterator chunk_iter = static_mesh_cmp->m_Chunks.find(pFrame->m_selchunkid.x);
-							if (static_mesh_cmp->m_Chunks.end() == chunk_iter)
-							{
-								chunk_iter = static_mesh_cmp->m_Chunks.begin();
-							}
-							my::AABB chunk_box = chunk_iter->second.m_OctAabb->transform(static_mesh_cmp->m_Actor->m_World);
 							float chunk_radius = chunk_box.Extent().magnitude() * 0.5f;
 							if ((model_view_camera->m_LookAt - chunk_box.Center()).magnitudeSq() > EPSILON_E6 * EPSILON_E6
 								|| fabs(model_view_camera->m_Distance - chunk_radius / asin(model_view_camera->m_Fov * 0.5f)) > EPSILON_E6)

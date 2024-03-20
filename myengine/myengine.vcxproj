@@ -149,7 +149,6 @@
     <ClInclude Include="include\SceneContext.h" />
     <ClInclude Include="include\SoundContext.h" />
     <ClInclude Include="include\StaticEmitter.h" />
-    <ClInclude Include="include\StaticMesh.h" />
     <ClInclude Include="include\Steering.h" />
     <ClInclude Include="include\Terrain.h" />
   </ItemGroup>
@@ -187,7 +186,6 @@
     <ClCompile Include="src\SceneContext.cpp" />
     <ClCompile Include="src\SoundContext.cpp" />
     <ClCompile Include="src\StaticEmitter.cpp" />
-    <ClCompile Include="src\StaticMesh.cpp" />
     <ClCompile Include="src\Steering.cpp" />
     <ClCompile Include="src\Terrain.cpp" />
   </ItemGroup>

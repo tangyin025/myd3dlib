@@ -9,7 +9,6 @@
 #include "ChildView.h"
 #include "TerrainDlg.h"
 #include "StaticEmitterDlg.h"
-#include "StaticMesh.h"
 #include "Material.h"
 #include "Controller.h"
 #include <boost/archive/polymorphic_iarchive.hpp>
@@ -1482,16 +1481,12 @@ void CMainFrame::OnComponentMesh()
 	DEFINE_XML_NODE_SIMPLE(mesh, root);
 	DEFINE_XML_NODE_SIMPLE(submeshes, mesh);
 	DEFINE_XML_NODE_SIMPLE(submesh, submeshes);
+	DEFINE_XML_NODE_SIMPLE(submeshnames, mesh);
+	DEFINE_XML_NODE_SIMPLE(submeshname, submeshnames);
 	rapidxml::xml_node<char>* node_sharedgeometry = node_mesh->first_node("sharedgeometry");
 	if (node_sharedgeometry)
 	{
-		DEFINE_XML_NODE_SIMPLE(submeshnames, mesh);
-		rapidxml::xml_node<char>* node_submeshname = node_submeshnames->first_node("submeshname");
-		if (!node_submeshname)
-		{
-			DEFINE_XML_NODE(node_submeshname, node_submeshnames, submesh);
-		}
-		for (; node_submesh != NULL && node_submeshname != NULL; node_submesh = node_submesh->next_sibling(), node_submeshname = node_submeshname->next_sibling())
+		for (; node_submeshname != NULL; node_submeshname = node_submeshname->next_sibling())
 		{
 			DEFINE_XML_ATTRIBUTE_SIMPLE(name, submeshname);
 			DEFINE_XML_ATTRIBUTE_INT_SIMPLE(index, submeshname);
@@ -1518,10 +1513,19 @@ void CMainFrame::OnComponentMesh()
 	}
 	else
 	{
-		std::vector<my::AABB> aabb_list;
-		DEFINE_XML_NODE(node_submesh, node_submeshes, submesh);
-		for (; node_submesh != NULL; node_submesh = node_submesh->next_sibling())
+		for (; node_submesh != NULL && node_submeshname != NULL; node_submesh = node_submesh->next_sibling(), node_submeshname = node_submeshname->next_sibling())
 		{
+			DEFINE_XML_ATTRIBUTE_SIMPLE(name, submeshname);
+			DEFINE_XML_ATTRIBUTE_INT_SIMPLE(index, submeshname);
+			MeshComponentPtr mesh_cmp(new MeshComponent(my::NamedObject::MakeUniqueName((std::string((*actor_iter)->GetName()) + "_" + attr_name->value()).c_str()).c_str()));
+			mesh_cmp->m_MeshPath = path;
+			mesh_cmp->m_MeshSubMeshId = index;
+			MaterialPtr mtl(new Material());
+			mtl->m_Shader = theApp.default_shader;
+			mtl->ParseShaderParameters();
+			mesh_cmp->SetMaterial(mtl);
+			(*actor_iter)->InsertComponent(mesh_cmp);
+
 			my::AABB aabb(my::AABB::Invalid());
 			DEFINE_XML_NODE_SIMPLE(geometry, submesh);
 			DEFINE_XML_NODE_SIMPLE(vertexbuffer, geometry);
@@ -1532,25 +1536,9 @@ void CMainFrame::OnComponentMesh()
 				DEFINE_XML_ATTRIBUTE_FLOAT_SIMPLE(x, position);
 				DEFINE_XML_ATTRIBUTE_FLOAT_SIMPLE(y, position);
 				DEFINE_XML_ATTRIBUTE_FLOAT_SIMPLE(z, position);
-				aabb.unionSelf(my::Vector3(x, y, z));
+				bound.unionSelf(my::Vector3(x, y, z));
 			}
-			bound.unionSelf(aabb);
-			aabb_list.push_back(aabb);
 		}
-
-		StaticMeshPtr mesh_cmp(new StaticMesh(my::NamedObject::MakeUniqueName((std::string((*actor_iter)->GetName()) + "_mesh_cmp").c_str()).c_str(),
-			bound, Actor::MinBlock / (*actor_iter)->m_Scale.x));
-		mesh_cmp->m_MeshPath = path;
-		mesh_cmp->m_ChunkLodScale = 1 / (*actor_iter)->m_Scale.x;
-		for (int i = 0; i < aabb_list.size(); i++)
-		{
-			mesh_cmp->AddChunk(i, aabb_list[i]);
-		}
-		MaterialPtr mtl(new Material());
-		mtl->m_Shader = theApp.default_shader;
-		mtl->ParseShaderParameters();
-		mesh_cmp->SetMaterial(mtl);
-		(*actor_iter)->InsertComponent(mesh_cmp);
 	}
 	(*actor_iter)->m_aabb = bound;
 	(*actor_iter)->UpdateOctNode();
