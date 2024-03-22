@@ -3425,14 +3425,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 				MessageBox(_T("!mesh_cmp || mesh_cmp->m_MeshPath.empty()"));
 				return 0;
 			}
-			if (mesh_cmp->GetComponentType() == Component::ComponentTypeMesh)
-			{
-				dlg.m_AssetPath = ms2ts((mesh_cmp->m_MeshPath + ".pxconvexmesh_" + boost::lexical_cast<std::string>(mesh_cmp->m_MeshSubMeshId)).c_str()).c_str();
-			}
-			else
-			{
-				dlg.m_AssetPath = ms2ts((mesh_cmp->m_MeshPath + ".pxconvexmesh").c_str()).c_str();
-			}
+			dlg.m_AssetPath = ms2ts((mesh_cmp->m_MeshPath + ".pxconvexmesh").c_str()).c_str();
 			break;
 		}
 		case physx::PxGeometryType::eTRIANGLEMESH:
@@ -3443,14 +3436,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 				MessageBox(_T("!mesh_cmp || mesh_cmp->m_MeshPath.empty()"));
 				return 0;
 			}
-			if (mesh_cmp->GetComponentType() == Component::ComponentTypeMesh)
-			{
-				dlg.m_AssetPath = ms2ts((mesh_cmp->m_MeshPath + ".pxtrianglemesh_" + boost::lexical_cast<std::string>(mesh_cmp->m_MeshSubMeshId)).c_str()).c_str();
-			}
-			else
-			{
-				dlg.m_AssetPath = ms2ts((mesh_cmp->m_MeshPath + ".pxtrianglemesh").c_str()).c_str();
-			}
+			dlg.m_AssetPath = ms2ts((mesh_cmp->m_MeshPath + ".pxtrianglemesh").c_str()).c_str();
 			break;
 		}
 		case physx::PxGeometryType::eHEIGHTFIELD:
