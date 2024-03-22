@@ -369,9 +369,9 @@ public:
 
 	virtual void AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos, const my::Vector3 & TargetPos);
 
-	void CreateTriangleMeshShape(my::OgreMesh * mesh, int sub_mesh_id, const char * TriangleMeshPath);
+	void CreateTriangleMeshShape(my::OgreMesh * mesh, const char * TriangleMeshPath);
 
-	void CreateConvexMeshShape(my::OgreMesh * mesh, int sub_mesh_id, const char * ConvexMeshPath, bool bInflateConvex);
+	void CreateConvexMeshShape(my::OgreMesh * mesh, const char * ConvexMeshPath, bool bInflateConvex);
 
 	virtual void SetSimulationFilterWord0(unsigned int filterWord0);
 
@@ -466,7 +466,7 @@ public:
 
 	virtual void OnResetShader(void);
 
-	void CreateClothFromMesh(const char * ClothFabricPath, my::OgreMeshPtr mesh, int sub_mesh_id, const my::Vector3 & gravity);
+	void CreateClothFromMesh(const char * ClothFabricPath, my::OgreMeshPtr mesh, const my::Vector3 & gravity);
 
 	void CreateVirtualParticles(int level);
 

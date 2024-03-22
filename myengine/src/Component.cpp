@@ -534,7 +534,7 @@ void MeshComponent::load(Archive & ar, const unsigned int version)
 	{
 		std::string PxMeshPath;
 		ar >> boost::serialization::make_nvp("m_PxMeshPath", PxMeshPath);
-		CreateTriangleMeshShape(NULL, m_MeshSubMeshId, PxMeshPath.c_str());
+		CreateTriangleMeshShape(NULL, PxMeshPath.c_str());
 		unsigned int SimulationFilterWord0;
 		ar >> BOOST_SERIALIZATION_NVP(SimulationFilterWord0);
 		SetSimulationFilterWord0(SimulationFilterWord0);
@@ -550,7 +550,7 @@ void MeshComponent::load(Archive & ar, const unsigned int version)
 	{
 		std::string PxMeshPath;
 		ar >> boost::serialization::make_nvp("m_PxMeshPath", PxMeshPath);
-		CreateConvexMeshShape(NULL, m_MeshSubMeshId, PxMeshPath.c_str(), true);
+		CreateConvexMeshShape(NULL, PxMeshPath.c_str(), true);
 		unsigned int SimulationFilterWord0;
 		ar >> BOOST_SERIALIZATION_NVP(SimulationFilterWord0);
 		SetSimulationFilterWord0(SimulationFilterWord0);
@@ -885,21 +885,13 @@ void MeshComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline * 
 	}
 }
 
-void MeshComponent::CreateTriangleMeshShape(my::OgreMesh * mesh, int sub_mesh_id, const char * TriangleMeshPath)
+void MeshComponent::CreateTriangleMeshShape(my::OgreMesh * mesh, const char * TriangleMeshPath)
 {
 	_ASSERT(!m_PxShape);
 
 	if (mesh)
 	{
-		D3DXATTRIBUTERANGE rang;
-		if (sub_mesh_id < 0)
-		{
-			rang = { 0, 0, mesh->GetNumFaces(), 0, mesh->GetNumVertices() };
-		}
-		else
-		{
-			rang = mesh->m_AttribTable[sub_mesh_id];
-		}
+		D3DXATTRIBUTERANGE rang = { 0, 0, mesh->GetNumFaces(), 0, mesh->GetNumVertices() };
 		physx::PxTriangleMeshDesc desc;
 		desc.points.count = rang.VertexStart + rang.VertexCount;
 		desc.points.stride = mesh->GetNumBytesPerVertex();
@@ -939,21 +931,13 @@ void MeshComponent::CreateTriangleMeshShape(my::OgreMesh * mesh, int sub_mesh_id
 	}
 }
 
-void MeshComponent::CreateConvexMeshShape(my::OgreMesh * mesh, int sub_mesh_id, const char * ConvexMeshPath, bool bInflateConvex)
+void MeshComponent::CreateConvexMeshShape(my::OgreMesh * mesh, const char * ConvexMeshPath, bool bInflateConvex)
 {
 	_ASSERT(!m_PxShape);
 
 	if (mesh)
 	{
-		D3DXATTRIBUTERANGE rang;
-		if (sub_mesh_id < 0)
-		{
-			rang = { 0, 0, mesh->GetNumFaces(), 0, mesh->GetNumVertices() };
-		}
-		else
-		{
-			rang = mesh->m_AttribTable[sub_mesh_id];
-		}
+		D3DXATTRIBUTERANGE rang = { 0, 0, mesh->GetNumFaces(), 0, mesh->GetNumVertices() };
 		physx::PxConvexMeshDesc desc;
 		desc.points.count = rang.VertexCount;
 		desc.points.stride = mesh->GetNumBytesPerVertex();
@@ -1177,7 +1161,7 @@ void ClothComponent::load(Archive & ar, const unsigned int version)
 
 	std::string ClothFabricPath;
 	ar >> boost::serialization::make_nvp("m_ClothFabricPath", ClothFabricPath);
-	CreateClothFromMesh(ClothFabricPath.c_str(), my::OgreMeshPtr(), 0, Vector3(0, 0, 0));
+	CreateClothFromMesh(ClothFabricPath.c_str(), my::OgreMeshPtr(), Vector3(0, 0, 0));
 
 	unsigned int ClothFlags;
 	ar >> BOOST_SERIALIZATION_NVP(ClothFlags);
@@ -1248,21 +1232,13 @@ void ClothComponent::OnResetShader(void)
 	handle_World = NULL;
 }
 
-void ClothComponent::CreateClothFromMesh(const char * ClothFabricPath, my::OgreMeshPtr mesh, int sub_mesh_id, const my::Vector3 & gravity)
+void ClothComponent::CreateClothFromMesh(const char * ClothFabricPath, my::OgreMeshPtr mesh, const my::Vector3 & gravity)
 {
 	if (m_VertexData.empty())
 	{
 		_ASSERT(GetCurrentThreadId() == D3DContext::getSingleton().m_d3dThreadId);
 
-		D3DXATTRIBUTERANGE rang;
-		if (sub_mesh_id < 0)
-		{
-			rang = { 0, 0, mesh->GetNumFaces(), 0, mesh->GetNumVertices() };
-		}
-		else
-		{
-			rang = mesh->m_AttribTable[sub_mesh_id];
-		}
+		D3DXATTRIBUTERANGE rang = { 0, 0, mesh->GetNumFaces(), 0, mesh->GetNumVertices() };
 		m_VertexStride = mesh->GetNumBytesPerVertex();
 		m_VertexData.resize(rang.VertexCount * m_VertexStride);
 		memcpy(&m_VertexData[0], (unsigned char*)mesh->LockVertexBuffer() + rang.VertexStart * m_VertexStride, m_VertexData.size());
