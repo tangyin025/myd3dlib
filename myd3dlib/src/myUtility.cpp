@@ -233,19 +233,19 @@ Frustum OrthoCamera::CalculateFrustum(const my::Rectangle & rc, const CSize & di
 	return RectangleToFrustum(rc, Vector2((float)dim.cx, (float)dim.cy));
 }
 
-void OrthoCamera::OnViewportChanged(const Vector2 & Viewport)
+void OrthoCamera::OnDimensionChanged(const CSize & dim)
 {
-	if (Viewport.x > Viewport.y)
+	if (dim.cx > dim.cy)
 	{
-		m_Width = Viewport.x / Viewport.y * m_Height;
+		m_Width = (float)dim.cx / dim.cy * m_Height;
 	}
 	else
 	{
-		m_Height = Viewport.y / Viewport.x * m_Width;
+		m_Height = (float)dim.cy / dim.cx * m_Width;
 	}
 }
 
-float OrthoCamera::CalculateViewportScaler(const Vector3 & WorldPos) const
+float OrthoCamera::CalculateDimensionScaler(const Vector3 & WorldPos) const
 {
 	return m_Width > m_Height ? m_Height * 0.5f : m_Width * 0.5f;
 }
@@ -283,12 +283,12 @@ Frustum PerspectiveCamera::CalculateFrustum(const my::Rectangle & rc, const CSiz
 	return RectangleToFrustum(rc, Vector2((float)dim.cx, (float)dim.cy));
 }
 
-void PerspectiveCamera::OnViewportChanged(const Vector2 & Viewport)
+void PerspectiveCamera::OnDimensionChanged(const CSize & dim)
 {
-	m_Aspect = Viewport.x / Viewport.y;
+	m_Aspect = (float)dim.cx / dim.cy;
 }
 
-float PerspectiveCamera::CalculateViewportScaler(const Vector3 & WorldPos) const
+float PerspectiveCamera::CalculateDimensionScaler(const Vector3 & WorldPos) const
 {
 	float z = Vector4(WorldPos, 1.0f).dot(-m_View.getColumn<2>());
 	return z * tan(m_Fov * 0.5f);

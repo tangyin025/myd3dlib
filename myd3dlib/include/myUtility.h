@@ -157,9 +157,9 @@ namespace my
 
 		virtual Frustum CalculateFrustum(const Rectangle & rc, const CSize & dim) const = 0;
 
-		virtual void OnViewportChanged(const Vector2 & Viewport) = 0;
+		virtual void OnDimensionChanged(const CSize & dim) = 0;
 
-		virtual float CalculateViewportScaler(const Vector3 & WorldPos) const = 0;
+		virtual float CalculateDimensionScaler(const Vector3 & WorldPos) const = 0;
 
 		Vector3 AlignUnit(const Vector3 & Pos, const Vector2 & dim) const;
 	};
@@ -195,9 +195,9 @@ namespace my
 
 		virtual Frustum CalculateFrustum(const Rectangle & rc, const CSize & dim) const;
 
-		virtual void OnViewportChanged(const Vector2 & Viewport);
+		virtual void OnDimensionChanged(const CSize & dim);
 
-		virtual float CalculateViewportScaler(const Vector3 & WorldPos) const;
+		virtual float CalculateDimensionScaler(const Vector3 & WorldPos) const;
 	};
 
 	class PerspectiveCamera : public Camera
@@ -229,9 +229,9 @@ namespace my
 
 		virtual Frustum CalculateFrustum(const Rectangle & rc, const CSize & dim) const;
 
-		virtual void OnViewportChanged(const Vector2 & Viewport);
+		virtual void OnDimensionChanged(const CSize & dim);
 
-		virtual float CalculateViewportScaler(const Vector3 & WorldPos) const;
+		virtual float CalculateDimensionScaler(const Vector3 & WorldPos) const;
 	};
 
 	class ModelViewerCamera : public PerspectiveCamera
