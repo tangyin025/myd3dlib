@@ -194,13 +194,13 @@ public:
 		float fElapsedTime)
 	{
 		//// »æÖÆ×ø±ê
-		//Vector3 pt = m_Camera->WorldToScreen(Vector3(12, 0, 0), GetDlgViewport());
+		//Vector3 pt = m_Camera->WorldToScreen(Vector3(12, 0, 0), GetDlgDimension());
 		//if (pt.z > 0.0f && pt.z < 1.0f)
 		//{
 		//	m_Font->PushString(ui_render, L"x", my::Rectangle(pt.xy, pt.xy), D3DCOLOR_ARGB(255, 255, 255, 0), my::Font::AlignCenterMiddle);
 		//}
 
-		//pt = m_Camera->WorldToScreen(Vector3(0, 0, 12), GetDlgViewport());
+		//pt = m_Camera->WorldToScreen(Vector3(0, 0, 12), GetDlgDimension());
 		//if (pt.z > 0.0f && pt.z < 1.0f)
 		//{
 		//	m_Font->PushString(ui_render, L"z", my::Rectangle(pt.xy, pt.xy), D3DCOLOR_ARGB(255, 255, 255, 0), my::Font::AlignCenterMiddle);

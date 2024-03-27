@@ -398,9 +398,9 @@ public:
 			return hr;
 		}
 
-		DialogMgr::SetDlgViewport(Vector2(600 * (float)pBackBufferSurfaceDesc->Width / pBackBufferSurfaceDesc->Height, 600), D3DXToRadian(75.0f));
+		DialogMgr::SetDlgDimension(Vector2(600 * (float)pBackBufferSurfaceDesc->Width / pBackBufferSurfaceDesc->Height, 600), D3DXToRadian(75.0f));
 
-		FontLibrary::m_Scale = Vector2(pBackBufferSurfaceDesc->Height / DialogMgr::GetDlgViewport().y);
+		FontLibrary::m_Scale = Vector2(pBackBufferSurfaceDesc->Height / DialogMgr::GetDlgDimension().y);
 
 		FontLibrary::m_EventScaleChanged(FontLibrary::m_Scale);
 
@@ -475,7 +475,7 @@ public:
 			m_UIRender->Begin();
 			m_UIRender->SetWorld(Matrix4::identity);
 			m_UIRender->SetViewProj(DialogMgr::m_ViewProj);
-			DialogMgr::Draw(m_UIRender.get(), fTime, fElapsedTime, DialogMgr::GetDlgViewport());
+			DialogMgr::Draw(m_UIRender.get(), fTime, fElapsedTime, DialogMgr::GetDlgDimension());
 			m_UIRender->PushString(my::Rectangle(500, 300, 600, 400), L"哈哈", D3DCOLOR_ARGB(255, 255, 90, 30), my::Font::AlignCenterMiddle, D3DCOLOR_ARGB(255, 255, 255, 255), 3.0f, m_font.get());
 			m_UIRender->End();
 			V(m_d3dDevice->EndScene());

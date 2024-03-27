@@ -178,7 +178,7 @@ public:
 	{
 	}
 
-	virtual void OnGUI(my::UIRender * ui_render, float fElapsedTime, const my::Vector2 & Viewport)
+	virtual void OnGUI(my::UIRender * ui_render, float fElapsedTime, const my::Vector2 & dim)
 	{
 	}
 

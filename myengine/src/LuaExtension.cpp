@@ -893,13 +893,13 @@ struct ScriptComponent : Component, luabind::wrap_base
 		//ptr->Component::OnAnimationEvent(arg);
 	}
 
-	virtual void OnGUI(my::UIRender* ui_render, float fElapsedTime, const my::Vector2 & Viewport)
+	virtual void OnGUI(my::UIRender* ui_render, float fElapsedTime, const my::Vector2 & dim)
 	{
 		my::CriticalSectionLock lock(LuaContext::getSingleton().m_StateSec);
 
 		try
 		{
-			luabind::wrap_base::call<void>("OnGUI", ui_render, fElapsedTime, Viewport);
+			luabind::wrap_base::call<void>("OnGUI", ui_render, fElapsedTime, dim);
 		}
 		catch (const luabind::error& e)
 		{
@@ -907,9 +907,9 @@ struct ScriptComponent : Component, luabind::wrap_base
 		}
 	}
 
-	static void default_OnGUI(Component* ptr, my::UIRender* ui_render, float fElapsedTime, const my::Vector2 & Viewport)
+	static void default_OnGUI(Component* ptr, my::UIRender* ui_render, float fElapsedTime, const my::Vector2 & dim)
 	{
-		//ptr->Component::OnGUI(ui_render, fElapsedTime, Viewport);
+		//ptr->Component::OnGUI(ui_render, fElapsedTime, dim);
 	}
 
 	virtual void AddToPipeline(const my::Frustum& frustum, RenderPipeline* pipeline, unsigned int PassMask, const my::Vector3& ViewPos, const my::Vector3& TargetPos)

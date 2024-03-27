@@ -648,7 +648,7 @@ HRESULT Client::OnCreateDevice(
 			.def("IsKeyPressRaw", &Client::IsKeyPressRaw)
 			.def("IsKeyPress", &Client::IsKeyPress)
 			.def("IsKeyRelease", &Client::IsKeyRelease)
-			.property("DlgViewport", &Client::GetDlgViewport, &Client::SetDlgViewport)
+			.property("DlgDimension", &Client::GetDlgDimension, &Client::SetDlgDimension)
 			.def("InsertDlg", &Client::InsertDlg)
 			.def("RemoveDlg", &Client::RemoveDlg)
 			.def("RemoveAllDlg", &Client::RemoveAllDlg)
@@ -692,9 +692,9 @@ HRESULT Client::OnResetDevice(
 
 	boost::dynamic_pointer_cast<my::PerspectiveCamera>(m_Camera)->m_Aspect = (float)pBackBufferSurfaceDesc->Width / pBackBufferSurfaceDesc->Height;
 
-	DialogMgr::SetDlgViewport(Vector2(DEFAULT_UI_RES_Y * boost::dynamic_pointer_cast<my::PerspectiveCamera>(m_Camera)->m_Aspect, DEFAULT_UI_RES_Y), D3DXToRadian(75.0f));
+	DialogMgr::SetDlgDimension(Vector2(DEFAULT_UI_RES_Y * boost::dynamic_pointer_cast<my::PerspectiveCamera>(m_Camera)->m_Aspect, DEFAULT_UI_RES_Y), D3DXToRadian(75.0f));
 
-	FontLibrary::m_Scale = Vector2(pBackBufferSurfaceDesc->Height / DialogMgr::GetDlgViewport().y);
+	FontLibrary::m_Scale = Vector2(pBackBufferSurfaceDesc->Height / DialogMgr::GetDlgDimension().y);
 
 	FontLibrary::m_EventScaleChanged(FontLibrary::m_Scale);
 
@@ -1002,7 +1002,7 @@ void Client::OnUIRender(
 	double fTime,
 	float fElapsedTime)
 {
-	DialogMgr::Draw(ui_render, m_fAbsoluteTime, m_fUnscaledElapsedTime, DialogMgr::GetDlgViewport());
+	DialogMgr::Draw(ui_render, m_fAbsoluteTime, m_fUnscaledElapsedTime, DialogMgr::GetDlgDimension());
 
 	OnPostUIRender(ui_render, m_fAbsoluteTime, m_fUnscaledElapsedTime);
 

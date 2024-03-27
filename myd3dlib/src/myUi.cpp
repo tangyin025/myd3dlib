@@ -4277,16 +4277,16 @@ void Dialog::GetNearestControl(const Rectangle & rect, DWORD dir, Control ** nea
 		switch (dir)
 		{
 		case VK_UP:
-			Control::GetNearestControl(rect.offset(Vector2(0, m_Manager->GetDlgViewport().y)), dir, nearest_ctrl, nearest_ctrl_dist, NULL);
+			Control::GetNearestControl(rect.offset(Vector2(0, m_Manager->GetDlgDimension().y)), dir, nearest_ctrl, nearest_ctrl_dist, NULL);
 			break;
 		case VK_DOWN:
-			Control::GetNearestControl(rect.offset(Vector2(0, -m_Manager->GetDlgViewport().y)), dir, nearest_ctrl, nearest_ctrl_dist, NULL);
+			Control::GetNearestControl(rect.offset(Vector2(0, -m_Manager->GetDlgDimension().y)), dir, nearest_ctrl, nearest_ctrl_dist, NULL);
 			break;
 		case VK_LEFT:
-			Control::GetNearestControl(rect.offset(Vector2(m_Manager->GetDlgViewport().x, 0)), dir, nearest_ctrl, nearest_ctrl_dist, NULL);
+			Control::GetNearestControl(rect.offset(Vector2(m_Manager->GetDlgDimension().x, 0)), dir, nearest_ctrl, nearest_ctrl_dist, NULL);
 			break;
 		case VK_RIGHT:
-			Control::GetNearestControl(rect.offset(Vector2(-m_Manager->GetDlgViewport().x, 0)), dir, nearest_ctrl, nearest_ctrl_dist, NULL);
+			Control::GetNearestControl(rect.offset(Vector2(-m_Manager->GetDlgDimension().x, 0)), dir, nearest_ctrl, nearest_ctrl_dist, NULL);
 			break;
 		}
 	}
@@ -4302,13 +4302,13 @@ void Dialog::MoveToFront(void) const
 	}
 }
 
-void DialogMgr::SetDlgViewport(const Vector2 & Viewport, float fov)
+void DialogMgr::SetDlgDimension(const Vector2 & dim, float fov)
 {
-	m_Eye = Vector3(Viewport.x * 0.5f, Viewport.y * 0.5f, -Viewport.y * 0.5f * cotf(fov / 2));
+	m_Eye = Vector3(dim.x * 0.5f, dim.y * 0.5f, -dim.y * 0.5f * cotf(fov / 2));
 
 	m_View = Matrix4::LookAtRH(m_Eye, Vector3(m_Eye.x, m_Eye.y, 0), Vector3(0, -1, 0));
 
-	m_Proj = Matrix4::PerspectiveFovRH(fov, Viewport.x / Viewport.y, 0.1f, 3000.0f);
+	m_Proj = Matrix4::PerspectiveFovRH(fov, dim.x / dim.y, 0.1f, 3000.0f);
 
 	m_ViewProj = m_View * m_Proj;
 
@@ -4332,17 +4332,17 @@ Ray DialogMgr::CalculateRay(const Vector2 & pt, const Vector2 & dim)
 	return Ray(m_Eye, (At - m_Eye).normalize());
 }
 
-Vector2 DialogMgr::GetDlgViewport(void) const
+Vector2 DialogMgr::GetDlgDimension(void) const
 {
 	return Vector2(-m_View._41*2, m_View._42*2);
 }
 
-void DialogMgr::Draw(UIRender * ui_render, double fTime, float fElapsedTime, const Vector2 & Viewport)
+void DialogMgr::Draw(UIRender * ui_render, double fTime, float fElapsedTime, const Vector2 & dim)
 {
 	UIPassObjList::iterator obj_iter = m_UIPassObjs.begin();
 	for (; obj_iter != m_UIPassObjs.end(); obj_iter++)
 	{
-		(*obj_iter)(ui_render, fElapsedTime, Viewport);
+		(*obj_iter)(ui_render, fElapsedTime, dim);
 	}
 	m_UIPassObjs.clear();
 
@@ -4351,7 +4351,7 @@ void DialogMgr::Draw(UIRender * ui_render, double fTime, float fElapsedTime, con
 	{
 		ui_render->SetWorld((*dlg_iter)->m_World);
 
-		(*dlg_iter)->Draw(ui_render, fElapsedTime, Vector2(0, 0), Viewport);
+		(*dlg_iter)->Draw(ui_render, fElapsedTime, Vector2(0, 0), dim);
 
 		ui_render->Flush();
 	}

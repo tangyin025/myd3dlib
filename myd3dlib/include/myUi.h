@@ -1582,7 +1582,7 @@ namespace my
 	public:
 		DialogMgr(void)
 		{
-			SetDlgViewport(Vector2(800,600), D3DXToRadian(75.0f));
+			SetDlgDimension(Vector2(800,600), D3DXToRadian(75.0f));
 		}
 
 		~DialogMgr(void)
@@ -1590,13 +1590,13 @@ namespace my
 			_ASSERT(m_UIPassObjs.empty());
 		}
 
-		void SetDlgViewport(const Vector2 & Viewport, float fov);
+		void SetDlgDimension(const Vector2 & dim, float fov);
 
-		Vector2 GetDlgViewport(void) const;
+		Vector2 GetDlgDimension(void) const;
 
 		Ray CalculateRay(const Vector2 & pt, const Vector2 & dim);
 
-		void Draw(UIRender * ui_render, double fTime, float fElapsedTime, const Vector2 & Viewport);
+		void Draw(UIRender * ui_render, double fTime, float fElapsedTime, const Vector2 & dim);
 
 		bool MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
