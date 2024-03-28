@@ -27,6 +27,8 @@ using namespace my;
 
 BOOST_CLASS_EXPORT(MaterialParameter)
 
+BOOST_CLASS_EXPORT(MaterialParameterInt2)
+
 BOOST_CLASS_EXPORT(MaterialParameterFloat)
 
 BOOST_CLASS_EXPORT(MaterialParameterFloat2)
@@ -49,6 +51,8 @@ bool MaterialParameter::operator == (const MaterialParameter & rhs) const
 		{
 		case ParameterTypeNone:
 			return true;
+		case ParameterTypeInt2:
+			return static_cast<const MaterialParameterInt2 &>(*this).m_Value == static_cast<const MaterialParameterInt2 &>(rhs).m_Value;
 		case ParameterTypeFloat:
 			return static_cast<const MaterialParameterFloat &>(*this).m_Value == static_cast<const MaterialParameterFloat &>(rhs).m_Value;
 		case ParameterTypeFloat2:
@@ -70,6 +74,37 @@ bool MaterialParameter::operator == (const MaterialParameter & rhs) const
 void MaterialParameter::Init(my::Effect * shader)
 {
 	m_Handle = shader->GetParameterByName(NULL, m_Name.c_str());
+}
+
+namespace boost {
+	namespace serialization {
+		template<class Archive>
+		inline void serialize(Archive& ar, CPoint& t, const unsigned int file_version)
+		{
+			ar& BOOST_SERIALIZATION_NVP(t.x);
+			ar& BOOST_SERIALIZATION_NVP(t.y);
+		}
+	}
+}
+
+template<class Archive>
+void MaterialParameterInt2::save(Archive& ar, const unsigned int version) const
+{
+	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(MaterialParameter);
+	ar << BOOST_SERIALIZATION_NVP(m_Value);
+}
+
+template<class Archive>
+void MaterialParameterInt2::load(Archive& ar, const unsigned int version)
+{
+	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(MaterialParameter);
+	ar >> BOOST_SERIALIZATION_NVP(m_Value);
+}
+
+void MaterialParameterInt2::Set(my::Effect * shader, LPARAM lparam, RenderPipeline::IRenderContext * pRC, Actor * actor)
+{
+	_ASSERT(m_Handle);
+	shader->SetIntArray(m_Handle, (int*)&m_Value.x, 2);
 }
 
 void MaterialParameterFloat::Set(my::Effect * shader, LPARAM lparam, RenderPipeline::IRenderContext * pRC, Actor * actor)
@@ -282,18 +317,30 @@ void Material::ParseShaderParameters(void)
 
 	CachePtr cache = my::ResourceMgr::getSingleton().OpenIStream(m_Shader.c_str())->GetWholeCache();
 	cache->push_back(0);
-	//                     1 2      3        4        5        6         7              8                               9             10
-	boost::regex reg("^\\s*((float)|(float2)|(float3)|(float4)|(texture)|(float4x4))\\s+(\\w+)\\s*:\\s*MaterialParameter(\\s*<[^>]+>)?(\\s*=\\s*[^;]+)?;");
+	//                     1 2     3       4        5        6        7         8              9                               10            11
+	boost::regex reg("^\\s*((int2)|(float)|(float2)|(float3)|(float4)|(texture)|(float4x4))\\s+(\\w+)\\s*:\\s*MaterialParameter(\\s*<[^>]+>)?(\\s*=\\s*[^;]+)?;");
 	boost::match_results<const char *> what;
 	const char * start = (const char *)&(*cache)[0];
 	const char * end = (const char *)&(*cache)[cache->size() - 1];
 	m_ParameterList.clear();
 	for (; boost::regex_search(start, end, what, reg, boost::match_default); start = what[0].second)
 	{
-		std::string Name = what[8];
-		std::string Annotations = what[9];
-		std::string Initialize = what[10];
+		std::string Name = what[9];
+		std::string Annotations = what[10];
+		std::string Initialize = what[11];
 		if (what[2].matched)
+		{
+			CPoint Value(0, 0);
+			boost::regex reg_value("(-?\\d+)\\s*,\\s*(-?\\d+)");
+			boost::match_results<std::string::const_iterator> what2;
+			if (boost::regex_search(Initialize, what2, reg_value, boost::match_default))
+			{
+				Value.x = boost::lexical_cast<int>(what2[1]);
+				Value.y = boost::lexical_cast<int>(what2[2]);
+			}
+			AddParameter(Name, Value);
+		}
+		if (what[3].matched)
 		{
 			float Value = 0.0f;
 			boost::regex reg_value("-?\\d+(\\.\\d+)?");
@@ -304,7 +351,7 @@ void Material::ParseShaderParameters(void)
 			}
 			AddParameter(Name, Value);
 		}
-		else if (what[3].matched)
+		else if (what[4].matched)
 		{
 			Vector2 Value(0, 0);
 			boost::regex reg_value("(-?\\d+(\\.\\d+)?)\\s*,\\s*(-?\\d+(\\.\\d+)?)");
@@ -316,7 +363,7 @@ void Material::ParseShaderParameters(void)
 			}
 			AddParameter(Name, Value);
 		}
-		else if (what[4].matched)
+		else if (what[5].matched)
 		{
 			Vector3 Value(0, 0, 0);
 			boost::regex reg_value("(-?\\d+(\\.\\d+)?)\\s*,\\s*(-?\\d+(\\.\\d+)?)\\s*,\\s*(-?\\d+(\\.\\d+)?)");
@@ -329,7 +376,7 @@ void Material::ParseShaderParameters(void)
 			}
 			AddParameter(Name, Value);
 		}
-		else if (what[5].matched)
+		else if (what[6].matched)
 		{
 			Vector4 Value(0, 0, 0, 1);
 			boost::regex reg_value("(-?\\d+(\\.\\d+)?)\\s*,\\s*(-?\\d+(\\.\\d+)?)\\s*,\\s*(-?\\d+(\\.\\d+)?)\\s*,\\s*(-?\\d+(\\.\\d+)?)");
@@ -343,7 +390,7 @@ void Material::ParseShaderParameters(void)
 			}
 			AddParameter(Name, Value);
 		}
-		else if (what[6].matched)
+		else if (what[7].matched)
 		{
 			std::string Path;
 			boost::regex reg_value("string\\s+path\\s*=\\s*\\\"([^\"]+)\\\"");
@@ -354,7 +401,7 @@ void Material::ParseShaderParameters(void)
 			}
 			AddParameter(Name, Path);
 		}
-		else if (what[7].matched)
+		else if (what[8].matched)
 		{
 			boost::regex reg_value("bool\\s+UseInvWorldView\\s*=\\s*true");
 			boost::match_results<std::string::const_iterator> what2;
@@ -426,6 +473,12 @@ void Material::ParseShaderParameters(void)
 }
 
 template <>
+void Material::AddParameter<CPoint>(const std::string& Name, const CPoint& Value)
+{
+	m_ParameterList.push_back(MaterialParameterPtr(new MaterialParameterInt2(Name, Value)));
+}
+
+template <>
 void Material::AddParameter<float>(const std::string& Name, const float& Value)
 {
 	m_ParameterList.push_back(MaterialParameterPtr(new MaterialParameterFloat(Name, Value)));
@@ -466,6 +519,18 @@ MaterialParameterPtr Material::GetParameter(const std::string& Name)
 		}
 	}
 	return MaterialParameterPtr();
+}
+
+template <>
+void Material::SetParameter<CPoint>(const char* Name, const CPoint& Value)
+{
+	MaterialParameterPtr param = GetParameter(Name);
+	if (!param || param->GetParameterType() != MaterialParameter::ParameterTypeInt2)
+	{
+		my::D3DContext::getSingleton().m_EventLog(str_printf("dose not have int2 param: %s", Name).c_str());
+		return;
+	}
+	boost::dynamic_pointer_cast<MaterialParameterInt2>(param)->m_Value = Value;
 }
 
 template <>

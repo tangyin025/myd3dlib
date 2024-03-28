@@ -522,6 +522,13 @@ void CPropertiesWnd::UpdatePropertiesMaterialParameter(CMFCPropertyGridProperty 
 {
 	switch (mtl_param->GetParameterType())
 	{
+	case MaterialParameter::ParameterTypeInt2:
+	{
+		const CPoint& Value = dynamic_cast<MaterialParameterInt2*>(mtl_param)->m_Value;
+		pParentCtrl->GetSubItem(NodeId)->GetSubItem(0)->SetValue((_variant_t)Value.x);
+		pParentCtrl->GetSubItem(NodeId)->GetSubItem(1)->SetValue((_variant_t)Value.y);
+		break;
+	}
 	case MaterialParameter::ParameterTypeFloat:
 		pParentCtrl->GetSubItem(NodeId)->SetValue((_variant_t)
 			dynamic_cast<MaterialParameterFloat *>(mtl_param)->m_Value);
@@ -1570,6 +1577,17 @@ void CPropertiesWnd::CreatePropertiesMaterialParameter(CMFCPropertyGridProperty 
 	std::basic_string<TCHAR> name = ms2ts(mtl_param->m_Name.c_str());
 	switch (mtl_param->GetParameterType())
 	{
+	case MaterialParameter::ParameterTypeInt2:
+	{
+		const CPoint& Value = dynamic_cast<MaterialParameterInt2*>(mtl_param)->m_Value;
+		CMFCPropertyGridProperty* pParameter = new CSimpleProp(name.c_str(), PropertyMaterialParameterInt2, TRUE);
+		pParentCtrl->AddSubItem(pParameter);
+		pProp = new CSimpleProp(_T("x"), (_variant_t)Value.x, NULL, PropertyMaterialParameterIntValueX);
+		pParameter->AddSubItem(pProp);
+		pProp = new CSimpleProp(_T("y"), (_variant_t)Value.y, NULL, PropertyMaterialParameterIntValueY);
+		pParameter->AddSubItem(pProp);
+		break;
+	}
 	case MaterialParameter::ParameterTypeFloat:
 		pProp = new CSimpleProp(name.c_str(), (_variant_t)dynamic_cast<MaterialParameterFloat *>(mtl_param)->m_Value, NULL, PropertyMaterialParameterFloat);
 		pParentCtrl->AddSubItem(pProp);
@@ -2852,6 +2870,8 @@ CPropertiesWnd::Property CPropertiesWnd::GetMaterialParameterTypeProp(DWORD type
 {
 	switch (type)
 	{
+	case MaterialParameter::ParameterTypeInt2:
+		return PropertyMaterialParameterInt2;
 	case MaterialParameter::ParameterTypeFloat:
 		return PropertyMaterialParameterFloat;
 	case MaterialParameter::ParameterTypeFloat2:
@@ -3698,6 +3718,31 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		int i = (DYNAMIC_DOWNCAST(CComboProp, pProp))->m_iSelIndex;
 		ASSERT(i >= 0 && i < _countof(g_BlendModeDesc));
 		material->m_BlendMode = i;
+		my::EventArg arg;
+		pFrame->m_EventAttributeChanged(&arg);
+		break;
+	}
+	case PropertyMaterialParameterInt2:
+	case PropertyMaterialParameterIntValueX:
+	case PropertyMaterialParameterIntValueY:
+	{
+		CMFCPropertyGridProperty* pParameter = NULL;
+		switch (PropertyId)
+		{
+		case PropertyMaterialParameterInt2:
+			pParameter = pProp;
+			break;
+		case PropertyMaterialParameterIntValueX:
+		case PropertyMaterialParameterIntValueY:
+			pParameter = pProp->GetParent();
+			break;
+		}
+		ASSERT(pParameter);
+		Material* mtl = (Material*)pParameter->GetParent()->GetParent()->GetValue().pulVal;
+		INT i = CSimpleProp::GetSubIndexInParent(pParameter);
+		ASSERT(mtl->m_ParameterList[i]->GetParameterType() == MaterialParameter::ParameterTypeInt2);
+		boost::dynamic_pointer_cast<MaterialParameterInt2>(mtl->m_ParameterList[i])->m_Value.SetPoint(
+			pParameter->GetSubItem(0)->GetValue().intVal, pParameter->GetSubItem(1)->GetValue().intVal);
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;

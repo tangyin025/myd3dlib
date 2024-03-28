@@ -24,6 +24,7 @@ public:
 	enum ParameterType
 	{
 		ParameterTypeNone = 0,
+		ParameterTypeInt2,
 		ParameterTypeFloat,
 		ParameterTypeFloat2,
 		ParameterTypeFloat3,
@@ -82,6 +83,46 @@ public:
 	virtual void ReleaseResource(void)
 	{
 	}
+};
+
+class MaterialParameterInt2 : public MaterialParameter
+{
+public:
+	CPoint m_Value;
+
+protected:
+	MaterialParameterInt2(void)
+		: m_Value(0, 0)
+	{
+	}
+
+public:
+	MaterialParameterInt2(const std::string& Name, const CPoint& Value)
+		: MaterialParameter(Name)
+		, m_Value(Value)
+	{
+	}
+
+	friend class boost::serialization::access;
+
+	template<class Archive>
+	void save(Archive & ar, const unsigned int version) const;
+
+	template<class Archive>
+	void load(Archive & ar, const unsigned int version);
+
+	template<class Archive>
+	void serialize(Archive & ar, const unsigned int version)
+	{
+		boost::serialization::split_member(ar, *this, version);
+	}
+
+	virtual ParameterType GetParameterType(void) const
+	{
+		return ParameterTypeInt2;
+	}
+
+	virtual void Set(my::Effect* shader, LPARAM lparam, RenderPipeline::IRenderContext* pRC, Actor* actor);
 };
 
 class MaterialParameterFloat : public MaterialParameter
@@ -397,6 +438,9 @@ public:
 	template <typename T>
 	void SetParameter(const char* Name, const T& Value);
 };
+
+template <>
+void Material::AddParameter<CPoint>(const std::string& Name, const CPoint& Value);
 
 template <>
 void Material::AddParameter<float>(const std::string& Name, const float& Value);
