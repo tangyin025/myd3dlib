@@ -100,6 +100,9 @@
 								<m_ZEnable>1</m_ZEnable>
 								<m_ZWriteEnable>1</m_ZWriteEnable>
 								<m_ZFunc>7</m_ZFunc>
+								<m_AlphaTestEnable>0</m_AlphaTestEnable>
+								<m_AlphaRef>1</m_AlphaRef>
+								<m_AlphaFunc>7</m_AlphaFunc>
 								<m_BlendMode>0</m_BlendMode>
 								<m_ParameterList class_id="13" tracking_level="0" version="0">
 									<count>14</count>
@@ -307,6 +310,9 @@ AAAAAAAAgEIAAAAAAACAPwAAAAAAAAD/
 								<m_ZEnable>0</m_ZEnable>
 								<m_ZWriteEnable>1</m_ZWriteEnable>
 								<m_ZFunc>7</m_ZFunc>
+								<m_AlphaTestEnable>0</m_AlphaTestEnable>
+								<m_AlphaRef>1</m_AlphaRef>
+								<m_AlphaFunc>7</m_AlphaFunc>
 								<m_BlendMode>0</m_BlendMode>
 								<m_ParameterList>
 									<count>1</count>
@@ -350,6 +356,9 @@ AAAAAAAAgEIAAAAAAACAPwAAAAAAAAD/
 								<m_ZEnable>0</m_ZEnable>
 								<m_ZWriteEnable>1</m_ZWriteEnable>
 								<m_ZFunc>7</m_ZFunc>
+								<m_AlphaTestEnable>0</m_AlphaTestEnable>
+								<m_AlphaRef>1</m_AlphaRef>
+								<m_AlphaFunc>7</m_AlphaFunc>
 								<m_BlendMode>0</m_BlendMode>
 								<m_ParameterList>
 									<count>1</count>
@@ -393,6 +402,9 @@ AAAAAAAAgEIAAAAAAACAPwAAAAAAAAD/
 								<m_ZEnable>0</m_ZEnable>
 								<m_ZWriteEnable>1</m_ZWriteEnable>
 								<m_ZFunc>7</m_ZFunc>
+								<m_AlphaTestEnable>0</m_AlphaTestEnable>
+								<m_AlphaRef>1</m_AlphaRef>
+								<m_AlphaFunc>7</m_AlphaFunc>
 								<m_BlendMode>0</m_BlendMode>
 								<m_ParameterList>
 									<count>1</count>
@@ -436,6 +448,9 @@ AAAAAAAAgEIAAAAAAACAPwAAAAAAAAD/
 								<m_ZEnable>0</m_ZEnable>
 								<m_ZWriteEnable>1</m_ZWriteEnable>
 								<m_ZFunc>7</m_ZFunc>
+								<m_AlphaTestEnable>0</m_AlphaTestEnable>
+								<m_AlphaRef>1</m_AlphaRef>
+								<m_AlphaFunc>7</m_AlphaFunc>
 								<m_BlendMode>0</m_BlendMode>
 								<m_ParameterList>
 									<count>1</count>
@@ -479,6 +494,9 @@ AAAAAAAAgEIAAAAAAACAPwAAAAAAAAD/
 								<m_ZEnable>0</m_ZEnable>
 								<m_ZWriteEnable>1</m_ZWriteEnable>
 								<m_ZFunc>7</m_ZFunc>
+								<m_AlphaTestEnable>0</m_AlphaTestEnable>
+								<m_AlphaRef>1</m_AlphaRef>
+								<m_AlphaFunc>7</m_AlphaFunc>
 								<m_BlendMode>0</m_BlendMode>
 								<m_ParameterList>
 									<count>1</count>
@@ -522,6 +540,9 @@ AAAAAAAAgEIAAAAAAACAPwAAAAAAAAD/
 								<m_ZEnable>0</m_ZEnable>
 								<m_ZWriteEnable>1</m_ZWriteEnable>
 								<m_ZFunc>7</m_ZFunc>
+								<m_AlphaTestEnable>0</m_AlphaTestEnable>
+								<m_AlphaRef>1</m_AlphaRef>
+								<m_AlphaFunc>7</m_AlphaFunc>
 								<m_BlendMode>0</m_BlendMode>
 								<m_ParameterList>
 									<count>1</count>
@@ -609,6 +630,9 @@ AAAAAAAAgEIAAAAAAACAPwAAAAAAAAD/
 								<m_ZEnable>1</m_ZEnable>
 								<m_ZWriteEnable>1</m_ZWriteEnable>
 								<m_ZFunc>7</m_ZFunc>
+								<m_AlphaTestEnable>0</m_AlphaTestEnable>
+								<m_AlphaRef>1</m_AlphaRef>
+								<m_AlphaFunc>7</m_AlphaFunc>
 								<m_BlendMode>0</m_BlendMode>
 								<m_ParameterList>
 									<count>4</count>
