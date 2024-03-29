@@ -16,7 +16,7 @@ for act in theApp.MainWnd.selactors do
 		mesh_cmp.Material=Material()
 		mesh_cmp.Material.Shader="shader/mtl_Skybox.fx"
 		mesh_cmp.Material:ParseShaderParameters()
-		mesh_cmp.Material.CullMode=Material.CullModeCCW
+		mesh_cmp.Material.CullMode=Material.D3DCULL_CCW
 		mesh_cmp.Material.ZEnable=false
 		mesh_cmp.Material:SetParameter("g_DiffuseTexture",skybox_tex_path[i+1])
 		act:InsertComponent(mesh_cmp)

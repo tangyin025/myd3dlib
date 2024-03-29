@@ -497,9 +497,12 @@ void CPropertiesWnd::UpdatePropertiesMaterial(CMFCPropertyGridProperty * pMateri
 	pMaterial->GetSubItem(3)->SetValue((_variant_t)(VARIANT_BOOL)mtl->m_ZEnable);
 	pMaterial->GetSubItem(4)->SetValue((_variant_t)(VARIANT_BOOL)mtl->m_ZWriteEnable);
 	pMaterial->GetSubItem(5)->SetValue((_variant_t)g_ZFuncDesc[mtl->m_ZFunc - 1]);
-	pMaterial->GetSubItem(6)->SetValue((_variant_t)g_BlendModeDesc[mtl->m_BlendMode]);
+	pMaterial->GetSubItem(6)->SetValue((_variant_t)(VARIANT_BOOL)mtl->m_AlphaTestEnable);
+	pMaterial->GetSubItem(7)->SetValue((_variant_t)mtl->m_AlphaRef);
+	pMaterial->GetSubItem(8)->SetValue((_variant_t)g_ZFuncDesc[mtl->m_AlphaFunc - 1]);
+	pMaterial->GetSubItem(9)->SetValue((_variant_t)g_BlendModeDesc[mtl->m_BlendMode]);
 
-	CMFCPropertyGridProperty * pParameterList = pMaterial->GetSubItem(7);
+	CMFCPropertyGridProperty * pParameterList = pMaterial->GetSubItem(10);
 	for (unsigned int i = 0; i < mtl->m_ParameterList.size(); i++)
 	{
 		if ((unsigned int)pParameterList->GetSubItemsCount() <= i)
@@ -1556,6 +1559,16 @@ void CPropertiesWnd::CreatePropertiesMaterial(CMFCPropertyGridProperty * pParent
 		pZFunc->AddOption(g_ZFuncDesc[i], TRUE);
 	}
 	pMaterial->AddSubItem(pZFunc);
+	CCheckBoxProp* pAlphaTestEnable = new CCheckBoxProp(_T("AlphaTestEnable"), mtl->m_AlphaTestEnable, NULL, PropertyMaterialAlphaTestEnable);
+	pMaterial->AddSubItem(pAlphaTestEnable);
+	CMFCPropertyGridProperty* pAlphaRef = new CSimpleProp(_T("AlphaRef"), (_variant_t)mtl->m_AlphaRef, NULL, PropertyMaterialAlphaRef);
+	pMaterial->AddSubItem(pAlphaRef);
+	CComboProp* pAlphaFunc = new CComboProp(_T("AlphaFunc"), (_variant_t)g_ZFuncDesc[mtl->m_AlphaFunc - 1], NULL, PropertyMaterialAlphaFunc);
+	for (unsigned int i = 0; i < _countof(g_ZFuncDesc); i++)
+	{
+		pAlphaFunc->AddOption(g_ZFuncDesc[i], TRUE);
+	}
+	pMaterial->AddSubItem(pAlphaFunc);
 	CComboProp * pBlendMode = new CComboProp(_T("BlendMode"), (_variant_t)g_BlendModeDesc[mtl->m_BlendMode], NULL, PropertyMaterialBlendMode);
 	for (unsigned int i = 0; i < _countof(g_BlendModeDesc); i++)
 	{
@@ -3708,6 +3721,32 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		int i = (DYNAMIC_DOWNCAST(CComboProp, pProp))->m_iSelIndex;
 		ASSERT(i >= 0 && i < _countof(g_ZFuncDesc));
 		material->m_ZFunc = i + 1;
+		my::EventArg arg;
+		pFrame->m_EventAttributeChanged(&arg);
+		break;
+	}
+	case PropertyMaterialAlphaTestEnable:
+	{
+		Material* material = (Material*)pProp->GetParent()->GetValue().pulVal;
+		material->m_AlphaTestEnable = pProp->GetValue().boolVal;
+		my::EventArg arg;
+		pFrame->m_EventAttributeChanged(&arg);
+		break;
+	}
+	case PropertyMaterialAlphaRef:
+	{
+		Material* material = (Material*)pProp->GetParent()->GetValue().pulVal;
+		material->m_AlphaRef = pProp->GetValue().uintVal;
+		my::EventArg arg;
+		pFrame->m_EventAttributeChanged(&arg);
+		break;
+	}
+	case PropertyMaterialAlphaFunc:
+	{
+		Material* material = (Material*)pProp->GetParent()->GetValue().pulVal;
+		int i = (DYNAMIC_DOWNCAST(CComboProp, pProp))->m_iSelIndex;
+		ASSERT(i >= 0 && i < _countof(g_ZFuncDesc));
+		material->m_AlphaFunc = i + 1;
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;

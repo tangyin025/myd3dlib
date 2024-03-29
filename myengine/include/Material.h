@@ -381,6 +381,12 @@ public:
 
 	DWORD m_ZFunc;
 
+	bool m_AlphaTestEnable;
+
+	DWORD m_AlphaRef;
+
+	DWORD m_AlphaFunc;
+
 	DWORD m_BlendMode;
 
 	typedef std::vector<MaterialParameterPtr> MaterialParameterPtrList;
@@ -394,6 +400,9 @@ public:
 		, m_ZEnable(true)
 		, m_ZWriteEnable(true)
 		, m_ZFunc(D3DCMP_GREATEREQUAL)
+		, m_AlphaTestEnable(false)
+		, m_AlphaRef(0x00000001)
+		, m_AlphaFunc(D3DCMP_GREATEREQUAL)
 		, m_BlendMode(BlendModeNone)
 	{
 	}

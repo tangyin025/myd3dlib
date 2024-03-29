@@ -270,9 +270,27 @@ void Material::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, L
 	// https://learn.microsoft.com/en-us/windows/win32/direct3d9/accurately-profiling-direct3d-api-calls#appendix
 	HRESULT hr;
 	V(pd3dDevice->SetRenderState(D3DRS_CULLMODE, m_CullMode));
-	V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, m_ZEnable ? D3DZB_TRUE : D3DZB_FALSE));
-	V(pd3dDevice->SetRenderState(D3DRS_ZWRITEENABLE, m_ZWriteEnable));
-	V(pd3dDevice->SetRenderState(D3DRS_ZFUNC, m_ZFunc));
+	if (m_ZEnable)
+	{
+		V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, D3DZB_TRUE));
+		V(pd3dDevice->SetRenderState(D3DRS_ZWRITEENABLE, m_ZWriteEnable));
+		V(pd3dDevice->SetRenderState(D3DRS_ZFUNC, m_ZFunc));
+	}
+	else
+	{
+		V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, D3DZB_FALSE));
+	}
+	if (m_AlphaTestEnable)
+	{
+		// https://learn.microsoft.com/en-us/windows/win32/direct3d9/alpha-testing-state
+		V(pd3dDevice->SetRenderState(D3DRS_ALPHATESTENABLE, TRUE));
+		V(pd3dDevice->SetRenderState(D3DRS_ALPHAREF, m_AlphaRef));
+		V(pd3dDevice->SetRenderState(D3DRS_ALPHAFUNC, m_AlphaFunc));
+	}
+	else
+	{
+		V(pd3dDevice->SetRenderState(D3DRS_ALPHATESTENABLE, FALSE));
+	}
 	switch (m_BlendMode)
 	{
 	case BlendModeAlpha:
