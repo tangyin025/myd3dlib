@@ -186,6 +186,9 @@ void Material::save(Archive & ar, const unsigned int version) const
 	ar << BOOST_SERIALIZATION_NVP(m_ZEnable);
 	ar << BOOST_SERIALIZATION_NVP(m_ZWriteEnable);
 	ar << BOOST_SERIALIZATION_NVP(m_ZFunc);
+	ar << BOOST_SERIALIZATION_NVP(m_AlphaTestEnable);
+	ar << BOOST_SERIALIZATION_NVP(m_AlphaRef);
+	ar << BOOST_SERIALIZATION_NVP(m_AlphaFunc);
 	ar << BOOST_SERIALIZATION_NVP(m_BlendMode);
 	ar << BOOST_SERIALIZATION_NVP(m_ParameterList);
 }
@@ -199,6 +202,9 @@ void Material::load(Archive & ar, const unsigned int version)
 	ar >> BOOST_SERIALIZATION_NVP(m_ZEnable);
 	ar >> BOOST_SERIALIZATION_NVP(m_ZWriteEnable);
 	ar >> BOOST_SERIALIZATION_NVP(m_ZFunc);
+	ar >> BOOST_SERIALIZATION_NVP(m_AlphaTestEnable);
+	ar >> BOOST_SERIALIZATION_NVP(m_AlphaRef);
+	ar >> BOOST_SERIALIZATION_NVP(m_AlphaFunc);
 	ar >> BOOST_SERIALIZATION_NVP(m_BlendMode);
 	ar >> BOOST_SERIALIZATION_NVP(m_ParameterList);
 }
