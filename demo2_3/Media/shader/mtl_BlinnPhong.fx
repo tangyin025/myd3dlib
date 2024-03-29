@@ -78,7 +78,7 @@ void NormalPS( 	NORMAL_VS_OUTPUT In,
 				out float4 oSpecular : COLOR1,
 				out float4 oPos : COLOR2 )
 {
-	clip(ScreenDoorTransparency(In.Color.w, In.Pos.xy));
+	// clip(ScreenDoorTransparency(In.Color.w, In.Pos.xy));
 	float3x3 m = float3x3(In.Tangent, In.Binormal, In.Normal);
 	float3 NormalTS = tex2D(NormalTextureSampler, In.Tex0).xyz * 2 - 1;
 	oNormal = float4(mul(NormalTS, m), 1);
@@ -109,7 +109,7 @@ OPAQUE_VS_OUTPUT OpaqueVS( VS_INPUT In )
 
 float4 OpaquePS( OPAQUE_VS_OUTPUT In ) : COLOR0
 { 
-	clip(ScreenDoorTransparency(In.Color.w, In.Pos.xy));
+	// clip(ScreenDoorTransparency(In.Color.w, In.Pos.xy));
 	float3 SkyLightDir = normalize(float3(g_SkyLightView[0][2], g_SkyLightView[1][2], g_SkyLightView[2][2]));
 	float3 SkyLightDirVS = mul(SkyLightDir, (float3x3)g_View);
 	float LightAmount = GetLigthAmount(In.ShadowCoord);
