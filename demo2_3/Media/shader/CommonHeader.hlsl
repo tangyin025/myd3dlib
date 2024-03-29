@@ -173,7 +173,7 @@ float ScreenDoorTransparency(float Alpha, float2 SPos)
 float2 TiledUv(float2 uv, int2 tiles, int id)
 {
 	int frame = id % (tiles.x * tiles.y);
-	float2 pos = float2(frame % tiles.x, frame / tiles.x);
+	float2 pos = float2((float)frame % tiles.x, frame / tiles.x); // ! issue occurred if without type cast
 	return (pos + uv) / tiles;
 }
 
