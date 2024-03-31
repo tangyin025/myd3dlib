@@ -3621,6 +3621,7 @@ void LuaContext::Init(void)
 		, class_<rapidxml::xml_base<char> >("xml_base")
 			.property("name", (char* (rapidxml::xml_base<char>::*)()const)& rapidxml::xml_base<char>::name)
 			.property("value", (char* (rapidxml::xml_base<char>::*)()const)& rapidxml::xml_base<char>::value)
+			.property("parent", &rapidxml::xml_base<char>::parent)
 
 		, class_<rapidxml::xml_node<char>, rapidxml::xml_base<char> >("xml_node")
 			.property("type", (rapidxml::node_type(rapidxml::xml_node<char>::*)() const)& rapidxml::xml_node<char>::type)
