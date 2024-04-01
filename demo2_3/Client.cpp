@@ -927,7 +927,7 @@ void Client::OnFrameTick(
 
 	m_ControllerMgr->computeInteractions(fElapsedTime, &m_ControllerFilter);
 
-	LuaContext::dogc(LUA_GCCOLLECT, 1);
+	//LuaContext::dogc(LUA_GCCOLLECT, 1);
 
 	ParallelTaskManager::DoAllParallelTasks();
 
