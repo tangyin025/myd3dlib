@@ -71,19 +71,6 @@ namespace my
 	template <typename T>
 	T Random(T min, T max);
 
-	template <typename T>
-	T & Subscribe(T * arr, size_t N, size_t i)
-	{
-		_ASSERT(i < N);
-		return arr[i];
-	}
-
-	template <typename T, int N>
-	T & Subscribe(T (&arr)[N], size_t i)
-	{
-		return Subscribe(arr, N, i);
-	}
-
 	template <typename Type1, typename Type2>
 	Type1 ipow(Type1 a, Type2 ex)
 	{
@@ -170,12 +157,14 @@ namespace my
 	public:
 		float & operator [](size_t i)
 		{
-			return Subscribe(&x, 2, i);
+			_ASSERT(i < 2);
+			return (&x)[i];
 		}
 
 		const float & operator [](size_t i) const
 		{
-			return Subscribe(&x, 2, i);
+			_ASSERT(i < 2);
+			return (&x)[i];
 		}
 
 		bool operator ==(const Vector2 & rhs) const
@@ -464,12 +453,14 @@ namespace my
 	public:
 		float & operator [](size_t i)
 		{
-			return Subscribe(&x, 3, i);
+			_ASSERT(i < 3);
+			return (&x)[i];
 		}
 
 		const float & operator [](size_t i) const
 		{
-			return Subscribe(&x, 3, i);
+			_ASSERT(i < 3);
+			return (&x)[i];
 		}
 
 		bool operator ==(const Vector3 & rhs) const
@@ -905,12 +896,14 @@ namespace my
 	public:
 		float & operator [](size_t i)
 		{
-			return Subscribe(&x, 4, i);
+			_ASSERT(i < 4);
+			return (&x)[i];
 		}
 
 		const float & operator [](size_t i) const
 		{
-			return Subscribe(&x, 4, i);
+			_ASSERT(i < 4);
+			return (&x)[i];
 		}
 
 		bool operator ==(const Vector4 & rhs) const
@@ -2021,12 +2014,14 @@ namespace my
 	public:
 		Vector4 & operator [](size_t i)
 		{
-			return Subscribe((Vector4*)&_11, 4, i);
+			_ASSERT(i < 4);
+			return ((Vector4*)&_11)[i];
 		}
 
 		const Vector4 & operator [](size_t i) const
 		{
-			return Subscribe((Vector4*)&_11, 4, i);
+			_ASSERT(i < 4);
+			return ((Vector4*)&_11)[i];
 		}
 
 		template <int i>
@@ -3154,12 +3149,14 @@ namespace my
 
 		Plane & operator [](size_t i)
 		{
-			return Subscribe(&Up, 6, i);
+			_ASSERT(i < 6);
+			return (&Up)[i];
 		}
 
 		const Plane & operator [](size_t i) const
 		{
-			return Subscribe(&Up, 6, i);
+			_ASSERT(i < 6);
+			return (&Up)[i];
 		}
 
 		static Frustum ExtractMatrix(const Matrix4 & m)
