@@ -16,6 +16,7 @@
 #include "mySound.h"
 #include "rapidxml.hpp"
 #include <boost/algorithm/string.hpp>
+#include <boost/pool/pool.hpp>
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 #define STB_IMAGE_RESIZE_IMPLEMENTATION
@@ -1281,18 +1282,42 @@ MeshIORequest::MeshIORequest(const char * path, int Priority)
 
 void MeshIORequest::LoadResource(void)
 {
+	class my_pool : public my::SingletonLocalThread<my_pool>
+	{
+	public:
+		boost::pool<boost::default_user_allocator_malloc_free> pool;
+
+		my_pool(void)
+			: pool(sizeof(unsigned char))
+		{
+		}
+
+		static void* malloc(size_t size)
+		{
+			return getSingleton().pool.ordered_malloc(size);
+		}
+
+		static void free(void* p)
+		{
+			return getSingleton().pool.ordered_free(p);
+		}
+	};
+
 	if(ResourceMgr::getSingleton().CheckPath(m_path.c_str()))
 	{
 		CachePtr cache = ResourceMgr::getSingleton().OpenIStream(m_path.c_str())->GetWholeCache();
 		cache->push_back(0);
 
 		rapidxml::xml_document<char> doc;
+		doc.set_allocator(&my_pool::malloc, &my_pool::free);
 		doc.parse<0>((char *)&(*cache)[0]);
 
 		OgreMeshPtr res(new OgreMesh());
 		res->CreateMeshFromOgreXml(&doc, true, D3DXMESH_MANAGED);
 		m_res = res;
 	}
+
+	my_pool::getSingleton().pool.purge_memory();
 }
 
 void MeshIORequest::CreateResource(LPDIRECT3DDEVICE9 pd3dDevice)
