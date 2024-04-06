@@ -1288,18 +1288,22 @@ void MeshIORequest::LoadResource(void)
 		boost::pool<boost::default_user_allocator_malloc_free> pool;
 
 		my_pool(void)
-			: pool(sizeof(unsigned char))
+			: pool(RAPIDXML_DYNAMIC_POOL_SIZE + 64)
 		{
 		}
 
 		static void* malloc(size_t size)
 		{
-			return getSingleton().pool.ordered_malloc(size);
+			if (size <= getSingleton().pool.get_requested_size())
+			{
+				return getSingleton().pool.malloc();
+			}
+			return NULL;
 		}
 
 		static void free(void* p)
 		{
-			return getSingleton().pool.ordered_free(p);
+			return getSingleton().pool.free(p);
 		}
 	};
 
