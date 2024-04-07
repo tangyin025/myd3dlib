@@ -392,7 +392,7 @@ IStreamPtr StreamDirMgr::OpenIStream(const char * path)
 	return FileIStream::Open(ms2ts(path).c_str());
 }
 
-bool AsynchronousIOMgr::IsMainThread(void) const
+bool AsynchronousIOMgr::IsMainThread(void)
 {
 	return GetCurrentThreadId() == D3DContext::getSingleton().m_d3dThreadId;
 }

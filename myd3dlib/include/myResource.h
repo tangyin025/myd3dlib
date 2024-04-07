@@ -213,7 +213,7 @@ namespace my
 
 		ThreadPtrList m_Threads;
 
-		bool IsMainThread(void) const;
+		static bool IsMainThread(void);
 
 	public:
 		AsynchronousIOMgr(void);
