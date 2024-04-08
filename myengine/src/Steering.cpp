@@ -7,16 +7,6 @@
 
 using namespace my;
 
-ObstacleAvoidanceContext::ObstacleAvoidanceContext(void)
-	: dtObstacleAvoidanceQuery()
-{
-	dtObstacleAvoidanceQuery::init(6, 8);
-}
-
-ObstacleAvoidanceContext::~ObstacleAvoidanceContext(void)
-{
-}
-
 Steering::Steering(const char * Name, float MaxSpeed, float BrakingSpeed, float MaxAdjustedSpeed, Navigation * navi)
 	: Component(Name)
 	, m_Forward(0, 0, 1)
@@ -380,6 +370,22 @@ Steering::CrowdAgentState Steering::SeekTarget(const my::Vector3& Target, const 
 	{
 		m_boundary.update(m_corridor.getFirstPoly(), &m_agentPos.x, collisionQueryRange, m_navi->m_navQuery.get(), &filter);
 	}
+
+	class ObstacleAvoidanceContext
+		: public dtObstacleAvoidanceQuery
+		, public my::SingletonLocalThread<ObstacleAvoidanceContext>
+	{
+	public:
+		ObstacleAvoidanceContext(void)
+			: dtObstacleAvoidanceQuery()
+		{
+			dtObstacleAvoidanceQuery::init(6, 8);
+		}
+
+		virtual ~ObstacleAvoidanceContext(void)
+		{
+		}
+	};
 
 	// Add neighbours as obstacles.
 	ObstacleAvoidanceContext::getSingleton().reset();

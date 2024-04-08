@@ -14,16 +14,6 @@ class Navigation;
 /// @ingroup crowd
 static const int DT_CROWDAGENT_MAX_CORNERS = 4;
 
-class ObstacleAvoidanceContext
-	: public dtObstacleAvoidanceQuery
-	, public my::SingletonLocalThread<ObstacleAvoidanceContext>
-{
-public:
-	ObstacleAvoidanceContext(void);
-
-	virtual ~ObstacleAvoidanceContext(void);
-};
-
 class Steering : public Component
 {
 public:
