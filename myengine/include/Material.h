@@ -37,22 +37,27 @@ public:
 
 	D3DXHANDLE m_Handle;
 
+	bool m_Requested;
+
 protected:
 	MaterialParameter(void)
 		: m_Name()
 		, m_Handle(NULL)
+		, m_Requested(false)
 	{
 	}
 
 	MaterialParameter(const std::string & Name)
 		: m_Name(Name)
 		, m_Handle(NULL)
+		, m_Requested(false)
 	{
 	}
 
 public:
 	virtual ~MaterialParameter(void)
 	{
+		_ASSERT(!IsRequested());
 	}
 
 	friend class boost::serialization::access;
@@ -68,6 +73,11 @@ public:
 		return ParameterTypeNone;
 	}
 
+	bool IsRequested(void) const
+	{
+		return m_Requested;
+	}
+
 	bool operator == (const MaterialParameter & rhs) const;
 
 	void Init(my::Effect * shader);
@@ -78,10 +88,12 @@ public:
 
 	virtual void RequestResource(void)
 	{
+		m_Requested = true;
 	}
 
 	virtual void ReleaseResource(void)
 	{
+		m_Requested = false;
 	}
 };
 

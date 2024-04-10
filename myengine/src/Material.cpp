@@ -133,9 +133,9 @@ void MaterialParameterFloat4::Set(my::Effect * shader, LPARAM lparam, RenderPipe
 
 MaterialParameterTexture::~MaterialParameterTexture(void)
 {
-	if (!m_TexturePath.empty())
+	if (IsRequested())
 	{
-		_ASSERT(!m_Texture); ReleaseResource();
+		_ASSERT(false); ReleaseResource();
 	}
 }
 
@@ -146,6 +146,8 @@ void MaterialParameterTexture::OnTextureReady(my::DeviceResourceBasePtr res)
 
 void MaterialParameterTexture::RequestResource(void)
 {
+	MaterialParameter::RequestResource();
+
 	if (!m_TexturePath.empty())
 	{
 		_ASSERT(!m_Texture);
@@ -156,6 +158,8 @@ void MaterialParameterTexture::RequestResource(void)
 
 void MaterialParameterTexture::ReleaseResource(void)
 {
+	MaterialParameter::ReleaseResource();
+
 	if (!m_TexturePath.empty())
 	{
 		my::ResourceMgr::getSingleton().RemoveIORequestCallback(m_TexturePath, boost::bind(&MaterialParameterTexture::OnTextureReady, this, boost::placeholders::_1));
