@@ -175,7 +175,16 @@ void ActionTrackSound::AddKeyFrame(float Time, const char * SoundPath, float Sta
 
 ActionTrackSoundInst::~ActionTrackSoundInst(void)
 {
-	Stop();
+#ifdef _DEBUG
+	SoundEventList::iterator event_iter = m_Events.begin();
+	for (; event_iter != m_Events.end(); event_iter++)
+	{
+		if ((*event_iter)->m_sbuffer)
+		{
+			_ASSERT(!(*event_iter)->m_sbuffer->GetStatus() & DSBSTATUS_PLAYING);
+		}
+	}
+#endif
 }
 
 void ActionTrackSoundInst::UpdateTime(float LastTime, float Time)
