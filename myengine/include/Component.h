@@ -4,6 +4,7 @@
 #include "myOctree.h"
 #include "myEmitter.h"
 #include "myMesh.h"
+#include "myTask.h"
 #include <atlbase.h>
 #include <boost/smart_ptr/enable_shared_from_this.hpp>
 
@@ -638,68 +639,77 @@ typedef boost::shared_ptr<CircularEmitter> CircularEmitterPtr;
 
 class SphericalEmitter
 	: public CircularEmitter
+	, public my::ParallelTask
 {
 public:
 	enum { TypeID = ComponentTypeSphericalEmitter };
 
-	float m_ParticleLifeTime;
+	int m_SpawnCount;
 
 	float m_SpawnInterval;
 
+	float m_SpawnTime;
+
 	my::Vector3 m_HalfSpawnArea;
 
-	my::Spline m_SpawnInclination;
+	my::Vector2 m_SpawnInclination;
 
-	my::Spline m_SpawnAzimuth;
+	my::Vector2 m_SpawnAzimuth;
 
 	float m_SpawnSpeed;
-
-	my::Spline m_SpawnColorR;
-
-	my::Spline m_SpawnColorG;
-
-	my::Spline m_SpawnColorB;
-
-	my::Spline m_SpawnColorA;
-
-	my::Spline m_SpawnSizeX;
-
-	my::Spline m_SpawnSizeY;
-
-	my::Spline m_SpawnAngle;
-
-	float m_SpawnCycle;
-
-	float m_SpawnTime;
 
 	int m_SpawnBoneId;
 
 	my::Bone m_SpawnLocalPose;
 
+	float m_ParticleLifeTime;
+
+	float m_ParticleDamping;
+
+	my::Spline m_ParticleColorR;
+
+	my::Spline m_ParticleColorG;
+
+	my::Spline m_ParticleColorB;
+
+	my::Spline m_ParticleColorA;
+
+	my::Spline m_ParticleSizeX;
+
+	my::Spline m_ParticleSizeY;
+
+	my::Spline m_ParticleAngle;
+
 protected:
 	SphericalEmitter(void)
-		: m_ParticleLifeTime(FLT_MAX)
-		, m_SpawnInterval(FLT_MAX)
-		, m_HalfSpawnArea(0, 0, 0)
-		, m_SpawnSpeed(0)
-		, m_SpawnCycle(5)
+		: m_SpawnCount(1)
+		, m_SpawnInterval(1)
 		, m_SpawnTime(FLT_MAX)
+		, m_HalfSpawnArea(0, 0, 0)
+		, m_SpawnInclination(D3DXToRadian(-90), D3DXToRadian(90))
+		, m_SpawnAzimuth(D3DXToRadian(0), D3DXToRadian(360))
+		, m_SpawnSpeed(0)
 		, m_SpawnBoneId(-1)
 		, m_SpawnLocalPose(my::Vector3(0, 0, 0))
+		, m_ParticleLifeTime(1)
+		, m_ParticleDamping(1.0f)
 	{
 	}
 
 public:
 	SphericalEmitter(const char * Name, unsigned int Capacity, FaceType _FaceType, SpaceType _SpaceType, VelocityType _VelocityType)
 		: CircularEmitter(Name, Capacity, _FaceType, _SpaceType, _VelocityType)
-		, m_ParticleLifeTime(FLT_MAX)
-		, m_SpawnInterval(FLT_MAX)
-		, m_HalfSpawnArea(0,0,0)
-		, m_SpawnSpeed(0)
-		, m_SpawnCycle(5)
+		, m_SpawnCount(1)
+		, m_SpawnInterval(1)
 		, m_SpawnTime(FLT_MAX)
+		, m_HalfSpawnArea(0, 0, 0)
+		, m_SpawnInclination(D3DXToRadian(-90), D3DXToRadian(90))
+		, m_SpawnAzimuth(D3DXToRadian(0), D3DXToRadian(360))
+		, m_SpawnSpeed(0)
 		, m_SpawnBoneId(-1)
 		, m_SpawnLocalPose(my::Vector3(0, 0, 0))
+		, m_ParticleLifeTime(1)
+		, m_ParticleDamping(1.0f)
 	{
 	}
 
@@ -733,6 +743,8 @@ public:
 	virtual void Update(float fElapsedTime);
 
 	virtual my::AABB CalculateAABB(void) const;
+
+	virtual void DoTask(void);
 };
 
 typedef boost::shared_ptr<SphericalEmitter> SphericalEmitterPtr;

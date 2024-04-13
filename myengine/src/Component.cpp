@@ -1921,22 +1921,23 @@ void SphericalEmitter::save(Archive & ar, const unsigned int version) const
 	Emitter::ParticleList::capacity_type Capacity;
 	Capacity = m_ParticleList.capacity();
 	ar << BOOST_SERIALIZATION_NVP(Capacity);
-	ar << BOOST_SERIALIZATION_NVP(m_ParticleLifeTime);
+	ar << BOOST_SERIALIZATION_NVP(m_SpawnCount);
 	ar << BOOST_SERIALIZATION_NVP(m_SpawnInterval);
 	ar << BOOST_SERIALIZATION_NVP(m_HalfSpawnArea);
 	ar << BOOST_SERIALIZATION_NVP(m_SpawnInclination);
 	ar << BOOST_SERIALIZATION_NVP(m_SpawnAzimuth);
 	ar << BOOST_SERIALIZATION_NVP(m_SpawnSpeed);
-	ar << BOOST_SERIALIZATION_NVP(m_SpawnColorR);
-	ar << BOOST_SERIALIZATION_NVP(m_SpawnColorG);
-	ar << BOOST_SERIALIZATION_NVP(m_SpawnColorB);
-	ar << BOOST_SERIALIZATION_NVP(m_SpawnColorA);
-	ar << BOOST_SERIALIZATION_NVP(m_SpawnSizeX);
-	ar << BOOST_SERIALIZATION_NVP(m_SpawnSizeY);
-	ar << BOOST_SERIALIZATION_NVP(m_SpawnAngle);
-	ar << BOOST_SERIALIZATION_NVP(m_SpawnCycle);
 	ar << BOOST_SERIALIZATION_NVP(m_SpawnBoneId);
 	ar << BOOST_SERIALIZATION_NVP(m_SpawnLocalPose);
+	ar << BOOST_SERIALIZATION_NVP(m_ParticleLifeTime);
+	ar << BOOST_SERIALIZATION_NVP(m_ParticleDamping);
+	ar << BOOST_SERIALIZATION_NVP(m_ParticleColorR);
+	ar << BOOST_SERIALIZATION_NVP(m_ParticleColorG);
+	ar << BOOST_SERIALIZATION_NVP(m_ParticleColorB);
+	ar << BOOST_SERIALIZATION_NVP(m_ParticleColorA);
+	ar << BOOST_SERIALIZATION_NVP(m_ParticleSizeX);
+	ar << BOOST_SERIALIZATION_NVP(m_ParticleSizeY);
+	ar << BOOST_SERIALIZATION_NVP(m_ParticleAngle);
 }
 
 template<class Archive>
@@ -1946,22 +1947,23 @@ void SphericalEmitter::load(Archive & ar, const unsigned int version)
 	Emitter::ParticleList::capacity_type Capacity;
 	ar >> BOOST_SERIALIZATION_NVP(Capacity);
 	m_ParticleList.set_capacity(Capacity);
-	ar >> BOOST_SERIALIZATION_NVP(m_ParticleLifeTime);
+	ar >> BOOST_SERIALIZATION_NVP(m_SpawnCount);
 	ar >> BOOST_SERIALIZATION_NVP(m_SpawnInterval);
 	ar >> BOOST_SERIALIZATION_NVP(m_HalfSpawnArea);
 	ar >> BOOST_SERIALIZATION_NVP(m_SpawnInclination);
 	ar >> BOOST_SERIALIZATION_NVP(m_SpawnAzimuth);
 	ar >> BOOST_SERIALIZATION_NVP(m_SpawnSpeed);
-	ar >> BOOST_SERIALIZATION_NVP(m_SpawnColorR);
-	ar >> BOOST_SERIALIZATION_NVP(m_SpawnColorG);
-	ar >> BOOST_SERIALIZATION_NVP(m_SpawnColorB);
-	ar >> BOOST_SERIALIZATION_NVP(m_SpawnColorA);
-	ar >> BOOST_SERIALIZATION_NVP(m_SpawnSizeX);
-	ar >> BOOST_SERIALIZATION_NVP(m_SpawnSizeY);
-	ar >> BOOST_SERIALIZATION_NVP(m_SpawnAngle);
-	ar >> BOOST_SERIALIZATION_NVP(m_SpawnCycle);
 	ar >> BOOST_SERIALIZATION_NVP(m_SpawnBoneId);
 	ar >> BOOST_SERIALIZATION_NVP(m_SpawnLocalPose);
+	ar >> BOOST_SERIALIZATION_NVP(m_ParticleLifeTime);
+	ar >> BOOST_SERIALIZATION_NVP(m_ParticleDamping);
+	ar >> BOOST_SERIALIZATION_NVP(m_ParticleColorR);
+	ar >> BOOST_SERIALIZATION_NVP(m_ParticleColorG);
+	ar >> BOOST_SERIALIZATION_NVP(m_ParticleColorB);
+	ar >> BOOST_SERIALIZATION_NVP(m_ParticleColorA);
+	ar >> BOOST_SERIALIZATION_NVP(m_ParticleSizeX);
+	ar >> BOOST_SERIALIZATION_NVP(m_ParticleSizeY);
+	ar >> BOOST_SERIALIZATION_NVP(m_ParticleAngle);
 }
 
 void SphericalEmitter::RequestResource(void)
@@ -1978,45 +1980,60 @@ void SphericalEmitter::ReleaseResource(void)
 
 void SphericalEmitter::Update(float fElapsedTime)
 {
-	_ASSERT(m_SpawnInterval > 0);
-
-	ParticleList::iterator first_part_iter = std::upper_bound(
-		m_ParticleList.begin(), m_ParticleList.end(), D3DContext::getSingleton().m_fTotalTime - m_ParticleLifeTime,
-		boost::bind(std::less<float>(), boost::placeholders::_1, boost::bind(&Particle::m_Time, boost::placeholders::_2)));
+	ParticleList::iterator first_part_iter = std::upper_bound(m_ParticleList.begin(), m_ParticleList.end(),
+		m_ParticleLifeTime, boost::bind(std::greater<float>(), boost::placeholders::_1, boost::bind(&Particle::m_Time, boost::placeholders::_2)));
 	if (first_part_iter != m_ParticleList.begin())
 	{
 		m_ParticleList.rerase(m_ParticleList.begin(), first_part_iter);
 	}
 
-	const Bone pose = m_EmitterSpaceType == SpaceTypeWorld ?
-		m_Actor->GetAttachPose(m_SpawnBoneId, m_SpawnLocalPose.m_position, m_SpawnLocalPose.m_rotation) : m_SpawnLocalPose;
-
-	for (; m_SpawnTime < D3DContext::getSingleton().m_fTotalTime; m_SpawnTime += m_SpawnInterval)
+	if (m_SpawnInterval > 0)
 	{
-		const float SpawnTimeCycle = Wrap<float>(m_SpawnTime, 0, m_SpawnCycle);
+		const Bone pose = m_EmitterSpaceType == SpaceTypeWorld ?
+			m_Actor->GetAttachPose(m_SpawnBoneId, m_SpawnLocalPose.m_position, m_SpawnLocalPose.m_rotation) : m_SpawnLocalPose;
 
-		Spawn(
-			Vector4(Vector3(
-				Random(-m_HalfSpawnArea.x, m_HalfSpawnArea.x),
-				Random(-m_HalfSpawnArea.y, m_HalfSpawnArea.y),
-				Random(-m_HalfSpawnArea.z, m_HalfSpawnArea.z)) + pose.m_position, 1),
-			Vector4(Vector3::PolarToCartesian(
-				m_SpawnSpeed,
-				m_SpawnInclination.Interpolate(SpawnTimeCycle, 0),
-				m_SpawnAzimuth.Interpolate(SpawnTimeCycle, 0)), 1),
-			Vector4(
-				m_SpawnColorR.Interpolate(SpawnTimeCycle, 1),
-				m_SpawnColorG.Interpolate(SpawnTimeCycle, 1),
-				m_SpawnColorB.Interpolate(SpawnTimeCycle, 1),
-				m_SpawnColorA.Interpolate(SpawnTimeCycle, 1)),
-			Vector2(
-				m_SpawnSizeX.Interpolate(SpawnTimeCycle, 1),
-				m_SpawnSizeY.Interpolate(SpawnTimeCycle, 1)),
-			m_SpawnAngle.Interpolate(SpawnTimeCycle, 0), m_SpawnTime);
+		for (; m_SpawnTime < D3DContext::getSingleton().m_fTotalTime; m_SpawnTime += m_SpawnInterval)
+		{
+			for (int i = 0; i < m_SpawnCount; i++)
+			{
+				Spawn(
+					Vector4(Vector3(
+						Random(-m_HalfSpawnArea.x, m_HalfSpawnArea.x),
+						Random(-m_HalfSpawnArea.y, m_HalfSpawnArea.y),
+						Random(-m_HalfSpawnArea.z, m_HalfSpawnArea.z)) + pose.m_position, 1),
+					Vector4(Vector3::PolarToCartesian(
+						m_SpawnSpeed,
+						Random(m_SpawnInclination.x, m_SpawnInclination.y),
+						Random(m_SpawnAzimuth.x, m_SpawnAzimuth.y)), 1),
+					Vector4(1, 1, 1, 1), Vector2(1, 1), 0, 0);
+			}
+		}
 	}
+
+	ParallelTaskManager::getSingleton().PushTask(this);
 }
 
 my::AABB SphericalEmitter::CalculateAABB(void) const
 {
 	return Component::CalculateAABB();
+}
+
+void SphericalEmitter::DoTask(void)
+{
+	// ! take care of thread safe
+	Emitter::ParticleList::iterator particle_iter = m_ParticleList.begin();
+	for (; particle_iter != m_ParticleList.end(); particle_iter++)
+	{
+		particle_iter->m_Velocity.xyz *= powf(m_ParticleDamping, D3DContext::getSingleton().m_fElapsedTime);
+		particle_iter->m_Position.xyz += particle_iter->m_Velocity.xyz * D3DContext::getSingleton().m_fElapsedTime;
+		const float ParticleTime = particle_iter->m_Time + D3DContext::getSingleton().m_fElapsedTime;
+		particle_iter->m_Color.x = m_ParticleColorR.Interpolate(ParticleTime, 1);
+		particle_iter->m_Color.y = m_ParticleColorG.Interpolate(ParticleTime, 1);
+		particle_iter->m_Color.z = m_ParticleColorB.Interpolate(ParticleTime, 1);
+		particle_iter->m_Color.w = m_ParticleColorA.Interpolate(ParticleTime, 1);
+		particle_iter->m_Size.x = m_ParticleSizeX.Interpolate(ParticleTime, 1);
+		particle_iter->m_Size.y = m_ParticleSizeY.Interpolate(ParticleTime, 1);
+		particle_iter->m_Angle = m_ParticleAngle.Interpolate(ParticleTime, 0);
+		particle_iter->m_Time = ParticleTime;
+	}
 }
