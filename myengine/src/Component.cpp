@@ -1985,13 +1985,24 @@ void SphericalEmitter::Update(float fElapsedTime)
 		m_ParticleList.rerase(m_ParticleList.begin(), first_part_iter);
 	}
 
+	const float ElapsedTime = my::Min(PhysxSdk::getSingleton().m_MaxAllowedTimestep, fElapsedTime);
+
+	if (m_DelayRemoveTime > 0)
+	{
+		m_DelayRemoveTime -= ElapsedTime;
+		if (m_DelayRemoveTime <= 0)
+		{
+			m_Actor->RemoveComponent(GetSiblingId());
+			return;
+		}
+	}
+
 	if (m_SpawnInterval > 0)
 	{
 		const Bone pose = m_EmitterSpaceType == SpaceTypeWorld ?
 			m_Actor->GetAttachPose(m_SpawnBoneId, m_SpawnLocalPose.m_position, m_SpawnLocalPose.m_rotation) : m_SpawnLocalPose;
 
-		m_SpawnTime += my::Min(PhysxSdk::getSingleton().m_MaxAllowedTimestep, fElapsedTime);
-
+		m_SpawnTime += ElapsedTime;
 		for (; m_SpawnTime >= m_SpawnInterval; m_SpawnTime -= m_SpawnInterval)
 		{
 			for (int i = 0; i < m_SpawnCount; i++)
@@ -2020,6 +2031,8 @@ my::AABB SphericalEmitter::CalculateAABB(void) const
 
 void SphericalEmitter::DoTask(void)
 {
+	_ASSERT(m_Actor);
+
 	// ! take care of thread safe
 	const float ElapsedTime = my::Min(PhysxSdk::getSingleton().m_MaxAllowedTimestep, D3DContext::getSingleton().m_fElapsedTime);
 	Emitter::ParticleList::iterator particle_iter = m_ParticleList.begin();

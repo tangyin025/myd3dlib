@@ -7,6 +7,7 @@
 #include "Material.h"
 #include "PhysxContext.h"
 #include "Controller.h"
+#include "myDxutApp.h"
 
 using namespace my;
 
@@ -247,15 +248,11 @@ ActionTrackEmitterInst::ActionTrackEmitterInst(Actor * _Actor, boost::shared_ptr
 	: ActionTrackInst(_Actor)
 	, m_Template(Template)
 {
-	m_EmitterCmp.reset(new SphericalEmitter(NamedObject::MakeUniqueName("ActionTrackEmitterInst_cmp").c_str(),
-		m_Template->m_EmitterCapacity, (EmitterComponent::FaceType)m_Template->m_EmitterFaceType, (EmitterComponent::SpaceType)m_Template->m_EmitterSpaceType, EmitterComponent::VelocityTypeNone));
-	m_EmitterCmp->m_SpawnInterval = 0;
-	m_EmitterCmp->SetMaterial(m_Template->m_EmitterMaterial->Clone());
 }
 
 ActionTrackEmitterInst::~ActionTrackEmitterInst(void)
 {
-	_ASSERT(!m_EmitterCmp->m_Actor);
+	_ASSERT(!m_EmitterCmp);
 }
 
 void ActionTrackEmitterInst::UpdateTime(float LastTime, float Time)
@@ -268,19 +265,23 @@ void ActionTrackEmitterInst::UpdateTime(float LastTime, float Time)
 			key_iter->first, key_iter->second.SpawnCount, key_iter->second.SpawnInterval));
 	}
 
-	const Bone pose = m_EmitterCmp->m_EmitterSpaceType == EmitterComponent::SpaceTypeWorld ?
-		m_Actor->GetAttachPose(m_Template->m_SpawnBoneId, m_Template->m_SpawnLocalPose.m_position, m_Template->m_SpawnLocalPose.m_rotation) : m_Template->m_SpawnLocalPose;
-
 	KeyFrameInstList::iterator key_inst_iter = m_KeyInsts.begin();
 	for (; key_inst_iter != m_KeyInsts.end(); )
 	{
 		for (; key_inst_iter->m_Time < Time && key_inst_iter->m_SpawnCount > 0;
 			key_inst_iter->m_Time += key_inst_iter->m_SpawnInterval, key_inst_iter->m_SpawnCount--)
 		{
-			if (!m_EmitterCmp->m_Actor)
+			if (!m_EmitterCmp)
 			{
+				m_EmitterCmp.reset(new SphericalEmitter(NamedObject::MakeUniqueName("ActionTrackEmitterInst_cmp").c_str(),
+					m_Template->m_EmitterCapacity, (EmitterComponent::FaceType)m_Template->m_EmitterFaceType, (EmitterComponent::SpaceType)m_Template->m_EmitterSpaceType, EmitterComponent::VelocityTypeNone));
+				m_EmitterCmp->m_SpawnInterval = 0;
+				m_EmitterCmp->SetMaterial(m_Template->m_EmitterMaterial->Clone());
 				m_Actor->InsertComponent(m_EmitterCmp);
 			}
+
+			const Bone pose = m_EmitterCmp->m_EmitterSpaceType == EmitterComponent::SpaceTypeWorld ?
+				m_Actor->GetAttachPose(m_Template->m_SpawnBoneId, m_Template->m_SpawnLocalPose.m_position, m_Template->m_SpawnLocalPose.m_rotation) : m_Template->m_SpawnLocalPose;
 
 			m_EmitterCmp->Spawn(
 				Vector4(Vector3(
@@ -307,7 +308,14 @@ void ActionTrackEmitterInst::UpdateTime(float LastTime, float Time)
 
 void ActionTrackEmitterInst::Stop(void)
 {
-	m_Actor->RemoveComponent(m_EmitterCmp->GetSiblingId());
+	_ASSERT(GetCurrentThreadId() == D3DContext::getSingleton().m_d3dThreadId || PhysxSdk::getSingleton().m_RenderTickMuted);
+
+	if (m_EmitterCmp)
+	{
+		_ASSERT(m_EmitterCmp->m_Actor && m_EmitterCmp->m_DelayRemoveTime <= 0);
+		m_EmitterCmp->m_DelayRemoveTime = m_Template->m_ParticleLifeTime;
+		m_EmitterCmp.reset();
+	}
 }
 
 ActionTrackInstPtr ActionTrackVelocity::CreateInstance(Actor * _Actor, float Rate) const

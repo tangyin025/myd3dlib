@@ -680,6 +680,8 @@ public:
 
 	my::Spline m_ParticleAngle;
 
+	float m_DelayRemoveTime;
+
 protected:
 	SphericalEmitter(void)
 		: m_SpawnCount(1)
@@ -693,6 +695,7 @@ protected:
 		, m_SpawnLocalPose(my::Vector3(0, 0, 0))
 		, m_ParticleLifeTime(1)
 		, m_ParticleDamping(1.0f)
+		, m_DelayRemoveTime(0)
 	{
 	}
 
@@ -710,6 +713,7 @@ public:
 		, m_SpawnLocalPose(my::Vector3(0, 0, 0))
 		, m_ParticleLifeTime(1)
 		, m_ParticleDamping(1.0f)
+		, m_DelayRemoveTime(0)
 	{
 	}
 
