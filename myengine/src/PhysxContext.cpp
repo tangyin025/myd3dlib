@@ -208,7 +208,7 @@ void PhysxScene::TickPreRender(float fElapsedTime)
 
 	mContactPairs.clear();
 
-	PhysxSdk::getSingleton().m_RenderTickMuted = true;
+	InterlockedExchange(&PhysxSdk::getSingleton().m_RenderTickMuted, 1);
 
 	m_WaitForResults = Advance(fElapsedTime);
 }
@@ -219,7 +219,7 @@ void PhysxScene::TickPostRender(float fElapsedTime)
 	{
 		m_Sync.Wait(INFINITE);
 
-		PhysxSdk::getSingleton().m_RenderTickMuted = false;
+		InterlockedExchange(&PhysxSdk::getSingleton().m_RenderTickMuted, 0);
 
 		const physx::PxActiveTransform* activeTransforms = m_PxScene->getActiveTransforms(mActiveTransformCount, 0);
 		mBufferedActiveTransforms.resize(mActiveTransformCount);
@@ -285,7 +285,7 @@ void PhysxScene::TickPostRender(float fElapsedTime)
 	}
 	else
 	{
-		PhysxSdk::getSingleton().m_RenderTickMuted = false;
+		InterlockedExchange(&PhysxSdk::getSingleton().m_RenderTickMuted, 0);
 	}
 }
 
@@ -308,10 +308,10 @@ bool PhysxScene::Advance(float fElapsedTime)
 
 void PhysxScene::AdvanceSync(float fElapsedTime)
 {
-	PhysxSdk::getSingleton().m_RenderTickMuted = true;
+	InterlockedExchange(&PhysxSdk::getSingleton().m_RenderTickMuted, 1);
 	BOOST_SCOPE_EXIT(void)
 	{
-		PhysxSdk::getSingleton().m_RenderTickMuted = false;
+		InterlockedExchange(&PhysxSdk::getSingleton().m_RenderTickMuted, 0);
 	}
 	BOOST_SCOPE_EXIT_END
 
