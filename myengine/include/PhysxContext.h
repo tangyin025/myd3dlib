@@ -94,11 +94,17 @@ public:
 
 	my::CriticalSection m_CollectionObjsSec;
 
+	float m_FrameInterval;
+
+	float m_MaxAllowedTimestep;
+
 	bool m_RenderTickMuted;
 
 public:
 	PhysxSdk(void)
-		: m_RenderTickMuted(false)
+		: m_MaxAllowedTimestep(0.1f)
+		, m_FrameInterval(1 / 60.0f)
+		, m_RenderTickMuted(false)
 	{
 	}
 
@@ -188,10 +194,6 @@ public:
 
 	my::Timer m_Timer;
 
-	float m_FrameInterval;
-
-	float m_MaxAllowedTimestep;
-
 	my::Event m_Sync;
 
 	bool m_WaitForResults;
@@ -248,8 +250,6 @@ public:
 	PhysxScene(void)
 		: m_Completion0(this)
 		, m_Completion1(this)
-		, m_FrameInterval(1/60.0f)
-		, m_MaxAllowedTimestep(0.1f)
 		, m_Sync(NULL, FALSE, FALSE, NULL)
 		, m_WaitForResults(false)
 		, m_ErrorState(0)
