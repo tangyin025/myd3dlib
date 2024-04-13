@@ -276,7 +276,18 @@ void ActionTrackEmitterInst::UpdateTime(float LastTime, float Time)
 				m_EmitterCmp.reset(new SphericalEmitter(NamedObject::MakeUniqueName("ActionTrackEmitterInst_cmp").c_str(),
 					m_Template->m_EmitterCapacity, (EmitterComponent::FaceType)m_Template->m_EmitterFaceType, (EmitterComponent::SpaceType)m_Template->m_EmitterSpaceType, EmitterComponent::VelocityTypeNone));
 				m_EmitterCmp->m_SpawnInterval = 0;
+				m_EmitterCmp->m_ParticleLifeTime = m_Template->m_ParticleLifeTime;
+				m_EmitterCmp->m_ParticleDamping = m_Template->m_ParticleDamping;
+				m_EmitterCmp->m_ParticleColorR = m_Template->m_ParticleColorR;
+				m_EmitterCmp->m_ParticleColorG = m_Template->m_ParticleColorG;
+				m_EmitterCmp->m_ParticleColorB = m_Template->m_ParticleColorB;
+				m_EmitterCmp->m_ParticleColorA = m_Template->m_ParticleColorA;
+				m_EmitterCmp->m_ParticleSizeX = m_Template->m_ParticleSizeX;
+				m_EmitterCmp->m_ParticleSizeY = m_Template->m_ParticleSizeY;
+				m_EmitterCmp->m_ParticleAngle = m_Template->m_ParticleAngle;
+				m_EmitterCmp->m_DelayRemoveTime = 0;
 				m_EmitterCmp->SetMaterial(m_Template->m_EmitterMaterial->Clone());
+
 				m_Actor->InsertComponent(m_EmitterCmp);
 			}
 

@@ -644,8 +644,6 @@ class SphericalEmitter
 public:
 	enum { TypeID = ComponentTypeSphericalEmitter };
 
-	int m_SpawnCount;
-
 	float m_SpawnInterval;
 
 	float m_SpawnTime;
@@ -684,8 +682,7 @@ public:
 
 protected:
 	SphericalEmitter(void)
-		: m_SpawnCount(1)
-		, m_SpawnInterval(1)
+		: m_SpawnInterval(1)
 		, m_SpawnTime(0)
 		, m_HalfSpawnArea(0, 0, 0)
 		, m_SpawnInclination(D3DXToRadian(-90), D3DXToRadian(90))
@@ -702,7 +699,6 @@ protected:
 public:
 	SphericalEmitter(const char * Name, unsigned int Capacity, FaceType _FaceType, SpaceType _SpaceType, VelocityType _VelocityType)
 		: CircularEmitter(Name, Capacity, _FaceType, _SpaceType, _VelocityType)
-		, m_SpawnCount(1)
 		, m_SpawnInterval(1)
 		, m_SpawnTime(0)
 		, m_HalfSpawnArea(0, 0, 0)

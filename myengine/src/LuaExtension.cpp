@@ -2924,7 +2924,6 @@ void LuaContext::Init(void)
 
 		, class_<SphericalEmitter, CircularEmitter, boost::shared_ptr<Component> >("SphericalEmitter")
 			.def(constructor<const char *, unsigned int, EmitterComponent::FaceType, EmitterComponent::SpaceType, EmitterComponent::VelocityType>())
-			.def_readwrite("SpawnCount", &SphericalEmitter::m_SpawnCount)
 			.def_readwrite("SpawnInterval", &SphericalEmitter::m_SpawnInterval)
 			.def_readwrite("HalfSpawnArea", &SphericalEmitter::m_HalfSpawnArea)
 			.def_readwrite("SpawnInclination", &SphericalEmitter::m_SpawnInclination)

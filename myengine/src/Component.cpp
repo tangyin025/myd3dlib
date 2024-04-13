@@ -1921,7 +1921,6 @@ void SphericalEmitter::save(Archive & ar, const unsigned int version) const
 	Emitter::ParticleList::capacity_type Capacity;
 	Capacity = m_ParticleList.capacity();
 	ar << BOOST_SERIALIZATION_NVP(Capacity);
-	ar << BOOST_SERIALIZATION_NVP(m_SpawnCount);
 	ar << BOOST_SERIALIZATION_NVP(m_SpawnInterval);
 	ar << BOOST_SERIALIZATION_NVP(m_HalfSpawnArea);
 	ar << BOOST_SERIALIZATION_NVP(m_SpawnInclination);
@@ -1947,7 +1946,6 @@ void SphericalEmitter::load(Archive & ar, const unsigned int version)
 	Emitter::ParticleList::capacity_type Capacity;
 	ar >> BOOST_SERIALIZATION_NVP(Capacity);
 	m_ParticleList.set_capacity(Capacity);
-	ar >> BOOST_SERIALIZATION_NVP(m_SpawnCount);
 	ar >> BOOST_SERIALIZATION_NVP(m_SpawnInterval);
 	ar >> BOOST_SERIALIZATION_NVP(m_HalfSpawnArea);
 	ar >> BOOST_SERIALIZATION_NVP(m_SpawnInclination);
@@ -2005,19 +2003,16 @@ void SphericalEmitter::Update(float fElapsedTime)
 		m_SpawnTime += ElapsedTime;
 		for (; m_SpawnTime >= m_SpawnInterval; m_SpawnTime -= m_SpawnInterval)
 		{
-			for (int i = 0; i < m_SpawnCount; i++)
-			{
-				Spawn(
-					Vector4(Vector3(
-						Random(-m_HalfSpawnArea.x, m_HalfSpawnArea.x),
-						Random(-m_HalfSpawnArea.y, m_HalfSpawnArea.y),
-						Random(-m_HalfSpawnArea.z, m_HalfSpawnArea.z)) + pose.m_position, 1),
-					Vector4(Vector3::PolarToCartesian(
-						m_SpawnSpeed,
-						Random(m_SpawnInclination.x, m_SpawnInclination.y),
-						Random(m_SpawnAzimuth.x, m_SpawnAzimuth.y)), 1),
-					Vector4(1, 1, 1, 1), Vector2(1, 1), 0, 0);
-			}
+			Spawn(
+				Vector4(Vector3(
+					Random(-m_HalfSpawnArea.x, m_HalfSpawnArea.x),
+					Random(-m_HalfSpawnArea.y, m_HalfSpawnArea.y),
+					Random(-m_HalfSpawnArea.z, m_HalfSpawnArea.z)) + pose.m_position, 1),
+				Vector4(Vector3::PolarToCartesian(
+					m_SpawnSpeed,
+					Random(m_SpawnInclination.x, m_SpawnInclination.y),
+					Random(m_SpawnAzimuth.x, m_SpawnAzimuth.y)), 1),
+				Vector4(1, 1, 1, 1), Vector2(1, 1), 0, 0);
 		}
 	}
 

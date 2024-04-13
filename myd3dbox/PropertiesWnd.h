@@ -198,7 +198,6 @@ public:
 		PropertyStaticEmitterChunkLodScale,
 		PropertySphericalEmitter,
 		PropertySphericalEmitterParticleCapacity,
-		PropertySphericalEmitterSpawnCount,
 		PropertySphericalEmitterSpawnInterval,
 		PropertySphericalEmitterHalfSpawnArea,
 		PropertySphericalEmitterHalfSpawnAreaX,
