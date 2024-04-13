@@ -865,6 +865,8 @@ void CMainFrame::OnFrameTick(float fElapsedTime)
 		}
 	}
 
+	theApp.DoAllParallelTasks();
+
 	if (haveSelActors)
 	{
 		UpdateSelBox();
@@ -1719,18 +1721,18 @@ void CMainFrame::OnComponentSphericalemitter()
 	sphe_emit_cmp->m_SpawnLocalPose = my::Bone(my::Vector3(0));
 	sphe_emit_cmp->m_ParticleLifeTime = 10.0f;
 	sphe_emit_cmp->m_ParticleDamping = 0.8f;
-	sphe_emit_cmp->m_ParticleColorA.AddNode(0,1,0,0);
-	sphe_emit_cmp->m_ParticleColorA.AddNode(10,0,0,0);
-	sphe_emit_cmp->m_ParticleColorR.AddNode(0,1,0,0);
-	sphe_emit_cmp->m_ParticleColorR.AddNode(10,0,0,0);
-	sphe_emit_cmp->m_ParticleColorG.AddNode(0,1,0,0);
-	sphe_emit_cmp->m_ParticleColorG.AddNode(10,0,0,0);
-	sphe_emit_cmp->m_ParticleColorB.AddNode(0,1,0,0);
-	sphe_emit_cmp->m_ParticleColorB.AddNode(10,0,0,0);
-	sphe_emit_cmp->m_ParticleSizeX.AddNode(0,1,0,0);
-	sphe_emit_cmp->m_ParticleSizeX.AddNode(10,10,0,0);
-	sphe_emit_cmp->m_ParticleSizeY.AddNode(0,1,0,0);
-	sphe_emit_cmp->m_ParticleSizeY.AddNode(10,10,0,0);
+	sphe_emit_cmp->m_ParticleColorR.AddNode(0, 1, 0, 0);
+	sphe_emit_cmp->m_ParticleColorR.AddNode(10, 0, 0, 0);
+	sphe_emit_cmp->m_ParticleColorG.AddNode(0, 1, 0, 0);
+	sphe_emit_cmp->m_ParticleColorG.AddNode(10, 0, 0, 0);
+	sphe_emit_cmp->m_ParticleColorB.AddNode(0, 1, 0, 0);
+	sphe_emit_cmp->m_ParticleColorB.AddNode(10, 0, 0, 0);
+	sphe_emit_cmp->m_ParticleColorA.AddNode(0, 1, 0, 0);
+	sphe_emit_cmp->m_ParticleColorA.AddNode(10, 0, 0, 0);
+	sphe_emit_cmp->m_ParticleSizeX.AddNode(0, 1, 0, 0);
+	sphe_emit_cmp->m_ParticleSizeX.AddNode(10, 0.1, 0, 0);
+	sphe_emit_cmp->m_ParticleSizeY.AddNode(0, 1, 0, 0);
+	sphe_emit_cmp->m_ParticleSizeY.AddNode(10, 0.1, 0, 0);
 	MaterialPtr mtl(new Material());
 	mtl->m_Shader = theApp.default_shader;
 	mtl->ParseShaderParameters();
