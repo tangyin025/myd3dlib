@@ -246,41 +246,20 @@ void ActionTrackEmitter::AddKeyFrame(float Time, int SpawnCount, float SpawnInte
 ActionTrackEmitterInst::ActionTrackEmitterInst(Actor * _Actor, boost::shared_ptr<const ActionTrackEmitter> Template)
 	: ActionTrackInst(_Actor)
 	, m_Template(Template)
-	, m_TaskEvent(NULL, TRUE, TRUE, NULL)
 {
-	m_WorldEmitterCmp.reset(new CircularEmitter(NamedObject::MakeUniqueName("ActionTrackEmitterInst_cmp").c_str(),
+	m_EmitterCmp.reset(new SphericalEmitter(NamedObject::MakeUniqueName("ActionTrackEmitterInst_cmp").c_str(),
 		m_Template->m_EmitterCapacity, (EmitterComponent::FaceType)m_Template->m_EmitterFaceType, (EmitterComponent::SpaceType)m_Template->m_EmitterSpaceType, EmitterComponent::VelocityTypeNone));
-	m_WorldEmitterCmp->SetMaterial(m_Template->m_EmitterMaterial->Clone());
-
-	//if (!m_Actor->m_Node)
-	//{
-	//	THROW_CUSEXCEPTION("ActionTrackEmitterInst: !m_Actor->m_Node"); // ! Actor::PlayAction should be call after being AddEntity
-	//}
-
-	//my::OctNode * Root = m_Actor->m_Node->GetTopNode();
-	//m_WorldEmitterActor.reset(new Actor(
-	//	NamedObject::MakeUniqueName("ActionTrackEmitterInst_actor").c_str(), Vector3(0, 0, 0), Quaternion::Identity(), Vector3(1, 1, 1), *Root));
-	//m_WorldEmitterActor->InsertComponent(m_WorldEmitterCmp);
-	//Root->AddEntity(m_WorldEmitterActor.get(), m_WorldEmitterActor->m_aabb, Actor::MinBlock, Actor::Threshold);
-
-	m_Actor->InsertComponent(m_WorldEmitterCmp);
+	m_EmitterCmp->m_SpawnInterval = 0;
+	m_EmitterCmp->SetMaterial(m_Template->m_EmitterMaterial->Clone());
 }
 
 ActionTrackEmitterInst::~ActionTrackEmitterInst(void)
 {
-	_ASSERT(m_TaskEvent.Wait(0) && !m_WorldEmitterCmp);
+	_ASSERT(!m_EmitterCmp->m_Actor);
 }
 
 void ActionTrackEmitterInst::UpdateTime(float LastTime, float Time)
 {
-	my::Emitter::ParticleList::iterator first_part_iter = std::upper_bound(
-		m_WorldEmitterCmp->m_ParticleList.begin(), m_WorldEmitterCmp->m_ParticleList.end(),	m_Template->m_ParticleLifeTime,
-		boost::bind(std::greater<float>(), boost::placeholders::_1, boost::bind(&my::Emitter::Particle::m_Time, boost::placeholders::_2)));
-	if (first_part_iter != m_WorldEmitterCmp->m_ParticleList.begin())
-	{
-		m_WorldEmitterCmp->m_ParticleList.rerase(m_WorldEmitterCmp->m_ParticleList.begin(), first_part_iter);
-	}
-
 	ActionTrackEmitter::KeyFrameMap::const_iterator key_iter = m_Template->m_Keys.lower_bound(LastTime);
 	ActionTrackEmitter::KeyFrameMap::const_iterator key_end = m_Template->m_Keys.lower_bound(Time);
 	for (; key_iter != key_end; key_iter++)
@@ -289,7 +268,7 @@ void ActionTrackEmitterInst::UpdateTime(float LastTime, float Time)
 			key_iter->first, key_iter->second.SpawnCount, key_iter->second.SpawnInterval));
 	}
 
-	const Bone pose = m_WorldEmitterCmp->m_EmitterSpaceType == EmitterComponent::SpaceTypeWorld ?
+	const Bone pose = m_EmitterCmp->m_EmitterSpaceType == EmitterComponent::SpaceTypeWorld ?
 		m_Actor->GetAttachPose(m_Template->m_SpawnBoneId, m_Template->m_SpawnLocalPose.m_position, m_Template->m_SpawnLocalPose.m_rotation) : m_Template->m_SpawnLocalPose;
 
 	KeyFrameInstList::iterator key_inst_iter = m_KeyInsts.begin();
@@ -298,11 +277,16 @@ void ActionTrackEmitterInst::UpdateTime(float LastTime, float Time)
 		for (; key_inst_iter->m_Time < Time && key_inst_iter->m_SpawnCount > 0;
 			key_inst_iter->m_Time += key_inst_iter->m_SpawnInterval, key_inst_iter->m_SpawnCount--)
 		{
-			m_WorldEmitterCmp->Spawn(
+			if (!m_EmitterCmp->m_Actor)
+			{
+				m_Actor->InsertComponent(m_EmitterCmp);
+			}
+
+			m_EmitterCmp->Spawn(
 				Vector4(Vector3(
-					Random(m_Template->m_SpawnArea.m_min.x, m_Template->m_SpawnArea.m_max.x),
-					Random(m_Template->m_SpawnArea.m_min.y, m_Template->m_SpawnArea.m_max.y),
-					Random(m_Template->m_SpawnArea.m_min.z, m_Template->m_SpawnArea.m_max.z)) + pose.m_position, 1.0f),
+					Random(-m_Template->m_HalfSpawnArea.x, m_Template->m_HalfSpawnArea.x),
+					Random(-m_Template->m_HalfSpawnArea.y, m_Template->m_HalfSpawnArea.y),
+					Random(-m_Template->m_HalfSpawnArea.z, m_Template->m_HalfSpawnArea.z)) + pose.m_position, 1.0f),
 				Vector4(Vector3::PolarToCartesian(
 					m_Template->m_SpawnSpeed,
 					Random(m_Template->m_SpawnInclination.x, m_Template->m_SpawnInclination.y),
@@ -319,49 +303,11 @@ void ActionTrackEmitterInst::UpdateTime(float LastTime, float Time)
 			key_inst_iter++;
 		}
 	}
-
-	m_TaskEvent.ResetEvent();
-
-	m_TaskDuration = Time - LastTime;
-
-	ParallelTaskManager::getSingleton().PushTask(this);
 }
 
 void ActionTrackEmitterInst::Stop(void)
 {
-	m_TaskEvent.Wait(INFINITE);
-
-	//if (m_WorldEmitterActor->m_Node)
-	//{
-	//	my::OctNode * Root = m_WorldEmitterActor->m_Node->GetTopNode();
-	//	Root->RemoveEntity(m_WorldEmitterActor.get());
-	//}
-
-	m_Actor->RemoveComponent(m_WorldEmitterCmp->GetSiblingId());
-
-	m_WorldEmitterCmp.reset();
-}
-
-void ActionTrackEmitterInst::DoTask(void)
-{
-	// ! take care of thread safe
-	Emitter::ParticleList::iterator particle_iter = m_WorldEmitterCmp->m_ParticleList.begin();
-	for (; particle_iter != m_WorldEmitterCmp->m_ParticleList.end(); particle_iter++)
-	{
-		const float ParticleTime = particle_iter->m_Time + m_TaskDuration;
-		particle_iter->m_Velocity.xyz *= powf(m_Template->m_ParticleDamping, m_TaskDuration);
-		particle_iter->m_Position.xyz += particle_iter->m_Velocity.xyz * m_TaskDuration;
-		particle_iter->m_Color.x = m_Template->m_ParticleColorR.Interpolate(ParticleTime, 1);
-		particle_iter->m_Color.y = m_Template->m_ParticleColorG.Interpolate(ParticleTime, 1);
-		particle_iter->m_Color.z = m_Template->m_ParticleColorB.Interpolate(ParticleTime, 1);
-		particle_iter->m_Color.w = m_Template->m_ParticleColorA.Interpolate(ParticleTime, 1);
-		particle_iter->m_Size.x = m_Template->m_ParticleSizeX.Interpolate(ParticleTime, 1);
-		particle_iter->m_Size.y = m_Template->m_ParticleSizeY.Interpolate(ParticleTime, 1);
-		particle_iter->m_Angle = m_Template->m_ParticleAngle.Interpolate(ParticleTime, 0);
-		particle_iter->m_Time = ParticleTime;
-	}
-
-	m_TaskEvent.SetEvent();
+	m_Actor->RemoveComponent(m_EmitterCmp->GetSiblingId());
 }
 
 ActionTrackInstPtr ActionTrackVelocity::CreateInstance(Actor * _Actor, float Rate) const

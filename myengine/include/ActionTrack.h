@@ -240,7 +240,7 @@ public:
 
 	DWORD m_EmitterSpaceType;
 
-	my::AABB m_SpawnArea;
+	my::Vector3 m_HalfSpawnArea;
 
 	my::Vector2 m_SpawnInclination;
 
@@ -286,7 +286,7 @@ public:
 		: m_EmitterCapacity(1024)
 		, m_EmitterFaceType(3) // FaceTypeCamera = 3
 		, m_EmitterSpaceType(0) // SpaceTypeWorld = 0
-		, m_SpawnArea(-0.0f,0.0f)
+		, m_HalfSpawnArea(0, 0, 0)
 		, m_SpawnInclination(D3DXToRadian(-90), D3DXToRadian(90))
 		, m_SpawnAzimuth(D3DXToRadian(0), D3DXToRadian(360))
 		, m_SpawnSpeed(0.0f)
@@ -302,16 +302,14 @@ public:
 	void AddKeyFrame(float Time, int SpawnCount, float SpawnInterval);
 };
 
-class CircularEmitter;
+class SphericalEmitter;
 
-class ActionTrackEmitterInst : public ActionTrackInst, public my::ParallelTask
+class ActionTrackEmitterInst : public ActionTrackInst
 {
 protected:
 	boost::shared_ptr<const ActionTrackEmitter> m_Template;
 
-	//boost::shared_ptr<Actor> m_WorldEmitterActor;
-
-	boost::shared_ptr<CircularEmitter> m_WorldEmitterCmp;
+	boost::shared_ptr<SphericalEmitter> m_EmitterCmp;
 
 	struct KeyFrameInst
 	{
@@ -333,10 +331,6 @@ protected:
 
 	KeyFrameInstList m_KeyInsts;
 
-	my::Event m_TaskEvent;
-
-	float m_TaskDuration;
-
 public:
 	ActionTrackEmitterInst(Actor * _Actor, boost::shared_ptr<const ActionTrackEmitter> Template);
 
@@ -345,8 +339,6 @@ public:
 	virtual void UpdateTime(float LastTime, float Time);
 
 	virtual void Stop(void);
-
-	virtual void DoTask(void);
 };
 
 class ActionTrackVelocity : public ActionTrack
