@@ -1709,8 +1709,8 @@ void CMainFrame::OnComponentSphericalemitter()
 		return;
 	}
 
-	SphericalEmitterPtr sphe_emit_cmp(new SphericalEmitter(my::NamedObject::MakeUniqueName((std::string((*actor_iter)->GetName()) + "_sphe_emit").c_str()).c_str(),
-		1024, EmitterComponent::FaceTypeCamera, EmitterComponent::SpaceTypeLocal, EmitterComponent::VelocityTypeNone));
+	SphericalEmitterPtr sphe_emit_cmp(new SphericalEmitter(my::NamedObject::MakeUniqueName(
+		(std::string((*actor_iter)->GetName()) + "_sphe_emit").c_str()).c_str(), 1024, EmitterComponent::FaceTypeCamera, EmitterComponent::SpaceTypeLocal));
 	sphe_emit_cmp->m_SpawnInterval = 1 / 100.0f;
 	sphe_emit_cmp->m_HalfSpawnArea = my::Vector3(1);
 	sphe_emit_cmp->m_SpawnInclination = my::Vector2(D3DXToRadian(45), D3DXToRadian(90));

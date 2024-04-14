@@ -16,11 +16,6 @@ struct VS_INPUT
 
 float4 TransformPosWS(VS_INPUT In)
 {
-#if EMITTER_VEL_TYPE == 1
-	float4 Pos = float4(In.PosInst.xyz + In.Velocity.xyz * (g_Time - In.SizeAngleTime.w), In.PosInst.w);
-#else
-	float4 Pos = In.PosInst;
-#endif
 #if EMITTER_FACE_TYPE == 0
 	float3 Offset = RotateAngleAxis(
 		float3(In.Pos.z * In.SizeAngleTime.x, In.Pos.y * In.SizeAngleTime.y, -In.Pos.x * In.SizeAngleTime.x), In.SizeAngleTime.z, float3(1, 0, 0));
@@ -52,7 +47,7 @@ float4 TransformPosWS(VS_INPUT In)
 	float3 Offset = RotateAngleAxis(
 		Right * In.Pos.x * In.SizeAngleTime.x + Up * In.Pos.y * In.SizeAngleTime.y + Dir * In.Pos.z * In.SizeAngleTime.x, In.SizeAngleTime.z, Dir);
 #endif
-	Pos = mul(Pos, g_World) + float4(Offset, 0);
+	float4 Pos = mul(In.PosInst, g_World) + float4(Offset, 0);
 	return Pos;
 }
 

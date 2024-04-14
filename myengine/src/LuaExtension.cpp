@@ -2887,15 +2887,9 @@ void LuaContext::Init(void)
 				value("SpaceTypeLocal", EmitterComponent::SpaceTypeLocal)
 			]
 			.def_readwrite("EmitterSpaceType", &EmitterComponent::m_EmitterSpaceType)
-			.enum_("VelocityType")
-			[
-				value("VelocityTypeNone", EmitterComponent::VelocityTypeNone),
-				value("VelocityTypeVel", EmitterComponent::VelocityTypeVel)
-			]
-			.def_readwrite("EmitterVelType", &EmitterComponent::m_EmitterVelType)
 
 		, class_<StaticEmitter, bases<EmitterComponent, my::AABB>, boost::shared_ptr<Component> >("StaticEmitter")
-			.def(constructor<const char *, const my::AABB &, float, EmitterComponent::FaceType, EmitterComponent::SpaceType, EmitterComponent::VelocityType, StaticEmitter::PrimitiveType>())
+			.def(constructor<const char *, const my::AABB &, float, EmitterComponent::FaceType, EmitterComponent::SpaceType, StaticEmitter::PrimitiveType>())
 			.enum_("PrimitiveType")
 			[
 				value("PrimitiveTypeTri", StaticEmitter::PrimitiveTypeTri),
@@ -2916,14 +2910,14 @@ void LuaContext::Init(void)
 			.def("Spawn", &StaticEmitterStream::Spawn)
 
 		, class_<CircularEmitter, EmitterComponent, boost::shared_ptr<Component> >("CircularEmitter")
-			.def(constructor<const char*, unsigned int, EmitterComponent::FaceType, EmitterComponent::SpaceType, EmitterComponent::VelocityType>())
+			.def(constructor<const char*, unsigned int, EmitterComponent::FaceType, EmitterComponent::SpaceType>())
 			.def_readonly("ParticleList", &CircularEmitter::m_ParticleList, return_stl_iterator)
 			.property("Capacity", &CircularEmitter::GetCapacity, &CircularEmitter::SetCapacity)
 			.def("Spawn", &CircularEmitter::Spawn)
 			.def("RemoveAllParticle", &CircularEmitter::RemoveAllParticle)
 
 		, class_<SphericalEmitter, CircularEmitter, boost::shared_ptr<Component> >("SphericalEmitter")
-			.def(constructor<const char *, unsigned int, EmitterComponent::FaceType, EmitterComponent::SpaceType, EmitterComponent::VelocityType>())
+			.def(constructor<const char *, unsigned int, EmitterComponent::FaceType, EmitterComponent::SpaceType>())
 			.def_readwrite("SpawnInterval", &SphericalEmitter::m_SpawnInterval)
 			.def_readwrite("HalfSpawnArea", &SphericalEmitter::m_HalfSpawnArea)
 			.def_readwrite("SpawnInclination", &SphericalEmitter::m_SpawnInclination)

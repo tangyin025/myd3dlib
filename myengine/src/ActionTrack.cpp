@@ -274,7 +274,7 @@ void ActionTrackEmitterInst::UpdateTime(float LastTime, float Time)
 			if (!m_EmitterCmp)
 			{
 				m_EmitterCmp.reset(new SphericalEmitter(NamedObject::MakeUniqueName("ActionTrackEmitterInst_cmp").c_str(),
-					m_Template->m_EmitterCapacity, (EmitterComponent::FaceType)m_Template->m_EmitterFaceType, (EmitterComponent::SpaceType)m_Template->m_EmitterSpaceType, EmitterComponent::VelocityTypeNone));
+					m_Template->m_EmitterCapacity, (EmitterComponent::FaceType)m_Template->m_EmitterFaceType, (EmitterComponent::SpaceType)m_Template->m_EmitterSpaceType));
 				m_EmitterCmp->m_SpawnInterval = 0;
 				m_EmitterCmp->m_ParticleLifeTime = m_Template->m_ParticleLifeTime;
 				m_EmitterCmp->m_ParticleDamping = m_Template->m_ParticleDamping;

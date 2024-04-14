@@ -173,7 +173,6 @@ public:
 		PropertyStaticEmitter,
 		PropertyEmitterFaceType,
 		PropertyEmitterSpaceType,
-		PropertyEmitterVelType,
 		PropertyEmitterParticlePosition,
 		PropertyEmitterParticlePositionX,
 		PropertyEmitterParticlePositionY,

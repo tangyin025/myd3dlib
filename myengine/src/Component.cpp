@@ -1846,7 +1846,7 @@ void EmitterComponent::AddParticlePairToPipeline(
 		if (RenderPipeline::PassTypeToMask(PassID) & (m_Material->m_PassMask & PassMask))
 		{
 			const char* num[] = { "0", "1", "2", "3", "4", "5" };
-			D3DXMACRO macro[4] = { { "MESH_TYPE", "1" }, { "EMITTER_FACE_TYPE", num[m_EmitterFaceType] }, { "EMITTER_VEL_TYPE", num[m_EmitterVelType] }, { 0 } };
+			D3DXMACRO macro[3] = { { "MESH_TYPE", "1" }, { "EMITTER_FACE_TYPE", num[m_EmitterFaceType] }, { 0 } };
 			my::Effect* shader = pipeline->QueryShader(macro, m_Material->m_Shader.c_str(), PassID);
 			if (shader)
 			{

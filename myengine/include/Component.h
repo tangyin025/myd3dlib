@@ -526,31 +526,21 @@ public:
 
 	SpaceType m_EmitterSpaceType;
 
-	enum VelocityType
-	{
-		VelocityTypeNone	= 0,
-		VelocityTypeVel		= 1,
-	};
-
-	VelocityType m_EmitterVelType;
-
 	D3DXHANDLE handle_World;
 
 protected:
 	EmitterComponent(void)
 		: m_EmitterFaceType(FaceTypeX)
 		, m_EmitterSpaceType(SpaceTypeWorld)
-		, m_EmitterVelType(VelocityTypeNone)
 		, handle_World(NULL)
 	{
 	}
 
 public:
-	EmitterComponent(const char * Name, FaceType _FaceType, SpaceType _SpaceType, VelocityType _VelocityType)
+	EmitterComponent(const char * Name, FaceType _FaceType, SpaceType _SpaceType)
 		: Component(Name)
 		, m_EmitterFaceType(_FaceType)
 		, m_EmitterSpaceType(_SpaceType)
-		, m_EmitterVelType(_VelocityType)
 		, handle_World(NULL)
 	{
 	}
@@ -563,7 +553,6 @@ public:
 		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Component);
 		ar & BOOST_SERIALIZATION_NVP(m_EmitterFaceType);
 		ar & BOOST_SERIALIZATION_NVP(m_EmitterSpaceType);
-		ar & BOOST_SERIALIZATION_NVP(m_EmitterVelType);
 	}
 
 	virtual DWORD GetComponentType(void) const
@@ -603,8 +592,8 @@ protected:
 	}
 
 public:
-	CircularEmitter(const char * Name, unsigned int Capacity, FaceType _FaceType, SpaceType _SpaceType, VelocityType _VelocityType)
-		: EmitterComponent(Name, _FaceType, _SpaceType, _VelocityType)
+	CircularEmitter(const char * Name, unsigned int Capacity, FaceType _FaceType, SpaceType _SpaceType)
+		: EmitterComponent(Name, _FaceType, _SpaceType)
 		, Emitter(Capacity)
 	{
 	}
@@ -697,8 +686,8 @@ protected:
 	}
 
 public:
-	SphericalEmitter(const char * Name, unsigned int Capacity, FaceType _FaceType, SpaceType _SpaceType, VelocityType _VelocityType)
-		: CircularEmitter(Name, Capacity, _FaceType, _SpaceType, _VelocityType)
+	SphericalEmitter(const char * Name, unsigned int Capacity, FaceType _FaceType, SpaceType _SpaceType)
+		: CircularEmitter(Name, Capacity, _FaceType, _SpaceType)
 		, m_SpawnInterval(1)
 		, m_SpawnTime(0)
 		, m_HalfSpawnArea(0, 0, 0)

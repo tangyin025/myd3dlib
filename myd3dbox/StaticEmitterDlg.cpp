@@ -95,8 +95,8 @@ void CStaticEmitterDlg::OnOK()
 		}
 	}
 
-	m_emit_cmp.reset(new StaticEmitter(m_emit_cmp_name.c_str(), m_BoundingBox, m_ChunkWidth,
-		EmitterComponent::FaceTypeCamera, EmitterComponent::SpaceTypeLocal, EmitterComponent::VelocityTypeNone, StaticEmitter::PrimitiveTypeQuad));
+	m_emit_cmp.reset(new StaticEmitter(m_emit_cmp_name.c_str(),
+		m_BoundingBox, m_ChunkWidth, EmitterComponent::FaceTypeCamera, EmitterComponent::SpaceTypeLocal, StaticEmitter::PrimitiveTypeQuad));
 
 	m_emit_cmp->m_ChunkLodScale = m_ChunkLodScale;
 
