@@ -96,14 +96,11 @@ public:
 
 	float m_FrameInterval;
 
-	float m_MaxAllowedTimestep;
-
 	volatile LONG m_RenderTickMuted;
 
 public:
 	PhysxSdk(void)
-		: m_MaxAllowedTimestep(0.1f)
-		, m_FrameInterval(1 / 60.0f)
+		: m_FrameInterval(1 / 60.0f)
 		, m_RenderTickMuted(0)
 	{
 	}

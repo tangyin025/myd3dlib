@@ -45,6 +45,8 @@ namespace my
 
 		float m_fTimeScale;
 
+		float m_MaxAllowedTimestep;
+
 		float m_fUnscaledElapsedTime;
 
 		float m_fElapsedTime;

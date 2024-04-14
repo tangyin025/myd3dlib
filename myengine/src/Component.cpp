@@ -1983,11 +1983,9 @@ void SphericalEmitter::Update(float fElapsedTime)
 		m_ParticleList.rerase(m_ParticleList.begin(), first_part_iter);
 	}
 
-	const float ElapsedTime = my::Min(PhysxSdk::getSingleton().m_MaxAllowedTimestep, fElapsedTime);
-
 	if (m_DelayRemoveTime > 0)
 	{
-		m_DelayRemoveTime -= ElapsedTime;
+		m_DelayRemoveTime -= fElapsedTime;
 		if (m_DelayRemoveTime <= 0)
 		{
 			m_Actor->RemoveComponent(GetSiblingId());
@@ -2000,7 +1998,7 @@ void SphericalEmitter::Update(float fElapsedTime)
 		const Bone pose = m_EmitterSpaceType == SpaceTypeWorld ?
 			m_Actor->GetAttachPose(m_SpawnBoneId, m_SpawnLocalPose.m_position, m_SpawnLocalPose.m_rotation) : m_SpawnLocalPose;
 
-		m_SpawnTime += ElapsedTime;
+		m_SpawnTime += fElapsedTime;
 		for (; m_SpawnTime >= m_SpawnInterval; m_SpawnTime -= m_SpawnInterval)
 		{
 			Spawn(
@@ -2029,13 +2027,12 @@ void SphericalEmitter::DoTask(void)
 	_ASSERT(m_Actor);
 
 	// ! take care of thread safe
-	const float ElapsedTime = my::Min(PhysxSdk::getSingleton().m_MaxAllowedTimestep, D3DContext::getSingleton().m_fElapsedTime);
 	Emitter::ParticleList::iterator particle_iter = m_ParticleList.begin();
 	for (; particle_iter != m_ParticleList.end(); particle_iter++)
 	{
-		particle_iter->m_Velocity.xyz *= powf(m_ParticleDamping, ElapsedTime);
-		particle_iter->m_Position.xyz += particle_iter->m_Velocity.xyz * ElapsedTime;
-		const float ParticleTime = particle_iter->m_Time + ElapsedTime;
+		particle_iter->m_Velocity.xyz *= powf(m_ParticleDamping, D3DContext::getSingleton().m_fElapsedTime);
+		particle_iter->m_Position.xyz += particle_iter->m_Velocity.xyz * D3DContext::getSingleton().m_fElapsedTime;
+		const float ParticleTime = particle_iter->m_Time + D3DContext::getSingleton().m_fElapsedTime;
 		particle_iter->m_Color.x = m_ParticleColorR.Interpolate(ParticleTime, 1);
 		particle_iter->m_Color.y = m_ParticleColorG.Interpolate(ParticleTime, 1);
 		particle_iter->m_Color.z = m_ParticleColorB.Interpolate(ParticleTime, 1);
