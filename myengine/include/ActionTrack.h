@@ -108,6 +108,7 @@ public:
 
 	virtual ~ActionTrackInst(void)
 	{
+		_ASSERT(!m_Actor); // ! Actor::StopAllActionInst
 	}
 
 	virtual void UpdateTime(float LastTime, float Time) = 0;
