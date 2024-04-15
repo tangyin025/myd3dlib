@@ -219,13 +219,7 @@ void AnimationNodeSequence::Advance(float fElapsedTime)
 
 	if (m_Rate >= 0)
 	{
-		if (NewTime < Length)
-		{
-			m_Time = NewTime;
-
-			TriggerEvent(OldTime, NewTime);
-		}
-		else if (m_Loop)
+		if (NewTime > Length && m_Loop)
 		{
 			m_Time = fmodf(NewTime, Length);
 
@@ -235,20 +229,14 @@ void AnimationNodeSequence::Advance(float fElapsedTime)
 		}
 		else
 		{
-			m_Time = Length;
+			m_Time = NewTime;
 
-			TriggerEvent(OldTime, Length);
+			TriggerEvent(OldTime, m_Time);
 		}
 	}
 	else
 	{
-		if (NewTime >= 0)
-		{
-			m_Time = NewTime;
-
-			TriggerEvent(NewTime, OldTime);
-		}
-		else if (m_Loop)
+		if (NewTime < 0 && m_Loop)
 		{
 			m_Time = Length + fmodf(NewTime, Length);
 
@@ -258,9 +246,9 @@ void AnimationNodeSequence::Advance(float fElapsedTime)
 		}
 		else
 		{
-			m_Time = 0;
+			m_Time = NewTime;
 
-			TriggerEvent(0, OldTime);
+			TriggerEvent(m_Time, OldTime);
 		}
 	}
 }
