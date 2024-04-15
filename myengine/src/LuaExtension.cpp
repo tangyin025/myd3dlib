@@ -982,7 +982,7 @@ public:
 
 	virtual ActionTrackInstPtr CreateInstance(Actor* _Actor, float Rate) const
 	{
-		return ActionTrackInstPtr(luabind::call_function<ActionTrackInst*>(m_Creator, _Actor)[luabind::adopt(luabind::result)]);
+		return ActionTrackInstPtr(luabind::call_function<ActionTrackInst*>(m_Creator, _Actor, Rate)[luabind::adopt(luabind::result)]);
 	}
 };
 
