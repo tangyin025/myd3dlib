@@ -694,7 +694,7 @@ void Animator::ReleaseResource(void)
 
 void Animator::Update(float fElapsedTime)
 {
-	Tick(fElapsedTime, 1.0f);
+	Tick(fElapsedTime * m_Rate, 1.0f);
 }
 
 void Animator::Tick(float fElapsedTime, float fTotalWeight)

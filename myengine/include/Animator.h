@@ -416,8 +416,11 @@ public:
 
 	IKContextMap m_Iks;
 
+	float m_Rate;
+
 protected:
 	Animator(void)
+		: m_Rate(1.0f)
 	{
 	}
 
@@ -425,6 +428,7 @@ public:
 	Animator(const char * Name)
 		: Component(Name)
 		, AnimationNode(Name ? Name : "unknown", 1)
+		, m_Rate(1.0f)
 	{
 	}
 
