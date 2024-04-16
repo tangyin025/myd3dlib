@@ -135,11 +135,8 @@ public:
 
 	KeyFrameMap m_Keys;
 
-	float m_ParamWeight;
-
 public:
 	ActionTrackAnimation(void)
-		: m_ParamWeight(1.0f)
 	{
 	}
 
@@ -153,13 +150,10 @@ class ActionTrackAnimationInst : public ActionTrackInst
 protected:
 	boost::shared_ptr<const ActionTrackAnimation> m_Template;
 
-	float m_Weight;
-
 public:
 	ActionTrackAnimationInst(Actor * _Actor, boost::shared_ptr<const ActionTrackAnimation> Template)
 		: ActionTrackInst(_Actor)
 		, m_Template(Template)
-		, m_Weight(Template->m_ParamWeight)
 	{
 	}
 

@@ -102,7 +102,7 @@ void ActionTrackAnimationInst::UpdateTime(float LastTime, float Time)
 				slot->Play(
 					key_iter->second.Name,
 					key_iter->second.Rate,
-					key_iter->second.Weight * m_Weight,
+					key_iter->second.Weight,
 					key_iter->second.BlendTime,
 					key_iter->second.BlendOutTime,
 					key_iter->second.Loop,
