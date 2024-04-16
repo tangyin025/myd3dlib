@@ -980,9 +980,9 @@ public:
 	{
 	}
 
-	virtual ActionTrackInstPtr CreateInstance(Actor* _Actor, float Rate) const
+	virtual ActionTrackInstPtr CreateInstance(Actor* _Actor) const
 	{
-		return ActionTrackInstPtr(luabind::call_function<ActionTrackInst*>(m_Creator, _Actor, Rate)[luabind::adopt(luabind::result)]);
+		return ActionTrackInstPtr(luabind::call_function<ActionTrackInst*>(m_Creator, _Actor)[luabind::adopt(luabind::result)]);
 	}
 };
 
@@ -3156,8 +3156,6 @@ void LuaContext::Init(void)
 			.def("AddRevoluteJoint", &Actor::AddRevoluteJoint)
 			.def("AddD6Joint", &Actor::AddD6Joint)
 			.def("PlayAction", &Actor::PlayAction)
-			.def("PlayAction", luabind::tag_function<boost::shared_ptr<ActionInst>(Actor*, Action*)>(
-				boost::bind(&Actor::PlayAction, boost::placeholders::_1, boost::placeholders::_2, 1.0f)))
 			.def("StopActionInst", &Actor::StopActionInst)
 			.def("StopAllActionInst", &Actor::StopAllActionInst)
 			.def("TickActionAndGetDisplacement", &Actor::TickActionAndGetDisplacement, pure_out_value(boost::placeholders::_3))
@@ -3246,7 +3244,6 @@ void LuaContext::Init(void)
 			.def_readonly("Template", &ActionInst::m_Template)
 			.def_readonly("LastTime", &ActionInst::m_LastTime)
 			.def_readonly("Time", &ActionInst::m_Time)
-			.def_readwrite("Rate", &ActionInst::m_Rate)
 			.property("Actor", luabind::tag_function<Actor*(ActionInst*)>(
 				boost::bind(&ActionTrackInst::m_Actor, boost::bind(&ActionTrackInstPtr::get,
 					boost::bind((ActionTrackInstPtr&(ActionInst::ActionTrackInstPtrList::*)())&ActionInst::ActionTrackInstPtrList::front,

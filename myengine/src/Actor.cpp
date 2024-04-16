@@ -950,9 +950,9 @@ void Actor::CreateAggregate(bool enableSelfCollision)
 	}
 }
 
-boost::shared_ptr<ActionInst> Actor::PlayAction(Action * action, float Rate)
+boost::shared_ptr<ActionInst> Actor::PlayAction(Action * action)
 {
-	ActionInstPtr action_inst = action->CreateInstance(this, Rate);
+	ActionInstPtr action_inst = action->CreateInstance(this);
 	m_ActionInstList.push_back(action_inst);
 	return action_inst;
 }
@@ -1000,16 +1000,14 @@ bool Actor::TickActionAndGetDisplacement(float dtime, my::Vector3 & disp)
 	{
 		const float LastTime = (*action_inst_iter)->m_Time;
 
-		const float ElapsedTime = dtime * (*action_inst_iter)->m_Rate;
-
-		(*action_inst_iter)->m_Time += ElapsedTime;
+		(*action_inst_iter)->m_Time += dtime;
 
 		if ((*action_inst_iter)->m_Time < (*action_inst_iter)->m_Template->m_Length)
 		{
 			ActionInst::ActionTrackInstPtrList::iterator track_inst_iter = (*action_inst_iter)->m_TrackInstList.begin();
 			for (; track_inst_iter != (*action_inst_iter)->m_TrackInstList.end(); track_inst_iter++)
 			{
-				if ((*track_inst_iter)->GetDisplacement(LastTime, ElapsedTime, disp))
+				if ((*track_inst_iter)->GetDisplacement(LastTime, dtime, disp))
 				{
 					return true;
 				}

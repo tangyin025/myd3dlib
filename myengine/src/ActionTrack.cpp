@@ -25,21 +25,20 @@ void Action::RemoveTrack(ActionTrackPtr track)
 	}
 }
 
-ActionInstPtr Action::CreateInstance(Actor * _Actor, float Rate)
+ActionInstPtr Action::CreateInstance(Actor * _Actor)
 {
-	return ActionInstPtr(new ActionInst(_Actor, shared_from_this(), Rate));
+	return ActionInstPtr(new ActionInst(_Actor, shared_from_this()));
 }
 
-ActionInst::ActionInst(Actor * _Actor, boost::shared_ptr<const Action> Template, float Rate)
+ActionInst::ActionInst(Actor * _Actor, boost::shared_ptr<const Action> Template)
 	: m_Template(Template)
 	, m_LastTime(0.0f)
 	, m_Time(0.0f)
-	, m_Rate(Rate)
 {
 	Action::ActionTrackPtrList::const_iterator track_iter = m_Template->m_TrackList.begin();
 	for (; track_iter != m_Template->m_TrackList.end(); track_iter++)
 	{
-		m_TrackInstList.push_back((*track_iter)->CreateInstance(_Actor, Rate));
+		m_TrackInstList.push_back((*track_iter)->CreateInstance(_Actor));
 	}
 }
 
@@ -65,9 +64,9 @@ void ActionInst::StopAllTrack(void)
 	}
 }
 
-ActionTrackInstPtr ActionTrackAnimation::CreateInstance(Actor * _Actor, float Rate) const
+ActionTrackInstPtr ActionTrackAnimation::CreateInstance(Actor * _Actor) const
 {
-	return ActionTrackInstPtr(new ActionTrackAnimationInst(_Actor, boost::static_pointer_cast<const ActionTrackAnimation>(shared_from_this()), Rate));
+	return ActionTrackInstPtr(new ActionTrackAnimationInst(_Actor, boost::static_pointer_cast<const ActionTrackAnimation>(shared_from_this())));
 }
 
 void ActionTrackAnimation::AddKeyFrame(float Time, const char * SlotName, const char * Name, float Rate, float Weight, float BlendTime, float BlendOutTime, bool Loop, int Prority)
@@ -102,7 +101,7 @@ void ActionTrackAnimationInst::UpdateTime(float LastTime, float Time)
 			{
 				slot->Play(
 					key_iter->second.Name,
-					key_iter->second.Rate * m_Rate,
+					key_iter->second.Rate,
 					key_iter->second.Weight * m_Weight,
 					key_iter->second.BlendTime,
 					key_iter->second.BlendOutTime,
@@ -150,7 +149,7 @@ ActionTrackSound::~ActionTrackSound(void)
 	}
 }
 
-ActionTrackInstPtr ActionTrackSound::CreateInstance(Actor * _Actor, float Rate) const
+ActionTrackInstPtr ActionTrackSound::CreateInstance(Actor * _Actor) const
 {
 	return ActionTrackInstPtr(new ActionTrackSoundInst(_Actor, boost::static_pointer_cast<const ActionTrackSound>(shared_from_this())));
 }
@@ -231,7 +230,7 @@ void ActionTrackSoundInst::Stop(void)
 	}
 }
 
-ActionTrackInstPtr ActionTrackEmitter::CreateInstance(Actor * _Actor, float Rate) const
+ActionTrackInstPtr ActionTrackEmitter::CreateInstance(Actor * _Actor) const
 {
 	return ActionTrackInstPtr(new ActionTrackEmitterInst(_Actor, boost::static_pointer_cast<const ActionTrackEmitter>(shared_from_this())));
 }
@@ -329,7 +328,7 @@ void ActionTrackEmitterInst::Stop(void)
 	}
 }
 
-ActionTrackInstPtr ActionTrackVelocity::CreateInstance(Actor * _Actor, float Rate) const
+ActionTrackInstPtr ActionTrackVelocity::CreateInstance(Actor * _Actor) const
 {
 	return ActionTrackInstPtr(new ActionTrackVelocityInst(_Actor, boost::static_pointer_cast<const ActionTrackVelocity>(shared_from_this())));
 }
@@ -367,7 +366,7 @@ bool ActionTrackVelocityInst::GetDisplacement(float LastTime, float dtime, my::V
 	return false;
 }
 
-ActionTrackInstPtr ActionTrackPose::CreateInstance(Actor * _Actor, float Rate) const
+ActionTrackInstPtr ActionTrackPose::CreateInstance(Actor * _Actor) const
 {
 	return ActionTrackInstPtr(new ActionTrackPoseInst(_Actor, boost::static_pointer_cast<const ActionTrackPose>(shared_from_this())));
 }

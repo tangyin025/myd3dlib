@@ -49,7 +49,7 @@ public:
 
 	void RemoveTrack(ActionTrackPtr track);
 
-	ActionInstPtr CreateInstance(Actor * _Actor, float Rate);
+	ActionInstPtr CreateInstance(Actor * _Actor);
 };
 
 class ActionTrackInst;
@@ -65,14 +65,12 @@ public:
 
 	float m_Time;
 
-	float m_Rate;
-
 	typedef std::vector<ActionTrackInstPtr> ActionTrackInstPtrList;
 
 	ActionTrackInstPtrList m_TrackInstList;
 
 public:
-	ActionInst(Actor * _Actor, boost::shared_ptr<const Action> Template, float Rate);
+	ActionInst(Actor * _Actor, boost::shared_ptr<const Action> Template);
 
 	void Update(float fElapsedTime);
 
@@ -90,7 +88,7 @@ public:
 	{
 	}
 
-	virtual ActionTrackInstPtr CreateInstance(Actor * _Actor, float Rate) const = 0;
+	virtual ActionTrackInstPtr CreateInstance(Actor * _Actor) const = 0;
 };
 
 typedef boost::shared_ptr<ActionTrack> ActionTrackPtr;
@@ -145,7 +143,7 @@ public:
 	{
 	}
 
-	virtual ActionTrackInstPtr CreateInstance(Actor * _Actor, float Rate) const;
+	virtual ActionTrackInstPtr CreateInstance(Actor * _Actor) const;
 
 	void AddKeyFrame(float Time, const char * SlotName, const char * Name, float Rate, float Weight, float BlendTime, float BlendOutTime, bool Loop, int Prority);
 };
@@ -155,15 +153,12 @@ class ActionTrackAnimationInst : public ActionTrackInst
 protected:
 	boost::shared_ptr<const ActionTrackAnimation> m_Template;
 
-	float m_Rate;
-
 	float m_Weight;
 
 public:
-	ActionTrackAnimationInst(Actor * _Actor, boost::shared_ptr<const ActionTrackAnimation> Template, float Rate)
+	ActionTrackAnimationInst(Actor * _Actor, boost::shared_ptr<const ActionTrackAnimation> Template)
 		: ActionTrackInst(_Actor)
 		, m_Template(Template)
-		, m_Rate(Rate)
 		, m_Weight(Template->m_ParamWeight)
 	{
 	}
@@ -200,7 +195,7 @@ public:
 
 	virtual ~ActionTrackSound(void);
 
-	virtual ActionTrackInstPtr CreateInstance(Actor * _Actor, float Rate) const;
+	virtual ActionTrackInstPtr CreateInstance(Actor * _Actor) const;
 
 	void AddKeyFrame(float Time, const char * SoundPath, float StartSec, float EndSec, bool Loop, float MinDistance, float MaxDistance);
 };
@@ -298,7 +293,7 @@ public:
 	{
 	}
 
-	virtual ActionTrackInstPtr CreateInstance(Actor * _Actor, float Rate) const;
+	virtual ActionTrackInstPtr CreateInstance(Actor * _Actor) const;
 
 	void AddKeyFrame(float Time, int SpawnCount, float SpawnInterval);
 };
@@ -362,7 +357,7 @@ public:
 	{
 	}
 
-	virtual ActionTrackInstPtr CreateInstance(Actor * _Actor, float Rate) const;
+	virtual ActionTrackInstPtr CreateInstance(Actor * _Actor) const;
 
 	void AddKeyFrame(float Time, float Length);
 };
@@ -408,7 +403,7 @@ public:
 		m_Interpolation.AddNode(1, 1, 0, 0);
 	}
 
-	virtual ActionTrackInstPtr CreateInstance(Actor * _Actor, float Rate) const;
+	virtual ActionTrackInstPtr CreateInstance(Actor * _Actor) const;
 
 	void AddKeyFrame(float Time, float Length);
 };
