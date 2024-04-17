@@ -386,6 +386,10 @@ public:
 
 	SequenceGroupMap m_SequenceGroup;
 
+	typedef std::vector<AnimationNodeSequence *> SequenceList;
+
+	SequenceList m_ActiveSequence;
+
 	typedef std::vector<my::Particle> ParticleList;
 
 	class DynamicBoneContext
@@ -479,7 +483,7 @@ public:
 
 	void UpdateSequenceGroup(void);
 
-	void SyncSequenceGroupTime(SequenceGroupMap::iterator begin, SequenceGroupMap::iterator end, AnimationNodeSequence * master);
+	void SyncSequenceGroupTime(SequenceGroupMap::iterator begin, SequenceGroupMap::iterator end, const AnimationNodeSequence * master);
 
 	void AddDynamicBone(int node_i, float mass, float damping, float springConstant);
 

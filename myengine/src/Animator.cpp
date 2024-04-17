@@ -202,6 +202,19 @@ void AnimationNodeSequence::Tick(float fElapsedTime, float fTotalWeight)
 	if (!m_Group.empty())
 	{
 		m_LastElapsedTime = fElapsedTime;
+
+		Animator* Root = dynamic_cast<Animator*>(GetTopNode());
+
+		Animator::SequenceList::iterator seq_iter = std::lower_bound(Root->m_ActiveSequence.begin(), Root->m_ActiveSequence.end(),
+			m_Group, boost::bind(std::less<std::string>(), boost::bind(&AnimationNodeSequence::m_Group, boost::placeholders::_1), boost::placeholders::_2));
+		if (seq_iter == Root->m_ActiveSequence.end() || (*seq_iter)->m_Group != m_Group)
+		{
+			Root->m_ActiveSequence.insert(seq_iter, this);
+		}
+		else if ((*seq_iter)->m_Weight < m_Weight)
+		{
+			*seq_iter = this;
+		}
 	}
 	else
 	{
@@ -557,7 +570,7 @@ void AnimationNodeBlendList::Tick(float fElapsedTime, float fTotalWeight)
 
 	for (int i = 0; i < m_TargetWeight.size(); i++)
 	{
-		if (m_Childs[i])
+		if (m_Childs[i] && m_Weight[i] > 0.0f)
 		{
 			m_Childs[i]->Tick(fElapsedTime, m_TargetWeight[i] * fTotalWeight);
 		}
@@ -701,6 +714,8 @@ void Animator::Tick(float fElapsedTime, float fTotalWeight)
 {
 	if (m_Childs[0])
 	{
+		m_ActiveSequence.clear();
+
 		m_Childs[0]->Tick(fElapsedTime, fTotalWeight);
 
 		UpdateSequenceGroup();
@@ -841,49 +856,32 @@ void Animator::UpdateSequenceGroup(void)
 	SequenceGroupMap::iterator seq_iter = m_SequenceGroup.begin();
 	while (seq_iter != m_SequenceGroup.end())
 	{
-		SequenceGroupMap::iterator master_seq_iter, next_seq_iter;
+		SequenceGroupMap::iterator next_seq_iter = m_SequenceGroup.upper_bound(seq_iter->first);
 
-		if (!BaseAnimator || BaseAnimator == this || (master_seq_iter = BaseAnimator->m_SequenceGroup.find(seq_iter->first)) == BaseAnimator->m_SequenceGroup.end())
+		SequenceList::iterator master_seq_iter;
+		if (BaseAnimator && (master_seq_iter = boost::find_if(BaseAnimator->m_ActiveSequence, boost::bind(
+			std::equal_to<std::string>(), boost::bind(&AnimationNodeSequence::m_Group, boost::placeholders::_1), seq_iter->second->m_Group))) != BaseAnimator->m_ActiveSequence.end())
 		{
-			master_seq_iter = seq_iter;
-
-			next_seq_iter = seq_iter;
-
-			for (next_seq_iter++; next_seq_iter != m_SequenceGroup.end() && next_seq_iter->first == seq_iter->first; next_seq_iter++)
-			{
-				if (next_seq_iter->second->m_Weight > master_seq_iter->second->m_Weight)
-				{
-					master_seq_iter = next_seq_iter;
-				}
-			}
-
-			_ASSERT(master_seq_iter != m_SequenceGroup.end());
-
-			master_seq_iter->second->Advance(master_seq_iter->second->m_LastElapsedTime);
-
-			SyncSequenceGroupTime(seq_iter, master_seq_iter, master_seq_iter->second);
-
-			SyncSequenceGroupTime(std::next(master_seq_iter), next_seq_iter, master_seq_iter->second);
+			SyncSequenceGroupTime(seq_iter, next_seq_iter, *master_seq_iter);
 		}
-		else
+		else if ((master_seq_iter = boost::find_if(m_ActiveSequence, boost::bind(
+			std::equal_to<std::string>(), boost::bind(&AnimationNodeSequence::m_Group, boost::placeholders::_1), seq_iter->second->m_Group))) != m_ActiveSequence.end())
 		{
-			_ASSERT(master_seq_iter != BaseAnimator->m_SequenceGroup.end());
+			(*master_seq_iter)->Advance((*master_seq_iter)->m_LastElapsedTime);
 
-			next_seq_iter = m_SequenceGroup.upper_bound(seq_iter->first);
-
-			SyncSequenceGroupTime(seq_iter, next_seq_iter, master_seq_iter->second);
+			SyncSequenceGroupTime(seq_iter, next_seq_iter, *master_seq_iter);
 		}
 
 		seq_iter = next_seq_iter;
 	}
 }
 
-void Animator::SyncSequenceGroupTime(SequenceGroupMap::iterator begin, SequenceGroupMap::iterator end, AnimationNodeSequence * master)
+void Animator::SyncSequenceGroupTime(SequenceGroupMap::iterator begin, SequenceGroupMap::iterator end, const AnimationNodeSequence * master)
 {
 	SequenceGroupMap::iterator seq_iter = begin;
 	for (; seq_iter != end; seq_iter++)
 	{
-		_ASSERT(seq_iter->second != master);
+		//_ASSERT(seq_iter->second != master);
 
 		seq_iter->second->m_LastElapsedTime = master->m_LastElapsedTime;
 
