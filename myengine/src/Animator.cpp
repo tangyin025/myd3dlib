@@ -162,10 +162,7 @@ AnimationNode * AnimationNode::FindSubNode(const std::string & Name)
 
 AnimationNodeSequence::~AnimationNodeSequence(void)
 {
-	if (m_GroupOwner)
-	{
-		m_GroupOwner->RemoveSequenceGroup(m_Group, this);
-	}
+	_ASSERT(!m_GroupOwner);
 }
 
 AnimationNodeSequence & AnimationNodeSequence::operator = (const AnimationNodeSequence & rhs)
@@ -325,6 +322,10 @@ void AnimationNodeSlot::Tick(float fElapsedTime, float fTotalWeight)
 		{
 			if (seq_iter->m_TargetWeight <= 0)
 			{
+				if (seq_iter->m_GroupOwner)
+				{
+					seq_iter->m_GroupOwner->RemoveSequenceGroup(seq_iter->m_Group, &*seq_iter);
+				}
 				seq_iter = m_SequenceSlot.erase(seq_iter);
 				continue;
 			}
@@ -342,7 +343,7 @@ void AnimationNodeSlot::Tick(float fElapsedTime, float fTotalWeight)
 
 		fTotalWeight = Max(0.0f, fTotalWeight - Weight);
 
-		if (seq_iter->m_TargetWeight > 0 && !seq_iter->m_Loop && seq_iter->m_Time >= seq_iter->GetLength())
+		if (seq_iter->m_TargetWeight > 0 /*&& !seq_iter->m_Loop*/ && seq_iter->m_Time >= seq_iter->GetLength())
 		{
 			seq_iter->m_TargetWeight = 0;
 			seq_iter->m_BlendTime = seq_iter->m_BlendOutTime;
@@ -374,7 +375,7 @@ my::BoneList & AnimationNodeSlot::GetPose(my::BoneList & pose, int root_i, const
 	return pose;
 }
 
-void AnimationNodeSlot::Play(const std::string & Name, float Rate, float Weight, float BlendTime, float BlendOutTime, bool Loop, int Priority, DWORD_PTR UserData)
+void AnimationNodeSlot::Play(const std::string & Name, float Rate, float Weight, float BlendTime, float BlendOutTime, const std::string & Group, int Priority, DWORD_PTR UserData)
 {
 	SequenceList::iterator seq_iter = m_SequenceSlot.insert(std::upper_bound(m_SequenceSlot.begin(), m_SequenceSlot.end(), Priority,
 		boost::bind(std::less<float>(), boost::placeholders::_1, boost::bind(&Sequence::m_Priority, boost::placeholders::_2))), Sequence());
@@ -384,24 +385,30 @@ void AnimationNodeSlot::Play(const std::string & Name, float Rate, float Weight,
 		seq_iter->m_Weight = 0;
 		seq_iter->m_Name = Name;
 		seq_iter->m_Rate = Rate;
-		seq_iter->m_Loop = Loop;
+		seq_iter->m_Loop = false;
+		seq_iter->m_Group = Group;
 		seq_iter->m_Priority = Priority;
 		seq_iter->m_BlendTime = BlendTime;
 		seq_iter->m_BlendOutTime = BlendOutTime;
 		seq_iter->m_TargetWeight = Weight;
 		seq_iter->m_UserData = UserData;
 		seq_iter->m_Parent = this;
+
+		if (!seq_iter->m_Group.empty())
+		{
+			Animator* Root = dynamic_cast<Animator*>(GetTopNode());
+
+			Root->AddSequenceGroup(seq_iter->m_Group, &*seq_iter);
+		}
 	}
 }
 
-void AnimationNodeSlot::StopSlotByIndex(int i, float BlendOutTime)
+void AnimationNodeSlot::StopSlotIter(SequenceList::iterator iter, float BlendOutTime)
 {
-	_ASSERT(i >= 0 && i < (int)m_SequenceSlot.size());
-
-	if (m_SequenceSlot[i].m_TargetWeight > 0 || m_SequenceSlot[i].m_BlendTime > BlendOutTime)
+	if (iter->m_TargetWeight > 0 || iter->m_BlendTime > BlendOutTime)
 	{
-		m_SequenceSlot[i].m_TargetWeight = 0;
-		m_SequenceSlot[i].m_BlendTime = my::Min(BlendOutTime, m_SequenceSlot[i].m_BlendOutTime);
+		iter->m_TargetWeight = 0;
+		iter->m_BlendTime = my::Min(BlendOutTime, iter->m_BlendOutTime);
 	}
 }
 
@@ -412,7 +419,7 @@ void AnimationNodeSlot::StopSlotByUserData(DWORD_PTR UserData, float BlendOutTim
 	{
 		if (seq_iter->m_UserData == UserData)
 		{
-			StopSlotByIndex(std::distance(m_SequenceSlot.begin(), seq_iter), BlendOutTime);
+			StopSlotIter(seq_iter, BlendOutTime);
 		}
 	}
 }
@@ -427,7 +434,7 @@ void AnimationNodeSlot::StopAllSlot(float BlendOutTime)
 	SequenceList::iterator seq_iter = m_SequenceSlot.begin();
 	for (; seq_iter != m_SequenceSlot.end(); seq_iter++)
 	{
-		StopSlotByIndex(std::distance(m_SequenceSlot.begin(), seq_iter), BlendOutTime);
+		StopSlotIter(seq_iter, BlendOutTime);
 	}
 }
 

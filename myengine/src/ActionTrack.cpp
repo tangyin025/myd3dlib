@@ -69,7 +69,7 @@ ActionTrackInstPtr ActionTrackAnimation::CreateInstance(Actor * _Actor) const
 	return ActionTrackInstPtr(new ActionTrackAnimationInst(_Actor, boost::static_pointer_cast<const ActionTrackAnimation>(shared_from_this())));
 }
 
-void ActionTrackAnimation::AddKeyFrame(float Time, const char * SlotName, const char * Name, float Rate, float Weight, float BlendTime, float BlendOutTime, bool Loop, int Prority)
+void ActionTrackAnimation::AddKeyFrame(float Time, const char * SlotName, const char * Name, float Rate, float Weight, float BlendTime, float BlendOutTime, const char * Group, int Prority)
 {
 	KeyFrameMap::iterator key_iter = m_Keys.insert(std::make_pair(Time, KeyFrame()));
 	_ASSERT(key_iter != m_Keys.end());
@@ -79,7 +79,7 @@ void ActionTrackAnimation::AddKeyFrame(float Time, const char * SlotName, const 
 	key_iter->second.Weight = Weight;
 	key_iter->second.BlendTime = BlendTime;
 	key_iter->second.BlendOutTime = BlendOutTime;
-	key_iter->second.Loop = Loop;
+	key_iter->second.Group = Group;
 	key_iter->second.Prority = Prority;
 }
 
@@ -105,7 +105,7 @@ void ActionTrackAnimationInst::UpdateTime(float LastTime, float Time)
 					key_iter->second.Weight,
 					key_iter->second.BlendTime,
 					key_iter->second.BlendOutTime,
-					key_iter->second.Loop,
+					key_iter->second.Group,
 					key_iter->second.Prority,
 					(DWORD_PTR)this);
 			}

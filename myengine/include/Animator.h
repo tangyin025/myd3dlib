@@ -87,11 +87,9 @@ public:
 
 	EventMap m_Events;
 
-protected:
-	friend class Animator;
-
 	Animator * m_GroupOwner;
 
+protected:
 	AnimationNodeSequence(void)
 		: m_Time(0)
 		, m_Weight(1.0f)
@@ -178,7 +176,7 @@ public:
 		}
 	};
 
-	typedef std::vector<Sequence> SequenceList;
+	typedef std::list<Sequence> SequenceList;
 
 	SequenceList m_SequenceSlot;
 
@@ -205,9 +203,9 @@ public:
 
 	virtual my::BoneList & GetPose(my::BoneList & pose, int root_i, const my::BoneHierarchy & boneHierarchy) const;
 
-	void Play(const std::string & Name, float Rate, float Weight, float BlendTime, float BlendOutTime, bool Loop, int Priority, DWORD_PTR UserData);
+	void Play(const std::string & Name, float Rate, float Weight, float BlendTime, float BlendOutTime, const std::string & Group, int Priority, DWORD_PTR UserData);
 
-	void StopSlotByIndex(int i, float BlendOutTime);
+	void StopSlotIter(SequenceList::iterator iter, float BlendOutTime);
 
 	void StopSlotByUserData(DWORD_PTR UserData, float BlendOutTime);
 

@@ -126,7 +126,7 @@ public:
 		float Weight;
 		float BlendTime;
 		float BlendOutTime;
-		bool Loop;
+		std::string Group;
 		int Prority;
 	};
 
@@ -141,7 +141,7 @@ public:
 
 	virtual ActionTrackInstPtr CreateInstance(Actor * _Actor) const;
 
-	void AddKeyFrame(float Time, const char * SlotName, const char * Name, float Rate, float Weight, float BlendTime, float BlendOutTime, bool Loop, int Prority);
+	void AddKeyFrame(float Time, const char * SlotName, const char * Name, float Rate, float Weight, float BlendTime, float BlendOutTime, const char * Group, int Prority);
 };
 
 class ActionTrackAnimationInst : public ActionTrackInst
