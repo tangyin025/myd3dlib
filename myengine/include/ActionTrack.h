@@ -2,7 +2,6 @@
 
 #include <boost/shared_ptr.hpp>
 #include <boost/smart_ptr/enable_shared_from_this.hpp>
-#include <boost/circular_buffer.hpp>
 #include <vector>
 #include <map>
 #include <list>

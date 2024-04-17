@@ -3,7 +3,6 @@
 #include "mySkeleton.h"
 #include "Component.h"
 #include "myPhysics.h"
-#include <boost/circular_buffer.hpp>
 
 class AnimationNode;
 
@@ -179,7 +178,7 @@ public:
 		}
 	};
 
-	typedef boost::circular_buffer<Sequence> SequenceList;
+	typedef std::vector<Sequence> SequenceList;
 
 	SequenceList m_SequenceSlot;
 
@@ -189,24 +188,17 @@ protected:
 	}
 
 public:
-	AnimationNodeSlot(const char * Name, unsigned int SlotNum)
+	AnimationNodeSlot(const char * Name)
 		: AnimationNode(Name, 1)
-		, m_SequenceSlot(my::Max(2u, SlotNum))
 	{
 	}
 
 	friend class boost::serialization::access;
 
 	template<class Archive>
-	void save(Archive& ar, const unsigned int version) const;
-
-	template<class Archive>
-	void load(Archive& ar, const unsigned int version);
-
-	template<class Archive>
 	void serialize(Archive& ar, const unsigned int version)
 	{
-		boost::serialization::split_member(ar, *this, version);
+		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(AnimationNode);
 	}
 
 	virtual void Tick(float fElapsedTime, float fTotalWeight);

@@ -314,23 +314,6 @@ my::BoneList & AnimationNodeSequence::GetPose(my::BoneList & pose, int root_i, c
 	return pose;
 }
 
-template<class Archive>
-void AnimationNodeSlot::save(Archive& ar, const unsigned int version) const
-{
-	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(AnimationNode);
-	unsigned int SlotNum = m_SequenceSlot.capacity();
-	ar << BOOST_SERIALIZATION_NVP(SlotNum);
-}
-
-template<class Archive>
-void AnimationNodeSlot::load(Archive& ar, const unsigned int version)
-{
-	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(AnimationNode);
-	unsigned int SlotNum;
-	ar >> BOOST_SERIALIZATION_NVP(SlotNum);
-	m_SequenceSlot.set_capacity(SlotNum);
-}
-
 void AnimationNodeSlot::Tick(float fElapsedTime, float fTotalWeight)
 {
 	Animator * Root = dynamic_cast<Animator *>(GetTopNode());
@@ -394,7 +377,7 @@ my::BoneList & AnimationNodeSlot::GetPose(my::BoneList & pose, int root_i, const
 void AnimationNodeSlot::Play(const std::string & Name, float Rate, float Weight, float BlendTime, float BlendOutTime, bool Loop, int Priority, DWORD_PTR UserData)
 {
 	SequenceList::iterator seq_iter = m_SequenceSlot.insert(std::upper_bound(m_SequenceSlot.begin(), m_SequenceSlot.end(), Priority,
-		boost::bind(std::less<float>(), boost::placeholders::_1, boost::bind(&Sequence::m_Priority, boost::placeholders::_2))));
+		boost::bind(std::less<float>(), boost::placeholders::_1, boost::bind(&Sequence::m_Priority, boost::placeholders::_2))), Sequence());
 	if (seq_iter != m_SequenceSlot.end())
 	{
 		seq_iter->m_Time = 0;
