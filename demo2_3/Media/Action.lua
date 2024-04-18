@@ -10,7 +10,7 @@ skel:AddOgreSkeletonAnimationFromFile("character/casual19_m_highpoly_jumpforward
 
 act_jump=Action(5)
 local track=ActionTrackAnimation()
-track:AddKeyFrame(0,"node_run_slot","jumpforward",2.0,1.0,0.3,0.3,false,1)
+track:AddKeyFrame(0,"node_run_slot","jumpforward",2.0,1.0,0.3,0.3,"",1)
 act_jump:AddTrack(track)
 
 act_sound=Action(9999)
