@@ -162,7 +162,10 @@ AnimationNode * AnimationNode::FindSubNode(const std::string & Name)
 
 AnimationNodeSequence::~AnimationNodeSequence(void)
 {
-	_ASSERT(!m_GroupOwner);
+	if (m_GroupOwner)
+	{
+		_ASSERT(false); m_GroupOwner->RemoveSequenceGroup(m_Group, this);
+	}
 }
 
 AnimationNodeSequence & AnimationNodeSequence::operator = (const AnimationNodeSequence & rhs)
@@ -173,7 +176,7 @@ AnimationNodeSequence & AnimationNodeSequence::operator = (const AnimationNodeSe
 	}
 
 	m_Time = rhs.m_Time;
-	m_Weight = rhs.m_Weight;
+	m_TargetWeight = rhs.m_TargetWeight;
 	m_LastElapsedTime = rhs.m_LastElapsedTime;
 	m_Name = rhs.m_Name;
 	m_Rate = rhs.m_Rate;
@@ -194,7 +197,7 @@ AnimationNodeSequence & AnimationNodeSequence::operator = (const AnimationNodeSe
 
 void AnimationNodeSequence::Tick(float fElapsedTime, float fTotalWeight)
 {
-	m_Weight = fTotalWeight;
+	m_TargetWeight = fTotalWeight;
 
 	if (!m_Group.empty())
 	{
@@ -208,7 +211,7 @@ void AnimationNodeSequence::Tick(float fElapsedTime, float fTotalWeight)
 		{
 			Root->m_ActiveSequence.insert(seq_iter, this);
 		}
-		else if ((*seq_iter)->m_Weight < m_Weight)
+		else if ((*seq_iter)->m_TargetWeight < m_TargetWeight)
 		{
 			*seq_iter = this;
 		}
@@ -317,7 +320,6 @@ void AnimationNodeSlot::Tick(float fElapsedTime, float fTotalWeight)
 	SequenceList::iterator seq_iter = m_SequenceSlot.begin();
 	for (; seq_iter != m_SequenceSlot.end();)
 	{
-		float Weight = 0;
 		if (seq_iter->m_BlendTime <= fElapsedTime)
 		{
 			if (seq_iter->m_TargetWeight <= 0)
@@ -329,19 +331,19 @@ void AnimationNodeSlot::Tick(float fElapsedTime, float fTotalWeight)
 				seq_iter = m_SequenceSlot.erase(seq_iter);
 				continue;
 			}
-			Weight = seq_iter->m_TargetWeight;
+			seq_iter->m_Weight = seq_iter->m_TargetWeight;
 			seq_iter->m_BlendTime = 0;
 		}
 		else if (seq_iter->m_BlendTime > 0)
 		{
 			float WeightDelta = seq_iter->m_TargetWeight - seq_iter->m_Weight;
-			Weight = seq_iter->m_Weight + WeightDelta * fElapsedTime / seq_iter->m_BlendTime;
+			seq_iter->m_Weight = seq_iter->m_Weight + WeightDelta * fElapsedTime / seq_iter->m_BlendTime;
 			seq_iter->m_BlendTime -= fElapsedTime;
 		}
 
-		seq_iter->Tick(fElapsedTime, Weight);
+		seq_iter->Tick(fElapsedTime, seq_iter->m_TargetWeight);
 
-		fTotalWeight = Max(0.0f, fTotalWeight - Weight);
+		fTotalWeight = Max(0.0f, fTotalWeight - seq_iter->m_Weight);
 
 		if (seq_iter->m_TargetWeight > 0 /*&& !seq_iter->m_Loop*/ && seq_iter->m_Time >= seq_iter->GetLength())
 		{
@@ -382,7 +384,7 @@ void AnimationNodeSlot::Play(const std::string & Name, float Rate, float Weight,
 	if (seq_iter != m_SequenceSlot.end())
 	{
 		seq_iter->m_Time = 0;
-		seq_iter->m_Weight = 0;
+		seq_iter->m_TargetWeight = Weight;
 		seq_iter->m_Name = Name;
 		seq_iter->m_Rate = Rate;
 		seq_iter->m_Loop = false;
@@ -390,7 +392,7 @@ void AnimationNodeSlot::Play(const std::string & Name, float Rate, float Weight,
 		seq_iter->m_Priority = Priority;
 		seq_iter->m_BlendTime = BlendTime;
 		seq_iter->m_BlendOutTime = BlendOutTime;
-		seq_iter->m_TargetWeight = Weight;
+		seq_iter->m_Weight = 0;
 		seq_iter->m_UserData = UserData;
 		seq_iter->m_Parent = this;
 

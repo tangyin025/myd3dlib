@@ -73,7 +73,7 @@ class AnimationNodeSequence : public AnimationNode
 public:
 	float m_Time;
 
-	float m_Weight;
+	float m_TargetWeight;
 
 	float m_LastElapsedTime;
 
@@ -92,7 +92,7 @@ public:
 protected:
 	AnimationNodeSequence(void)
 		: m_Time(0)
-		, m_Weight(1.0f)
+		, m_TargetWeight(1.0f)
 		, m_LastElapsedTime(0)
 		, m_Rate(1.0f)
 		, m_Loop(true)
@@ -104,7 +104,7 @@ public:
 	AnimationNodeSequence(const char * Name, float Rate = 1.0f, bool Loop = true, const char * Group = "")
 		: AnimationNode(Name, 0)
 		, m_Time(0)
-		, m_Weight(1.0f)
+		, m_TargetWeight(1.0f)
 		, m_LastElapsedTime(0)
 		, m_Rate(Rate)
 		, m_Loop(Loop)
@@ -156,7 +156,7 @@ public:
 
 		float m_BlendOutTime;
 
-		float m_TargetWeight;
+		float m_Weight;
 
 		DWORD_PTR m_UserData;
 
@@ -164,7 +164,7 @@ public:
 			: m_Priority(INT_MIN)
 			, m_BlendTime(0)
 			, m_BlendOutTime(0)
-			, m_TargetWeight(1.0f)
+			, m_Weight(0)
 			, m_UserData(0)
 		{
 		}
