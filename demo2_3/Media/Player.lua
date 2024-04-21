@@ -157,11 +157,8 @@ function PlayerBehavior:OnPxThreadSubstep(dtime)
 		self.velocity.y=0
 	end
 end
-function PlayerBehavior:OnEnterTrigger(arg)
-	print("enter trigger: "..arg.other.Name)
-end
-function PlayerBehavior:OnLeaveTrigger(arg)
-	print("leave trigger: "..arg.other.Name)
+function PlayerBehavior:OnTrigger(arg)
+	print("enter trigger: "..arg.other.Name, arg.events)
 end
 function PlayerBehavior:OnPxThreadShapeHit(arg)
 	-- print("shape hit: "..arg.other.Name.."pos("..arg.worldPos.x..","..arg.worldPos.y..","..arg.worldPos.z..") nol("..arg.worldNormal.x..","..arg.worldNormal.y..","..arg.worldNormal.z..") dir("..arg.dir.x..","..arg.dir.y..","..arg.dir.z..")")
