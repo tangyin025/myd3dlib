@@ -145,7 +145,7 @@ void PlayerAgent::ReleaseResource(void)
 	}
 	m_Meshes.clear();
 
-	m_Animator->RemoveChild(0);
+	//m_Animator->RemoveChild(0); // ! AnimationNodeSequence destructor _ASSERT(false)
 }
 
 void PlayerAgent::Update(float fElapsedTime)
