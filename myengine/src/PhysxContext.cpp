@@ -248,12 +248,12 @@ void PhysxScene::TickPostRender(float fElapsedTime)
 		for (; trigger_iter != mTriggerPairs.end(); trigger_iter++)
 		{
 			// ! PxTriggerPair::otherActor may not have userData for Controller objs
-			if (trigger_iter->otherShape->userData)
+			if (trigger_iter->triggerShape->userData)
 			{
-				Component* self_cmp = (Component*)trigger_iter->otherShape->userData;
-				if (trigger_iter->triggerShape->userData)
+				Component* self_cmp = (Component*)trigger_iter->triggerShape->userData;
+				if (trigger_iter->otherShape->userData)
 				{
-					Component* other_cmp = (Component*)trigger_iter->triggerShape->userData;
+					Component* other_cmp = (Component*)trigger_iter->otherShape->userData;
 					TriggerEventArg arg(self_cmp->m_Actor, self_cmp, other_cmp->m_Actor, other_cmp, trigger_iter->status);
 					self_cmp->m_Actor->m_EventOnTrigger(&arg);
 				}
