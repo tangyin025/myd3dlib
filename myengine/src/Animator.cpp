@@ -675,10 +675,6 @@ void Animator::RequestResource(void)
 
 		my::ResourceMgr::getSingleton().LoadSkeletonAsync(m_SkeletonPath.c_str(), boost::bind(&Animator::OnSkeletonReady, this, boost::placeholders::_1));
 	}
-
-	PhysxScene* scene = dynamic_cast<PhysxScene*>(m_Actor->m_Node->GetTopNode());
-
-	scene->m_EventPxThreadSubstep.connect(boost::bind(&Animator::OnPxThreadSubstep, this, boost::placeholders::_1));
 }
 
 void Animator::ReleaseResource(void)
@@ -691,10 +687,6 @@ void Animator::ReleaseResource(void)
 
 		m_Skeleton.reset();
 	}
-
-	PhysxScene* scene = dynamic_cast<PhysxScene*>(m_Actor->m_Node->GetTopNode());
-
-	scene->m_EventPxThreadSubstep.disconnect(boost::bind(&Animator::OnPxThreadSubstep, this, boost::placeholders::_1));
 }
 
 void Animator::Update(float fElapsedTime)
@@ -751,10 +743,6 @@ void Animator::Tick(float fElapsedTime, float fTotalWeight)
 			final_pose.BuildDualQuaternionList(m_DualQuats);
 		}
 	}
-}
-
-void Animator::OnPxThreadSubstep(float dtime)
-{
 }
 
 my::BoneList & Animator::GetPose(my::BoneList & pose, int root_i, const my::BoneHierarchy & boneHierarchy) const

@@ -457,8 +457,6 @@ public:
 
 	virtual void Tick(float fElapsedTime, float fTotalWeight);
 
-	void OnPxThreadSubstep(float dtime);
-
 	virtual my::BoneList & GetPose(my::BoneList & pose, int root_i, const my::BoneHierarchy & boneHierarchy) const;
 
 	void UpdateHierarchyBoneList(const int node_i, const my::Bone& parent);
