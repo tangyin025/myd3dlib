@@ -1280,33 +1280,33 @@ MeshIORequest::MeshIORequest(const char * path, int Priority)
 {
 }
 
+class my_pool : public my::SingletonLocalThread<my_pool>
+{
+public:
+	boost::pool<boost::default_user_allocator_malloc_free> pool;
+
+	my_pool(void)
+		: pool(RAPIDXML_DYNAMIC_POOL_SIZE + 64)
+	{
+	}
+
+	static void* malloc(size_t size)
+	{
+		if (size <= getSingleton().pool.get_requested_size())
+		{
+			return getSingleton().pool.malloc();
+		}
+		return NULL;
+	}
+
+	static void free(void* p)
+	{
+		return getSingleton().pool.free(p);
+	}
+};
+
 void MeshIORequest::LoadResource(void)
 {
-	class my_pool : public my::SingletonLocalThread<my_pool>
-	{
-	public:
-		boost::pool<boost::default_user_allocator_malloc_free> pool;
-
-		my_pool(void)
-			: pool(RAPIDXML_DYNAMIC_POOL_SIZE + 64)
-		{
-		}
-
-		static void* malloc(size_t size)
-		{
-			if (size <= getSingleton().pool.get_requested_size())
-			{
-				return getSingleton().pool.malloc();
-			}
-			return NULL;
-		}
-
-		static void free(void* p)
-		{
-			return getSingleton().pool.free(p);
-		}
-	};
-
 	if(ResourceMgr::getSingleton().CheckPath(m_path.c_str()))
 	{
 		CachePtr cache = ResourceMgr::getSingleton().OpenIStream(m_path.c_str())->GetWholeCache();
@@ -1340,12 +1340,15 @@ void SkeletonIORequest::LoadResource(void)
 		cache->push_back(0);
 
 		rapidxml::xml_document<char> doc;
+		doc.set_allocator(&my_pool::malloc, &my_pool::free);
 		doc.parse<0>((char*)&(*cache)[0]);
 
 		OgreSkeletonAnimationPtr res(new OgreSkeletonAnimation());
 		res->CreateOgreSkeletonAnimation(&doc);
 		m_res = res;
 	}
+
+	my_pool::getSingleton().pool.purge_memory();
 }
 
 void SkeletonIORequest::CreateResource(LPDIRECT3DDEVICE9 pd3dDevice)
