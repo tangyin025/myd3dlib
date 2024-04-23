@@ -2020,8 +2020,6 @@ void LuaContext::Init(void)
 
 		, class_<my::UIRender>("UIRender")
 			.def_readonly("WhiteTex", &my::UIRender::m_WhiteTex)
-			.def("Begin", &my::UIRender::Begin)
-			.def("End", &my::UIRender::End)
 			.def("SetWorld", &my::UIRender::SetWorld)
 			.def("SetViewProj", &my::UIRender::SetViewProj)
 			.def("Flush", &my::UIRender::Flush)

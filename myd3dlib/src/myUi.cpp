@@ -116,10 +116,19 @@ void UIRender::OnDestroyDevice(void)
 	m_Device.Release();
 }
 
-void UIRender::Begin(void)
+void UIRender::SetWorld(const Matrix4 & World)
 {
-	m_LayerDrawCall = 0;
+	V(m_Device->SetTransform(D3DTS_WORLD, (D3DMATRIX *)&World));
+}
 
+void UIRender::SetViewProj(const Matrix4 & ViewProj)
+{
+	V(m_Device->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&ViewProj));
+	V(m_Device->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&Matrix4::identity));
+}
+
+void UIRender::Flush(void)
+{
 	V(m_Device->SetVertexShader(NULL));
 	V(m_Device->SetPixelShader(NULL));
 	V(m_Device->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE));
@@ -139,26 +148,7 @@ void UIRender::Begin(void)
 	V(m_Device->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_MODULATE));
 	V(m_Device->SetTextureStageState(0, D3DTSS_ALPHAARG1, D3DTA_TEXTURE));
 	V(m_Device->SetTextureStageState(0, D3DTSS_ALPHAARG2, D3DTA_DIFFUSE));
-}
 
-void UIRender::End(void)
-{
-	Flush();
-}
-
-void UIRender::SetWorld(const Matrix4 & World)
-{
-	V(m_Device->SetTransform(D3DTS_WORLD, (D3DMATRIX *)&World));
-}
-
-void UIRender::SetViewProj(const Matrix4 & ViewProj)
-{
-	V(m_Device->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&ViewProj));
-	V(m_Device->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&Matrix4::identity));
-}
-
-void UIRender::Flush(void)
-{
 	UILayerList::iterator layer_iter = m_Layer.begin();
 	for (; layer_iter != m_Layer.end(); layer_iter++)
 	{

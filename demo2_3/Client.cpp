@@ -49,13 +49,13 @@ public:
 
 	D3DXHANDLE handle_ViewProj;
 
-	UINT m_Passes;
+	D3DXHANDLE handle_MeshTexture;
 
 public:
 	EffectUIRender(void)
-		: m_Passes(0)
-		, handle_World(NULL)
+		: handle_World(NULL)
 		, handle_ViewProj(NULL)
+		, handle_MeshTexture(NULL)
 	{
 	}
 
@@ -76,6 +76,7 @@ public:
 
 		BOOST_VERIFY(handle_World = m_UIEffect->GetParameterByName(NULL, "g_World"));
 		BOOST_VERIFY(handle_ViewProj = m_UIEffect->GetParameterByName(NULL, "g_ViewProj"));
+		BOOST_VERIFY(handle_MeshTexture = m_UIEffect->GetParameterByName(NULL, "g_MeshTexture"));
 
 		return S_OK;
 	}
@@ -106,24 +107,6 @@ public:
 		m_UIEffect.reset();
 	}
 
-	void Begin(void)
-	{
-		_ASSERT(m_UIEffect->m_ptr);
-
-		m_LayerDrawCall = 0;
-
-		m_Passes = m_UIEffect->Begin(D3DXFX_DONOTSAVESTATE | D3DXFX_DONOTSAVESAMPLERSTATE | D3DXFX_DONOTSAVESHADERSTATE);
-	}
-
-	void End(void)
-	{
-		_ASSERT(m_UIEffect->m_ptr);
-
-		m_UIEffect->End();
-
-		m_Passes = 0;
-	}
-
 	void SetWorld(const Matrix4 & World)
 	{
 		_ASSERT(m_UIEffect->m_ptr);
@@ -142,14 +125,28 @@ public:
 	{
 		_ASSERT(m_UIEffect->m_ptr);
 
-		_ASSERT(m_Passes > 0); // must between Begin and End
+		V(m_Device->SetFVF(D3DFVF_CUSTOMVERTEX));
 
-		for (UINT p = 0; p < m_Passes; p++)
+		UILayerList::iterator layer_iter = m_Layer.begin();
+		for (; layer_iter != m_Layer.end(); layer_iter++)
 		{
-			m_UIEffect->BeginPass(p);
-			UIRender::Flush();
-			m_UIEffect->EndPass();
+			if (!layer_iter->second.empty())
+			{
+				_ASSERT(layer_iter->first && layer_iter->first->m_ptr);
+
+				m_UIEffect->SetTexture(handle_MeshTexture, layer_iter->first);
+				const UINT Passes = m_UIEffect->Begin(D3DXFX_DONOTSAVESTATE | D3DXFX_DONOTSAVESAMPLERSTATE | D3DXFX_DONOTSAVESHADERSTATE);
+				for (UINT p = 0; p < Passes; p++)
+				{
+					m_UIEffect->BeginPass(p);
+					V(m_Device->DrawPrimitiveUP(D3DPT_TRIANGLELIST, layer_iter->second.size() / 3, &layer_iter->second[0], sizeof(CUSTOMVERTEX)));
+					m_UIEffect->EndPass();
+					m_LayerDrawCall++;
+				}
+				m_UIEffect->End();
+			}
 		}
+		m_Layer.clear();
 	}
 };
 
@@ -959,11 +956,9 @@ void Client::OnFrameTick(
 		V(m_d3dDevice->SetTransform(D3DTS_WORLD, (D3DMATRIX *)&my::Matrix4::identity));
 		DrawHelper::FlushLine(m_d3dDevice);
 
-		m_UIRender->Begin();
 		m_UIRender->SetWorld(Matrix4::identity);
 		m_UIRender->SetViewProj(DialogMgr::m_ViewProj);
 		OnUIRender(m_UIRender.get(), fTime, fElapsedTime);
-		m_UIRender->End();
 		V(m_d3dDevice->EndScene());
 	}
 

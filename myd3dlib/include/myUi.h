@@ -75,10 +75,6 @@ namespace my
 
 		virtual void OnDestroyDevice(void);
 
-		virtual void Begin(void);
-
-		virtual void End(void);
-
 		virtual void SetWorld(const Matrix4 & World);
 
 		virtual void SetViewProj(const Matrix4 & ViewProj);

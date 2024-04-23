@@ -1526,7 +1526,6 @@ void CChildView::OnPaint()
 			V(theApp.m_d3dDevice->SetTransform(D3DTS_WORLD, (D3DMATRIX*)&my::Matrix4::identity));
 			DrawHelper::FlushLine(theApp.m_d3dDevice);
 
-			theApp.m_UIRender->Begin();
 			theApp.m_UIRender->SetViewProj(m_UICamera.m_ViewProj);
 			theApp.m_UIRender->SetWorld(my::Matrix4::identity);
 			if (m_bShowGrid)
@@ -1560,7 +1559,7 @@ void CChildView::OnPaint()
 			{
 				theApp.m_UIRender->PushString(my::Rectangle::LeftTop(5, (float)y, 500, 10), &info_iter->second[0], D3DCOLOR_ARGB(255, 255, 255, 0), my::Font::AlignLeftTop, theApp.m_Font.get());
 			}
-			theApp.m_UIRender->End();
+			theApp.m_UIRender->Flush();
 
 			swprintf_s(&m_ScrInfo[1 + RenderPipeline::PassTypeNum][0], m_ScrInfo[1 + RenderPipeline::PassTypeNum].size(), L"PassTypeUILayer: %d", theApp.m_UIRender->m_LayerDrawCall);
 

@@ -472,12 +472,11 @@ public:
 			m_font->DrawString(m_sprite, L"哈哈", my::Rectangle(500, 100, 600, 200), D3DCOLOR_ARGB(255, 255, 90, 30), my::Font::AlignCenterMiddle, D3DCOLOR_ARGB(255, 255, 255, 255), 3.0f);
 			V(m_sprite->End());
 
-			m_UIRender->Begin();
 			m_UIRender->SetWorld(Matrix4::identity);
 			m_UIRender->SetViewProj(DialogMgr::m_ViewProj);
 			DialogMgr::Draw(m_UIRender.get(), fTime, fElapsedTime, DialogMgr::GetDlgDimension());
 			m_UIRender->PushString(my::Rectangle(500, 300, 600, 400), L"哈哈", D3DCOLOR_ARGB(255, 255, 90, 30), my::Font::AlignCenterMiddle, D3DCOLOR_ARGB(255, 255, 255, 255), 3.0f, m_font.get());
-			m_UIRender->End();
+			m_UIRender->Flush();
 			V(m_d3dDevice->EndScene());
 		}
 
