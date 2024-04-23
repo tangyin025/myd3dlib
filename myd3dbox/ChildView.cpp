@@ -1526,6 +1526,7 @@ void CChildView::OnPaint()
 			V(theApp.m_d3dDevice->SetTransform(D3DTS_WORLD, (D3DMATRIX*)&my::Matrix4::identity));
 			DrawHelper::FlushLine(theApp.m_d3dDevice);
 
+			theApp.m_UIRender->m_LayerDrawCall = 0;
 			theApp.m_UIRender->SetViewProj(m_UICamera.m_ViewProj);
 			theApp.m_UIRender->SetWorld(my::Matrix4::identity);
 			if (m_bShowGrid)

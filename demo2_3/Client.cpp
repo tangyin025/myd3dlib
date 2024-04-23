@@ -997,6 +997,8 @@ void Client::OnUIRender(
 	double fTime,
 	float fElapsedTime)
 {
+	ui_render->m_LayerDrawCall = 0;
+
 	DialogMgr::Draw(ui_render, m_fAbsoluteTime, m_fUnscaledElapsedTime, DialogMgr::GetDlgDimension());
 
 	OnPostUIRender(ui_render, m_fAbsoluteTime, m_fUnscaledElapsedTime);
