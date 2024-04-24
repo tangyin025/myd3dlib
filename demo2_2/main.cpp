@@ -19,7 +19,7 @@ class EffectUIRender
 	: public my::UIRender
 {
 public:
-	my::EffectPtr m_UIEffect;
+	my::VertexShader m_VertexShader;
 
 	D3DXHANDLE handle_ScreenDim;
 
@@ -27,42 +27,38 @@ public:
 
 	D3DXHANDLE handle_ViewProj;
 
-	UINT m_Passes;
-
 public:
 	EffectUIRender(void)
-		: m_Passes(0)
-		, handle_ScreenDim(NULL)
+		: handle_ScreenDim(NULL)
 		, handle_World(NULL)
 		, handle_ViewProj(NULL)
 	{
 	}
 
 	HRESULT OnCreateDevice(
-		IDirect3DDevice9 * pd3dDevice,
-		const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
+		IDirect3DDevice9* pd3dDevice,
+		const D3DSURFACE_DESC* pBackBufferSurfaceDesc)
 	{
 		if (FAILED(hr = UIRender::OnCreateDevice(pd3dDevice, pBackBufferSurfaceDesc)))
 		{
 			return hr;
 		}
 
-		m_UIEffect = my::ResourceMgr::getSingleton().LoadEffect("shader/UIEffect.fx", "");
-		if (!m_UIEffect)
-		{
-			return S_FALSE;
-		}
+		my::CachePtr cache = my::ResourceMgr::getSingleton().OpenIStream("shader/UIEffect.fx")->GetWholeCache();
+		ResourceMgr::getSingleton().m_LocalInclude = "shader";
+		m_VertexShader.CreateVertexShader(
+			(LPCSTR)cache->data(), cache->size(), "RenderSceneVS", "vs_3_0", NULL, my::ResourceMgr::getSingletonPtr(), 0);
 
-		BOOST_VERIFY(handle_ScreenDim = m_UIEffect->GetParameterByName(NULL, "g_ScreenDim"));
-		BOOST_VERIFY(handle_World = m_UIEffect->GetParameterByName(NULL, "g_World"));
-		BOOST_VERIFY(handle_ViewProj = m_UIEffect->GetParameterByName(NULL, "g_ViewProj"));
+		BOOST_VERIFY(handle_ScreenDim = m_VertexShader.GetConstantByName(NULL, "g_ScreenDim"));
+		BOOST_VERIFY(handle_World = m_VertexShader.GetConstantByName(NULL, "g_World"));
+		BOOST_VERIFY(handle_ViewProj = m_VertexShader.GetConstantByName(NULL, "g_ViewProj"));
 
 		return S_OK;
 	}
 
 	HRESULT OnResetDevice(
-		IDirect3DDevice9 * pd3dDevice,
-		const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
+		IDirect3DDevice9* pd3dDevice,
+		const D3DSURFACE_DESC* pBackBufferSurfaceDesc)
 	{
 		if (FAILED(hr = UIRender::OnResetDevice(pd3dDevice, pBackBufferSurfaceDesc)))
 		{
@@ -80,60 +76,56 @@ public:
 	void OnDestroyDevice(void)
 	{
 		UIRender::OnDestroyDevice();
-
-		m_Device.Release();
-
-		m_UIEffect.reset();
 	}
 
-	void Begin(void)
+	void SetWorld(const Matrix4& World)
 	{
-		m_LayerDrawCall = 0;
-
-		if(m_UIEffect->m_ptr)
-		{
-			m_UIEffect->SetVector(handle_ScreenDim, Vector4(
-				(float)DxutApp::getSingleton().m_BackBufferSurfaceDesc.Width, (float)DxutApp::getSingleton().m_BackBufferSurfaceDesc.Height, 0, 0));
-			m_Passes = m_UIEffect->Begin(D3DXFX_DONOTSAVESTATE | D3DXFX_DONOTSAVESAMPLERSTATE | D3DXFX_DONOTSAVESHADERSTATE);
-		}
+		m_VertexShader.SetMatrix(handle_World, World);
 	}
 
-	void End(void)
+	void SetViewProj(const Matrix4& ViewProj)
 	{
-		if(m_UIEffect->m_ptr)
-		{
-			m_UIEffect->End();
-			m_Passes = 0;
-		}
-	}
-
-	void SetWorld(const Matrix4 & World)
-	{
-		if(m_UIEffect->m_ptr)
-		{
-			m_UIEffect->SetMatrix(handle_World, World);
-		}
-	}
-
-	void SetViewProj(const Matrix4 & ViewProj)
-	{
-		if(m_UIEffect->m_ptr)
-		{
-			m_UIEffect->SetMatrix(handle_ViewProj, ViewProj);
-		}
+		m_VertexShader.SetMatrix(handle_ViewProj, ViewProj);
 	}
 
 	void Flush(void)
 	{
-		if(m_UIEffect->m_ptr)
+		m_VertexShader.SetVector(handle_ScreenDim, Vector4(
+			(float)DxutApp::getSingleton().m_BackBufferSurfaceDesc.Width, (float)DxutApp::getSingleton().m_BackBufferSurfaceDesc.Height, 0, 0));
+		V(m_Device->SetVertexShader(m_VertexShader.m_ptr));
+		V(m_Device->SetPixelShader(NULL));
+		V(m_Device->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE));
+		V(m_Device->SetRenderState(D3DRS_LIGHTING, FALSE));
+		V(m_Device->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE));
+		V(m_Device->SetRenderState(D3DRS_BLENDOP, D3DBLENDOP_ADD));
+		V(m_Device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA));
+		V(m_Device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA));
+		V(m_Device->SetRenderState(D3DRS_ZENABLE, FALSE));
+		V(m_Device->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR));
+		V(m_Device->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_LINEAR));
+		V(m_Device->SetSamplerState(0, D3DSAMP_MIPFILTER, D3DTEXF_NONE));
+		V(m_Device->SetTextureStageState(0, D3DTSS_TEXCOORDINDEX, 0));
+		V(m_Device->SetTextureStageState(0, D3DTSS_COLOROP, D3DTOP_MODULATE));
+		V(m_Device->SetTextureStageState(0, D3DTSS_COLORARG1, D3DTA_TEXTURE));
+		V(m_Device->SetTextureStageState(0, D3DTSS_COLORARG2, D3DTA_DIFFUSE));
+		V(m_Device->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_MODULATE));
+		V(m_Device->SetTextureStageState(0, D3DTSS_ALPHAARG1, D3DTA_TEXTURE));
+		V(m_Device->SetTextureStageState(0, D3DTSS_ALPHAARG2, D3DTA_DIFFUSE));
+		V(m_Device->SetFVF(D3DFVF_CUSTOMVERTEX));
+
+		UILayerList::iterator layer_iter = m_Layer.begin();
+		for (; layer_iter != m_Layer.end(); layer_iter++)
 		{
-			for(UINT p = 0; p < m_Passes; p++)
+			if (!layer_iter->second.empty())
 			{
-				m_UIEffect->BeginPass(p);
-				UIRender::Flush();
-				m_UIEffect->EndPass();
+				_ASSERT(layer_iter->first && layer_iter->first->m_ptr);
+
+				V(m_Device->SetTexture(0, layer_iter->first->m_ptr));
+				V(m_Device->DrawPrimitiveUP(D3DPT_TRIANGLELIST, layer_iter->second.size() / 3, &layer_iter->second[0], sizeof(CUSTOMVERTEX)));
+				m_LayerDrawCall++;
 			}
 		}
+		m_Layer.clear();
 	}
 };
 

@@ -148,6 +148,7 @@ void UIRender::Flush(void)
 	V(m_Device->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_MODULATE));
 	V(m_Device->SetTextureStageState(0, D3DTSS_ALPHAARG1, D3DTA_TEXTURE));
 	V(m_Device->SetTextureStageState(0, D3DTSS_ALPHAARG2, D3DTA_DIFFUSE));
+	V(m_Device->SetFVF(D3DFVF_CUSTOMVERTEX));
 
 	UILayerList::iterator layer_iter = m_Layer.begin();
 	for (; layer_iter != m_Layer.end(); layer_iter++)
@@ -157,7 +158,6 @@ void UIRender::Flush(void)
 			_ASSERT(layer_iter->first && layer_iter->first->m_ptr);
 
 			V(m_Device->SetTexture(0, layer_iter->first->m_ptr));
-			V(m_Device->SetFVF(D3DFVF_CUSTOMVERTEX));
 			V(m_Device->DrawPrimitiveUP(D3DPT_TRIANGLELIST, layer_iter->second.size() / 3, &layer_iter->second[0], sizeof(CUSTOMVERTEX)));
 			m_LayerDrawCall++;
 		}

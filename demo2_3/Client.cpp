@@ -43,19 +43,19 @@ class EffectUIRender
 	: public my::UIRender
 {
 public:
-	my::EffectPtr m_UIEffect;
+	my::VertexShader m_VertexShader;
+
+	D3DXHANDLE handle_ScreenDim;
 
 	D3DXHANDLE handle_World;
 
 	D3DXHANDLE handle_ViewProj;
 
-	D3DXHANDLE handle_MeshTexture;
-
 public:
 	EffectUIRender(void)
-		: handle_World(NULL)
+		: handle_ScreenDim(NULL)
+		, handle_World(NULL)
 		, handle_ViewProj(NULL)
-		, handle_MeshTexture(NULL)
 	{
 	}
 
@@ -68,15 +68,13 @@ public:
 			return hr;
 		}
 
-		m_UIEffect = my::ResourceMgr::getSingleton().LoadEffect(Client::getSingleton().m_InitUIEffect.c_str(), "");
-		if (!m_UIEffect)
-		{
-			return S_FALSE;
-		}
+		my::CachePtr cache = my::ResourceMgr::getSingleton().OpenIStream(Client::getSingleton().m_InitUIEffect.c_str())->GetWholeCache();
+		m_VertexShader.CreateVertexShader(
+			(LPCSTR)cache->data(), cache->size(), "RenderSceneVS", "vs_3_0", NULL, my::ResourceMgr::getSingletonPtr(), 0);
 
-		BOOST_VERIFY(handle_World = m_UIEffect->GetParameterByName(NULL, "g_World"));
-		BOOST_VERIFY(handle_ViewProj = m_UIEffect->GetParameterByName(NULL, "g_ViewProj"));
-		BOOST_VERIFY(handle_MeshTexture = m_UIEffect->GetParameterByName(NULL, "g_MeshTexture"));
+		BOOST_VERIFY(handle_ScreenDim = m_VertexShader.GetConstantByName(NULL, "g_ScreenDim"));
+		BOOST_VERIFY(handle_World = m_VertexShader.GetConstantByName(NULL, "g_World"));
+		BOOST_VERIFY(handle_ViewProj = m_VertexShader.GetConstantByName(NULL, "g_ViewProj"));
 
 		return S_OK;
 	}
@@ -101,30 +99,41 @@ public:
 	void OnDestroyDevice(void)
 	{
 		UIRender::OnDestroyDevice();
-
-		m_Device.Release();
-
-		m_UIEffect.reset();
 	}
 
 	void SetWorld(const Matrix4 & World)
 	{
-		_ASSERT(m_UIEffect->m_ptr);
-
-		m_UIEffect->SetMatrix(handle_World, World);
+		m_VertexShader.SetMatrix(handle_World, World);
 	}
 
 	void SetViewProj(const Matrix4 & ViewProj)
 	{
-		_ASSERT(m_UIEffect->m_ptr);
-
-		m_UIEffect->SetMatrix(handle_ViewProj, ViewProj);
+		m_VertexShader.SetMatrix(handle_ViewProj, ViewProj);
 	}
 
 	void Flush(void)
 	{
-		_ASSERT(m_UIEffect->m_ptr);
-
+		m_VertexShader.SetVector(handle_ScreenDim, Vector4(
+			(float)DxutApp::getSingleton().m_BackBufferSurfaceDesc.Width, (float)DxutApp::getSingleton().m_BackBufferSurfaceDesc.Height, 0, 0));
+		V(m_Device->SetVertexShader(m_VertexShader.m_ptr));
+		V(m_Device->SetPixelShader(NULL));
+		V(m_Device->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE));
+		V(m_Device->SetRenderState(D3DRS_LIGHTING, FALSE));
+		V(m_Device->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE));
+		V(m_Device->SetRenderState(D3DRS_BLENDOP, D3DBLENDOP_ADD));
+		V(m_Device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA));
+		V(m_Device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA));
+		V(m_Device->SetRenderState(D3DRS_ZENABLE, FALSE));
+		V(m_Device->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR));
+		V(m_Device->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_LINEAR));
+		V(m_Device->SetSamplerState(0, D3DSAMP_MIPFILTER, D3DTEXF_NONE));
+		V(m_Device->SetTextureStageState(0, D3DTSS_TEXCOORDINDEX, 0));
+		V(m_Device->SetTextureStageState(0, D3DTSS_COLOROP, D3DTOP_MODULATE));
+		V(m_Device->SetTextureStageState(0, D3DTSS_COLORARG1, D3DTA_TEXTURE));
+		V(m_Device->SetTextureStageState(0, D3DTSS_COLORARG2, D3DTA_DIFFUSE));
+		V(m_Device->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_MODULATE));
+		V(m_Device->SetTextureStageState(0, D3DTSS_ALPHAARG1, D3DTA_TEXTURE));
+		V(m_Device->SetTextureStageState(0, D3DTSS_ALPHAARG2, D3DTA_DIFFUSE));
 		V(m_Device->SetFVF(D3DFVF_CUSTOMVERTEX));
 
 		UILayerList::iterator layer_iter = m_Layer.begin();
@@ -134,16 +143,9 @@ public:
 			{
 				_ASSERT(layer_iter->first && layer_iter->first->m_ptr);
 
-				m_UIEffect->SetTexture(handle_MeshTexture, layer_iter->first);
-				const UINT Passes = m_UIEffect->Begin(D3DXFX_DONOTSAVESTATE | D3DXFX_DONOTSAVESAMPLERSTATE | D3DXFX_DONOTSAVESHADERSTATE);
-				for (UINT p = 0; p < Passes; p++)
-				{
-					m_UIEffect->BeginPass(p);
-					V(m_Device->DrawPrimitiveUP(D3DPT_TRIANGLELIST, layer_iter->second.size() / 3, &layer_iter->second[0], sizeof(CUSTOMVERTEX)));
-					m_UIEffect->EndPass();
-					m_LayerDrawCall++;
-				}
-				m_UIEffect->End();
+				V(m_Device->SetTexture(0, layer_iter->first->m_ptr));
+				V(m_Device->DrawPrimitiveUP(D3DPT_TRIANGLELIST, layer_iter->second.size() / 3, &layer_iter->second[0], sizeof(CUSTOMVERTEX)));
+				m_LayerDrawCall++;
 			}
 		}
 		m_Layer.clear();

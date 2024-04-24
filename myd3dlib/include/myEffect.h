@@ -18,6 +18,7 @@ namespace my
 
 	public:
 		ConstantTable(void)
+			: m_pConstantTable(NULL)
 		{
 		}
 
