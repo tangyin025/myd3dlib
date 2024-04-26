@@ -614,6 +614,9 @@ HRESULT Client::OnCreateDevice(
 
 		, luabind::class_<Client, luabind::bases<my::DxutApp, my::ResourceMgr, RenderPipeline, PhysxScene> >("Client")
 			.def_readonly("wnd", &Client::m_wnd)
+			.def_readwrite("DlgView", &Client::m_View)
+			.def_readwrite("DlgProj", &Client::m_Proj)
+			.def_readwrite("DlgViewProj", &Client::m_ViewProj)
 			.def_readwrite("Camera", &Client::m_Camera)
 			.def_readwrite("WireFrame", &Client::m_WireFrame)
 			.def_readwrite("DofEnable", &Client::m_DofEnable)
