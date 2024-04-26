@@ -101,22 +101,14 @@ public:
 		UIRender::OnDestroyDevice();
 	}
 
-	void SetWorld(const Matrix4 & World)
-	{
-		m_VertexShader.SetMatrix(handle_World, World);
-	}
-
-	void SetViewProj(const Matrix4 & ViewProj)
-	{
-		m_VertexShader.SetMatrix(handle_ViewProj, ViewProj);
-	}
-
 	void Flush(void)
 	{
 		m_VertexShader.SetVector(handle_ScreenDim, Vector4(
 			(float)DxutApp::getSingleton().m_BackBufferSurfaceDesc.Width, (float)DxutApp::getSingleton().m_BackBufferSurfaceDesc.Height, 0, 0));
 		V(m_Device->SetVertexShader(m_VertexShader.m_ptr));
 		V(m_Device->SetPixelShader(NULL));
+		m_VertexShader.SetMatrix(handle_World, m_World);
+		m_VertexShader.SetMatrix(handle_ViewProj, DialogMgr::getSingleton().m_ViewProj);
 		V(m_Device->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE));
 		V(m_Device->SetRenderState(D3DRS_LIGHTING, FALSE));
 		V(m_Device->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE));
@@ -958,8 +950,6 @@ void Client::OnFrameTick(
 		V(m_d3dDevice->SetTransform(D3DTS_WORLD, (D3DMATRIX *)&my::Matrix4::identity));
 		DrawHelper::FlushLine(m_d3dDevice);
 
-		m_UIRender->SetWorld(Matrix4::identity);
-		m_UIRender->SetViewProj(DialogMgr::m_ViewProj);
 		OnUIRender(m_UIRender.get(), fTime, fElapsedTime);
 		V(m_d3dDevice->EndScene());
 	}
@@ -1001,12 +991,14 @@ void Client::OnUIRender(
 {
 	ui_render->m_LayerDrawCall = 0;
 
+	m_UIRender->m_World = Matrix4::identity;
+
 	DialogMgr::Draw(ui_render, m_fAbsoluteTime, m_fUnscaledElapsedTime, DialogMgr::GetDlgDimension());
 
 	OnPostUIRender(ui_render, m_fAbsoluteTime, m_fUnscaledElapsedTime);
 
 	_ASSERT(m_Font);
-	ui_render->SetWorld(Matrix4::identity);
+	m_UIRender->m_World = Matrix4::identity;
 	ScrInfoMap::const_iterator info_iter = m_ScrInfo.begin();
 	for (int y = 5; info_iter != m_ScrInfo.end(); info_iter++, y += m_Font->m_LineHeight)
 	{

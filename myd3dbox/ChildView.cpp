@@ -1527,8 +1527,10 @@ void CChildView::OnPaint()
 			DrawHelper::FlushLine(theApp.m_d3dDevice);
 
 			theApp.m_UIRender->m_LayerDrawCall = 0;
-			theApp.m_UIRender->SetViewProj(m_UICamera.m_ViewProj);
-			theApp.m_UIRender->SetWorld(my::Matrix4::identity);
+			theApp.m_UIRender->m_World = my::Matrix4::identity;
+			pFrame->DialogMgr::m_View = m_UICamera.m_View;
+			pFrame->DialogMgr::m_Proj = m_UICamera.m_Proj;
+			pFrame->DialogMgr::m_ViewProj = m_UICamera.m_ViewProj;
 			if (m_bShowGrid)
 			{
 				my::Vector3 pt = m_Camera->WorldToScreen(my::Vector3(12, 0, 0), my::Vector2((float)m_SwapChainBufferDesc.Width, (float)m_SwapChainBufferDesc.Height));
@@ -1554,7 +1556,7 @@ void CChildView::OnPaint()
 					RenderSelectedControl(theApp.m_d3dDevice, *ctrl_iter, D3DCOLOR_ARGB(255, 255, 255, 255), false);
 				}
 			}
-			theApp.m_UIRender->SetWorld(my::Matrix4::identity);
+			theApp.m_UIRender->m_World = my::Matrix4::identity;
 			ScrInfoMap::const_iterator info_iter = m_ScrInfo.begin();
 			for (int y = 5; info_iter != m_ScrInfo.end(); info_iter++, y += theApp.m_Font->m_LineHeight)
 			{

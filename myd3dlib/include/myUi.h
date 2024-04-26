@@ -48,6 +48,8 @@ namespace my
 
 		my::Texture2DPtr m_WhiteTex;
 
+		my::Matrix4 m_World;
+
 		typedef std::vector<CUSTOMVERTEX> VertexList;
 
 		typedef std::pair<const BaseTexture *, VertexList> UILayer;
@@ -74,10 +76,6 @@ namespace my
 		virtual void OnLostDevice(void);
 
 		virtual void OnDestroyDevice(void);
-
-		virtual void SetWorld(const Matrix4 & World);
-
-		virtual void SetViewProj(const Matrix4 & ViewProj);
 
 		virtual void Flush(void);
 

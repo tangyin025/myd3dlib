@@ -116,21 +116,13 @@ void UIRender::OnDestroyDevice(void)
 	m_Device.Release();
 }
 
-void UIRender::SetWorld(const Matrix4 & World)
-{
-	V(m_Device->SetTransform(D3DTS_WORLD, (D3DMATRIX *)&World));
-}
-
-void UIRender::SetViewProj(const Matrix4 & ViewProj)
-{
-	V(m_Device->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&ViewProj));
-	V(m_Device->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&Matrix4::identity));
-}
-
 void UIRender::Flush(void)
 {
 	V(m_Device->SetVertexShader(NULL));
 	V(m_Device->SetPixelShader(NULL));
+	V(m_Device->SetTransform(D3DTS_WORLD, (D3DMATRIX*)&m_World));
+	V(m_Device->SetTransform(D3DTS_VIEW, (D3DMATRIX*)&DialogMgr::getSingleton().m_View));
+	V(m_Device->SetTransform(D3DTS_PROJECTION, (D3DMATRIX*)&DialogMgr::getSingleton().m_Proj));
 	V(m_Device->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE));
 	V(m_Device->SetRenderState(D3DRS_LIGHTING, FALSE));
 	V(m_Device->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE));
@@ -4339,7 +4331,7 @@ void DialogMgr::Draw(UIRender * ui_render, double fTime, float fElapsedTime, con
 	DialogList::iterator dlg_iter = m_DlgList.begin();
 	for(; dlg_iter != m_DlgList.end(); dlg_iter++)
 	{
-		ui_render->SetWorld((*dlg_iter)->m_World);
+		ui_render->m_World = (*dlg_iter)->m_World;
 
 		(*dlg_iter)->Draw(ui_render, fElapsedTime, Vector2(0, 0), dim);
 
