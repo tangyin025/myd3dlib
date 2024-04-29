@@ -61,6 +61,12 @@ namespace my
 		return lhs->second.slerp(rhs->second, (s - lhs->first) / (rhs->first - lhs->first));
 	}
 
+	template <>
+	inline Bone LinearNodes<Bone>::Lerp(LinearNodes<Bone>::const_iterator lhs, LinearNodes<Bone>::const_iterator rhs, float s) const
+	{
+		return lhs->second.Lerp(rhs->second, (s - lhs->first) / (rhs->first - lhs->first));
+	}
+
 	class SplineNode
 	{
 	public:

@@ -1618,6 +1618,12 @@ void LuaContext::Init(void)
 			.def("Interpolate", luabind::tag_function<my::Quaternion(my::LinearNodes<my::Quaternion>*, float)>(
 				boost::bind(&my::LinearNodes<my::Quaternion>::Interpolate, boost::placeholders::_1, boost::placeholders::_2, my::Quaternion::Identity())))
 
+		, class_<my::LinearNodes<my::Bone> >("LinearBone")
+			.def(constructor<>())
+			.def("AddNode", &my::LinearNodes<my::Bone>::AddNode)
+			.def("Interpolate", luabind::tag_function<my::Bone(my::LinearNodes<my::Bone>*, float)>(
+				boost::bind(&my::LinearNodes<my::Bone>::Interpolate, boost::placeholders::_1, boost::placeholders::_2, my::Bone(my::Vector3(0)))))
+
 		, class_<my::Spline>("Spline")
 			.def(constructor<>())
 			.def("AddNode", (void (my::Spline::*)(float, float, float, float))&my::Spline::AddNode)
