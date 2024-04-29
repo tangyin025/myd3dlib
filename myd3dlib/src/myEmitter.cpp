@@ -1,7 +1,5 @@
 #include "myEmitter.h"
 #include "myDxutApp.h"
-#include <boost/serialization/base_object.hpp>
-#include <boost/serialization/export.hpp>
 
 using namespace my;
 

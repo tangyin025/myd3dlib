@@ -1606,22 +1606,25 @@ void LuaContext::Init(void)
 			.def_readwrite("scale", &my::UDim::scale)
 			.def_readwrite("offset", &my::UDim::offset)
 
+		, class_<my::LinearNodes<my::Vector3> >("LinearVector3")
+			.def(constructor<>())
+			.def("AddNode", &my::LinearNodes<my::Vector3>::AddNode)
+			.def("Interpolate", luabind::tag_function<my::Vector3 (my::LinearNodes<my::Vector3>*, float)>(
+				boost::bind(&my::LinearNodes<my::Vector3>::Interpolate, boost::placeholders::_1, boost::placeholders::_2, my::Vector3(0))))
+
+		, class_<my::LinearNodes<my::Quaternion> >("LinearQuaternion")
+			.def(constructor<>())
+			.def("AddNode", &my::LinearNodes<my::Quaternion>::AddNode)
+			.def("Interpolate", luabind::tag_function<my::Quaternion(my::LinearNodes<my::Quaternion>*, float)>(
+				boost::bind(&my::LinearNodes<my::Quaternion>::Interpolate, boost::placeholders::_1, boost::placeholders::_2, my::Quaternion::Identity())))
+
 		, class_<my::Spline>("Spline")
 			.def(constructor<>())
 			.def("AddNode", (void (my::Spline::*)(float, float, float, float))&my::Spline::AddNode)
 			.def("AddNode", luabind::tag_function<void(my::Spline*,float,float)>(
 				boost::bind(&my::Spline::AddNode, boost::placeholders::_1, boost::placeholders::_2, boost::placeholders::_3, 0.0f, 0.0f)))
-			.def("Interpolate", (float (my::Spline::*)(float, float) const)&my::Spline::Interpolate)
 			.def("Interpolate", luabind::tag_function<float(my::Spline*, float)>(
 				boost::bind(&my::Spline::Interpolate, boost::placeholders::_1, boost::placeholders::_2, 0.0f)))
-
-		, class_<my::Tween>("Tween")
-			.def(constructor<float, float, float>())
-			.def_readonly("From", &my::Tween::From)
-			.def_readonly("To", &my::Tween::To)
-			.def_readonly("time", &my::Tween::time)
-			.def("Step", &my::Tween::Step)
-			.property("Duration", &my::Tween::Duration)
 
 		, class_<my::Shake, my::Spline>("Shake")
 			.def(constructor<float, float, int, float>())
