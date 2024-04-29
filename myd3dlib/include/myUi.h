@@ -19,13 +19,13 @@ namespace my
 					FLOAT x, y, z;
 				};
 
-				struct
-				{
-					Vector3 xyz;
-				};
+				Vector3 xyz;
 			};
+
 			DWORD color;
+
 			FLOAT u, v;
+
 			CUSTOMVERTEX(FLOAT _x, FLOAT _y, FLOAT _z, DWORD _color, FLOAT _u, FLOAT _v)
 				: x(_x), y(_y), z(_z), color(_color), u(_u), v(_v)
 			{

@@ -16,40 +16,40 @@ const int BoxPrimitive::i[36] = {
 	0, 4, 5, 5, 1, 0};
 
 BoxPrimitive::BoxPrimitive(const AABB& aabb)
-	: _v0(aabb.m_min.x, aabb.m_min.y, aabb.m_min.z)
-	, _v1(aabb.m_min.x, aabb.m_min.y, aabb.m_max.z)
-	, _v2(aabb.m_min.x, aabb.m_max.y, aabb.m_max.z)
-	, _v3(aabb.m_min.x, aabb.m_max.y, aabb.m_min.z)
-	, _v4(aabb.m_max.x, aabb.m_min.y, aabb.m_min.z)
-	, _v5(aabb.m_max.x, aabb.m_min.y, aabb.m_max.z)
-	, _v6(aabb.m_max.x, aabb.m_max.y, aabb.m_max.z)
-	, _v7(aabb.m_max.x, aabb.m_max.y, aabb.m_min.z)
+	: _1(aabb.m_min.x, aabb.m_min.y, aabb.m_min.z)
+	, _2(aabb.m_min.x, aabb.m_min.y, aabb.m_max.z)
+	, _3(aabb.m_min.x, aabb.m_max.y, aabb.m_max.z)
+	, _4(aabb.m_min.x, aabb.m_max.y, aabb.m_min.z)
+	, _5(aabb.m_max.x, aabb.m_min.y, aabb.m_min.z)
+	, _6(aabb.m_max.x, aabb.m_min.y, aabb.m_max.z)
+	, _7(aabb.m_max.x, aabb.m_max.y, aabb.m_max.z)
+	, _8(aabb.m_max.x, aabb.m_max.y, aabb.m_min.z)
 {
 
 }
 
 BoxPrimitive::BoxPrimitive(float hx, float hy, float hz)
-	: _v0(-hx, -hy, -hz)
-	, _v1(-hx, -hy, hz)
-	, _v2(-hx, hy, hz)
-	, _v3(-hx, hy, -hz)
-	, _v4(hx, -hy, -hz)
-	, _v5(hx, -hy, hz)
-	, _v6(hx, hy, hz)
-	, _v7(hx, hy, -hz)
+	: _1(-hx, -hy, -hz)
+	, _2(-hx, -hy, hz)
+	, _3(-hx, hy, hz)
+	, _4(-hx, hy, -hz)
+	, _5(hx, -hy, -hz)
+	, _6(hx, -hy, hz)
+	, _7(hx, hy, hz)
+	, _8(hx, hy, -hz)
 {
 
 }
 
 BoxPrimitive::BoxPrimitive(float hx, float hy, float hz, const Matrix4& world)
-	: _v0(Vector3(-hx, -hy, -hz).transformCoord(world))
-	, _v1(Vector3(-hx, -hy, hz).transformCoord(world))
-	, _v2(Vector3(-hx, hy, hz).transformCoord(world))
-	, _v3(Vector3(-hx, hy, -hz).transformCoord(world))
-	, _v4(Vector3(hx, -hy, -hz).transformCoord(world))
-	, _v5(Vector3(hx, -hy, hz).transformCoord(world))
-	, _v6(Vector3(hx, hy, hz).transformCoord(world))
-	, _v7(Vector3(hx, hy, -hz).transformCoord(world))
+	: _1(Vector3(-hx, -hy, -hz).transformCoord(world))
+	, _2(Vector3(-hx, -hy, hz).transformCoord(world))
+	, _3(Vector3(-hx, hy, hz).transformCoord(world))
+	, _4(Vector3(-hx, hy, -hz).transformCoord(world))
+	, _5(Vector3(hx, -hy, -hz).transformCoord(world))
+	, _6(Vector3(hx, -hy, hz).transformCoord(world))
+	, _7(Vector3(hx, hy, hz).transformCoord(world))
+	, _8(Vector3(hx, hy, -hz).transformCoord(world))
 {
 
 }

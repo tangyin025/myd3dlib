@@ -400,17 +400,11 @@ namespace my
 						float y, z;
 					};
 
-					struct
-					{
-						Vector2 yz;
-					};
+					Vector2 yz;
 				};
 			};
 
-			struct
-			{
-				Vector2 xy;
-			};
+			Vector2 xy;
 		};
 
 	public:
@@ -833,22 +827,13 @@ namespace my
 						float y, z, w;
 					};
 
-					struct
-					{
-						Vector2 yz;
-					};
+					Vector2 yz;
 				};
 			};
 
-			struct
-			{
-				Vector2 xy;
-			};
+			Vector2 xy;
 
-			struct
-			{
-				Vector3 xyz;
-			};
+			Vector3 xyz;
 		};
 
 	public:
@@ -1152,17 +1137,11 @@ namespace my
 						float r, b;
 					};
 
-					struct
-					{
-						Vector2 rb;
-					};
+					Vector2 rb;
 				};
 			};
 
-			struct
-			{
-				Vector2 lt;
-			};
+			Vector2 lt;
 		};
 
 	public:
@@ -1636,10 +1615,7 @@ namespace my
 				float x, y, z, w;
 			};
 
-			struct
-			{
-				Vector3 xyz;
-			};
+			Vector3 xyz;
 		};
 
 	public:
@@ -3016,10 +2992,7 @@ namespace my
 				float a, b, c;
 			};
 
-			struct 
-			{
-				Vector3 normal;
-			};
+			Vector3 normal;
 		};
 
 		float d;
