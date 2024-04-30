@@ -1606,24 +1606,6 @@ void LuaContext::Init(void)
 			.def_readwrite("scale", &my::UDim::scale)
 			.def_readwrite("offset", &my::UDim::offset)
 
-		, class_<my::LinearNodes<my::Vector3> >("LinearVector3")
-			.def(constructor<>())
-			.def("AddNode", &my::LinearNodes<my::Vector3>::AddNode)
-			.def("Interpolate", luabind::tag_function<my::Vector3 (my::LinearNodes<my::Vector3>*, float)>(
-				boost::bind(&my::LinearNodes<my::Vector3>::Interpolate, boost::placeholders::_1, boost::placeholders::_2, my::Vector3(0))))
-
-		, class_<my::LinearNodes<my::Quaternion> >("LinearQuaternion")
-			.def(constructor<>())
-			.def("AddNode", &my::LinearNodes<my::Quaternion>::AddNode)
-			.def("Interpolate", luabind::tag_function<my::Quaternion(my::LinearNodes<my::Quaternion>*, float)>(
-				boost::bind(&my::LinearNodes<my::Quaternion>::Interpolate, boost::placeholders::_1, boost::placeholders::_2, my::Quaternion::Identity())))
-
-		, class_<my::LinearNodes<my::Bone> >("LinearBone")
-			.def(constructor<>())
-			.def("AddNode", &my::LinearNodes<my::Bone>::AddNode)
-			.def("Interpolate", luabind::tag_function<my::Bone(my::LinearNodes<my::Bone>*, float)>(
-				boost::bind(&my::LinearNodes<my::Bone>::Interpolate, boost::placeholders::_1, boost::placeholders::_2, my::Bone(my::Vector3(0)))))
-
 		, class_<my::Spline>("Spline")
 			.def(constructor<>())
 			.def("AddNode", (void (my::Spline::*)(float, float, float, float))&my::Spline::AddNode)

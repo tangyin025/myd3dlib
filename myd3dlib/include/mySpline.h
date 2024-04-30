@@ -49,24 +49,6 @@ namespace my
 		T Lerp(const_iterator lhs, const_iterator rhs, float s) const;
 	};
 
-	template <>
-	inline Vector3 LinearNodes<Vector3>::Lerp(LinearNodes<Vector3>::const_iterator lhs, LinearNodes<Vector3>::const_iterator rhs, float s) const
-	{
-		return lhs->second.lerp(rhs->second, (s - lhs->first) / (rhs->first - lhs->first));
-	}
-
-	template <>
-	inline Quaternion LinearNodes<Quaternion>::Lerp(LinearNodes<Quaternion>::const_iterator lhs, LinearNodes<Quaternion>::const_iterator rhs, float s) const
-	{
-		return lhs->second.slerp(rhs->second, (s - lhs->first) / (rhs->first - lhs->first));
-	}
-
-	template <>
-	inline Bone LinearNodes<Bone>::Lerp(LinearNodes<Bone>::const_iterator lhs, LinearNodes<Bone>::const_iterator rhs, float s) const
-	{
-		return lhs->second.Lerp(rhs->second, (s - lhs->first) / (rhs->first - lhs->first));
-	}
-
 	class SplineNode
 	{
 	public:
