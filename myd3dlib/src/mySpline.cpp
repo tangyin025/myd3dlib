@@ -89,12 +89,3 @@ float Shake::Step(float fElapsedTime)
 	time += fElapsedTime;
 	return Interpolate(time, 0.0f);
 }
-
-float Shake::Duration(void) const
-{
-	if (!empty())
-	{
-		return back().first;
-	}
-	return 0.0f;
-}

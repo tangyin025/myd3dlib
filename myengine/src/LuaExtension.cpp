@@ -1613,12 +1613,12 @@ void LuaContext::Init(void)
 				boost::bind(&my::Spline::AddNode, boost::placeholders::_1, boost::placeholders::_2, boost::placeholders::_3, 0.0f, 0.0f)))
 			.def("Interpolate", luabind::tag_function<float(my::Spline*, float)>(
 				boost::bind(&my::Spline::Interpolate, boost::placeholders::_1, boost::placeholders::_2, 0.0f)))
+			.property("Length", &my::Spline::GetLength)
 
 		, class_<my::Shake, my::Spline>("Shake")
 			.def(constructor<float, float, int, float>())
 			.def_readonly("time", &my::Shake::time)
 			.def("Step", &my::Shake::Step)
-			.property("Duration", &my::Shake::Duration)
 
 		, class_<my::Emitter::Particle>("EmitterParticle")
 			.def_readwrite("Position", &my::Emitter::Particle::m_Position)

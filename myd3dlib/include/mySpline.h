@@ -27,6 +27,11 @@ namespace my
 			}
 		}
 
+		float GetLength(void) const
+		{
+			return !empty() ? back().first : 0;
+		}
+
 		T Interpolate(float s, const T& value) const
 		{
 			const_iterator iter = std::upper_bound(begin(), end(), s,
@@ -100,7 +105,5 @@ namespace my
 		Shake(float Duration, float Strength, int Vibrato, float StartMagnitude);
 
 		float Step(float fElapsedTime);
-
-		float Duration(void) const;
 	};
 }

@@ -897,7 +897,7 @@ void Client::OnFrameTick(
 	{
 		_ASSERT(OctNode::HaveNode(actor_iter->m_Node));
 
-		actor_iter->UpdateLod(m_Camera->m_Eye, m_ViewedCenter);
+		actor_iter->UpdateLod(m_ViewedCenter, m_ViewedCenter);
 
 		actor_iter->Update(fElapsedTime);
 	}
