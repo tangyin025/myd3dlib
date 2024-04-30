@@ -308,8 +308,8 @@ protected:
 
 		float m_SpawnInterval;
 
-		KeyFrameInst(float Time, int SpawnCount, float SpawnInterval)
-			: m_Time(Time)
+		KeyFrameInst(int SpawnCount, float SpawnInterval)
+			: m_Time(0)
 			, m_SpawnCount(SpawnCount)
 			, m_SpawnInterval(SpawnInterval)
 		{
@@ -414,7 +414,7 @@ protected:
 
 		my::Bone m_StartPose;
 
-		KeyFrameInst(float Time, float Length, Actor * actor);
+		KeyFrameInst(float Length, Actor * actor);
 	};
 
 	typedef std::vector<KeyFrameInst> KeyFrameInstList;

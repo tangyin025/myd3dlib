@@ -44,13 +44,14 @@ ActionInst::ActionInst(Actor * _Actor, boost::shared_ptr<const Action> Template)
 
 void ActionInst::Update(float fElapsedTime)
 {
+	ActionTrackInstPtrList::iterator track_inst_iter = m_TrackInstList.begin();
+	for (; track_inst_iter != m_TrackInstList.end(); track_inst_iter++)
+	{
+		(*track_inst_iter)->UpdateTime(m_LastTime, m_Time);
+	}
+
 	if (m_Time > m_LastTime)
 	{
-		ActionTrackInstPtrList::iterator track_inst_iter = m_TrackInstList.begin();
-		for (; track_inst_iter != m_TrackInstList.end(); track_inst_iter++)
-		{
-			(*track_inst_iter)->UpdateTime(m_LastTime, m_Time);
-		}
 		m_LastTime = m_Time;
 	}
 }
@@ -260,15 +261,15 @@ void ActionTrackEmitterInst::UpdateTime(float LastTime, float Time)
 	ActionTrackEmitter::KeyFrameMap::const_iterator key_end = m_Template->m_Keys.lower_bound(Time);
 	for (; key_iter != key_end; key_iter++)
 	{
-		m_KeyInsts.push_back(KeyFrameInst(
-			key_iter->first, key_iter->second.SpawnCount, key_iter->second.SpawnInterval));
+		m_KeyInsts.push_back(KeyFrameInst(key_iter->second.SpawnCount, key_iter->second.SpawnInterval));
 	}
 
 	KeyFrameInstList::iterator key_inst_iter = m_KeyInsts.begin();
 	for (; key_inst_iter != m_KeyInsts.end(); )
 	{
-		for (; key_inst_iter->m_Time < Time && key_inst_iter->m_SpawnCount > 0;
-			key_inst_iter->m_Time += key_inst_iter->m_SpawnInterval, key_inst_iter->m_SpawnCount--)
+		key_inst_iter->m_Time += my::D3DContext::getSingleton().m_fElapsedTime;
+		for (; key_inst_iter->m_Time >= key_inst_iter->m_SpawnInterval && key_inst_iter->m_SpawnCount > 0;
+			key_inst_iter->m_Time -= key_inst_iter->m_SpawnInterval, key_inst_iter->m_SpawnCount--)
 		{
 			if (!m_EmitterCmp)
 			{
@@ -378,8 +379,8 @@ void ActionTrackPose::AddKeyFrame(float Time, float Length)
 	key_iter->second.Length = Length;
 }
 
-ActionTrackPoseInst::KeyFrameInst::KeyFrameInst(float Time, float Length, Actor * actor)
-	: m_Time(Time)
+ActionTrackPoseInst::KeyFrameInst::KeyFrameInst(float Length, Actor * actor)
+	: m_Time(0)
 	, m_Length(Length)
 	, m_StartPose(actor->m_Position, actor->m_Rotation)
 {
@@ -398,31 +399,26 @@ void ActionTrackPoseInst::UpdateTime(float LastTime, float Time)
 	ActionTrackPose::KeyFrameMap::const_iterator key_end = m_Template->m_Keys.lower_bound(Time);
 	for (; key_iter != key_end; key_iter++)
 	{
-		m_KeyInsts.push_back(KeyFrameInst(key_iter->first, key_iter->second.Length, m_Actor));
+		m_KeyInsts.push_back(KeyFrameInst(key_iter->second.Length, m_Actor));
 	}
 
 	KeyFrameInstList::reverse_iterator key_inst_iter = m_KeyInsts.rbegin();
-	for (; key_inst_iter != m_KeyInsts.rend(); )
+	if (key_inst_iter != m_KeyInsts.rend())
 	{
-		_ASSERT(Time >= key_inst_iter->m_Time);
+		key_inst_iter->m_Time += my::D3DContext::getSingleton().m_fElapsedTime;
 
-		if (LastTime < key_inst_iter->m_Time + key_inst_iter->m_Length)
+		const my::Bone pose = key_inst_iter->m_StartPose.Lerp(m_Pose, m_Template->m_Interpolation.Interpolate(key_inst_iter->m_Time / key_inst_iter->m_Length, 0));
+
+		m_Actor->SetPose(pose);
+
+		if (!m_Actor->m_Base || (m_Actor->m_PxActor && !m_Actor->GetRigidBodyFlag(physx::PxRigidBodyFlag::eKINEMATIC))) // ! Actor::Update, m_Base->GetAttachPose
 		{
-			const my::Bone pose = key_inst_iter->m_StartPose.Lerp(m_Pose,
-				m_Template->m_Interpolation.Interpolate(Min(1.0f, (Time - key_inst_iter->m_Time) / key_inst_iter->m_Length), 0));
-
-			m_Actor->SetPose(pose);
-
-			if (!m_Actor->m_Base || (m_Actor->m_PxActor && !m_Actor->GetRigidBodyFlag(physx::PxRigidBodyFlag::eKINEMATIC))) // ! Actor::Update, m_Base->GetAttachPose
-			{
-				m_Actor->SetPxPoseOrbyPxThread(pose);
-			}
-
-			break;
+			m_Actor->SetPxPoseOrbyPxThread(pose);
 		}
-		else
+
+		if (key_inst_iter->m_Time >= key_inst_iter->m_Length)
 		{
-			key_inst_iter = KeyFrameInstList::reverse_iterator(m_KeyInsts.erase(m_KeyInsts.begin(), key_inst_iter.base()));
+			m_KeyInsts.erase(m_KeyInsts.begin(), key_inst_iter.base());
 		}
 	}
 }
