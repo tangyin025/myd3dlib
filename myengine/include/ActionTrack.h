@@ -414,7 +414,12 @@ protected:
 
 		my::Bone m_StartPose;
 
-		KeyFrameInst(float Length, Actor * actor);
+		KeyFrameInst(float Length, const my::Bone& StartPose)
+			: m_Time(0)
+			, m_Length(Length)
+			, m_StartPose(StartPose)
+		{
+		}
 	};
 
 	typedef std::vector<KeyFrameInst> KeyFrameInstList;

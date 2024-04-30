@@ -213,7 +213,7 @@ void ActionTrackSoundInst::UpdateTime(float LastTime, float Time)
 			if (key_iter->second.Loop || listener_pos.distanceSq(pos) < key_iter->second.MaxDistance * key_iter->second.MaxDistance)
 			{
 				m_Events.push_back(SoundContext::getSingleton().Play(
-					key_iter->second.Sound, key_iter->second.StartSec, key_iter->second.EndSec, key_iter->second.Loop, pos, my::Vector3(0, 0, 0), key_iter->second.MinDistance, key_iter->second.MaxDistance));
+					key_iter->second.Sound, key_iter->second.StartSec, key_iter->second.EndSec, key_iter->second.Loop, pos, Vector3(0, 0, 0), key_iter->second.MinDistance, key_iter->second.MaxDistance));
 			}
 		}
 	}
@@ -379,13 +379,6 @@ void ActionTrackPose::AddKeyFrame(float Time, float Length)
 	key_iter->second.Length = Length;
 }
 
-ActionTrackPoseInst::KeyFrameInst::KeyFrameInst(float Length, Actor * actor)
-	: m_Time(0)
-	, m_Length(Length)
-	, m_StartPose(actor->m_Position, actor->m_Rotation)
-{
-}
-
 ActionTrackPoseInst::ActionTrackPoseInst(Actor * _Actor, boost::shared_ptr<const ActionTrackPose> Template)
 	: ActionTrackInst(_Actor)
 	, m_Template(Template)
@@ -399,7 +392,7 @@ void ActionTrackPoseInst::UpdateTime(float LastTime, float Time)
 	ActionTrackPose::KeyFrameMap::const_iterator key_end = m_Template->m_Keys.lower_bound(Time);
 	for (; key_iter != key_end; key_iter++)
 	{
-		m_KeyInsts.push_back(KeyFrameInst(key_iter->second.Length, m_Actor));
+		m_KeyInsts.push_back(KeyFrameInst(key_iter->second.Length, Bone(m_Actor->m_Position, m_Actor->m_Rotation)));
 	}
 
 	KeyFrameInstList::reverse_iterator key_inst_iter = m_KeyInsts.rbegin();
@@ -407,11 +400,12 @@ void ActionTrackPoseInst::UpdateTime(float LastTime, float Time)
 	{
 		key_inst_iter->m_Time += my::D3DContext::getSingleton().m_fElapsedTime;
 
-		const my::Bone pose = key_inst_iter->m_StartPose.Lerp(m_Pose, m_Template->m_Interpolation.Interpolate(key_inst_iter->m_Time / key_inst_iter->m_Length, 0));
+		const Bone pose = key_inst_iter->m_StartPose.Lerp(m_Pose, m_Template->m_Interpolation.Interpolate(key_inst_iter->m_Time / key_inst_iter->m_Length, 0));
 
 		m_Actor->SetPose(pose);
 
-		if (!m_Actor->m_Base || (m_Actor->m_PxActor && !m_Actor->GetRigidBodyFlag(physx::PxRigidBodyFlag::eKINEMATIC))) // ! Actor::Update, m_Base->GetAttachPose
+		// ! Actor::Update, m_Base->GetAttachPose
+		if (!m_Actor->m_Base || (m_Actor->m_PxActor && !m_Actor->GetRigidBodyFlag(physx::PxRigidBodyFlag::eKINEMATIC)))
 		{
 			m_Actor->SetPxPoseOrbyPxThread(pose);
 		}
@@ -429,14 +423,10 @@ void ActionTrackPoseInst::Stop(void)
 
 bool ActionTrackPoseInst::GetDisplacement(float LastTime, float dtime, my::Vector3 & disp)
 {
-	KeyFrameInstList::reverse_iterator key_inst_iter = m_KeyInsts.rbegin();
-	for (; key_inst_iter != m_KeyInsts.rend(); key_inst_iter++)
+	if (!m_KeyInsts.empty())
 	{
-		if (LastTime >= key_inst_iter->m_Time && LastTime < key_inst_iter->m_Time + key_inst_iter->m_Length)
-		{
-			disp = Vector3(0, 0, 0);
-			return true;
-		}
+		disp = Vector3(0, 0, 0);
+		return true;
 	}
 	return false;
 }
