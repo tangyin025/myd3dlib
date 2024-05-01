@@ -337,7 +337,7 @@ BoneList & BoneList::LerpSelf(
 	return *this;
 }
 
-BoneList & BoneList::BuildHierarchyBoneList(
+BoneList & BoneList::FlatHierarchyBoneList(
 	BoneList & hierarchyBoneList,
 	const BoneHierarchy & boneHierarchy,
 	int root_i,
@@ -353,7 +353,7 @@ BoneList & BoneList::BuildHierarchyBoneList(
 	int node_i = boneHierarchy[root_i].m_child;
 	for (; node_i >= 0; node_i = boneHierarchy[node_i].m_sibling)
 	{
-		BuildHierarchyBoneList(hierarchyBoneList, boneHierarchy, node_i, hier_bone);
+		FlatHierarchyBoneList(hierarchyBoneList, boneHierarchy, node_i, hier_bone);
 	}
 
 	return hierarchyBoneList;

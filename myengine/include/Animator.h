@@ -362,11 +362,11 @@ public:
 
 	my::OgreSkeletonAnimationPtr m_Skeleton;
 
-	my::BoneList anim_pose;
-
-	my::BoneList bind_pose_hier;
-
 	my::BoneList anim_pose_hier;
+
+	my::BoneList bind_pose;
+
+	my::BoneList anim_pose;
 
 	my::BoneList final_pose;
 

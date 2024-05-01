@@ -650,18 +650,18 @@ void Animator::OnSkeletonReady(my::DeviceResourceBasePtr res)
 {
 	m_Skeleton = boost::dynamic_pointer_cast<my::OgreSkeletonAnimation>(res);
 
-	bind_pose_hier.resize(m_Skeleton->m_boneBindPose.size());
-	anim_pose_hier.resize(m_Skeleton->m_boneBindPose.size());
+	bind_pose.resize(m_Skeleton->m_boneBindPose.size());
+	anim_pose.resize(m_Skeleton->m_boneBindPose.size());
 	my::BoneIndexSet::const_iterator root_iter = m_Skeleton->m_boneRootSet.begin();
 	for (; root_iter != m_Skeleton->m_boneRootSet.end(); root_iter++)
 	{
-		m_Skeleton->m_boneBindPose.BuildHierarchyBoneList(
-			bind_pose_hier, m_Skeleton->m_boneHierarchy, *root_iter, Bone(Vector3(0, 0, 0)));
+		m_Skeleton->m_boneBindPose.FlatHierarchyBoneList(
+			bind_pose, m_Skeleton->m_boneHierarchy, *root_iter, Bone(Vector3(0, 0, 0)));
 
-		m_Skeleton->m_boneBindPose.BuildHierarchyBoneList(
-			anim_pose_hier, m_Skeleton->m_boneHierarchy, *root_iter, Bone(Vector3(0, 0, 0)));
+		m_Skeleton->m_boneBindPose.FlatHierarchyBoneList(
+			anim_pose, m_Skeleton->m_boneHierarchy, *root_iter, Bone(Vector3(0, 0, 0)));
 	}
-	anim_pose.resize(m_Skeleton->m_boneBindPose.size(), Bone(Vector3(0, 0, 0)));
+	anim_pose_hier.resize(m_Skeleton->m_boneBindPose.size(), Bone(Vector3(0, 0, 0)));
 	final_pose.resize(m_Skeleton->m_boneBindPose.size(), Bone(Vector3(0, 0, 0)));
 }
 
@@ -709,7 +709,7 @@ void Animator::Tick(float fElapsedTime, float fTotalWeight)
 			my::BoneIndexSet::const_iterator root_iter = m_Skeleton->m_boneRootSet.begin();
 			for (; root_iter != m_Skeleton->m_boneRootSet.end(); root_iter++)
 			{
-				GetPose(anim_pose, *root_iter, m_Skeleton->m_boneHierarchy);
+				GetPose(anim_pose_hier, *root_iter, m_Skeleton->m_boneHierarchy);
 
 				UpdateHierarchyBoneList(*root_iter, Bone(Vector3(0, 0, 0)));
 			}
@@ -723,8 +723,8 @@ void Animator::Tick(float fElapsedTime, float fTotalWeight)
 				}
 
 				int particle_i = 0;
-				UpdateDynamicBone(db_iter->second, anim_pose_hier[db_iter->second.parent_i],
-					anim_pose_hier[db_iter->second.parent_i].m_position.transformCoord(m_Actor->m_World), db_iter->first, particle_i, fElapsedTime);
+				UpdateDynamicBone(db_iter->second, anim_pose[db_iter->second.parent_i],
+					anim_pose[db_iter->second.parent_i].m_position.transformCoord(m_Actor->m_World), db_iter->first, particle_i, fElapsedTime);
 			}
 
 			IKContextMap::iterator ik_iter = m_Iks.begin();
@@ -733,10 +733,10 @@ void Animator::Tick(float fElapsedTime, float fTotalWeight)
 				UpdateIK(ik_iter->second);
 			}
 
-			for (size_t i = 0; i < bind_pose_hier.size(); i++)
+			for (size_t i = 0; i < bind_pose.size(); i++)
 			{
-				final_pose[i].m_rotation = bind_pose_hier[i].m_rotation.conjugate() * anim_pose_hier[i].m_rotation;
-				final_pose[i].m_position = final_pose[i].m_rotation * -bind_pose_hier[i].m_position + anim_pose_hier[i].m_position;
+				final_pose[i].m_rotation = bind_pose[i].m_rotation.conjugate() * anim_pose[i].m_rotation;
+				final_pose[i].m_position = final_pose[i].m_rotation * -bind_pose[i].m_position + anim_pose[i].m_position;
 			}
 
 			m_DualQuats.resize(m_Skeleton->m_boneBindPose.size());
@@ -756,8 +756,8 @@ my::BoneList & Animator::GetPose(my::BoneList & pose, int root_i, const my::Bone
 
 void Animator::UpdateHierarchyBoneList(const int node_i, const my::Bone& parent)
 {
-	const Bone& src = anim_pose[node_i];
-	Bone& dst = anim_pose_hier[node_i];
+	const Bone& src = anim_pose_hier[node_i];
+	Bone& dst = anim_pose[node_i];
 	Actor::AttachList::iterator act_iter = boost::find_if(m_Actor->m_Attaches, boost::bind(std::equal_to<int>(), node_i, boost::bind(&Actor::m_BaseBoneId, boost::placeholders::_1)));
 	if (act_iter != m_Actor->m_Attaches.end() && (*act_iter)->m_PxActor && !(*act_iter)->GetRigidBodyFlag(physx::PxRigidBodyFlag::eKINEMATIC))
 	{
@@ -913,17 +913,17 @@ void Animator::UpdateDynamicBone(DynamicBoneContext & context, const my::Bone & 
 	Vector3 d1 = particle.getPosition() - parent_world_pos;
 	particle.setPosition(parent_world_pos + d1.normalize() * d0.magnitude());
 
-	anim_pose_hier[node_i].m_rotation =
+	anim_pose[node_i].m_rotation =
 		target.m_rotation * m_Actor->m_Rotation * Quaternion::RotationFromToSafe(d0, d1) * m_Actor->m_Rotation.conjugate();
 
-	anim_pose_hier[node_i].m_position =
+	anim_pose[node_i].m_position =
 		particle.getPosition().transformCoord(m_Actor->m_World.inverse());
 
 	particle_i++;
 	int child_i = m_Skeleton->m_boneHierarchy[node_i].m_child;
 	for (; child_i >= 0; child_i = m_Skeleton->m_boneHierarchy[child_i].m_sibling)
 	{
-		UpdateDynamicBone(context, anim_pose_hier[node_i], particle.getPosition(), child_i, particle_i, fElapsedTime);
+		UpdateDynamicBone(context, anim_pose[node_i], particle.getPosition(), child_i, particle_i, fElapsedTime);
 	}
 }
 
@@ -955,9 +955,9 @@ void Animator::UpdateIK(IKContext & ik)
 		m_Skeleton->m_boneHierarchy[m_Skeleton->m_boneHierarchy[ik.id].m_child].m_child };
 
 	const Vector3 pos[3] = {
-		anim_pose_hier[ids[0]].m_position,
-		anim_pose_hier[ids[1]].m_position,
-		anim_pose_hier[ids[2]].m_position };
+		anim_pose[ids[0]].m_position,
+		anim_pose[ids[1]].m_position,
+		anim_pose[ids[2]].m_position };
 	const Vector3 dir[3] = { pos[1] - pos[0], pos[2] - pos[1], pos[2] - pos[0] };
 	const float length[3] = { dir[0].magnitude(), dir[1].magnitude(), dir[2].magnitude() };
 	if (length[0] < EPSILON_E12 || length[1] < EPSILON_E12 || length[2] < EPSILON_E12)
@@ -983,14 +983,14 @@ void Animator::UpdateIK(IKContext & ik)
 			Quaternion::RotationAxis(normal[2].cross(normal[0]), new_theta[0] - theta[0]),
 			Quaternion::RotationAxis(normal[1].cross(normal[0]), new_theta[1] - theta[1]) };
 
-		TransformHierarchyBoneList(anim_pose_hier, m_Skeleton->m_boneHierarchy,
-			ids[0], rot[0], anim_pose_hier[ids[0]].m_position);
+		TransformHierarchyBoneList(anim_pose, m_Skeleton->m_boneHierarchy,
+			ids[0], rot[0], anim_pose[ids[0]].m_position);
 
-		TransformHierarchyBoneList(anim_pose_hier, m_Skeleton->m_boneHierarchy,
-			ids[1], rot[1], anim_pose_hier[ids[1]].m_position);
+		TransformHierarchyBoneList(anim_pose, m_Skeleton->m_boneHierarchy,
+			ids[1], rot[1], anim_pose[ids[1]].m_position);
 
-		TransformHierarchyBoneList(anim_pose_hier, m_Skeleton->m_boneHierarchy,
-			ids[2], rot[1].conjugate() * rot[0].conjugate(), anim_pose_hier[ids[2]].m_position);
+		TransformHierarchyBoneList(anim_pose, m_Skeleton->m_boneHierarchy,
+			ids[2], rot[1].conjugate() * rot[0].conjugate(), anim_pose[ids[2]].m_position);
 	}
 }
 
@@ -1031,8 +1031,8 @@ void Animator::DrawDebugBone(my::DrawHelper * helper, D3DCOLOR color)
 				int child_i = m_Skeleton->m_boneHierarchy[node_i].m_child;
 				for (; child_i >= 0; child_i = m_Skeleton->m_boneHierarchy[child_i].m_sibling)
 				{
-					helper->PushLine(anim_pose_hier[node_i].m_position.transformCoord(m_Actor->m_World),
-						anim_pose_hier[child_i].m_position.transformCoord(m_Actor->m_World), color);
+					helper->PushLine(anim_pose[node_i].m_position.transformCoord(m_Actor->m_World),
+						anim_pose[child_i].m_position.transformCoord(m_Actor->m_World), color);
 					stack.push_back(child_i);
 				}
 			}

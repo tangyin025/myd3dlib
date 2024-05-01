@@ -131,7 +131,7 @@ namespace my
 			int root_i,
 			float t);
 
-		BoneList & BuildHierarchyBoneList(
+		BoneList & FlatHierarchyBoneList(
 			BoneList & hierarchyBoneList,
 			const BoneHierarchy & boneHierarchy,
 			int root_i,

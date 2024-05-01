@@ -1743,7 +1743,7 @@ void ClothComponent::OnPxThreadSubstep(float dtime)
 				if (m_ClothSphereBones[i].second >= 0)
 				{
 					Bone bone((Vector3&)m_ClothSphereBones[i].first.pos);
-					bone.TransformSelf(animator->anim_pose_hier[m_ClothSphereBones[i].second]);
+					bone.TransformSelf(animator->anim_pose[m_ClothSphereBones[i].second]);
 					ClothSpheres[i].pos = (physx::PxVec3&)bone.m_position;
 				}
 				else

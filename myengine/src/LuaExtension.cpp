@@ -409,7 +409,7 @@ static boost::iterator_range<StaticEmitterParticleIterator> static_emitter_get_p
 
 static my::Bone animator_get_bone(Animator* self, int i)
 {
-	return self->anim_pose_hier[i];
+	return self->anim_pose[i];
 }
 
 struct ScriptControl;
@@ -3214,7 +3214,7 @@ void LuaContext::Init(void)
 			.def(constructor<const char*>())
 			.def_readwrite("SkeletonPath", &Animator::m_SkeletonPath)
 			.def_readonly("Skeleton", &Animator::m_Skeleton)
-			.def_readonly("anim_pose_hier", &Animator::anim_pose_hier, return_stl_iterator)
+			.def_readonly("anim_pose", &Animator::anim_pose, return_stl_iterator)
 			.def_readwrite("Rate", &Animator::m_Rate)
 			.def("ReloadSequenceGroup", &Animator::ReloadSequenceGroup)
 			.def("AddDynamicBone", &Animator::AddDynamicBone)
