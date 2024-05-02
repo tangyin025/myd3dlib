@@ -33,6 +33,7 @@ RenderPipeline::RenderPipeline(void)
 	, handle_ScreenDim(NULL)
 	, handle_ShadowMapSize(NULL)
 	, handle_ShadowBias(NULL)
+	, handle_ShadowLayer(NULL)
 	, handle_World(NULL)
 	, handle_Eye(NULL)
 	, handle_View(NULL)
@@ -314,6 +315,7 @@ HRESULT RenderPipeline::OnCreateDevice(
 	BOOST_VERIFY(handle_ScreenDim = m_SimpleSample->GetParameterByName(NULL, "g_ScreenDim"));
 	BOOST_VERIFY(handle_ShadowMapSize = m_SimpleSample->GetParameterByName(NULL, "g_ShadowMapSize"));
 	BOOST_VERIFY(handle_ShadowBias = m_SimpleSample->GetParameterByName(NULL, "g_ShadowBias"));
+	BOOST_VERIFY(handle_ShadowLayer = m_SimpleSample->GetParameterByName(NULL, "g_ShadowLayer"));
 	BOOST_VERIFY(handle_World = m_SimpleSample->GetParameterByName(NULL, "g_World"));
 	BOOST_VERIFY(handle_Eye = m_SimpleSample->GetParameterByName(NULL, "g_Eye"));
 	BOOST_VERIFY(handle_View = m_SimpleSample->GetParameterByName(NULL, "g_View"));
@@ -520,11 +522,11 @@ void RenderPipeline::OnRender(
 	V(pd3dDevice->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID));
 	V(pd3dDevice->SetRenderState(D3DRS_ZFUNC, D3DCMP_GREATEREQUAL));
 
-	const Vector4 split(1.0f, 0.0076140365563333f, 0.00083186774281785f, 0.0f);
-	const Vector3 ltn = Vector3(-1.0f, 1.0f, split[0]).transformCoord(pRC->m_Camera->m_InverseViewProj);
-	const Vector3 rbf = Vector3(1.0f, -1.0f, split[1]).transformCoord(pRC->m_Camera->m_InverseViewProj);
-	const Vector3 eye = ltn + (rbf - ltn) * 0.5f;
-	const float radius = ltn.distance(eye);
+	const Vector4 layer(1.0f, 0.011325952596962f, 0.0030774015467614f, 0.00036962624290027f);
+	const Vector3 layercent(0.022430079057813f, 0.0048506590537727f, 0.00068016158184037f);
+	const Vector3 ltf = Vector3(-1.0f, 1.0f, layer[1]).transformCoord(pRC->m_Camera->m_InverseViewProj);
+	const Vector3 eye = Vector3(0.0f, 0.0f, layercent[0]).transformCoord(pRC->m_Camera->m_InverseViewProj);
+	const float radius = ltf.distance(eye);
 	Matrix4 Rotation = Matrix4::RotationYawPitchRoll(m_SkyLightCam->m_Euler.y, m_SkyLightCam->m_Euler.x, m_SkyLightCam->m_Euler.z);
 	Matrix4 View = (Rotation * Matrix4::Translation(eye)).inverse();
 	Matrix4 ViewProj = View * Matrix4::OrthoOffCenterRH(-radius, radius, -radius, radius, m_SkyLightCam->m_Nz, radius);
@@ -536,6 +538,7 @@ void RenderPipeline::OnRender(
 	m_SimpleSample->SetVector(handle_ScreenDim, Vector2((float)ScreenSurfDesc->Width, (float)ScreenSurfDesc->Height));
 	m_SimpleSample->SetFloat(handle_ShadowMapSize, (float)SHADOW_MAP_SIZE);
 	m_SimpleSample->SetFloat(handle_ShadowBias, SHADOW_BIAS);
+	m_SimpleSample->SetVector(handle_ShadowLayer, layer);
 	m_SimpleSample->SetMatrix(handle_World, Matrix4::identity);
 	m_SimpleSample->SetVector(handle_Eye, eye);
 	m_SimpleSample->SetMatrix(handle_View, View);

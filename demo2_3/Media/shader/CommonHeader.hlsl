@@ -30,6 +30,7 @@ shared float g_Time;
 shared float2 g_ScreenDim;
 shared float g_ShadowMapSize;
 shared float g_ShadowBias;
+shared float4 g_ShadowLayer;
 shared float4x4 g_World;
 shared float3 g_Eye;
 shared float4x4 g_View;
@@ -129,33 +130,37 @@ float3 RotateAngleAxis(float3 v, float a, float3 N)
 	return mul(v, mRotation);
 }
 
-float GetLigthAmount(float4 ShadowCoord)
+float GetLigthAmount(float4 PosWS, float InvScreenDepth)
 {
 	//transform from RT space to texture space.
-	float2 ShadowTex = ShadowCoord.xy / ShadowCoord.w * 0.5 + 0.5;
-	ShadowTex.y = 1.0 - ShadowTex.y;
-	if (ShadowTex.x < 0 || ShadowTex.x > 1 || ShadowTex.y < 0 || ShadowTex.y > 1)
-		return 1.0;
+	// if (InvScreenDepth < 1 / g_ShadowLayer[1])
+	{
+		float4 ShadowCoord = mul(PosWS, g_SkyLightViewProj);
+		float2 ShadowTex = ShadowCoord.xy / ShadowCoord.w * 0.5 + 0.5;
+		ShadowTex.y = 1.0 - ShadowTex.y;
+		if (ShadowTex.x < 0 || ShadowTex.x > 1 || ShadowTex.y < 0 || ShadowTex.y > 1)
+			return 1.0;
 
-	// transform to texel space
-	float2 texelpos = ShadowTex * g_ShadowMapSize;
-	
-	// Determine the lerp amounts           
-	float2 lerps = frac( texelpos );
-	
-	//read in bilerp stamp, doing the shadow checks
-	float sourcevals[4];
-	sourcevals[0] = (tex2Dlod( ShadowRTSampler, float4(ShadowTex,0,0) ).r - g_ShadowBias > ShadowCoord.z / ShadowCoord.w)? 0.0f: 1.0f;  
-	sourcevals[1] = (tex2Dlod( ShadowRTSampler, float4(ShadowTex + float2(1.0/g_ShadowMapSize, 0),0,0) ).r - g_ShadowBias > ShadowCoord.z / ShadowCoord.w)? 0.0f: 1.0f;  
-	sourcevals[2] = (tex2Dlod( ShadowRTSampler, float4(ShadowTex + float2(0, 1.0/g_ShadowMapSize),0,0) ).r - g_ShadowBias > ShadowCoord.z / ShadowCoord.w)? 0.0f: 1.0f;  
-	sourcevals[3] = (tex2Dlod( ShadowRTSampler, float4(ShadowTex + float2(1.0/g_ShadowMapSize, 1.0/g_ShadowMapSize),0,0) ).r - g_ShadowBias > ShadowCoord.z / ShadowCoord.w)? 0.0f: 1.0f;  
-        
-	// lerp between the shadow values to calculate our light amount
-	float LightAmount = lerp( lerp( sourcevals[0], sourcevals[1], lerps.x ),
-							  lerp( sourcevals[2], sourcevals[3], lerps.x ),
-							  lerps.y );
+		// transform to texel space
+		float2 texelpos = ShadowTex * g_ShadowMapSize;
+		
+		// Determine the lerp amounts           
+		float2 lerps = frac( texelpos );
+		
+		//read in bilerp stamp, doing the shadow checks
+		float sourcevals[4];
+		sourcevals[0] = (tex2Dlod( ShadowRTSampler, float4(ShadowTex,0,0) ).r - g_ShadowBias > ShadowCoord.z / ShadowCoord.w)? 0.0f: 1.0f;  
+		sourcevals[1] = (tex2Dlod( ShadowRTSampler, float4(ShadowTex + float2(1.0/g_ShadowMapSize, 0),0,0) ).r - g_ShadowBias > ShadowCoord.z / ShadowCoord.w)? 0.0f: 1.0f;  
+		sourcevals[2] = (tex2Dlod( ShadowRTSampler, float4(ShadowTex + float2(0, 1.0/g_ShadowMapSize),0,0) ).r - g_ShadowBias > ShadowCoord.z / ShadowCoord.w)? 0.0f: 1.0f;  
+		sourcevals[3] = (tex2Dlod( ShadowRTSampler, float4(ShadowTex + float2(1.0/g_ShadowMapSize, 1.0/g_ShadowMapSize),0,0) ).r - g_ShadowBias > ShadowCoord.z / ShadowCoord.w)? 0.0f: 1.0f;  
 			
-	return LightAmount;
+		// lerp between the shadow values to calculate our light amount
+		float LightAmount = lerp( lerp( sourcevals[0], sourcevals[1], lerps.x ),
+								lerp( sourcevals[2], sourcevals[3], lerps.x ),
+								lerps.y );
+		return LightAmount;
+	}
+	return 1;
 }
 
 float ScreenDoorTransparency(float Alpha, float2 SPos)

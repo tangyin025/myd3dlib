@@ -121,6 +121,8 @@ public:
 
 	D3DXHANDLE handle_ShadowBias;
 
+	D3DXHANDLE handle_ShadowLayer;
+
 	D3DXHANDLE handle_World;
 
 	D3DXHANDLE handle_Eye;
