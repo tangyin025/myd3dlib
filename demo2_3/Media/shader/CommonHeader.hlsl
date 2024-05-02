@@ -29,7 +29,7 @@
 shared float g_Time;
 shared float2 g_ScreenDim;
 shared float g_ShadowMapSize;
-shared float g_ShadowBias;
+shared float4 g_ShadowBias;
 shared float4 g_ShadowLayer;
 shared float4x4 g_World;
 shared float3 g_Eye;
@@ -148,7 +148,7 @@ float3 RotateAngleAxis(float3 v, float a, float3 N)
 	return mul(v, mRotation);
 }
 
-float GetLigthAmountLayer(float4 ShadowCoord, sampler TexSamp)
+float GetLigthAmountLayer(float4 ShadowCoord, sampler TexSamp, float bias)
 {
 	float2 ShadowTex = ShadowCoord.xy / ShadowCoord.w * 0.5 + 0.5;
 	ShadowTex.y = 1.0 - ShadowTex.y;
@@ -163,10 +163,10 @@ float GetLigthAmountLayer(float4 ShadowCoord, sampler TexSamp)
 	
 	//read in bilerp stamp, doing the shadow checks
 	float sourcevals[4];
-	sourcevals[0] = (tex2Dlod( TexSamp, float4(ShadowTex,0,0) ).r - g_ShadowBias > ShadowCoord.z / ShadowCoord.w)? 0.0f: 1.0f;  
-	sourcevals[1] = (tex2Dlod( TexSamp, float4(ShadowTex + float2(1.0/g_ShadowMapSize, 0),0,0) ).r - g_ShadowBias > ShadowCoord.z / ShadowCoord.w)? 0.0f: 1.0f;  
-	sourcevals[2] = (tex2Dlod( TexSamp, float4(ShadowTex + float2(0, 1.0/g_ShadowMapSize),0,0) ).r - g_ShadowBias > ShadowCoord.z / ShadowCoord.w)? 0.0f: 1.0f;  
-	sourcevals[3] = (tex2Dlod( TexSamp, float4(ShadowTex + float2(1.0/g_ShadowMapSize, 1.0/g_ShadowMapSize),0,0) ).r - g_ShadowBias > ShadowCoord.z / ShadowCoord.w)? 0.0f: 1.0f;  
+	sourcevals[0] = (tex2Dlod( TexSamp, float4(ShadowTex,0,0) ).r - bias > ShadowCoord.z / ShadowCoord.w)? 0.0f: 1.0f;  
+	sourcevals[1] = (tex2Dlod( TexSamp, float4(ShadowTex + float2(1.0/g_ShadowMapSize, 0),0,0) ).r - bias > ShadowCoord.z / ShadowCoord.w)? 0.0f: 1.0f;  
+	sourcevals[2] = (tex2Dlod( TexSamp, float4(ShadowTex + float2(0, 1.0/g_ShadowMapSize),0,0) ).r - bias > ShadowCoord.z / ShadowCoord.w)? 0.0f: 1.0f;  
+	sourcevals[3] = (tex2Dlod( TexSamp, float4(ShadowTex + float2(1.0/g_ShadowMapSize, 1.0/g_ShadowMapSize),0,0) ).r - bias > ShadowCoord.z / ShadowCoord.w)? 0.0f: 1.0f;  
 		
 	// lerp between the shadow values to calculate our light amount
 	float LightAmount = lerp( lerp( sourcevals[0], sourcevals[1], lerps.x ),
@@ -181,17 +181,17 @@ float GetLigthAmount(float4 PosWS, float InvScreenDepth)
 	if (InvScreenDepth < 1 / g_ShadowLayer[0])
 	{
 		float4 ShadowCoord = mul(PosWS, g_SkyLightViewProj[0]);
-		return GetLigthAmountLayer(ShadowCoord, ShadowRTSampler0);
+		return GetLigthAmountLayer(ShadowCoord, ShadowRTSampler0, g_ShadowBias[0]);
 	}
 	else if (InvScreenDepth < 1 / g_ShadowLayer[1])
 	{
 		float4 ShadowCoord = mul(PosWS, g_SkyLightViewProj[1]);
-		return GetLigthAmountLayer(ShadowCoord, ShadowRTSampler1);
+		return GetLigthAmountLayer(ShadowCoord, ShadowRTSampler1, g_ShadowBias[1]);
 	}
 	else if (InvScreenDepth < 1 / g_ShadowLayer[2])
 	{
 		float4 ShadowCoord = mul(PosWS, g_SkyLightViewProj[2]);
-		return GetLigthAmountLayer(ShadowCoord, ShadowRTSampler2);
+		return GetLigthAmountLayer(ShadowCoord, ShadowRTSampler2, g_ShadowBias[2]);
 	}
 	return 1;
 }

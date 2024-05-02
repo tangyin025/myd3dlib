@@ -99,11 +99,17 @@ public:
 
 	unsigned int SHADOW_MAP_SIZE;
 
-	float SHADOW_BIAS;
+	static const int CASCADE_LAYER_NUM = 3;
 
-	boost::shared_ptr<my::Texture2D> m_ShadowRT[3];
+	my::Vector4 m_CascadeLayer;
 
-	boost::shared_ptr<my::Surface> m_ShadowDS[3];
+	my::Vector3 m_CascadeLayerCent;
+
+	my::Vector4 m_CascadeLayerBias;
+
+	boost::shared_ptr<my::Texture2D> m_ShadowRT[CASCADE_LAYER_NUM];
+
+	boost::shared_ptr<my::Surface> m_ShadowDS[CASCADE_LAYER_NUM];
 
 	boost::shared_ptr<my::Camera> m_SkyLightCam;
 
@@ -139,7 +145,7 @@ public:
 
 	D3DXHANDLE handle_AmbientColor;
 
-	D3DXHANDLE handle_ShadowRT[3];
+	D3DXHANDLE handle_ShadowRT[CASCADE_LAYER_NUM];
 
 	D3DXHANDLE handle_NormalRT;
 
