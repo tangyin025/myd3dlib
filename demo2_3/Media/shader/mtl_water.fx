@@ -59,14 +59,13 @@ TRANSPARENT_VS_OUTPUT TransparentVS( VS_INPUT In )
 
 float4 TransparentPS( TRANSPARENT_VS_OUTPUT In ) : COLOR
 {
-	float3 SkyLightDir = normalize(float3(g_SkyLightView[0][2], g_SkyLightView[1][2], g_SkyLightView[2][2]));
 	float3x3 m = float3x3(In.Tangent,In.Binormal,In.Normal);
 	float3 nt0 = tex2D(NormalTextureSampler, In.texCoord0).xyz;
 	float3 nt1 = tex2D(NormalTextureSampler, In.texCoord1).xyz;
 	float3 nt2 = tex2D(NormalTextureSampler, In.texCoord2).xyz;
 	float3 nt = normalize(2.0 * (nt0 + nt1 + nt2) - 3.0);
 	float3 Normal = mul(nt, m);
-	float c = dot(Normal, SkyLightDir);
+	float c = dot(Normal, g_SkyLightDir);
 	float pixel_to_eye_length = length(In.ViewWS);
 	float3 pixel_to_eye_vector = In.ViewWS / pixel_to_eye_length;
 	float fresnel_factor = Fresnel(Normal, pixel_to_eye_vector, g_FresExp, g_ReflStrength);
@@ -77,17 +76,17 @@ float4 TransparentPS( TRANSPARENT_VS_OUTPUT In ) : COLOR
 
 	float3 color=lerp(g_refraction_color,g_reflection_color,fresnel_factor);
 	float3 Ref = Reflection(Normal, pixel_to_eye_vector);
-	float specular = pow(saturate(dot(Ref, SkyLightDir)), g_SpecularExp) * g_SkyLightColor.w;
+	float specular = pow(saturate(dot(Ref, g_SkyLightDir)), g_SpecularExp) * g_SkyLightColor.w;
 
 	// only the crests of water waves generate double refracted light
 	float scatter_factor=2.5*max(0,In.PosWS.y*0.25+0.25);
 
 	// the waves that lie between camera and light projection on water plane generate maximal amount of double refracted light 
-	scatter_factor*=pow(max(0.0,dot(normalize(float3(SkyLightDir.x,0.0,SkyLightDir.z)),-pixel_to_eye_vector)),2.0);
+	scatter_factor*=pow(max(0.0,dot(normalize(float3(g_SkyLightDir.x,0.0,g_SkyLightDir.z)),-pixel_to_eye_vector)),2.0);
 	
 	// the slopes of waves that are oriented back to light generate maximal amount of double refracted light 
-	// scatter_factor*=pow(max(0.0,1-dot(SkyLightDir,Normal)),8.0);
-	scatter_factor*=pow(1-dot(SkyLightDir,Normal),8);
+	// scatter_factor*=pow(max(0.0,1-dot(g_SkyLightDir,Normal)),8.0);
+	scatter_factor*=pow(1-dot(g_SkyLightDir,Normal),8);
 	
 	// water crests gather more light than lobes, so more light is scattered under the crests
 	scatter_factor+=1.5*0.2*max(0,In.PosWS.y+1)*
