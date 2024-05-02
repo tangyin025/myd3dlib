@@ -101,9 +101,9 @@ public:
 
 	float SHADOW_BIAS;
 
-	boost::shared_ptr<my::Texture2D> m_ShadowRT;
+	boost::shared_ptr<my::Texture2D> m_ShadowRT[3];
 
-	boost::shared_ptr<my::Surface> m_ShadowDS;
+	boost::shared_ptr<my::Surface> m_ShadowDS[3];
 
 	boost::shared_ptr<my::Camera> m_SkyLightCam;
 
@@ -131,7 +131,7 @@ public:
 
 	D3DXHANDLE handle_ViewProj;
 
-	D3DXHANDLE handle_SkyLightView;
+	D3DXHANDLE handle_SkyLightDir;
 
 	D3DXHANDLE handle_SkyLightViewProj;
 
@@ -139,7 +139,7 @@ public:
 
 	D3DXHANDLE handle_AmbientColor;
 
-	D3DXHANDLE handle_ShadowRT;
+	D3DXHANDLE handle_ShadowRT[3];
 
 	D3DXHANDLE handle_NormalRT;
 

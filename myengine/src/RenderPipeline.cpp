@@ -24,8 +24,6 @@ const UINT RenderPipeline::m_ParticlePrimitiveInfo[ParticlePrimitiveTypeCount][4
 RenderPipeline::RenderPipeline(void)
 	: SHADOW_MAP_SIZE(1024)
 	, SHADOW_BIAS(0.001f)
-	, m_ShadowRT(new Texture2D())
-	, m_ShadowDS(new Surface())
 	, m_SkyLightCam(new my::OrthoCamera(30.0f, 30.0f, -100, 100))
 	, m_SkyLightColor(1.0f, 1.0f, 1.0f, 1.0f)
 	, m_AmbientColor(0.3f, 0.3f, 0.3f, 3.0f)
@@ -38,11 +36,10 @@ RenderPipeline::RenderPipeline(void)
 	, handle_Eye(NULL)
 	, handle_View(NULL)
 	, handle_ViewProj(NULL)
-	, handle_SkyLightView(NULL)
+	, handle_SkyLightDir(NULL)
 	, handle_SkyLightViewProj(NULL)
 	, handle_SkyLightColor(NULL)
 	, handle_AmbientColor(NULL)
-	, handle_ShadowRT(NULL)
 	, handle_NormalRT(NULL)
 	, handle_SpecularRT(NULL)
 	, handle_PositionRT(NULL)
@@ -72,6 +69,12 @@ RenderPipeline::RenderPipeline(void)
 	, m_FogHeight(50)
 	, m_FogFalloff(0.01f)
 {
+	for (int i = 0; i < _countof(m_ShadowRT); i++)
+	{
+		m_ShadowRT[i].reset(new Texture2D());
+		m_ShadowDS[i].reset(new Surface());
+		handle_ShadowRT[i] = NULL;
+	}
 }
 
 RenderPipeline::~RenderPipeline(void)
@@ -320,11 +323,16 @@ HRESULT RenderPipeline::OnCreateDevice(
 	BOOST_VERIFY(handle_Eye = m_SimpleSample->GetParameterByName(NULL, "g_Eye"));
 	BOOST_VERIFY(handle_View = m_SimpleSample->GetParameterByName(NULL, "g_View"));
 	BOOST_VERIFY(handle_ViewProj = m_SimpleSample->GetParameterByName(NULL, "g_ViewProj"));
-	BOOST_VERIFY(handle_SkyLightView = m_SimpleSample->GetParameterByName(NULL, "g_SkyLightView"));
+	BOOST_VERIFY(handle_SkyLightDir = m_SimpleSample->GetParameterByName(NULL, "g_SkyLightDir"));
 	BOOST_VERIFY(handle_SkyLightViewProj = m_SimpleSample->GetParameterByName(NULL, "g_SkyLightViewProj"));
 	BOOST_VERIFY(handle_SkyLightColor = m_SimpleSample->GetParameterByName(NULL, "g_SkyLightColor"));
 	BOOST_VERIFY(handle_AmbientColor = m_SimpleSample->GetParameterByName(NULL, "g_AmbientColor"));
-	BOOST_VERIFY(handle_ShadowRT = m_SimpleSample->GetParameterByName(NULL, "g_ShadowRT"));
+	for (int i = 0; i < _countof(handle_ShadowRT); i++)
+	{
+		char buff[64];
+		sprintf_s(buff, _countof(buff), "g_ShadowRT%d", i);
+		BOOST_VERIFY(handle_ShadowRT[i] = m_SimpleSample->GetParameterByName(NULL, buff));
+	}
 	BOOST_VERIFY(handle_NormalRT = m_SimpleSample->GetParameterByName(NULL, "g_NormalRT"));
 	BOOST_VERIFY(handle_SpecularRT = m_SimpleSample->GetParameterByName(NULL, "g_SpecularRT"));
 	BOOST_VERIFY(handle_PositionRT = m_SimpleSample->GetParameterByName(NULL, "g_PositionRT"));
@@ -448,10 +456,13 @@ HRESULT RenderPipeline::OnResetDevice(
 	_ASSERT(!m_MeshInstanceData.m_ptr);
 	m_MeshInstanceData.CreateVertexBuffer(m_MeshInstanceStride * MESH_INSTANCE_MAX, D3DUSAGE_DYNAMIC, 0, D3DPOOL_DEFAULT);
 
-	m_ShadowRT->CreateAdjustedTexture(SHADOW_MAP_SIZE, SHADOW_MAP_SIZE, 1, D3DUSAGE_RENDERTARGET, D3DFMT_R32F, D3DPOOL_DEFAULT);
+	for (int i = 0; i < _countof(m_ShadowRT); i++)
+	{
+		m_ShadowRT[i]->CreateAdjustedTexture(SHADOW_MAP_SIZE, SHADOW_MAP_SIZE, 1, D3DUSAGE_RENDERTARGET, D3DFMT_R32F, D3DPOOL_DEFAULT);
 
-	// ! 所有的 render target必须使用具有相同 multisample的 depth stencil
-	m_ShadowDS->CreateDepthStencilSurface(SHADOW_MAP_SIZE, SHADOW_MAP_SIZE, D3DFMT_D24X8);
+		// ! 所有的 render target必须使用具有相同 multisample的 depth stencil
+		m_ShadowDS[i]->CreateDepthStencilSurface(SHADOW_MAP_SIZE, SHADOW_MAP_SIZE, D3DFMT_D24X8);
+	}
 
 	return S_OK;
 }
@@ -463,8 +474,11 @@ void RenderPipeline::OnLostDevice(void)
 	m_ParticleIb.OnDestroyDevice();
 	m_ParticleInstanceData.OnDestroyDevice();
 	m_MeshInstanceData.OnDestroyDevice();
-	m_ShadowRT->OnDestroyDevice();
-	m_ShadowDS->OnDestroyDevice();
+	for (int i = 0; i < _countof(m_ShadowRT); i++)
+	{
+		m_ShadowRT[i]->OnDestroyDevice();
+		m_ShadowDS[i]->OnDestroyDevice();
+	}
 }
 
 void RenderPipeline::OnDestroyDevice(void)
@@ -523,31 +537,40 @@ void RenderPipeline::OnRender(
 	V(pd3dDevice->SetRenderState(D3DRS_ZFUNC, D3DCMP_GREATEREQUAL));
 
 	const Vector4 layer(1.0f, 0.011325952596962f, 0.0030774015467614f, 0.00036962624290027f);
-	const Vector3 layercent(0.022430079057813f, 0.0048506590537727f, 0.00068016158184037f);
-	const Vector3 ltf = Vector3(-1.0f, 1.0f, layer[1]).transformCoord(pRC->m_Camera->m_InverseViewProj);
-	const Vector3 eye = Vector3(0.0f, 0.0f, layercent[0]).transformCoord(pRC->m_Camera->m_InverseViewProj);
-	const float radius = ltf.distance(eye);
-	Matrix4 Rotation = Matrix4::RotationYawPitchRoll(m_SkyLightCam->m_Euler.y, m_SkyLightCam->m_Euler.x, m_SkyLightCam->m_Euler.z);
-	Matrix4 View = (Rotation * Matrix4::Translation(eye)).inverse();
-	Matrix4 ViewProj = View * Matrix4::OrthoOffCenterRH(-radius, radius, -radius, radius, m_SkyLightCam->m_Nz, radius);
-
-	pRC->QueryRenderComponent(Frustum::ExtractMatrix(ViewProj), this, PassTypeToMask(PassTypeShadow));
-
-	CComPtr<IDirect3DSurface9> ShadowSurf = m_ShadowRT->GetSurfaceLevel(0);
+	const Vector3 layereye(0.022430079057813f, 0.0048506590537727f, 0.00068016158184037f);
+	const Matrix4 Rotation = Matrix4::RotationYawPitchRoll(m_SkyLightCam->m_Euler.y, m_SkyLightCam->m_Euler.x, m_SkyLightCam->m_Euler.z);
 	m_SimpleSample->SetFloat(handle_Time, my::D3DContext::getSingleton().m_fTotalTime);
 	m_SimpleSample->SetVector(handle_ScreenDim, Vector2((float)ScreenSurfDesc->Width, (float)ScreenSurfDesc->Height));
 	m_SimpleSample->SetFloat(handle_ShadowMapSize, (float)SHADOW_MAP_SIZE);
 	m_SimpleSample->SetFloat(handle_ShadowBias, SHADOW_BIAS);
-	m_SimpleSample->SetVector(handle_ShadowLayer, layer);
-	m_SimpleSample->SetMatrix(handle_World, Matrix4::identity);
-	m_SimpleSample->SetVector(handle_Eye, eye);
-	m_SimpleSample->SetMatrix(handle_View, View);
-	m_SimpleSample->SetMatrix(handle_ViewProj, ViewProj);
-	V(pd3dDevice->SetRenderTarget(0, ShadowSurf));
-	V(pd3dDevice->SetDepthStencilSurface(m_ShadowDS->m_ptr));
-	V(pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, 0, 0.0f, 0));
-	RenderAllObjects(pd3dDevice, PassTypeShadow, pRC, fTime, fElapsedTime);
-	ShadowSurf.Release();
+	Matrix4 ViewProj[_countof(m_ShadowRT)];
+	for (int i = 0; i < _countof(m_ShadowRT); i++)
+	{
+		const Vector3 ltf = Vector3(-1.0f, 1.0f, layer[i + 1]).transformCoord(pRC->m_Camera->m_InverseViewProj);
+		const Vector3 eye = Vector3(0.0f, 0.0f, layereye[i]).transformCoord(pRC->m_Camera->m_InverseViewProj);
+		const float radius = ltf.distance(eye);
+		const Matrix4 Proj = Matrix4::OrthoOffCenterRH(-radius, radius, -radius, radius, Min(-radius, m_SkyLightCam->m_Nz), radius);
+		const Matrix4 EyeProj = Rotation.inverse() * Proj;
+		Vector4 ViewEye = eye.transform(EyeProj);
+		ViewEye.x = floor(ViewEye.x / ViewEye.w * SHADOW_MAP_SIZE * 0.5f) * 2.0f / SHADOW_MAP_SIZE * ViewEye.w;
+		ViewEye.y = floor(ViewEye.y / ViewEye.w * SHADOW_MAP_SIZE * 0.5f) * 2.0f / SHADOW_MAP_SIZE * ViewEye.w;
+		const Matrix4 View = (Rotation * Matrix4::Translation(ViewEye.transform(EyeProj.inverse()).xyz)).inverse();
+		ViewProj[i] = { View * Proj };
+
+		pRC->QueryRenderComponent(Frustum::ExtractMatrix(ViewProj[i]), this, PassTypeToMask(PassTypeShadow));
+
+		CComPtr<IDirect3DSurface9> ShadowSurf = m_ShadowRT[i]->GetSurfaceLevel(0);
+		m_SimpleSample->SetVector(handle_ShadowLayer, layer);
+		m_SimpleSample->SetMatrix(handle_World, Matrix4::identity);
+		m_SimpleSample->SetVector(handle_Eye, eye);
+		m_SimpleSample->SetMatrix(handle_View, View);
+		m_SimpleSample->SetMatrix(handle_ViewProj, ViewProj[i]);
+		V(pd3dDevice->SetRenderTarget(0, ShadowSurf));
+		V(pd3dDevice->SetDepthStencilSurface(m_ShadowDS[i]->m_ptr));
+		V(pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, 0, 0.0f, 0));
+		RenderAllObjects(pd3dDevice, PassTypeShadow, pRC, fTime, fElapsedTime);
+		ShadowSurf.Release();
+	}
 
 	pRC->QueryRenderComponent(Frustum::ExtractMatrix(pRC->m_Camera->m_ViewProj), this, PassTypeToMask(PassTypeNormal) | PassTypeToMask(PassTypeNormalTransparent) | PassTypeToMask(PassTypeLight) | PassTypeToMask(PassTypeBackground) | PassTypeToMask(PassTypeOpaque) | PassTypeToMask(PassTypeTransparent));
 
@@ -558,11 +581,14 @@ void RenderPipeline::OnRender(
 	m_SimpleSample->SetVector(handle_Eye, pRC->m_Camera->m_Eye);
 	m_SimpleSample->SetMatrix(handle_View, pRC->m_Camera->m_View);
 	m_SimpleSample->SetMatrix(handle_ViewProj, pRC->m_Camera->m_ViewProj);
-	m_SimpleSample->SetMatrix(handle_SkyLightView, View); // ! RH -z
-	m_SimpleSample->SetMatrix(handle_SkyLightViewProj, ViewProj);
+	m_SimpleSample->SetVector(handle_SkyLightDir, Rotation.getRow<2>()); // ! RH -z, uninvertd so use transpose
+	m_SimpleSample->SetMatrixArray(handle_SkyLightViewProj, ViewProj, _countof(ViewProj));
 	m_SimpleSample->SetVector(handle_SkyLightColor, m_SkyLightColor);
 	m_SimpleSample->SetVector(handle_AmbientColor, m_AmbientColor);
-	m_SimpleSample->SetTexture(handle_ShadowRT, m_ShadowRT.get());
+	for (int i = 0; i < _countof(handle_ShadowRT); i++)
+	{
+		m_SimpleSample->SetTexture(handle_ShadowRT[i], m_ShadowRT[i].get());
+	}
 	V(pd3dDevice->SetRenderTarget(0, NormalSurf));
 	V(pd3dDevice->SetRenderTarget(1, SpecularSurf));
 	V(pd3dDevice->SetRenderTarget(2, PositionSurf));
