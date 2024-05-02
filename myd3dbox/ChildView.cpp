@@ -1954,12 +1954,12 @@ ctrl_handle_end:
 
 	if (!tracker.m_rect.IsRectEmpty())
 	{
-		my::Rectangle rc(
+		const my::Rectangle rc(
 			(float)tracker.m_rect.left,
 			(float)tracker.m_rect.top,
 			(float)tracker.m_rect.right,
 			(float)tracker.m_rect.bottom);
-		my::Frustum ui_ftm = m_UICamera.CalculateFrustum(rc, CSize(m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height));
+		my::Frustum ui_ftm = m_UICamera.RectangleToFrustum(rc, my::Vector2((float)m_SwapChainBufferDesc.Width, (float)m_SwapChainBufferDesc.Height));
 		my::DialogMgr::DialogList::reverse_iterator dlg_iter = pFrame->m_DlgList.rbegin();
 		for (; dlg_iter != pFrame->m_DlgList.rend(); dlg_iter++)
 		{
@@ -1984,7 +1984,7 @@ ctrl_handle_end:
 			}
 		}
 
-		my::Frustum ftm = m_Camera->CalculateFrustum(rc, CSize(m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height));
+		my::Frustum ftm = m_Camera->RectangleToFrustum(rc, my::Vector2((float)m_SwapChainBufferDesc.Width, (float)m_SwapChainBufferDesc.Height));
 		struct Callback : public my::OctNode::QueryCallback
 		{
 			CMainFrame::ActorList selacts;

@@ -152,8 +152,6 @@ namespace my
 
 		virtual Ray CalculateRay(const Vector2 & pt, const CSize & dim) const = 0;
 
-		virtual Frustum CalculateFrustum(const Rectangle & rc, const CSize & dim) const = 0;
-
 		virtual void OnDimensionChanged(const CSize & dim) = 0;
 
 		virtual float CalculateDimensionScaler(const Vector3 & WorldPos) const = 0;
@@ -190,8 +188,6 @@ namespace my
 
 		virtual Ray CalculateRay(const Vector2 & pt, const CSize & dim) const;
 
-		virtual Frustum CalculateFrustum(const Rectangle & rc, const CSize & dim) const;
-
 		virtual void OnDimensionChanged(const CSize & dim);
 
 		virtual float CalculateDimensionScaler(const Vector3 & WorldPos) const;
@@ -223,8 +219,6 @@ namespace my
 			bool * pbNoFurtherProcessing);
 
 		virtual Ray CalculateRay(const Vector2 & pt, const CSize & dim) const;
-
-		virtual Frustum CalculateFrustum(const Rectangle & rc, const CSize & dim) const;
 
 		virtual void OnDimensionChanged(const CSize & dim);
 

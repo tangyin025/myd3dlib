@@ -228,11 +228,6 @@ Ray OrthoCamera::CalculateRay(const Vector2 & pt, const CSize & dim) const
 	return Ray(At, dir);
 }
 
-Frustum OrthoCamera::CalculateFrustum(const my::Rectangle & rc, const CSize & dim) const
-{
-	return RectangleToFrustum(rc, Vector2((float)dim.cx, (float)dim.cy));
-}
-
 void OrthoCamera::OnDimensionChanged(const CSize & dim)
 {
 	if (dim.cx > dim.cy)
@@ -276,11 +271,6 @@ Ray PerspectiveCamera::CalculateRay(const Vector2 & pt, const CSize & dim) const
 	Vector3 At = ScreenToWorld(pt, Vector2((float)dim.cx, (float)dim.cy), 1.0f);
 
 	return Ray(At, (At - m_Eye).normalize());
-}
-
-Frustum PerspectiveCamera::CalculateFrustum(const my::Rectangle & rc, const CSize & dim) const
-{
-	return RectangleToFrustum(rc, Vector2((float)dim.cx, (float)dim.cy));
 }
 
 void PerspectiveCamera::OnDimensionChanged(const CSize & dim)
