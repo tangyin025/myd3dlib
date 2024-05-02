@@ -178,17 +178,17 @@ float GetLigthAmountLayer(float4 ShadowCoord, sampler TexSamp)
 float GetLigthAmount(float4 PosWS, float InvScreenDepth)
 {
 	//transform from RT space to texture space.
-	if (InvScreenDepth < 1 / g_ShadowLayer[1])
+	if (InvScreenDepth < 1 / g_ShadowLayer[0])
 	{
 		float4 ShadowCoord = mul(PosWS, g_SkyLightViewProj[0]);
 		return GetLigthAmountLayer(ShadowCoord, ShadowRTSampler0);
 	}
-	else if (InvScreenDepth < 1 / g_ShadowLayer[2])
+	else if (InvScreenDepth < 1 / g_ShadowLayer[1])
 	{
 		float4 ShadowCoord = mul(PosWS, g_SkyLightViewProj[1]);
 		return GetLigthAmountLayer(ShadowCoord, ShadowRTSampler1);
 	}
-	else if (InvScreenDepth < 1 / g_ShadowLayer[3])
+	else if (InvScreenDepth < 1 / g_ShadowLayer[2])
 	{
 		float4 ShadowCoord = mul(PosWS, g_SkyLightViewProj[2]);
 		return GetLigthAmountLayer(ShadowCoord, ShadowRTSampler2);

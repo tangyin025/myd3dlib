@@ -536,7 +536,7 @@ void RenderPipeline::OnRender(
 	V(pd3dDevice->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID));
 	V(pd3dDevice->SetRenderState(D3DRS_ZFUNC, D3DCMP_GREATEREQUAL));
 
-	const Vector4 layer(1.0f, 0.011325952596962f, 0.0030774015467614f, 0.00036962624290027f);
+	const Vector4 layer(0.011325952596962f, 0.0030774015467614f, 0.00036962624290027f, 0.0f);
 	const Vector3 layereye(0.022430079057813f, 0.0048506590537727f, 0.00068016158184037f);
 	const Matrix4 Rotation = Matrix4::RotationYawPitchRoll(m_SkyLightCam->m_Euler.y, m_SkyLightCam->m_Euler.x, m_SkyLightCam->m_Euler.z);
 	m_SimpleSample->SetFloat(handle_Time, my::D3DContext::getSingleton().m_fTotalTime);
@@ -546,7 +546,7 @@ void RenderPipeline::OnRender(
 	Matrix4 ViewProj[_countof(m_ShadowRT)];
 	for (int i = 0; i < _countof(m_ShadowRT); i++)
 	{
-		const Vector3 ltf = Vector3(-1.0f, 1.0f, layer[i + 1]).transformCoord(pRC->m_Camera->m_InverseViewProj);
+		const Vector3 ltf = Vector3(-1.0f, 1.0f, layer[i]).transformCoord(pRC->m_Camera->m_InverseViewProj);
 		const Vector3 eye = Vector3(0.0f, 0.0f, layereye[i]).transformCoord(pRC->m_Camera->m_InverseViewProj);
 		const float radius = ltf.distance(eye);
 		const Matrix4 Proj = Matrix4::OrthoOffCenterRH(-radius, radius, -radius, radius, Min(-radius, m_SkyLightCam->m_Nz), radius);
