@@ -47,6 +47,7 @@ class CEnvironmentWnd : public CDockablePane
 		SkyLightPropertySpecular,
 		SkyLightPropertyAmbientColor,
 		SkyLightPropertyAmbientSpecular,
+		SkyLightPropertyShadowBias,
 	};
 
 	enum DepthOfFieldProperty

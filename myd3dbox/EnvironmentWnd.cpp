@@ -137,6 +137,15 @@ void CEnvironmentWnd::InitPropList()
 	pProp = new CSimpleProp(_T("AmbientSpecular"), (_variant_t)1.0f, NULL, SkyLightPropertyAmbientSpecular);
 	pSkyLight->AddSubItem(pProp);
 
+	CMFCPropertyGridProperty* pSkyLightShadowBias = new CSimpleProp(_T("ShadowBias"), SkyLightPropertyShadowBias, TRUE);
+	pSkyLight->AddSubItem(pSkyLightShadowBias);
+	pProp = new CSimpleProp(_T("x"), (_variant_t)0.0f, NULL, Vector3PropertyX);
+	pSkyLightShadowBias->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("y"), (_variant_t)0.0f, NULL, Vector3PropertyY);
+	pSkyLightShadowBias->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("z"), (_variant_t)0.0f, NULL, Vector3PropertyZ);
+	pSkyLightShadowBias->AddSubItem(pProp);
+
 	CMFCPropertyGridProperty * pDepthOfField = new CSimpleProp(_T("DepthOfField"), PropertyDepthOfField, FALSE);
 	m_wndPropList.AddProperty(pDepthOfField, FALSE, FALSE);
 	pProp = new CCheckBoxProp(_T("Enable"), FALSE, NULL, DepthOfFieldEnable);
@@ -231,6 +240,10 @@ void CEnvironmentWnd::OnCameraPropChanged(my::EventArg * arg)
 	(DYNAMIC_DOWNCAST(CColorProp, pSkyLight->GetSubItem(SkyLightPropertyAmbientColor)))->SetColor((_variant_t)color);
 
 	pSkyLight->GetSubItem(SkyLightPropertyAmbientSpecular)->SetValue((_variant_t)theApp.m_AmbientColor.w);
+
+	pSkyLight->GetSubItem(SkyLightPropertyShadowBias)->GetSubItem(Vector3PropertyX)->SetValue((_variant_t)theApp.m_CascadeLayerBias.x);
+	pSkyLight->GetSubItem(SkyLightPropertyShadowBias)->GetSubItem(Vector3PropertyY)->SetValue((_variant_t)theApp.m_CascadeLayerBias.y);
+	pSkyLight->GetSubItem(SkyLightPropertyShadowBias)->GetSubItem(Vector3PropertyZ)->SetValue((_variant_t)theApp.m_CascadeLayerBias.z);
 
 	CMFCPropertyGridProperty * pDepthOfField = m_wndPropList.GetProperty(PropertyDepthOfField);
 	pDepthOfField->GetSubItem(DepthOfFieldEnable)->SetValue((_variant_t)(VARIANT_BOOL)camera_prop_arg->pView->m_DofEnable);
@@ -377,6 +390,11 @@ LRESULT CEnvironmentWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		theApp.m_AmbientColor.xyz = my::Vector3(GetRValue(color) / 255.0f, GetGValue(color) / 255.0f, GetBValue(color) / 255.0f);
 
 		theApp.m_AmbientColor.w = pTopProp->GetSubItem(SkyLightPropertyAmbientSpecular)->GetValue().fltVal;
+
+		theApp.m_CascadeLayerBias = my::Vector4(
+			pTopProp->GetSubItem(SkyLightPropertyShadowBias)->GetSubItem(Vector3PropertyX)->GetValue().fltVal,
+			pTopProp->GetSubItem(SkyLightPropertyShadowBias)->GetSubItem(Vector3PropertyY)->GetValue().fltVal,
+			pTopProp->GetSubItem(SkyLightPropertyShadowBias)->GetSubItem(Vector3PropertyZ)->GetValue().fltVal, 0.0f);
 	}
 	break;
 	case PropertyDepthOfField:
