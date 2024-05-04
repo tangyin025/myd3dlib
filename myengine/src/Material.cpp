@@ -345,8 +345,8 @@ void Material::ParseShaderParameters(void)
 
 	CachePtr cache = my::ResourceMgr::getSingleton().OpenIStream(m_Shader.c_str())->GetWholeCache();
 	cache->push_back(0);
-	//                     1 2     3       4        5        6        7         8              9                               10            11
-	boost::regex reg("^\\s*((int2)|(float)|(float2)|(float3)|(float4)|(texture)|(float4x4))\\s+(\\w+)\\s*:\\s*MaterialParameter(\\s*<[^>]+>)?(\\s*=\\s*[^;]+)?;");
+	//                     1 2     3       4        5        6        7         8              9                               10                11
+	boost::regex reg("^\\s*((int2)|(float)|(float2)|(float3)|(float4)|(texture)|(float4x4))\\s+(\\w+)\\s*:\\s*MaterialParameter(\\s*<[^>]+>)?\\s*(=\\s*[^;]+)?;");
 	boost::match_results<const char *> what;
 	const char * start = (const char *)&(*cache)[0];
 	const char * end = (const char *)&(*cache)[cache->size() - 1];
