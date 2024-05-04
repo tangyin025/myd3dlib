@@ -15,7 +15,7 @@ using namespace my;
 
 ActionTbl::ActionTbl(void)
 	: Jump(new Action(0.5f))
-	, Climb(new Action(0.5f))
+	, Climb(new Action(0.6f))
 {
 	boost::shared_ptr<ActionTrackVelocity> JumpVel(new ActionTrackVelocity);
 	JumpVel->AddKeyFrame(0.0f, 0.1f);
