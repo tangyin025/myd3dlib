@@ -326,7 +326,7 @@ void PlayerAgent::OnPxThreadSubstep(float dtime)
 
 	physx::PxRaycastBuffer hit;
 	physx::PxQueryFilterData filterData = physx::PxQueryFilterData(physx::PxFilterData(theApp.default_player_water_filterword0, 0, 0, 0),
-		physx::PxQueryFlag::eDYNAMIC | physx::PxQueryFlag::eSTATIC /*| physx::PxQueryFlag::ePREFILTER*/ | physx::PxQueryFlag::eANY_HIT);
+		physx::PxQueryFlag::eDYNAMIC | physx::PxQueryFlag::eSTATIC /*| physx::PxQueryFlag::ePREFILTER | physx::PxQueryFlag::eANY_HIT*/);
 	if (pFrame->m_PxScene->raycast((physx::PxVec3&)(m_Controller->GetPosition() + Vector3(0, 1000, 0)),
 		physx::PxVec3(0, -1, 0), 1000, hit, physx::PxHitFlag::eDISTANCE, filterData, NULL, NULL))
 	{

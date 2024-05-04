@@ -103,7 +103,7 @@ public:
 
 	my::Vector4 m_CascadeLayer;
 
-	my::Vector3 m_CascadeLayerCent;
+	my::Vector4 m_CascadeLayerCent;
 
 	my::Vector4 m_CascadeLayerBias;
 

@@ -23,9 +23,9 @@ const UINT RenderPipeline::m_ParticlePrimitiveInfo[ParticlePrimitiveTypeCount][4
 
 RenderPipeline::RenderPipeline(void)
 	: SHADOW_MAP_SIZE(1024)
-	, m_CascadeLayer(0.011325952596962f, 0.0030774015467614f, 0.00036962624290027f, 0.0f)
-	, m_CascadeLayerCent(0.022430079057813f, 0.0048506590537727f, 0.00068016158184037f)
-	, m_CascadeLayerBias(0.001f, 0.001f, 0.001f, 0.0f)
+	, m_CascadeLayer(0.011325952596962, 0.0030774015467614, 0.00036962624290027, FLT_MIN)
+	, m_CascadeLayerCent(0.022430079057813, 0.0048506590537727, 0.00068016158184037, 2.8240716346772e-05)
+	, m_CascadeLayerBias(0.001f, 0.001f, 0.001f, 0.001f)
 	, m_SkyLightCam(new my::OrthoCamera(30.0f, 30.0f, -100, 100))
 	, m_SkyLightColor(1.0f, 1.0f, 1.0f, 1.0f)
 	, m_AmbientColor(0.3f, 0.3f, 0.3f, 3.0f)
@@ -547,14 +547,15 @@ void RenderPipeline::OnRender(
 	for (int i = 0; i < _countof(m_ShadowRT); i++)
 	{
 		const Vector3 ltf = Vector3(-1.0f, 1.0f, m_CascadeLayer[i]).transformCoord(pRC->m_Camera->m_InverseViewProj);
-		const Vector3 eye = Vector3(0.0f, 0.0f, m_CascadeLayerCent[i]).transformCoord(pRC->m_Camera->m_InverseViewProj);
+		Vector3 eye = Vector3(0.0f, 0.0f, m_CascadeLayerCent[i]).transformCoord(pRC->m_Camera->m_InverseViewProj);
 		const float radius = ltf.distance(eye);
 		const Matrix4 Proj = Matrix4::OrthoOffCenterRH(-radius, radius, -radius, radius, Min(-radius, m_SkyLightCam->m_Nz), radius);
 		const Matrix4 ViewProj = Rotation.inverse() * Proj;
 		Vector4 ProjEye = eye.transform(ViewProj);
 		ProjEye.x = floor(ProjEye.x / ProjEye.w * SHADOW_MAP_SIZE * 0.5f) * 2.0f / SHADOW_MAP_SIZE * ProjEye.w;
 		ProjEye.y = floor(ProjEye.y / ProjEye.w * SHADOW_MAP_SIZE * 0.5f) * 2.0f / SHADOW_MAP_SIZE * ProjEye.w;
-		const Matrix4 View = (Rotation * Matrix4::Translation(ProjEye.transform(ViewProj.inverse()).xyz)).inverse();
+		eye = ProjEye.transform(ViewProj.inverse()).xyz;
+		const Matrix4 View = (Rotation * Matrix4::Translation(eye)).inverse();
 		SkyLightViewProj[i] = { View * Proj };
 
 		pRC->QueryRenderComponent(Frustum::ExtractMatrix(SkyLightViewProj[i]), this, PassTypeToMask(PassTypeShadow));

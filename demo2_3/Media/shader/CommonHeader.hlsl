@@ -36,12 +36,20 @@ shared float3 g_Eye;
 shared float4x4 g_View;
 shared float4x4 g_ViewProj;
 shared float3 g_SkyLightDir;
-shared float4x4 g_SkyLightViewProj[3];
+#define CASCADE_LAYER_NUM 3
+shared float4x4 g_SkyLightViewProj[CASCADE_LAYER_NUM];
 shared float4 g_SkyLightColor;
 shared float4 g_AmbientColor;
 shared texture g_ShadowRT0;
+#if CASCADE_LAYER_NUM > 1
 shared texture g_ShadowRT1;
+#endif
+#if CASCADE_LAYER_NUM > 2
 shared texture g_ShadowRT2;
+#endif
+#if CASCADE_LAYER_NUM > 3
+shared texture g_ShadowRT3;
+#endif
 shared texture g_NormalRT;
 shared texture g_PositionRT;
 shared texture g_SpecularRT;
@@ -56,7 +64,7 @@ sampler ShadowRTSampler0 = sampler_state
 	MinFilter = POINT;
 	MagFilter = POINT;
 };
-
+#if CASCADE_LAYER_NUM > 1
 sampler ShadowRTSampler1 = sampler_state
 {
 	Texture = <g_ShadowRT1>;
@@ -64,7 +72,8 @@ sampler ShadowRTSampler1 = sampler_state
 	MinFilter = POINT;
 	MagFilter = POINT;
 };
-
+#endif
+#if CASCADE_LAYER_NUM > 2
 sampler ShadowRTSampler2 = sampler_state
 {
 	Texture = <g_ShadowRT2>;
@@ -72,6 +81,16 @@ sampler ShadowRTSampler2 = sampler_state
 	MinFilter = POINT;
 	MagFilter = POINT;
 };
+#endif
+#if CASCADE_LAYER_NUM > 3
+sampler ShadowRTSampler3 = sampler_state
+{
+	Texture = <g_ShadowRT3>;
+	MipFilter = NONE;
+	MinFilter = POINT;
+	MagFilter = POINT;
+};
+#endif
 
 sampler NormalRTSampler = sampler_state
 {
@@ -183,16 +202,27 @@ float GetLigthAmount(float4 PosWS, float InvScreenDepth)
 		float4 ShadowCoord = mul(PosWS, g_SkyLightViewProj[0]);
 		return GetLigthAmountLayer(ShadowCoord, ShadowRTSampler0, g_ShadowBias[0]);
 	}
+#if CASCADE_LAYER_NUM > 1
 	else if (InvScreenDepth < 1 / g_ShadowLayer[1])
 	{
 		float4 ShadowCoord = mul(PosWS, g_SkyLightViewProj[1]);
 		return GetLigthAmountLayer(ShadowCoord, ShadowRTSampler1, g_ShadowBias[1]);
 	}
+#endif
+#if CASCADE_LAYER_NUM > 2
 	else if (InvScreenDepth < 1 / g_ShadowLayer[2])
 	{
 		float4 ShadowCoord = mul(PosWS, g_SkyLightViewProj[2]);
 		return GetLigthAmountLayer(ShadowCoord, ShadowRTSampler2, g_ShadowBias[2]);
 	}
+#endif
+#if CASCADE_LAYER_NUM > 3
+	else if (InvScreenDepth < 1 / g_ShadowLayer[3])
+	{
+		float4 ShadowCoord = mul(PosWS, g_SkyLightViewProj[3]);
+		return GetLigthAmountLayer(ShadowCoord, ShadowRTSampler3, g_ShadowBias[3]);
+	}
+#endif
 	return 1;
 }
 
