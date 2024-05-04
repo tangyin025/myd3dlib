@@ -1085,6 +1085,7 @@ BOOL CMainFrame::SaveFileContext(LPCTSTR lpszPathName)
 	*oa << boost::serialization::make_nvp("SkyLightCam.m_Euler", theApp.m_SkyLightCam->m_Euler);
 	*oa << boost::serialization::make_nvp("SkyLightColor", theApp.m_SkyLightColor);
 	*oa << boost::serialization::make_nvp("AmbientColor", theApp.m_AmbientColor);
+	*oa << boost::serialization::make_nvp("ShadowBias", theApp.m_CascadeLayerBias);
 	*oa << boost::serialization::make_nvp("DofParams", theApp.m_DofParams);
 	*oa << boost::serialization::make_nvp("LuminanceThreshold", theApp.m_LuminanceThreshold);
 	*oa << boost::serialization::make_nvp("BloomColor", theApp.m_BloomColor);

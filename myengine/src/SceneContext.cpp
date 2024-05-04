@@ -25,6 +25,7 @@ void SceneContextRequest::LoadResource(void)
 		*ia >> boost::serialization::make_nvp("SkyLightCam.m_Euler", scene->m_SkyLightCamEuler);
 		*ia >> boost::serialization::make_nvp("SkyLightColor", scene->m_SkyLightColor);
 		*ia >> boost::serialization::make_nvp("AmbientColor", scene->m_AmbientColor);
+		*ia >> boost::serialization::make_nvp("ShadowBias", scene->m_ShadowBias);
 		*ia >> boost::serialization::make_nvp("DofParams", scene->m_DofParams);
 		*ia >> boost::serialization::make_nvp("LuminanceThreshold", scene->m_LuminanceThreshold);
 		*ia >> boost::serialization::make_nvp("BloomColor", scene->m_BloomColor);
