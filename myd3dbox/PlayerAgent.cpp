@@ -5,7 +5,6 @@
 #include "ChildView.h"
 #include "Controller.h"
 #include "Steering.h"
-#include "Animator.h"
 #include "ActionTrack.h"
 #include "Material.h"
 #include <boost/regex.hpp>
@@ -26,56 +25,49 @@ ActionTbl::ActionTbl(void)
 	Climb->AddTrack(ClimbPos);
 }
 
-class NodeRunBlendList : public AnimationNodeBlendList
+NodeRunBlendList::NodeRunBlendList(const char* Name)
+	: AnimationNodeBlendList(Name, 4)
 {
-public:
-	PlayerAgent* m_Agent;
+}
 
-	NodeRunBlendList(const char* Name, PlayerAgent* Agent)
-		: AnimationNodeBlendList(Name, 4)
-		, m_Agent(Agent)
+void NodeRunBlendList::Tick(float fElapsedTime, float fTotalWeight)
+{
+	PlayerAgent* Agent = static_cast<Animator*>(GetTopNode())->m_Actor->GetFirstComponent<PlayerAgent>();
+	const Vector3& Up = Agent->m_Controller->GetUpDirection();
+	if (Agent->m_Suspending <= 0.0f)
 	{
+		if (GetTargetWeight(0) < 0.5f)
+		{
+			SetActiveChild(0, 0.3f);
+		}
+		dynamic_cast<AnimationNodeSequence*>(m_Childs[0].get())->m_Rate = Agent->m_Steering->m_Speed / 5.2f;
 	}
-
-
-	virtual void Tick(float fElapsedTime, float fTotalWeight)
+	else if (GetTargetWeight(3) < 0.5f && Up.y < theApp.default_player_climb_enter_slope
+		|| GetTargetWeight(3) >= 0.5f && Up.y <= theApp.default_player_climb_leave_slope)
 	{
-		const Vector3& Up = m_Agent->m_Controller->GetUpDirection();
-		if (m_Agent->m_Suspending <= 0.0f)
+		if (GetTargetWeight(3) < 0.5f)
 		{
-			if (GetTargetWeight(0) < 0.5f)
-			{
-				SetActiveChild(0, 0.3f);
-			}
-			dynamic_cast<AnimationNodeSequence*>(m_Childs[0].get())->m_Rate = m_Agent->m_Steering->m_Speed / 5.2f;
+			SetActiveChild(3, 0.1f);
 		}
-		else if (GetTargetWeight(3) < 0.5f && Up.y < theApp.default_player_climb_enter_slope
-			|| GetTargetWeight(3) >= 0.5f && Up.y <= theApp.default_player_climb_leave_slope)
-		{
-			if (GetTargetWeight(3) < 0.5f)
-			{
-				SetActiveChild(3, 0.1f);
-			}
-			dynamic_cast<AnimationNodeSequence*>(m_Childs[3].get())->m_Rate = m_Agent->m_Steering->m_Speed / 2.6f;
-		}
-		else if (m_Agent->m_Steering->m_Speed > 0.1f)
-		{
-			if (GetTargetWeight(2) < 0.5f)
-			{
-				SetActiveChild(2, 0.1f);
-			}
-			dynamic_cast<AnimationNodeSequence*>(m_Childs[2].get())->m_Rate = m_Agent->m_Steering->m_Speed / 2.6f;
-		}
-		else
-		{
-			if (GetTargetWeight(1) < 0.5f)
-			{
-				SetActiveChild(1, 0.1f);
-			}
-		}
-		AnimationNodeBlendList::Tick(fElapsedTime, fTotalWeight);
+		dynamic_cast<AnimationNodeSequence*>(m_Childs[3].get())->m_Rate = Agent->m_Steering->m_Speed / 2.6f;
 	}
-};
+	else if (Agent->m_Steering->m_Speed > 0.1f)
+	{
+		if (GetTargetWeight(2) < 0.5f)
+		{
+			SetActiveChild(2, 0.1f);
+		}
+		dynamic_cast<AnimationNodeSequence*>(m_Childs[2].get())->m_Rate = Agent->m_Steering->m_Speed / 2.6f;
+	}
+	else
+	{
+		if (GetTargetWeight(1) < 0.5f)
+		{
+			SetActiveChild(1, 0.1f);
+		}
+	}
+	AnimationNodeBlendList::Tick(fElapsedTime, fTotalWeight);
+}
 
 PlayerAgent::~PlayerAgent(void)
 {
@@ -98,18 +90,6 @@ void PlayerAgent::RequestResource(void)
 	VERIFY(m_Controller = m_Actor->GetFirstComponent<Controller>());
 	VERIFY(m_Steering = m_Actor->GetFirstComponent<Steering>());
 	VERIFY(m_Animator = m_Actor->GetFirstComponent<Animator>());
-
-	AnimationNodePtr node_run_blend_list(new NodeRunBlendList("node_run_blend_list", this));
-	node_run_blend_list->SetChild(0, AnimationNodePtr(new AnimationNodeSequence("clip_drop", 1.0f, true, "move")));
-	node_run_blend_list->SetChild(1, AnimationNodePtr(new AnimationNodeSequence("clip_stand", 1.0f, true, "idle")));
-	node_run_blend_list->SetChild(2, AnimationNodePtr(new AnimationNodeSequence("clip_run", 1.0f, true, "move")));
-	node_run_blend_list->SetChild(3, AnimationNodePtr(new AnimationNodeSequence("clip_climb", 1.0f, true, "move")));
-
-	AnimationNodeSlotPtr node_run_blend_list_slot(new AnimationNodeSlot("node_run_blend_list_slot"));
-	node_run_blend_list_slot->SetChild(0, node_run_blend_list);
-
-	m_Animator->SetChild(0, node_run_blend_list_slot);
-	m_Animator->ReloadSequenceGroup();
 
 	if (!m_Skel && !theApp.default_player_anim_list.empty() && theApp.CheckPath(theApp.default_player_anim_list.front().c_str()))
 	{

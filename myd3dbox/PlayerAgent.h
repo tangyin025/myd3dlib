@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Component.h"
+#include "Animator.h"
 
 class Action;
 
@@ -12,6 +13,14 @@ public:
 	boost::shared_ptr<Action> Climb;
 
 	ActionTbl(void);
+};
+
+class NodeRunBlendList : public AnimationNodeBlendList
+{
+public:
+	NodeRunBlendList(const char* Name);
+
+	virtual void Tick(float fElapsedTime, float fTotalWeight);
 };
 
 class Controller;

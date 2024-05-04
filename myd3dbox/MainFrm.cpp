@@ -461,11 +461,21 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		theApp.default_player_run_speed,
 		theApp.default_player_breaking_speed, 0.0f, NULL)));
 	m_Player->InsertComponent(ComponentPtr(new PlayerAgent(NULL)));
-	m_Player->InsertComponent(ComponentPtr(new Animator(NULL)));
+	AnimatorPtr animator(new Animator(NULL));
 	if (!theApp.default_player_anim_list.empty())
 	{
-		m_Player->GetFirstComponent<Animator>()->m_SkeletonPath = theApp.default_player_anim_list.front();
+		animator->m_SkeletonPath = theApp.default_player_anim_list.front();
 	}
+	AnimationNodePtr node_run_blend_list(new NodeRunBlendList("node_run_blend_list"));
+	node_run_blend_list->SetChild(0, AnimationNodePtr(new AnimationNodeSequence("clip_drop", 1.0f, true, "move")));
+	node_run_blend_list->SetChild(1, AnimationNodePtr(new AnimationNodeSequence("clip_stand", 1.0f, true, "idle")));
+	node_run_blend_list->SetChild(2, AnimationNodePtr(new AnimationNodeSequence("clip_run", 1.0f, true, "move")));
+	node_run_blend_list->SetChild(3, AnimationNodePtr(new AnimationNodeSequence("clip_climb", 1.0f, true, "move")));
+	AnimationNodeSlotPtr node_run_blend_list_slot(new AnimationNodeSlot("node_run_blend_list_slot"));
+	node_run_blend_list_slot->SetChild(0, node_run_blend_list);
+	animator->SetChild(0, node_run_blend_list_slot);
+	animator->ReloadSequenceGroup();
+	m_Player->InsertComponent(animator);
 
 	BOOL bNameValid;
 	// set the visual manager and style based on persisted value
