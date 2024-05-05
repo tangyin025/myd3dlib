@@ -29,9 +29,9 @@ float4 LightPS( LIGHT_VS_OUTPUT In ) : COLOR0
 	float3 LightDir = In.LightVS.xyz - PosVS;
 	float LightDist = length(LightDir);
 	LightDir = LightDir / LightDist;
-	float diffuse = saturate(dot(NormalVS, LightDir));
-	float3 ViewVS = In.EyeVS - PosVS;
-	float3 Ref = Reflection(NormalVS, ViewVS);
+    float diffuse = saturate(dot(NormalVS, LightDir));
+    float3 ViewVS = normalize(PosVS - In.EyeVS);
+    float3 Ref = reflect(ViewVS, NormalVS);
 	float Specular = pow(saturate(dot(Ref, LightDir)), SpecularVS.x);
 	return float4(In.Color.xyz * diffuse, In.Color.w * Specular) * (1 - SplineInterpolate(clamp(LightDist / In.LightVS.w, 0, 1)));
 }

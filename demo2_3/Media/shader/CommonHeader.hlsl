@@ -140,11 +140,6 @@ sampler DownFilterRTSampler = sampler_state
 	MagFilter = Linear;
 };
 
-float3 Reflection(float3 Normal, float3 View)
-{
-	return normalize(2 * dot(Normal, View) * Normal - View);
-}
-
 float Fresnel(float3 Normal, float3 View, float FresExp, float ReflStrength)
 {
 	return pow(1.0 - abs(dot(Normal, View)), FresExp) * ReflStrength;

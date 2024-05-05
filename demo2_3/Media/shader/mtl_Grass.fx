@@ -137,8 +137,8 @@ OPAQUE_VS_OUTPUT OpaqueVS( VS_INPUT In )
 	//Output.positionCS = TransformWorldToHClip(positionWS);
 	Output.PosWS = float4(positionWS,1);
 	Output.Pos = mul(Output.PosWS, g_ViewProj);
-	Output.InvScreenDepth = Output.Pos.w / Output.Pos.z;
-	float3 View = normalize(g_Eye - positionWS);
+    Output.InvScreenDepth = Output.Pos.w / Output.Pos.z;
+    float3 View = normalize(positionWS - g_Eye);
 	Output.ViewVS = mul(View, (float3x3)g_View);
 
 	// /////////////////////////////////////////////////////////////////////
@@ -203,7 +203,7 @@ float4 OpaquePS( OPAQUE_VS_OUTPUT In ) : COLOR0
 	float LightAmount = GetLigthAmount(In.PosWS, In.InvScreenDepth);
 	float3 NormalVS = tex2D(NormalRTSampler, (In.Pos.xy + 0.5f) / g_ScreenDim).xyz;
 	float3 SkyDiffuse = saturate(dot(NormalVS, SkyLightDirVS) * LightAmount) * g_SkyLightColor.xyz;
-	float3 Ref = Reflection(NormalVS, In.ViewVS);
+    float3 Ref = reflect(In.ViewVS, NormalVS);
 	float SkySpecular = pow(saturate(dot(Ref, SkyLightDirVS) * LightAmount), g_Shininess) * g_SkyLightColor.w;
 	float4 ScreenLight = tex2D(LightRTSampler, (In.Pos.xy + 0.5f) / g_ScreenDim);
 	float3 Final = In.Color.xyz * (ScreenLight.xyz + SkyDiffuse) + In.Color.w * (ScreenLight.w + SkySpecular);

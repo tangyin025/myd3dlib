@@ -89,8 +89,8 @@ TRANSPARENT_VS_OUTPUT TransparentVS( VS_INPUT In )
 	Output.texCoord2 = Tex0 / 2.0 + g_Time * 0.01;
 	Output.Normal = float3(0,1,0);//TransformNormal(In);
 	Output.Tangent = float3(1,0,0);//TransformTangent(In);
-	Output.Binormal = cross(Output.Normal, Output.Tangent);
-	Output.ViewWS = g_Eye - PosWS.xyz; // ! dont normalize here
+    Output.Binormal = cross(Output.Normal, Output.Tangent);
+    Output.ViewWS = PosWS.xyz - g_Eye; // ! dont normalize here
 	return Output;
 }
 
@@ -103,7 +103,7 @@ float4 TransparentPS( TRANSPARENT_VS_OUTPUT In ) : COLOR
 	float3 nt = normalize(2.0 * (nt0 + nt1 + nt2) - 3.0);
 	float3 Normal = mul(nt, m);
 	float3 pixel_to_eye_vector=normalize(In.ViewWS);
-	float3 reflection = Reflection(Normal, pixel_to_eye_vector);
+	float3 reflection = reflect(pixel_to_eye_vector, Normal);
 	float3 reflection_color = texCUBE(ReflectTextureSampler, reflection).xyz;
 	float fres = Fresnel(Normal, pixel_to_eye_vector, g_FresExp, g_ReflStrength);
 	return float4(reflection_color * fres + g_WaterColor * (1 - fres), 0.5);

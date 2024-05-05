@@ -3338,6 +3338,7 @@ void LuaContext::Init(void)
 				luabind::value("RenderTargetDownFilter", RenderPipeline::RenderTargetDownFilter)
 			]
 			.def("QueryShader", &renderpipeline_query_shader)
+			.def("ClearShaderCache", &RenderPipeline::ClearShaderCache)
 			.def("PushMesh", &RenderPipeline::PushMesh)
 
 		, class_<HitArg, my::EventArg>("HitArg")
