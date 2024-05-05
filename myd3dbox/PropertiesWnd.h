@@ -148,6 +148,9 @@ public:
 		PropertyMaterialParameterFloatValueY,
 		PropertyMaterialParameterFloatValueZ,
 		PropertyMaterialParameterFloatValueW,
+		PropertyMaterialParameterColor,
+		PropertyMaterialParameterColorRGB,
+		PropertyMaterialParameterColorAlpha,
 		PropertyMaterialParameterTexture,
 		PropertyCloth,
 		PropertyClothColor,
@@ -589,7 +592,7 @@ public:
 	static unsigned int GetComponentPropCount(DWORD type);
 	static LPCTSTR GetComponentTypeName(DWORD type);
 	static TerrainChunk * GetTerrainChunkSafe(Terrain * terrain, const CPoint & chunkid);
-	static Property GetMaterialParameterTypeProp(DWORD type);
+	static Property GetMaterialParameterTypeProp(MaterialParameter * mtl_param);
 	static unsigned int GetControlPropCount(DWORD type);
 	static LPCTSTR GetControlTypeName(DWORD type);
 
