@@ -1497,18 +1497,16 @@ void CMainFrame::OnComponentMesh()
 	DEFINE_XML_NODE_SIMPLE(mesh, root);
 	DEFINE_XML_NODE_SIMPLE(submeshes, mesh);
 	DEFINE_XML_NODE_SIMPLE(submesh, submeshes);
-	DEFINE_XML_NODE_SIMPLE(submeshnames, mesh);
-	DEFINE_XML_NODE_SIMPLE(submeshname, submeshnames);
 	rapidxml::xml_node<char>* node_sharedgeometry = node_mesh->first_node("sharedgeometry");
 	if (node_sharedgeometry)
 	{
-		for (; node_submeshname != NULL; node_submeshname = node_submeshname->next_sibling())
+		for (int submesh_i = 0; node_submesh != NULL; node_submesh = node_submesh->next_sibling(), submesh_i++)
 		{
-			DEFINE_XML_ATTRIBUTE_SIMPLE(name, submeshname);
-			DEFINE_XML_ATTRIBUTE_INT_SIMPLE(index, submeshname);
-			MeshComponentPtr mesh_cmp(new MeshComponent(my::NamedObject::MakeUniqueName((std::string((*actor_iter)->GetName()) + "_" + attr_name->value()).c_str()).c_str()));
+			char buff[64];
+			sprintf_s(buff, _countof(buff), "%s_mesh%d", (*actor_iter)->GetName(), submesh_i);
+			MeshComponentPtr mesh_cmp(new MeshComponent(my::NamedObject::MakeUniqueName(buff).c_str()));
 			mesh_cmp->m_MeshPath = path;
-			mesh_cmp->m_MeshSubMeshId = index;
+			mesh_cmp->m_MeshSubMeshId = submesh_i;
 			MaterialPtr mtl(new Material());
 			mtl->m_Shader = theApp.default_shader;
 			mtl->ParseShaderParameters();
@@ -1529,13 +1527,13 @@ void CMainFrame::OnComponentMesh()
 	}
 	else
 	{
-		for (; node_submesh != NULL && node_submeshname != NULL; node_submesh = node_submesh->next_sibling(), node_submeshname = node_submeshname->next_sibling())
+		for (int submesh_i = 0; node_submesh != NULL; node_submesh = node_submesh->next_sibling(), submesh_i++)
 		{
-			DEFINE_XML_ATTRIBUTE_SIMPLE(name, submeshname);
-			DEFINE_XML_ATTRIBUTE_INT_SIMPLE(index, submeshname);
-			MeshComponentPtr mesh_cmp(new MeshComponent(my::NamedObject::MakeUniqueName((std::string((*actor_iter)->GetName()) + "_" + attr_name->value()).c_str()).c_str()));
+			char buff[64];
+			sprintf_s(buff, _countof(buff), "%s_mesh%d", (*actor_iter)->GetName(), submesh_i);
+			MeshComponentPtr mesh_cmp(new MeshComponent(my::NamedObject::MakeUniqueName(buff).c_str()));
 			mesh_cmp->m_MeshPath = path;
-			mesh_cmp->m_MeshSubMeshId = index;
+			mesh_cmp->m_MeshSubMeshId = submesh_i;
 			MaterialPtr mtl(new Material());
 			mtl->m_Shader = theApp.default_shader;
 			mtl->ParseShaderParameters();
