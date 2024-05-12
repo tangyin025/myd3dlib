@@ -3,7 +3,6 @@ local terrain=Terrain(NamedObject.MakeUniqueName("terrain_cmp"),16,16,64,2)
 terrain.ChunkPath="terrain/chunk_123456"
 local tstr=TerrainStream(terrain)
 tstr:GetPos(0,0)
-tstr:Release()
 terrain.Material=Material()
 terrain.Material.Shader="shader/mtl_Splatmap.fx"
 terrain.Material:ParseShaderParameters()
@@ -12,7 +11,7 @@ local tbox=terrain:CalculateAABB()
 local act=Actor("actor0",Vector3(-tbox.Center.x*8,0,-tbox.Center.z*8),Quaternion.Identity(),Vector3(8,8,8),tbox)
 act:InsertComponent(terrain)
 act:CreateRigidActor(Actor.eRIGID_STATIC)
-terrain:CreateHeightFieldShape("terrain/chunk_123456.pxheightfield",act.Scale)
+terrain:CreateHeightFieldShape(tstr,"terrain/chunk_123456.pxheightfield",act.Scale)
 terrain.SimulationFilterWord0=1
 terrain.QueryFilterWord0=1
 terrain.ChunkLodScale=1/act.Scale.x
@@ -38,8 +37,8 @@ act:UpdateWorld()
 theApp.MainWnd:AddEntity(act)
 table.insert(acts,act)
 
-local cache=theApp:LoadMesh("mesh/Gear.mesh.xml","")
-for i=1,300000,1 do
+local cache=theApp:LoadMesh("mesh/Gear.mesh.xml")
+for i=1,10000,1 do
 	local mesh_cmp=MeshComponent("mesh_cmp"..i)
 	mesh_cmp.MeshPath="mesh/Gear.mesh.xml"
 	mesh_cmp.MeshSubMeshId=0
