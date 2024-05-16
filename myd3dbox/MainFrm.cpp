@@ -961,6 +961,8 @@ void CMainFrame::InitFileContext()
 			.def("QueryEntity", &cmainframe_query_entity, luabind::return_stl_iterator)
 			.def("PushToActorList", luabind::tag_function<void(CMainFrame*,ActorPtr)>(
 				boost::bind((void(ActorPtrList::*)(ActorPtr const&)) & ActorPtrList::push_back, boost::bind<ActorPtrList&>(&CMainFrame::m_ActorList, boost::placeholders::_1), boost::placeholders::_2)))
+			.def("PushToDialogList", luabind::tag_function<void(CMainFrame*,my::DialogPtr)>(
+				boost::bind((void(DialogPtrList::*)(my::DialogPtr const&)) & DialogPtrList::push_back, boost::bind<DialogPtrList&>(&CMainFrame::m_DialogList, boost::placeholders::_1), boost::placeholders::_2)))
 			.property("allactors", cmainframe_get_all_acts, luabind::return_stl_iterator)
 			.def_readonly("selactors", &CMainFrame::m_selactors, luabind::return_stl_iterator)
 			.def_readonly("selctls", &CMainFrame::m_selctls, luabind::return_stl_iterator)
