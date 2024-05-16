@@ -664,6 +664,7 @@ HRESULT Client::OnCreateDevice(
 			.property("AllEntityAABB", luabind::tag_function<AABB(Client*)>(
 				boost::bind(&Client::GetAllEntityAABB, boost::placeholders::_1, AABB::Invalid())))
 			.def("QueryEntity", &client_query_entity, luabind::return_stl_iterator)
+			.def("RemoveViewedActor", &Client::RemoveViewedActor)
 			//.def("OnControlSound", &Client::OnControlSound)
 			//.def("GetTranslation", &Client::OnControlTranslate)
 			.def("LoadDictionary", &client_load_dictionary)
@@ -908,11 +909,7 @@ void Client::OnFrameTick(
 
 		if (!actor_iter->m_Base || !actor_iter->m_Base->IsRequested())
 		{
-			actor_iter->ReleaseResource();
-
-			OnActorRelease(&*actor_iter);
-
-			actor_iter = m_ViewedActors.erase(actor_iter);
+			actor_iter = RemoveViewedActorIter(actor_iter);
 		}
 		else
 			actor_iter++;
@@ -1246,9 +1243,9 @@ void Client::RemoveEntity(my::OctEntity * entity)
 
 	if (actor->IsRequested())
 	{
-		actor->ReleaseResource();
+		_ASSERT(actor->is_linked());
 
-		OnActorRelease(actor);
+		RemoveViewedActor(actor);
 	}
 
 	actor->StopAllActionInst();
@@ -1260,16 +1257,27 @@ void Client::RemoveEntity(my::OctEntity * entity)
 		actor->m_Base->Detach(actor);
 	}
 
-	if (actor->is_linked())
-	{
-		ViewedActorSet::iterator remove_actor_iter = m_ViewedActors.iterator_to(*actor);
-		_ASSERT(remove_actor_iter != m_ViewedActors.end());
-		m_ViewedActors.erase(remove_actor_iter);
-	}
-
 	_ASSERT(HaveNode(entity->m_Node));
 
 	OctNode::RemoveEntity(entity);
+}
+
+Client::ViewedActorSet::iterator Client::RemoveViewedActorIter(ViewedActorSet::iterator actor_iter)
+{
+	actor_iter->ReleaseResource();
+
+	OnActorRelease(&*actor_iter);
+
+	return m_ViewedActors.erase(actor_iter);
+}
+
+void Client::RemoveViewedActor(Actor* actor)
+{
+	ViewedActorSet::iterator actor_iter = m_ViewedActors.iterator_to(*actor);
+
+	_ASSERT(actor_iter != m_ViewedActors.end());
+
+	RemoveViewedActorIter(actor_iter);
 }
 
 void Client::OnControlSound(boost::shared_ptr<my::Wav> wav)

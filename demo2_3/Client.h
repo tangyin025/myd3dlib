@@ -131,6 +131,10 @@ public:
 
 	virtual void RemoveEntity(my::OctEntity * entity);
 
+	ViewedActorSet::iterator RemoveViewedActorIter(ViewedActorSet::iterator actor_iter);
+
+	void RemoveViewedActor(Actor* actor);
+
 	virtual void OnControlSound(boost::shared_ptr<my::Wav> wav);
 
 	virtual const std::wstring& OnControlTranslate(const std::wstring& wstr);
