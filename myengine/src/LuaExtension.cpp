@@ -124,6 +124,16 @@ static void texture2d_load_from_texture(my::Texture2D* self, const RECT* pDestRe
 	}
 }
 
+static void texture2d_load_from_file(my::Texture2D* self, const RECT* pDestRect, const char* u8_path, const RECT* pSourceRect, DWORD Filter)
+{
+	HRESULT hr;
+	hr = D3DXLoadSurfaceFromFile(self->GetSurfaceLevel(0), NULL, pDestRect, u8tots(u8_path).c_str(), pSourceRect, Filter, 0, NULL);
+	if (FAILED(hr))
+	{
+		THROW_D3DEXCEPTION(hr);
+	}
+}
+
 static void cubetexture_load_cube_map_surface_from_file(my::CubeTexture* self, D3DCUBEMAP_FACES FaceType, const char* u8_path)
 {
 	HRESULT hr;
@@ -1735,6 +1745,11 @@ void LuaContext::Init(void)
 				value("D3DX_FILTER_POINT", D3DX_FILTER_POINT),
 				value("D3DX_FILTER_LINEAR", D3DX_FILTER_LINEAR),
 				value("D3DX_FILTER_TRIANGLE", D3DX_FILTER_TRIANGLE),
+				value("D3DX_FILTER_BOX", D3DX_FILTER_BOX),
+				value("D3DX_FILTER_MIRROR_U", D3DX_FILTER_MIRROR_U),
+				value("D3DX_FILTER_MIRROR_V", D3DX_FILTER_MIRROR_V),
+				value("D3DX_FILTER_MIRROR_W", D3DX_FILTER_MIRROR_W),
+				value("D3DX_FILTER_MIRROR", D3DX_FILTER_MIRROR),
 				value("D3DX_FILTER_DITHER", D3DX_FILTER_DITHER)
 			]
 
@@ -1747,6 +1762,7 @@ void LuaContext::Init(void)
 			.def("SetAsRenderTarget", &texture2d_set_as_render_target)
 			.def("FillColor", &texture2d_fill_color)
 			.def("LoadFromTexture", &texture2d_load_from_texture)
+			.def("LoadFromFile", &texture2d_load_from_file)
 
 		, class_<my::CubeTexture, my::BaseTexture, boost::shared_ptr<my::DeviceResourceBase> >("CubeTexture")
 			.def(constructor<>())
