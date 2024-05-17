@@ -189,23 +189,6 @@ static std::string PrintCallStack(void)
 	return osstr.str();
 }
 
-static bool CopyFile_8536547B_AB27_41F9_84A9_6ABDF7B47887(const char* u8_src_path, const char* u8_dst_path, int op)
-{
-	std::basic_string<TCHAR> src_path = u8tots(u8_src_path), dst_path = u8tots(u8_dst_path);
-	WIN32_FIND_DATA srcffd;
-	HANDLE hFind = FindFirstFile(src_path.c_str(), &srcffd);
-	if (INVALID_HANDLE_VALUE != hFind)
-	{
-		WIN32_FIND_DATA dstffd;
-		hFind = FindFirstFile(dst_path.c_str(), &dstffd);
-		if (INVALID_HANDLE_VALUE == hFind || CompareFileTime(&srcffd.ftLastWriteTime, &dstffd.ftLastWriteTime) > 0)
-		{
-			return CopyFile(src_path.c_str(), dst_path.c_str(), op);
-		}
-	}
-	return false;
-}
-
 static bool FileExists(const char* u8_path)
 {
 	return PathFileExists(u8tots(u8_path).c_str());
@@ -1979,8 +1962,6 @@ void LuaContext::Init(void)
 		, def("Counter", &Counter)
 
 		, def("PrintCallStack", (std::string (*)(void))& PrintCallStack)
-
-		, def("CopyFile", &CopyFile_8536547B_AB27_41F9_84A9_6ABDF7B47887)
 
 		, def("FileExists", &FileExists)
 

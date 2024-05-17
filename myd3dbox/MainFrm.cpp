@@ -288,12 +288,106 @@ static void cmainapp_load_dictionary(CMainApp* self, const std::wstring& path)
 {
 	self->m_Dicts.LoadFromFile(ws2ms(path.c_str()).c_str());
 }
+//
+//static void spawn_terrain_pos_2_emitter(TerrainStream* tstr, StaticEmitterStream* estr, float terrain_local_x, float terrain_local_z, const my::Matrix4 & trans)
+//{
+//	my::Vector3 pos(terrain_local_x, tstr->RayTest2D(terrain_local_x, terrain_local_z), terrain_local_z);
+//	pos = pos.transformCoord(trans);
+//	estr->Spawn(my::Vector4(pos, 1), my::Vector4(0, 0, 0, 0), my::Vector4(1, 1, 1, 1), my::Vector2(1, 1), 0, 0);
+//}
 
-static void spawn_terrain_pos_2_emitter(TerrainStream* tstr, StaticEmitterStream* estr, float terrain_local_x, float terrain_local_z, const my::Matrix4 & trans)
+static bool CopyFile_8536547B_AB27_41F9_84A9_6ABDF7B47887(const char* u8_src_path, const char* u8_dst_path, int op)
 {
-	my::Vector3 pos(terrain_local_x, tstr->RayTest2D(terrain_local_x, terrain_local_z), terrain_local_z);
-	pos = pos.transformCoord(trans);
-	estr->Spawn(my::Vector4(pos, 1), my::Vector4(0, 0, 0, 0), my::Vector4(1, 1, 1, 1), my::Vector2(1, 1), 0, 0);
+	std::basic_string<TCHAR> src_path = u8tots(u8_src_path), dst_path = u8tots(u8_dst_path);
+	WIN32_FIND_DATA srcffd;
+	HANDLE hFind = FindFirstFile(src_path.c_str(), &srcffd);
+	if (INVALID_HANDLE_VALUE != hFind)
+	{
+		WIN32_FIND_DATA dstffd;
+		hFind = FindFirstFile(dst_path.c_str(), &dstffd);
+		if (INVALID_HANDLE_VALUE == hFind || CompareFileTime(&srcffd.ftLastWriteTime, &dstffd.ftLastWriteTime) > 0)
+		{
+			return CopyFile(src_path.c_str(), dst_path.c_str(), op);
+		}
+	}
+	return false;
+}
+
+class FindFileIterator : public std::iterator<std::forward_iterator_tag, std::basic_string<TCHAR> >
+{
+protected:
+	HANDLE hFind;
+
+	WIN32_FIND_DATA ffd;
+
+public:
+	explicit FindFileIterator(
+		LPCTSTR dir)
+		: hFind(INVALID_HANDLE_VALUE)
+	{
+		if (dir)
+		{
+			hFind = FindFirstFile(dir, &ffd);
+		}
+	}
+	// Assignment operator
+	FindFileIterator& operator=(const FindFileIterator& src)
+	{
+		hFind = src.hFind;
+		ffd = src.ffd;
+	}
+	// Dereference an iterator
+	std::basic_string<TCHAR> operator*()
+	{
+		// When the value is one step more than the last, it's an end iterator
+		ASSERT(hFind != INVALID_HANDLE_VALUE);
+		return ffd.cFileName;
+	}
+	// Prefix increment operator
+	FindFileIterator& operator++()
+	{
+		// When the value is one step more than the last, it's an end iterator
+		while (FindNextFile(hFind, &ffd))
+		{
+			if (!(ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
+			{
+				return *this;
+			}
+		}
+		FindClose(hFind);
+		hFind = INVALID_HANDLE_VALUE;
+		return *this;
+	}
+	// Postfix increment operator
+	FindFileIterator operator++(int)
+	{
+		FindFileIterator temp = *this;
+		temp++;                                      // Increment the value by the range step
+		return temp;                                 // The iterator before it's incremented
+	}
+	// Comparisons
+	bool operator==(const FindFileIterator& iter) const
+	{
+		//return obj_iter == iter.obj_iter;
+		if (hFind != iter.hFind)
+		{
+			return false;
+		}
+		if (hFind == INVALID_HANDLE_VALUE)
+		{
+			return true;
+		}
+		return _tcscmp(ffd.cFileName, iter.ffd.cFileName) == 0;
+	}
+	bool operator!=(const FindFileIterator& iter) const
+	{
+		return !operator ==(iter);
+	}
+};
+
+static boost::iterator_range<FindFileIterator> FindFiles(const char* u8_dir)
+{
+	return boost::make_iterator_range(FindFileIterator(u8tots(u8_dir).c_str()), FindFileIterator(NULL));
 }
 
 // CMainFrame
@@ -978,7 +1072,11 @@ void CMainFrame::InitFileContext()
 			.def_readonly("mouse", &CMainApp::m_mouse)
 			.def("LoadDictionary", &cmainapp_load_dictionary)
 
-		, luabind::def("spawn_terrain_pos_2_emitter", &spawn_terrain_pos_2_emitter)
+		//, luabind::def("spawn_terrain_pos_2_emitter", &spawn_terrain_pos_2_emitter)
+
+		, luabind::def("CopyFile", &CopyFile_8536547B_AB27_41F9_84A9_6ABDF7B47887)
+
+		, luabind::def("FindFiles", &FindFiles, luabind::return_stl_iterator)
 	];
 	luabind::globals(m_State)["theApp"] = &theApp;
 }
