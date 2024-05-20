@@ -1509,6 +1509,8 @@ void LuaContext::Init(void)
 				def("Scaling", (my::Matrix4(*)(const my::Vector3 &))&my::Matrix4::Scaling),
 				def("Transformation", &my::Matrix4::Transformation),
 				def("Transformation2D", &my::Matrix4::Transformation2D),
+				def("AffineTransformation", &my::Matrix4::AffineTransformation),
+				def("AffineTransformation2D", &my::Matrix4::AffineTransformation2D),
 				def("Translation", (my::Matrix4(*)(float, float, float))&my::Matrix4::Translation),
 				def("Translation", (my::Matrix4(*)(const my::Vector3 &))&my::Matrix4::Translation)
 			]

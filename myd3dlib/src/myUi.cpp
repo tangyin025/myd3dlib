@@ -498,8 +498,8 @@ void UIRender::PushRectangle(const Rectangle & rect, D3DCOLOR color, const CRect
 void UIRender::PushRectangle(const my::Rectangle & rect, D3DCOLOR color, const CRect & WindowRect, const BaseTexture * texture, const Matrix4 & transform)
 {
 	D3DSURFACE_DESC desc = texture->GetLevelDesc();
-	Rectangle UvRect((float)WindowRect.left / desc.Width, (float)WindowRect.top / desc.Height, (float)WindowRect.right / desc.Width, (float)WindowRect.bottom / desc.Height);
-	const CUSTOMVERTEX v[] = {
+	const Rectangle UvRect((float)WindowRect.left / desc.Width, (float)WindowRect.top / desc.Height, (float)WindowRect.right / desc.Width, (float)WindowRect.bottom / desc.Height);
+	CUSTOMVERTEX v[] = {
 		{ rect.l, rect.t, 0, color, UvRect.l, UvRect.t },
 		{ rect.r, rect.t, 0, color, UvRect.r, UvRect.t },
 		{ rect.r, rect.b, 0, color, UvRect.r, UvRect.b },
@@ -513,8 +513,8 @@ void UIRender::PushRectangle(const my::Rectangle & rect, D3DCOLOR color, const C
 void UIRender::PushRectangle(const my::Rectangle & rect, D3DCOLOR color, const CRect & WindowRect, const BaseTexture * texture, const Matrix4 & transform, const Rectangle & clip)
 {
 	D3DSURFACE_DESC desc = texture->GetLevelDesc();
-	Rectangle UvRect((float)WindowRect.left / desc.Width, (float)WindowRect.top / desc.Height, (float)WindowRect.right / desc.Width, (float)WindowRect.bottom / desc.Height);
-	const CUSTOMVERTEX v[] = {
+	const Rectangle UvRect((float)WindowRect.left / desc.Width, (float)WindowRect.top / desc.Height, (float)WindowRect.right / desc.Width, (float)WindowRect.bottom / desc.Height);
+	CUSTOMVERTEX v[] = {
 		{ rect.l, rect.t, 0, color, UvRect.l, UvRect.t },
 		{ rect.r, rect.t, 0, color, UvRect.r, UvRect.t },
 		{ rect.r, rect.b, 0, color, UvRect.r, UvRect.b },
@@ -583,7 +583,7 @@ void UIRender::PushCharacter(float x, float y, const Font::CharacterInfo* info, 
 
 void UIRender::PushCharacter(float x, float y, const Font::CharacterInfo* info, Font* font, D3DCOLOR color, const Matrix4& transform)
 {
-	const CUSTOMVERTEX v[] = {
+	CUSTOMVERTEX v[] = {
 		{ x + info->horiBearingX, y - info->horiBearingY, 0, color, (float)info->textureRect.left / font->m_textureDesc.Width, (float)info->textureRect.top / font->m_textureDesc.Height },
 		{ x + info->horiBearingX + info->width, y - info->horiBearingY, 0, color, (float)info->textureRect.right / font->m_textureDesc.Width, (float)info->textureRect.top / font->m_textureDesc.Height },
 		{ x + info->horiBearingX + info->width, y - info->horiBearingY + info->height, 0, color, (float)info->textureRect.right / font->m_textureDesc.Width, (float)info->textureRect.bottom / font->m_textureDesc.Height },
