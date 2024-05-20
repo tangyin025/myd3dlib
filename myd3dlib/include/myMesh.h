@@ -426,15 +426,15 @@ namespace my
 			bool bComputeTangentFrame = true,
 			DWORD dwMeshOptions = D3DXMESH_MANAGED);
 
-		void CreateMeshFromObjInFile(
-			LPCTSTR pFilename,
-			bool bComputeTangentFrame = true,
-			DWORD dwMeshOptions = D3DXMESH_MANAGED);
+		//void CreateMeshFromObjInFile(
+		//	LPCTSTR pFilename,
+		//	bool bComputeTangentFrame = true,
+		//	DWORD dwMeshOptions = D3DXMESH_MANAGED);
 
-		void CreateMeshFromObjInStream(
-			std::istream & is,
-			bool bComputeTangentFrame = true,
-			DWORD dwMeshOptions = D3DXMESH_MANAGED);
+		//void CreateMeshFromObjInStream(
+		//	std::istream & is,
+		//	bool bComputeTangentFrame = true,
+		//	DWORD dwMeshOptions = D3DXMESH_MANAGED);
 
 		void CreateMeshFromOther(OgreMesh* other, DWORD AttribId, const Matrix4& trans, const Matrix4& uv_trans, unsigned int vertex_capacity, unsigned int face_capacity);
 

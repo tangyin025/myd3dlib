@@ -145,11 +145,11 @@ static void ogremesh_create_mesh_from_ogre_xml_in_file(my::OgreMesh* self, const
 {
 	self->CreateMeshFromOgreXmlInFile(u8tots(u8_path).c_str(), true, D3DXMESH_MANAGED);
 }
-
-static void ogremesh_create_mesh_from_obj_in_file(my::OgreMesh* self, const char* u8_path)
-{
-	self->CreateMeshFromObjInFile(u8tots(u8_path).c_str(), true, D3DXMESH_MANAGED);
-}
+//
+//static void ogremesh_create_mesh_from_obj_in_file(my::OgreMesh* self, const char* u8_path)
+//{
+//	self->CreateMeshFromObjInFile(u8tots(u8_path).c_str(), true, D3DXMESH_MANAGED);
+//}
 
 static int ogremesh_get_material_num(const my::OgreMesh* self)
 {
@@ -1786,7 +1786,7 @@ void LuaContext::Init(void)
 		, class_<my::OgreMesh, my::Mesh, boost::shared_ptr<my::DeviceResourceBase> >("OgreMesh")
 			.def(constructor<>())
 			.def("CreateMeshFromOgreXmlInFile", &ogremesh_create_mesh_from_ogre_xml_in_file)
-			.def("CreateMeshFromObjInFile", &ogremesh_create_mesh_from_obj_in_file)
+			//.def("CreateMeshFromObjInFile", &ogremesh_create_mesh_from_obj_in_file)
 			.def("CreateMeshFromOther", &my::OgreMesh::CreateMeshFromOther)
 			.def("AppendMesh", &my::OgreMesh::AppendMesh)
 			.def("CombineMesh", &my::OgreMesh::CombineMesh)
