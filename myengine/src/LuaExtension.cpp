@@ -140,7 +140,7 @@ static void cubetexture_load_cube_map_surface_from_file(my::CubeTexture* self, D
 {
 	HRESULT hr;
 	CComPtr<IDirect3DSurface9> surf = self->GetCubeMapSurface(FaceType, 0);
-	V(D3DXLoadSurfaceFromFileW(surf, NULL, NULL, u8tots(u8_path).c_str(), NULL, D3DX_DEFAULT, 0, NULL));
+	V(D3DXLoadSurfaceFromFile(surf, NULL, NULL, u8tots(u8_path).c_str(), NULL, D3DX_DEFAULT, 0, NULL));
 }
 
 static void ogremesh_create_mesh_from_ogre_xml_in_file(my::OgreMesh* self, const char* u8_path)

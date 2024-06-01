@@ -25,6 +25,7 @@
 #include <luabind/luabind.hpp>
 #include <luabind/operator.hpp>
 #include <luabind/iterator_policy.hpp>
+#include <luabind/out_value_policy.hpp>
 #include <luabind/tag_function.hpp>
 #include "LuaExtension.inl"
 #include "myException.h"
@@ -294,23 +295,23 @@ static void cmainapp_load_dictionary(CMainApp* self, const std::wstring& path)
 //	pos = pos.transformCoord(trans);
 //	estr->Spawn(my::Vector4(pos, 1), my::Vector4(0, 0, 0, 0), my::Vector4(1, 1, 1, 1), my::Vector2(1, 1), 0, 0);
 //}
-
-static bool CopyFile_8536547B_AB27_41F9_84A9_6ABDF7B47887(const char* u8_src_path, const char* u8_dst_path, int op)
-{
-	std::basic_string<TCHAR> src_path = u8tots(u8_src_path), dst_path = u8tots(u8_dst_path);
-	WIN32_FIND_DATA srcffd;
-	HANDLE hFind = FindFirstFile(src_path.c_str(), &srcffd);
-	if (INVALID_HANDLE_VALUE != hFind)
-	{
-		WIN32_FIND_DATA dstffd;
-		hFind = FindFirstFile(dst_path.c_str(), &dstffd);
-		if (INVALID_HANDLE_VALUE == hFind || CompareFileTime(&srcffd.ftLastWriteTime, &dstffd.ftLastWriteTime) > 0)
-		{
-			return CopyFile(src_path.c_str(), dst_path.c_str(), op);
-		}
-	}
-	return false;
-}
+//
+//static bool CopyFile_8536547B_AB27_41F9_84A9_6ABDF7B47887(const char* u8_src_path, const char* u8_dst_path, int op)
+//{
+//	std::basic_string<TCHAR> src_path = u8tots(u8_src_path), dst_path = u8tots(u8_dst_path);
+//	WIN32_FIND_DATA srcffd;
+//	HANDLE hFind = FindFirstFile(src_path.c_str(), &srcffd);
+//	if (INVALID_HANDLE_VALUE != hFind)
+//	{
+//		WIN32_FIND_DATA dstffd;
+//		hFind = FindFirstFile(dst_path.c_str(), &dstffd);
+//		if (INVALID_HANDLE_VALUE == hFind || CompareFileTime(&srcffd.ftLastWriteTime, &dstffd.ftLastWriteTime) > 0)
+//		{
+//			return CopyFile(src_path.c_str(), dst_path.c_str(), op);
+//		}
+//	}
+//	return false;
+//}
 
 class FindFileIterator : public std::iterator<std::forward_iterator_tag, std::basic_string<TCHAR> >
 {
@@ -387,6 +388,12 @@ public:
 static boost::iterator_range<FindFileIterator> FindFiles(const char* u8_dir)
 {
 	return boost::make_iterator_range(FindFileIterator(u8tots(u8_dir).c_str()), FindFileIterator(NULL));
+}
+
+static bool GetImageInfoFromFile(const char* u8_path, D3DXIMAGE_INFO* pSrcInfo)
+{
+	HRESULT hr = D3DXGetImageInfoFromFile(u8tots(u8_path).c_str(), pSrcInfo);
+	return SUCCEEDED(hr);
 }
 
 // CMainFrame
@@ -1073,9 +1080,20 @@ void CMainFrame::InitFileContext()
 
 		//, luabind::def("spawn_terrain_pos_2_emitter", &spawn_terrain_pos_2_emitter)
 
-		, luabind::def("CopyFile", &CopyFile_8536547B_AB27_41F9_84A9_6ABDF7B47887)
+		//, luabind::def("CopyFile", &CopyFile_8536547B_AB27_41F9_84A9_6ABDF7B47887)
 
 		, luabind::def("FindFiles", &FindFiles, luabind::return_stl_iterator)
+
+		, luabind::class_<D3DXIMAGE_INFO>("D3DXIMAGE_INFO")
+			.def_readonly("Width", &D3DXIMAGE_INFO::Width)
+			.def_readonly("Height", &D3DXIMAGE_INFO::Height)
+			.def_readonly("Depth", &D3DXIMAGE_INFO::Depth)
+			.def_readonly("MipLevels", &D3DXIMAGE_INFO::MipLevels)
+			.def_readonly("Format", &D3DXIMAGE_INFO::Format)
+			.def_readonly("ResourceType", &D3DXIMAGE_INFO::ResourceType)
+			.def_readonly("ImageFileFormat", &D3DXIMAGE_INFO::ImageFileFormat)
+
+		, luabind::def("GetImageInfoFromFile", &GetImageInfoFromFile, luabind::pure_out_value(boost::placeholders::_2))
 	];
 	luabind::globals(m_State)["theApp"] = &theApp;
 }
