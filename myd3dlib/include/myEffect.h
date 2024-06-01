@@ -1,3 +1,5 @@
+// Copyright (c) 2011-2024 tangyin025
+// License: MIT
 #pragma once
 
 #include <d3d9.h>

@@ -1,3 +1,5 @@
+// Copyright (c) 2011-2024 tangyin025
+// License: MIT
 #include "myFont.h"
 #include <ft2build.h>
 #include FT_FREETYPE_H

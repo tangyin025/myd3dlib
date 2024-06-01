@@ -1,6 +1,5 @@
-
-// myd3dbox.cpp : Defines the class behaviors for the application.
-//
+// Copyright (c) 2011-2024 tangyin025
+// License: MIT
 
 #include "stdafx.h"
 #include "afxwinappex.h"

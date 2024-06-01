@@ -1,6 +1,5 @@
-
-// myd3dbox.h : main header file for the myd3dbox application
-//
+// Copyright (c) 2011-2024 tangyin025
+// License: MIT
 #pragma once
 
 #ifndef __AFXWIN_H__

@@ -1,3 +1,5 @@
+// Copyright (c) 2011-2024 tangyin025
+// License: MIT
 #include "myDxutApp11.h"
 
 using namespace my;

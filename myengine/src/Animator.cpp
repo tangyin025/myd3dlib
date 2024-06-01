@@ -1,3 +1,5 @@
+// Copyright (c) 2011-2024 tangyin025
+// License: MIT
 #include "Animator.h"
 #include "Actor.h"
 #include "myResource.h"

@@ -1,3 +1,5 @@
+// Copyright (c) 2011-2024 tangyin025
+// License: MIT
 #include "stdafx.h"
 #include "DictionaryNode.h"
 #include <boost/property_tree/info_parser.hpp>

@@ -1,3 +1,5 @@
+// Copyright (c) 2011-2024 tangyin025
+// License: MIT
 #include "SceneContext.h"
 #include "myResource.h"
 #include "Actor.h"

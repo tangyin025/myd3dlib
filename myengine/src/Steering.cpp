@@ -1,3 +1,5 @@
+// Copyright (c) 2011-2024 tangyin025
+// License: MIT
 #include "Steering.h"
 #include "Actor.h"
 #include "Controller.h"

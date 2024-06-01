@@ -1,5 +1,5 @@
-// EnvironmentWnd.cpp : implementation file
-//
+// Copyright (c) 2011-2024 tangyin025
+// License: MIT
 
 #include "stdafx.h"
 #include "EnvironmentWnd.h"

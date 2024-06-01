@@ -1,4 +1,6 @@
-﻿#include <myD3dLib.h>
+﻿// Copyright (c) 2011-2024 tangyin025
+// License: MIT
+#include <myD3dLib.h>
 #include <boost/bind/bind.hpp>
 //#include <Opcode.h>
 #include <boost/archive/polymorphic_xml_iarchive.hpp>

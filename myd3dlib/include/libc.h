@@ -1,3 +1,5 @@
+// Copyright (c) 2011-2024 tangyin025
+// License: MIT
 
 #ifndef __LIBC_H__
 #define __LIBC_H__

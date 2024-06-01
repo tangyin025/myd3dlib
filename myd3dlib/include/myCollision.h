@@ -1,3 +1,5 @@
+// Copyright (c) 2011-2024 tangyin025
+// License: MIT
 
 #ifndef __MYCOLLISION_H__
 #define __MYCOLLISION_H__

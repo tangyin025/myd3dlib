@@ -1,3 +1,5 @@
+// Copyright (c) 2011-2024 tangyin025
+// License: MIT
 #include "Material.h"
 #include "myEffect.h"
 #include "myDxutApp.h"

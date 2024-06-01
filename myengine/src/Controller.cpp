@@ -1,3 +1,5 @@
+// Copyright (c) 2011-2024 tangyin025
+// License: MIT
 #include "Controller.h"
 #include "Actor.h"
 #include <boost/archive/polymorphic_xml_iarchive.hpp>

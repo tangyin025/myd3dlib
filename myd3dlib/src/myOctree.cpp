@@ -1,3 +1,5 @@
+// Copyright (c) 2011-2024 tangyin025
+// License: MIT
 #include "myOctree.h"
 #include <boost/serialization/export.hpp>
 #include <boost/range/algorithm/find_if.hpp>
