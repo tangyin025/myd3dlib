@@ -243,7 +243,8 @@ void Navigation::DebugDraw(struct duDebugDraw * dd, const my::Frustum & frustum,
 		}
 	};
 
+	const dtNavMeshParams* params = m_navMesh->getParams();
 	Callback cb(dd, m_navMesh.get(), m_navQuery.get());
-	my::AABB viewbox(TargetPos, 33.0f);
+	my::AABB viewbox(TargetPos, params->tileWidth);
 	QueryEntity(viewbox, &cb);
 }

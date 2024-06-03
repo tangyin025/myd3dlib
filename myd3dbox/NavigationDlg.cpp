@@ -446,7 +446,7 @@ public:
 								v1 = ((my::Vector3&)verts[tris[i * 3 + 1]]).transformCoord(actor->m_World);
 								v2 = ((my::Vector3&)verts[tris[i * 3 + 2]]).transformCoord(actor->m_World);
 							}
-							my::Vector3 Normal = (v1 - v0).cross(v2 - v0).normalize();
+							my::Vector3 Normal = (v1 - v0).cross(v2 - v0).normalize(my::Vector3(0));
 							rcRasterizeTriangle(m_ctx, &v0.x, &v1.x, &v2.x, Normal.y <= walkableThr ? 0
 								: (cmp->GetQueryFilterWord0() & theApp.default_player_water_filterword0 ? Navigation::SAMPLE_POLYAREA_WATER : Navigation::SAMPLE_POLYAREA_DOOR), * ptask->m_solid, ptask->m_cfg.walkableClimb);
 						}
