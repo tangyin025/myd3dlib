@@ -622,6 +622,7 @@ public:
 
 		if (m_cset->nconts == 0)
 		{
+			m_ctx->log(RC_LOG_ERROR, "buildNavigation: nconts == 0."); // ! check m_bindingBox.m_min.y
 			return;
 		}
 
