@@ -914,6 +914,8 @@ void CNavigationDlg::OnOK()
 			dtStatus status = m_navMesh->addTile(task->data, task->dataSize, DT_TILE_FREE_DATA, 0, 0);
 			if (dtStatusFailed(status))
 			{
+				dtMeshHeader* header = (dtMeshHeader*)task->data;
+				this->log(RC_LOG_WARNING, "addTile failed: [%d, %d] (%f, %f, %f), %d polys", task->tx, task->ty, task->bmin[0], task->bmin[1], task->bmin[2], header->polyCount);
 				dtFree(task->data);
 			}
 		}
