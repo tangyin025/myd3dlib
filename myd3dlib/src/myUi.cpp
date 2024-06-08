@@ -586,10 +586,10 @@ void UIRender::PushCharacter(float x, float y, const Font::CharacterInfo* info, 
 void UIRender::PushCharacter(float x, float y, const Font::CharacterInfo* info, Font* font, D3DCOLOR color, const Matrix4& transform)
 {
 	CUSTOMVERTEX v[] = {
-		{ x + info->horiBearingX, y - info->horiBearingY, 0, color, (float)info->textureRect.left / font->m_textureDesc.Width, (float)info->textureRect.top / font->m_textureDesc.Height },
-		{ x + info->horiBearingX + info->width, y - info->horiBearingY, 0, color, (float)info->textureRect.right / font->m_textureDesc.Width, (float)info->textureRect.top / font->m_textureDesc.Height },
-		{ x + info->horiBearingX + info->width, y - info->horiBearingY + info->height, 0, color, (float)info->textureRect.right / font->m_textureDesc.Width, (float)info->textureRect.bottom / font->m_textureDesc.Height },
-		{ x + info->horiBearingX, y - info->horiBearingY + info->height, 0, color, (float)info->textureRect.left / font->m_textureDesc.Width, (float)info->textureRect.bottom / font->m_textureDesc.Height },
+		{ x, y, 0, color, (float)info->textureRect.left / font->m_textureDesc.Width, (float)info->textureRect.top / font->m_textureDesc.Height },
+		{ x + info->width, y, 0, color, (float)info->textureRect.right / font->m_textureDesc.Width, (float)info->textureRect.top / font->m_textureDesc.Height },
+		{ x + info->width, y + info->height, 0, color, (float)info->textureRect.right / font->m_textureDesc.Width, (float)info->textureRect.bottom / font->m_textureDesc.Height },
+		{ x, y + info->height, 0, color, (float)info->textureRect.left / font->m_textureDesc.Width, (float)info->textureRect.bottom / font->m_textureDesc.Height },
 	};
 
 	D3DXVec3TransformCoordArray((D3DXVECTOR3*)v, sizeof(v[0]), (D3DXVECTOR3*)v, sizeof(v[0]), (D3DXMATRIX*)&transform, _countof(v));
