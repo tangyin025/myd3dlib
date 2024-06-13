@@ -88,7 +88,7 @@ std::string NamedObject::MakeUniqueName(const char * Prefix)
 	boost::match_results<const char *> what;
 	if (boost::regex_search(Prefix, what, reg, boost::match_default) && what[1].matched)
 	{
-		//postfix_i = boost::lexical_cast<unsigned int>(what[1]);
+		postfix_i = boost::lexical_cast<unsigned int>(what[1]);
 		name_without_postfix.assign(Prefix, what[0].first);
 	}
 	else
