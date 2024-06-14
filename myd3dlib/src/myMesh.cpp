@@ -1379,6 +1379,12 @@ void OgreMesh::CreateMeshFromOgreXml(
 			m_LodNameList.push_back(attr_meshname->value());
 		}
 	}
+
+	rapidxml::xml_node<char>* node_skeletonlink = node_mesh->first_node("skeletonlink");
+	if (node_skeletonlink)
+	{
+		m_skeletonlink.assign(node_skeletonlink->first_attribute("name")->value());
+	}
 }
 //
 //void OgreMesh::CreateMeshFromObjInFile(
@@ -1858,7 +1864,7 @@ void OgreMesh::SaveOgreMesh(const char * path, bool useSharedGeom)
 	UnlockIndexBuffer();
 	ofs << "\t</submeshes>\n";
 	// write skeleton link
-	ofs << "\t<skeletonlink name=\"\"/>\n";
+	ofs << "\t<skeletonlink name=\"" << m_skeletonlink << "\"/>\n";
 	// Write shared geometry bone assignments
 	if (useSharedGeom)
 	{

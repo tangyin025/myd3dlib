@@ -1820,6 +1820,7 @@ void LuaContext::Init(void)
 			.def("GetMaterialName", &ogremesh_get_material_name)
 			.property("LodNum", &ogremesh_get_lod_num)
 			.def("GetLodName", &ogremesh_get_lod_name)
+			.def_readonly("skeletonlink", &my::OgreMesh::m_skeletonlink)
 			.def("CalculateAABB", &my::OgreMesh::CalculateAABB)
 
 		, class_<my::BoneHierarchyNode>("BoneHierarchyNode")
