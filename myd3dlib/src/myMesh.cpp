@@ -1666,9 +1666,9 @@ void OgreMesh::SaveOgreMesh(const char * path, bool useSharedGeom)
 	void* pVertices = LockVertexBuffer();
 	DWORD VertexStride = GetNumBytesPerVertex();
 	// write shared geometry (if used)
+	unsigned int vertexcount = 0;
 	if (useSharedGeom)
 	{
-		unsigned int vertexcount = 0;
 		for (int i = 0; i < m_AttribTable.size(); i++)
 		{
 			if (m_AttribTable[i].VertexStart + m_AttribTable[i].VertexCount > vertexcount)
@@ -1844,13 +1844,13 @@ void OgreMesh::SaveOgreMesh(const char * path, bool useSharedGeom)
 			{
 				for (int j = 0; j < m_AttribTable[i].VertexCount; j++)
 				{
-					unsigned char* pVertex = (unsigned char*)pVertices + j * VertexStride;
+					unsigned char* pVertex = (unsigned char*)pVertices + m_AttribTable[i].VertexStart * VertexStride + j * VertexStride;
 					for (int k = 0; k < D3DVertexElementSet::MAX_BONE_INDICES; k++)
 					{
 						if (m_VertexElems.GetBlendWeight(pVertex)[k] > 0.001)
 						{
 							ofs << "\t\t\t\t<vertexboneassignment vertexindex=\"" << j
-								<< "\" boneindex=\"" << (int)((unsigned char*)&m_VertexElems.GetBlendIndices(pVertex))[k] << "\" weight=\""
+								<< "\" boneindex=\"" << (int)((unsigned char*)&m_VertexElems.GetBlendIndices(pVertex))[k] - m_AttribTable[i].VertexStart << "\" weight=\""
 								<< m_VertexElems.GetBlendWeight(pVertex)[k] << "\"/>\n";
 						}
 					}
@@ -1871,14 +1871,16 @@ void OgreMesh::SaveOgreMesh(const char * path, bool useSharedGeom)
 		ofs << "\t<boneassignments>\n";
 		if (m_VertexElems.elems[D3DDECLUSAGE_BLENDINDICES][0].Type == D3DDECLTYPE_UBYTE4)
 		{
-			for (DWORD i = 0; i < m_AttribTable[0].VertexCount; i++)
+			for (DWORD i = 0; i < vertexcount; i++)
 			{
 				unsigned char* pVertex = (unsigned char*)pVertices + i * VertexStride;
+				unsigned char* pIndices = (unsigned char*)&m_VertexElems.GetBlendIndices(pVertex);
+				float* pWeights = (float*)&m_VertexElems.GetBlendWeight(pVertex);
 				for (int j = 0; j < D3DVertexElementSet::MAX_BONE_INDICES; j++)
 				{
-					if (m_VertexElems.GetBlendWeight(pVertex)[j] > 0.001)
+					if (pWeights[j] > 0)
 					{
-						ofs << "\t\t<vertexboneassignment vertexindex=\"" << i << "\" boneindex=\"" << (int)((unsigned char*)&m_VertexElems.GetBlendIndices(pVertex))[j] << "\" weight=\"" << m_VertexElems.GetBlendWeight(pVertex)[j] << "\"/>\n";
+						ofs << "\t\t<vertexboneassignment vertexindex=\"" << i << "\" boneindex=\"" << (int)pIndices[j] << "\" weight=\"" << pWeights[j] << "\"/>\n";
 					}
 				}
 			}
