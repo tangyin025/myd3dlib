@@ -79,7 +79,7 @@ void NormalPS( 	NORMAL_VS_OUTPUT In,
 				out float4 oPos : COLOR2 )
 {
 	// clip(ScreenDoorTransparency(In.Color.w, In.Pos.xy));
-	float3x3 m = float3x3(In.Tangent, In.Binormal, In.Normal);
+	float3x3 m = float3x3(normalize(In.Tangent), normalize(In.Binormal), normalize(In.Normal));
 	float3 NormalTS = normalize(tex2D(NormalTextureSampler, In.Tex0).xyz * 2 - 1);
 	oNormal = float4(mul(NormalTS, m), 1);
 	oSpecular = float4(g_Shininess, 0, 0, 1);

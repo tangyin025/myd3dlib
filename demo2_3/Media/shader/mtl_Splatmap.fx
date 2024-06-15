@@ -184,7 +184,7 @@ void NormalPS( 	NORMAL_VS_OUTPUT In,
 				out float4 oSpecular : COLOR1,
 				out float4 oPos : COLOR2 )
 {
-	float3x3 m = float3x3(In.Tangent, In.Binormal, In.Normal);
+	float3x3 m = float3x3(normalize(In.Tangent), normalize(In.Binormal), normalize(In.Normal));
 	float3 NormalTS = float3(0,0,0);
 	if (In.Color.r >= 0.004)
 		NormalTS += normalize(tex2D(NormalTextureSampler0, In.Tex0).rgb * 2 - 1) * In.Color.r;
