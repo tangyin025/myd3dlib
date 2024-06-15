@@ -483,8 +483,10 @@ void CPropertiesWnd::UpdatePropertiesMesh(CMFCPropertyGridProperty * pComponent,
 	(DYNAMIC_DOWNCAST(CColorProp, pComponent->GetSubItem(PropId + 1)))->SetColor(color);
 	pComponent->GetSubItem(PropId + 2)->SetValue((_variant_t)(long)(mesh_cmp->m_MeshColor.w * 255));
 	pComponent->GetSubItem(PropId + 3)->SetValue((_variant_t)mesh_cmp->m_MeshSubMeshId);
-	pComponent->GetSubItem(PropId + 4)->SetValue((_variant_t)g_InstanceTypeDesc[mesh_cmp->m_InstanceType]);
-	UpdatePropertiesMaterial(pComponent->GetSubItem(PropId + 5), mesh_cmp->m_Material.get());
+	pComponent->GetSubItem(PropId + 4)->SetValue((_variant_t)(mesh_cmp->m_Mesh ? mesh_cmp->m_Mesh->m_AttribTable[mesh_cmp->m_MeshSubMeshId].VertexCount : 0));
+	pComponent->GetSubItem(PropId + 5)->SetValue((_variant_t)(mesh_cmp->m_Mesh ? mesh_cmp->m_Mesh->m_AttribTable[mesh_cmp->m_MeshSubMeshId].VertexCount : 0));
+	pComponent->GetSubItem(PropId + 6)->SetValue((_variant_t)g_InstanceTypeDesc[mesh_cmp->m_InstanceType]);
+	UpdatePropertiesMaterial(pComponent->GetSubItem(PropId + 7), mesh_cmp->m_Material.get());
 }
 
 void CPropertiesWnd::UpdatePropertiesMaterial(CMFCPropertyGridProperty * pMaterial, Material * mtl)
@@ -623,29 +625,31 @@ void CPropertiesWnd::UpdatePropertiesStaticEmitter(CMFCPropertyGridProperty * pC
 	pEmitterPrimitiveType->SetValue((_variant_t)g_EmitterPrimitiveType[emit_cmp->m_EmitterPrimitiveType]);
 	pComponent->GetSubItem(PropId + 3)->SetValue((_variant_t)ms2ts(emit_cmp->m_MeshPath.c_str()).c_str());
 	pComponent->GetSubItem(PropId + 4)->SetValue((_variant_t)emit_cmp->m_MeshSubMeshId);
-	pComponent->GetSubItem(PropId + 5)->SetValue((_variant_t)emit_cmp->m_ChunkWidth);
-	pComponent->GetSubItem(PropId + 6)->SetValue((_variant_t)ms2ts(emit_cmp->m_ChunkPath.c_str()).c_str());
-	pComponent->GetSubItem(PropId + 7)->SetValue((_variant_t)emit_cmp->m_ChunkLodScale);
-	UpdatePropertiesMaterial(pComponent->GetSubItem(PropId + 8), emit_cmp->m_Material.get());
+	pComponent->GetSubItem(PropId + 5)->SetValue((_variant_t)(emit_cmp->m_Mesh ? emit_cmp->m_Mesh->m_AttribTable[emit_cmp->m_MeshSubMeshId].VertexCount : 0));
+	pComponent->GetSubItem(PropId + 6)->SetValue((_variant_t)(emit_cmp->m_Mesh ? emit_cmp->m_Mesh->m_AttribTable[emit_cmp->m_MeshSubMeshId].VertexCount : 0));
+	pComponent->GetSubItem(PropId + 7)->SetValue((_variant_t)emit_cmp->m_ChunkWidth);
+	pComponent->GetSubItem(PropId + 8)->SetValue((_variant_t)ms2ts(emit_cmp->m_ChunkPath.c_str()).c_str());
+	pComponent->GetSubItem(PropId + 9)->SetValue((_variant_t)emit_cmp->m_ChunkLodScale);
+	UpdatePropertiesMaterial(pComponent->GetSubItem(PropId + 10), emit_cmp->m_Material.get());
 	CMainFrame* pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
-	CMFCPropertyGridProperty * pParticle = pComponent->GetSubItem(PropId + 9);
+	CMFCPropertyGridProperty * pParticle = pComponent->GetSubItem(PropId + 11);
 	StaticEmitter::ChunkMap::const_iterator chunk_iter = (pFrame->m_selcmp == emit_cmp ? emit_cmp->m_Chunks.find(std::make_pair(pFrame->m_selchunkid.x, pFrame->m_selchunkid.y)) : emit_cmp->m_Chunks.begin());
 	if (chunk_iter != emit_cmp->m_Chunks.end() && chunk_iter->second.m_buff && pFrame->m_selinstid < chunk_iter->second.m_buff->size())
 	{
 		if (pParticle->GetSubItemsCount() > 0)
 		{
-			UpdatePropertiesStaticEmitterParticle(pComponent->GetSubItem(PropId + 9), CPoint(chunk_iter->first.first, chunk_iter->first.second), pFrame->m_selinstid, &(*chunk_iter->second.m_buff)[pFrame->m_selinstid]);
+			UpdatePropertiesStaticEmitterParticle(pComponent->GetSubItem(PropId + 11), CPoint(chunk_iter->first.first, chunk_iter->first.second), pFrame->m_selinstid, &(*chunk_iter->second.m_buff)[pFrame->m_selinstid]);
 		}
 		else
 		{
-			RemovePropertiesFrom(pComponent, PropId + 9);
+			RemovePropertiesFrom(pComponent, PropId + 11);
 			CreatePropertiesStaticEmitterParticle(pComponent, CPoint(chunk_iter->first.first, chunk_iter->first.second), pFrame->m_selinstid, &(*chunk_iter->second.m_buff)[pFrame->m_selinstid]);
 		}
 	}
 	else
 	{
-		RemovePropertiesFrom(pComponent->GetSubItem(PropId + 9), 0);
+		RemovePropertiesFrom(pComponent->GetSubItem(PropId + 11), 0);
 	}
 }
 
@@ -1529,6 +1533,14 @@ void CPropertiesWnd::CreatePropertiesMesh(CMFCPropertyGridProperty * pComponent,
 	pProp->Enable(FALSE);
 	pComponent->AddSubItem(pProp);
 
+	pProp = new CSimpleProp(_T("NumVert"), (_variant_t)(mesh_cmp->m_Mesh ? mesh_cmp->m_Mesh->m_AttribTable[mesh_cmp->m_MeshSubMeshId].VertexCount : 0), NULL, PropertyMeshNumVert);
+	pProp->Enable(FALSE);
+	pComponent->AddSubItem(pProp);
+
+	pProp = new CSimpleProp(_T("NumFace"), (_variant_t)(mesh_cmp->m_Mesh ? mesh_cmp->m_Mesh->m_AttribTable[mesh_cmp->m_MeshSubMeshId].FaceCount : 0), NULL, PropertyMeshNumFace);
+	pProp->Enable(FALSE);
+	pComponent->AddSubItem(pProp);
+
 	CComboProp * pInstance = new CComboProp(_T("InstanceType"), (_variant_t)g_InstanceTypeDesc[mesh_cmp->m_InstanceType], NULL, PropertyMeshInstanceType);
 	for (unsigned int i = 0; i < _countof(g_InstanceTypeDesc); i++)
 	{
@@ -1769,6 +1781,12 @@ void CPropertiesWnd::CreatePropertiesStaticEmitter(CMFCPropertyGridProperty * pC
 	CMFCPropertyGridProperty* pMeshSubMeshId = new CSimpleProp(_T("MeshSubMeshId"), (_variant_t)emit_cmp->m_MeshSubMeshId, NULL, PropertyStaticEmitterMeshSubMeshId);
 	pMeshSubMeshId->Enable(FALSE);
 	pComponent->AddSubItem(pMeshSubMeshId);
+	pProp = new CSimpleProp(_T("NumVert"), (_variant_t)(emit_cmp->m_Mesh ? emit_cmp->m_Mesh->m_AttribTable[emit_cmp->m_MeshSubMeshId].VertexCount : 0), NULL, PropertyStaticEmitterMeshNumVert);
+	pProp->Enable(FALSE);
+	pComponent->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("NumFace"), (_variant_t)(emit_cmp->m_Mesh ? emit_cmp->m_Mesh->m_AttribTable[emit_cmp->m_MeshSubMeshId].FaceCount : 0), NULL, PropertyStaticEmitterMeshNumFace);
+	pProp->Enable(FALSE);
+	pComponent->AddSubItem(pProp);
 	CMFCPropertyGridProperty * pChunkWidth = new CSimpleProp(_T("ChunkWidth"), (_variant_t)emit_cmp->m_ChunkWidth, NULL, PropertyStaticEmitterChunkWidth);
 	pChunkWidth->Enable(FALSE);
 	pComponent->AddSubItem(pChunkWidth);
@@ -2844,11 +2862,11 @@ unsigned int CPropertiesWnd::GetComponentPropCount(DWORD type)
 	case Component::ComponentTypeController:
 		return GetComponentPropCount(Component::ComponentTypeComponent);
 	case Component::ComponentTypeMesh:
-		return GetComponentPropCount(Component::ComponentTypeComponent) + 6;
+		return GetComponentPropCount(Component::ComponentTypeComponent) + 8;
 	case Component::ComponentTypeCloth:
 		return GetComponentPropCount(Component::ComponentTypeComponent) + 12;
 	case Component::ComponentTypeStaticEmitter:
-		return GetComponentPropCount(Component::ComponentTypeComponent) + 10;
+		return GetComponentPropCount(Component::ComponentTypeComponent) + 12;
 	case Component::ComponentTypeSphericalEmitter:
 		return GetComponentPropCount(Component::ComponentTypeComponent) + 21;
 	case Component::ComponentTypeTerrain:
@@ -3656,6 +3674,8 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		break;
 	}
 	case PropertyMeshSubMeshId:
+	case PropertyMeshNumVert:
+	case PropertyMeshNumFace:
 		break;
 	case PropertyMeshInstanceType:
 	{
@@ -4178,6 +4198,10 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
 	}
+	case PropertyStaticEmitterMeshPath:
+	case PropertyStaticEmitterMeshSubMeshId:
+	case PropertyStaticEmitterMeshNumVert:
+	case PropertyStaticEmitterMeshNumFace:
 	case PropertyStaticEmitterChunkWidth:
 	case PropertyStaticEmitterChunkPath:
 		break;
