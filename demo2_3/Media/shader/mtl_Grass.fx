@@ -111,9 +111,11 @@ NORMAL_VS_OUTPUT NormalVS( VS_INPUT In )
 
 void NormalPS( 	NORMAL_VS_OUTPUT In,
 				out float4 oNormal : COLOR0,
-				out float4 oPos : COLOR1 )
+				out float4 oSpecular : COLOR1,
+				out float4 oPos : COLOR2 )
 {
-	oNormal = float4(In.Normal, g_Shininess);
+    oNormal = float4(In.Normal, 1);
+    oSpecular = float4(0.8, 0.3, 0, 1);
 	oPos = float4(In.PosVS, 1.0);
 }
 
@@ -200,13 +202,13 @@ OPAQUE_VS_OUTPUT OpaqueVS( VS_INPUT In )
 float4 OpaquePS( OPAQUE_VS_OUTPUT In ) : COLOR0
 { 
 	float3 SkyLightDirVS = mul(g_SkyLightDir, (float3x3)g_View);
-	float LightAmount = GetLigthAmount(In.PosWS, In.InvScreenDepth);
-	float3 NormalVS = tex2D(NormalRTSampler, (In.Pos.xy + 0.5f) / g_ScreenDim).xyz;
-	float3 SkyDiffuse = saturate(dot(NormalVS, SkyLightDirVS) * LightAmount) * g_SkyLightColor.xyz;
+    float3 NormalVS = tex2D(NormalRTSampler, (In.Pos.xy + 0.5f) / g_ScreenDim).xyz;
+    float SkyLightAmount = saturate(GetLigthAmount(In.PosWS, In.InvScreenDepth) * dot(NormalVS, SkyLightDirVS));
+    float3 SkyDiffuse = g_SkyLightColor.xyz * SkyLightAmount;
     float3 Ref = reflect(In.ViewVS, NormalVS);
-	float SkySpecular = pow(saturate(dot(Ref, SkyLightDirVS) * LightAmount), g_Shininess) * g_SkyLightColor.w;
-	float4 ScreenLight = tex2D(LightRTSampler, (In.Pos.xy + 0.5f) / g_ScreenDim);
-	float3 Final = In.Color.xyz * (ScreenLight.xyz + SkyDiffuse) + In.Color.w * (ScreenLight.w + SkySpecular);
+    float SkySpecular = DistributionGGX(SkyLightDirVS, Ref, 0.8) * g_SkyLightColor.w * 0.3 * SkyLightAmount;
+    float4 ScreenLight = tex2D(LightRTSampler, (In.Pos.xy + 0.5f) / g_ScreenDim);
+	float3 Final = In.Color.xyz * (ScreenLight.xyz + SkyDiffuse) + ScreenLight.w + SkySpecular;
 	return float4(Final, 1);
 }
 
