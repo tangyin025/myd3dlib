@@ -1,7 +1,6 @@
 #include "CommonVert.hlsl"
 
 texture _BaseColorTexture:MaterialParameter<string path="texture/InstancedIndirectGrassVertexColor.jpg";>;
-float g_Shininess:MaterialParameter = 25;
 float _GrassWidth:MaterialParameter = 1;
 float _GrassHeight:MaterialParameter = 1;
 float _WindAIntensity:MaterialParameter = 1.77;
