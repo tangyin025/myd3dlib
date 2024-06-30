@@ -5,8 +5,7 @@
 
 texture g_DiffuseTexture:MaterialParameter<string path="texture/Checker.bmp";>;
 texture g_NormalTexture:MaterialParameter<string path="texture/Normal.dds";>;
-texture g_SpecularTexture:MaterialParameter<string path="texture/White.dds";>;
-float g_Shininess:MaterialParameter = 25;
+texture g_SpecularTexture:MaterialParameter<string path="texture/Gray.dds";>;
 float4x4 g_InvWorldView:MaterialParameter<bool UseInvWorldView=true;>;
 
 sampler DiffuseTextureSampler = sampler_state
@@ -74,11 +73,12 @@ void NormalPS( 	NORMAL_VS_OUTPUT In,
 	Pos.xyz /= Pos.w;
 	clip(float3(0.5, 0.5, 0.5) - abs(Pos));
 
-	float3x3 m = float3x3(In.Tangent, In.Binormal, In.Normal);
+    float3x3 m = float3x3(normalize(In.Tangent), normalize(In.Binormal), normalize(In.Normal));
 	float3 NormalTS = normalize(tex2D(NormalTextureSampler, Pos.xz + 0.5).xyz * 2 - 1);
 	float4 Diffuse = tex2D(DiffuseTextureSampler, Pos.xz + 0.5);
-	oNormal = float4(mul(NormalTS, m), In.Color.w * Diffuse.a);
-	oSpecular = float4(g_Shininess, 0, 0, In.Color.w * Diffuse.a);
+    oNormal = float4(mul(NormalTS, m), In.Color.w * Diffuse.a);
+    float3 Specular = tex2D(SpecularTextureSampler, Pos.xz + 0.5).xyz;
+    oSpecular = float4(Specular, In.Color.w * Diffuse.a);
 }
 
 struct OPAQUE_VS_OUTPUT
@@ -112,15 +112,15 @@ float4 OpaquePS( OPAQUE_VS_OUTPUT In ) : COLOR0
 	clip(float3(0.5, 0.5, 0.5) - abs(Pos));
 
 	float3 SkyLightDirVS = mul(g_SkyLightDir, (float3x3)g_View);
-	float LightAmount = GetLigthAmount(In.PosWS, In.InvScreenDepth);
-	float3 NormalVS = normalize(tex2D(NormalRTSampler, (In.Pos.xy + 0.5f) / g_ScreenDim).xyz);
-    float3 SkyDiffuse = saturate(dot(NormalVS, SkyLightDirVS) * LightAmount) * g_SkyLightColor.xyz;
+    float3 NormalVS = normalize(tex2D(NormalRTSampler, (In.Pos.xy + 0.5f) / g_ScreenDim).xyz);
+    float SkyLightAmount = saturate(GetLigthAmount(In.PosWS, In.InvScreenDepth) * dot(NormalVS, SkyLightDirVS));
+    float3 SkyDiffuse = g_SkyLightColor.xyz * SkyLightAmount;
     float3 Ref = reflect(normalize(In.ViewVS), NormalVS);
-	float SkySpecular = pow(saturate(dot(Ref, SkyLightDirVS) * LightAmount), g_Shininess) * g_SkyLightColor.w;
-	float4 Diffuse = tex2D(DiffuseTextureSampler, Pos.xz + 0.5);
-	float3 Specular = tex2D(SpecularTextureSampler, Pos.xz + 0.5).xyz;
+    float3 Specular = tex2D(SpecularTextureSampler, In.Tex0).xyz;
+    float SkySpecular = DistributionGGX(SkyLightDirVS, Ref, Specular.r) * g_SkyLightColor.w * Specular.g * SkyLightAmount;
+    float4 Diffuse = tex2D(DiffuseTextureSampler, Pos.xz + 0.5);
 	float4 ScreenLight = tex2D(LightRTSampler, (In.Pos.xy + 0.5f) / g_ScreenDim);
-	float3 Final = Diffuse.xyz * In.Color.xyz * (ScreenLight.xyz + SkyDiffuse) + Specular * (ScreenLight.w + SkySpecular);
+	float3 Final = Diffuse.xyz * In.Color.xyz * (ScreenLight.xyz + SkyDiffuse) + ScreenLight.w + SkySpecular;
     return float4(Final, In.Color.w * Diffuse.a);
 }
 

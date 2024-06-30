@@ -113,7 +113,7 @@ void NormalPS( 	NORMAL_VS_OUTPUT In,
 				out float4 oSpecular : COLOR1,
 				out float4 oPos : COLOR2 )
 {
-    oNormal = float4(In.Normal, 1);
+    oNormal = float4(normalize(In.Normal), 1);
     oSpecular = float4(0.8, 0.3, 0, 1);
 	oPos = float4(In.PosVS, 1.0);
 }
