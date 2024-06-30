@@ -140,6 +140,21 @@ sampler DownFilterRTSampler = sampler_state
 	MagFilter = Linear;
 };
 
+float DistributionGGX(float3 N, float3 H, float roughness)
+{
+    float a = roughness * roughness;
+    float a2 = a * a;
+    float NdotH = max(dot(N, H), 0.0);
+    float NdotH2 = NdotH * NdotH;
+
+    float nom = a2;
+    float denom = (NdotH2 * (a2 - 1.0) + 1.0);
+    float denom2 = 3.14159 * denom * denom;
+
+    // return denom2;
+    return nom / denom2;
+}
+
 float Fresnel(float3 Normal, float3 View, float FresExp, float ReflStrength)
 {
 	return pow(1.0 - abs(dot(Normal, View)), FresExp) * ReflStrength;
