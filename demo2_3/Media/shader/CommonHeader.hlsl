@@ -248,13 +248,6 @@ float ScreenDoorTransparency(float Alpha, float2 SPos)
 	return Alpha - thresholdMatrix[SPos.x % 4][SPos.y % 4];
 }
 
-float2 TiledUv(float2 uv, int2 tiles, int id)
-{
-	int frame = id % (tiles.x * tiles.y);
-	float2 pos = float2((float)frame % tiles.x, frame / tiles.x); // ! issue occurred if without type cast
-	return (pos + uv) / tiles;
-}
-
 float SplineInterpolate(float t)
 {
 	return t + t * (1 - t) * ((t - 1) + t);

@@ -78,29 +78,20 @@ void MaterialParameter::Init(my::Effect * shader)
 	m_Handle = shader->GetParameterByName(NULL, m_Name.c_str());
 }
 
-namespace boost {
-	namespace serialization {
-		template<class Archive>
-		inline void serialize(Archive& ar, CPoint& t, const unsigned int file_version)
-		{
-			ar& BOOST_SERIALIZATION_NVP(t.x);
-			ar& BOOST_SERIALIZATION_NVP(t.y);
-		}
-	}
-}
-
 template<class Archive>
 void MaterialParameterInt2::save(Archive& ar, const unsigned int version) const
 {
 	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(MaterialParameter);
-	ar << BOOST_SERIALIZATION_NVP(m_Value);
+	ar << BOOST_SERIALIZATION_NVP(m_Value.x);
+	ar << BOOST_SERIALIZATION_NVP(m_Value.y);
 }
 
 template<class Archive>
 void MaterialParameterInt2::load(Archive& ar, const unsigned int version)
 {
 	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(MaterialParameter);
-	ar >> BOOST_SERIALIZATION_NVP(m_Value);
+	ar >> BOOST_SERIALIZATION_NVP(m_Value.x);
+	ar >> BOOST_SERIALIZATION_NVP(m_Value.y);
 }
 
 void MaterialParameterInt2::Set(my::Effect * shader, LPARAM lparam, RenderPipeline::IRenderContext * pRC, Actor * actor)

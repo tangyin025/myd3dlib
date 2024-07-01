@@ -1,5 +1,9 @@
 #include <CommonHeader.hlsl>
 
+#ifdef TILED
+int2 g_Tiles;
+#endif
+
 struct VS_INPUT
 {
 	float4 Pos				: POSITION0;
@@ -58,7 +62,13 @@ float4 TransformPos(VS_INPUT In)
 
 float2 TransformUV(VS_INPUT In)
 {
-	return In.Tex0.xy;
+#ifdef TILED
+    int frame = In.Color.r * 255 % (g_Tiles.x * g_Tiles.y);
+    float2 pos = float2((float)frame % g_Tiles.x, frame / g_Tiles.x); // ! issue occurred if without type cast
+    return (pos + In.Tex0.xy) / g_Tiles;
+#else
+    return In.Tex0.xy;
+#endif
 }
 
 float3 TransformNormal(VS_INPUT In)
@@ -126,5 +136,9 @@ float4 TransformLightWS(VS_INPUT In)
 
 float4 TransformColor(VS_INPUT In)
 {
-	return In.Color;
+#ifdef TILED
+    return float4(1, 1, 1, 1);
+#else
+    return In.Color;
+#endif
 }

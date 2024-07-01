@@ -2878,6 +2878,7 @@ void LuaContext::Init(void)
 				value("SpaceTypeLocal", EmitterComponent::SpaceTypeLocal)
 			]
 			.def_readwrite("EmitterSpaceType", &EmitterComponent::m_EmitterSpaceType)
+			.def_readwrite("Tiles", &EmitterComponent::m_Tiles)
 
 		, class_<StaticEmitter, bases<EmitterComponent, my::AABB>, boost::shared_ptr<Component> >("StaticEmitter")
 			.def(constructor<const char *, const my::AABB &, float, EmitterComponent::FaceType, EmitterComponent::SpaceType, StaticEmitter::PrimitiveType>())

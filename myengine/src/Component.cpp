@@ -1813,6 +1813,8 @@ my::Vector3 ClothComponent::GetExternalAcceleration(void) const
 void EmitterComponent::OnResetShader(void)
 {
 	handle_World = NULL;
+
+	handle_Tiles = NULL;
 }
 
 void EmitterComponent::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, LPARAM lparam)
@@ -1826,6 +1828,11 @@ void EmitterComponent::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * s
 	else
 	{
 		shader->SetMatrix(handle_World, m_Actor->m_World);
+	}
+
+	if (m_Tiles.x > 1 || m_Tiles.y > 1)
+	{
+		shader->SetIntArray(handle_Tiles, (int*)&m_Tiles.x, 2);
 	}
 }
 
@@ -1848,13 +1855,19 @@ void EmitterComponent::AddParticlePairToPipeline(
 		if (RenderPipeline::PassTypeToMask(PassID) & (m_Material->m_PassMask & PassMask))
 		{
 			const char* num[] = { "0", "1", "2", "3", "4", "5" };
-			D3DXMACRO macro[3] = { { "MESH_TYPE", "1" }, { "EMITTER_FACE_TYPE", num[m_EmitterFaceType] }, { 0 } };
+			D3DXMACRO macro[4] = { { "MESH_TYPE", "1" },
+				{ "EMITTER_FACE_TYPE", num[m_EmitterFaceType] }, { m_Tiles.x > 1 || m_Tiles.y > 1 ? "TILED" : NULL, NULL }, {0} };
 			my::Effect* shader = pipeline->QueryShader(macro, m_Material->m_Shader.c_str(), PassID);
 			if (shader)
 			{
 				if (!handle_World)
 				{
 					BOOST_VERIFY(handle_World = shader->GetParameterByName(NULL, "g_World"));
+				}
+
+				if ((m_Tiles.x > 1 || m_Tiles.y > 1) && !handle_Tiles)
+				{
+					BOOST_VERIFY(handle_Tiles = shader->GetParameterByName(NULL, "g_Tiles"));
 				}
 
 				if (particle_num1 > 0)

@@ -528,13 +528,19 @@ public:
 
 	SpaceType m_EmitterSpaceType;
 
+	CPoint m_Tiles;
+
 	D3DXHANDLE handle_World;
+
+	D3DXHANDLE handle_Tiles;
 
 protected:
 	EmitterComponent(void)
 		: m_EmitterFaceType(FaceTypeX)
 		, m_EmitterSpaceType(SpaceTypeWorld)
+		, m_Tiles(1, 1)
 		, handle_World(NULL)
+		, handle_Tiles(NULL)
 	{
 	}
 
@@ -543,7 +549,9 @@ public:
 		: Component(Name)
 		, m_EmitterFaceType(_FaceType)
 		, m_EmitterSpaceType(_SpaceType)
+		, m_Tiles(1, 1)
 		, handle_World(NULL)
+		, handle_Tiles(NULL)
 	{
 	}
 
@@ -555,6 +563,8 @@ public:
 		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Component);
 		ar & BOOST_SERIALIZATION_NVP(m_EmitterFaceType);
 		ar & BOOST_SERIALIZATION_NVP(m_EmitterSpaceType);
+		ar & BOOST_SERIALIZATION_NVP(m_Tiles.x);
+		ar & BOOST_SERIALIZATION_NVP(m_Tiles.y);
 	}
 
 	virtual DWORD GetComponentType(void) const
