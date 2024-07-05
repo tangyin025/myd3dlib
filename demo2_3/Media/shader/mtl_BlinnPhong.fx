@@ -3,6 +3,7 @@
 texture g_DiffuseTexture:MaterialParameter<string path="texture/Checker.bmp";>;
 texture g_NormalTexture:MaterialParameter<string path="texture/Normal.dds";>;
 texture g_SpecularTexture:MaterialParameter<string path="texture/Gray.dds";>;
+float g_NormalStrength:MaterialParameter=1.0;
 
 sampler DiffuseTextureSampler = sampler_state
 {
@@ -79,7 +80,7 @@ void NormalPS( 	NORMAL_VS_OUTPUT In,
 {
 	// clip(ScreenDoorTransparency(In.Color.w, In.Pos.xy));
 	float3x3 m = float3x3(normalize(In.Tangent), normalize(In.Binormal), normalize(In.Normal));
-	float3 NormalTS = normalize(tex2D(NormalTextureSampler, In.Tex0).xyz * 2 - 1);
+	float3 NormalTS = normalize((tex2D(NormalTextureSampler, In.Tex0).xyz * 2 - 1) * float3(g_NormalStrength, g_NormalStrength, 1));
 	oNormal = float4(mul(NormalTS, m), 1);
 	float3 Specular = tex2D(SpecularTextureSampler, In.Tex0).xyz;
 	oSpecular = float4(Specular, 1);
