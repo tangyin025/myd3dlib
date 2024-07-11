@@ -12,6 +12,7 @@ texture g_SpecularTexture2:MaterialParameter<string path="texture/Gray.dds";>;
 texture g_DiffuseTexture3:MaterialParameter<string path="texture/Checker.bmp";>;
 texture g_NormalTexture3:MaterialParameter<string path="texture/Normal.dds";>;
 texture g_SpecularTexture3:MaterialParameter<string path="texture/Gray.dds";>;
+float4 g_NormalStrength:MaterialParameter = float4(1.0, 1.0, 1.0, 1.0);
 float2 g_TextureScale:MaterialParameter = float2(1.0, 1.0);
 
 sampler DiffuseTextureSampler0 = sampler_state
@@ -188,22 +189,22 @@ void NormalPS( 	NORMAL_VS_OUTPUT In,
     float3 Specular = float3(0, 0, 0);
     if (In.Color.r >= 0.004)
     {
-        NormalTS += normalize(tex2D(NormalTextureSampler0, In.Tex0).rgb * 2 - 1) * In.Color.r;
+        NormalTS += normalize((tex2D(NormalTextureSampler0, In.Tex0).rgb * 2 - 1) * float3(g_NormalStrength.x, g_NormalStrength.x, 1)) * In.Color.r;
         Specular += tex2D(SpecularTextureSampler0, In.Tex0).xyz * In.Color.r;
     }
     if (In.Color.g >= 0.004)
     {
-        NormalTS += normalize(tex2D(NormalTextureSampler1, In.Tex0).rgb * 2 - 1) * In.Color.g;
+        NormalTS += normalize((tex2D(NormalTextureSampler1, In.Tex0).rgb * 2 - 1) * float3(g_NormalStrength.y, g_NormalStrength.y, 1)) * In.Color.g;
         Specular += tex2D(SpecularTextureSampler1, In.Tex0).xyz * In.Color.g;
     }
     if (In.Color.b >= 0.004)
     {
-        NormalTS += normalize(tex2D(NormalTextureSampler2, In.Tex0).rgb * 2 - 1) * In.Color.b;
+        NormalTS += normalize((tex2D(NormalTextureSampler2, In.Tex0).rgb * 2 - 1) * float3(g_NormalStrength.z, g_NormalStrength.z, 1)) * In.Color.b;
         Specular += tex2D(SpecularTextureSampler2, In.Tex0).xyz * In.Color.b;
     }
     if (In.Color.a >= 0.004)
     {
-        NormalTS += normalize(tex2D(NormalTextureSampler3, In.Tex0).rgb * 2 - 1) * In.Color.a;
+        NormalTS += normalize((tex2D(NormalTextureSampler3, In.Tex0).rgb * 2 - 1) * float3(g_NormalStrength.w, g_NormalStrength.w, 1)) * In.Color.a;
         Specular += tex2D(SpecularTextureSampler3, In.Tex0).xyz * In.Color.a;
     }
     oNormal = float4(mul(NormalTS, m), 1);

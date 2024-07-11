@@ -6,6 +6,7 @@
 texture g_DiffuseTexture:MaterialParameter<string path="texture/Checker.bmp";>;
 texture g_NormalTexture:MaterialParameter<string path="texture/Normal.dds";>;
 texture g_SpecularTexture:MaterialParameter<string path="texture/Gray.dds";>;
+float g_NormalStrength:MaterialParameter=1.0;
 float4x4 g_InvWorldView:MaterialParameter<bool UseInvWorldView=true;>;
 
 sampler DiffuseTextureSampler = sampler_state
@@ -74,7 +75,7 @@ void NormalPS( 	NORMAL_VS_OUTPUT In,
 	clip(float3(0.5, 0.5, 0.5) - abs(Pos));
 
     float3x3 m = float3x3(normalize(In.Tangent), normalize(In.Binormal), normalize(In.Normal));
-	float3 NormalTS = normalize(tex2D(NormalTextureSampler, Pos.xz + 0.5).xyz * 2 - 1);
+    float3 NormalTS = normalize((tex2D(NormalTextureSampler, Pos.xz + 0.5).xyz * 2 - 1) * float3(g_NormalStrength, g_NormalStrength, 1));
 	float4 Diffuse = tex2D(DiffuseTextureSampler, Pos.xz + 0.5);
     oNormal = float4(mul(NormalTS, m), In.Color.w * Diffuse.a);
     float3 Specular = tex2D(SpecularTextureSampler, Pos.xz + 0.5).xyz;
