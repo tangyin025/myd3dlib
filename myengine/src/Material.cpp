@@ -24,6 +24,7 @@
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/binary_object.hpp>
 #include <boost/serialization/export.hpp>
+#include <boost/range/algorithm/find_if.hpp>
 
 using namespace my;
 
@@ -343,82 +344,127 @@ void Material::ParseShaderParameters(void)
 	boost::match_results<const char *> what;
 	const char * start = (const char *)&(*cache)[0];
 	const char * end = (const char *)&(*cache)[cache->size() - 1];
-	m_ParameterList.clear();
+	MaterialParameterPtrList dummy_params;
+	dummy_params.swap(m_ParameterList);
 	for (; boost::regex_search(start, end, what, reg, boost::match_default); start = what[0].second)
 	{
 		std::string Name = what[9];
 		std::string Annotations = what[10];
 		std::string Initialize = what[11];
+		MaterialParameterPtrList::const_iterator dummy_param_iter = boost::find_if(dummy_params,
+			boost::bind(std::equal_to<std::string>(), boost::bind(&MaterialParameter::m_Name, boost::bind(&MaterialParameterPtr::get, boost::placeholders::_1)), Name));
 		if (what[2].matched)
 		{
 			CPoint Value(0, 0);
-			boost::regex reg_value("(-?\\d+)\\s*,\\s*(-?\\d+)");
-			boost::match_results<std::string::const_iterator> what2;
-			if (boost::regex_search(Initialize, what2, reg_value, boost::match_default))
+			if (dummy_param_iter != dummy_params.end() && (*dummy_param_iter)->GetParameterType() == MaterialParameter::ParameterTypeInt2)
 			{
-				Value.x = boost::lexical_cast<int>(what2[1]);
-				Value.y = boost::lexical_cast<int>(what2[2]);
+				Value = boost::dynamic_pointer_cast<MaterialParameterInt2>(*dummy_param_iter)->m_Value;
+			}
+			else
+			{
+				boost::regex reg_value("(-?\\d+)\\s*,\\s*(-?\\d+)");
+				boost::match_results<std::string::const_iterator> what2;
+				if (boost::regex_search(Initialize, what2, reg_value, boost::match_default))
+				{
+					Value.x = boost::lexical_cast<int>(what2[1]);
+					Value.y = boost::lexical_cast<int>(what2[2]);
+				}
 			}
 			AddParameter(Name, Value);
 		}
 		if (what[3].matched)
 		{
 			float Value = 0.0f;
-			boost::regex reg_value("-?\\d+(\\.\\d+)?");
-			boost::match_results<std::string::const_iterator> what2;
-			if (boost::regex_search(Initialize, what2, reg_value, boost::match_default))
+			if (dummy_param_iter != dummy_params.end() && (*dummy_param_iter)->GetParameterType() == MaterialParameter::ParameterTypeFloat)
 			{
-				Value = boost::lexical_cast<float>(what2[0]);
+				Value = boost::dynamic_pointer_cast<MaterialParameterFloat>(*dummy_param_iter)->m_Value;
+			}
+			else
+			{
+				boost::regex reg_value("-?\\d+(\\.\\d+)?");
+				boost::match_results<std::string::const_iterator> what2;
+				if (boost::regex_search(Initialize, what2, reg_value, boost::match_default))
+				{
+					Value = boost::lexical_cast<float>(what2[0]);
+				}
 			}
 			AddParameter(Name, Value);
 		}
 		else if (what[4].matched)
 		{
 			Vector2 Value(0, 0);
-			boost::regex reg_value("(-?\\d+(\\.\\d+)?)\\s*,\\s*(-?\\d+(\\.\\d+)?)");
-			boost::match_results<std::string::const_iterator> what2;
-			if (boost::regex_search(Initialize, what2, reg_value, boost::match_default))
+			if (dummy_param_iter != dummy_params.end() && (*dummy_param_iter)->GetParameterType() == MaterialParameter::ParameterTypeFloat2)
 			{
-				Value.x = boost::lexical_cast<float>(what2[1]);
-				Value.y = boost::lexical_cast<float>(what2[3]);
+				Value = boost::dynamic_pointer_cast<MaterialParameterFloat2>(*dummy_param_iter)->m_Value;
+			}
+			else
+			{
+				boost::regex reg_value("(-?\\d+(\\.\\d+)?)\\s*,\\s*(-?\\d+(\\.\\d+)?)");
+				boost::match_results<std::string::const_iterator> what2;
+				if (boost::regex_search(Initialize, what2, reg_value, boost::match_default))
+				{
+					Value.x = boost::lexical_cast<float>(what2[1]);
+					Value.y = boost::lexical_cast<float>(what2[3]);
+				}
 			}
 			AddParameter(Name, Value);
 		}
 		else if (what[5].matched)
 		{
 			Vector3 Value(0, 0, 0);
-			boost::regex reg_value("(-?\\d+(\\.\\d+)?)\\s*,\\s*(-?\\d+(\\.\\d+)?)\\s*,\\s*(-?\\d+(\\.\\d+)?)");
-			boost::match_results<std::string::const_iterator> what2;
-			if (boost::regex_search(Initialize, what2, reg_value, boost::match_default))
+			if (dummy_param_iter != dummy_params.end() && (*dummy_param_iter)->GetParameterType() == MaterialParameter::ParameterTypeFloat3)
 			{
-				Value.x = boost::lexical_cast<float>(what2[1]);
-				Value.y = boost::lexical_cast<float>(what2[3]);
-				Value.z = boost::lexical_cast<float>(what2[5]);
+				Value = boost::dynamic_pointer_cast<MaterialParameterFloat3>(*dummy_param_iter)->m_Value;
+			}
+			else
+			{
+				boost::regex reg_value("(-?\\d+(\\.\\d+)?)\\s*,\\s*(-?\\d+(\\.\\d+)?)\\s*,\\s*(-?\\d+(\\.\\d+)?)");
+				boost::match_results<std::string::const_iterator> what2;
+				if (boost::regex_search(Initialize, what2, reg_value, boost::match_default))
+				{
+					Value.x = boost::lexical_cast<float>(what2[1]);
+					Value.y = boost::lexical_cast<float>(what2[3]);
+					Value.z = boost::lexical_cast<float>(what2[5]);
+				}
 			}
 			AddParameter(Name, Value);
 		}
 		else if (what[6].matched)
 		{
 			Vector4 Value(0, 0, 0, 1);
-			boost::regex reg_value("(-?\\d+(\\.\\d+)?)\\s*,\\s*(-?\\d+(\\.\\d+)?)\\s*,\\s*(-?\\d+(\\.\\d+)?)\\s*,\\s*(-?\\d+(\\.\\d+)?)");
-			boost::match_results<std::string::const_iterator> what2;
-			if (boost::regex_search(Initialize, what2, reg_value, boost::match_default))
+			if (dummy_param_iter != dummy_params.end() && (*dummy_param_iter)->GetParameterType() == MaterialParameter::ParameterTypeFloat4)
 			{
-				Value.x = boost::lexical_cast<float>(what2[1]);
-				Value.y = boost::lexical_cast<float>(what2[3]);
-				Value.z = boost::lexical_cast<float>(what2[5]);
-				Value.w = boost::lexical_cast<float>(what2[7]);
+				Value = boost::dynamic_pointer_cast<MaterialParameterFloat4>(*dummy_param_iter)->m_Value;
+			}
+			else
+			{
+				boost::regex reg_value("(-?\\d+(\\.\\d+)?)\\s*,\\s*(-?\\d+(\\.\\d+)?)\\s*,\\s*(-?\\d+(\\.\\d+)?)\\s*,\\s*(-?\\d+(\\.\\d+)?)");
+				boost::match_results<std::string::const_iterator> what2;
+				if (boost::regex_search(Initialize, what2, reg_value, boost::match_default))
+				{
+					Value.x = boost::lexical_cast<float>(what2[1]);
+					Value.y = boost::lexical_cast<float>(what2[3]);
+					Value.z = boost::lexical_cast<float>(what2[5]);
+					Value.w = boost::lexical_cast<float>(what2[7]);
+				}
 			}
 			AddParameter(Name, Value);
 		}
 		else if (what[7].matched)
 		{
 			std::string Path;
-			boost::regex reg_value("string\\s+path\\s*=\\s*\\\"([^\"]+)\\\"");
-			boost::match_results<std::string::const_iterator> what2;
-			if (boost::regex_search(Annotations, what2, reg_value, boost::match_default))
+			if (dummy_param_iter != dummy_params.end() && (*dummy_param_iter)->GetParameterType() == MaterialParameter::ParameterTypeTexture)
 			{
-				Path = what2[1];
+				Path = boost::dynamic_pointer_cast<MaterialParameterTexture>(*dummy_param_iter)->m_TexturePath;
+			}
+			else
+			{
+				boost::regex reg_value("string\\s+path\\s*=\\s*\\\"([^\"]+)\\\"");
+				boost::match_results<std::string::const_iterator> what2;
+				if (boost::regex_search(Annotations, what2, reg_value, boost::match_default))
+				{
+					Path = what2[1];
+				}
 			}
 			AddParameter(Name, Path);
 		}
