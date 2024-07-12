@@ -323,6 +323,12 @@ static void cloth_component_add_collision_capsule(ClothComponent* self, int firs
 	self->m_Cloth->addCollisionCapsule(first, second);
 }
 
+static void cloth_component_clear_collision_spheres(ClothComponent* self)
+{
+	self->m_Cloth->setCollisionSpheres(NULL, 0);
+	self->m_ClothSphereBones.clear();
+}
+
 class StaticEmitterParticleIterator : public std::iterator<std::forward_iterator_tag, my::Emitter::Particle>
 {
 protected:
@@ -2860,6 +2866,7 @@ void LuaContext::Init(void)
 			.def("GetTether", &cloth_component_get_tether, pure_out_value(boost::placeholders::_3) + pure_out_value(boost::placeholders::_4))
 			.def("AddCollisionSphere", &cloth_component_add_collision_sphere)
 			.def("AddCollisionCapsule", &cloth_component_add_collision_capsule)
+			.def("ClearCollisionSpheres", &cloth_component_clear_collision_spheres)
 
 		, class_<EmitterComponent, Component, boost::shared_ptr<Component> >("EmitterComponent")
 			.enum_("FaceType")
