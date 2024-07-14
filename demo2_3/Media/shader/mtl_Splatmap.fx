@@ -253,7 +253,8 @@ float4 OpaquePS( OPAQUE_VS_OUTPUT In ) : COLOR0
 	if (In.Color.a >= 0.004)
         Diffuse += tex2D(DiffuseTextureSampler3, In.Tex0) * In.Color.a;
 	float4 ScreenLight = tex2D(LightRTSampler, (In.Pos.xy + 0.5f) / g_ScreenDim);
-	float3 Final = Diffuse.xyz * (ScreenLight.xyz + SkyDiffuse) + ScreenLight.w + SkySpecular;
+    float fres = Fresnel(NormalVS, normalize(In.ViewVS), 5, SpecularVS.g) * g_AmbientColor.xyz;
+	float3 Final = Diffuse.xyz * (ScreenLight.xyz + SkyDiffuse) + ScreenLight.w + SkySpecular + fres;
     return float4(Final, 1);
 }
 
