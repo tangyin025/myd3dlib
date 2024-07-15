@@ -121,7 +121,7 @@ float4 OpaquePS( OPAQUE_VS_OUTPUT In ) : COLOR0
     float SkySpecular = DistributionGGX(SkyLightDirVS, Ref, Specular.r) * g_SkyLightColor.w * Specular.g * SkyLightAmount;
 	float4 Diffuse = tex2D(DiffuseTextureSampler, In.Tex0);
 	float4 ScreenLight = tex2D(LightRTSampler, (In.Pos.xy + 0.5f) / g_ScreenDim);
-    float fres = Fresnel(NormalVS, normalize(In.ViewVS), 5, Specular.g) * g_AmbientColor.xyz;
+    float3 fres = g_AmbientColor.xyz * Fresnel(NormalVS, normalize(In.ViewVS), 5, Specular.g);
 	float3 Final = Diffuse.xyz * In.Color.xyz * (ScreenLight.xyz + SkyDiffuse) + ScreenLight.w + SkySpecular + fres;
     return float4(Final, 1);
 }
