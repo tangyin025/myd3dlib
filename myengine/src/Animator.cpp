@@ -85,9 +85,10 @@ void AnimationNode::SetChild(int i, AnimationNodePtr node)
 		}
 
 		m_Childs[i] = node;
-
 		node->m_Parent = this;
+		return;
 	}
+	THROW_CUSEXCEPTION("index overflow ");
 }
 
 void AnimationNode::RemoveChild(int i)
