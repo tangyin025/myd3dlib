@@ -911,7 +911,7 @@ void Terrain::CreateHeightFieldShape(TerrainStream * tstr, const char * HeightFi
 	PhysxInputData readBuffer(my::ResourceMgr::getSingleton().OpenIStream(HeightFieldPath));
 	m_PxHeightField.reset(PhysxSdk::getSingleton().m_sdk->createHeightField(readBuffer), PhysxDeleter<physx::PxHeightField>());
 
-	physx::PxMaterial* material = CreatePhysxMaterial(0.5f, 0.5f, 0.5f);
+	physx::PxMaterial* material = CreatePhysxMaterial(MeshComponent::DefaultCollisionMaterial.x, MeshComponent::DefaultCollisionMaterial.y, MeshComponent::DefaultCollisionMaterial.z);
 
 	m_PxShape.reset(PhysxSdk::getSingleton().m_sdk->createShape(physx::PxHeightFieldGeometry(m_PxHeightField.get(), physx::PxMeshGeometryFlags(), HeightScale * ActorScale.y, ActorScale.x, ActorScale.z),
 		*material, true, /*physx::PxShapeFlag::eVISUALIZATION |*/ physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE), PhysxDeleter<physx::PxShape>());

@@ -156,7 +156,7 @@ void Component::load(Archive & ar, const unsigned int version)
 		ar >> BOOST_SERIALIZATION_NVP(ShapeRot);
 		float SphereRadius;
 		ar >> BOOST_SERIALIZATION_NVP(SphereRadius);
-		CreateSphereShape(ShapePos, ShapeRot, SphereRadius);
+		CreateSphereShape(ShapePos, ShapeRot, SphereRadius, MeshComponent::DefaultCollisionMaterial.x, MeshComponent::DefaultCollisionMaterial.y, MeshComponent::DefaultCollisionMaterial.z);
 		unsigned int SimulationFilterWord0;
 		ar >> BOOST_SERIALIZATION_NVP(SimulationFilterWord0);
 		SetSimulationFilterWord0(SimulationFilterWord0);
@@ -174,7 +174,7 @@ void Component::load(Archive & ar, const unsigned int version)
 		ar >> BOOST_SERIALIZATION_NVP(ShapePos);
 		my::Quaternion ShapeRot;
 		ar >> BOOST_SERIALIZATION_NVP(ShapeRot);
-		CreatePlaneShape(ShapePos, ShapeRot);
+		CreatePlaneShape(ShapePos, ShapeRot, MeshComponent::DefaultCollisionMaterial.x, MeshComponent::DefaultCollisionMaterial.y, MeshComponent::DefaultCollisionMaterial.z);
 		unsigned int SimulationFilterWord0;
 		ar >> BOOST_SERIALIZATION_NVP(SimulationFilterWord0);
 		SetSimulationFilterWord0(SimulationFilterWord0);
@@ -196,7 +196,7 @@ void Component::load(Archive & ar, const unsigned int version)
 		ar >> BOOST_SERIALIZATION_NVP(CapsuleRadius);
 		float CapsuleHalfHeight;
 		ar >> BOOST_SERIALIZATION_NVP(CapsuleHalfHeight);
-		CreateCapsuleShape(ShapePos, ShapeRot, CapsuleRadius, CapsuleHalfHeight);
+		CreateCapsuleShape(ShapePos, ShapeRot, CapsuleRadius, CapsuleHalfHeight, MeshComponent::DefaultCollisionMaterial.x, MeshComponent::DefaultCollisionMaterial.y, MeshComponent::DefaultCollisionMaterial.z);
 		unsigned int SimulationFilterWord0;
 		ar >> BOOST_SERIALIZATION_NVP(SimulationFilterWord0);
 		SetSimulationFilterWord0(SimulationFilterWord0);
@@ -216,7 +216,7 @@ void Component::load(Archive & ar, const unsigned int version)
 		ar >> BOOST_SERIALIZATION_NVP(ShapeRot);
 		my::Vector3 BoxHalfExtents;
 		ar >> BOOST_SERIALIZATION_NVP(BoxHalfExtents);
-		CreateBoxShape(ShapePos, ShapeRot, BoxHalfExtents.x, BoxHalfExtents.y, BoxHalfExtents.z);
+		CreateBoxShape(ShapePos, ShapeRot, BoxHalfExtents.x, BoxHalfExtents.y, BoxHalfExtents.z, MeshComponent::DefaultCollisionMaterial.x, MeshComponent::DefaultCollisionMaterial.y, MeshComponent::DefaultCollisionMaterial.z);
 		unsigned int SimulationFilterWord0;
 		ar >> BOOST_SERIALIZATION_NVP(SimulationFilterWord0);
 		SetSimulationFilterWord0(SimulationFilterWord0);
@@ -284,7 +284,7 @@ physx::PxMaterial * Component::CreatePhysxMaterial(float staticFriction, float d
 	// ! materialIndices[0] = Ps::to16((static_cast<NpMaterial*>(materials[0]))->getHandle());
 	std::string Key = str_printf("physx material %f %f %f", staticFriction, dynamicFriction, restitution);
 	CriticalSectionLock lock(PhysxSdk::getSingleton().m_CollectionObjsSec);
-	std::pair<CollectionObjMap::iterator, bool> obj_res = PhysxSdk::getSingleton().m_CollectionObjs.insert(std::make_pair(Key, boost::shared_ptr<physx::PxBase>()));
+	std::pair<PhysxSdk::CollectionObjMap::iterator, bool> obj_res = PhysxSdk::getSingleton().m_CollectionObjs.insert(std::make_pair(Key, boost::shared_ptr<physx::PxBase>()));
 	if (obj_res.second)
 	{
 		obj_res.first->second.reset(PhysxSdk::getSingleton().m_sdk->createMaterial(staticFriction, dynamicFriction, restitution), PhysxDeleter<physx::PxMaterial>());
@@ -294,11 +294,11 @@ physx::PxMaterial * Component::CreatePhysxMaterial(float staticFriction, float d
 	return obj_res.first->second->is<physx::PxMaterial>();
 }
 
-void Component::CreateBoxShape(const my::Vector3 & pos, const my::Quaternion & rot, float hx, float hy, float hz)
+void Component::CreateBoxShape(const my::Vector3 & pos, const my::Quaternion & rot, float hx, float hy, float hz, float staticFriction, float dynamicFriction, float restitution)
 {
 	_ASSERT(!m_PxShape);
 
-	physx::PxMaterial * material = CreatePhysxMaterial(0.5f, 0.5f, 0.5f);
+	physx::PxMaterial * material = CreatePhysxMaterial(staticFriction, dynamicFriction, restitution);
 
 	m_PxShape.reset(PhysxSdk::getSingleton().m_sdk->createShape(
 		physx::PxBoxGeometry(hx, hy, hz), *material, true, physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE), PhysxDeleter<physx::PxShape>());
@@ -315,11 +315,11 @@ void Component::CreateBoxShape(const my::Vector3 & pos, const my::Quaternion & r
 	}
 }
 
-void Component::CreateCapsuleShape(const my::Vector3 & pos, const my::Quaternion & rot, float radius, float halfHeight)
+void Component::CreateCapsuleShape(const my::Vector3 & pos, const my::Quaternion & rot, float radius, float halfHeight, float staticFriction, float dynamicFriction, float restitution)
 {
 	_ASSERT(!m_PxShape);
 
-	physx::PxMaterial* material = CreatePhysxMaterial(0.5f, 0.5f, 0.5f);
+	physx::PxMaterial* material = CreatePhysxMaterial(staticFriction, dynamicFriction, restitution);
 
 	m_PxShape.reset(PhysxSdk::getSingleton().m_sdk->createShape(
 		physx::PxCapsuleGeometry(radius, halfHeight), *material, true, physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE), PhysxDeleter<physx::PxShape>());
@@ -336,11 +336,11 @@ void Component::CreateCapsuleShape(const my::Vector3 & pos, const my::Quaternion
 	}
 }
 
-void Component::CreatePlaneShape(const my::Vector3 & pos, const my::Quaternion & rot)
+void Component::CreatePlaneShape(const my::Vector3 & pos, const my::Quaternion & rot, float staticFriction, float dynamicFriction, float restitution)
 {
 	_ASSERT(!m_PxShape);
 
-	physx::PxMaterial* material = CreatePhysxMaterial(0.5f, 0.5f, 0.5f);
+	physx::PxMaterial* material = CreatePhysxMaterial(staticFriction, dynamicFriction, restitution);
 
 	m_PxShape.reset(PhysxSdk::getSingleton().m_sdk->createShape(
 		physx::PxPlaneGeometry(), *material, true, physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE), PhysxDeleter<physx::PxShape>());
@@ -357,11 +357,11 @@ void Component::CreatePlaneShape(const my::Vector3 & pos, const my::Quaternion &
 	}
 }
 
-void Component::CreateSphereShape(const my::Vector3 & pos, const my::Quaternion & rot, float radius)
+void Component::CreateSphereShape(const my::Vector3 & pos, const my::Quaternion & rot, float radius, float staticFriction, float dynamicFriction, float restitution)
 {
 	_ASSERT(!m_PxShape);
 
-	physx::PxMaterial* material = CreatePhysxMaterial(0.5f, 0.5f, 0.5f);
+	physx::PxMaterial* material = CreatePhysxMaterial(staticFriction, dynamicFriction, restitution);
 
 	m_PxShape.reset(PhysxSdk::getSingleton().m_sdk->createShape(
 		physx::PxSphereGeometry(radius), *material, true, physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE), PhysxDeleter<physx::PxShape>());
@@ -475,6 +475,8 @@ void Component::SetSiblingId(unsigned int i)
 		}
 	}
 }
+
+const my::Vector3 MeshComponent::DefaultCollisionMaterial(0.5f, 0.5f, 0.5f);
 
 MeshComponent::~MeshComponent(void)
 {
@@ -689,7 +691,7 @@ void MeshComponent::OnPxMeshReady(my::DeviceResourceBasePtr res, physx::PxGeomet
 
 	_ASSERT(m_Actor && !m_PxShape && m_PxGeometryType == type);
 
-	physx::PxMaterial* material = CreatePhysxMaterial(0.5f, 0.5f, 0.5f);
+	physx::PxMaterial* material = CreatePhysxMaterial(DefaultCollisionMaterial.x, DefaultCollisionMaterial.y, DefaultCollisionMaterial.z);
 
 	switch (type)
 	{

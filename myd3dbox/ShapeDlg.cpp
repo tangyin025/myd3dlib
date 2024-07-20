@@ -97,22 +97,22 @@ void CShapeDlg::OnOK()
 	switch (m_type)
 	{
 	case physx::PxGeometryType::eSPHERE:
-		m_cmp->CreateSphereShape(m_pos, rot, m_param.x);
+		m_cmp->CreateSphereShape(m_pos, rot, m_param.x, MeshComponent::DefaultCollisionMaterial.x, MeshComponent::DefaultCollisionMaterial.y, MeshComponent::DefaultCollisionMaterial.z);
 		m_cmp->SetSimulationFilterWord0(theApp.default_physx_shape_filterword0);
 		m_cmp->SetQueryFilterWord0(theApp.default_physx_shape_filterword0);
 		break;
 	case physx::PxGeometryType::ePLANE:
-		m_cmp->CreatePlaneShape(m_pos, rot);
+		m_cmp->CreatePlaneShape(m_pos, rot, MeshComponent::DefaultCollisionMaterial.x, MeshComponent::DefaultCollisionMaterial.y, MeshComponent::DefaultCollisionMaterial.z);
 		m_cmp->SetSimulationFilterWord0(theApp.default_physx_shape_filterword0);
 		m_cmp->SetQueryFilterWord0(theApp.default_physx_shape_filterword0);
 		break;
 	case physx::PxGeometryType::eCAPSULE:
-		m_cmp->CreateCapsuleShape(m_pos, rot, m_param.x, m_param.y);
+		m_cmp->CreateCapsuleShape(m_pos, rot, m_param.x, m_param.y, MeshComponent::DefaultCollisionMaterial.x, MeshComponent::DefaultCollisionMaterial.y, MeshComponent::DefaultCollisionMaterial.z);
 		m_cmp->SetSimulationFilterWord0(theApp.default_physx_shape_filterword0);
 		m_cmp->SetQueryFilterWord0(theApp.default_physx_shape_filterword0);
 		break;
 	case physx::PxGeometryType::eBOX:
-		m_cmp->CreateBoxShape(m_pos, rot, m_param.x, m_param.y, m_param.z);
+		m_cmp->CreateBoxShape(m_pos, rot, m_param.x, m_param.y, m_param.z, MeshComponent::DefaultCollisionMaterial.x, MeshComponent::DefaultCollisionMaterial.y, MeshComponent::DefaultCollisionMaterial.z);
 		m_cmp->SetSimulationFilterWord0(theApp.default_physx_shape_filterword0);
 		m_cmp->SetQueryFilterWord0(theApp.default_physx_shape_filterword0);
 		break;

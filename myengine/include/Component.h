@@ -203,13 +203,13 @@ public:
 
 	physx::PxMaterial * CreatePhysxMaterial(float staticFriction, float dynamicFriction, float restitution);
 
-	void CreateBoxShape(const my::Vector3 & pos, const my::Quaternion & rot, float hx, float hy, float hz);
+	void CreateBoxShape(const my::Vector3 & pos, const my::Quaternion & rot, float hx, float hy, float hz, float staticFriction, float dynamicFriction, float restitution);
 
-	void CreateCapsuleShape(const my::Vector3 & pos, const my::Quaternion & rot, float radius, float halfHeight);
+	void CreateCapsuleShape(const my::Vector3 & pos, const my::Quaternion & rot, float radius, float halfHeight, float staticFriction, float dynamicFriction, float restitution);
 
-	void CreatePlaneShape(const my::Vector3 & pos, const my::Quaternion & rot);
+	void CreatePlaneShape(const my::Vector3 & pos, const my::Quaternion & rot, float staticFriction, float dynamicFriction, float restitution);
 
-	void CreateSphereShape(const my::Vector3 & pos, const my::Quaternion & rot, float radius);
+	void CreateSphereShape(const my::Vector3 & pos, const my::Quaternion & rot, float radius, float staticFriction, float dynamicFriction, float restitution);
 
 	virtual void SetSimulationFilterWord0(unsigned int filterWord0);
 
@@ -291,6 +291,8 @@ public:
 	typedef boost::shared_ptr<PhysxBaseResource> PhysxBaseResourcePtr;
 
 	PhysxBaseResourcePtr m_PxMesh;
+
+	static const my::Vector3 DefaultCollisionMaterial;
 
 	unsigned int m_DescSimulationFilterWord0;
 
