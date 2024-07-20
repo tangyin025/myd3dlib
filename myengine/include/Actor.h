@@ -356,6 +356,8 @@ public:
 
 	my::Vector3 GetAngularVelocity(void) const;
 
+	void AddForce(const my::Vector3& force, physx::PxForceMode::Enum mode, bool autowake);
+
 	bool IsSleeping(void) const;
 
 	void WakeUp(void);

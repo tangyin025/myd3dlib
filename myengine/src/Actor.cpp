@@ -693,6 +693,12 @@ my::Vector3 Actor::GetAngularVelocity(void) const
 	return m_PxActor ? (Vector3&)m_PxActor->is<physx::PxRigidBody>()->getAngularVelocity() : Vector3(0, 0, 0);
 }
 
+void Actor::AddForce(const my::Vector3& force, physx::PxForceMode::Enum mode, bool autowake)
+{
+	_ASSERT(m_PxActor);
+	m_PxActor->is<physx::PxRigidBody>()->addForce((physx::PxVec3&)force, mode, true);
+}
+
 bool Actor::IsSleeping(void) const
 {
 	_ASSERT(GetRigidActorType() == physx::PxActorType::eRIGID_DYNAMIC);

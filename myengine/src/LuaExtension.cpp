@@ -3137,6 +3137,14 @@ void LuaContext::Init(void)
 			.def("UpdateMassAndInertia", &Actor::UpdateMassAndInertia)
 			.property("LinearVelocity", &Actor::GetLinearVelocity, &Actor::SetLinearVelocity)
 			.property("AngularVelocity", &Actor::GetAngularVelocity, &Actor::SetAngularVelocity)
+			.enum_("ForceMode")
+			[
+				value("eFORCE", physx::PxForceMode::eFORCE),
+				value("eIMPULSE", physx::PxForceMode::eIMPULSE),
+				value("eVELOCITY_CHANGE", physx::PxForceMode::eVELOCITY_CHANGE),
+				value("eACCELERATION", physx::PxForceMode::eACCELERATION)
+			]
+			.def("AddForce", &Actor::AddForce)
 			.property("Sleeping", &Actor::IsSleeping)
 			.def("WakeUp", &Actor::WakeUp)
 			.def("InsertComponent", (void (Actor::*)(ComponentPtr))& Actor::InsertComponent)
