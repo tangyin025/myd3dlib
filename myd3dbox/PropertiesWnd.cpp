@@ -848,10 +848,13 @@ void CPropertiesWnd::UpdatePropertiesAnimationNodeSequence(CMFCPropertyGridPrope
 	Animator* animator = dynamic_cast<Animator*>(seq->GetTopNode());
 	if (animator->m_Skeleton)
 	{
-		my::OgreSkeletonAnimation::OgreAnimationMap::const_iterator anim_iter = animator->m_Skeleton->m_animationMap.begin();
-		for (; anim_iter != animator->m_Skeleton->m_animationMap.end(); anim_iter++)
+		std::set<std::string> dummy_map;
+		std::transform(animator->m_Skeleton->m_animationMap.begin(), animator->m_Skeleton->m_animationMap.end(),
+			std::inserter(dummy_map, dummy_map.end()), boost::bind(&my::OgreSkeletonAnimation::OgreAnimationMap::value_type::first, boost::placeholders::_1));
+		std::set<std::string>::const_iterator anim_iter = dummy_map.begin();
+		for (; anim_iter != dummy_map.end(); anim_iter++)
 		{
-			pAnimationNode->GetSubItem(1)->AddOption(ms2ts(anim_iter->first.c_str()).c_str(), TRUE);
+			pAnimationNode->GetSubItem(1)->AddOption(ms2ts(anim_iter->c_str()).c_str(), TRUE);
 		}
 	}
 
@@ -2071,10 +2074,13 @@ void CPropertiesWnd::CreatePropertiesAnimationNodeSequence(CMFCPropertyGridPrope
 	Animator* animator = dynamic_cast<Animator*>(seq->GetTopNode());
 	if (animator->m_Skeleton)
 	{
-		my::OgreSkeletonAnimation::OgreAnimationMap::const_iterator anim_iter = animator->m_Skeleton->m_animationMap.begin();
-		for (; anim_iter != animator->m_Skeleton->m_animationMap.end(); anim_iter++)
+		std::set<std::string> dummy_map;
+		std::transform(animator->m_Skeleton->m_animationMap.begin(), animator->m_Skeleton->m_animationMap.end(),
+			std::inserter(dummy_map, dummy_map.end()), boost::bind(&my::OgreSkeletonAnimation::OgreAnimationMap::value_type::first, boost::placeholders::_1));
+		std::set<std::string>::const_iterator anim_iter = dummy_map.begin();
+		for (; anim_iter != dummy_map.end(); anim_iter++)
 		{
-			pProp->AddOption(ms2ts(anim_iter->first.c_str()).c_str(), TRUE);
+			pProp->AddOption(ms2ts(anim_iter->c_str()).c_str(), TRUE);
 		}
 	}
 
