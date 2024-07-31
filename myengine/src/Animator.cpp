@@ -623,7 +623,7 @@ my::BoneList & AnimationNodeBlendList::GetPose(my::BoneList & pose, int root_i, 
 			}
 		}
 	}
-
+	_ASSERT(init_pose); // ! not all of m_Weight and m_Rate are zero
 	return pose;
 }
 
