@@ -182,14 +182,18 @@ public:
 
 	SequenceList m_SequenceSlot;
 
+	int m_NodeId;
+
 protected:
 	AnimationNodeSlot(void)
+		: m_NodeId(-1)
 	{
 	}
 
 public:
 	AnimationNodeSlot(const char * Name)
 		: AnimationNode(Name, 1)
+		, m_NodeId(-1)
 	{
 	}
 
@@ -199,6 +203,7 @@ public:
 	void serialize(Archive& ar, const unsigned int version)
 	{
 		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(AnimationNode);
+		ar & BOOST_SERIALIZATION_NVP(m_NodeId);
 	}
 
 	virtual void Tick(float fElapsedTime, float fTotalWeight);

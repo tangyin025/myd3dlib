@@ -365,10 +365,15 @@ void AnimationNodeSlot::Tick(float fElapsedTime, float fTotalWeight)
 
 my::BoneList & AnimationNodeSlot::GetPose(my::BoneList & pose, int root_i, const my::BoneHierarchy & boneHierarchy) const
 {
+	int slot_root = m_NodeId >= 0 ? m_NodeId : root_i;
+
+	_ASSERT(root_i == slot_root || boneHierarchy.IsChild(root_i, slot_root));
+
 	bool init_pose = false;
 
 	float fTotalWeight = 0.0f;
 
+	my::BoneList slot_pose(pose.size());
 	SequenceList::const_iterator seq_iter = m_SequenceSlot.begin();
 	for (; seq_iter != m_SequenceSlot.end(); seq_iter++)
 	{
@@ -378,29 +383,25 @@ my::BoneList & AnimationNodeSlot::GetPose(my::BoneList & pose, int root_i, const
 
 			if (!init_pose)
 			{
-				seq_iter->GetPose(pose, root_i, boneHierarchy);
+				seq_iter->GetPose(slot_pose, slot_root, boneHierarchy);
 				init_pose = true;
 			}
 			else
 			{
-				my::BoneList OtherPose(pose.size());
-				seq_iter->GetPose(OtherPose, root_i, boneHierarchy);
-				pose.LerpSelf(OtherPose, boneHierarchy, root_i, seq_iter->m_Weight / fTotalWeight);
+				my::BoneList OtherPose(slot_pose.size());
+				seq_iter->GetPose(OtherPose, slot_root, boneHierarchy);
+				slot_pose.LerpSelf(OtherPose, boneHierarchy, slot_root, seq_iter->m_Weight / fTotalWeight);
 			}
 		}
 	}
 
-	if (m_Childs[0] && fTotalWeight < 1 - EPSILON_E6)
+	if (m_Childs[0])
 	{
-		if (!init_pose)
+		m_Childs[0]->GetPose(pose, root_i, boneHierarchy);
+
+		if (init_pose)
 		{
-			m_Childs[0]->GetPose(pose, root_i, boneHierarchy);
-		}
-		else
-		{
-			my::BoneList OtherPose(pose.size());
-			m_Childs[0]->GetPose(OtherPose, root_i, boneHierarchy);
-			pose.LerpSelf(OtherPose, boneHierarchy, root_i, 1 - fTotalWeight);
+			pose.LerpSelf(slot_pose, boneHierarchy, slot_root, fTotalWeight);
 		}
 	}
 	return pose;
