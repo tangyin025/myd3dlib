@@ -3204,6 +3204,7 @@ void LuaContext::Init(void)
 
 		, class_<AnimationNodeSlot, AnimationNode, boost::shared_ptr<AnimationNode> >("AnimationNodeSlot")
 			.def(constructor<const char*>())
+			.def_readwrite("NodeId", &AnimationNodeSlot::m_NodeId)
 			.def("Play", &AnimationNodeSlot::Play)
 			.def("StopSlotByUserData", &AnimationNodeSlot::StopSlotByUserData)
 			.property("IsPlaying", &AnimationNodeSlot::IsPlaying)
