@@ -346,8 +346,6 @@ void AnimationNodeSlot::Tick(float fElapsedTime, float fTotalWeight)
 
 		seq_iter->Tick(fElapsedTime, seq_iter->m_TargetWeight);
 
-		fTotalWeight = Max(0.0f, fTotalWeight - seq_iter->m_Weight);
-
 		if (seq_iter->m_TargetWeight > 0 /*&& !seq_iter->m_Loop*/ && seq_iter->m_Time >= seq_iter->GetLength())
 		{
 			seq_iter->m_TargetWeight = 0;
