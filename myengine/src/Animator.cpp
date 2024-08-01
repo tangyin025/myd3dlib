@@ -425,7 +425,11 @@ void AnimationNodeSlot::Play(const std::string & Name, float Rate, float Weight,
 		boost::bind(std::greater<float>(), boost::placeholders::_1, boost::bind(&Sequence::m_Priority, boost::placeholders::_2))), Sequence());
 	if (seq_iter != m_SequenceSlot.end())
 	{
-		seq_iter->m_Time = 0;
+		Animator* Root = dynamic_cast<Animator*>(GetTopNode());
+
+		const OgreAnimation* anim;
+
+		seq_iter->m_Time = Rate < 0 && Root->m_Skeleton && (anim = Root->m_Skeleton->GetAnimation(Name)) ? anim->GetLength() : 0;
 		seq_iter->m_TargetWeight = Weight;
 		seq_iter->m_Name = Name;
 		seq_iter->m_Rate = Rate;
@@ -440,8 +444,6 @@ void AnimationNodeSlot::Play(const std::string & Name, float Rate, float Weight,
 
 		if (!seq_iter->m_Group.empty())
 		{
-			Animator* Root = dynamic_cast<Animator*>(GetTopNode());
-
 			Root->AddSequenceGroup(seq_iter->m_Group, &*seq_iter);
 		}
 	}
