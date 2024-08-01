@@ -413,7 +413,7 @@ my::BoneList & AnimationNodeSlot::GetPose(my::BoneList & pose, int root_i, const
 
 		if (init_pose)
 		{
-			pose.LerpSelf(slot_pose, boneHierarchy, slot_root, fTotalWeight);
+			pose.LerpSelf(slot_pose, boneHierarchy, slot_root, Min(1.0f, fTotalWeight));
 		}
 	}
 	return pose;
