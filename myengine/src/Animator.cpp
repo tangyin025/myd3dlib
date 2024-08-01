@@ -371,13 +371,27 @@ my::BoneList & AnimationNodeSlot::GetPose(my::BoneList & pose, int root_i, const
 
 	float fTotalWeight = 0.0f;
 
+	int nPriority = INT_MAX;
+
+	float fPriorityWeight = 1.0f;
+
 	my::BoneList slot_pose(pose.size());
 	SequenceList::const_iterator seq_iter = m_SequenceSlot.begin();
 	for (; seq_iter != m_SequenceSlot.end(); seq_iter++)
 	{
 		if (seq_iter->m_Weight > 0.0f)
 		{
-			fTotalWeight += seq_iter->m_Weight;
+			if (seq_iter->m_Priority < nPriority)
+			{
+				nPriority = seq_iter->m_Priority;
+				fPriorityWeight -= fTotalWeight;
+				if (fPriorityWeight <= 0)
+				{
+					break;
+				}
+			}
+			
+			fTotalWeight += seq_iter->m_Weight * fPriorityWeight;
 
 			if (!init_pose)
 			{
@@ -388,7 +402,7 @@ my::BoneList & AnimationNodeSlot::GetPose(my::BoneList & pose, int root_i, const
 			{
 				my::BoneList OtherPose(slot_pose.size());
 				seq_iter->GetPose(OtherPose, slot_root, boneHierarchy);
-				slot_pose.LerpSelf(OtherPose, boneHierarchy, slot_root, seq_iter->m_Weight / fTotalWeight);
+				slot_pose.LerpSelf(OtherPose, boneHierarchy, slot_root, seq_iter->m_Weight * fPriorityWeight / fTotalWeight);
 			}
 		}
 	}
@@ -408,7 +422,7 @@ my::BoneList & AnimationNodeSlot::GetPose(my::BoneList & pose, int root_i, const
 void AnimationNodeSlot::Play(const std::string & Name, float Rate, float Weight, float BlendTime, float BlendOutTime, const std::string & Group, int Priority, DWORD_PTR UserData)
 {
 	SequenceList::iterator seq_iter = m_SequenceSlot.insert(std::upper_bound(m_SequenceSlot.begin(), m_SequenceSlot.end(), Priority,
-		boost::bind(std::less<float>(), boost::placeholders::_1, boost::bind(&Sequence::m_Priority, boost::placeholders::_2))), Sequence());
+		boost::bind(std::greater<float>(), boost::placeholders::_1, boost::bind(&Sequence::m_Priority, boost::placeholders::_2))), Sequence());
 	if (seq_iter != m_SequenceSlot.end())
 	{
 		seq_iter->m_Time = 0;
