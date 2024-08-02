@@ -467,36 +467,6 @@ UIRender::VertexList & UIRender::GetVertexList(const BaseTexture * texture)
 	return m_Layer.back().second;
 }
 
-void UIRender::PushRectangle(const Rectangle & rect, D3DCOLOR color, const CRect & WindowRect, const CSize & TileSize, const BaseTexture * texture)
-{
-	D3DSURFACE_DESC desc = texture->GetLevelDesc();
-	Rectangle UvRect((float)WindowRect.left / desc.Width, (float)WindowRect.top / desc.Height, (float)WindowRect.right / desc.Width, (float)WindowRect.bottom / desc.Height);
-	const Vector2 WidthHeight(rect.Width() / TileSize.cx, rect.Height() / TileSize.cy);
-	for (int i = 0; i < TileSize.cx; i++)
-	{
-		for (int j = 0; j < TileSize.cy; j++)
-		{
-			const Rectangle rect2(rect.l + i * WidthHeight.x, rect.t + j * WidthHeight.y, rect.l + (i + 1) * WidthHeight.x, rect.t + (j + 1) * WidthHeight.y);
-			PushRectangleSimple(GetVertexList(texture), rect2, UvRect, color);
-		}
-	}
-}
-
-void UIRender::PushRectangle(const Rectangle & rect, D3DCOLOR color, const CRect & WindowRect, const CSize & TileSize, const BaseTexture * texture, const Rectangle & clip)
-{
-	D3DSURFACE_DESC desc = texture->GetLevelDesc();
-	Rectangle UvRect((float)WindowRect.left / desc.Width, (float)WindowRect.top / desc.Height, (float)WindowRect.right / desc.Width, (float)WindowRect.bottom / desc.Height);
-	const Vector2 WidthHeight(rect.Width() / TileSize.cx, rect.Height() / TileSize.cy);
-	for (int i = 0; i < TileSize.cx; i++)
-	{
-		for (int j = 0; j < TileSize.cy; j++)
-		{
-			const Rectangle rect2(rect.l + i * WidthHeight.x, rect.t + j * WidthHeight.y, rect.l + (i + 1) * WidthHeight.x, rect.t + (j + 1) * WidthHeight.y);
-			PushRectangleSimple(GetVertexList(texture), rect2, UvRect, color, clip);
-		}
-	}
-}
-
 void UIRender::PushRectangle(const my::Rectangle & rect, D3DCOLOR color, const CRect & WindowRect, const BaseTexture * texture, const Matrix4 & transform)
 {
 	D3DSURFACE_DESC desc = texture->GetLevelDesc();
@@ -527,8 +497,13 @@ void UIRender::PushRectangle(const my::Rectangle & rect, D3DCOLOR color, const C
 	PushTriangleSimple(GetVertexList(texture), v[2], v[3], v[1], clip, 0xFF);
 }
 
-void UIRender::PushWindowSimple(VertexList & vertex_list, const my::Rectangle & rect, const Rectangle & InRect, const Rectangle & OutUvRect, const Rectangle & InUvRect, DWORD color)
+void UIRender::PushWindow(const my::Rectangle & rect, DWORD color, const CRect & WindowRect, const CRect & WindowBorder, const BaseTexture * texture)
 {
+	D3DSURFACE_DESC desc = texture->GetLevelDesc();
+	const Rectangle InRect(rect.l + WindowBorder.left, rect.t + WindowBorder.top, rect.r - WindowBorder.right, rect.b - WindowBorder.bottom);
+	const Rectangle OutUvRect((float)WindowRect.left / desc.Width, (float)WindowRect.top / desc.Height, (float)WindowRect.right / desc.Width, (float)WindowRect.bottom / desc.Height);
+	const Rectangle InUvRect((float)(WindowRect.left + WindowBorder.left) / desc.Width, (float)(WindowRect.top + WindowBorder.top) / desc.Height, (float)(WindowRect.right - WindowBorder.right) / desc.Width, (float)(WindowRect.bottom - WindowBorder.bottom) / desc.Height);
+	VertexList & vertex_list = GetVertexList(texture);
 	PushRectangleSimple(vertex_list, Rectangle(rect.l, rect.t, InRect.l, InRect.t), Rectangle(OutUvRect.l, OutUvRect.t, InUvRect.l, InUvRect.t), color);
 	PushRectangleSimple(vertex_list, Rectangle(InRect.l, rect.t, InRect.r, InRect.t), Rectangle(InUvRect.l, OutUvRect.t, InUvRect.r, InUvRect.t), color);
 	PushRectangleSimple(vertex_list, Rectangle(InRect.r, rect.t, rect.r, InRect.t), Rectangle(InUvRect.r, OutUvRect.t, OutUvRect.r, InUvRect.t), color);
@@ -540,8 +515,13 @@ void UIRender::PushWindowSimple(VertexList & vertex_list, const my::Rectangle & 
 	PushRectangleSimple(vertex_list, Rectangle(InRect.r, InRect.b, rect.r, rect.b), Rectangle(InUvRect.r, InUvRect.b, OutUvRect.r, OutUvRect.b), color);
 }
 
-void UIRender::PushWindowSimple(VertexList & vertex_list, const my::Rectangle & rect, const Rectangle & InRect, const Rectangle & OutUvRect, const Rectangle & InUvRect, DWORD color, const Rectangle & clip)
+void UIRender::PushWindow(const my::Rectangle & rect, DWORD color, const CRect & WindowRect, const CRect & WindowBorder, const BaseTexture * texture, const Rectangle & clip)
 {
+	D3DSURFACE_DESC desc = texture->GetLevelDesc();
+	const Rectangle InRect(rect.l + WindowBorder.left, rect.t + WindowBorder.top, rect.r - WindowBorder.right, rect.b - WindowBorder.bottom);
+	const Rectangle OutUvRect((float)WindowRect.left / desc.Width, (float)WindowRect.top / desc.Height, (float)WindowRect.right / desc.Width, (float)WindowRect.bottom / desc.Height);
+	const Rectangle InUvRect((float)(WindowRect.left + WindowBorder.left) / desc.Width, (float)(WindowRect.top + WindowBorder.top) / desc.Height, (float)(WindowRect.right - WindowBorder.right) / desc.Width, (float)(WindowRect.bottom - WindowBorder.bottom) / desc.Height);
+	VertexList & vertex_list = GetVertexList(texture);
 	PushRectangleSimple(vertex_list, Rectangle(rect.l, rect.t, InRect.l, InRect.t), Rectangle(OutUvRect.l, OutUvRect.t, InUvRect.l, InUvRect.t), color, clip);
 	PushRectangleSimple(vertex_list, Rectangle(InRect.l, rect.t, InRect.r, InRect.t), Rectangle(InUvRect.l, OutUvRect.t, InUvRect.r, InUvRect.t), color, clip);
 	PushRectangleSimple(vertex_list, Rectangle(InRect.r, rect.t, rect.r, InRect.t), Rectangle(InUvRect.r, OutUvRect.t, OutUvRect.r, InUvRect.t), color, clip);
@@ -552,23 +532,45 @@ void UIRender::PushWindowSimple(VertexList & vertex_list, const my::Rectangle & 
 	PushRectangleSimple(vertex_list, Rectangle(InRect.l, InRect.b, InRect.r, rect.b), Rectangle(InUvRect.l, InUvRect.b, InUvRect.r, OutUvRect.b), color, clip);
 	PushRectangleSimple(vertex_list, Rectangle(InRect.r, InRect.b, rect.r, rect.b), Rectangle(InUvRect.r, InUvRect.b, OutUvRect.r, OutUvRect.b), color, clip);
 }
-
-void UIRender::PushWindow(const my::Rectangle & rect, DWORD color, const CRect & WindowRect, const CRect & WindowBorder, const BaseTexture * texture)
+		
+void UIRender::PushWindow(const Rectangle & rect, DWORD color, const CRect & WindowRect, const CSize & WindowTile, const BaseTexture * texture)
 {
 	D3DSURFACE_DESC desc = texture->GetLevelDesc();
-	Rectangle InRect(rect.l + WindowBorder.left, rect.t + WindowBorder.top, rect.r - WindowBorder.right, rect.b - WindowBorder.bottom);
-	Rectangle OutUvRect((float)WindowRect.left / desc.Width, (float)WindowRect.top / desc.Height, (float)WindowRect.right / desc.Width, (float)WindowRect.bottom / desc.Height);
-	Rectangle InUvRect((float)(WindowRect.left + WindowBorder.left) / desc.Width, (float)(WindowRect.top + WindowBorder.top) / desc.Height, (float)(WindowRect.right - WindowBorder.right) / desc.Width, (float)(WindowRect.bottom - WindowBorder.bottom) / desc.Height);
-	PushWindowSimple(GetVertexList(texture), rect, InRect, OutUvRect, InUvRect, color);
+	const CSize WindowSize = WindowRect.Size();
+	const Rectangle OutUvRect((float)WindowRect.left / desc.Width, (float)WindowRect.top / desc.Height, (float)(WindowRect.left + WindowSize.cx * 3) / desc.Width, (float)(WindowRect.top + WindowSize.cy * 3) / desc.Height);
+	const Rectangle InUvRect((float)(WindowRect.left + WindowSize.cx) / desc.Width, (float)(WindowRect.top + WindowSize.cy) / desc.Height, (float)(WindowRect.left + WindowSize.cx * 2) / desc.Width, (float)(WindowRect.top + WindowSize.cy * 2) / desc.Height);
+	const Vector2 WidthHeight = rect.Extent();
+	VertexList & vertex_list = GetVertexList(texture);
+	for (int i = 0; i < WindowTile.cy; i++)
+	{
+		for (int j = 0; j < WindowTile.cx; j++)
+		{
+			const Vector2 LeftRight = j < 1 ? Vector2(OutUvRect.l, InUvRect.l) : j < WindowTile.cx - 1 ? Vector2(InUvRect.l, InUvRect.r) : Vector2(InUvRect.r, OutUvRect.r);
+			const Vector2 TopBottom = i < 1 ? Vector2(OutUvRect.t, InUvRect.t) : i < WindowTile.cy - 1 ? Vector2(InUvRect.t, InUvRect.b) : Vector2(InUvRect.b, OutUvRect.b);
+			PushRectangleSimple(vertex_list,
+				Rectangle(rect.l + WidthHeight.x * j / WindowTile.cx, rect.t + WidthHeight.y * i / WindowTile.cy, rect.l + WidthHeight.x * (j + 1) / WindowTile.cx, rect.t + WidthHeight.y * (i + 1) / WindowTile.cy), my::Rectangle(LeftRight.x, TopBottom.x, LeftRight.y, TopBottom.y), color);
+		}
+	}
 }
 
-void UIRender::PushWindow(const my::Rectangle & rect, DWORD color, const CRect & WindowRect, const CRect & WindowBorder, const BaseTexture * texture, const Rectangle & clip)
+void UIRender::PushWindow(const Rectangle & rect, DWORD color, const CRect & WindowRect, const CSize & WindowTile, const BaseTexture * texture, const Rectangle & clip)
 {
 	D3DSURFACE_DESC desc = texture->GetLevelDesc();
-	Rectangle InRect(rect.l + WindowBorder.left, rect.t + WindowBorder.top, rect.r - WindowBorder.right, rect.b - WindowBorder.bottom);
-	Rectangle OutUvRect((float)WindowRect.left / desc.Width, (float)WindowRect.top / desc.Height, (float)WindowRect.right / desc.Width, (float)WindowRect.bottom / desc.Height);
-	Rectangle InUvRect((float)(WindowRect.left + WindowBorder.left) / desc.Width, (float)(WindowRect.top + WindowBorder.top) / desc.Height, (float)(WindowRect.right - WindowBorder.right) / desc.Width, (float)(WindowRect.bottom - WindowBorder.bottom) / desc.Height);
-	PushWindowSimple(GetVertexList(texture), rect, InRect, OutUvRect, InUvRect, color, clip);
+	const CSize WindowSize = WindowRect.Size();
+	const Rectangle OutUvRect((float)WindowRect.left / desc.Width, (float)WindowRect.top / desc.Height, (float)(WindowRect.left + WindowSize.cx * 3) / desc.Width, (float)(WindowRect.top + WindowSize.cy * 3) / desc.Height);
+	const Rectangle InUvRect((float)(WindowRect.left + WindowSize.cx) / desc.Width, (float)(WindowRect.top + WindowSize.cy) / desc.Height, (float)(WindowRect.left + WindowSize.cx * 2) / desc.Width, (float)(WindowRect.top + WindowSize.cy * 2) / desc.Height);
+	const Vector2 WidthHeight = rect.Extent();
+	VertexList& vertex_list = GetVertexList(texture);
+	for (int i = 0; i < WindowTile.cy; i++)
+	{
+		for (int j = 0; j < WindowTile.cx; j++)
+		{
+			const Vector2 LeftRight = j < 1 ? Vector2(OutUvRect.l, InUvRect.l) : j < WindowTile.cx - 1 ? Vector2(InUvRect.l, InUvRect.r) : Vector2(InUvRect.r, OutUvRect.r);
+			const Vector2 TopBottom = i < 1 ? Vector2(OutUvRect.t, InUvRect.t) : i < WindowTile.cy - 1 ? Vector2(InUvRect.t, InUvRect.b) : Vector2(InUvRect.b, OutUvRect.b);
+			PushRectangleSimple(vertex_list,
+				Rectangle(rect.l + WidthHeight.x * j / WindowTile.cx, rect.t + WidthHeight.y * i / WindowTile.cy, rect.l + WidthHeight.x * (j + 1) / WindowTile.cx, rect.t + WidthHeight.y * (i + 1) / WindowTile.cy), my::Rectangle(LeftRight.x, TopBottom.x, LeftRight.y, TopBottom.y), color, clip);
+		}
+	}
 }
 
 void UIRender::PushCharacter(float x, float y, const Font::CharacterInfo* info, Font* font, D3DCOLOR color)
@@ -709,7 +711,7 @@ void ControlImage::Draw(UIRender * ui_render, const Rectangle & rect, DWORD colo
 	{
 		if (m_Border.right == 0 && m_Border.bottom == 0)
 		{
-			ui_render->PushRectangle(rect, color, m_Rect, CSize(Clamp(m_Border.left, 1l, 32l), Clamp(m_Border.top, 1l, 32l)), m_Texture.get());
+			ui_render->PushWindow(rect, color, m_Rect, CSize(Clamp(m_Border.left, 1l, 32l), Clamp(m_Border.top, 1l, 32l)), m_Texture.get());
 		}
 		else
 		{
@@ -724,7 +726,7 @@ void ControlImage::Draw(UIRender * ui_render, const Rectangle & rect, DWORD colo
 	{
 		if (m_Border.right == 0 && m_Border.bottom == 0)
 		{
-			ui_render->PushRectangle(rect, color, m_Rect, CSize(Clamp(m_Border.left, 1l, 32l), Clamp(m_Border.top, 1l, 32l)), m_Texture.get(), clip);
+			ui_render->PushWindow(rect, color, m_Rect, CSize(Clamp(m_Border.left, 1l, 32l), Clamp(m_Border.top, 1l, 32l)), m_Texture.get(), clip);
 		}
 		else
 		{
