@@ -16,7 +16,7 @@ cmp2.MeshPath="mesh/Sphere.mesh.xml"
 cmp2.Material=lambert2
 actor2:InsertComponent(cmp2)
 actor2:CreateRigidActor(Actor.eRIGID_DYNAMIC)
-cmp2:CreateSphereShape(Vector3(0,0,0),Quaternion.Identity(),1)
+cmp2:CreateSphereShape(Vector3(0,0,0),Quaternion.Identity(),1,0.5,0.5,0.5)
 cmp2.SimulationFilterWord0=1
 cmp2.QueryFilterWord0=1
 class 'Actor2Behavior'(Component)
@@ -37,7 +37,7 @@ cmp3.MeshPath="mesh/Cylinder.mesh.xml"
 cmp3.Material=lambert2:Clone()
 actor3:InsertComponent(cmp3)
 actor3:CreateRigidActor(Actor.eRIGID_DYNAMIC)
-cmp3:CreateCapsuleShape(Vector3(0,0,0),Quaternion.RotationYawPitchRoll(0,0,math.rad(-90)),0.1,0.25)
+cmp3:CreateCapsuleShape(Vector3(0,0,0),Quaternion.RotationYawPitchRoll(0,0,math.rad(-90)),0.1,0.25,0.5,0.5,0.5)
 cmp3.SimulationFilterWord0=1
 cmp3.QueryFilterWord0=1
 
@@ -48,7 +48,7 @@ cmp4.MeshPath="mesh/Cylinder.mesh.xml"
 cmp4.Material=lambert2:Clone()
 actor4:InsertComponent(cmp4)
 actor4:CreateRigidActor(Actor.eRIGID_DYNAMIC)
-cmp4:CreateCapsuleShape(Vector3(0,0,0),Quaternion.RotationYawPitchRoll(0,0,math.rad(-90)),0.1,0.25)
+cmp4:CreateCapsuleShape(Vector3(0,0,0),Quaternion.RotationYawPitchRoll(0,0,math.rad(-90)),0.1,0.25,0.5,0.5,0.5)
 cmp4.SimulationFilterWord0=1
 cmp4.QueryFilterWord0=1
 
@@ -57,7 +57,7 @@ actor5=Actor(NamedObject.MakeUniqueName("actor"),Vector3(3,1,0),Quaternion.Ident
 local cmp5=StaticEmitter(NamedObject.MakeUniqueName("mesh_cmp"),actor5.aabb,3,EmitterComponent.FaceTypeCamera,EmitterComponent.SpaceTypeLocal,StaticEmitter.PrimitiveTypeQuad)
 actor5:InsertComponent(cmp5)
 actor5:CreateRigidActor(Actor.eRIGID_STATIC)
-cmp5:CreateBoxShape(Vector3(0,0,0),Quaternion(0,0,0,1),1,1,1)
+cmp5:CreateBoxShape(Vector3(0,0,0),Quaternion(0,0,0,1),1,1,1,0.5,0.5,0.5)
 cmp5.SimulationFilterWord0=2
 cmp5.QueryFilterWord0=2
 cmp5.ShapeFlags=bit.bor(Component.eSCENE_QUERY_SHAPE,Component.eTRIGGER_SHAPE,Component.eVISUALIZATION)
