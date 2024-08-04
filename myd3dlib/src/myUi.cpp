@@ -440,7 +440,27 @@ void UIRender::PushRectangleSimple(VertexList & vertex_list, const my::Rectangle
 
 void UIRender::PushRectangleSimple(VertexList & vertex_list, const my::Rectangle & rect, const my::Rectangle & UvRect, D3DCOLOR color, const Rectangle & clip)
 {
-	DWORD clipmask = (rect.l < clip.l ? ClipLeft : 0) | (rect.t < clip.t ? ClipTop : 0) | (rect.r > clip.r ? ClipRight : 0) | (rect.b > clip.b ? ClipBottom : 0);
+	Vector2 LeftRight;
+	if (rect.l <= rect.r)
+	{
+		LeftRight.x = rect.l; LeftRight.y = rect.r;
+	}
+	else
+	{
+		LeftRight.x = rect.r; LeftRight.y = rect.l;
+	}
+
+	Vector2 TopBottom;
+	if (rect.t <= rect.b)
+	{
+		TopBottom.x = rect.t; TopBottom.y = rect.b;
+	}
+	else
+	{
+		TopBottom.x = rect.b; TopBottom.y = rect.t;
+	}
+
+	DWORD clipmask = (LeftRight.x < clip.l ? ClipLeft : 0) | (TopBottom.x < clip.t ? ClipTop : 0) | (LeftRight.y > clip.r ? ClipRight : 0) | (TopBottom.y > clip.b ? ClipBottom : 0);
 
 	PushTriangleSimple(vertex_list,
 		CUSTOMVERTEX(rect.l, rect.t, 0, color, UvRect.l, UvRect.t),
