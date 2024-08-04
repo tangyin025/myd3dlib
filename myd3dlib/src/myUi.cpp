@@ -497,6 +497,36 @@ void UIRender::PushRectangle(const my::Rectangle & rect, D3DCOLOR color, const C
 	PushTriangleSimple(GetVertexList(texture), v[2], v[3], v[1], clip, 0xFF);
 }
 
+void UIRender::PushRectangle(const Rectangle & rect, D3DCOLOR color, const CRect & WindowRect, const CSize & WindowTile, const BaseTexture * texture)
+{
+	D3DSURFACE_DESC desc = texture->GetLevelDesc();
+	const Rectangle UvRect((float)WindowRect.left / desc.Width, (float)WindowRect.top / desc.Height, (float)WindowRect.right / desc.Width, (float)WindowRect.bottom / desc.Height);
+	const Vector2 WidthHeight(rect.Width() / WindowTile.cx, rect.Height() / WindowTile.cy);
+	for (int i = 0; i < WindowTile.cy; i++)
+	{
+		for (int j = 0; j < WindowTile.cx; j++)
+		{
+			const Rectangle rect2(rect.l + j * WidthHeight.x, rect.t + i * WidthHeight.y, rect.l + (j + 1) * WidthHeight.x, rect.t + (i + 1) * WidthHeight.y);
+			PushRectangleSimple(GetVertexList(texture), rect2, UvRect, color);
+		}
+	}
+}
+
+void UIRender::PushRectangle(const Rectangle & rect, D3DCOLOR color, const CRect & WindowRect, const CSize & WindowTile, const BaseTexture * texture, const Rectangle & clip)
+{
+	D3DSURFACE_DESC desc = texture->GetLevelDesc();
+	const Rectangle UvRect((float)WindowRect.left / desc.Width, (float)WindowRect.top / desc.Height, (float)WindowRect.right / desc.Width, (float)WindowRect.bottom / desc.Height);
+	const Vector2 WidthHeight(rect.Width() / WindowTile.cx, rect.Height() / WindowTile.cy);
+	for (int i = 0; i < WindowTile.cy; i++)
+	{
+		for (int j = 0; j < WindowTile.cx; j++)
+		{
+			const Rectangle rect2(rect.l + j * WidthHeight.x, rect.t + i * WidthHeight.y, rect.l + (j + 1) * WidthHeight.x, rect.t + (i + 1) * WidthHeight.y);
+			PushRectangleSimple(GetVertexList(texture), rect2, UvRect, color, clip);
+		}
+	}
+}
+
 void UIRender::PushWindow(const my::Rectangle & rect, DWORD color, const CRect & WindowRect, const CRect & WindowBorder, const BaseTexture * texture)
 {
 	D3DSURFACE_DESC desc = texture->GetLevelDesc();
@@ -711,7 +741,11 @@ void ControlImage::Draw(UIRender * ui_render, const Rectangle & rect, DWORD colo
 	{
 		if (m_Border.right == 0 && m_Border.bottom == 0)
 		{
-			ui_render->PushWindow(rect, color, m_Rect, CSize(Clamp(m_Border.left, 1l, 32l), Clamp(m_Border.top, 1l, 32l)), m_Texture.get());
+			ui_render->PushRectangle(rect, color, m_Rect, CSize(Clamp(m_Border.left, 1l, 32l), Clamp(m_Border.top, 1l, 32l)), m_Texture.get());
+		}
+		else if (m_Border.left == 0 && m_Border.top == 0)
+		{
+			ui_render->PushWindow(rect, color, m_Rect, CSize(Clamp(m_Border.right, 1l, 32l), Clamp(m_Border.bottom, 1l, 32l)), m_Texture.get());
 		}
 		else
 		{
@@ -726,7 +760,11 @@ void ControlImage::Draw(UIRender * ui_render, const Rectangle & rect, DWORD colo
 	{
 		if (m_Border.right == 0 && m_Border.bottom == 0)
 		{
-			ui_render->PushWindow(rect, color, m_Rect, CSize(Clamp(m_Border.left, 1l, 32l), Clamp(m_Border.top, 1l, 32l)), m_Texture.get(), clip);
+			ui_render->PushRectangle(rect, color, m_Rect, CSize(Clamp(m_Border.left, 1l, 32l), Clamp(m_Border.top, 1l, 32l)), m_Texture.get(), clip);
+		}
+		else if (m_Border.left == 0 && m_Border.top == 0)
+		{
+			ui_render->PushWindow(rect, color, m_Rect, CSize(Clamp(m_Border.right, 1l, 32l), Clamp(m_Border.bottom, 1l, 32l)), m_Texture.get(), clip);
 		}
 		else
 		{
