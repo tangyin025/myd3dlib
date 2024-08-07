@@ -30,6 +30,7 @@ class CEnvironmentWnd : public CDockablePane
 		CameraPropertyEuler,
 		CameraPropertyNearZ,
 		CameraPropertyFarZ,
+		CameraPropertyBkColor,
 	};
 
 	enum SkyBoxProperty

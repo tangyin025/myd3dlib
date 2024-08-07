@@ -1374,6 +1374,7 @@ void CMainFrame::OnFileNew()
 	theApp.m_SkyLightCam->m_Euler = my::Vector3(D3DXToRadian(-45), 0, 0);
 	theApp.m_SkyLightColor = my::Vector4(1.0f, 1.0f, 1.0f, 1.0f);
 	theApp.m_AmbientColor = my::Vector4(0.3f, 0.3f, 0.3f, 0.3f);
+	theApp.m_BkColor = D3DCOLOR_ARGB(0, 66, 75, 121);
 	OnSelChanged();
 	CChildView * pView = DYNAMIC_DOWNCAST(CChildView, GetActiveView());
 	ASSERT_VALID(pView);
