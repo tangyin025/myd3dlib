@@ -19,6 +19,7 @@ public:
 	my::Vector3 m_SkyLightCamEuler;
 	my::Vector4 m_SkyLightColor;
 	my::Vector4 m_AmbientColor;
+	D3DCOLOR m_BkColor;
 	my::Vector4 m_ShadowBias;
 	my::Vector4 m_DofParams;
 	float m_LuminanceThreshold;

@@ -31,6 +31,7 @@ RenderPipeline::RenderPipeline(void)
 	, m_SkyLightCam(new my::OrthoCamera(30.0f, 30.0f, -100, 100))
 	, m_SkyLightColor(1.0f, 1.0f, 1.0f, 1.0f)
 	, m_AmbientColor(0.3f, 0.3f, 0.3f, 3.0f)
+	, m_BkColor(D3DCOLOR_ARGB(0, 66, 75, 121))
 	, handle_Time(NULL)
 	, handle_ScreenDim(NULL)
 	, handle_ShadowMapSize(NULL)
@@ -636,7 +637,7 @@ void RenderPipeline::OnRender(
 	RenderAllObjects(pd3dDevice, PassTypeBackground, pRC, fTime, fElapsedTime);
 	if (m_PassDrawCall[PassTypeBackground] <= 0 && m_PassBatchDrawCall[PassTypeBackground] <= 0)
 	{
-		V(pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET, D3DCOLOR_ARGB(0, 66, 75, 121), 0, 0)); // ! d3dmultisample will not work
+		V(pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET, m_BkColor, 0, 0)); // ! d3dmultisample will not work
 	}
 
 	V(pd3dDevice->SetRenderState(D3DRS_FILLMODE, !pRC->m_WireFrame ? D3DFILL_SOLID : D3DFILL_WIREFRAME));

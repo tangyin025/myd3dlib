@@ -119,6 +119,8 @@ public:
 
 	my::Vector4 m_AmbientColor;
 
+	D3DCOLOR m_BkColor;
+
 	boost::shared_ptr<my::Effect> m_SimpleSample;
 
 	D3DXHANDLE handle_Time;
