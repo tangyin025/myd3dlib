@@ -3060,26 +3060,50 @@ void CMainFrame::OnUpdateAlignHorizontal(CCmdUI* pCmdUI)
 void CMainFrame::OnAlignAcross()
 {
 	// TODO: Add your command handler code here
+	struct CtrlCompare
+	{
+		bool operator() (my::Control* lhs, my::Control* rhs)
+		{
+			return lhs->m_Rect.l < rhs->m_Rect.l;
+		}
+	};
+	std::sort(m_selctls.begin(), m_selctls.end(), CtrlCompare());
+	for (int i = 1; i < m_selctls.size() - 1; i++)
+	{
+		m_selctls[i]->m_x.offset += m_selctls.front()->m_Rect.l + (m_selctls.back()->m_Rect.l - m_selctls.front()->m_Rect.l) * i / (m_selctls.size() - 1) - m_selctls[i]->m_Rect.l;
+	}
 }
 
 
 void CMainFrame::OnUpdateAlignAcross(CCmdUI* pCmdUI)
 {
 	// TODO: Add your command update UI handler code here
-	pCmdUI->Enable(m_selctls.size() > 1);
+	pCmdUI->Enable(m_selctls.size() > 2);
 }
 
 
 void CMainFrame::OnAlignDown()
 {
 	// TODO: Add your command handler code here
+	struct CtrlCompare
+	{
+		bool operator() (my::Control* lhs, my::Control* rhs)
+		{
+			return lhs->m_Rect.t < rhs->m_Rect.t;
+		}
+	};
+	std::sort(m_selctls.begin(), m_selctls.end(), CtrlCompare());
+	for (int i = 1; i < m_selctls.size() - 1; i++)
+	{
+		m_selctls[i]->m_y.offset += m_selctls.front()->m_Rect.t + (m_selctls.back()->m_Rect.t - m_selctls.front()->m_Rect.t) * i / (m_selctls.size() - 1) - m_selctls[i]->m_Rect.t;
+	}
 }
 
 
 void CMainFrame::OnUpdateAlignDown(CCmdUI* pCmdUI)
 {
 	// TODO: Add your command update UI handler code here
-	pCmdUI->Enable(m_selctls.size() > 1);
+	pCmdUI->Enable(m_selctls.size() > 2);
 }
 
 
