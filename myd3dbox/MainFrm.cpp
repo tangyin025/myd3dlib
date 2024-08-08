@@ -474,6 +474,26 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_UPDATE_COMMAND_UI(ID_TOOLS_SNAP_TO_GRID, &CMainFrame::OnUpdateToolsSnapToGrid)
 	ON_COMMAND(ID_TOOLS_TERRAINTOOBJ, &CMainFrame::OnToolsTerraintoobj)
 	ON_UPDATE_COMMAND_UI(ID_TOOLS_TERRAINTOOBJ, &CMainFrame::OnUpdateToolsTerraintoobj)
+	ON_COMMAND(ID_ALIGN_LEFTS, &CMainFrame::OnAlignLefts)
+	ON_UPDATE_COMMAND_UI(ID_ALIGN_LEFTS, &CMainFrame::OnUpdateAlignLefts)
+	ON_COMMAND(ID_ALIGN_RIGHTS, &CMainFrame::OnAlignRights)
+	ON_UPDATE_COMMAND_UI(ID_ALIGN_RIGHTS, &CMainFrame::OnUpdateAlignRights)
+	ON_COMMAND(ID_ALIGN_TOPS, &CMainFrame::OnAlignTops)
+	ON_UPDATE_COMMAND_UI(ID_ALIGN_TOPS, &CMainFrame::OnUpdateAlignTops)
+	ON_COMMAND(ID_ALIGN_BOTTOMS, &CMainFrame::OnAlignBottoms)
+	ON_UPDATE_COMMAND_UI(ID_ALIGN_BOTTOMS, &CMainFrame::OnUpdateAlignBottoms)
+	ON_COMMAND(ID_ALIGN_VERTICAL, &CMainFrame::OnAlignVertical)
+	ON_UPDATE_COMMAND_UI(ID_ALIGN_VERTICAL, &CMainFrame::OnUpdateAlignVertical)
+	ON_COMMAND(ID_ALIGN_HORIZONTAL, &CMainFrame::OnAlignHorizontal)
+	ON_UPDATE_COMMAND_UI(ID_ALIGN_HORIZONTAL, &CMainFrame::OnUpdateAlignHorizontal)
+	ON_COMMAND(ID_ALIGN_ACROSS, &CMainFrame::OnAlignAcross)
+	ON_UPDATE_COMMAND_UI(ID_ALIGN_ACROSS, &CMainFrame::OnUpdateAlignAcross)
+	ON_COMMAND(ID_ALIGN_DOWN, &CMainFrame::OnAlignDown)
+	ON_UPDATE_COMMAND_UI(ID_ALIGN_DOWN, &CMainFrame::OnUpdateAlignDown)
+	ON_COMMAND(ID_ALIGN_WIDTH, &CMainFrame::OnAlignWidth)
+	ON_UPDATE_COMMAND_UI(ID_ALIGN_WIDTH, &CMainFrame::OnUpdateAlignWidth)
+	ON_COMMAND(ID_ALIGN_HEIGHT, &CMainFrame::OnAlignHeight)
+	ON_UPDATE_COMMAND_UI(ID_ALIGN_HEIGHT, &CMainFrame::OnUpdateAlignHeight)
 END_MESSAGE_MAP()
 
 static UINT indicators[] =
@@ -2920,4 +2940,170 @@ void CMainFrame::OnUpdateFrameTitle(BOOL bAddToTitle)
 	}
 
 	//__super::OnUpdateFrameTitle(bAddToTitle);
+}
+
+
+void CMainFrame::OnAlignLefts()
+{
+	// TODO: Add your command handler code here
+	ControlList::iterator begin_iter = m_selctls.begin();
+	ControlList::iterator ctrl_iter = begin_iter + 1;
+	for (; ctrl_iter != m_selctls.end(); ctrl_iter++)
+	{
+		(*ctrl_iter)->m_x.offset += (*begin_iter)->m_Rect.l - (*ctrl_iter)->m_Rect.l;
+	}
+}
+
+
+void CMainFrame::OnUpdateAlignLefts(CCmdUI* pCmdUI)
+{
+	// TODO: Add your command update UI handler code here
+	pCmdUI->Enable(m_selctls.size() > 1);
+}
+
+
+void CMainFrame::OnAlignRights()
+{
+	// TODO: Add your command handler code here
+	ControlList::iterator begin_iter = m_selctls.begin();
+	ControlList::iterator ctrl_iter = begin_iter + 1;
+	for (; ctrl_iter != m_selctls.end(); ctrl_iter++)
+	{
+		(*ctrl_iter)->m_x.offset += (*begin_iter)->m_Rect.r - (*ctrl_iter)->m_Rect.r;
+	}
+}
+
+
+void CMainFrame::OnUpdateAlignRights(CCmdUI* pCmdUI)
+{
+	// TODO: Add your command update UI handler code here
+	pCmdUI->Enable(m_selctls.size() > 1);
+}
+
+
+void CMainFrame::OnAlignTops()
+{
+	// TODO: Add your command handler code here
+	ControlList::iterator begin_iter = m_selctls.begin();
+	ControlList::iterator ctrl_iter = begin_iter + 1;
+	for (; ctrl_iter != m_selctls.end(); ctrl_iter++)
+	{
+		(*ctrl_iter)->m_y.offset += (*begin_iter)->m_Rect.t - (*ctrl_iter)->m_Rect.t;
+	}
+}
+
+
+void CMainFrame::OnUpdateAlignTops(CCmdUI* pCmdUI)
+{
+	// TODO: Add your command update UI handler code here
+	pCmdUI->Enable(m_selctls.size() > 1);
+}
+
+
+void CMainFrame::OnAlignBottoms()
+{
+	// TODO: Add your command handler code here
+	ControlList::iterator begin_iter = m_selctls.begin();
+	ControlList::iterator ctrl_iter = begin_iter + 1;
+	for (; ctrl_iter != m_selctls.end(); ctrl_iter++)
+	{
+		(*ctrl_iter)->m_y.offset += (*begin_iter)->m_Rect.b - (*ctrl_iter)->m_Rect.b;
+	}
+}
+
+
+void CMainFrame::OnUpdateAlignBottoms(CCmdUI* pCmdUI)
+{
+	// TODO: Add your command update UI handler code here
+	pCmdUI->Enable(m_selctls.size() > 1);
+}
+
+
+void CMainFrame::OnAlignVertical()
+{
+	// TODO: Add your command handler code here
+	ControlList::iterator begin_iter = m_selctls.begin();
+	ControlList::iterator ctrl_iter = begin_iter + 1;
+	for (; ctrl_iter != m_selctls.end(); ctrl_iter++)
+	{
+		(*ctrl_iter)->m_x.offset += (*begin_iter)->m_Rect.l - (*ctrl_iter)->m_Rect.l + ((*begin_iter)->m_Rect.r - (*begin_iter)->m_Rect.l - (*ctrl_iter)->m_Rect.r + (*ctrl_iter)->m_Rect.l) * 0.5f;
+	}
+}
+
+
+void CMainFrame::OnUpdateAlignVertical(CCmdUI* pCmdUI)
+{
+	// TODO: Add your command update UI handler code here
+	pCmdUI->Enable(m_selctls.size() > 1);
+}
+
+
+void CMainFrame::OnAlignHorizontal()
+{
+	// TODO: Add your command handler code here
+	ControlList::iterator begin_iter = m_selctls.begin();
+	ControlList::iterator ctrl_iter = begin_iter + 1;
+	for (; ctrl_iter != m_selctls.end(); ctrl_iter++)
+	{
+		(*ctrl_iter)->m_y.offset += (*begin_iter)->m_Rect.t - (*ctrl_iter)->m_Rect.t + ((*begin_iter)->m_Rect.b - (*begin_iter)->m_Rect.t - (*ctrl_iter)->m_Rect.b + (*ctrl_iter)->m_Rect.t) * 0.5f;
+	}
+}
+
+
+void CMainFrame::OnUpdateAlignHorizontal(CCmdUI* pCmdUI)
+{
+	// TODO: Add your command update UI handler code here
+	pCmdUI->Enable(m_selctls.size() > 1);
+}
+
+
+void CMainFrame::OnAlignAcross()
+{
+	// TODO: Add your command handler code here
+}
+
+
+void CMainFrame::OnUpdateAlignAcross(CCmdUI* pCmdUI)
+{
+	// TODO: Add your command update UI handler code here
+	pCmdUI->Enable(m_selctls.size() > 1);
+}
+
+
+void CMainFrame::OnAlignDown()
+{
+	// TODO: Add your command handler code here
+}
+
+
+void CMainFrame::OnUpdateAlignDown(CCmdUI* pCmdUI)
+{
+	// TODO: Add your command update UI handler code here
+	pCmdUI->Enable(m_selctls.size() > 1);
+}
+
+
+void CMainFrame::OnAlignWidth()
+{
+	// TODO: Add your command handler code here
+}
+
+
+void CMainFrame::OnUpdateAlignWidth(CCmdUI* pCmdUI)
+{
+	// TODO: Add your command update UI handler code here
+	pCmdUI->Enable(m_selctls.size() > 1);
+}
+
+
+void CMainFrame::OnAlignHeight()
+{
+	// TODO: Add your command handler code here
+}
+
+
+void CMainFrame::OnUpdateAlignHeight(CCmdUI* pCmdUI)
+{
+	// TODO: Add your command update UI handler code here
+	pCmdUI->Enable(m_selctls.size() > 1);
 }

@@ -248,6 +248,26 @@ public:
 	afx_msg void OnToolsTerraintoobj();
 	afx_msg void OnUpdateToolsTerraintoobj(CCmdUI* pCmdUI);
 	virtual void OnUpdateFrameTitle(BOOL bAddToTitle);
+	afx_msg void OnAlignLefts();
+	afx_msg void OnUpdateAlignLefts(CCmdUI* pCmdUI);
+	afx_msg void OnAlignRights();
+	afx_msg void OnUpdateAlignRights(CCmdUI* pCmdUI);
+	afx_msg void OnAlignTops();
+	afx_msg void OnUpdateAlignTops(CCmdUI* pCmdUI);
+	afx_msg void OnAlignBottoms();
+	afx_msg void OnUpdateAlignBottoms(CCmdUI* pCmdUI);
+	afx_msg void OnAlignVertical();
+	afx_msg void OnUpdateAlignVertical(CCmdUI* pCmdUI);
+	afx_msg void OnAlignHorizontal();
+	afx_msg void OnUpdateAlignHorizontal(CCmdUI* pCmdUI);
+	afx_msg void OnAlignAcross();
+	afx_msg void OnUpdateAlignAcross(CCmdUI* pCmdUI);
+	afx_msg void OnAlignDown();
+	afx_msg void OnUpdateAlignDown(CCmdUI* pCmdUI);
+	afx_msg void OnAlignWidth();
+	afx_msg void OnUpdateAlignWidth(CCmdUI* pCmdUI);
+	afx_msg void OnAlignHeight();
+	afx_msg void OnUpdateAlignHeight(CCmdUI* pCmdUI);
 };
 
 
