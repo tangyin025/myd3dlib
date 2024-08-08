@@ -172,13 +172,23 @@
 #define ID_TOOLS_TERRAINTOOBJ           32853
 #define ID_TOOLS_OFFMESHCON             32854
 #define ID_EXPAND_ALL                   32855
+#define ID_ALIGN_LEFTS                  32856
+#define ID_ALIGN_RIGHTS                 32857
+#define ID_ALIGN_TOPS                   32858
+#define ID_ALIGN_BOTTOMS                32859
+#define ID_ALIGN_VERTICAL               32860
+#define ID_ALIGN_HORIZONTAL             32861
+#define ID_ALIGN_ACROSS                 32862
+#define ID_ALIGN_DOWN                   32863
+#define ID_ALIGN_WIDTH                  32864
+#define ID_ALIGN_HEIGHT                 32865
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        325
-#define _APS_NEXT_COMMAND_VALUE         32856
+#define _APS_NEXT_COMMAND_VALUE         32866
 #define _APS_NEXT_CONTROL_VALUE         1043
 #define _APS_NEXT_SYMED_VALUE           312
 #endif
