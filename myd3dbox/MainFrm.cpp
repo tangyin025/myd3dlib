@@ -3110,6 +3110,12 @@ void CMainFrame::OnUpdateAlignDown(CCmdUI* pCmdUI)
 void CMainFrame::OnAlignWidth()
 {
 	// TODO: Add your command handler code here
+	ControlList::iterator begin_iter = m_selctls.begin();
+	ControlList::iterator ctrl_iter = begin_iter + 1;
+	for (; ctrl_iter != m_selctls.end(); ctrl_iter++)
+	{
+		(*ctrl_iter)->m_Width.offset += (*begin_iter)->m_Rect.Width() - (*ctrl_iter)->m_Rect.Width();
+	}
 }
 
 
@@ -3123,6 +3129,12 @@ void CMainFrame::OnUpdateAlignWidth(CCmdUI* pCmdUI)
 void CMainFrame::OnAlignHeight()
 {
 	// TODO: Add your command handler code here
+	ControlList::iterator begin_iter = m_selctls.begin();
+	ControlList::iterator ctrl_iter = begin_iter + 1;
+	for (; ctrl_iter != m_selctls.end(); ctrl_iter++)
+	{
+		(*ctrl_iter)->m_Height.offset += (*begin_iter)->m_Rect.Height() - (*ctrl_iter)->m_Rect.Height();
+	}
 }
 
 
