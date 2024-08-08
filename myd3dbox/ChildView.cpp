@@ -20,7 +20,7 @@
 #define new DEBUG_NEW
 #endif
 
-static const float ctl_handle_size = 3;
+static const float ctl_handle_size = 5;
 
 // CChildView
 
