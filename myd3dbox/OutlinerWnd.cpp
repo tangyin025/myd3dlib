@@ -213,34 +213,34 @@ void COutlinerWnd::OnLvnGetdispinfoList(NMHDR* pNMHDR, LRESULT* pResult)
 			switch (control->GetControlType())
 			{
 			case my::Control::ControlTypeStatic:
-				pItem->iImage = 16;
+				pItem->iImage = 21 + 1;
 				break;
 			case my::Control::ControlTypeProgressBar:
-				pItem->iImage = 17;
+				pItem->iImage = 21 + 2;
 				break;
 			case my::Control::ControlTypeButton:
-				pItem->iImage = 18;
+				pItem->iImage = 21 + 3;
 				break;
 			case my::Control::ControlTypeEditBox:
-				pItem->iImage = 19;
+				pItem->iImage = 21 + 4;
 				break;
 			case my::Control::ControlTypeImeEditBox:
-				pItem->iImage = 19;
+				pItem->iImage = 21 + 4;
 				break;
 			case my::Control::ControlTypeScrollBar:
-				pItem->iImage = 22;
+				pItem->iImage = 21 + 7;
 				break;
 			case my::Control::ControlTypeCheckBox:
-				pItem->iImage = 20;
+				pItem->iImage = 21 + 5;
 				break;
 			case my::Control::ControlTypeComboBox:
-				pItem->iImage = 21;
+				pItem->iImage = 21 + 6;
 				break;
 			case my::Control::ControlTypeListBox:
-				pItem->iImage = 22;
+				pItem->iImage = 21 + 7;
 				break;
 			case my::Control::ControlTypeDialog:
-				pItem->iImage = 15;
+				pItem->iImage = 21;
 				break;
 			}
 		}
