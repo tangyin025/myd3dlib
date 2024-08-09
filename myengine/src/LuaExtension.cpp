@@ -1696,6 +1696,12 @@ void LuaContext::Init(void)
 			.property("Width", &CRect::Width)
 			.property("Height", &CRect::Height)
 			.def("SetRect", (void (CRect::*)(int, int, int, int))& CRect::SetRect)
+			.scope
+			[
+				def("LeftTop", luabind::tag_function<CRect(int, int, int, int)>(
+					boost::bind(boost::value_factory<CRect>(),
+						boost::bind(boost::value_factory<CPoint>(), boost::placeholders::_1, boost::placeholders::_2), boost::bind(boost::value_factory<CSize>(), boost::placeholders::_3, boost::placeholders::_4))))
+			]
 
 		, class_<my::DeviceResourceBase, boost::shared_ptr<my::DeviceResourceBase> >("DeviceResourceBase")
 			.def_readonly("Key", &my::DeviceResourceBase::m_Key)
