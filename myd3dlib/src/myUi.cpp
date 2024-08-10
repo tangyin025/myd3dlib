@@ -3280,40 +3280,50 @@ void CheckBox::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Of
 	{
 		m_Rect = Rectangle::LeftTop(Offset.x + m_x.scale * Size.x + m_x.offset, Offset.y + m_y.scale * Size.y + m_y.offset, m_Width.scale * Size.x + m_Width.offset, m_Height.scale * Size.y + m_Height.offset);
 
-		if(m_Skin)
+		Rectangle ButtonRect(m_Rect);
+
+		if (m_Skin)
 		{
 			ButtonSkinPtr Skin = boost::dynamic_pointer_cast<ButtonSkin>(m_Skin);
 			_ASSERT(Skin);
 
-			if(!m_bEnabled)
+			if (!m_bEnabled)
 			{
-				Skin->DrawImage(ui_render, Skin->m_DisabledImage, m_Rect, m_Skin->m_Color);
+				Skin->DrawImage(ui_render, Skin->m_DisabledImage, ButtonRect, m_Skin->m_Color);
 			}
 			else
 			{
 				if (m_bPressed)
 				{
-					m_Rect = m_Rect.offset(Skin->m_PressedOffset);
-					Skin->DrawImage(ui_render, Skin->m_PressedImage, m_Rect, m_Skin->m_Color);
+					ButtonRect.offsetSelf(Skin->m_PressedOffset);
+					Skin->DrawImage(ui_render, Skin->m_PressedImage, ButtonRect, m_Skin->m_Color);
 				}
 				else
 				{
 					D3DXCOLOR DstColor = m_Skin->m_Color;
 					if (GetMouseOver() /*|| m_bHasFocus*/)
 					{
-						m_Rect = m_Rect.offset(-Skin->m_PressedOffset);
+						ButtonRect.offsetSelf(-Skin->m_PressedOffset);
 					}
 					else
 					{
 						DstColor.a = 0;
 					}
-					Skin->DrawImage(ui_render, m_Checked ? Skin->m_PressedImage : Skin->m_Image, m_Rect, m_Skin->m_Color);
-					D3DXColorLerp(&m_BlendColor, &m_BlendColor, &DstColor, 1.0f - powf(0.8f, 30 * fElapsedTime));
-					Skin->DrawImage(ui_render, Skin->m_MouseOverImage, m_Rect, m_BlendColor);
+
+					if (m_Checked)
+					{
+						Skin->DrawImage(ui_render, Skin->m_PressedImage, ButtonRect, m_Skin->m_Color);
+					}
+					else
+					{
+						Skin->DrawImage(ui_render, Skin->m_Image, ButtonRect, m_Skin->m_Color);
+						D3DXColorLerp(&m_BlendColor, &m_BlendColor, &DstColor, 1.0f - powf(0.8f, 30 * fElapsedTime));
+						Skin->DrawImage(ui_render, Skin->m_MouseOverImage, ButtonRect, m_BlendColor);
+					}
 				}
 			}
 
-			Skin->DrawString(ui_render, m_Text, m_Rect);
+			Skin->DrawString(ui_render, m_Text, ButtonRect);
 		}
 
 		ControlPtrList::iterator ctrl_iter = m_Childs.begin();
