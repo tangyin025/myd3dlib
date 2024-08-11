@@ -4012,7 +4012,7 @@ void ListBox::OnLayout(void)
 
 	m_ScrollBar->m_nPageSize = (int)(m_ScrollBar->m_Height.offset / m_ItemSize.y);
 
-	m_ItemColumn = Max(1, (int)((fabs(m_Width.offset) - m_ScrollbarWidth) / m_ItemSize.x));
+	m_ItemColumn = Max(1, (int)fabs(m_Width.offset / m_ItemSize.x));
 
 	m_ScrollBar->m_nEnd = (int)ceilf(m_Childs.size() / (float)m_ItemColumn);
 
