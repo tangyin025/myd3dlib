@@ -1696,6 +1696,7 @@ void LuaContext::Init(void)
 			.property("Width", &CRect::Width)
 			.property("Height", &CRect::Height)
 			.def("SetRect", (void (CRect::*)(int, int, int, int))& CRect::SetRect)
+			.def("EqualRect", &CRect::EqualRect)
 			.scope
 			[
 				def("LeftTop", luabind::tag_function<CRect(int, int, int, int)>(
