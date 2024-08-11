@@ -3486,7 +3486,7 @@ void ComboBox::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Of
 
 					Skin->DrawImage(ui_render, Skin->m_DropdownImage, m_DropdownRect, m_Skin->m_Color);
 
-					m_ScrollBar->Draw(ui_render, fElapsedTime, Vector2(m_DropdownRect.r, m_DropdownRect.t), Vector2(m_ScrollbarWidth, m_DropdownSize.y));
+					m_ScrollBar->Draw(ui_render, fElapsedTime, m_DropdownRect.LeftTop(), m_DropdownRect.Extent());
 
 					int i = m_ScrollBar->m_nPosition;
 					float y = m_DropdownRect.t + m_Border.y;
@@ -3720,7 +3720,7 @@ bool ComboBox::HitTest(const Vector2 & pt) const
 
 void ComboBox::OnLayout(void)
 {
-	m_ScrollBar->m_x = UDim(0, 0);
+	m_ScrollBar->m_x = UDim(1, 0);
 
 	m_ScrollBar->m_y = UDim(0, 0);
 
@@ -3955,7 +3955,7 @@ void ListBox::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Off
 			ListBoxSkinPtr Skin = boost::dynamic_pointer_cast<ListBoxSkin>(m_Skin);
 			_ASSERT(Skin);
 
-			m_ScrollBar->Draw(ui_render, fElapsedTime, Vector2(m_Rect.l + m_Rect.Width() - m_ScrollbarWidth, m_Rect.t), Vector2(m_ScrollbarWidth, m_Rect.Height()));
+			m_ScrollBar->Draw(ui_render, fElapsedTime, m_Rect.LeftTop(), m_Rect.Extent());
 
 			for (int i = m_ScrollBar->m_nPosition; i < m_ScrollBar->m_nPosition + m_ScrollBar->m_nPageSize; i++)
 			{
@@ -4002,7 +4002,7 @@ bool ListBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM l
 
 void ListBox::OnLayout(void)
 {
-	m_ScrollBar->m_x = UDim(0, 0);
+	m_ScrollBar->m_x = UDim(1, 0);
 
 	m_ScrollBar->m_y = UDim(0, 0);
 
