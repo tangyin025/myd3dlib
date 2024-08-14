@@ -448,6 +448,7 @@ Client::Client(void)
 		("uieffect", boost::program_options::value(&m_InitUIEffect)->default_value("shader/UIEffect.fx"), "UI Effect")
 		("vieweddist", boost::program_options::value(&m_ViewedDist)->default_value(1000.0f), "Viewed Distance")
 		("actorcullingthreshold", boost::program_options::value(&m_ActorCullingThreshold)->default_value(10.0f), "Actor Culling Threshold")
+		("showcmphandle", boost::program_options::value(&m_ShowCmpHandle)->default_value(true), "Show Component Handle")
 		("shownavigation", boost::program_options::value(&m_ShowNavigation)->default_value(false), "Show Navigation")
 		;
 	boost::program_options::variables_map vm;
@@ -636,6 +637,7 @@ HRESULT Client::OnCreateDevice(
 			.def_readwrite("ViewedCenter", &Client::m_ViewedCenter)
 			.def_readwrite("ViewedDist", &Client::m_ViewedDist)
 			.def_readwrite("ActorCullingThreshold", &Client::m_ActorCullingThreshold)
+			.def_readwrite("ShowCmpHandle", &Client::m_ShowCmpHandle)
 			.def_readwrite("ShowNavigation", &Client::m_ShowNavigation)
 			.def_readonly("keyboard", &Client::m_keyboard)
 			.def_readonly("mouse", &Client::m_mouse)
@@ -1002,14 +1004,17 @@ void Client::OnUIRender(
 
 	OnPostUIRender(ui_render, m_fAbsoluteTime, m_fUnscaledElapsedTime);
 
-	_ASSERT(m_Font);
-	m_UIRender->m_World = Matrix4::identity;
-	ScrInfoMap::const_iterator info_iter = m_ScrInfo.begin();
-	for (int y = 5; info_iter != m_ScrInfo.end(); info_iter++, y += m_Font->m_LineHeight)
+	if (m_ShowCmpHandle)
 	{
-		ui_render->PushString(Rectangle::LeftTop(5, (float)y, 500, 10), &info_iter->second[0], D3DCOLOR_ARGB(255, 255, 255, 0), my::Font::AlignLeftTop, m_Font.get());
+		_ASSERT(m_Font);
+		m_UIRender->m_World = Matrix4::identity;
+		ScrInfoMap::const_iterator info_iter = m_ScrInfo.begin();
+		for (int y = 5; info_iter != m_ScrInfo.end(); info_iter++, y += m_Font->m_LineHeight)
+		{
+			ui_render->PushString(Rectangle::LeftTop(5, (float)y, 500, 10), &info_iter->second[0], D3DCOLOR_ARGB(255, 255, 255, 0), my::Font::AlignLeftTop, m_Font.get());
+		}
+		ui_render->Flush();
 	}
-	ui_render->Flush();
 }
 
 LRESULT Client::MsgProc(

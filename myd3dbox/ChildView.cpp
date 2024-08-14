@@ -1546,23 +1546,25 @@ void CChildView::OnPaint()
 				theApp.m_UIRender->Flush();
 			}
 			pFrame->DialogMgr::Draw(theApp.m_UIRender.get(), theApp.m_fTotalTime, theApp.m_fElapsedTime, my::Vector2(-m_UICamera.m_View._41 * 2, m_UICamera.m_View._42 * 2));
-			if (!pFrame->m_selctls.empty())
+			if (m_bShowCmpHandle)
 			{
-				RenderSelectedControl(theApp.m_d3dDevice, pFrame->m_selctls.front(), D3DCOLOR_ARGB(255, 0, 255, 0), true);
-				CMainFrame::ControlList::iterator ctrl_iter = pFrame->m_selctls.begin() + 1;
-				for (; ctrl_iter != pFrame->m_selctls.end(); ctrl_iter++)
+				if (!pFrame->m_selctls.empty())
 				{
-					RenderSelectedControl(theApp.m_d3dDevice, *ctrl_iter, D3DCOLOR_ARGB(255, 255, 255, 255), false);
+					RenderSelectedControl(theApp.m_d3dDevice, pFrame->m_selctls.front(), D3DCOLOR_ARGB(255, 0, 255, 0), true);
+					CMainFrame::ControlList::iterator ctrl_iter = pFrame->m_selctls.begin() + 1;
+					for (; ctrl_iter != pFrame->m_selctls.end(); ctrl_iter++)
+					{
+						RenderSelectedControl(theApp.m_d3dDevice, *ctrl_iter, D3DCOLOR_ARGB(255, 255, 255, 255), false);
+					}
 				}
+				theApp.m_UIRender->m_World = my::Matrix4::identity;
+				ScrInfoMap::const_iterator info_iter = m_ScrInfo.begin();
+				for (int y = 5; info_iter != m_ScrInfo.end(); info_iter++, y += theApp.m_Font->m_LineHeight)
+				{
+					theApp.m_UIRender->PushString(my::Rectangle::LeftTop(5, (float)y, 500, 10), &info_iter->second[0], D3DCOLOR_ARGB(255, 255, 255, 0), my::Font::AlignLeftTop, theApp.m_Font.get());
+				}
+				theApp.m_UIRender->Flush();
 			}
-			theApp.m_UIRender->m_World = my::Matrix4::identity;
-			ScrInfoMap::const_iterator info_iter = m_ScrInfo.begin();
-			for (int y = 5; info_iter != m_ScrInfo.end(); info_iter++, y += theApp.m_Font->m_LineHeight)
-			{
-				theApp.m_UIRender->PushString(my::Rectangle::LeftTop(5, (float)y, 500, 10), &info_iter->second[0], D3DCOLOR_ARGB(255, 255, 255, 0), my::Font::AlignLeftTop, theApp.m_Font.get());
-			}
-			theApp.m_UIRender->Flush();
-
 			swprintf_s(&m_ScrInfo[1 + RenderPipeline::PassTypeNum][0], m_ScrInfo[1 + RenderPipeline::PassTypeNum].size(), L"PassTypeUILayer: %d", theApp.m_UIRender->m_LayerDrawCall);
 
 			V(theApp.m_d3dDevice->EndScene());

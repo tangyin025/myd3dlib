@@ -63,6 +63,8 @@ public:
 
 	float m_ActorCullingThreshold;
 
+	bool m_ShowCmpHandle;
+
 	bool m_ShowNavigation;
 
 	typedef boost::intrusive::list<Actor, boost::intrusive::base_hook<boost::intrusive::list_base_hook<boost::intrusive::tag<ViewedActorTag> > > > ViewedActorSet;
