@@ -1200,16 +1200,7 @@ bool Control::HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam)
 					m_bPressed = false;
 					SetCaptureControl(NULL);
 
-					if (m_Skin && m_Skin->m_MouseClickSound)
-					{
-						D3DContext::getSingleton().OnControlSound(m_Skin->m_MouseClickSound);
-					}
-
-					if (m_EventMouseClick)
-					{
-						MouseEventArg arg(this, Vector2(0, 0));
-						m_EventMouseClick(&arg);
-					}
+					OnMouseClick(Vector2(0, 0));
 				}
 				return true;
 			}
@@ -1242,16 +1233,7 @@ bool Control::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM l
 				SetCaptureControl(NULL);
 				m_bPressed = false;
 
-				if (m_Skin && m_Skin->m_MouseClickSound)
-				{
-					D3DContext::getSingleton().OnControlSound(m_Skin->m_MouseClickSound);
-				}
-
-				if (m_EventMouseClick)
-				{
-					MouseEventArg arg(this, pt);
-					m_EventMouseClick(&arg);
-				}
+				OnMouseClick(pt);
 				return true;
 			}
 			break;
@@ -1307,6 +1289,20 @@ void Control::OnFocusOut(void)
 	{
 		FocusEventArg arg(this, false);
 		m_EventFocusChanged(&arg);
+	}
+}
+
+void Control::OnMouseClick(const Vector2 & pt)
+{
+	if (m_Skin && m_Skin->m_MouseClickSound)
+	{
+		D3DContext::getSingleton().OnControlSound(m_Skin->m_MouseClickSound);
+	}
+
+	if (m_EventMouseClick)
+	{
+		MouseEventArg arg(this, pt);
+		m_EventMouseClick(&arg);
 	}
 }
 
@@ -2066,16 +2062,7 @@ bool Button::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lP
 
 				if (HitTest(pt))
 				{
-					if (m_Skin && m_Skin->m_MouseClickSound)
-					{
-						D3DContext::getSingleton().OnControlSound(m_Skin->m_MouseClickSound);
-					}
-
-					if (m_EventMouseClick)
-					{
-						MouseEventArg arg(this, pt);
-						m_EventMouseClick(&arg);
-					}
+					OnMouseClick(pt);
 				}
 				return true;
 			}
@@ -4233,11 +4220,7 @@ bool Dialog::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lP
 					SetCaptureControl(NULL);
 					m_bPressed = false;
 
-					if (m_Skin && m_Skin->m_MouseClickSound)
-					{
-						D3DContext::getSingleton().OnControlSound(m_Skin->m_MouseClickSound);
-					}
-
+					OnMouseClick(pt);
 					return true;
 				}
 				return Control::HandleMouse(uMsg, pt, wParam, lParam);

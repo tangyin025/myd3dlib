@@ -478,6 +478,8 @@ namespace my
 
 		virtual void OnFocusOut(void);
 
+		virtual void OnMouseClick(const Vector2 & pt);
+
 		virtual void OnMouseEnter(const Vector2 & pt);
 
 		virtual void OnMouseLeave(const Vector2 & pt);
