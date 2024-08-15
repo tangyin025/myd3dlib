@@ -639,6 +639,91 @@ struct ScriptControl : my::Control, luabind::wrap_base
 	{
 		return ptr->Control::HandleMouse(uMsg, pt, wParam, lParam);
 	}
+
+	virtual void OnFocusIn(void)
+	{
+		try
+		{
+			luabind::wrap_base::call<void>("OnFocusIn");
+		}
+		catch (const luabind::error& e)
+		{
+			my::D3DContext::getSingleton().m_EventLog(lua_tostring(e.state(), -1));
+		}
+	}
+
+	static void default_OnFocusIn(my::Control* ptr)
+	{
+		ptr->Control::OnFocusIn();
+	}
+
+	virtual void OnFocusOut(void)
+	{
+		try
+		{
+			luabind::wrap_base::call<void>("OnFocusOut");
+		}
+		catch (const luabind::error& e)
+		{
+			my::D3DContext::getSingleton().m_EventLog(lua_tostring(e.state(), -1));
+		}
+	}
+
+	static void default_OnFocusOut(my::Control* ptr)
+	{
+		ptr->Control::OnFocusOut();
+	}
+
+	virtual void OnMouseClick(const my::Vector2& pt)
+	{
+		try
+		{
+			luabind::wrap_base::call<void>("OnMouseClick", pt);
+		}
+		catch (const luabind::error& e)
+		{
+			my::D3DContext::getSingleton().m_EventLog(lua_tostring(e.state(), -1));
+		}
+	}
+
+	static void default_OnMouseClick(my::Control* ptr, const my::Vector2& pt)
+	{
+		ptr->Control::OnMouseClick(pt);
+	}
+
+	virtual void OnMouseEnter(const my::Vector2& pt)
+	{
+		try
+		{
+			luabind::wrap_base::call<void>("OnMouseEnter", pt);
+		}
+		catch (const luabind::error& e)
+		{
+			my::D3DContext::getSingleton().m_EventLog(lua_tostring(e.state(), -1));
+		}
+	}
+
+	static void default_OnMouseEnter(my::Control* ptr, const my::Vector2& pt)
+	{
+		ptr->Control::OnMouseEnter(pt);
+	}
+
+	virtual void OnMouseLeave(const my::Vector2& pt)
+	{
+		try
+		{
+			luabind::wrap_base::call<void>("OnMouseLeave", pt);
+		}
+		catch (const luabind::error& e)
+		{
+			my::D3DContext::getSingleton().m_EventLog(lua_tostring(e.state(), -1));
+		}
+	}
+
+	static void default_OnMouseLeave(my::Control* ptr, const my::Vector2& pt)
+	{
+		ptr->Control::OnMouseLeave(pt);
+	}
 };
 
 struct ScriptComponent : Component, luabind::wrap_base
@@ -2118,6 +2203,11 @@ void LuaContext::Init(void)
 			.def("MsgProc", &my::Control::MsgProc, &ScriptControl::default_MsgProc)
 			.def("HandleKeyboard", &my::Control::HandleKeyboard, &ScriptControl::default_HandleKeyboard)
 			.def("HandleMouse", &my::Control::HandleMouse, &ScriptControl::default_HandleMouse)
+			.def("OnFocusIn", &my::Control::OnFocusIn, &ScriptControl::default_OnFocusIn)
+			.def("OnFocusOut", &my::Control::OnFocusOut, &ScriptControl::default_OnFocusOut)
+			.def("OnMouseClick", &my::Control::OnMouseClick, &ScriptControl::default_OnMouseClick)
+			.def("OnMouseEnter", &my::Control::OnMouseEnter, &ScriptControl::default_OnMouseEnter)
+			.def("OnMouseLeave", &my::Control::OnMouseLeave, &ScriptControl::default_OnMouseLeave)
 			.def("HitTest", &my::Control::HitTest)
 			.def("OnLayout", &my::Control::OnLayout)
 			.property("Enabled", &my::Control::GetEnabled, &my::Control::SetEnabled)
