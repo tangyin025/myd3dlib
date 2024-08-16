@@ -1025,8 +1025,19 @@ ControlPtr Control::Clone(void) const
 	boost::archive::text_oarchive oa(sstr);
 	oa << boost::serialization::make_nvp(__FUNCTION__, shared_from_this());
 
+	class Archive
+		: public boost::archive::detail::polymorphic_iarchive_route<boost::archive::text_iarchive>
+		, public my::NamedObjectSerializationContext
+	{
+	public:
+		Archive(std::istream& is, unsigned int flags)
+			: polymorphic_iarchive_route(is, flags)
+		{
+		}
+	};
 	ControlPtr ret;
-	boost::archive::text_iarchive ia(sstr);
+	Archive ia(sstr, 0);
+	ia.make_unique = true;
 	ia >> boost::serialization::make_nvp(__FUNCTION__, ret);
 	return ret;
 }

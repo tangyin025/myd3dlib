@@ -6115,10 +6115,10 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		int i = listbox->m_Childs.size();
 		for (; i < ItemCount; i++)
 		{
-			my::ButtonSkinPtr skin;
+			my::StaticPtr item;
 			if (listbox->m_Childs.empty())
 			{
-				skin.reset(new my::ButtonSkin());
+				my::ButtonSkinPtr skin(new my::ButtonSkin());
 				skin->m_Image.reset(new my::ControlImage());
 				skin->m_Image->m_TexturePath = theApp.default_button_img;
 				skin->m_Image->m_Rect = theApp.default_button_img_rect;
@@ -6141,18 +6141,17 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 				skin->m_MouseOverImage->m_TexturePath = theApp.default_button_mouseoverimg;
 				skin->m_MouseOverImage->m_Rect = theApp.default_button_mouseoverimg_rect;
 				skin->m_MouseOverImage->m_Border = theApp.default_button_mouseoverimg_border;
+
+				item.reset(new my::Button(my::NamedObject::MakeUniqueName((std::string(listbox->GetName()) + "_item").c_str()).c_str()));
+				item->m_Skin = skin;
 			}
 			else
 			{
-				skin = boost::dynamic_pointer_cast<my::ButtonSkin>(listbox->m_Childs.front()->m_Skin->Clone());
+				item = boost::dynamic_pointer_cast<my::Static>(listbox->m_Childs.back()->Clone());
 			}
+			item->m_Text = str_printf(L"item%d", i);
 
-			my::ButtonPtr btn(new my::Button(my::NamedObject::MakeUniqueName((std::string(listbox->GetName()) + "_item").c_str()).c_str()));
-			btn->m_Skin = skin;
-			std::string text(btn->GetName());
-			btn->m_Text = str_printf(L"item%d", i);
-
-			listbox->InsertControl(listbox->GetChildNum(), btn);
+			listbox->InsertControl(listbox->GetChildNum(), item);
 		}
 		for (; i > ItemCount; i--)
 		{
