@@ -463,7 +463,7 @@ HRESULT RenderPipeline::OnResetDevice(
 
 	for (int i = 0; i < _countof(m_ShadowRT); i++)
 	{
-		m_ShadowRT[i]->CreateAdjustedTexture(SHADOW_MAP_SIZE, SHADOW_MAP_SIZE, 1, D3DUSAGE_RENDERTARGET, D3DFMT_R32F, D3DPOOL_DEFAULT);
+		m_ShadowRT[i]->CreateTexture(SHADOW_MAP_SIZE, SHADOW_MAP_SIZE, 1, D3DUSAGE_RENDERTARGET, D3DFMT_R32F, D3DPOOL_DEFAULT);
 
 		// ! 所有的 render target必须使用具有相同 multisample的 depth stencil
 		m_ShadowDS[i]->CreateDepthStencilSurface(SHADOW_MAP_SIZE, SHADOW_MAP_SIZE, D3DFMT_D24X8);
