@@ -67,6 +67,9 @@ public:
 	std::string default_dialog_img;
 	CRect default_dialog_img_rect;
 	CRect default_dialog_img_border;
+	std::string default_static_img;
+	CRect default_static_img_rect;
+	CRect default_static_img_border;
 	D3DCOLOR default_static_text_color;
 	my::Font::Align default_static_text_align;
 	std::string default_progressbar_img;

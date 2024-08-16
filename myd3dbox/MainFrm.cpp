@@ -2339,6 +2339,9 @@ void CMainFrame::OnControlStatic()
 
 	my::StaticSkinPtr skin(new my::StaticSkin());
 	skin->m_Image.reset(new my::ControlImage());
+	skin->m_Image->m_TexturePath = theApp.default_static_img;
+	skin->m_Image->m_Rect = theApp.default_static_img_rect;
+	skin->m_Image->m_Border = theApp.default_static_img_border;
 	skin->m_FontPath = theApp.default_font_path;
 	skin->m_FontHeight = theApp.default_font_height;
 	skin->m_FontFaceIndex = theApp.default_font_face_index;
