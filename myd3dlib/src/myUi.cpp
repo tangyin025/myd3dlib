@@ -3965,6 +3965,8 @@ void ListBox::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Off
 			ListBoxSkinPtr Skin = boost::dynamic_pointer_cast<ListBoxSkin>(m_Skin);
 			_ASSERT(Skin);
 
+			Skin->DrawImage(ui_render, m_Skin->m_Image, m_Rect, m_Skin->m_Color);
+
 			m_ScrollBar->Draw(ui_render, fElapsedTime, m_Rect.LeftTop(), m_Rect.Extent());
 
 			for (int i = m_ScrollBar->m_nPosition; i < m_ScrollBar->m_nPosition + m_ScrollBar->m_nPageSize; i++)
