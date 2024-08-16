@@ -2188,6 +2188,9 @@ void LuaContext::Init(void)
 			.def_readwrite("EventMouseLeave", &my::Control::m_EventMouseLeave)
 			.def_readwrite("EventMouseClick", &my::Control::m_EventMouseClick)
 			.property("Requested", &my::Control::IsRequested)
+			.def("RequestResource", &my::Control::RequestResource, &ScriptControl::default_RequestResource)
+			.def("ReleaseResource", &my::Control::ReleaseResource, &ScriptControl::default_ReleaseResource)
+			.def("Clone", &my::Control::Clone)
 			.scope
 			[
 				def("GetFocusControl", &my::Control::GetFocusControl),
@@ -2197,8 +2200,6 @@ void LuaContext::Init(void)
 				def("GetMouseOverControl", &my::Control::GetMouseOverControl),
 				def("SetMouseOverControl", &my::Control::SetMouseOverControl)
 			]
-			.def("RequestResource", &my::Control::RequestResource, &ScriptControl::default_RequestResource)
-			.def("ReleaseResource", &my::Control::ReleaseResource, &ScriptControl::default_ReleaseResource)
 			.def("Draw", &my::Control::Draw, &ScriptControl::default_Draw)
 			.def("MsgProc", &my::Control::MsgProc, &ScriptControl::default_MsgProc)
 			.def("HandleKeyboard", &my::Control::HandleKeyboard, &ScriptControl::default_HandleKeyboard)

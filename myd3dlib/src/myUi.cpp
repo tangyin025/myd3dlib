@@ -944,7 +944,7 @@ ControlSkinPtr ControlSkin::Clone(void) const
 	boost::archive::text_oarchive oa(sstr);
 	oa << boost::serialization::make_nvp(__FUNCTION__, shared_from_this());
 
-	ControlSkinPtr ret(new ControlSkin());
+	ControlSkinPtr ret;
 	boost::archive::text_iarchive ia(sstr);
 	ia >> boost::serialization::make_nvp(__FUNCTION__, ret);
 	return ret;
@@ -1017,6 +1017,18 @@ void Control::load(Archive & ar, const unsigned int version)
 	{
 		(*ctrl_iter)->m_Parent = this;
 	}
+}
+
+ControlPtr Control::Clone(void) const
+{
+	std::stringstream sstr;
+	boost::archive::text_oarchive oa(sstr);
+	oa << boost::serialization::make_nvp(__FUNCTION__, shared_from_this());
+
+	ControlPtr ret;
+	boost::archive::text_iarchive ia(sstr);
+	ia >> boost::serialization::make_nvp(__FUNCTION__, ret);
+	return ret;
 }
 
 void Control::RequestResource(void)

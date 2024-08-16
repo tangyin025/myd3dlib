@@ -434,6 +434,8 @@ namespace my
 			return m_Requested;
 		}
 
+		virtual ControlPtr Clone(void) const;
+
 		virtual void RequestResource(void);
 
 		virtual void ReleaseResource(void);

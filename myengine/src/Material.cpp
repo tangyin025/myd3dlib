@@ -236,7 +236,7 @@ MaterialPtr Material::Clone(void) const
 	boost::shared_ptr<boost::archive::polymorphic_oarchive> oa = Actor::GetOArchive(sstr, ".txt");
 	*oa << boost::serialization::make_nvp(__FUNCTION__, shared_from_this());
 
-	MaterialPtr ret(new Material());
+	MaterialPtr ret;
 	boost::shared_ptr<boost::archive::polymorphic_iarchive> ia = Actor::GetIArchive(sstr, ".txt");
 	*ia >> boost::serialization::make_nvp(__FUNCTION__, ret);
 	return ret;
