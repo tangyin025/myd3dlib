@@ -136,11 +136,11 @@ static void texture2d_load_from_file(my::Texture2D* self, const RECT* pDestRect,
 	}
 }
 
-static void cubetexture_load_cube_map_surface_from_file(my::CubeTexture* self, D3DCUBEMAP_FACES FaceType, const char* u8_path)
+static void cubetexture_load_cube_map_surface_from_file(my::CubeTexture* self, D3DCUBEMAP_FACES FaceType, const RECT* pDestRect, const char* u8_path, const RECT* pSourceRect, DWORD Filter)
 {
 	HRESULT hr;
 	CComPtr<IDirect3DSurface9> surf = self->GetCubeMapSurface(FaceType, 0);
-	V(D3DXLoadSurfaceFromFile(surf, NULL, NULL, u8tots(u8_path).c_str(), NULL, D3DX_DEFAULT, 0, NULL));
+	V(D3DXLoadSurfaceFromFile(surf, NULL, pDestRect, u8tots(u8_path).c_str(), pSourceRect, Filter, 0, NULL));
 }
 
 static void ogremesh_create_mesh_from_ogre_xml_in_file(my::OgreMesh* self, const char* u8_path)
@@ -1869,8 +1869,8 @@ void LuaContext::Init(void)
 
 		, class_<my::CubeTexture, my::BaseTexture, boost::shared_ptr<my::DeviceResourceBase> >("CubeTexture")
 			.def(constructor<>())
-			.def("CreateCubeTexture", luabind::tag_function<void(my::CubeTexture*, UINT, UINT, D3DFORMAT)>(
-				boost::bind(&my::CubeTexture::CreateAdjustedCubeTexture, boost::placeholders::_1, boost::placeholders::_2, boost::placeholders::_3, 0, boost::placeholders::_4, D3DPOOL_MANAGED)))
+			.def("CreateCubeTexture", &my::CubeTexture::CreateCubeTexture)
+			.def("CreateAdjustedCubeTexture", &my::CubeTexture::CreateAdjustedCubeTexture)
 			.enum_("D3DCUBEMAP_FACES")
 			[
 				value("D3DCUBEMAP_FACE_POSITIVE_X", D3DCUBEMAP_FACE_POSITIVE_X),
