@@ -1761,6 +1761,10 @@ void LuaContext::Init(void)
 
 		, class_<CPoint, tagPOINT>("CPoint")
 			.def(constructor<int, int>())
+			.def(const_self + other<POINT>())
+			.def(const_self + other<SIZE>())
+			.def(const_self - other<POINT>())
+			.def(const_self - other<SIZE>())
 
 		, class_<tagSIZE>("tagSIZE")
 			.def_readwrite("cx", &tagSIZE::cx)
@@ -1780,6 +1784,7 @@ void LuaContext::Init(void)
 			.def(constructor<tagPOINT, tagSIZE>())
 			.property("Width", &CRect::Width)
 			.property("Height", &CRect::Height)
+			.property("CenterPoint", &CRect::CenterPoint)
 			.def("SetRect", (void (CRect::*)(int, int, int, int))& CRect::SetRect)
 			.def("EqualRect", &CRect::EqualRect)
 			.scope
