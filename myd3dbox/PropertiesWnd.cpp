@@ -4711,7 +4711,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	case PropertyControlVisible:
 	{
 		my::Control* control = (my::Control*)pProp->GetParent()->GetValue().pulVal;
-		control->SetVisible(pProp->GetValue().boolVal);
+		control->m_bVisible = pProp->GetValue().boolVal;
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
