@@ -2310,7 +2310,7 @@ void CMainFrame::OnCreateDialog()
 	skin->m_Image->m_Rect = theApp.default_dialog_img_rect;
 	skin->m_Image->m_Border = theApp.default_dialog_img_border;
 
-	my::DialogPtr dlg(new my::Dialog(my::NamedObject::MakeUniqueName("dialog").c_str()));
+	my::DialogPtr dlg(new my::Dialog(my::NamedObject::MakeUniqueName("dialog0").c_str()));
 	dlg->m_Skin = skin;
 	if (!m_selctls.empty() && m_selctls.front()->GetControlType() == my::Control::ControlTypeDialog)
 	{
@@ -2348,7 +2348,7 @@ void CMainFrame::OnControlStatic()
 	skin->m_TextColor = theApp.default_static_text_color;
 	skin->m_TextAlign = theApp.default_static_text_align;
 
-	my::StaticPtr static_ctl(new my::Static(my::NamedObject::MakeUniqueName((std::string(m_selctls.front()->GetName()) + "_static").c_str()).c_str()));
+	my::StaticPtr static_ctl(new my::Static(my::NamedObject::MakeUniqueName((std::string(m_selctls.front()->GetName()) + "_static0").c_str()).c_str()));
 	static_ctl->m_Skin = skin;
 	std::string text(static_ctl->GetName());
 	static_ctl->m_Text = ms2ws(&text[text.find_last_of("_") + 1]);
@@ -2388,7 +2388,7 @@ void CMainFrame::OnControlProgressbar()
 	skin->m_ForegroundImage->m_Rect = theApp.default_progressbar_foregroundimg_rect;
 	skin->m_ForegroundImage->m_Border = theApp.default_progressbar_foregroundimg_border;
 
-	my::ProgressBarPtr pgs(new my::ProgressBar(my::NamedObject::MakeUniqueName((std::string(m_selctls.front()->GetName()) + "_progressbar").c_str()).c_str()));
+	my::ProgressBarPtr pgs(new my::ProgressBar(my::NamedObject::MakeUniqueName((std::string(m_selctls.front()->GetName()) + "_progressbar0").c_str()).c_str()));
 	pgs->m_Skin = skin;
 	pgs->m_BlendProgress = pgs->m_Progress = 0.6f;
 	pgs->m_x.offset = 10;
@@ -2434,7 +2434,7 @@ void CMainFrame::OnControlButton()
 	skin->m_MouseOverImage->m_Rect = theApp.default_button_mouseoverimg_rect;
 	skin->m_MouseOverImage->m_Border = theApp.default_button_mouseoverimg_border;
 
-	my::ButtonPtr btn(new my::Button(my::NamedObject::MakeUniqueName((std::string(m_selctls.front()->GetName()) + "_button").c_str()).c_str()));
+	my::ButtonPtr btn(new my::Button(my::NamedObject::MakeUniqueName((std::string(m_selctls.front()->GetName()) + "_button0").c_str()).c_str()));
 	btn->m_Skin = skin;
 	std::string text(btn->GetName());
 	btn->m_Text = ms2ws(&text[text.find_last_of("_") + 1]);
@@ -2483,7 +2483,7 @@ void CMainFrame::OnControlImeeditbox()
 	skin->m_CaretImage->m_Rect = theApp.default_editbox_caretimg_rect;
 	skin->m_CaretImage->m_Border = theApp.default_editbox_caretimg_border;
 
-	my::ImeEditBoxPtr edit(new my::ImeEditBox(my::NamedObject::MakeUniqueName((std::string(m_selctls.front()->GetName()) + "_imeeditbox").c_str()).c_str()));
+	my::ImeEditBoxPtr edit(new my::ImeEditBox(my::NamedObject::MakeUniqueName((std::string(m_selctls.front()->GetName()) + "_imeeditbox0").c_str()).c_str()));
 	edit->m_Skin = skin;
 	edit->m_x.offset = 10;
 	edit->m_y.offset = 10;
@@ -2528,7 +2528,7 @@ void CMainFrame::OnControlCheckbox()
 	skin->m_MouseOverImage->m_Rect = theApp.default_checkbox_mouseoverimg_rect;
 	skin->m_MouseOverImage->m_Border = theApp.default_checkbox_mouseoverimg_border;
 
-	my::CheckBoxPtr checkbox(new my::CheckBox(my::NamedObject::MakeUniqueName((std::string(m_selctls.front()->GetName()) + "_checkbox").c_str()).c_str()));
+	my::CheckBoxPtr checkbox(new my::CheckBox(my::NamedObject::MakeUniqueName((std::string(m_selctls.front()->GetName()) + "_checkbox0").c_str()).c_str()));
 	checkbox->m_Skin = skin;
 	std::string text(checkbox->GetName());
 	checkbox->m_Text = ms2ws(&text[text.find_last_of("_") + 1]);
@@ -2611,7 +2611,7 @@ void CMainFrame::OnControlCombobox()
 	scroll_skin->m_ThumbBtnNormalImage->m_Rect = theApp.default_combobox_scrollbarthumbbtn_normalimg_rect;
 	scroll_skin->m_ThumbBtnNormalImage->m_Border = theApp.default_combobox_scrollbarthumbbtn_normalimg_border;
 
-	my::ComboBoxPtr combobox(new my::ComboBox(my::NamedObject::MakeUniqueName((std::string(m_selctls.front()->GetName()) + "_combobox").c_str()).c_str()));
+	my::ComboBoxPtr combobox(new my::ComboBox(my::NamedObject::MakeUniqueName((std::string(m_selctls.front()->GetName()) + "_combobox0").c_str()).c_str()));
 	combobox->m_Skin = skin;
 	combobox->m_ScrollBar->m_Skin = scroll_skin;
 	std::string text(combobox->GetName());
@@ -2672,7 +2672,7 @@ void CMainFrame::OnControlListbox()
 	scroll_skin->m_ThumbBtnNormalImage->m_Rect = theApp.default_listbox_scrollbarthumbbtn_normalimg_rect;
 	scroll_skin->m_ThumbBtnNormalImage->m_Border = theApp.default_listbox_scrollbarthumbbtn_normalimg_border;
 
-	my::ListBoxPtr listBox(new my::ListBox(my::NamedObject::MakeUniqueName((std::string(m_selctls.front()->GetName()) + "_listbox").c_str()).c_str()));
+	my::ListBoxPtr listBox(new my::ListBox(my::NamedObject::MakeUniqueName((std::string(m_selctls.front()->GetName()) + "_listbox0").c_str()).c_str()));
 	listBox->m_Skin = skin;
 	listBox->m_ScrollBar->m_Skin = scroll_skin;
 	listBox->m_x.offset = 10;
@@ -2703,7 +2703,7 @@ void CMainFrame::OnControlListbox()
 		skin->m_MouseOverImage->m_Rect = theApp.default_button_mouseoverimg_rect;
 		skin->m_MouseOverImage->m_Border = theApp.default_button_mouseoverimg_border;
 
-		my::ButtonPtr btn(new my::Button(my::NamedObject::MakeUniqueName((std::string(listBox->GetName()) + "_item").c_str()).c_str()));
+		my::ButtonPtr btn(new my::Button(my::NamedObject::MakeUniqueName(str_printf("%s_item%d", listBox->GetName(), i).c_str()).c_str()));
 		btn->m_Skin = skin;
 		std::string text(btn->GetName());
 		btn->m_Text = str_printf(L"item%d", i);

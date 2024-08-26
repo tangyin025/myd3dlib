@@ -6142,7 +6142,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 				skin->m_MouseOverImage->m_Rect = theApp.default_button_mouseoverimg_rect;
 				skin->m_MouseOverImage->m_Border = theApp.default_button_mouseoverimg_border;
 
-				item.reset(new my::Button(my::NamedObject::MakeUniqueName((std::string(listbox->GetName()) + "_item").c_str()).c_str()));
+				item.reset(new my::Button(my::NamedObject::MakeUniqueName(str_printf("%s_item%d", listbox->GetName(), i).c_str()).c_str()));
 				item->m_Skin = skin;
 			}
 			else
