@@ -2467,6 +2467,7 @@ void LuaContext::Init(void)
 			.enum_("MessageCode")
 			[
 				value("WM_CLOSE", WM_CLOSE),
+				value("WM_KEYDOWN", WM_KEYDOWN),
 				value("WM_MOUSEFIRST", WM_MOUSEFIRST),
 				value("WM_MOUSEMOVE", WM_MOUSEMOVE),
 				value("WM_LBUTTONDOWN", WM_LBUTTONDOWN),
