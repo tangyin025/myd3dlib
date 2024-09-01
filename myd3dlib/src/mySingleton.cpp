@@ -97,9 +97,10 @@ std::string NamedObject::MakeUniqueName(const char * Prefix)
 	std::string ret(Max((size_t)128, name_without_postfix.length() + 16), '\0');
 	for (; ; postfix_i++)
 	{
-		_snprintf(&ret[0], ret.size(), "%s%u", name_without_postfix.c_str(), postfix_i);
+		int nLen = _snprintf(&ret[0], ret.size(), "%s%u", name_without_postfix.c_str(), postfix_i);
 		if (!D3DContext::getSingleton().GetNamedObject(ret.c_str()))
 		{
+			ret.resize(nLen);
 			return ret;
 		}
 	}
