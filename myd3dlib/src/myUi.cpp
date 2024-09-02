@@ -3060,11 +3060,17 @@ void ScrollBar::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & O
 
 			Skin->DrawImage(ui_render, Skin->m_Image, m_Rect, m_Skin->m_Color);
 
-			Rectangle UpButtonRect = Rectangle::LeftTop(m_Arrow == CLICKED_UP ? m_Rect.l + Skin->m_PressedOffset.x : m_Rect.l,
-				m_Arrow == CLICKED_UP ? m_Rect.t + Skin->m_PressedOffset.y : m_Rect.t, m_Rect.Width(), m_UpDownButtonHeight);
+			Rectangle UpButtonRect = Rectangle::LeftTop(m_Rect.l, m_Rect.t, m_Rect.Width(), m_UpDownButtonHeight);
+			if (m_Arrow == CLICKED_UP)
+			{
+				UpButtonRect.offsetSelf(Skin->m_PressedOffset);
+			}
 
-			Rectangle DownButtonRect = Rectangle::RightBottom(m_Arrow == CLICKED_DOWN ? m_Rect.r + Skin->m_PressedOffset.x : m_Rect.r,
-				m_Arrow == CLICKED_DOWN ? m_Rect.b + Skin->m_PressedOffset.y : m_Rect.b, m_Rect.Width(), m_UpDownButtonHeight);
+			Rectangle DownButtonRect = Rectangle::RightBottom(m_Rect.r, m_Rect.b, m_Rect.Width(), m_UpDownButtonHeight);
+			if (m_Arrow == CLICKED_DOWN)
+			{
+				DownButtonRect.offsetSelf(Skin->m_PressedOffset);
+			}
 
 			if(m_bEnabled && m_nEnd - m_nStart > m_nPageSize)
 			{
@@ -3075,8 +3081,12 @@ void ScrollBar::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & O
 				float fTrackHeight = m_Rect.Height() - m_UpDownButtonHeight * 2;
 				float fThumbHeight = fTrackHeight * m_nPageSize / (m_nEnd - m_nStart);
 				int nMaxPosition = m_nEnd - m_nStart - m_nPageSize;
-				float fThumbTop = UpButtonRect.b + (float)(m_nPosition - m_nStart) / nMaxPosition * (fTrackHeight - fThumbHeight);
-				Rectangle ThumbButtonRect(m_Rect.l, fThumbTop, m_Rect.r, fThumbTop + fThumbHeight);
+				float fThumbTop = m_Rect.t + m_UpDownButtonHeight + (float)(m_nPosition - m_nStart) / nMaxPosition * (fTrackHeight - fThumbHeight);
+				Rectangle ThumbButtonRect = Rectangle::LeftTop(m_Rect.l, fThumbTop, m_Rect.Width(), fThumbHeight);
+				if (m_bDrag)
+				{
+					ThumbButtonRect.offsetSelf(Skin->m_PressedOffset);
+				}
 
 				Skin->DrawImage(ui_render, Skin->m_ThumbBtnNormalImage, ThumbButtonRect, m_Skin->m_Color);
 			}

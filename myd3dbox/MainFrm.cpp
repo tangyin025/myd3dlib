@@ -2590,6 +2590,7 @@ void CMainFrame::OnControlCombobox()
 	scroll_skin->m_Image->m_TexturePath = theApp.default_combobox_scrollbar_img;
 	scroll_skin->m_Image->m_Rect = theApp.default_combobox_scrollbar_img_rect;
 	scroll_skin->m_Image->m_Border = theApp.default_combobox_scrollbar_img_border;
+	scroll_skin->m_PressedOffset = theApp.default_button_pressed_offset;
 	scroll_skin->m_UpBtnNormalImage.reset(new my::ControlImage());
 	scroll_skin->m_UpBtnNormalImage->m_TexturePath = theApp.default_combobox_scrollbarupbtn_normalimg;
 	scroll_skin->m_UpBtnNormalImage->m_Rect = theApp.default_combobox_scrollbarupbtn_normalimg_rect;
@@ -2651,6 +2652,7 @@ void CMainFrame::OnControlListbox()
 	scroll_skin->m_Image->m_TexturePath = theApp.default_listbox_scrollbar_img;
 	scroll_skin->m_Image->m_Rect = theApp.default_listbox_scrollbar_img_rect;
 	scroll_skin->m_Image->m_Border = theApp.default_listbox_scrollbar_img_border;
+	scroll_skin->m_PressedOffset = theApp.default_button_pressed_offset;
 	scroll_skin->m_UpBtnNormalImage.reset(new my::ControlImage());
 	scroll_skin->m_UpBtnNormalImage->m_TexturePath = theApp.default_listbox_scrollbarupbtn_normalimg;
 	scroll_skin->m_UpBtnNormalImage->m_Rect = theApp.default_listbox_scrollbarupbtn_normalimg_rect;
