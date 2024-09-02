@@ -3061,13 +3061,13 @@ void ScrollBar::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & O
 			Skin->DrawImage(ui_render, Skin->m_Image, m_Rect, m_Skin->m_Color);
 
 			Rectangle UpButtonRect = Rectangle::LeftTop(m_Rect.l, m_Rect.t, m_Rect.Width(), m_UpDownButtonHeight);
-			if (m_Arrow == CLICKED_UP)
+			if (m_Arrow == CLICKED_UP || m_Arrow == HELD_UP)
 			{
 				UpButtonRect.offsetSelf(Skin->m_PressedOffset);
 			}
 
 			Rectangle DownButtonRect = Rectangle::RightBottom(m_Rect.r, m_Rect.b, m_Rect.Width(), m_UpDownButtonHeight);
-			if (m_Arrow == CLICKED_DOWN)
+			if (m_Arrow == CLICKED_DOWN || m_Arrow == HELD_DOWN)
 			{
 				DownButtonRect.offsetSelf(Skin->m_PressedOffset);
 			}
