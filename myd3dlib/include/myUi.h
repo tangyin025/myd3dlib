@@ -711,13 +711,13 @@ namespace my
 	class ButtonSkin : public StaticSkin
 	{
 	public:
+		Vector2 m_PressedOffset;
+
 		ControlImagePtr m_DisabledImage;
 
 		ControlImagePtr m_PressedImage;
 
 		ControlImagePtr m_MouseOverImage;
-
-		Vector2 m_PressedOffset;
 
 	public:
 		ButtonSkin(void)
@@ -729,10 +729,10 @@ namespace my
 		void serialize(Archive & ar, const unsigned int version)
 		{
 			ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(StaticSkin);
+			ar & BOOST_SERIALIZATION_NVP(m_PressedOffset);
 			ar & BOOST_SERIALIZATION_NVP(m_DisabledImage);
 			ar & BOOST_SERIALIZATION_NVP(m_PressedImage);
 			ar & BOOST_SERIALIZATION_NVP(m_MouseOverImage);
-			ar & BOOST_SERIALIZATION_NVP(m_PressedOffset);
 		}
 
 		virtual void RequestResource(void);
@@ -996,6 +996,8 @@ namespace my
 	class ScrollBarSkin : public ControlSkin
 	{
 	public:
+		Vector2 m_PressedOffset;
+
 		ControlImagePtr m_UpBtnNormalImage;
 
 		ControlImagePtr m_UpBtnDisabledImage;
@@ -1008,6 +1010,7 @@ namespace my
 
 	public:
 		ScrollBarSkin(void)
+			: m_PressedOffset(0, 0)
 		{
 		}
 
@@ -1015,6 +1018,7 @@ namespace my
 		void serialize(Archive & ar, const unsigned int version)
 		{
 			ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(ControlSkin);
+			ar & BOOST_SERIALIZATION_NVP(m_PressedOffset);
 			ar & BOOST_SERIALIZATION_NVP(m_UpBtnNormalImage);
 			ar & BOOST_SERIALIZATION_NVP(m_UpBtnDisabledImage);
 			ar & BOOST_SERIALIZATION_NVP(m_DownBtnNormalImage);
