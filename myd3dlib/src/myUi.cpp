@@ -3181,6 +3181,7 @@ bool ScrollBar::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM
 			m_bPressed = false;
 			m_bDrag = false;
 			m_Arrow = CLEAR;
+			OnMouseClick(pt);
 			break;
 		}
 		break;

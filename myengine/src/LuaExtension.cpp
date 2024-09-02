@@ -2298,6 +2298,7 @@ void LuaContext::Init(void)
 
 		, class_<my::ScrollBar, my::Control, boost::shared_ptr<my::Control> >("ScrollBar")
 			.def(constructor<const char *>())
+			.def_readwrite("UpDownButtonHeight", &my::ScrollBar::m_UpDownButtonHeight)
 			.def_readwrite("nPosition", &my::ScrollBar::m_nPosition) // ! should use property
 			.def_readwrite("nPageSize", &my::ScrollBar::m_nPageSize) // ! should use property
 			.def_readwrite("nStart", &my::ScrollBar::m_nStart) // ! should use property
