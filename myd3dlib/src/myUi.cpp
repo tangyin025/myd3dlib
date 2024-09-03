@@ -3207,12 +3207,12 @@ bool ScrollBar::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM
 			float fMaxThumb = fTrackHeight - fThumbHeight;
 			float fThumbTop = pt.y - m_fThumbOffsetY;
 
-			if(fThumbTop < 0)
-				fThumbTop = 0;
-			else if(fThumbTop + fThumbHeight > m_Rect.Height() - m_UpDownButtonHeight * 2)
-				fThumbTop = m_Rect.Height() - m_UpDownButtonHeight * 2 - fThumbHeight;
+			//if(fThumbTop < 0)
+			//	fThumbTop = 0;
+			//else if(fThumbTop + fThumbHeight > m_Rect.Height() - m_UpDownButtonHeight * 2)
+			//	fThumbTop = m_Rect.Height() - m_UpDownButtonHeight * 2 - fThumbHeight;
 
-			m_nPosition = (int)(m_nStart + (fThumbTop + fMaxThumb / (nMaxPosition * 2)) * nMaxPosition / fMaxThumb);
+			m_nPosition = Max(m_nStart, Min(m_nEnd - m_nPageSize, (int)(m_nStart + (fThumbTop + fMaxThumb / (nMaxPosition * 2)) * nMaxPosition / fMaxThumb)));
 			return true;
 		}
 		break;
