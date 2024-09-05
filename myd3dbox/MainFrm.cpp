@@ -529,6 +529,7 @@ CMainFrame::CMainFrame()
 	, m_PaintParticleMinDist(1.0f)
 	, m_PaintParticleAngle(0.0f, 0.0f)
 	, m_RenderingView(NULL)
+	, m_IndicatorCoord(0, 0, 0)
 {
 	// TODO: add member initialization code here
 	theApp.m_nAppLook = theApp.GetInt(_T("ApplicationLook"), ID_VIEW_APPLOOK_VS_2005);
@@ -1089,6 +1090,7 @@ void CMainFrame::InitFileContext()
 			.def_readonly("selctls", &CMainFrame::m_selctls, luabind::return_stl_iterator)
 			.property("ActiveView", &CMainFrame::GetActiveView)
 			.def_readonly("RenderingView", &CMainFrame::m_RenderingView)
+			.def_readonly("IndicatorCoord", &CMainFrame::m_IndicatorCoord)
 			.def("addOffMeshConnection", &CMainFrame::addOffMeshConnection)
 
 		, luabind::class_<CMainApp, luabind::bases<my::D3DContext, my::ResourceMgr, RenderPipeline> >("MainApp")
@@ -2827,8 +2829,8 @@ void CMainFrame::OnUpdateIndicatorCoord(CCmdUI* pCmdUI)
 		CString text;
 		if (pos != my::Vector3::zero)
 		{
-			pos = pos.transformCoord(pView->m_Camera->m_View.inverse());
-			text.Format(_T("%f, %f, %f"), pos.x, pos.y, pos.z);
+			m_IndicatorCoord = pos.transformCoord(pView->m_Camera->m_View.inverse());
+			text.Format(_T("%f, %f, %f"), m_IndicatorCoord.x, m_IndicatorCoord.y, m_IndicatorCoord.z);
 		}
 		else
 		{

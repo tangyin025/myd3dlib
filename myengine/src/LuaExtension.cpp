@@ -479,6 +479,16 @@ static bool navigation_find_path(const Navigation* self, unsigned int startRef, 
 	return false;
 }
 
+static bool navigation_get_poly_area(const Navigation* self, unsigned int ref, unsigned char& area)
+{
+	dtStatus status = self->m_navMesh->getPolyArea(ref, &area);
+	if (dtStatusSucceed(status))
+	{
+		return true;
+	}
+	return false;
+}
+
 static my::Vector3 steering_get_corner(const Steering* self, int i)
 {
 	if (i < self->m_ncorners)
@@ -3123,6 +3133,7 @@ void LuaContext::Init(void)
 			//.def(constructor<const char*, const my::AABB&>())
 			.def("findNearestPoly", &navigation_find_nearest_poly, pure_out_value(boost::placeholders::_5) + pure_out_value(boost::placeholders::_6))
 			.def("findPath", &navigation_find_path, pure_out_value(boost::placeholders::_8) + pure_out_value(boost::placeholders::_9))
+			.def("getPolyArea", &navigation_get_poly_area, pure_out_value(boost::placeholders::_3))
 
 		, class_<dtQueryFilter>("dtQueryFilter")
 			.def(constructor<>())

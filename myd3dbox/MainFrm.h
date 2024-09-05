@@ -134,6 +134,7 @@ public:
 	my::EventSignal m_EventCameraPropChanged;
 	std::vector<std::string> m_ToolScripts;
 	CChildView* m_RenderingView;
+	my::Vector3 m_IndicatorCoord;
 	ActorPtr m_Player;
 
 // Operations
