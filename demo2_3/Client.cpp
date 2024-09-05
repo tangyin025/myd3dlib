@@ -448,7 +448,7 @@ Client::Client(void)
 		("uieffect", boost::program_options::value(&m_InitUIEffect)->default_value("shader/UIEffect.fx"), "UI Effect")
 		("vieweddist", boost::program_options::value(&m_ViewedDist)->default_value(1000.0f), "Viewed Distance")
 		("actorcullingthreshold", boost::program_options::value(&m_ActorCullingThreshold)->default_value(10.0f), "Actor Culling Threshold")
-		("showcmphandle", boost::program_options::value(&m_ShowCmpHandle)->default_value(true), "Show Component Handle")
+		("showcmphandle", boost::program_options::value(&m_ShowCmpHandle)->default_value(false), "Show Component Handle")
 		("shownavigation", boost::program_options::value(&m_ShowNavigation)->default_value(false), "Show Navigation")
 		;
 	boost::program_options::variables_map vm;
