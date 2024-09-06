@@ -346,6 +346,7 @@ void Actor::Update(float fElapsedTime)
 		UpdateOctNode();
 	}
 
+	// ! ScriptActionTrackInst::UpdateTime may invalidate action_inst_iter by self:Play, StopAction..
 	ActionInstPtrList::iterator action_inst_iter = m_ActionInstList.begin();
 	for (; action_inst_iter != m_ActionInstList.end(); )
 	{
@@ -357,7 +358,7 @@ void Actor::Update(float fElapsedTime)
 		}
 		else
 		{
-			// ! make sure action inst was not in parallel task list
+			// ! make sure associated objs were not in parallel tasks, ActionTrackEmitterInst::Stop
 			action_inst_iter = StopActionInstIter(action_inst_iter);
 		}
 	}

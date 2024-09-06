@@ -9,7 +9,6 @@
 #include <list>
 #include "myMath.h"
 #include "mySpline.h"
-#include "myTask.h"
 #include "SoundContext.h"
 
 class ActionTrack;
