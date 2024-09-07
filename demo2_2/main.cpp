@@ -209,7 +209,7 @@ public:
 			return hr;
 		}
 
-		m_font = LoadFont("font/wqy-microhei.ttc", 120, 0);
+		m_font = LoadFont("font/SourceHanSansCN-Regular.otf", 120, 0);
 		if (!m_font)
 		{
 			return S_FALSE;
@@ -251,7 +251,7 @@ public:
 		//btn_ok->m_Size = Vector2(80,32);
 		//btn_ok->m_Text = L"OK";
 		//ButtonSkinPtr btn_ok_skin(new ButtonSkin());
-		//btn_ok_skin->m_Font = my::ResourceMgr::getSingleton().LoadFont("font/wqy-microhei.ttc", 13);
+		//btn_ok_skin->m_Font = my::ResourceMgr::getSingleton().LoadFont("font/SourceHanSansCN-Regular.otf", 12);
 		//btn_ok_skin->m_Image.reset(new ControlImage());
 		//btn_ok_skin->m_Image->m_Texture = my::ResourceMgr::getSingleton().LoadTexture("texture/CommonUI.png");
 		//btn_ok_skin->m_Image->m_Rect = my::Rectangle(52,43,68,59);
