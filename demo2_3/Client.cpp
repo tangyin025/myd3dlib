@@ -670,7 +670,7 @@ HRESULT Client::OnCreateDevice(
 			.def("QueryEntity", &client_query_entity, luabind::return_stl_iterator)
 			.def("RemoveViewedActor", &Client::RemoveViewedActor)
 			//.def("OnControlSound", &Client::OnControlSound)
-			//.def("GetTranslation", &Client::OnControlTranslate)
+			.def("GetTranslation", &Client::OnControlTranslate)
 			.def("LoadDictionary", &client_load_dictionary)
 			.def("Play", (SoundEventPtr(SoundContext::*)(my::WavPtr, float, float, bool)) & Client::Play)
 			.def("Play", (SoundEventPtr(SoundContext::*)(my::WavPtr, float, float, bool, const my::Vector3&, const my::Vector3&, float, float)) & Client::Play)
