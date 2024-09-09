@@ -1013,8 +1013,8 @@ void Client::OnUIRender(
 		{
 			ui_render->PushString(Rectangle::LeftTop(5, (float)y, 500, 10), &info_iter->second[0], D3DCOLOR_ARGB(255, 255, 255, 0), my::Font::AlignLeftTop, m_Font.get());
 		}
-		ui_render->Flush();
 	}
+	ui_render->Flush();
 }
 
 LRESULT Client::MsgProc(
