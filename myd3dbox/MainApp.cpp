@@ -805,7 +805,7 @@ BOOL CMainApp::OnIdle(LONG lCount)
 		pFrame->dogc(LUA_GCSTEP, 1);
 	}
 
-	LeaveDeviceSection();
+	theApp.m_d3dDeviceSec.Leave();
 
 	if (!m_IORequestList.empty())
 	{
@@ -825,7 +825,7 @@ BOOL CMainApp::OnIdle(LONG lCount)
 		bContinue = TRUE;
 	}
 
-	EnterDeviceSection();
+	theApp.m_d3dDeviceSec.Enter();
 
 	if (!pFrame->m_selactors.empty() || !pFrame->m_selctls.empty() || pFrame->m_Player->m_Node)
 	{

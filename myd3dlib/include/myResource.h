@@ -220,10 +220,6 @@ namespace my
 	public:
 		AsynchronousIOMgr(void);
 
-		void EnterDeviceSection(void);
-
-		void LeaveDeviceSection(void);
-
 		DWORD IORequestProc(void);
 
 		template <typename T>
@@ -445,7 +441,7 @@ namespace my
 		{
 			_ASSERT(IsMainThread());
 
-			LeaveDeviceSection();
+			D3DContext::getSingleton().m_d3dDeviceSec.Leave();
 
 			IORequestPtrPairList::iterator req_iter = LoadIORequestAsync(key, request, callback);
 			if (req_iter != m_IORequestList.end())
@@ -456,7 +452,7 @@ namespace my
 				}
 			}
 
-			EnterDeviceSection();
+			D3DContext::getSingleton().m_d3dDeviceSec.Enter();
 		}
 
 		bool CheckIORequests(DWORD dwMilliseconds);

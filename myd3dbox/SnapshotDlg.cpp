@@ -274,9 +274,9 @@ void CSnapshotDlg::OnOK()
 							{
 								(*cmp_iter)->RequestResource();
 
-								theApp.LeaveDeviceSection();
+								theApp.m_d3dDeviceSec.Leave();
 								theApp.CheckIORequests(0xFFFFFFFF); // ! INFINITE conflict with corecrt_math.h
-								theApp.EnterDeviceSection();
+								theApp.m_d3dDeviceSec.Enter();
 							}
 
 							if ((*cmp_iter)->GetComponentType() == Component::ComponentTypeNavigation

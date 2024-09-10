@@ -404,16 +404,6 @@ AsynchronousIOMgr::AsynchronousIOMgr(void)
 {
 }
 
-void AsynchronousIOMgr::EnterDeviceSection(void)
-{
-	D3DContext::getSingleton().m_d3dDeviceSec.Enter();
-}
-
-void AsynchronousIOMgr::LeaveDeviceSection(void)
-{
-	D3DContext::getSingleton().m_d3dDeviceSec.Leave();
-}
-
 DWORD AsynchronousIOMgr::IORequestProc(void)
 {
 	m_IORequestListMutex.Wait(INFINITE);
@@ -456,12 +446,12 @@ DWORD AsynchronousIOMgr::IORequestProc(void)
 			// ! request list will be modified when set event, shared_ptr must be thread safe
 			priority_req->m_PostLoadEvent.SetEvent();
 
-			EnterDeviceSection();
+			D3DContext::getSingleton().m_d3dDeviceSec.Enter();
 
 			// ! discarded request may also destroy d3d object in no-main thread
 			priority_req.reset();
 
-			LeaveDeviceSection();
+			D3DContext::getSingleton().m_d3dDeviceSec.Leave();
 
 			m_IORequestListMutex.Wait(INFINITE);
 		}
@@ -481,7 +471,7 @@ DWORD AsynchronousIOMgr::IORequestProc(void)
 //
 //	m_IORequestListMutex.Wait(INFINITE);
 //
-//	LeaveDeviceSection();
+//	D3DContext::getSingleton().m_d3dDeviceSec.Leave();
 //
 //	IORequestPtrPairList::iterator req_iter = m_IORequestList.begin();
 //	for (; req_iter != m_IORequestList.end(); req_iter++)
@@ -492,7 +482,7 @@ DWORD AsynchronousIOMgr::IORequestProc(void)
 //		}
 //	}
 //
-//	EnterDeviceSection();
+//	D3DContext::getSingleton().m_d3dDeviceSec.Enter();
 //
 //	m_IORequestList.clear();
 //
@@ -515,7 +505,7 @@ void AsynchronousIOMgr::StartIORequestProc(LONG lMaximumCount)
 {
 	m_bStopped = false;
 
-	EnterDeviceSection();
+	D3DContext::getSingleton().m_d3dDeviceSec.Enter();
 
 	for (int i = 0; i < lMaximumCount; i++)
 	{
@@ -531,7 +521,7 @@ void AsynchronousIOMgr::StopIORequestProc(void)
 {
 	_ASSERT(IsMainThread());
 
-	LeaveDeviceSection();
+	D3DContext::getSingleton().m_d3dDeviceSec.Leave();
 
 	m_IORequestListMutex.Wait(INFINITE);
 	m_bStopped = true;
@@ -673,7 +663,7 @@ bool ResourceMgr::CheckIORequests(DWORD dwMilliseconds)
 		}
 	}
 
-	EnterDeviceSection();
+	D3DContext::getSingleton().m_d3dDeviceSec.Enter();
 
 	DeviceResourceBasePtrSet::iterator res_iter = m_ResourceSet.begin();
 	for (; res_iter != m_ResourceSet.end(); )
@@ -692,7 +682,7 @@ bool ResourceMgr::CheckIORequests(DWORD dwMilliseconds)
 		}
 	}
 
-	LeaveDeviceSection();
+	D3DContext::getSingleton().m_d3dDeviceSec.Leave();
 
 	return !m_IORequestList.empty();
 }
@@ -1103,16 +1093,16 @@ void TextureIORequest::LoadResource(void)
 			if (cubemap_)
 			{
 				res.reset(new CubeTexture());
-				ResourceMgr::getSingleton().EnterDeviceSection();
+				D3DContext::getSingleton().m_d3dDeviceSec.Enter();
 				boost::static_pointer_cast<CubeTexture>(res)->CreateCubeTexture(ddsd.dwWidth_, Max(ddsd.dwMipMapCount_, 1U), 0, fmt, D3DPOOL_MANAGED);
-				ResourceMgr::getSingleton().LeaveDeviceSection();
+				D3DContext::getSingleton().m_d3dDeviceSec.Leave();
 			}
 			else
 			{
 				res.reset(new Texture2D());
-				ResourceMgr::getSingleton().EnterDeviceSection();
+				D3DContext::getSingleton().m_d3dDeviceSec.Enter();
 				boost::static_pointer_cast<Texture2D>(res)->CreateTexture(ddsd.dwWidth_, ddsd.dwHeight_, Max(ddsd.dwMipMapCount_, 1U), 0, fmt, D3DPOOL_MANAGED);
-				ResourceMgr::getSingleton().LeaveDeviceSection();
+				D3DContext::getSingleton().m_d3dDeviceSec.Leave();
 			}
 
 			for (unsigned faceIndex = 0; faceIndex < imageChainCount; ++faceIndex)
@@ -1122,15 +1112,15 @@ void TextureIORequest::LoadResource(void)
 					D3DLOCKED_RECT lrc;
 					if (cubemap_)
 					{
-						ResourceMgr::getSingleton().EnterDeviceSection();
+						D3DContext::getSingleton().m_d3dDeviceSec.Enter();
 						lrc = boost::static_pointer_cast<CubeTexture>(res)->LockRect((D3DCUBEMAP_FACES)faceIndex, NULL, 0, level);
-						ResourceMgr::getSingleton().LeaveDeviceSection();
+						D3DContext::getSingleton().m_d3dDeviceSec.Leave();
 					}
 					else
 					{
-						ResourceMgr::getSingleton().EnterDeviceSection();
+						D3DContext::getSingleton().m_d3dDeviceSec.Enter();
 						lrc = boost::static_pointer_cast<Texture2D>(res)->LockRect(NULL, 0, level);
-						ResourceMgr::getSingleton().LeaveDeviceSection();
+						D3DContext::getSingleton().m_d3dDeviceSec.Leave();
 					}
 
 					// Calculate mip data size
@@ -1180,15 +1170,15 @@ void TextureIORequest::LoadResource(void)
 
 					if (cubemap_)
 					{
-						ResourceMgr::getSingleton().EnterDeviceSection();
+						D3DContext::getSingleton().m_d3dDeviceSec.Enter();
 						boost::static_pointer_cast<CubeTexture>(res)->UnlockRect((D3DCUBEMAP_FACES)faceIndex, level);
-						ResourceMgr::getSingleton().LeaveDeviceSection();
+						D3DContext::getSingleton().m_d3dDeviceSec.Leave();
 					}
 					else
 					{
-						ResourceMgr::getSingleton().EnterDeviceSection();
+						D3DContext::getSingleton().m_d3dDeviceSec.Enter();
 						boost::static_pointer_cast<Texture2D>(res)->UnlockRect(level);
-						ResourceMgr::getSingleton().LeaveDeviceSection();
+						D3DContext::getSingleton().m_d3dDeviceSec.Leave();
 					}
 				}
 			}
@@ -1208,21 +1198,21 @@ void TextureIORequest::LoadResource(void)
 			Texture2DPtr res(new Texture2D());
 			if (n == 4)
 			{
-				ResourceMgr::getSingleton().EnterDeviceSection();
+				D3DContext::getSingleton().m_d3dDeviceSec.Enter();
 				res->CreateTexture(x, y, 0, 0, D3DFMT_A8R8G8B8, D3DPOOL_MANAGED);
-				ResourceMgr::getSingleton().LeaveDeviceSection();
+				D3DContext::getSingleton().m_d3dDeviceSec.Leave();
 			}
 			else if (n == 3)
 			{
-				ResourceMgr::getSingleton().EnterDeviceSection();
+				D3DContext::getSingleton().m_d3dDeviceSec.Enter();
 				res->CreateTexture(x, y, 0, 0, D3DFMT_X8R8G8B8, D3DPOOL_MANAGED);
-				ResourceMgr::getSingleton().LeaveDeviceSection();
+				D3DContext::getSingleton().m_d3dDeviceSec.Leave();
 			}
 			else if (n == 1)
 			{
-				ResourceMgr::getSingleton().EnterDeviceSection();
+				D3DContext::getSingleton().m_d3dDeviceSec.Enter();
 				res->CreateTexture(x, y, 0, 0, D3DFMT_L8, D3DPOOL_MANAGED);
-				ResourceMgr::getSingleton().LeaveDeviceSection();
+				D3DContext::getSingleton().m_d3dDeviceSec.Leave();
 			}
 			else
 			{
@@ -1244,9 +1234,9 @@ void TextureIORequest::LoadResource(void)
 					}
 				}
 
-				ResourceMgr::getSingleton().EnterDeviceSection();
+				D3DContext::getSingleton().m_d3dDeviceSec.Enter();
 				D3DLOCKED_RECT lrc = res->LockRect(NULL, 0, level);
-				ResourceMgr::getSingleton().LeaveDeviceSection();
+				D3DContext::getSingleton().m_d3dDeviceSec.Leave();
 
 				for (int i = 0; i < blocksHeight; i++)
 				{
@@ -1271,9 +1261,9 @@ void TextureIORequest::LoadResource(void)
 					}
 				}
 
-				ResourceMgr::getSingleton().EnterDeviceSection();
+				D3DContext::getSingleton().m_d3dDeviceSec.Enter();
 				res->UnlockRect(level);
-				ResourceMgr::getSingleton().LeaveDeviceSection();
+				D3DContext::getSingleton().m_d3dDeviceSec.Leave();
 			}
 			m_res = res;
 		}

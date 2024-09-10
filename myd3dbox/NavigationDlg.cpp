@@ -865,7 +865,7 @@ void CNavigationDlg::OnOK()
 	// Start the build process.
 	this->startTimer(RC_TIMER_TEMP);
 
-	theApp.LeaveDeviceSection();
+	theApp.m_d3dDeviceSec.Leave();
 
 	float m_lastBuiltTileBmin[3];
 	float m_lastBuiltTileBmax[3];
@@ -902,7 +902,7 @@ void CNavigationDlg::OnOK()
 
 	theApp.DoAllParallelTasks();
 
-	theApp.EnterDeviceSection();
+	theApp.m_d3dDeviceSec.Enter();
 
 	for (int i = 0; i < tasks.size(); i++)
 	{

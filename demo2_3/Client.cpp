@@ -813,7 +813,7 @@ void Client::OnFrameTick(
 	double fTime,
 	float fElapsedTime)
 {
-	LeaveDeviceSection();
+	m_d3dDeviceSec.Leave();
 
 	ResourceMgr::CheckIORequests(0);
 
@@ -821,7 +821,7 @@ void Client::OnFrameTick(
 
 	SoundContext::ReleaseIdleBuffer(fElapsedTime);
 
-	EnterDeviceSection();
+	m_d3dDeviceSec.Enter();
 
 	if (InputMgr::Capture(fTime, fElapsedTime))
 	{
@@ -963,7 +963,7 @@ void Client::OnFrameTick(
 
 	Present(NULL, NULL, NULL, NULL);
 
-	LeaveDeviceSection();
+	m_d3dDeviceSec.Leave();
 
 	PhysxScene::TickPostRender(fElapsedTime);
 
@@ -988,7 +988,7 @@ void Client::OnFrameTick(
 
 	//FModContext::Update();
 
-	EnterDeviceSection();
+	m_d3dDeviceSec.Enter();
 }
 
 void Client::OnUIRender(

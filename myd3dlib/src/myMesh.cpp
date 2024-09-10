@@ -1133,20 +1133,20 @@ void OgreMesh::CreateMeshFromOgreXml(
 	D3DVERTEXELEMENT9 ve_end = D3DDECL_END();
 	velist.push_back(ve_end);
 
-	ResourceMgr::getSingleton().EnterDeviceSection();
+	D3DContext::getSingleton().m_d3dDeviceSec.Enter();
 	if (FAILED(hr = my::D3DContext::getSingleton().m_d3dDevice->CreateVertexDeclaration(velist.data(), &m_Decl)))
 	{
 		THROW_D3DEXCEPTION(hr);
 	}
-	ResourceMgr::getSingleton().LeaveDeviceSection();
+	D3DContext::getSingleton().m_d3dDeviceSec.Leave();
 
-	ResourceMgr::getSingleton().EnterDeviceSection();
+	D3DContext::getSingleton().m_d3dDeviceSec.Enter();
 	CreateMesh(total_faces, total_vertices, velist.data(), dwMeshOptions);
-	ResourceMgr::getSingleton().LeaveDeviceSection();
+	D3DContext::getSingleton().m_d3dDeviceSec.Leave();
 
-	ResourceMgr::getSingleton().EnterDeviceSection();
+	D3DContext::getSingleton().m_d3dDeviceSec.Enter();
 	VOID* pVertices = LockVertexBuffer();
-	ResourceMgr::getSingleton().LeaveDeviceSection();
+	D3DContext::getSingleton().m_d3dDeviceSec.Leave();
 
 	int vertex_i = 0;
 	DEFINE_XML_NODE(node_submesh, node_submeshes, submesh);
@@ -1264,14 +1264,14 @@ void OgreMesh::CreateMeshFromOgreXml(
 		}
 	}
 
-	ResourceMgr::getSingleton().EnterDeviceSection();
+	D3DContext::getSingleton().m_d3dDeviceSec.Enter();
 	UnlockVertexBuffer();
-	ResourceMgr::getSingleton().LeaveDeviceSection();
+	D3DContext::getSingleton().m_d3dDeviceSec.Leave();
 
-	ResourceMgr::getSingleton().EnterDeviceSection();
+	D3DContext::getSingleton().m_d3dDeviceSec.Enter();
 	VOID* pIndices = LockIndexBuffer();
 	DWORD* pAttrBuffer = LockAttributeBuffer();
-	ResourceMgr::getSingleton().LeaveDeviceSection();
+	D3DContext::getSingleton().m_d3dDeviceSec.Leave();
 
 	DEFINE_XML_NODE(node_submesh, node_submeshes, submesh);
 	int face_i = 0;
@@ -1315,14 +1315,14 @@ void OgreMesh::CreateMeshFromOgreXml(
 		rang.VertexCount = vmax - vmin + 1;
 	}
 
-	ResourceMgr::getSingleton().EnterDeviceSection();
+	D3DContext::getSingleton().m_d3dDeviceSec.Enter();
 	UnlockAttributeBuffer();
 	UnlockIndexBuffer();
-	ResourceMgr::getSingleton().LeaveDeviceSection();
+	D3DContext::getSingleton().m_d3dDeviceSec.Leave();
 
-	ResourceMgr::getSingleton().EnterDeviceSection();
+	D3DContext::getSingleton().m_d3dDeviceSec.Enter();
 	SetAttributeTable(&m_AttribTable[0], m_AttribTable.size());
-	ResourceMgr::getSingleton().LeaveDeviceSection();
+	D3DContext::getSingleton().m_d3dDeviceSec.Leave();
 
 	m_Vb.Create(GetVertexBuffer().Detach());
 	m_Ib.Create(GetIndexBuffer().Detach());
@@ -1330,44 +1330,44 @@ void OgreMesh::CreateMeshFromOgreXml(
 	if (bComputeTangentFrame)
 	{
 		//std::vector<DWORD> adjacency(GetNumFaces() * 3);
-		//ResourceMgr::getSingleton().EnterDeviceSection();
+		//D3DContext::getSingleton().m_d3dDeviceSec.Enter();
 		//GenerateAdjacency((float)EPSILON_E6, &adjacency[0]);
-		//ResourceMgr::getSingleton().LeaveDeviceSection();
+		//D3DContext::getSingleton().m_d3dDeviceSec.Leave();
 
 		//DWORD dwOptions = D3DXTANGENT_GENERATE_IN_PLACE;
 		//if(!normals)
 		//	dwOptions |= D3DXTANGENT_CALCULATE_NORMALS;
-		//ResourceMgr::getSingleton().EnterDeviceSection();
+		//D3DContext::getSingleton().m_d3dDeviceSec.Enter();
 		//hr = D3DXComputeTangentFrameEx(
 		//	m_ptr, D3DDECLUSAGE_TEXCOORD, 0, D3DDECLUSAGE_TANGENT, 0, D3DX_DEFAULT, 0, D3DDECLUSAGE_NORMAL, 0, dwOptions, &adjacency[0], -1.01f, -0.01f, -1.01f, NULL, NULL);
-		//ResourceMgr::getSingleton().LeaveDeviceSection();
+		//D3DContext::getSingleton().m_d3dDeviceSec.Leave();
 		//if(FAILED(hr))
 		//{
 		//	THROW_D3DEXCEPTION(hr);
 		//}
 
-		ResourceMgr::getSingleton().EnterDeviceSection();
+		D3DContext::getSingleton().m_d3dDeviceSec.Enter();
 		VOID* pVertices = LockVertexBuffer();
 		VOID* pIndices = LockIndexBuffer();
-		ResourceMgr::getSingleton().LeaveDeviceSection();
+		D3DContext::getSingleton().m_d3dDeviceSec.Leave();
 
 		ComputeTangentFrame(
 			pVertices, total_vertices, offset, pIndices, !(dwMeshOptions& D3DXMESH_32BIT), total_faces, m_VertexElems);
 
-		ResourceMgr::getSingleton().EnterDeviceSection();
+		D3DContext::getSingleton().m_d3dDeviceSec.Enter();
 		UnlockVertexBuffer();
 		UnlockIndexBuffer();
-		ResourceMgr::getSingleton().LeaveDeviceSection();
+		D3DContext::getSingleton().m_d3dDeviceSec.Leave();
 	}
 
 	//std::vector<DWORD> adjacency(GetNumFaces() * 3);
-	//ResourceMgr::getSingleton().EnterDeviceSection();
+	//D3DContext::getSingleton().m_d3dDeviceSec.Enter();
 	//GenerateAdjacency((float)EPSILON_E6, &adjacency[0]);
-	//ResourceMgr::getSingleton().LeaveDeviceSection();
+	//D3DContext::getSingleton().m_d3dDeviceSec.Leave();
 
-	//ResourceMgr::getSingleton().EnterDeviceSection();
+	//D3DContext::getSingleton().m_d3dDeviceSec.Enter();
 	//OptimizeInplace(D3DXMESHOPT_ATTRSORT | D3DXMESHOPT_VERTEXCACHE, &adjacency[0], &m_Adjacency[0], NULL, NULL);
-	//ResourceMgr::getSingleton().LeaveDeviceSection();
+	//D3DContext::getSingleton().m_d3dDeviceSec.Leave();
 
 	rapidxml::xml_node<char>* node_levelofdetail = node_mesh->first_node("levelofdetail");
 	if (node_levelofdetail)

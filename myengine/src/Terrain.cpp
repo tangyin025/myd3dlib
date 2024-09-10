@@ -67,14 +67,14 @@ public:
 			IStreamPtr istr = ResourceMgr::getSingleton().OpenIStream(m_path.c_str());
 			int BufferSize = (m_ChunkSize + 1) * (m_ChunkSize + 1) * m_VertexStride;
 			VertexBufferPtr vb = boost::dynamic_pointer_cast<VertexBuffer>(m_res);
-			ResourceMgr::getSingleton().EnterDeviceSection();
+			D3DContext::getSingleton().m_d3dDeviceSec.Enter();
 			vb->CreateVertexBuffer(BufferSize, 0, 0, D3DPOOL_MANAGED);
 			void* buff = vb->Lock();
-			ResourceMgr::getSingleton().LeaveDeviceSection();
+			D3DContext::getSingleton().m_d3dDeviceSec.Leave();
 			BOOST_VERIFY(istr->read(buff, BufferSize) == BufferSize);
-			ResourceMgr::getSingleton().EnterDeviceSection();
+			D3DContext::getSingleton().m_d3dDeviceSec.Enter();
 			vb->Unlock();
-			ResourceMgr::getSingleton().LeaveDeviceSection();
+			D3DContext::getSingleton().m_d3dDeviceSec.Leave();
 		}
 	}
 
@@ -560,17 +560,17 @@ void Terrain::load(Archive & ar, const unsigned int version)
 	ar >> BOOST_SERIALIZATION_NVP(m_ChunkLodScale);
 	DWORD BufferSize;
 	ar >> BOOST_SERIALIZATION_NVP(BufferSize);
-	ResourceMgr::getSingleton().EnterDeviceSection(); // ! unpaired lock/unlock will break the main thread m_d3dDevice->Present
+	D3DContext::getSingleton().m_d3dDeviceSec.Enter(); // ! unpaired lock/unlock will break the main thread m_d3dDevice->Present
 	m_rootVb.OnDestroyDevice();
 	m_rootVb.CreateVertexBuffer(BufferSize, 0, 0, D3DPOOL_MANAGED);
 	void * pVertices = m_rootVb.Lock(0, 0, 0);
-	ResourceMgr::getSingleton().LeaveDeviceSection();
+	D3DContext::getSingleton().m_d3dDeviceSec.Leave();
 	ar >> boost::serialization::make_nvp("VertexBuffer", boost::serialization::binary_object(pVertices, BufferSize));
-	ResourceMgr::getSingleton().EnterDeviceSection();
+	D3DContext::getSingleton().m_d3dDeviceSec.Enter();
 	m_rootVb.Unlock();
 	m_rootIb.OnDestroyDevice();
 	m_rootIb.CreateIndexBuffer(m_RowChunks * m_MinChunkLodSize * m_ColChunks * m_MinChunkLodSize * 2 * 3 * sizeof(IndexTable::element), 0, D3DFMT_INDEX32, D3DPOOL_MANAGED);
-	ResourceMgr::getSingleton().LeaveDeviceSection();
+	D3DContext::getSingleton().m_d3dDeviceSec.Leave();
 	m_Chunks.resize(boost::extents[m_RowChunks][m_ColChunks]);
 	for (int i = 0; i < m_RowChunks; i++)
 	{
