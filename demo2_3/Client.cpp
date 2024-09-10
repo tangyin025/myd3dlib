@@ -830,6 +830,8 @@ void Client::OnFrameTick(
 
 	OnPreUpdate(fTime, fElapsedTime);
 
+	m_d3dDeviceSec.Leave();
+
 	struct Callback : public OctNode::QueryCallback
 	{
 		Client* m_client;
@@ -876,9 +878,13 @@ void Client::OnFrameTick(
 			{
 				_ASSERT(!actor->IsRequested());
 
+				m_client->m_d3dDeviceSec.Enter();
+
 				actor->RequestResource();
 
 				m_client->OnActorRequest(actor);
+
+				m_client->m_d3dDeviceSec.Leave();
 
 				m_client->m_ViewedActors.insert(insert_actor_iter, *actor);
 			}
@@ -896,6 +902,8 @@ void Client::OnFrameTick(
 
 	Callback cb(this, m_ViewedCenter);
 	QueryEntity(AABB(m_ViewedCenter, m_ViewedDist), &cb);
+
+	m_d3dDeviceSec.Enter();
 
 	ViewedActorSet::iterator actor_iter = m_ViewedActors.begin();
 	for (; actor_iter != cb.insert_actor_iter; actor_iter++)
@@ -927,7 +935,11 @@ void Client::OnFrameTick(
 
 	//LuaContext::dogc(LUA_GCCOLLECT, 1);
 
+	m_d3dDeviceSec.Leave();
+
 	ParallelTaskManager::DoAllParallelTasks();
+
+	m_d3dDeviceSec.Enter();
 
 	DelayRemover<ActorPtr>::getSingleton().Leave();
 
