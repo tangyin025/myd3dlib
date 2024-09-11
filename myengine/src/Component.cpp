@@ -1586,6 +1586,13 @@ void ClothComponent::RequestResource(void)
 		scene->m_PxScene->addActor(*m_Cloth);
 
 		scene->m_EventPxThreadSubstep.connect(boost::bind(&ClothComponent::OnPxThreadSubstep, this, boost::placeholders::_1));
+
+		_ASSERT(m_Actor);
+
+		Vector3 Pos, Scale; Quaternion Rot;
+		m_Actor->m_World.Decompose(Scale, Rot, Pos);
+
+		m_Cloth->setGlobalPose(physx::PxTransform((physx::PxVec3&)Pos, (physx::PxQuat&)Rot));
 	}
 }
 
