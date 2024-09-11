@@ -805,9 +805,11 @@ void Animator::UpdateHierarchyBoneList(const int node_i, const my::Bone& parent)
 	Actor::AttachList::iterator act_iter = boost::find_if(m_Actor->m_Attaches, boost::bind(std::equal_to<int>(), node_i, boost::bind(&Actor::m_BaseBoneId, boost::placeholders::_1)));
 	if (act_iter != m_Actor->m_Attaches.end() && (*act_iter)->m_PxActor && !(*act_iter)->GetRigidBodyFlag(physx::PxRigidBodyFlag::eKINEMATIC))
 	{
-		_ASSERT(physx::PxActorType::eRIGID_DYNAMIC == (*act_iter)->GetRigidActorType());
-		dst.m_rotation = (*act_iter)->m_Rotation * m_Actor->m_Rotation.conjugate();
-		dst.m_position = (*act_iter)->m_Position.transformCoord(m_Actor->m_World.inverse());
+		physx::PxRigidBody* body = (*act_iter)->m_PxActor->is<physx::PxRigidBody>();
+		_ASSERT(body);
+		physx::PxTransform pose = body->getGlobalPose();
+		dst.m_rotation = (my::Quaternion&)pose.q * m_Actor->m_Rotation.conjugate();
+		dst.m_position = ((my::Vector3&)pose.p).transformCoord(m_Actor->m_World.inverse());
 	}
 	else
 	{
