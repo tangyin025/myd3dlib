@@ -1786,8 +1786,8 @@ void CMainFrame::OnComponentCloth()
 	//// reduce centrifugal force of rotating frame
 	//cloth_cmp->m_Cloth->setCentrifugalInertiaScale(physx::PxVec3(0.3f));
 
-	//// virtual particles
-	//cloth_cmp->CreateVirtualParticles(4);
+	// virtual particles
+	cloth_cmp->CreateVirtualParticles(1);
 
 	// ccd
 	cloth_cmp->m_Cloth->setClothFlag(physx::PxClothFlag::eSWEPT_CONTACT, true);
@@ -1795,12 +1795,12 @@ void CMainFrame::OnComponentCloth()
 	//// use GPU or not
 	//cloth_cmp->m_Cloth->setClothFlag(physx::PxClothFlag::eCUDA, true);
 
-	//// custom fiber configuration
-	//cloth_cmp->m_Cloth->setStretchConfig(physx::PxClothFabricPhaseType::eVERTICAL, physx::PxClothStretchConfig(1.0f));
-	//cloth_cmp->m_Cloth->setStretchConfig(physx::PxClothFabricPhaseType::eHORIZONTAL, physx::PxClothStretchConfig(1.0f));
-	//cloth_cmp->m_Cloth->setStretchConfig(physx::PxClothFabricPhaseType::eSHEARING, physx::PxClothStretchConfig(0.75f));
-	//cloth_cmp->m_Cloth->setStretchConfig(physx::PxClothFabricPhaseType::eBENDING, physx::PxClothStretchConfig(0.5f));
-	//cloth_cmp->m_Cloth->setTetherConfig(physx::PxClothTetherConfig(1.0f));
+	// custom fiber configuration
+	cloth_cmp->m_Cloth->setStretchConfig(physx::PxClothFabricPhaseType::eVERTICAL, physx::PxClothStretchConfig(1.0f));
+	cloth_cmp->m_Cloth->setStretchConfig(physx::PxClothFabricPhaseType::eHORIZONTAL, physx::PxClothStretchConfig(1.0f));
+	cloth_cmp->m_Cloth->setStretchConfig(physx::PxClothFabricPhaseType::eSHEARING, physx::PxClothStretchConfig(0.75f));
+	cloth_cmp->m_Cloth->setStretchConfig(physx::PxClothFabricPhaseType::eBENDING, physx::PxClothStretchConfig(0.5f));
+	cloth_cmp->m_Cloth->setTetherConfig(physx::PxClothTetherConfig(1.0f));
 
 	MaterialPtr mtl(new Material());
 	mtl->m_Shader = theApp.default_shader;
