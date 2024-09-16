@@ -10,8 +10,8 @@
 #include "StaticEmitterDlg.h"
 #include "Material.h"
 #include "Controller.h"
-#include <boost/archive/polymorphic_iarchive.hpp>
-#include <boost/archive/polymorphic_oarchive.hpp>
+#include <boost/archive/polymorphic_text_iarchive.hpp>
+#include <boost/archive/polymorphic_text_oarchive.hpp>
 #include <boost/serialization/shared_ptr.hpp>
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/binary_object.hpp>
@@ -394,6 +394,20 @@ static bool GetImageInfoFromFile(const char* u8_path, D3DXIMAGE_INFO* pSrcInfo)
 {
 	HRESULT hr = D3DXGetImageInfoFromFile(u8tots(u8_path).c_str(), pSrcInfo);
 	return SUCCEEDED(hr);
+}
+
+static void RectAssignmentNodeLoadFromFile(my::RectAssignmentNode * ass, const char* u8_path)
+{
+	std::ifstream ifs(u8tots(u8_path).c_str());
+	boost::archive::text_iarchive ia(ifs);
+	ia >> boost::serialization::make_nvp("ass", *ass);
+}
+
+static void RectAssignmentNodeSave(my::RectAssignmentNode * ass, const char* u8_path)
+{
+	std::ofstream ofs(u8tots(u8_path).c_str());
+	boost::archive::text_oarchive oa(ofs);
+	oa << boost::serialization::make_nvp("ass", *ass);
 }
 
 // CMainFrame
@@ -1117,6 +1131,12 @@ void CMainFrame::InitFileContext()
 			.def_readonly("ImageFileFormat", &D3DXIMAGE_INFO::ImageFileFormat)
 
 		, luabind::def("GetImageInfoFromFile", &GetImageInfoFromFile, luabind::pure_out_value(boost::placeholders::_2))
+
+		, luabind::class_<my::RectAssignmentNode, CRect>("RectAssignmentNode")
+			.def(luabind::constructor<int, int, int, int>())
+			.def("AssignRect", &my::RectAssignmentNode::AssignRect, luabind::pure_out_value(boost::placeholders::_3))
+			.def("LoadFromFile", &RectAssignmentNodeLoadFromFile)
+			.def("Save", &RectAssignmentNodeSave)
 	];
 	luabind::globals(m_State)["theApp"] = &theApp;
 }

@@ -62,11 +62,30 @@ namespace my
 
 		RectAssignmentNodePtr m_rchild;
 
+	protected:
+		RectAssignmentNode(void)
+		{
+		}
+
 	public:
 		RectAssignmentNode(int l, int t, int r, int b)
 			: CRect(l, t, r, b)
 			, m_used(false)
 		{
+		}
+
+		friend class boost::serialization::access;
+
+		template <class Archive>
+		void serialize(Archive& ar, const unsigned int version)
+		{
+			ar& BOOST_SERIALIZATION_NVP(left);
+			ar& BOOST_SERIALIZATION_NVP(top);
+			ar& BOOST_SERIALIZATION_NVP(right);
+			ar& BOOST_SERIALIZATION_NVP(bottom);
+			ar& BOOST_SERIALIZATION_NVP(m_used);
+			ar& BOOST_SERIALIZATION_NVP(m_lchild);
+			ar& BOOST_SERIALIZATION_NVP(m_rchild);
 		}
 
 		bool AssignTopRect(const CSize & size, CRect & outRect);

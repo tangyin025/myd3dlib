@@ -2034,10 +2034,6 @@ void LuaContext::Init(void)
 			.def("SetTechnique", &my::Effect::SetTechnique)
 			.def("ValidateTechnique", &my::Effect::ValidateTechnique)
 
-		, class_<my::RectAssignmentNode, CRect>("RectAssignmentNode")
-			.def(constructor<int, int, int, int>())
-			.def("AssignRect", &my::RectAssignmentNode::AssignRect, pure_out_value(boost::placeholders::_3))
-
 		, class_<my::Font, my::DeviceResourceBase, boost::shared_ptr<my::DeviceResourceBase> >("Font")
 			.enum_("Align")
 			[
