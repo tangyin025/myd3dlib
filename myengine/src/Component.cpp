@@ -868,6 +868,8 @@ void MeshComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline * 
 							BOOST_VERIFY(handle_World = shader->GetParameterByName(NULL, "g_World"));
 							BOOST_VERIFY(handle_MeshColor = shader->GetParameterByName(NULL, "g_MeshColor"));
 							BOOST_VERIFY(handle_dualquat = shader->GetParameterByName(NULL, "g_dualquat"));
+
+							m_Material->OnResetShader();
 						}
 
 						switch (m_InstanceType)

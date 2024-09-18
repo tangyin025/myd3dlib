@@ -244,10 +244,9 @@ MaterialPtr Material::Clone(void) const
 
 void Material::OnResetShader(void)
 {
-	MaterialParameterPtrList::iterator param_iter = m_ParameterList.begin();
-	for (; param_iter != m_ParameterList.end(); param_iter++)
+	if (!m_ParameterList.empty())
 	{
-		(*param_iter)->m_Handle = NULL;
+		m_ParameterList.front()->m_Handle = NULL;
 	}
 }
 
