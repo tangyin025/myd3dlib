@@ -341,8 +341,6 @@ void Actor::Update(float fElapsedTime)
 
 		m_World = Matrix4::Compose(m_Scale, attach_pose.m_rotation, attach_pose.m_position);
 
-		SetPxPoseOrbyPxThread(attach_pose.m_position, attach_pose.m_rotation, NULL);
-
 		UpdateOctNode();
 	}
 
@@ -402,11 +400,6 @@ void Actor::SetPose(const my::Bone & Pose)
 	SetPose(Pose.m_position, Pose.m_rotation);
 }
 
-void Actor::SetPxPoseOrbyPxThread(const my::Vector3 & Pos)
-{
-	SetPxPoseOrbyPxThread(Pos, m_Rotation, NULL);
-}
-
 void Actor::SetPxPoseOrbyPxThread(const my::Vector3 & Pos, const my::Quaternion & Rot, const Component * Exclusion)
 {
 	if (m_PxActor)
@@ -430,11 +423,35 @@ void Actor::SetPxPoseOrbyPxThread(const my::Vector3 & Pos, const my::Quaternion 
 			(*cmp_iter)->SetPxPoseOrbyPxThread(Pos, Rot);
 		}
 	}
-}
 
-void Actor::SetPxPoseOrbyPxThread(const my::Bone & Pose)
-{
-	SetPxPoseOrbyPxThread(Pose.m_position, Pose.m_rotation, NULL);
+	const Animator* animator = GetFirstComponent<Animator>();
+
+	const Matrix4 World = Matrix4::Compose(m_Scale, Rot, Pos);
+
+	AttachList::iterator attach_iter = m_Attaches.begin();
+	for (; attach_iter != m_Attaches.end(); attach_iter++)
+	{
+		if (animator && (*attach_iter)->m_BaseBoneId >= 0 && (*attach_iter)->m_BaseBoneId < (int)animator->anim_pose.size())
+		{
+			const Bone& bone = animator->anim_pose[(*attach_iter)->m_BaseBoneId];
+
+			Bone parent(bone.m_position.transformCoord(World), bone.m_rotation * Rot);
+
+			Bone attach_pose((*attach_iter)->m_Position, (*attach_iter)->m_Rotation);
+
+			attach_pose.TransformSelf(parent);
+
+			(*attach_iter)->SetPxPoseOrbyPxThread(attach_pose.m_position, attach_pose.m_rotation, Exclusion);
+		}
+		else
+		{
+			Bone attach_pose((*attach_iter)->m_Position, (*attach_iter)->m_Rotation);
+
+			attach_pose.TransformSelf(Pos, Rot);
+
+			(*attach_iter)->SetPxPoseOrbyPxThread(attach_pose.m_position, attach_pose.m_rotation, Exclusion);
+		}
+	}
 }
 
 my::AABB Actor::CalculateAABB(void) const

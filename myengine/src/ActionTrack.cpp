@@ -409,7 +409,7 @@ void ActionTrackPoseInst::UpdateTime(float LastTime, float Time)
 		// ! Actor::Update, m_Base->GetAttachPose
 		if (!m_Actor->m_Base || (m_Actor->m_PxActor && !m_Actor->GetRigidBodyFlag(physx::PxRigidBodyFlag::eKINEMATIC)))
 		{
-			m_Actor->SetPxPoseOrbyPxThread(pose);
+			m_Actor->SetPxPoseOrbyPxThread(pose.m_position, pose.m_rotation, NULL);
 		}
 
 		if (key_inst_iter->m_Time >= key_inst_iter->m_Length)
