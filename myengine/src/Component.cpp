@@ -2025,7 +2025,7 @@ void SphericalEmitter::Update(float fElapsedTime)
 			m_Actor->GetAttachPose(m_SpawnBoneId, m_SpawnLocalPose.m_position, m_SpawnLocalPose.m_rotation) : m_SpawnLocalPose;
 
 		m_SpawnTime += fElapsedTime;
-		for (; m_SpawnTime >= m_SpawnInterval; m_SpawnTime -= m_SpawnInterval)
+		for (; m_SpawnTime >= 0; m_SpawnTime -= m_SpawnInterval)
 		{
 			Spawn(
 				Vector4(Vector3(
