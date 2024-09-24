@@ -845,6 +845,12 @@ bool CChildView::OverlapTestFrustumAndComponent(const my::Frustum & frustum, con
 			CircularEmitter * circ_emit_cmp = dynamic_cast<CircularEmitter*>(cmp);
 			if (circ_emit_cmp->m_ParticleList.empty())
 			{
+				my::Emitter::Particle part(circ_emit_cmp->m_EmitterSpaceType == EmitterComponent::SpaceTypeWorld
+					? my::Vector4(circ_emit_cmp->m_Actor->m_Position, 1) : my::Vector4(0, 0, 0, 1), my::Vector4(0, 0, 0, 1), my::Vector4(1, 1, 1, 1), my::Vector2(1, 1), 0.0f, 0.0f);
+				if (OverlapTestFrustumAndParticles(frustum, local_ftm, circ_emit_cmp, &part, 1))
+				{
+					return true;
+				}
 				return false;
 			}
 			my::Emitter::ParticleList::array_range array_one = circ_emit_cmp->m_ParticleList.array_one();
@@ -1124,6 +1130,16 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, const 
 			CircularEmitter* circ_emit_cmp = dynamic_cast<CircularEmitter *>(cmp);
 			if (circ_emit_cmp->m_ParticleList.empty())
 			{
+				int part_id;
+				my::Emitter::Particle part(circ_emit_cmp->m_EmitterSpaceType == EmitterComponent::SpaceTypeWorld
+					? my::Vector4(circ_emit_cmp->m_Actor->m_Position, 1) : my::Vector4(0, 0, 0, 1), my::Vector4(0, 0, 0, 1), my::Vector4(1, 1, 1, 1), my::Vector2(1, 1), 0.0f, 0.0f);
+				my::RayResult ret = OverlapTestRayAndParticles(ray, local_ray, circ_emit_cmp, &part, 1, part_id);
+				if (ret.first)
+				{
+					raychunkid.SetPoint(0, 0);
+					rayinstid = part_id;
+					return ret;
+				}
 				return my::RayResult(false, FLT_MAX);
 			}
 			int part_id;
