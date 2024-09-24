@@ -30,6 +30,10 @@ namespace my
 
 		float damping;
 
+		Particle(void)
+		{
+		};
+
 	public:
 		void setPosition(const Vector3 & _position)
 		{
@@ -131,6 +135,19 @@ namespace my
 			const Vector3 & _forceAccum,
 			float _inverseMass,
 			float _damping);
+
+		friend class boost::serialization::access;
+
+		template <class Archive>
+		void serialize(Archive& ar, const unsigned int version)
+		{
+			ar & BOOST_SERIALIZATION_NVP(position);
+			ar & BOOST_SERIALIZATION_NVP(velocity);
+			ar & BOOST_SERIALIZATION_NVP(acceleration);
+			ar & BOOST_SERIALIZATION_NVP(forceAccum);
+			ar & BOOST_SERIALIZATION_NVP(inverseMass);
+			ar & BOOST_SERIALIZATION_NVP(damping);
+		}
 
 		bool hasFiniteMass(void) const;
 

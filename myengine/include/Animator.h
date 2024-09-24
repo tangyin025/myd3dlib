@@ -397,6 +397,14 @@ public:
 		float springConstant;
 
 		ParticleList m_ParticleList;
+
+		template <class Archive>
+		void serialize(Archive& ar, const unsigned int version)
+		{
+			ar & BOOST_SERIALIZATION_NVP(parent_i);
+			ar & BOOST_SERIALIZATION_NVP(springConstant);
+			ar & BOOST_SERIALIZATION_NVP(m_ParticleList);
+		}
 	};
 
 	typedef std::map<int, DynamicBoneContext> DynamicBoneContextMap;

@@ -14,6 +14,7 @@
 #include <boost/serialization/string.hpp>
 #include <boost/serialization/shared_ptr.hpp>
 #include <boost/serialization/vector.hpp>
+#include <boost/serialization/map.hpp>
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/export.hpp>
 #include <boost/algorithm/string.hpp>
@@ -665,6 +666,7 @@ void Animator::save(Archive & ar, const unsigned int version) const
 	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(Component);
 	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(AnimationNode);
 	ar << BOOST_SERIALIZATION_NVP(m_SkeletonPath);
+	ar << BOOST_SERIALIZATION_NVP(m_DynamicBones);
 }
 
 template<class Archive>
@@ -673,6 +675,7 @@ void Animator::load(Archive & ar, const unsigned int version)
 	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(Component);
 	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(AnimationNode);
 	ar >> BOOST_SERIALIZATION_NVP(m_SkeletonPath);
+	ar >> BOOST_SERIALIZATION_NVP(m_DynamicBones);
 	ReloadSequenceGroup();
 }
 
@@ -920,13 +923,14 @@ void Animator::AddDynamicBone(int node_i, float mass, float damping, float sprin
 	_ASSERT(mass > 0);
 
 	std::pair<DynamicBoneContextMap::iterator, bool> res = m_DynamicBones.insert(std::make_pair(node_i, DynamicBoneContext()));
-	if (!res.second)
+	if (res.second)
 	{
-		return;
+		res.first->second.parent_i = -1;
+		res.first->second.springConstant = springConstant;
 	}
 
-	res.first->second.parent_i = -1;
-	res.first->second.springConstant = springConstant;
+	_ASSERT(res.first->second.parent_i == -1);
+	_ASSERT(res.first->second.springConstant == springConstant);
 	res.first->second.m_ParticleList.push_back(Particle(
 		Vector3(0, 0, 0), Vector3(0, 0, 0), Vector3(0, 0, 0), Vector3(0, 0, 0), 1 / mass, damping));
 }
