@@ -76,7 +76,10 @@ bool MaterialParameter::operator == (const MaterialParameter & rhs) const
 
 void MaterialParameter::Init(my::Effect * shader)
 {
-	m_Handle = shader->GetParameterByName(NULL, m_Name.c_str());
+	if (NULL == (m_Handle = shader->GetParameterByName(NULL, m_Name.c_str())))
+	{
+		THROW_CUSEXCEPTION(m_Name);
+	}
 }
 
 template<class Archive>
@@ -369,7 +372,7 @@ void Material::ParseShaderParameters(void)
 					Value.y = boost::lexical_cast<int>(what2[2]);
 				}
 			}
-			AddParameter(Name, Value);
+			m_ParameterList.push_back(MaterialParameterPtr(new MaterialParameterInt2(Name, Value)));
 		}
 		if (what[3].matched)
 		{
@@ -387,7 +390,7 @@ void Material::ParseShaderParameters(void)
 					Value = boost::lexical_cast<float>(what2[0]);
 				}
 			}
-			AddParameter(Name, Value);
+			m_ParameterList.push_back(MaterialParameterPtr(new MaterialParameterFloat(Name, Value)));
 		}
 		else if (what[4].matched)
 		{
@@ -406,7 +409,7 @@ void Material::ParseShaderParameters(void)
 					Value.y = boost::lexical_cast<float>(what2[3]);
 				}
 			}
-			AddParameter(Name, Value);
+			m_ParameterList.push_back(MaterialParameterPtr(new MaterialParameterFloat2(Name, Value)));
 		}
 		else if (what[5].matched)
 		{
@@ -426,7 +429,7 @@ void Material::ParseShaderParameters(void)
 					Value.z = boost::lexical_cast<float>(what2[5]);
 				}
 			}
-			AddParameter(Name, Value);
+			m_ParameterList.push_back(MaterialParameterPtr(new MaterialParameterFloat3(Name, Value)));
 		}
 		else if (what[6].matched)
 		{
@@ -447,7 +450,7 @@ void Material::ParseShaderParameters(void)
 					Value.w = boost::lexical_cast<float>(what2[7]);
 				}
 			}
-			AddParameter(Name, Value);
+			m_ParameterList.push_back(MaterialParameterPtr(new MaterialParameterFloat4(Name, Value)));
 		}
 		else if (what[7].matched)
 		{
@@ -465,7 +468,7 @@ void Material::ParseShaderParameters(void)
 					Path = what2[1];
 				}
 			}
-			AddParameter(Name, Path);
+			m_ParameterList.push_back(MaterialParameterPtr(new MaterialParameterTexture(Name, Path)));
 		}
 		else if (what[8].matched)
 		{
@@ -538,42 +541,6 @@ void Material::ParseShaderParameters(void)
 	}
 }
 
-template <>
-void Material::AddParameter<CPoint>(const std::string& Name, const CPoint& Value)
-{
-	m_ParameterList.push_back(MaterialParameterPtr(new MaterialParameterInt2(Name, Value)));
-}
-
-template <>
-void Material::AddParameter<float>(const std::string& Name, const float& Value)
-{
-	m_ParameterList.push_back(MaterialParameterPtr(new MaterialParameterFloat(Name, Value)));
-}
-
-template <>
-void Material::AddParameter<my::Vector2>(const std::string& Name, const my::Vector2& Value)
-{
-	m_ParameterList.push_back(MaterialParameterPtr(new MaterialParameterFloat2(Name, Value)));
-}
-
-template <>
-void Material::AddParameter<my::Vector3>(const std::string& Name, const my::Vector3& Value)
-{
-	m_ParameterList.push_back(MaterialParameterPtr(new MaterialParameterFloat3(Name, Value)));
-}
-
-template <>
-void Material::AddParameter<my::Vector4>(const std::string& Name, const my::Vector4& Value)
-{
-	m_ParameterList.push_back(MaterialParameterPtr(new MaterialParameterFloat4(Name, Value)));
-}
-
-template <>
-void Material::AddParameter<std::string>(const std::string& Name, const std::string& Value)
-{
-	m_ParameterList.push_back(MaterialParameterPtr(new MaterialParameterTexture(Name, Value)));
-}
-
 MaterialParameterPtr Material::GetParameter(const std::string& Name)
 {
 	MaterialParameterPtrList::iterator param_iter = m_ParameterList.begin();
@@ -591,7 +558,12 @@ template <>
 void Material::SetParameter<CPoint>(const char* Name, const CPoint& Value)
 {
 	MaterialParameterPtr param = GetParameter(Name);
-	if (!param || param->GetParameterType() != MaterialParameter::ParameterTypeInt2)
+	if (!param)
+	{
+		m_ParameterList.push_back(MaterialParameterPtr(new MaterialParameterInt2(Name, Value)));
+		return;
+	}
+	else if (param->GetParameterType() != MaterialParameter::ParameterTypeInt2)
 	{
 		my::D3DContext::getSingleton().m_EventLog(str_printf("dose not have int2 param: %s", Name).c_str());
 		return;
@@ -603,7 +575,12 @@ template <>
 void Material::SetParameter<float>(const char* Name, const float& Value)
 {
 	MaterialParameterPtr param = GetParameter(Name);
-	if (!param || param->GetParameterType() != MaterialParameter::ParameterTypeFloat)
+	if (!param)
+	{
+		m_ParameterList.push_back(MaterialParameterPtr(new MaterialParameterFloat(Name, Value)));
+		return;
+	}
+	else if (param->GetParameterType() != MaterialParameter::ParameterTypeFloat)
 	{
 		my::D3DContext::getSingleton().m_EventLog(str_printf("dose not have float param: %s", Name).c_str());
 		return;
@@ -615,7 +592,12 @@ template <>
 void Material::SetParameter<my::Vector2>(const char* Name, const my::Vector2& Value)
 {
 	MaterialParameterPtr param = GetParameter(Name);
-	if (!param || param->GetParameterType() != MaterialParameter::ParameterTypeFloat2)
+	if (!param)
+	{
+		m_ParameterList.push_back(MaterialParameterPtr(new MaterialParameterFloat2(Name, Value)));
+		return;
+	}
+	else if (param->GetParameterType() != MaterialParameter::ParameterTypeFloat2)
 	{
 		my::D3DContext::getSingleton().m_EventLog(str_printf("dose not have Vector2 param: %s", Name).c_str());
 		return;
@@ -627,7 +609,12 @@ template <>
 void Material::SetParameter<my::Vector3>(const char* Name, const my::Vector3& Value)
 {
 	MaterialParameterPtr param = GetParameter(Name);
-	if (!param || param->GetParameterType() != MaterialParameter::ParameterTypeFloat3)
+	if (!param)
+	{
+		m_ParameterList.push_back(MaterialParameterPtr(new MaterialParameterFloat3(Name, Value)));
+		return;
+	}
+	else if (param->GetParameterType() != MaterialParameter::ParameterTypeFloat3)
 	{
 		my::D3DContext::getSingleton().m_EventLog(str_printf("dose not have Vector3 param: %s", Name).c_str());
 		return;
@@ -639,7 +626,12 @@ template <>
 void Material::SetParameter<my::Vector4>(const char* Name, const my::Vector4& Value)
 {
 	MaterialParameterPtr param = GetParameter(Name);
-	if (!param || param->GetParameterType() != MaterialParameter::ParameterTypeFloat4)
+	if (!param)
+	{
+		m_ParameterList.push_back(MaterialParameterPtr(new MaterialParameterFloat4(Name, Value)));
+		return;
+	}
+	else if (param->GetParameterType() != MaterialParameter::ParameterTypeFloat4)
 	{
 		my::D3DContext::getSingleton().m_EventLog(str_printf("dose not have Vector4 param: %s", Name).c_str());
 		return;
@@ -651,7 +643,12 @@ template <>
 void Material::SetParameter<std::string>(const char* Name, const std::string& Value)
 {
 	MaterialParameterPtr param = GetParameter(Name);
-	if (!param || param->GetParameterType() != MaterialParameter::ParameterTypeTexture)
+	if (!param)
+	{
+		m_ParameterList.push_back(MaterialParameterPtr(new MaterialParameterTexture(Name, Value)));
+		return;
+	}
+	else if (param->GetParameterType() != MaterialParameter::ParameterTypeTexture)
 	{
 		my::D3DContext::getSingleton().m_EventLog(str_printf("dose not have Texture param: %s", Name).c_str());
 		return;

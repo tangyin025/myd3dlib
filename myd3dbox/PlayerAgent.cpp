@@ -283,7 +283,7 @@ void PlayerAgent::Update(float fElapsedTime)
 				boost::match_results<std::string::iterator> what2;
 				for (; boost::regex_search(start, end, what2, reg_param, boost::match_default); start = what2[0].second)
 				{
-					mtl->AddParameter(what2[1].str().c_str(), what2[2].str());
+					mtl->SetParameter(what2[1].str().c_str(), what2[2].str());
 				}
 
 				m_Meshes.push_back(MeshComponentPtr(new MeshComponent(NULL)));

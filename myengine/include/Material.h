@@ -453,9 +453,6 @@ public:
 
 	void ParseShaderParameters(void);
 
-	template <typename T>
-	void AddParameter(const std::string& Name, const T& Value);
-
 	MaterialParameterPtr GetParameter(const std::string& Name);
 
 	template <typename T>
@@ -463,22 +460,7 @@ public:
 };
 
 template <>
-void Material::AddParameter<CPoint>(const std::string& Name, const CPoint& Value);
-
-template <>
-void Material::AddParameter<float>(const std::string& Name, const float& Value);
-
-template <>
-void Material::AddParameter<my::Vector2>(const std::string& Name, const my::Vector2& Value);
-
-template <>
-void Material::AddParameter<my::Vector3>(const std::string& Name, const my::Vector3& Value);
-
-template <>
-void Material::AddParameter<my::Vector4>(const std::string& Name, const my::Vector4& Value);
-
-template <>
-void Material::AddParameter<std::string>(const std::string& Name, const std::string& Value);
+void Material::SetParameter<CPoint>(const char* Name, const CPoint& Value);
 
 template <>
 void Material::SetParameter<float>(const char* Name, const float& Value);
