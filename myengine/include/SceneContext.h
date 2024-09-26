@@ -30,9 +30,7 @@ public:
 	float m_SsaoRadius;
 	float m_SsaoScale;
 	my::Vector4 m_FogColor;
-	float m_FogStartDistance;
-	float m_FogHeight;
-	float m_FogFalloff;
+	my::Vector4 m_FogParams;
 	typedef std::vector<boost::shared_ptr<Actor> > ActorPtrList;
 	ActorPtrList m_ActorList;
 	typedef std::vector<boost::shared_ptr<my::Dialog> > DialogPtrList;

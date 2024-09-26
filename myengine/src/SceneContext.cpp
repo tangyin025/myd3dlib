@@ -38,9 +38,7 @@ void SceneContextRequest::LoadResource(void)
 		*ia >> boost::serialization::make_nvp("SsaoRadius", scene->m_SsaoRadius);
 		*ia >> boost::serialization::make_nvp("SsaoScale", scene->m_SsaoScale);
 		*ia >> boost::serialization::make_nvp("FogColor", scene->m_FogColor);
-		*ia >> boost::serialization::make_nvp("FogStartDistance", scene->m_FogStartDistance);
-		*ia >> boost::serialization::make_nvp("FogHeight", scene->m_FogHeight);
-		*ia >> boost::serialization::make_nvp("FogFalloff", scene->m_FogFalloff);
+		*ia >> boost::serialization::make_nvp("FogParams", scene->m_FogParams);
 
 		LONG ActorListSize;
 		*ia >> BOOST_SERIALIZATION_NVP(ActorListSize);

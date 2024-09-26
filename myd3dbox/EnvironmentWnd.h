@@ -83,9 +83,10 @@ class CEnvironmentWnd : public CDockablePane
 	{
 		FogPropertyEnable,
 		FogPropertyColor,
-		FogPropertyStartDistance,
-		FogPropertyHeight,
-		FogPropertyFalloff,
+		FogPropertyParam0,
+		FogPropertyParam1,
+		FogPropertyParam2,
+		FogPropertyParam3,
 	};
 
 	enum Vector3Property

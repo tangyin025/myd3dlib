@@ -1182,9 +1182,7 @@ BOOL CMainFrame::OpenFileContext(LPCTSTR lpszFileName)
 	theApp.m_SsaoRadius = scene->m_SsaoRadius;
 	theApp.m_SsaoScale = scene->m_SsaoScale;
 	theApp.m_FogColor = scene->m_FogColor;
-	theApp.m_FogStartDistance = scene->m_FogStartDistance;
-	theApp.m_FogHeight = scene->m_FogHeight;
-	theApp.m_FogFalloff = scene->m_FogFalloff;
+	theApp.m_FogParams = scene->m_FogParams;
 
 	SceneContext::ActorPtrList::iterator act_iter = scene->m_ActorList.begin();
 	for (; act_iter != scene->m_ActorList.end(); act_iter++)
@@ -1256,9 +1254,7 @@ BOOL CMainFrame::SaveFileContext(LPCTSTR lpszPathName)
 	*oa << boost::serialization::make_nvp("SsaoRadius", theApp.m_SsaoRadius);
 	*oa << boost::serialization::make_nvp("SsaoScale", theApp.m_SsaoScale);
 	*oa << boost::serialization::make_nvp("FogColor", theApp.m_FogColor);
-	*oa << boost::serialization::make_nvp("FogStartDistance", theApp.m_FogStartDistance);
-	*oa << boost::serialization::make_nvp("FogHeight", theApp.m_FogHeight);
-	*oa << boost::serialization::make_nvp("FogFalloff", theApp.m_FogFalloff);
+	*oa << boost::serialization::make_nvp("FogParams", theApp.m_FogParams);
 
 	LONG ActorListSize = cb.acts.size();
 	*oa << BOOST_SERIALIZATION_NVP(ActorListSize);

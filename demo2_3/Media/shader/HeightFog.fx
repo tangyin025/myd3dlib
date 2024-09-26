@@ -1,10 +1,8 @@
 
 #include "CommonHeader.hlsl"
 
-float4 g_FogColor;
-float g_StartDistance = 10;
-float g_FogHeight = 50;
-float g_Falloff = 0.02;
+float4 g_FogColor = { 1, 1, 1, 1 };
+float4 g_FogParams = { 10, 50, 0, 0 };
 
 //--------------------------------------------------------------------------------------
 // Vertex shader output structure
@@ -17,12 +15,8 @@ struct VS_OUTPUT
 
 float4 HeightFogPS( VS_OUTPUT In ) : COLOR0
 {
-	float4 PosVS = tex2D(PositionRTSampler, In.TextureUV);
-	float Depth = -PosVS.z - g_StartDistance;
-	clip(Depth);
-	float Height = g_FogHeight - (PosVS.x * g_View._21 + PosVS.y * g_View._22 + PosVS.z * g_View._23 + g_Eye.y);
-	float ExpFogFactor = saturate(exp2(Height / g_FogHeight * 7) / 128 * Depth * g_Falloff);
-    return float4( g_FogColor.xyz, ExpFogFactor );
+    float4 PosVS = tex2D(PositionRTSampler, In.TextureUV);
+    return float4(g_FogColor.xyz, saturate((-PosVS.z - g_FogParams.x) / (g_FogParams.y - g_FogParams.x)));
 }
 
 //--------------------------------------------------------------------------------------

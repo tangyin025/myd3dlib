@@ -201,19 +201,11 @@ public:
 
 	D3DXHANDLE handle_FogColor;
 
-	D3DXHANDLE handle_FogStartDistance;
-
-	D3DXHANDLE handle_FogHeight;
-
-	D3DXHANDLE handle_FogFalloff;
+	D3DXHANDLE handle_FogParams;
 
 	my::Vector4 m_FogColor;
 
-	float m_FogStartDistance;
-
-	float m_FogHeight;
-
-	float m_FogFalloff;
+	my::Vector4 m_FogParams;
 
 	struct RTChain
 	{

@@ -188,18 +188,20 @@ void CEnvironmentWnd::InitPropList()
 	pProp = new CSimpleProp(_T("Scale"), (_variant_t)1.0f, NULL, SSAOPropertyScale);
 	pSSAO->AddSubItem(pProp);
 
-	CMFCPropertyGridProperty * pFog = new CSimpleProp(_T("HeightFog"), PropertyFog, FALSE);
+	CMFCPropertyGridProperty * pFog = new CSimpleProp(_T("Fog"), PropertyFog, FALSE);
 	m_wndPropList.AddProperty(pFog, FALSE, FALSE);
 	pProp = new CCheckBoxProp(_T("Enable"), FALSE, NULL, FogPropertyEnable);
 	pFog->AddSubItem(pProp);
 	CColorProp * pBgColor = new CColorProp(_T("Color"), 0, NULL, NULL, FogPropertyColor);
 	pBgColor->EnableOtherButton(_T("Other..."));
 	pFog->AddSubItem(pBgColor);
-	pProp = new CSimpleProp(_T("StartDistance"), (_variant_t)0.0f, NULL, FogPropertyStartDistance);
+	pProp = new CSimpleProp(_T("Param0"), (_variant_t)1.0f, NULL, FogPropertyParam0);
 	pFog->AddSubItem(pProp);
-	pProp = new CSimpleProp(_T("Height"), (_variant_t)0.0f, NULL, FogPropertyHeight);
+	pProp = new CSimpleProp(_T("Param1"), (_variant_t)1.0f, NULL, FogPropertyParam1);
 	pFog->AddSubItem(pProp);
-	pProp = new CSimpleProp(_T("Falloff"), (_variant_t)0.0f, NULL, FogPropertyFalloff);
+	pProp = new CSimpleProp(_T("Param2"), (_variant_t)1.0f, NULL, FogPropertyParam2);
+	pFog->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("Param3"), (_variant_t)1.0f, NULL, FogPropertyParam3);
 	pFog->AddSubItem(pProp);
 
 	m_wndPropList.AdjustLayout();
@@ -277,9 +279,10 @@ void CEnvironmentWnd::OnCameraPropChanged(my::EventArg * arg)
 	pFog->GetSubItem(FogPropertyEnable)->SetValue((_variant_t)(VARIANT_BOOL)camera_prop_arg->pView->m_FogEnable);
 	color = RGB(theApp.m_FogColor.x * 255, theApp.m_FogColor.y * 255, theApp.m_FogColor.z * 255);
 	(DYNAMIC_DOWNCAST(CColorProp, pFog->GetSubItem(FogPropertyColor)))->SetColor((_variant_t)color);
-	pFog->GetSubItem(FogPropertyStartDistance)->SetValue((_variant_t)theApp.m_FogStartDistance);
-	pFog->GetSubItem(FogPropertyHeight)->SetValue((_variant_t)theApp.m_FogHeight);
-	pFog->GetSubItem(FogPropertyFalloff)->SetValue((_variant_t)theApp.m_FogFalloff);
+	pFog->GetSubItem(FogPropertyParam0)->SetValue((_variant_t)theApp.m_FogParams.x);
+	pFog->GetSubItem(FogPropertyParam1)->SetValue((_variant_t)theApp.m_FogParams.y);
+	pFog->GetSubItem(FogPropertyParam2)->SetValue((_variant_t)theApp.m_FogParams.z);
+	pFog->GetSubItem(FogPropertyParam3)->SetValue((_variant_t)theApp.m_FogParams.w);
 
 	m_wndPropList.Invalidate(FALSE);
 }
@@ -438,9 +441,10 @@ LRESULT CEnvironmentWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		pView->m_FogEnable = pTopProp->GetSubItem(FogPropertyEnable)->GetValue().boolVal != 0;
 		COLORREF color = (DYNAMIC_DOWNCAST(CColorProp, pTopProp->GetSubItem(FogPropertyColor)))->GetColor();
 		theApp.m_FogColor.xyz = my::Vector3(GetRValue(color) / 255.0f, GetGValue(color) / 255.0f, GetBValue(color) / 255.0f);
-		theApp.m_FogStartDistance = pTopProp->GetSubItem(FogPropertyStartDistance)->GetValue().fltVal;
-		theApp.m_FogHeight = pTopProp->GetSubItem(FogPropertyHeight)->GetValue().fltVal;
-		theApp.m_FogFalloff = pTopProp->GetSubItem(FogPropertyFalloff)->GetValue().fltVal;
+		theApp.m_FogParams.x = pTopProp->GetSubItem(FogPropertyParam0)->GetValue().fltVal;
+		theApp.m_FogParams.y = pTopProp->GetSubItem(FogPropertyParam1)->GetValue().fltVal;
+		theApp.m_FogParams.z = pTopProp->GetSubItem(FogPropertyParam2)->GetValue().fltVal;
+		theApp.m_FogParams.w = pTopProp->GetSubItem(FogPropertyParam3)->GetValue().fltVal;
 	}
 	break;
 	}
