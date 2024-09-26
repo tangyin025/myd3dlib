@@ -25,12 +25,12 @@ float4 LightPS( LIGHT_VS_OUTPUT In ) : COLOR0
 { 
 	float3 NormalVS = tex2D(NormalRTSampler, (In.Pos.xy + 0.5f) / g_ScreenDim).xyz;
 	float3 SpecularVS = tex2D(SpecularRTSampler, (In.Pos.xy + 0.5f) / g_ScreenDim).xyz;
-	float3 PosVS = tex2D(PositionRTSampler, (In.Pos.xy + 0.5f) / g_ScreenDim).xyz;
-	float3 LightDir = In.LightVS.xyz - PosVS;
+	float4 PosVS = tex2D(PositionRTSampler, (In.Pos.xy + 0.5f) / g_ScreenDim);
+	float3 LightDir = In.LightVS.xyz - PosVS.xyz;
 	float LightDist = length(LightDir);
 	LightDir = LightDir / LightDist;
     float LightAmount = saturate(dot(NormalVS, LightDir));
-    float3 ViewVS = normalize(PosVS - In.EyeVS);
+    float3 ViewVS = normalize(PosVS.xyz - In.EyeVS);
     float3 Ref = reflect(ViewVS, NormalVS);
     float Specular = DistributionGGX(LightDir, Ref, SpecularVS.r) * In.Color.w * SpecularVS.g * LightAmount;
     return float4(In.Color.xyz * LightAmount, Specular) * (1 - SplineInterpolate(clamp(LightDist / In.LightVS.w, 0, 1)));

@@ -90,7 +90,7 @@ struct NORMAL_VS_OUTPUT
 {
 	float4 Pos				: SV_Position;
 	float3 Normal			: NORMAL;
-	float3 PosVS			: TEXCOORD0;
+	float4 PosVS			: TEXCOORD0;
 };
 
 NORMAL_VS_OUTPUT NormalVS( VS_INPUT In )
@@ -103,7 +103,7 @@ NORMAL_VS_OUTPUT NormalVS( VS_INPUT In )
 	//vertex position logic done, complete posWS -> posCS
 	//Output.positionCS = TransformWorldToHClip(positionWS);
 	Output.Pos = mul(float4(positionWS,1), g_ViewProj);
-	Output.PosVS = mul(float4(positionWS,1), g_View).xyz;
+	Output.PosVS = mul(float4(positionWS,1), g_View);
 	Output.Normal = mul(N, (float3x3)g_View);
 	return Output;
 }
@@ -115,7 +115,7 @@ void NormalPS( 	NORMAL_VS_OUTPUT In,
 {
     oNormal = float4(normalize(In.Normal), 1);
     oSpecular = float4(0.8, 0.3, 0, 1);
-	oPos = float4(In.PosVS, 1.0);
+	oPos = In.PosVS;
 }
 
 struct OPAQUE_VS_OUTPUT

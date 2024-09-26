@@ -56,7 +56,7 @@ struct NORMAL_VS_OUTPUT
 	float3 Normal			: NORMAL;
 	float3 Tangent			: TEXCOORD1;
 	float3 Binormal			: TEXCOORD2;
-	float3 PosVS			: TEXCOORD3;
+	float4 PosVS			: TEXCOORD3;
 };
 
 NORMAL_VS_OUTPUT NormalVS( VS_INPUT In )
@@ -69,7 +69,7 @@ NORMAL_VS_OUTPUT NormalVS( VS_INPUT In )
 	Output.Normal = mul(TransformNormal(In), (float3x3)g_View);
 	Output.Tangent = mul(TransformTangent(In), (float3x3)g_View);
 	Output.Binormal = cross(Output.Normal, Output.Tangent);
-	Output.PosVS = mul(PosWS, g_View).xyz;
+	Output.PosVS = mul(PosWS, g_View);
 	return Output;
 }
 
@@ -84,7 +84,7 @@ void NormalPS( 	NORMAL_VS_OUTPUT In,
 	oNormal = float4(mul(NormalTS, m), 1);
 	float3 Specular = tex2D(SpecularTextureSampler, In.Tex0).xyz;
 	oSpecular = float4(Specular, 1);
-	oPos = float4(In.PosVS, 1.0);
+	oPos = In.PosVS;
 }
 
 struct OPAQUE_VS_OUTPUT

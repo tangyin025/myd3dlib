@@ -47,7 +47,7 @@ struct NORMAL_VS_OUTPUT
 	float3 Normal			: NORMAL;
 	float3 Tangent			: TEXCOORD1;
 	float3 Binormal			: TEXCOORD2;
-	float3 PosVS			: TEXCOORD3;
+	float4 PosVS			: TEXCOORD3;
 };
 
 NORMAL_VS_OUTPUT NormalVS( VS_INPUT In )
@@ -60,7 +60,7 @@ NORMAL_VS_OUTPUT NormalVS( VS_INPUT In )
 	Output.Normal = mul(normalize(mul(float3(0, 1, 0), (float3x3)g_World)), (float3x3)g_View);
 	Output.Tangent = mul(normalize(mul(float3(1, 0, 0), (float3x3)g_World)), (float3x3)g_View);
 	Output.Binormal = cross(Output.Normal, Output.Tangent);
-	Output.PosVS = mul(PosWS, g_View).xyz;
+	Output.PosVS = mul(PosWS, g_View);
 	return Output;
 }
 
