@@ -163,13 +163,9 @@ public:
 
 	D3DXHANDLE handle_DownFilterRT;
 
-	boost::shared_ptr<my::Effect> m_DofEffect;
-
 	D3DXHANDLE handle_DofParams;
 
 	my::Vector4 m_DofParams;
-
-	boost::shared_ptr<my::Effect> m_BloomEffect;
 
 	D3DXHANDLE handle_LuminanceThreshold;
 
@@ -183,13 +179,9 @@ public:
 
 	float m_BloomFactor;
 
-	boost::shared_ptr<my::Effect> m_FxaaEffect;
-
 	D3DXHANDLE handle_InputTexture;
 
 	D3DXHANDLE handle_RCPFrame;
-
-	boost::shared_ptr<my::Effect> m_SsaoEffect;
 
 	D3DXHANDLE handle_bias;
 
@@ -207,8 +199,6 @@ public:
 
 	float m_SsaoScale;
 
-	//boost::shared_ptr<my::Effect> m_FogEffect;
-
 	D3DXHANDLE handle_FogColor;
 
 	D3DXHANDLE handle_FogStartDistance;
@@ -224,8 +214,6 @@ public:
 	float m_FogHeight;
 
 	float m_FogFalloff;
-
-	boost::shared_ptr<my::Effect> m_NormalCvt;
 
 	struct RTChain
 	{

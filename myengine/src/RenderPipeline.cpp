@@ -348,55 +348,6 @@ HRESULT RenderPipeline::OnCreateDevice(
 	BOOST_VERIFY(handle_LightRT = m_SimpleSample->GetParameterByName(NULL, "g_LightRT"));
 	BOOST_VERIFY(handle_OpaqueRT = m_SimpleSample->GetParameterByName(NULL, "g_OpaqueRT"));
 	BOOST_VERIFY(handle_DownFilterRT = m_SimpleSample->GetParameterByName(NULL, "g_DownFilterRT"));
-
-	if (!(m_DofEffect = my::ResourceMgr::getSingleton().LoadEffect("shader/DofEffect.fx", "")))
-	{
-		THROW_CUSEXCEPTION("create m_DofEffect failed");
-	}
-
-	BOOST_VERIFY(handle_DofParams = m_DofEffect->GetParameterByName(NULL, "g_DofParams"));
-
-	if (!(m_BloomEffect = my::ResourceMgr::getSingleton().LoadEffect("shader/Bloom.fx", "")))
-	{
-		THROW_CUSEXCEPTION("create m_BloomEffect failed");
-	}
-
-	BOOST_VERIFY(handle_LuminanceThreshold = m_BloomEffect->GetParameterByName(NULL, "_LuminanceThreshold"));
-	BOOST_VERIFY(handle_BloomColor = m_BloomEffect->GetParameterByName(NULL, "_BloomColor"));
-	BOOST_VERIFY(handle_BloomFactor = m_BloomEffect->GetParameterByName(NULL, "_BloomFactor"));
-
-	if (!(m_FxaaEffect = my::ResourceMgr::getSingleton().LoadEffect("shader/FXAA.fx", "")))
-	{
-		THROW_CUSEXCEPTION("create m_FxaaEffect failed");
-	}
-
-	BOOST_VERIFY(handle_InputTexture = m_FxaaEffect->GetParameterByName(NULL, "InputTexture"));
-	BOOST_VERIFY(handle_RCPFrame = m_FxaaEffect->GetParameterByName(NULL, "RCPFrame"));
-
-	if (!(m_SsaoEffect = my::ResourceMgr::getSingleton().LoadEffect("shader/SSAO.fx", "")))
-	{
-		THROW_CUSEXCEPTION("create m_SsaoEffect failed");
-	}
-
-	BOOST_VERIFY(handle_bias = m_SsaoEffect->GetParameterByName(NULL, "g_bias"));
-	BOOST_VERIFY(handle_intensity = m_SsaoEffect->GetParameterByName(NULL, "g_intensity"));
-	BOOST_VERIFY(handle_sample_rad = m_SsaoEffect->GetParameterByName(NULL, "g_sample_rad"));
-	BOOST_VERIFY(handle_scale = m_SsaoEffect->GetParameterByName(NULL, "g_scale"));
-
-	//if (!(m_FogEffect = my::ResourceMgr::getSingleton().LoadEffect("shader/HeightFog.fx", "")))
-	//{
-	//	THROW_CUSEXCEPTION("create m_FogEffect failed");
-	//}
-
-	//BOOST_VERIFY(handle_FogColor = m_FogEffect->GetParameterByName(NULL, "g_FogColor"));
-	//BOOST_VERIFY(handle_FogStartDistance = m_FogEffect->GetParameterByName(NULL, "g_StartDistance"));
-	//BOOST_VERIFY(handle_FogHeight = m_FogEffect->GetParameterByName(NULL, "g_FogHeight"));
-	//BOOST_VERIFY(handle_FogFalloff = m_FogEffect->GetParameterByName(NULL, "g_Falloff"));
-
-	if (!(m_NormalCvt = my::ResourceMgr::getSingleton().LoadEffect("shader/NormalCvt.fx", "")))
-	{
-		THROW_CUSEXCEPTION("create m_NormalCvt failed");
-	}
 	return S_OK;
 }
 
@@ -615,19 +566,32 @@ void RenderPipeline::OnRender(
 	V(pd3dDevice->SetRenderTarget(1, NULL));
 	if (pRC->m_SsaoEnable)
 	{
-		V(pd3dDevice->SetFVF(D3DFVF_XYZRHW | D3DFVF_TEX1));
-		V(pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CW));
-		V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE));
-		V(pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE));
-		m_SsaoEffect->SetFloat(handle_bias, m_SsaoBias);
-		m_SsaoEffect->SetFloat(handle_intensity, m_SsaoIntensity);
-		m_SsaoEffect->SetFloat(handle_sample_rad, m_SsaoRadius);
-		m_SsaoEffect->SetFloat(handle_scale, m_SsaoScale);
-		m_SsaoEffect->Begin(D3DXFX_DONOTSAVESTATE | D3DXFX_DONOTSAVESAMPLERSTATE | D3DXFX_DONOTSAVESHADERSTATE);
-		m_SsaoEffect->BeginPass(0);
-		V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, quad, sizeof(quad[0])));
-		m_SsaoEffect->EndPass();
-		m_SsaoEffect->End();
+		D3DXMACRO macro[] = { { 0 } };
+		my::Effect* SsaoEffect = QueryShader(macro, "shader/SSAO.fx", PassTypeShadow);
+		if (SsaoEffect)
+		{
+			if (!handle_bias)
+			{
+				BOOST_VERIFY(handle_bias = SsaoEffect->GetParameterByName(NULL, "g_bias"));
+				BOOST_VERIFY(handle_intensity = SsaoEffect->GetParameterByName(NULL, "g_intensity"));
+				BOOST_VERIFY(handle_sample_rad = SsaoEffect->GetParameterByName(NULL, "g_sample_rad"));
+				BOOST_VERIFY(handle_scale = SsaoEffect->GetParameterByName(NULL, "g_scale"));
+			}
+
+			V(pd3dDevice->SetFVF(D3DFVF_XYZRHW | D3DFVF_TEX1));
+			V(pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CW));
+			V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE));
+			V(pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE));
+			SsaoEffect->SetFloat(handle_bias, m_SsaoBias);
+			SsaoEffect->SetFloat(handle_intensity, m_SsaoIntensity);
+			SsaoEffect->SetFloat(handle_sample_rad, m_SsaoRadius);
+			SsaoEffect->SetFloat(handle_scale, m_SsaoScale);
+			SsaoEffect->Begin(D3DXFX_DONOTSAVESTATE | D3DXFX_DONOTSAVESAMPLERSTATE | D3DXFX_DONOTSAVESHADERSTATE);
+			SsaoEffect->BeginPass(0);
+			V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, quad, sizeof(quad[0])));
+			SsaoEffect->EndPass();
+			SsaoEffect->End();
+		}
 	}
 	else
 	{
@@ -688,114 +652,153 @@ void RenderPipeline::OnRender(
 
 	if (pRC->m_DofEnable)
 	{
-		V(pd3dDevice->StretchRect(pRC->m_OpaqueRT.GetNextSource()->GetSurfaceLevel(0), NULL,
-			pRC->m_DownFilterRT.GetNextTarget()->GetSurfaceLevel(0), NULL, D3DTEXF_NONE)); // ! d3dref only support D3DTEXF_NONE
-		pRC->m_DownFilterRT.Flip();
+		D3DXMACRO macro[] = { { 0 } };
+		my::Effect* DofEffect = QueryShader(macro, "shader/DofEffect.fx", PassTypeShadow);
+		if (DofEffect)
+		{
+			if (!handle_DofParams)
+			{
+				BOOST_VERIFY(handle_DofParams = DofEffect->GetParameterByName(NULL, "g_DofParams"));
+			}
 
-		m_DofEffect->SetVector(handle_DofParams, m_DofParams);
-		m_SimpleSample->SetTexture(handle_OpaqueRT, pRC->m_OpaqueRT.GetNextSource().get());
-		m_SimpleSample->SetTexture(handle_DownFilterRT, pRC->m_DownFilterRT.GetNextSource().get());
-		V(pd3dDevice->SetRenderTarget(0, pRC->m_DownFilterRT.GetNextTarget()->GetSurfaceLevel(0)));
-		V(pd3dDevice->SetFVF(D3DFVF_XYZRHW | D3DFVF_TEX1));
-		V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE));
-		V(pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE));
-		UINT passes = m_DofEffect->Begin(D3DXFX_DONOTSAVESTATE | D3DXFX_DONOTSAVESAMPLERSTATE | D3DXFX_DONOTSAVESHADERSTATE);
-		m_DofEffect->BeginPass(0);
-		V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, quad_quat, sizeof(quad[0])));
-		m_DofEffect->EndPass();
-		pRC->m_DownFilterRT.Flip();
+			V(pd3dDevice->StretchRect(pRC->m_OpaqueRT.GetNextSource()->GetSurfaceLevel(0), NULL,
+				pRC->m_DownFilterRT.GetNextTarget()->GetSurfaceLevel(0), NULL, D3DTEXF_NONE)); // ! d3dref only support D3DTEXF_NONE
+			pRC->m_DownFilterRT.Flip();
 
-		m_SimpleSample->SetTexture(handle_DownFilterRT, pRC->m_DownFilterRT.GetNextSource().get());
-		V(pd3dDevice->SetRenderTarget(0, pRC->m_DownFilterRT.GetNextTarget()->GetSurfaceLevel(0)));
-		m_DofEffect->BeginPass(1);
-		V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, quad_quat, sizeof(quad[0])));
-		m_DofEffect->EndPass();
-		pRC->m_DownFilterRT.Flip();
-		if (false)
-			D3DXSaveTextureToFileA("aaa.bmp", D3DXIFF_BMP, pRC->m_DownFilterRT.GetNextSource()->m_ptr, NULL);
+			DofEffect->SetVector(handle_DofParams, m_DofParams);
+			m_SimpleSample->SetTexture(handle_OpaqueRT, pRC->m_OpaqueRT.GetNextSource().get());
+			m_SimpleSample->SetTexture(handle_DownFilterRT, pRC->m_DownFilterRT.GetNextSource().get());
+			V(pd3dDevice->SetRenderTarget(0, pRC->m_DownFilterRT.GetNextTarget()->GetSurfaceLevel(0)));
+			V(pd3dDevice->SetFVF(D3DFVF_XYZRHW | D3DFVF_TEX1));
+			V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE));
+			V(pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE));
+			UINT passes = DofEffect->Begin(D3DXFX_DONOTSAVESTATE | D3DXFX_DONOTSAVESAMPLERSTATE | D3DXFX_DONOTSAVESHADERSTATE);
+			DofEffect->BeginPass(0);
+			V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, quad_quat, sizeof(quad[0])));
+			DofEffect->EndPass();
+			pRC->m_DownFilterRT.Flip();
 
-		m_SimpleSample->SetTexture(handle_DownFilterRT, pRC->m_DownFilterRT.GetNextSource().get());
-		V(pd3dDevice->SetRenderTarget(0, pRC->m_OpaqueRT.GetNextTarget()->GetSurfaceLevel(0)));
-		m_DofEffect->BeginPass(2);
-		V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, quad, sizeof(quad[0])));
-		m_DofEffect->EndPass();
-		m_DofEffect->End();
-		pRC->m_OpaqueRT.Flip();
+			m_SimpleSample->SetTexture(handle_DownFilterRT, pRC->m_DownFilterRT.GetNextSource().get());
+			V(pd3dDevice->SetRenderTarget(0, pRC->m_DownFilterRT.GetNextTarget()->GetSurfaceLevel(0)));
+			DofEffect->BeginPass(1);
+			V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, quad_quat, sizeof(quad[0])));
+			DofEffect->EndPass();
+			pRC->m_DownFilterRT.Flip();
+			if (false)
+				D3DXSaveTextureToFileA("aaa.bmp", D3DXIFF_BMP, pRC->m_DownFilterRT.GetNextSource()->m_ptr, NULL);
+
+			m_SimpleSample->SetTexture(handle_DownFilterRT, pRC->m_DownFilterRT.GetNextSource().get());
+			V(pd3dDevice->SetRenderTarget(0, pRC->m_OpaqueRT.GetNextTarget()->GetSurfaceLevel(0)));
+			DofEffect->BeginPass(2);
+			V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, quad, sizeof(quad[0])));
+			DofEffect->EndPass();
+			DofEffect->End();
+			pRC->m_OpaqueRT.Flip();
+		}
 	}
 
 	if (pRC->m_BloomEnable)
 	{
-		V(pd3dDevice->SetRenderTarget(0, pRC->m_DownFilterRT.GetNextTarget()->GetSurfaceLevel(0)));
-		m_BloomEffect->SetFloat(handle_LuminanceThreshold, m_LuminanceThreshold);
-		m_BloomEffect->SetVector(handle_BloomColor, m_BloomColor);
-		m_BloomEffect->SetFloat(handle_BloomFactor, m_BloomFactor);
-		m_SimpleSample->SetTexture(handle_OpaqueRT, pRC->m_OpaqueRT.GetNextSource().get());
-		V(pd3dDevice->SetFVF(D3DFVF_XYZRHW | D3DFVF_TEX1));
-		V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE));
-		V(pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE));
-		UINT passes = m_BloomEffect->Begin(D3DXFX_DONOTSAVESTATE | D3DXFX_DONOTSAVESAMPLERSTATE | D3DXFX_DONOTSAVESHADERSTATE);
-		m_BloomEffect->BeginPass(0);
-		V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, quad_quat, sizeof(quad[0])));
-		m_BloomEffect->EndPass();
-		pRC->m_DownFilterRT.Flip();
+		D3DXMACRO macro[] = { { 0 } };
+		my::Effect* BloomEffect = QueryShader(macro, "shader/Bloom.fx", PassTypeShadow);
+		if (BloomEffect)
+		{
+			if (!handle_LuminanceThreshold)
+			{
+				BOOST_VERIFY(handle_LuminanceThreshold = BloomEffect->GetParameterByName(NULL, "_LuminanceThreshold"));
+				BOOST_VERIFY(handle_BloomColor = BloomEffect->GetParameterByName(NULL, "_BloomColor"));
+				BOOST_VERIFY(handle_BloomFactor = BloomEffect->GetParameterByName(NULL, "_BloomFactor"));
+			}
 
-		m_SimpleSample->SetTexture(handle_DownFilterRT, pRC->m_DownFilterRT.GetNextSource().get());
-		V(pd3dDevice->SetRenderTarget(0, pRC->m_DownFilterRT.GetNextTarget()->GetSurfaceLevel(0)));
-		m_BloomEffect->BeginPass(1);
-		V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, quad_quat, sizeof(quad[0])));
-		m_BloomEffect->EndPass();
-		pRC->m_DownFilterRT.Flip();
+			V(pd3dDevice->SetRenderTarget(0, pRC->m_DownFilterRT.GetNextTarget()->GetSurfaceLevel(0)));
+			BloomEffect->SetFloat(handle_LuminanceThreshold, m_LuminanceThreshold);
+			BloomEffect->SetVector(handle_BloomColor, m_BloomColor);
+			BloomEffect->SetFloat(handle_BloomFactor, m_BloomFactor);
+			m_SimpleSample->SetTexture(handle_OpaqueRT, pRC->m_OpaqueRT.GetNextSource().get());
+			V(pd3dDevice->SetFVF(D3DFVF_XYZRHW | D3DFVF_TEX1));
+			V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE));
+			V(pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE));
+			UINT passes = BloomEffect->Begin(D3DXFX_DONOTSAVESTATE | D3DXFX_DONOTSAVESAMPLERSTATE | D3DXFX_DONOTSAVESHADERSTATE);
+			BloomEffect->BeginPass(0);
+			V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, quad_quat, sizeof(quad[0])));
+			BloomEffect->EndPass();
+			pRC->m_DownFilterRT.Flip();
 
-		m_SimpleSample->SetTexture(handle_DownFilterRT, pRC->m_DownFilterRT.GetNextSource().get());
-		V(pd3dDevice->SetRenderTarget(0, pRC->m_DownFilterRT.GetNextTarget()->GetSurfaceLevel(0)));
-		m_BloomEffect->BeginPass(2);
-		V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, quad_quat, sizeof(quad[0])));
-		m_BloomEffect->EndPass();
-		pRC->m_DownFilterRT.Flip();
-		if (false)
-			D3DXSaveTextureToFileA("aaa.bmp", D3DXIFF_BMP, pRC->m_DownFilterRT.GetNextSource()->m_ptr, NULL);
+			m_SimpleSample->SetTexture(handle_DownFilterRT, pRC->m_DownFilterRT.GetNextSource().get());
+			V(pd3dDevice->SetRenderTarget(0, pRC->m_DownFilterRT.GetNextTarget()->GetSurfaceLevel(0)));
+			BloomEffect->BeginPass(1);
+			V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, quad_quat, sizeof(quad[0])));
+			BloomEffect->EndPass();
+			pRC->m_DownFilterRT.Flip();
 
-		m_SimpleSample->SetTexture(handle_DownFilterRT, pRC->m_DownFilterRT.GetNextSource().get());
-		V(pd3dDevice->SetRenderTarget(0, pRC->m_OpaqueRT.GetNextTarget()->GetSurfaceLevel(0)));
-		m_BloomEffect->BeginPass(3);
-		V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, quad, sizeof(quad[0])));
-		m_BloomEffect->EndPass();
-		m_BloomEffect->End();
-		pRC->m_OpaqueRT.Flip();
+			m_SimpleSample->SetTexture(handle_DownFilterRT, pRC->m_DownFilterRT.GetNextSource().get());
+			V(pd3dDevice->SetRenderTarget(0, pRC->m_DownFilterRT.GetNextTarget()->GetSurfaceLevel(0)));
+			BloomEffect->BeginPass(2);
+			V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, quad_quat, sizeof(quad[0])));
+			BloomEffect->EndPass();
+			pRC->m_DownFilterRT.Flip();
+			if (false)
+				D3DXSaveTextureToFileA("aaa.bmp", D3DXIFF_BMP, pRC->m_DownFilterRT.GetNextSource()->m_ptr, NULL);
+
+			m_SimpleSample->SetTexture(handle_DownFilterRT, pRC->m_DownFilterRT.GetNextSource().get());
+			V(pd3dDevice->SetRenderTarget(0, pRC->m_OpaqueRT.GetNextTarget()->GetSurfaceLevel(0)));
+			BloomEffect->BeginPass(3);
+			V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, quad, sizeof(quad[0])));
+			BloomEffect->EndPass();
+			BloomEffect->End();
+			pRC->m_OpaqueRT.Flip();
+		}
 	}
 
 	if (pRC->m_FxaaEnable)
 	{
-		V(pd3dDevice->SetRenderTarget(0, pRC->m_OpaqueRT.GetNextTarget()->GetSurfaceLevel(0)));
-		V(pd3dDevice->SetFVF(D3DFVF_XYZRHW | D3DFVF_TEX1));
-		V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE));
-		V(pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE));
-		m_FxaaEffect->SetTexture(handle_InputTexture, pRC->m_OpaqueRT.GetNextSource().get());
-		Vector4 RCPFrame(1.0f / ScreenSurfDesc->Width, 1.0f / ScreenSurfDesc->Height, 0.0f, 0.0f);
-		m_FxaaEffect->SetFloatArray(handle_RCPFrame, &RCPFrame.x, sizeof(RCPFrame) / sizeof(float));
-		m_FxaaEffect->Begin(D3DXFX_DONOTSAVESTATE | D3DXFX_DONOTSAVESAMPLERSTATE | D3DXFX_DONOTSAVESHADERSTATE);
-		m_FxaaEffect->BeginPass(0);
-		V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, quad, sizeof(quad[0])));
-		m_FxaaEffect->EndPass();
-		m_FxaaEffect->End();
-		pRC->m_OpaqueRT.Flip();
+		D3DXMACRO macro[] = { { 0 } };
+		my::Effect* FxaaEffect = QueryShader(macro, "shader/FXAA.fx", PassTypeShadow);
+		if (FxaaEffect)
+		{
+			if (!handle_InputTexture)
+			{
+				BOOST_VERIFY(handle_InputTexture = FxaaEffect->GetParameterByName(NULL, "InputTexture"));
+				BOOST_VERIFY(handle_RCPFrame = FxaaEffect->GetParameterByName(NULL, "RCPFrame"));
+			}
+			V(pd3dDevice->SetRenderTarget(0, pRC->m_OpaqueRT.GetNextTarget()->GetSurfaceLevel(0)));
+			V(pd3dDevice->SetFVF(D3DFVF_XYZRHW | D3DFVF_TEX1));
+			V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE));
+			V(pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE));
+			FxaaEffect->SetTexture(handle_InputTexture, pRC->m_OpaqueRT.GetNextSource().get());
+			Vector4 RCPFrame(1.0f / ScreenSurfDesc->Width, 1.0f / ScreenSurfDesc->Height, 0.0f, 0.0f);
+			FxaaEffect->SetFloatArray(handle_RCPFrame, &RCPFrame.x, sizeof(RCPFrame) / sizeof(float));
+			FxaaEffect->Begin(D3DXFX_DONOTSAVESTATE | D3DXFX_DONOTSAVESAMPLERSTATE | D3DXFX_DONOTSAVESHADERSTATE);
+			FxaaEffect->BeginPass(0);
+			V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, quad, sizeof(quad[0])));
+			FxaaEffect->EndPass();
+			FxaaEffect->End();
+			pRC->m_OpaqueRT.Flip();
+		}
 	}
 
 	switch (pRC->m_RTType)
 	{
 	case RenderTargetNormal:
-		//V(pd3dDevice->StretchRect(NormalSurf, NULL, ScreenSurf, NULL, D3DTEXF_NONE));
-		V(pd3dDevice->SetRenderTarget(0, ScreenSurf));
-		V(pd3dDevice->SetFVF(D3DFVF_XYZRHW | D3DFVF_TEX1));
-		V(pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CW));
-		V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE));
-		V(pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE));
-		m_NormalCvt->Begin(D3DXFX_DONOTSAVESTATE | D3DXFX_DONOTSAVESAMPLERSTATE | D3DXFX_DONOTSAVESHADERSTATE);
-		m_NormalCvt->BeginPass(0);
-		V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, quad, sizeof(quad[0])));
-		m_NormalCvt->EndPass();
-		m_NormalCvt->End();
+	{
+		D3DXMACRO macro[] = { { 0 } };
+		my::Effect* NormalCvt = QueryShader(macro, "shader/NormalCvt.fx", PassTypeShadow);
+		if (NormalCvt)
+		{
+			//V(pd3dDevice->StretchRect(NormalSurf, NULL, ScreenSurf, NULL, D3DTEXF_NONE));
+			V(pd3dDevice->SetRenderTarget(0, ScreenSurf));
+			V(pd3dDevice->SetFVF(D3DFVF_XYZRHW | D3DFVF_TEX1));
+			V(pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CW));
+			V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE));
+			V(pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE));
+			NormalCvt->Begin(D3DXFX_DONOTSAVESTATE | D3DXFX_DONOTSAVESAMPLERSTATE | D3DXFX_DONOTSAVESHADERSTATE);
+			NormalCvt->BeginPass(0);
+			V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, quad, sizeof(quad[0])));
+			NormalCvt->EndPass();
+			NormalCvt->End();
+		}
 		break;
+	}
 	case RenderTargetSpecular:
 		V(pd3dDevice->StretchRect(SpecularSurf, NULL, ScreenSurf, NULL, D3DTEXF_NONE));
 		break;
@@ -1113,6 +1116,10 @@ void RenderPipeline::ClearShaderCache(void)
 		(*obj_iter)->OnResetShader();
 	}
 
+	handle_DofParams = NULL;
+	handle_LuminanceThreshold = NULL;
+	handle_InputTexture = NULL;
+	handle_bias = NULL;
 	handle_FogColor = NULL;
 }
 
