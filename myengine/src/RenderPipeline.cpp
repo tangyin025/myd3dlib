@@ -69,6 +69,10 @@ RenderPipeline::RenderPipeline(void)
 	, m_SsaoIntensity(5.0f)
 	, m_SsaoRadius(100.0f)
 	, m_SsaoScale(10.0f)
+	, handle_FogColor(NULL)
+	, handle_FogStartDistance(NULL)
+	, handle_FogHeight(NULL)
+	, handle_FogFalloff(NULL)
 	, m_FogColor(1.0f, 1.0f, 1.0f, 1.0f)
 	, m_FogStartDistance(10)
 	, m_FogHeight(50)
@@ -379,15 +383,15 @@ HRESULT RenderPipeline::OnCreateDevice(
 	BOOST_VERIFY(handle_sample_rad = m_SsaoEffect->GetParameterByName(NULL, "g_sample_rad"));
 	BOOST_VERIFY(handle_scale = m_SsaoEffect->GetParameterByName(NULL, "g_scale"));
 
-	if (!(m_FogEffect = my::ResourceMgr::getSingleton().LoadEffect("shader/HeightFog.fx", "")))
-	{
-		THROW_CUSEXCEPTION("create m_FogEffect failed");
-	}
+	//if (!(m_FogEffect = my::ResourceMgr::getSingleton().LoadEffect("shader/HeightFog.fx", "")))
+	//{
+	//	THROW_CUSEXCEPTION("create m_FogEffect failed");
+	//}
 
-	BOOST_VERIFY(handle_FogColor = m_FogEffect->GetParameterByName(NULL, "g_FogColor"));
-	BOOST_VERIFY(handle_FogStartDistance = m_FogEffect->GetParameterByName(NULL, "g_StartDistance"));
-	BOOST_VERIFY(handle_FogHeight = m_FogEffect->GetParameterByName(NULL, "g_FogHeight"));
-	BOOST_VERIFY(handle_FogFalloff = m_FogEffect->GetParameterByName(NULL, "g_Falloff"));
+	//BOOST_VERIFY(handle_FogColor = m_FogEffect->GetParameterByName(NULL, "g_FogColor"));
+	//BOOST_VERIFY(handle_FogStartDistance = m_FogEffect->GetParameterByName(NULL, "g_StartDistance"));
+	//BOOST_VERIFY(handle_FogHeight = m_FogEffect->GetParameterByName(NULL, "g_FogHeight"));
+	//BOOST_VERIFY(handle_FogFalloff = m_FogEffect->GetParameterByName(NULL, "g_Falloff"));
 
 	if (!(m_NormalCvt = my::ResourceMgr::getSingleton().LoadEffect("shader/NormalCvt.fx", "")))
 	{
@@ -650,21 +654,34 @@ void RenderPipeline::OnRender(
 
 	if (pRC->m_FogEnable)
 	{
-		V(pd3dDevice->SetFVF(D3DFVF_XYZRHW | D3DFVF_TEX1));
-		V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE));
-		V(pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE));
-		V(pd3dDevice->SetRenderState(D3DRS_BLENDOP, D3DBLENDOP_ADD));
-		V(pd3dDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA));
-		V(pd3dDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA));
-		m_FogEffect->SetVector(handle_FogColor, m_FogColor);
-		m_FogEffect->SetFloat(handle_FogStartDistance, m_FogStartDistance);
-		m_FogEffect->SetFloat(handle_FogHeight, m_FogHeight);
-		m_FogEffect->SetFloat(handle_FogFalloff, m_FogFalloff);
-		m_FogEffect->Begin(D3DXFX_DONOTSAVESTATE | D3DXFX_DONOTSAVESAMPLERSTATE | D3DXFX_DONOTSAVESHADERSTATE);
-		m_FogEffect->BeginPass(0);
-		V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, quad, sizeof(quad[0])));
-		m_FogEffect->EndPass();
-		m_FogEffect->End();
+		D3DXMACRO macro[] = { { 0 } };
+		my::Effect* FogEffect = QueryShader(macro, "shader/HeightFog.fx", PassTypeShadow);
+		if (FogEffect)
+		{
+			if (!handle_FogColor)
+			{
+				BOOST_VERIFY(handle_FogColor = FogEffect->GetParameterByName(NULL, "g_FogColor"));
+				BOOST_VERIFY(handle_FogStartDistance = FogEffect->GetParameterByName(NULL, "g_StartDistance"));
+				BOOST_VERIFY(handle_FogHeight = FogEffect->GetParameterByName(NULL, "g_FogHeight"));
+				BOOST_VERIFY(handle_FogFalloff = FogEffect->GetParameterByName(NULL, "g_Falloff"));
+			}
+
+			V(pd3dDevice->SetFVF(D3DFVF_XYZRHW | D3DFVF_TEX1));
+			V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE));
+			V(pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE));
+			V(pd3dDevice->SetRenderState(D3DRS_BLENDOP, D3DBLENDOP_ADD));
+			V(pd3dDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA));
+			V(pd3dDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA));
+			FogEffect->SetVector(handle_FogColor, m_FogColor);
+			FogEffect->SetFloat(handle_FogStartDistance, m_FogStartDistance);
+			FogEffect->SetFloat(handle_FogHeight, m_FogHeight);
+			FogEffect->SetFloat(handle_FogFalloff, m_FogFalloff);
+			FogEffect->Begin(D3DXFX_DONOTSAVESTATE | D3DXFX_DONOTSAVESAMPLERSTATE | D3DXFX_DONOTSAVESHADERSTATE);
+			FogEffect->BeginPass(0);
+			V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, quad, sizeof(quad[0])));
+			FogEffect->EndPass();
+			FogEffect->End();
+		}
 	}
 
 	pRC->m_OpaqueRT.Flip();
@@ -1095,6 +1112,8 @@ void RenderPipeline::ClearShaderCache(void)
 	{
 		(*obj_iter)->OnResetShader();
 	}
+
+	handle_FogColor = NULL;
 }
 
 void RenderPipeline::DrawIndexedPrimitive(

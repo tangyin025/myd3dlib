@@ -207,7 +207,7 @@ public:
 
 	float m_SsaoScale;
 
-	boost::shared_ptr<my::Effect> m_FogEffect;
+	//boost::shared_ptr<my::Effect> m_FogEffect;
 
 	D3DXHANDLE handle_FogColor;
 
