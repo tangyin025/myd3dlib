@@ -828,7 +828,7 @@ my::AABB MeshComponent::CalculateAABB(void) const
 	{
 		return Component::CalculateAABB();
 	}
-	return m_Mesh->CalculateAABB(m_MeshSubMeshId);
+	return m_Mesh->CalculateAABB();
 }
 
 void MeshComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos, const my::Vector3 & TargetPos)
