@@ -14,6 +14,7 @@ struct TRANSPARENT_VS_OUTPUT
 {
 	float4 Pos				: POSITION;
 	float2 Tex0				: TEXCOORD0;
+    float4 Color : COLOR0;
 };
 
 TRANSPARENT_VS_OUTPUT VS( VS_INPUT In )
@@ -21,12 +22,13 @@ TRANSPARENT_VS_OUTPUT VS( VS_INPUT In )
     TRANSPARENT_VS_OUTPUT Output;
 	Output.Pos = TransformPos(In);
 	Output.Tex0 = TransformUV(In);
+    Output.Color = TransformColor(In);
     return Output;    
 }
 
 float4 PS( TRANSPARENT_VS_OUTPUT In ) : COLOR0
 { 
-	float4 Diffuse = tex2D(DiffuseTextureSampler, In.Tex0);
+	float4 Diffuse = tex2D(DiffuseTextureSampler, In.Tex0) * In.Color;
 	return Diffuse;
 }
 

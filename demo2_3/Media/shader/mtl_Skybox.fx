@@ -30,7 +30,7 @@ SKYBOX_VS_OUTPUT SkyboxVS( VS_INPUT In )
 
 float4 SkyboxPS( SKYBOX_VS_OUTPUT In ) : COLOR0
 { 
-	return tex2D(DiffuseTextureSampler, In.Tex0);
+	return tex2D(DiffuseTextureSampler, In.Tex0) * In.Color;
 }
 
 technique RenderScene
