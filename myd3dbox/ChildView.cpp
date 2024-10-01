@@ -2807,7 +2807,7 @@ void CChildView::OnPaintTerrainHeightField(const my::Ray& ray, TerrainStream& ts
 						switch (pFrame->m_PaintMode)
 						{
 						case CMainFrame::PaintModeAssign:
-							tstr.SetPos(i, j, my::Vector3(j, my::Lerp(tstr.GetPos(i, j).y, LocalPaintHeight, pFrame->m_PaintSpline.Interpolate(1 - dist, 1)), i));
+							tstr.SetPos(i, j, my::Vector3(j, my::Lerp(tstr.GetPos(i, j).y, LocalPaintHeight, pFrame->m_PaintSpline.Interpolate(1 - dist)), i));
 							break;
 						}
 					}
@@ -2848,7 +2848,7 @@ void CChildView::OnPaintTerrainColor(const my::Ray& ray, TerrainStream& tstr)
 					if (dist <= 1)
 					{
 						D3DXCOLOR color;
-						D3DXColorLerp(&color, &D3DXCOLOR(tstr.GetColor(i, j)), &PaintColor, pFrame->m_PaintSpline.Interpolate(1 - dist, 1));
+						D3DXColorLerp(&color, &D3DXCOLOR(tstr.GetColor(i, j)), &PaintColor, pFrame->m_PaintSpline.Interpolate(1 - dist));
 						tstr.SetColor(i, j, color);
 					}
 				}

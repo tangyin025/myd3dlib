@@ -2059,13 +2059,13 @@ void SphericalEmitter::DoTask(void)
 		particle_iter->m_Velocity.xyz *= powf(m_ParticleDamping, D3DContext::getSingleton().m_fElapsedTime);
 		particle_iter->m_Position.xyz += particle_iter->m_Velocity.xyz * D3DContext::getSingleton().m_fElapsedTime;
 		const float ParticleTime = particle_iter->m_Time + D3DContext::getSingleton().m_fElapsedTime;
-		particle_iter->m_Color.x = m_ParticleColorR.Interpolate(ParticleTime, 1);
-		particle_iter->m_Color.y = m_ParticleColorG.Interpolate(ParticleTime, 1);
-		particle_iter->m_Color.z = m_ParticleColorB.Interpolate(ParticleTime, 1);
-		particle_iter->m_Color.w = m_ParticleColorA.Interpolate(ParticleTime, 1);
-		particle_iter->m_Size.x = m_ParticleSizeX.Interpolate(ParticleTime, 1);
-		particle_iter->m_Size.y = m_ParticleSizeY.Interpolate(ParticleTime, 1);
-		particle_iter->m_Angle = m_ParticleAngle.Interpolate(ParticleTime, 0);
+		particle_iter->m_Color.x = m_ParticleColorR.Interpolate(ParticleTime);
+		particle_iter->m_Color.y = m_ParticleColorG.Interpolate(ParticleTime);
+		particle_iter->m_Color.z = m_ParticleColorB.Interpolate(ParticleTime);
+		particle_iter->m_Color.w = m_ParticleColorA.Interpolate(ParticleTime);
+		particle_iter->m_Size.x = m_ParticleSizeX.Interpolate(ParticleTime);
+		particle_iter->m_Size.y = m_ParticleSizeY.Interpolate(ParticleTime);
+		particle_iter->m_Angle = m_ParticleAngle.Interpolate(ParticleTime);
 		particle_iter->m_Time = ParticleTime;
 	}
 }

@@ -402,7 +402,7 @@ void ActionTrackPoseInst::UpdateTime(float LastTime, float Time)
 	{
 		key_inst_iter->m_Time += my::D3DContext::getSingleton().m_fElapsedTime;
 
-		const Bone pose = key_inst_iter->m_StartPose.Lerp(m_Pose, m_Template->m_Interpolation.Interpolate(key_inst_iter->m_Time / key_inst_iter->m_Length, 0));
+		const Bone pose = key_inst_iter->m_StartPose.Lerp(m_Pose, m_Template->m_Interpolation.Interpolate(key_inst_iter->m_Time / key_inst_iter->m_Length));
 
 		m_Actor->SetPose(pose);
 

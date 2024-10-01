@@ -60,9 +60,9 @@ SplineNode LinearNodes<SplineNode>::Lerp(LinearNodes<SplineNode>::const_iterator
 	return SplineNode((1 - t) * lhs->second.y + t * rhs->second.y + t * (1 - t) * (a * (1 - t) + b * t), 0, 0);
 }
 
-float Spline::Interpolate(float s, float value) const
+float Spline::Interpolate(float s) const
 {
-	return LinearNodes::Interpolate(s, SplineNode(value, 0, 0)).y;
+	return LinearNodes::Interpolate(s, SplineNode(0, 0, 0)).y;
 }
 
 Shake::Shake(float Duration, float Strength, int Vibrato, float StartMagnitude)
@@ -89,5 +89,5 @@ Shake::Shake(float Duration, float Strength, int Vibrato, float StartMagnitude)
 float Shake::Step(float fElapsedTime)
 {
 	time += fElapsedTime;
-	return Interpolate(time, 0.0f);
+	return Interpolate(time);
 }
