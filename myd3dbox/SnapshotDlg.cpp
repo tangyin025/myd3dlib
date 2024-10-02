@@ -20,7 +20,7 @@ CSnapshotDlg::CSnapshotDlg(CWnd* pParent /*=nullptr*/)
 	, m_TexWidth(theApp.GetProfileInt(_T("Settings"), _T("SnapshotWidth"), 1024))
 	, m_TexHeight(theApp.GetProfileInt(_T("Settings"), _T("SnapshotHeight"), 1024))
 	, m_duDebugDrawPrimitives(DU_DRAW_QUADS + 1)
-	, m_SnapArea(-4096 + 4, -4096 - 4, 4096 + 4, 4096 - 4)
+	, m_SnapArea(-4096 + 4, 4096 - 4, 4096 + 4, -4096 - 4)
 	, m_SnapEye(0, 0, 0)
 	, m_SnapEular(-90, 0, 0)
 	, m_RTType(RenderPipeline::RenderTargetOpaque)
@@ -323,14 +323,13 @@ void CSnapshotDlg::DoSnapshot()
 	};
 
 	RenderContext rc(this);
-	rc.m_Camera.reset(new my::OrthoCamera(m_SnapArea.Width(), m_SnapArea.Height(), -2000, 2000));
+	rc.m_Camera.reset(new my::OrthoCamera(m_SnapArea.Width(), -m_SnapArea.Height(), -2000, 2000));
 	my::OrthoCamera* ortho_camera = dynamic_cast<my::OrthoCamera*>(rc.m_Camera.get());
 	ortho_camera->m_Eye = m_SnapEye;
 	ortho_camera->m_Euler = my::Vector3(D3DXToRadian(m_SnapEular.x), D3DXToRadian(m_SnapEular.y), D3DXToRadian(m_SnapEular.z));
 	const my::Matrix4 Rotation = my::Matrix4::RotationYawPitchRoll(ortho_camera->m_Euler.y, ortho_camera->m_Euler.x, ortho_camera->m_Euler.z);
 	ortho_camera->m_View = (Rotation * my::Matrix4::Translation(ortho_camera->m_Eye)).inverse();
-	const my::Rectangle Rect = my::Rectangle::LeftTop(m_SnapArea.l, m_SnapArea.t, ortho_camera->m_Width, ortho_camera->m_Height);
-	ortho_camera->m_Proj = my::Matrix4::OrthoOffCenterRH(Rect.l, Rect.r, Rect.t, Rect.b, ortho_camera->m_Nz, ortho_camera->m_Fz);
+	ortho_camera->m_Proj = my::Matrix4::OrthoOffCenterRH(m_SnapArea.l, m_SnapArea.r, m_SnapArea.b, m_SnapArea.t, ortho_camera->m_Nz, ortho_camera->m_Fz);
 	ortho_camera->m_ViewProj = ortho_camera->m_View * ortho_camera->m_Proj;
 	ortho_camera->m_InverseViewProj = ortho_camera->m_ViewProj.inverse();
 	rc.m_NormalRT.reset(new my::Texture2D());
