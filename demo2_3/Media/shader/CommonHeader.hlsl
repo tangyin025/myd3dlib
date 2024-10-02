@@ -129,7 +129,9 @@ sampler OpaqueRTSampler = sampler_state
 	Texture = <g_OpaqueRT>;
 	MipFilter = NONE;
 	MinFilter = POINT;
-	MagFilter = POINT;
+    MagFilter = POINT;
+    ADDRESSU = CLAMP;
+    ADDRESSV = CLAMP;
 };
 
 sampler DownFilterRTSampler = sampler_state
