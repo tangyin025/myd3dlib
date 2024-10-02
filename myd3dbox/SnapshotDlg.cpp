@@ -204,6 +204,26 @@ void CSnapshotDlg::OnOK()
 		return;
 	}
 
+	DoSnapshot();
+
+	CDialogEx::OnOK();
+}
+
+
+void CSnapshotDlg::OnClickedButton1()
+{
+	// TODO: Add your control notification handler code here
+	CFileDialog dlg(FALSE, NULL, m_TexPath, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, this);
+	if (dlg.DoModal() == IDOK)
+	{
+		SetDlgItemText(IDC_EDIT1, dlg.GetPathName());
+	}
+}
+
+
+void CSnapshotDlg::DoSnapshot()
+{
+	// TODO: Add your implementation code here.
 	my::Texture2D rt;
 	rt.CreateTexture(m_TexWidth, m_TexHeight, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT);
 	CComPtr<IDirect3DSurface9> rtsurf = rt.GetSurfaceLevel(0);
@@ -354,18 +374,5 @@ void CSnapshotDlg::OnOK()
 	DrawHelper::FlushLine(theApp.m_d3dDevice);
 
 	CString ext(PathFindExtension(m_TexPath));
-	V(D3DXSaveTextureToFile(m_TexPath, ext.CompareNoCase(_T(".png")) == 0 ? D3DXIFF_PNG : D3DXIFF_BMP, rt.m_ptr, NULL));
-
-	CDialogEx::OnOK();
-}
-
-
-void CSnapshotDlg::OnClickedButton1()
-{
-	// TODO: Add your control notification handler code here
-	CFileDialog dlg(FALSE, NULL, m_TexPath, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, this);
-	if (dlg.DoModal() == IDOK)
-	{
-		SetDlgItemText(IDC_EDIT1, dlg.GetPathName());
-	}
+	V(D3DXSaveTextureToFile(m_TexPath, ext.CompareNoCase(_T(".dds")) == 0 ? D3DXIFF_DDS : D3DXIFF_PNG, rt.m_ptr, NULL));
 }

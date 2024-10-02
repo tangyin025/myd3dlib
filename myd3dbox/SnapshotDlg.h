@@ -49,4 +49,5 @@ public:
 	BOOL m_ComponentTypes[Component::ComponentTypeNavigation - Component::ComponentTypeMesh + 1];
 	DWORD m_duDebugDrawPrimitives;
 	int m_RTType;
+	void DoSnapshot();
 };

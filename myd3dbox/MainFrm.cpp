@@ -410,6 +410,35 @@ static void RectAssignmentNodeSave(my::RectAssignmentNode * ass, const char* u8_
 	oa << boost::serialization::make_nvp("ass", *ass);
 }
 
+static void SnapshotDlgSetTexPath(CSnapshotDlg* dlg, std::string u8_path)
+{
+	dlg->m_TexPath = u8tots(u8_path.c_str()).c_str();
+}
+
+static std::string SnapshotDlgGetTexPath(CSnapshotDlg* dlg)
+{
+	return tstou8((LPCTSTR)dlg->m_TexPath);
+}
+
+static void SnapshotDlgSetComponentType(CSnapshotDlg* dlg, Component::ComponentType type, bool enable)
+{
+	unsigned int idx = type - Component::ComponentTypeMesh;
+	if (idx < _countof(dlg->m_ComponentTypes))
+	{
+		dlg->m_ComponentTypes[idx] = enable;
+	}
+}
+
+static bool SnapshotDlgGetComponentType(CSnapshotDlg* dlg, Component::ComponentType type)
+{
+	unsigned int idx = type - Component::ComponentTypeMesh;
+	if (idx < _countof(dlg->m_ComponentTypes))
+	{
+		return dlg->m_ComponentTypes[idx];
+	}
+	return false;
+}
+
 // CMainFrame
 
 IMPLEMENT_DYNCREATE(CMainFrame, CFrameWndEx)
@@ -1137,6 +1166,19 @@ void CMainFrame::InitFileContext()
 			.def("AssignRect", &my::RectAssignmentNode::AssignRect, luabind::pure_out_value(boost::placeholders::_3))
 			.def("LoadFromFile", &RectAssignmentNodeLoadFromFile)
 			.def("Save", &RectAssignmentNodeSave)
+
+		, luabind::class_<CSnapshotDlg>("SnapshotDlg")
+			.def(luabind::constructor<CWnd*>())
+			.property("TexPath", &SnapshotDlgGetTexPath, &SnapshotDlgSetTexPath)
+			.def_readwrite("TexWidth", &CSnapshotDlg::m_TexWidth)
+			.def_readwrite("TexHeight", &CSnapshotDlg::m_TexHeight)
+			.def_readwrite("SnapArea", &CSnapshotDlg::m_SnapArea)
+			.def_readwrite("SnapEye", &CSnapshotDlg::m_SnapEye)
+			.def_readwrite("SnapEular", &CSnapshotDlg::m_SnapEular)
+			.def("GetComponentType", &SnapshotDlgGetComponentType)
+			.def("SetComponentType", &SnapshotDlgSetComponentType)
+			.def_readwrite("RTType", &CSnapshotDlg::m_RTType)
+			.def("DoSnapshot", &CSnapshotDlg::DoSnapshot)
 	];
 	luabind::globals(m_State)["theApp"] = &theApp;
 }
