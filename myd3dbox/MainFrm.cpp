@@ -537,6 +537,10 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_UPDATE_COMMAND_UI(ID_ALIGN_WIDTH, &CMainFrame::OnUpdateAlignWidth)
 	ON_COMMAND(ID_ALIGN_HEIGHT, &CMainFrame::OnAlignHeight)
 	ON_UPDATE_COMMAND_UI(ID_ALIGN_HEIGHT, &CMainFrame::OnUpdateAlignHeight)
+	ON_COMMAND(ID_EDIT_COPY, &CMainFrame::OnEditCopy)
+	ON_UPDATE_COMMAND_UI(ID_EDIT_COPY, &CMainFrame::OnUpdateEditCopy)
+	ON_COMMAND(ID_EDIT_PASTE, &CMainFrame::OnEditPaste)
+	ON_UPDATE_COMMAND_UI(ID_EDIT_PASTE, &CMainFrame::OnUpdateEditPaste)
 END_MESSAGE_MAP()
 
 static UINT indicators[] =
@@ -3207,4 +3211,96 @@ void CMainFrame::OnUpdateAlignHeight(CCmdUI* pCmdUI)
 {
 	// TODO: Add your command update UI handler code here
 	pCmdUI->Enable(m_selctls.size() > 1);
+}
+
+
+void CMainFrame::OnEditCopy()
+{
+	// TODO: Add your command handler code here
+	std::ostringstream osstr;
+	boost::shared_ptr<boost::archive::polymorphic_oarchive> oa = Actor::GetOArchive(osstr, ".txt");
+	*oa << boost::serialization::make_nvp(__FUNCTION__, m_selactors);
+	std::stringbuf* buf = osstr.rdbuf();
+	std::stringbuf::_Buffer_view view = buf->_Get_buffer_view();
+
+	//https://learn.microsoft.com/en-us/windows/win32/dataxchg/using-the-clipboard
+	// Open the clipboard, and empty it. 
+	if (!OpenClipboard())
+		return;
+	EmptyClipboard();
+
+	// Allocate a global memory object for the text. 
+	HGLOBAL hglbCopy = GlobalAlloc(GMEM_MOVEABLE, view._Size + 1);
+	if (hglbCopy == NULL)
+	{
+		CloseClipboard();
+		return;
+	}
+
+	// Lock the handle and copy the text to the buffer. 
+	LPSTR lptstrCopy = (LPSTR)GlobalLock(hglbCopy);
+	memcpy(lptstrCopy, view._Ptr, view._Size);
+	lptstrCopy[view._Size] = 0;    // null character 
+	GlobalUnlock(hglbCopy);
+
+	// Place the handle on the clipboard. 
+	SetClipboardData(CF_TEXT, hglbCopy);
+}
+
+
+void CMainFrame::OnUpdateEditCopy(CCmdUI* pCmdUI)
+{
+	// TODO: Add your command update UI handler code here
+	pCmdUI->Enable(!m_selactors.empty());
+}
+
+
+void CMainFrame::OnEditPaste()
+{
+	// TODO: Add your command handler code here
+	if (!IsClipboardFormatAvailable(CF_TEXT))
+		return;
+	if (!OpenClipboard())
+		return;
+
+	HGLOBAL hglb = GetClipboardData(CF_TEXT);
+	if (hglb == NULL)
+	{
+		CloseClipboard();
+		return;
+	}
+
+	LPSTR lptstr = (LPSTR)GlobalLock(hglb);
+	if (lptstr == NULL)
+	{
+		CloseClipboard();
+		return;
+	}
+	// Call the application-defined ReplaceSelection 
+	// function to insert the text and repaint the 
+	// window. 
+	std::string s(lptstr);
+	GlobalUnlock(hglb);
+	CloseClipboard();
+
+	std::istringstream isstr(s);
+	boost::shared_ptr<boost::archive::polymorphic_iarchive> ia = Actor::GetIArchive(isstr, ".txt");
+	boost::dynamic_pointer_cast<my::NamedObjectSerializationContext>(ia)->make_unique = true;
+	ActorList selacts;
+	*ia >> boost::serialization::make_nvp(__FUNCTION__, selacts);
+
+	ActorList::iterator act_iter = selacts.begin();
+	for (; act_iter != selacts.end(); act_iter++)
+	{
+		m_ActorList.push_back(ActorPtr(*act_iter));
+		AddEntity(*act_iter, (*act_iter)->m_aabb.transform((*act_iter)->m_World), Actor::MinBlock, Actor::Threshold);
+	}
+	m_selactors.swap(selacts);
+}
+
+
+void CMainFrame::OnUpdateEditPaste(CCmdUI* pCmdUI)
+{
+	// TODO: Add your command update UI handler code here
+	pCmdUI->Enable(IsClipboardFormatAvailable(CF_TEXT));
 }

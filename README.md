@@ -30,6 +30,4 @@ stb_image 2.27<br>
 
 screenshots
 ----
-![](https://a.fsdn.com/con/app/proj/myd3dlib/screenshots/test.jpg)
-![](https://a.fsdn.com/con/app/proj/myd3dlib/screenshots/test2.jpg)
-![](https://a.fsdn.com/con/app/proj/myd3dlib/screenshots/test3.jpg)
+![](微信截图_20240508192607.png)
