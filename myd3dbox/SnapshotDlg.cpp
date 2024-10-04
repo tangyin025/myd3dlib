@@ -23,7 +23,8 @@ CSnapshotDlg::CSnapshotDlg(CWnd* pParent /*=nullptr*/)
 	, m_SnapArea(-4096 + 4, 4096 - 4, 4096 + 4, -4096 - 4)
 	, m_SnapEye(0, 0, 0)
 	, m_SnapEular(D3DXToRadian(-90), 0, 0)
-	, m_RTType(theApp.GetProfileIntW(_T("Settings"), _T("SnapshotRTTypt"), RenderPipeline::RenderTargetOpaque))
+	, m_RTType(theApp.GetProfileInt(_T("Settings"), _T("SnapshotRTTypt"), RenderPipeline::RenderTargetOpaque))
+	, m_OpenImage(theApp.GetProfileInt(_T("Settings"), _T("SnapshotOpenImage"), TRUE))
 {
 	BYTE* pData;
 	UINT n;
@@ -108,6 +109,8 @@ void CSnapshotDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Check(pDX, IDC_CHECK7, m_ComponentTypes[6]);
 	DDX_Check(pDX, IDC_CHECK8, m_ComponentTypes[7]);
 	DDX_Check(pDX, IDC_CHECK9, m_ComponentTypes[8]);
+	DDX_Radio(pDX, IDC_RADIO1, m_RTType);
+	DDX_Check(pDX, IDC_CHECK10, m_OpenImage);
 
 	if (pDX->m_bSaveAndValidate)
 	{
@@ -117,8 +120,8 @@ void CSnapshotDlg::DoDataExchange(CDataExchange* pDX)
 		theApp.WriteProfileBinary(_T("Settings"), _T("SnapshotArea"), (LPBYTE)&m_SnapArea, sizeof(m_SnapArea));
 		theApp.WriteProfileBinary(_T("Settings"), _T("SnapshotComponentTypes"), (LPBYTE)&m_ComponentTypes, sizeof(m_ComponentTypes));
 		theApp.WriteProfileInt(_T("Settings"), _T("SnapshotRTTypt"), m_RTType);
+		theApp.WriteProfileInt(_T("Settings"), _T("SnapshotOpenImage"), m_OpenImage);
 	}
-	DDX_Radio(pDX, IDC_RADIO1, m_RTType);
 }
 
 #define DUCOLOR_TO_D3DCOLOR(col) ((col & 0xff00ff00) | (col & 0x00ff0000) >> 16 | (col & 0x000000ff) << 16)
@@ -224,6 +227,11 @@ void CSnapshotDlg::OnOK()
 	}
 
 	DoSnapshot();
+
+	if (m_OpenImage)
+	{
+		::ShellExecute(AfxGetMainWnd()->m_hWnd, _T("open"), m_TexPath, NULL, NULL, SW_SHOWNORMAL);
+	}
 
 	CDialogEx::OnOK();
 }

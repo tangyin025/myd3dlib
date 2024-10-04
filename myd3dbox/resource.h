@@ -85,6 +85,7 @@
 #define IDC_CHECK9                      1038
 #define IDC_BUTTON1                     1039
 #define IDC_BUTTON2                     1040
+#define IDC_CHECK10                     1040
 #define IDC_BUTTON3                     1041
 #define IDC_EDIT21                      1042
 #define ID_CREATE_COMPONENT             32771

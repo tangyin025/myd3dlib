@@ -50,4 +50,5 @@ public:
 	DWORD m_duDebugDrawPrimitives;
 	int m_RTType;
 	void DoSnapshot();
+	BOOL m_OpenImage;
 };
