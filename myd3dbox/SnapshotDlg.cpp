@@ -22,8 +22,8 @@ CSnapshotDlg::CSnapshotDlg(CWnd* pParent /*=nullptr*/)
 	, m_duDebugDrawPrimitives(DU_DRAW_QUADS + 1)
 	, m_SnapArea(-4096 + 4, 4096 - 4, 4096 + 4, -4096 - 4)
 	, m_SnapEye(0, 0, 0)
-	, m_SnapEular(-90, 0, 0)
-	, m_RTType(RenderPipeline::RenderTargetOpaque)
+	, m_SnapEular(D3DXToRadian(-90), 0, 0)
+	, m_RTType(theApp.GetProfileIntW(_T("Settings"), _T("SnapshotRTTypt"), RenderPipeline::RenderTargetOpaque))
 {
 	BYTE* pData;
 	UINT n;
@@ -32,18 +32,6 @@ CSnapshotDlg::CSnapshotDlg(CWnd* pParent /*=nullptr*/)
 		ASSERT(n == sizeof(m_SnapArea));
 		m_SnapArea = *(my::Rectangle*)pData;
 		delete[] pData; // free the buffer
-	}
-	if (theApp.GetProfileBinary(_T("Settings"), _T("SnapshotEye"), &pData, &n))
-	{
-		ASSERT(n == sizeof(m_SnapEye));
-		m_SnapEye = *(my::Vector3*)pData;
-		delete[] pData;
-	}
-	if (theApp.GetProfileBinary(_T("Settings"), _T("SnapshotEular"), &pData, &n))
-	{
-		ASSERT(n == sizeof(m_SnapEular));
-		m_SnapEular = *(my::Vector3*)pData;
-		delete[] pData;
 	}
 	if (theApp.GetProfileBinary(_T("Settings"), _T("SnapshotComponentTypes"), &pData, &n))
 	{
@@ -61,6 +49,38 @@ CSnapshotDlg::~CSnapshotDlg()
 {
 }
 
+void AFXAPI _AfxTextDegreeFormat(CDataExchange* pDX, int nIDC,
+	void* pData, double value, int nSizeGcvt)
+{
+	ASSERT(pData != NULL);
+
+	pDX->PrepareEditCtrl(nIDC);
+	HWND hWndCtrl;
+	pDX->m_pDlgWnd->GetDlgItem(nIDC, &hWndCtrl);
+
+	const int TEXT_BUFFER_SIZE = 400;
+	TCHAR szBuffer[TEXT_BUFFER_SIZE];
+	if (pDX->m_bSaveAndValidate)
+	{
+		::GetWindowText(hWndCtrl, szBuffer, _countof(szBuffer));
+		double d;
+		if (_sntscanf_s(szBuffer, _countof(szBuffer), _T("%lf"), &d) != 1)
+		{
+			AfxMessageBox(AFX_IDP_PARSE_REAL);
+			pDX->Fail();            // throws exception
+		}
+		if (nSizeGcvt == FLT_DIG)
+			*((float*)pData) = D3DXToRadian((float)d);
+		else
+			*((double*)pData) = D3DXToRadian(d);
+	}
+	else
+	{
+		ATL_CRT_ERRORCHECK_SPRINTF(_sntprintf_s(szBuffer, _countof(szBuffer), _countof(szBuffer) - 1, _T("%.*g"), nSizeGcvt, D3DXToDegree(value)));
+		AfxSetWindowText(hWndCtrl, szBuffer);
+	}
+}
+
 void CSnapshotDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
@@ -76,9 +96,9 @@ void CSnapshotDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_EDIT8, m_SnapEye.x);
 	DDX_Text(pDX, IDC_EDIT9, m_SnapEye.y);
 	DDX_Text(pDX, IDC_EDIT10, m_SnapEye.z);
-	DDX_Text(pDX, IDC_EDIT11, m_SnapEular.x);
-	DDX_Text(pDX, IDC_EDIT12, m_SnapEular.y);
-	DDX_Text(pDX, IDC_EDIT13, m_SnapEular.z);
+	_AfxTextDegreeFormat(pDX, IDC_EDIT11, &m_SnapEular.x, m_SnapEular.x, FLT_DIG);
+	_AfxTextDegreeFormat(pDX, IDC_EDIT12, &m_SnapEular.y, m_SnapEular.y, FLT_DIG);
+	_AfxTextDegreeFormat(pDX, IDC_EDIT13, &m_SnapEular.z, m_SnapEular.z, FLT_DIG);
 	DDX_Check(pDX, IDC_CHECK1, m_ComponentTypes[0]);
 	DDX_Check(pDX, IDC_CHECK2, m_ComponentTypes[1]);
 	DDX_Check(pDX, IDC_CHECK3, m_ComponentTypes[2]);
@@ -95,9 +115,8 @@ void CSnapshotDlg::DoDataExchange(CDataExchange* pDX)
 		theApp.WriteProfileInt(_T("Settings"), _T("SnapshotWidth"), m_TexWidth);
 		theApp.WriteProfileInt(_T("Settings"), _T("SnapshotHeight"), m_TexHeight);
 		theApp.WriteProfileBinary(_T("Settings"), _T("SnapshotArea"), (LPBYTE)&m_SnapArea, sizeof(m_SnapArea));
-		theApp.WriteProfileBinary(_T("Settings"), _T("SnapshotEye"), (LPBYTE)&m_SnapEye, sizeof(m_SnapEye));
-		theApp.WriteProfileBinary(_T("Settings"), _T("SnapshotEular"), (LPBYTE)&m_SnapEular, sizeof(m_SnapEular));
 		theApp.WriteProfileBinary(_T("Settings"), _T("SnapshotComponentTypes"), (LPBYTE)&m_ComponentTypes, sizeof(m_ComponentTypes));
+		theApp.WriteProfileInt(_T("Settings"), _T("SnapshotRTTypt"), m_RTType);
 	}
 	DDX_Radio(pDX, IDC_RADIO1, m_RTType);
 }
@@ -326,7 +345,7 @@ void CSnapshotDlg::DoSnapshot()
 	rc.m_Camera.reset(new my::OrthoCamera(m_SnapArea.Width(), -m_SnapArea.Height(), -2000, 2000));
 	my::OrthoCamera* ortho_camera = dynamic_cast<my::OrthoCamera*>(rc.m_Camera.get());
 	ortho_camera->m_Eye = m_SnapEye;
-	ortho_camera->m_Euler = my::Vector3(D3DXToRadian(m_SnapEular.x), D3DXToRadian(m_SnapEular.y), D3DXToRadian(m_SnapEular.z));
+	ortho_camera->m_Euler = m_SnapEular;
 	const my::Matrix4 Rotation = my::Matrix4::RotationYawPitchRoll(ortho_camera->m_Euler.y, ortho_camera->m_Euler.x, ortho_camera->m_Euler.z);
 	ortho_camera->m_View = (Rotation * my::Matrix4::Translation(ortho_camera->m_Eye)).inverse();
 	ortho_camera->m_Proj = my::Matrix4::OrthoOffCenterRH(m_SnapArea.l, m_SnapArea.r, m_SnapArea.b, m_SnapArea.t, ortho_camera->m_Nz, ortho_camera->m_Fz);

@@ -2869,7 +2869,11 @@ void CMainFrame::OnUpdateToolsScript1(CCmdUI* pCmdUI)
 void CMainFrame::OnToolsSnapshot()
 {
 	// TODO: Add your command handler code here
+	CChildView* pView = DYNAMIC_DOWNCAST(CChildView, GetActiveView());
+	ASSERT_VALID(pView);
 	CSnapshotDlg dlg;
+	dlg.m_SnapEye = pView->m_Camera->m_Eye;
+	dlg.m_SnapEular = pView->m_Camera->m_Euler;
 	dlg.DoModal();
 }
 

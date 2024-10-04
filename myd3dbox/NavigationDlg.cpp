@@ -46,7 +46,7 @@ CNavigationDlg::CNavigationDlg(CWnd* pParent /*=NULL*/)
 	, m_partitionType(SAMPLE_PARTITION_WATERSHED)
 	, m_maxTiles(0)
 	, m_maxPolysPerTile(0)
-	, m_tileSize(32.0f)
+	, m_tileSize(430.0f)
 	, m_tileExceeded(FALSE)
 	, m_AssetPath(_T(""))
 {
