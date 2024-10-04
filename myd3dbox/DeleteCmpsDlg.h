@@ -27,4 +27,5 @@ public:
 	virtual void OnOK();
 	afx_msg void OnClickedButton1();
 	afx_msg void OnClickedButton2();
+	afx_msg void OnClickedButton3();
 };
