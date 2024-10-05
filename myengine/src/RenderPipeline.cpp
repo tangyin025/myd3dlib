@@ -975,7 +975,7 @@ void RenderPipeline::RenderAllObjects(
 			const UINT passes = mesh_bat_iter->second.shader->Begin(D3DXFX_DONOTSAVESTATE | D3DXFX_DONOTSAVESAMPLERSTATE | D3DXFX_DONOTSAVESHADERSTATE);
 			_ASSERT(PassID < passes);
 			{
-				mesh_bat_iter->second.mtl->OnSetShader(pd3dDevice, mesh_bat_iter->second.shader, mesh_bat_iter->second.lparam, pRC, mesh_bat_iter->second.cmps.front().get<0>()->m_Actor);
+				mesh_bat_iter->second.mtl->OnSetShader(pd3dDevice, mesh_bat_iter->second.shader, mesh_bat_iter->second.lparam, pRC);
 				mesh_bat_iter->second.shader->BeginPass(PassID);
 				std::vector<boost::tuple<Component*, unsigned int> >::iterator cmp_iter = mesh_bat_iter->second.cmps.begin();
 				for (; cmp_iter != mesh_bat_iter->second.cmps.end(); cmp_iter++)
@@ -1142,7 +1142,7 @@ void RenderPipeline::DrawIndexedPrimitive(
 	const UINT passes = shader->Begin(D3DXFX_DONOTSAVESTATE | D3DXFX_DONOTSAVESAMPLERSTATE | D3DXFX_DONOTSAVESHADERSTATE);
 	_ASSERT(PassID < passes);
 	{
-		mtl->OnSetShader(pd3dDevice, shader, lparam, pRC, cmp->m_Actor);
+		mtl->OnSetShader(pd3dDevice, shader, lparam, pRC);
 		shader->BeginPass(PassID);
 		V(pd3dDevice->DrawIndexedPrimitive(PrimitiveType, BaseVertexIndex, MinVertexIndex, NumVertices, StartIndex, PrimitiveCount));
 		shader->EndPass();
@@ -1183,7 +1183,7 @@ void RenderPipeline::DrawIndexedPrimitiveInstance(
 	const UINT passes = shader->Begin(D3DXFX_DONOTSAVESTATE | D3DXFX_DONOTSAVESAMPLERSTATE | D3DXFX_DONOTSAVESHADERSTATE);
 	_ASSERT(PassID < passes);
 	{
-		mtl->OnSetShader(pd3dDevice, shader, lparam, pRC, cmp->m_Actor);
+		mtl->OnSetShader(pd3dDevice, shader, lparam, pRC);
 		shader->BeginPass(PassID);
 		V(pd3dDevice->DrawIndexedPrimitive(PrimitiveType, BaseVertexIndex, MinVertexIndex, NumVertices, StartIndex, PrimitiveCount));
 		V(pd3dDevice->SetStreamSourceFreq(0, 1));
@@ -1217,7 +1217,7 @@ void RenderPipeline::DrawIndexedPrimitiveUP(
 	const UINT passes = shader->Begin(D3DXFX_DONOTSAVESTATE | D3DXFX_DONOTSAVESAMPLERSTATE | D3DXFX_DONOTSAVESHADERSTATE);
 	_ASSERT(PassID < passes);
 	{
-		mtl->OnSetShader(pd3dDevice, shader, lparam, pRC, cmp->m_Actor);
+		mtl->OnSetShader(pd3dDevice, shader, lparam, pRC);
 		shader->BeginPass(PassID);
 		V(pd3dDevice->DrawIndexedPrimitiveUP(
 			PrimitiveType, MinVertexIndex, NumVertices, PrimitiveCount, pIndexData, IndexDataFormat, pVertexStreamZeroData, VertexStreamZeroStride));

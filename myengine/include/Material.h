@@ -14,8 +14,6 @@ namespace my
 	class Effect;
 };
 
-class Actor;
-
 class MaterialParameter;
 
 typedef boost::shared_ptr<MaterialParameter> MaterialParameterPtr;
@@ -23,6 +21,10 @@ typedef boost::shared_ptr<MaterialParameter> MaterialParameterPtr;
 class MaterialParameter
 {
 public:
+	friend class Material;
+
+	Material* m_Owner;
+
 	enum ParameterType
 	{
 		ParameterTypeNone = 0,
@@ -43,14 +45,16 @@ public:
 
 protected:
 	MaterialParameter(void)
-		: m_Name()
+		: m_Owner(NULL)
+		, m_Name()
 		, m_Handle(NULL)
 		, m_Requested(false)
 	{
 	}
 
-	MaterialParameter(const std::string & Name)
-		: m_Name(Name)
+	MaterialParameter(Material* Owner, const std::string& Name)
+		: m_Owner(Owner)
+		, m_Name(Name)
 		, m_Handle(NULL)
 		, m_Requested(false)
 	{
@@ -84,7 +88,7 @@ public:
 
 	void Init(my::Effect * shader);
 
-	virtual void Set(my::Effect * shader, LPARAM lparam, RenderPipeline::IRenderContext * pRC, Actor * actor)
+	virtual void Set(my::Effect * shader, LPARAM lparam, RenderPipeline::IRenderContext * pRC)
 	{
 	}
 
@@ -102,6 +106,8 @@ public:
 class MaterialParameterInt2 : public MaterialParameter
 {
 public:
+	friend class Material;
+
 	CPoint m_Value;
 
 protected:
@@ -110,13 +116,13 @@ protected:
 	{
 	}
 
-public:
-	MaterialParameterInt2(const std::string& Name, const CPoint& Value)
-		: MaterialParameter(Name)
+	MaterialParameterInt2(Material* Owner, const std::string& Name, const CPoint& Value)
+		: MaterialParameter(Owner, Name)
 		, m_Value(Value)
 	{
 	}
 
+public:
 	friend class boost::serialization::access;
 
 	template<class Archive>
@@ -136,12 +142,14 @@ public:
 		return ParameterTypeInt2;
 	}
 
-	virtual void Set(my::Effect* shader, LPARAM lparam, RenderPipeline::IRenderContext* pRC, Actor* actor);
+	virtual void Set(my::Effect* shader, LPARAM lparam, RenderPipeline::IRenderContext* pRC);
 };
 
 class MaterialParameterFloat : public MaterialParameter
 {
 public:
+	friend class Material;
+
 	float m_Value;
 
 protected:
@@ -150,13 +158,13 @@ protected:
 	{
 	}
 
-public:
-	MaterialParameterFloat(const std::string & Name, float Value)
-		: MaterialParameter(Name)
+	MaterialParameterFloat(Material* Owner, const std::string & Name, float Value)
+		: MaterialParameter(Owner, Name)
 		, m_Value(Value)
 	{
 	}
 
+public:
 	friend class boost::serialization::access;
 
 	template <class Archive>
@@ -171,12 +179,14 @@ public:
 		return ParameterTypeFloat;
 	}
 
-	virtual void Set(my::Effect * shader, LPARAM lparam, RenderPipeline::IRenderContext * pRC, Actor * actor);
+	virtual void Set(my::Effect * shader, LPARAM lparam, RenderPipeline::IRenderContext * pRC);
 };
 
 class MaterialParameterFloat2 : public MaterialParameter
 {
 public:
+	friend class Material;
+
 	my::Vector2 m_Value;
 
 protected:
@@ -185,13 +195,13 @@ protected:
 	{
 	}
 
-public:
-	MaterialParameterFloat2(const std::string & Name, const my::Vector2 & Value)
-		: MaterialParameter(Name)
+	MaterialParameterFloat2(Material * Owner, const std::string & Name, const my::Vector2 & Value)
+		: MaterialParameter(Owner, Name)
 		, m_Value(Value)
 	{
 	}
 
+public:
 	friend class boost::serialization::access;
 
 	template <class Archive>
@@ -206,12 +216,14 @@ public:
 		return ParameterTypeFloat2;
 	}
 
-	virtual void Set(my::Effect * shader, LPARAM lparam, RenderPipeline::IRenderContext * pRC, Actor * actor);
+	virtual void Set(my::Effect * shader, LPARAM lparam, RenderPipeline::IRenderContext * pRC);
 };
 
 class MaterialParameterFloat3 : public MaterialParameter
 {
 public:
+	friend class Material;
+
 	my::Vector3 m_Value;
 
 protected:
@@ -220,13 +232,13 @@ protected:
 	{
 	}
 
-public:
-	MaterialParameterFloat3(const std::string & Name, const my::Vector3 & Value)
-		: MaterialParameter(Name)
+	MaterialParameterFloat3(Material * Owner, const std::string & Name, const my::Vector3 & Value)
+		: MaterialParameter(Owner, Name)
 		, m_Value(Value)
 	{
 	}
 
+public:
 	friend class boost::serialization::access;
 
 	template <class Archive>
@@ -241,12 +253,14 @@ public:
 		return ParameterTypeFloat3;
 	}
 
-	virtual void Set(my::Effect * shader, LPARAM lparam, RenderPipeline::IRenderContext * pRC, Actor * actor);
+	virtual void Set(my::Effect * shader, LPARAM lparam, RenderPipeline::IRenderContext * pRC);
 };
 
 class MaterialParameterFloat4 : public MaterialParameter
 {
 public:
+	friend class Material;
+
 	my::Vector4 m_Value;
 
 protected:
@@ -255,13 +269,13 @@ protected:
 	{
 	}
 
-public:
-	MaterialParameterFloat4(const std::string & Name, const my::Vector4 & Value)
-		: MaterialParameter(Name)
+	MaterialParameterFloat4(Material * Owner, const std::string & Name, const my::Vector4 & Value)
+		: MaterialParameter(Owner, Name)
 		, m_Value(Value)
 	{
 	}
 
+public:
 	friend class boost::serialization::access;
 
 	template <class Archive>
@@ -276,13 +290,13 @@ public:
 		return ParameterTypeFloat4;
 	}
 
-	virtual void Set(my::Effect * shader, LPARAM lparam, RenderPipeline::IRenderContext * pRC, Actor * actor);
+	virtual void Set(my::Effect * shader, LPARAM lparam, RenderPipeline::IRenderContext * pRC);
 };
 
 class MaterialParameterTexture : public MaterialParameter
 {
 public:
-	friend class RenderPipeline;
+	friend class Material;
 
 	std::string m_TexturePath;
 
@@ -293,13 +307,13 @@ protected:
 	{
 	}
 
-public:
-	MaterialParameterTexture(const std::string & Name, const std::string & Path)
-		: MaterialParameter(Name)
+	MaterialParameterTexture(Material * Owner, const std::string & Name, const std::string & Path)
+		: MaterialParameter(Owner, Name)
 		, m_TexturePath(Path)
 	{
 	}
 
+public:
 	~MaterialParameterTexture(void);
 
 	friend class boost::serialization::access;
@@ -322,22 +336,24 @@ public:
 
 	virtual void ReleaseResource(void);
 
-	virtual void Set(my::Effect * shader, LPARAM lparam, RenderPipeline::IRenderContext * pRC, Actor * actor);
+	virtual void Set(my::Effect * shader, LPARAM lparam, RenderPipeline::IRenderContext * pRC);
 };
 
 class MaterialParameterInvWorldView : public MaterialParameter
 {
 protected:
+	friend class Material;
+
 	MaterialParameterInvWorldView(void)
 	{
 	}
 
-public:
-	MaterialParameterInvWorldView(const std::string & Name)
-		: MaterialParameter(Name)
+	MaterialParameterInvWorldView(Material * Owner, const std::string & Name)
+		: MaterialParameter(Owner, Name)
 	{
 	}
 
+public:
 	friend class boost::serialization::access;
 
 	template <class Archive>
@@ -351,7 +367,7 @@ public:
 		return ParameterTypeInvWorldView;
 	}
 
-	virtual void Set(my::Effect * shader, LPARAM lparam, RenderPipeline::IRenderContext * pRC, Actor * actor);
+	virtual void Set(my::Effect * shader, LPARAM lparam, RenderPipeline::IRenderContext * pRC);
 };
 
 class Material;
@@ -363,6 +379,8 @@ class Material
 	, public boost::enable_shared_from_this<Material>
 {
 public:
+	Component* m_Cmp;
+
 	enum BlendMode
 	{
 		BlendModeNone = 0,
@@ -409,7 +427,8 @@ public:
 
 public:
 	Material(void)
-		: m_PassMask(0)
+		: m_Cmp(NULL)
+		, m_PassMask(0)
 		, m_CullMode(D3DCULL_CW)
 		, m_ZEnable(true)
 		, m_ZWriteEnable(true)
@@ -449,7 +468,7 @@ public:
 
 	void ReleaseResource(void);
 
-	void OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, LPARAM lparam, RenderPipeline::IRenderContext * pRC, Actor * actor);
+	void OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, LPARAM lparam, RenderPipeline::IRenderContext * pRC);
 
 	void ParseShaderParameters(void);
 

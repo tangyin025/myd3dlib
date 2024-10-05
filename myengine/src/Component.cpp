@@ -144,7 +144,9 @@ void Component::load(Archive & ar, const unsigned int version)
 
 	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(NamedObject);
 	ar >> BOOST_SERIALIZATION_NVP(m_LodMask);
-	ar >> BOOST_SERIALIZATION_NVP(m_Material);
+	MaterialPtr mtl;
+	ar >> boost::serialization::make_nvp("m_Material", mtl);
+	SetMaterial(mtl);
 	ar >> BOOST_SERIALIZATION_NVP(m_PxGeometryType);
 	switch (m_PxGeometryType)
 	{
@@ -266,16 +268,26 @@ void Component::ReleaseResource(void)
 
 void Component::SetMaterial(MaterialPtr material)
 {
-	if (IsRequested() && m_Material)
+	if (m_Material)
 	{
-		m_Material->ReleaseResource();
+		if (IsRequested())
+		{
+			m_Material->ReleaseResource();
+		}
+
+		m_Material->m_Cmp = NULL;
 	}
 
 	m_Material = material;
 
-	if (IsRequested() && m_Material)
+	if (m_Material)
 	{
-		m_Material->RequestResource();
+		m_Material->m_Cmp = this;
+
+		if (IsRequested())
+		{
+			m_Material->RequestResource();
+		}
 	}
 }
 

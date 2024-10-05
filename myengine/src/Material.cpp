@@ -98,31 +98,31 @@ void MaterialParameterInt2::load(Archive& ar, const unsigned int version)
 	ar >> BOOST_SERIALIZATION_NVP(m_Value.y);
 }
 
-void MaterialParameterInt2::Set(my::Effect * shader, LPARAM lparam, RenderPipeline::IRenderContext * pRC, Actor * actor)
+void MaterialParameterInt2::Set(my::Effect * shader, LPARAM lparam, RenderPipeline::IRenderContext * pRC)
 {
 	_ASSERT(m_Handle);
 	shader->SetIntArray(m_Handle, (int*)&m_Value.x, 2);
 }
 
-void MaterialParameterFloat::Set(my::Effect * shader, LPARAM lparam, RenderPipeline::IRenderContext * pRC, Actor * actor)
+void MaterialParameterFloat::Set(my::Effect * shader, LPARAM lparam, RenderPipeline::IRenderContext * pRC)
 {
 	_ASSERT(m_Handle);
 	shader->SetFloat(m_Handle, m_Value);
 }
 
-void MaterialParameterFloat2::Set(my::Effect * shader, LPARAM lparam, RenderPipeline::IRenderContext * pRC, Actor * actor)
+void MaterialParameterFloat2::Set(my::Effect * shader, LPARAM lparam, RenderPipeline::IRenderContext * pRC)
 {
 	_ASSERT(m_Handle);
 	shader->SetFloatArray(m_Handle, &m_Value.x, 2);
 }
 
-void MaterialParameterFloat3::Set(my::Effect * shader, LPARAM lparam, RenderPipeline::IRenderContext * pRC, Actor * actor)
+void MaterialParameterFloat3::Set(my::Effect * shader, LPARAM lparam, RenderPipeline::IRenderContext * pRC)
 {
 	_ASSERT(m_Handle);
 	shader->SetFloatArray(m_Handle, &m_Value.x, 3);
 }
 
-void MaterialParameterFloat4::Set(my::Effect * shader, LPARAM lparam, RenderPipeline::IRenderContext * pRC, Actor * actor)
+void MaterialParameterFloat4::Set(my::Effect * shader, LPARAM lparam, RenderPipeline::IRenderContext * pRC)
 {
 	_ASSERT(m_Handle);
 	shader->SetFloatArray(m_Handle, &m_Value.x, 4);
@@ -165,16 +165,17 @@ void MaterialParameterTexture::ReleaseResource(void)
 	}
 }
 
-void MaterialParameterTexture::Set(my::Effect * shader, LPARAM lparam, RenderPipeline::IRenderContext * pRC, Actor * actor)
+void MaterialParameterTexture::Set(my::Effect * shader, LPARAM lparam, RenderPipeline::IRenderContext * pRC)
 {
 	_ASSERT(m_Handle);
 	shader->SetTexture(m_Handle, m_Texture.get());
 }
 
-void MaterialParameterInvWorldView::Set(my::Effect * shader, LPARAM lparam, RenderPipeline::IRenderContext * pRC, Actor * actor)
+void MaterialParameterInvWorldView::Set(my::Effect * shader, LPARAM lparam, RenderPipeline::IRenderContext * pRC)
 {
-	_ASSERT(m_Handle);
-	Matrix4 InvWorldView = (actor->m_World * pRC->m_Camera->m_View).inverse();
+	// ! RenderPipeline::RenderAllObjects, mesh_bat_iter->second.mtl->OnSetShader(..
+	_ASSERT(m_Handle && m_Owner);
+	Matrix4 InvWorldView = (m_Owner->m_Cmp->m_Actor->m_World * pRC->m_Camera->m_View).inverse();
 	shader->SetMatrix(m_Handle, InvWorldView);
 }
 
@@ -208,6 +209,11 @@ void Material::load(Archive & ar, const unsigned int version)
 	ar >> BOOST_SERIALIZATION_NVP(m_AlphaFunc);
 	ar >> BOOST_SERIALIZATION_NVP(m_BlendMode);
 	ar >> BOOST_SERIALIZATION_NVP(m_ParameterList);
+	MaterialParameterPtrList::iterator param_iter = m_ParameterList.begin();
+	for (; param_iter != m_ParameterList.end(); param_iter++)
+	{
+		(*param_iter)->m_Owner = this;
+	}
 }
 
 bool Material::operator == (const Material & rhs) const
@@ -271,7 +277,7 @@ void Material::ReleaseResource(void)
 	}
 }
 
-void Material::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, LPARAM lparam, RenderPipeline::IRenderContext * pRC, Actor * actor)
+void Material::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, LPARAM lparam, RenderPipeline::IRenderContext * pRC)
 {
 	// https://learn.microsoft.com/en-us/windows/win32/direct3d9/accurately-profiling-direct3d-api-calls#appendix
 	HRESULT hr;
@@ -328,7 +334,7 @@ void Material::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, L
 	MaterialParameterPtrList::iterator param_iter = m_ParameterList.begin();
 	for (; param_iter != m_ParameterList.end(); param_iter++)
 	{
-		(*param_iter)->Set(shader, lparam, pRC, actor);
+		(*param_iter)->Set(shader, lparam, pRC);
 	}
 }
 
@@ -372,7 +378,7 @@ void Material::ParseShaderParameters(void)
 					Value.y = boost::lexical_cast<int>(what2[2]);
 				}
 			}
-			m_ParameterList.push_back(MaterialParameterPtr(new MaterialParameterInt2(Name, Value)));
+			m_ParameterList.push_back(MaterialParameterPtr(new MaterialParameterInt2(this, Name, Value)));
 		}
 		if (what[3].matched)
 		{
@@ -390,7 +396,7 @@ void Material::ParseShaderParameters(void)
 					Value = boost::lexical_cast<float>(what2[0]);
 				}
 			}
-			m_ParameterList.push_back(MaterialParameterPtr(new MaterialParameterFloat(Name, Value)));
+			m_ParameterList.push_back(MaterialParameterPtr(new MaterialParameterFloat(this, Name, Value)));
 		}
 		else if (what[4].matched)
 		{
@@ -409,7 +415,7 @@ void Material::ParseShaderParameters(void)
 					Value.y = boost::lexical_cast<float>(what2[3]);
 				}
 			}
-			m_ParameterList.push_back(MaterialParameterPtr(new MaterialParameterFloat2(Name, Value)));
+			m_ParameterList.push_back(MaterialParameterPtr(new MaterialParameterFloat2(this, Name, Value)));
 		}
 		else if (what[5].matched)
 		{
@@ -429,7 +435,7 @@ void Material::ParseShaderParameters(void)
 					Value.z = boost::lexical_cast<float>(what2[5]);
 				}
 			}
-			m_ParameterList.push_back(MaterialParameterPtr(new MaterialParameterFloat3(Name, Value)));
+			m_ParameterList.push_back(MaterialParameterPtr(new MaterialParameterFloat3(this, Name, Value)));
 		}
 		else if (what[6].matched)
 		{
@@ -450,7 +456,7 @@ void Material::ParseShaderParameters(void)
 					Value.w = boost::lexical_cast<float>(what2[7]);
 				}
 			}
-			m_ParameterList.push_back(MaterialParameterPtr(new MaterialParameterFloat4(Name, Value)));
+			m_ParameterList.push_back(MaterialParameterPtr(new MaterialParameterFloat4(this, Name, Value)));
 		}
 		else if (what[7].matched)
 		{
@@ -468,7 +474,7 @@ void Material::ParseShaderParameters(void)
 					Path = what2[1];
 				}
 			}
-			m_ParameterList.push_back(MaterialParameterPtr(new MaterialParameterTexture(Name, Path)));
+			m_ParameterList.push_back(MaterialParameterPtr(new MaterialParameterTexture(this, Name, Path)));
 		}
 		else if (what[8].matched)
 		{
@@ -476,7 +482,7 @@ void Material::ParseShaderParameters(void)
 			boost::match_results<std::string::const_iterator> what2;
 			if (boost::regex_search(Annotations, what2, reg_value, boost::match_default))
 			{
-				m_ParameterList.push_back(MaterialParameterPtr(new MaterialParameterInvWorldView(Name)));
+				m_ParameterList.push_back(MaterialParameterPtr(new MaterialParameterInvWorldView(this, Name)));
 			}
 		}
 	}
@@ -560,7 +566,7 @@ void Material::SetParameter<CPoint>(const char* Name, const CPoint& Value)
 	MaterialParameterPtr param = GetParameter(Name);
 	if (!param)
 	{
-		m_ParameterList.push_back(MaterialParameterPtr(new MaterialParameterInt2(Name, Value)));
+		m_ParameterList.push_back(MaterialParameterPtr(new MaterialParameterInt2(this, Name, Value)));
 		return;
 	}
 	else if (param->GetParameterType() != MaterialParameter::ParameterTypeInt2)
@@ -577,7 +583,7 @@ void Material::SetParameter<float>(const char* Name, const float& Value)
 	MaterialParameterPtr param = GetParameter(Name);
 	if (!param)
 	{
-		m_ParameterList.push_back(MaterialParameterPtr(new MaterialParameterFloat(Name, Value)));
+		m_ParameterList.push_back(MaterialParameterPtr(new MaterialParameterFloat(this, Name, Value)));
 		return;
 	}
 	else if (param->GetParameterType() != MaterialParameter::ParameterTypeFloat)
@@ -594,7 +600,7 @@ void Material::SetParameter<my::Vector2>(const char* Name, const my::Vector2& Va
 	MaterialParameterPtr param = GetParameter(Name);
 	if (!param)
 	{
-		m_ParameterList.push_back(MaterialParameterPtr(new MaterialParameterFloat2(Name, Value)));
+		m_ParameterList.push_back(MaterialParameterPtr(new MaterialParameterFloat2(this, Name, Value)));
 		return;
 	}
 	else if (param->GetParameterType() != MaterialParameter::ParameterTypeFloat2)
@@ -611,7 +617,7 @@ void Material::SetParameter<my::Vector3>(const char* Name, const my::Vector3& Va
 	MaterialParameterPtr param = GetParameter(Name);
 	if (!param)
 	{
-		m_ParameterList.push_back(MaterialParameterPtr(new MaterialParameterFloat3(Name, Value)));
+		m_ParameterList.push_back(MaterialParameterPtr(new MaterialParameterFloat3(this, Name, Value)));
 		return;
 	}
 	else if (param->GetParameterType() != MaterialParameter::ParameterTypeFloat3)
@@ -628,7 +634,7 @@ void Material::SetParameter<my::Vector4>(const char* Name, const my::Vector4& Va
 	MaterialParameterPtr param = GetParameter(Name);
 	if (!param)
 	{
-		m_ParameterList.push_back(MaterialParameterPtr(new MaterialParameterFloat4(Name, Value)));
+		m_ParameterList.push_back(MaterialParameterPtr(new MaterialParameterFloat4(this, Name, Value)));
 		return;
 	}
 	else if (param->GetParameterType() != MaterialParameter::ParameterTypeFloat4)
@@ -645,7 +651,7 @@ void Material::SetParameter<std::string>(const char* Name, const std::string& Va
 	MaterialParameterPtr param = GetParameter(Name);
 	if (!param)
 	{
-		m_ParameterList.push_back(MaterialParameterPtr(new MaterialParameterTexture(Name, Value)));
+		m_ParameterList.push_back(MaterialParameterPtr(new MaterialParameterTexture(this, Name, Value)));
 		return;
 	}
 	else if (param->GetParameterType() != MaterialParameter::ParameterTypeTexture)
