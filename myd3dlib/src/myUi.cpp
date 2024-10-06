@@ -820,35 +820,35 @@ void ControlSkin::RequestResource(void)
 	{
 		_ASSERT(!m_VisibleShowSound);
 
-		my::ResourceMgr::getSingleton().LoadWavAsync(m_VisibleShowSoundPath.c_str(), boost::bind(&ControlSkin::OnVisibleShowSoundReady, this, boost::placeholders::_1), 0);
+		my::ResourceMgr::getSingleton().LoadWavAsync(m_VisibleShowSoundPath.c_str(), boost::bind(&ControlSkin::OnVisibleShowSoundReady, this, boost::placeholders::_1));
 	}
 
 	if (!m_VisibleHideSoundPath.empty())
 	{
 		_ASSERT(!m_VisibleHideSound);
 
-		my::ResourceMgr::getSingleton().LoadWavAsync(m_VisibleHideSoundPath.c_str(), boost::bind(&ControlSkin::OnVisibleHideSoundReady, this, boost::placeholders::_1), 0);
+		my::ResourceMgr::getSingleton().LoadWavAsync(m_VisibleHideSoundPath.c_str(), boost::bind(&ControlSkin::OnVisibleHideSoundReady, this, boost::placeholders::_1));
 	}
 
 	if (!m_MouseEnterSoundPath.empty())
 	{
 		_ASSERT(!m_MouseEnterSound);
 
-		my::ResourceMgr::getSingleton().LoadWavAsync(m_MouseEnterSoundPath.c_str(), boost::bind(&ControlSkin::OnMouseEnterSoundReady, this, boost::placeholders::_1), 0);
+		my::ResourceMgr::getSingleton().LoadWavAsync(m_MouseEnterSoundPath.c_str(), boost::bind(&ControlSkin::OnMouseEnterSoundReady, this, boost::placeholders::_1));
 	}
 
 	if (!m_MouseLeaveSoundPath.empty())
 	{
 		_ASSERT(!m_MouseLeaveSound);
 
-		my::ResourceMgr::getSingleton().LoadWavAsync(m_MouseLeaveSoundPath.c_str(), boost::bind(&ControlSkin::OnMouseLeaveSoundReady, this, boost::placeholders::_1), 0);
+		my::ResourceMgr::getSingleton().LoadWavAsync(m_MouseLeaveSoundPath.c_str(), boost::bind(&ControlSkin::OnMouseLeaveSoundReady, this, boost::placeholders::_1));
 	}
 
 	if (!m_MouseClickSoundPath.empty())
 	{
 		_ASSERT(!m_MouseClickSound);
 
-		my::ResourceMgr::getSingleton().LoadWavAsync(m_MouseClickSoundPath.c_str(), boost::bind(&ControlSkin::OnMouseClickSoundReady, this, boost::placeholders::_1), 0);
+		my::ResourceMgr::getSingleton().LoadWavAsync(m_MouseClickSoundPath.c_str(), boost::bind(&ControlSkin::OnMouseClickSoundReady, this, boost::placeholders::_1));
 	}
 }
 

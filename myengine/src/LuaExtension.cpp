@@ -2879,6 +2879,12 @@ void LuaContext::Init(void)
 			]
 			.def_readwrite("LodMask", &Component::m_LodMask)
 			.def_readonly("Actor", &Component::m_Actor)
+			.enum_("ResourcePriority")
+			[
+				value("ResPriorityLod0", Component::ResPriorityLod0),
+				value("ResPriorityLod1", Component::ResPriorityLod1),
+				value("ResPriorityLod2", Component::ResPriorityLod2)
+			]
 			.property("Requested", &Component::IsRequested)
 			.def("Clone", &Component::Clone)
 			.def("RequestResource", &Component::RequestResource, &ScriptComponent::default_RequestResource)

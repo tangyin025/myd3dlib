@@ -720,7 +720,7 @@ void Animator::RequestResource(void)
 	{
 		_ASSERT(!m_Skeleton);
 
-		my::ResourceMgr::getSingleton().LoadSkeletonAsync(m_SkeletonPath.c_str(), boost::bind(&Animator::OnSkeletonReady, this, boost::placeholders::_1));
+		my::ResourceMgr::getSingleton().LoadSkeletonAsync(m_SkeletonPath.c_str(), boost::bind(&Animator::OnSkeletonReady, this, boost::placeholders::_1), (m_LodMask & LOD0) ? ResPriorityLod0 : (m_LodMask & LOD1) ? ResPriorityLod1 : ResPriorityLod2);
 	}
 }
 

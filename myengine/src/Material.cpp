@@ -147,9 +147,10 @@ void MaterialParameterTexture::RequestResource(void)
 
 	if (!m_TexturePath.empty())
 	{
-		_ASSERT(!m_Texture);
+		_ASSERT(!m_Texture && m_Owner && m_Owner->m_Cmp);
 
-		my::ResourceMgr::getSingleton().LoadTextureAsync(m_TexturePath.c_str(), boost::bind(&MaterialParameterTexture::OnTextureReady, this, boost::placeholders::_1));
+		my::ResourceMgr::getSingleton().LoadTextureAsync(m_TexturePath.c_str(), boost::bind(&MaterialParameterTexture::OnTextureReady, this, boost::placeholders::_1),
+			(m_Owner->m_Cmp->m_LodMask & Component::LOD0) ? Component::ResPriorityLod0 : (m_Owner->m_Cmp->m_LodMask & Component::LOD1) ? Component::ResPriorityLod1 : Component::ResPriorityLod2);
 	}
 }
 
@@ -174,7 +175,7 @@ void MaterialParameterTexture::Set(my::Effect * shader, LPARAM lparam, RenderPip
 void MaterialParameterInvWorldView::Set(my::Effect * shader, LPARAM lparam, RenderPipeline::IRenderContext * pRC)
 {
 	// ! RenderPipeline::RenderAllObjects, mesh_bat_iter->second.mtl->OnSetShader(..
-	_ASSERT(m_Handle && m_Owner);
+	_ASSERT(m_Handle && m_Owner && m_Owner->m_Cmp);
 	Matrix4 InvWorldView = (m_Owner->m_Cmp->m_Actor->m_World * pRC->m_Camera->m_View).inverse();
 	shader->SetMatrix(m_Handle, InvWorldView);
 }

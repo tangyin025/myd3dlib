@@ -172,7 +172,7 @@ void ActionTrackSound::AddKeyFrame(float Time, const char * SoundPath, float Sta
 	{
 		_ASSERT(!key_iter->second.Sound);
 
-		my::ResourceMgr::getSingleton().LoadWavAsync(SoundPath, boost::bind(&ActionTrackSound::KeyFrame::OnSoundReady, &key_iter->second, boost::placeholders::_1), 0);
+		my::ResourceMgr::getSingleton().LoadWavAsync(SoundPath, boost::bind(&ActionTrackSound::KeyFrame::OnSoundReady, &key_iter->second, boost::placeholders::_1));
 	}
 }
 

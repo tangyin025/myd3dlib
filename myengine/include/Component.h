@@ -75,6 +75,13 @@ public:
 
 	bool m_Requested;
 
+	enum ResourcePriority
+	{
+		ResPriorityLod2 = 0,
+		ResPriorityLod1,
+		ResPriorityLod0,
+	};
+
 	MaterialPtr m_Material;
 
 	physx::PxGeometryType::Enum m_PxGeometryType;

@@ -748,7 +748,7 @@ void MeshComponent::RequestResource(void)
 	{
 		_ASSERT(!m_Mesh);
 
-		my::ResourceMgr::getSingleton().LoadMeshAsync(m_MeshPath.c_str(), boost::bind(&MeshComponent::OnMeshReady, this, boost::placeholders::_1));
+		my::ResourceMgr::getSingleton().LoadMeshAsync(m_MeshPath.c_str(), boost::bind(&MeshComponent::OnMeshReady, this, boost::placeholders::_1), (m_LodMask & LOD0) ? ResPriorityLod0 : (m_LodMask & LOD1) ? ResPriorityLod1 : ResPriorityLod2);
 	}
 
 	_ASSERT(!PhysxSdk::getSingleton().m_RenderTickMuted);
