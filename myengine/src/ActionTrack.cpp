@@ -238,12 +238,13 @@ ActionTrackInstPtr ActionTrackEmitter::CreateInstance(Actor * _Actor) const
 	return ActionTrackInstPtr(new ActionTrackEmitterInst(_Actor, boost::static_pointer_cast<const ActionTrackEmitter>(shared_from_this())));
 }
 
-void ActionTrackEmitter::AddKeyFrame(float Time, int SpawnCount, float SpawnInterval)
+void ActionTrackEmitter::AddKeyFrame(float Time, int SpawnCount, float SpawnInterval, SphericalEmitter* EmitterTmp)
 {
 	KeyFrameMap::iterator key_iter = m_Keys.insert(std::make_pair(Time, KeyFrame()));
-	_ASSERT(key_iter != m_Keys.end());
+	_ASSERT(key_iter != m_Keys.end() && EmitterTmp);
 	key_iter->second.SpawnCount = SpawnCount;
 	key_iter->second.SpawnInterval = SpawnInterval;
+	key_iter->second.EmitterTmp = EmitterTmp;
 }
 
 ActionTrackEmitterInst::ActionTrackEmitterInst(Actor * _Actor, boost::shared_ptr<const ActionTrackEmitter> Template)
@@ -254,7 +255,7 @@ ActionTrackEmitterInst::ActionTrackEmitterInst(Actor * _Actor, boost::shared_ptr
 
 ActionTrackEmitterInst::~ActionTrackEmitterInst(void)
 {
-	_ASSERT(!m_EmitterCmp);
+	_ASSERT(m_KeyInsts.empty());
 }
 
 void ActionTrackEmitterInst::UpdateTime(float LastTime, float Time)
@@ -263,7 +264,11 @@ void ActionTrackEmitterInst::UpdateTime(float LastTime, float Time)
 	ActionTrackEmitter::KeyFrameMap::const_iterator key_end = m_Template->m_Keys.lower_bound(Time);
 	for (; key_iter != key_end; key_iter++)
 	{
-		m_KeyInsts.push_back(KeyFrameInst(key_iter->second.SpawnCount, key_iter->second.SpawnInterval));
+		KeyFrameInst inst(key_iter->second.SpawnCount, key_iter->second.SpawnInterval);
+		inst.m_EmitterCmp = boost::dynamic_pointer_cast<SphericalEmitter>(key_iter->second.EmitterTmp->Clone());
+		inst.m_EmitterCmp->m_SpawnInterval = 0;
+		m_KeyInsts.push_back(inst);
+		m_Actor->InsertComponent(inst.m_EmitterCmp);
 	}
 
 	KeyFrameInstList::iterator key_inst_iter = m_KeyInsts.begin();
@@ -273,43 +278,25 @@ void ActionTrackEmitterInst::UpdateTime(float LastTime, float Time)
 		for (; key_inst_iter->m_Time >= key_inst_iter->m_SpawnInterval && key_inst_iter->m_SpawnCount > 0;
 			key_inst_iter->m_Time -= key_inst_iter->m_SpawnInterval, key_inst_iter->m_SpawnCount--)
 		{
-			if (!m_EmitterCmp)
-			{
-				m_EmitterCmp.reset(new SphericalEmitter(NamedObject::MakeUniqueName("ActionTrackEmitterInst_cmp").c_str(),
-					m_Template->m_EmitterCapacity, (EmitterComponent::FaceType)m_Template->m_EmitterFaceType, (EmitterComponent::SpaceType)m_Template->m_EmitterSpaceType));
-				m_EmitterCmp->m_SpawnInterval = 0;
-				m_EmitterCmp->m_ParticleLifeTime = m_Template->m_ParticleLifeTime;
-				m_EmitterCmp->m_ParticleDamping = m_Template->m_ParticleDamping;
-				m_EmitterCmp->m_ParticleColorR = m_Template->m_ParticleColorR;
-				m_EmitterCmp->m_ParticleColorG = m_Template->m_ParticleColorG;
-				m_EmitterCmp->m_ParticleColorB = m_Template->m_ParticleColorB;
-				m_EmitterCmp->m_ParticleColorA = m_Template->m_ParticleColorA;
-				m_EmitterCmp->m_ParticleSizeX = m_Template->m_ParticleSizeX;
-				m_EmitterCmp->m_ParticleSizeY = m_Template->m_ParticleSizeY;
-				m_EmitterCmp->m_ParticleAngle = m_Template->m_ParticleAngle;
-				m_EmitterCmp->m_DelayRemoveTime = 0;
-				m_EmitterCmp->SetMaterial(m_Template->m_EmitterMaterial->Clone());
+			const Bone pose = key_inst_iter->m_EmitterCmp->m_EmitterSpaceType == EmitterComponent::SpaceTypeWorld ?
+				m_Actor->GetAttachPose(key_inst_iter->m_EmitterCmp->m_SpawnBoneId, key_inst_iter->m_EmitterCmp->m_SpawnLocalPose.m_position, key_inst_iter->m_EmitterCmp->m_SpawnLocalPose.m_rotation) : key_inst_iter->m_EmitterCmp->m_SpawnLocalPose;
 
-				m_Actor->InsertComponent(m_EmitterCmp);
-			}
-
-			const Bone pose = m_EmitterCmp->m_EmitterSpaceType == EmitterComponent::SpaceTypeWorld ?
-				m_Actor->GetAttachPose(m_Template->m_SpawnBoneId, m_Template->m_SpawnLocalPose.m_position, m_Template->m_SpawnLocalPose.m_rotation) : m_Template->m_SpawnLocalPose;
-
-			m_EmitterCmp->Spawn(
+			key_inst_iter->m_EmitterCmp->Spawn(
 				Vector4(Vector3(
-					Random(-m_Template->m_HalfSpawnArea.x, m_Template->m_HalfSpawnArea.x),
-					Random(-m_Template->m_HalfSpawnArea.y, m_Template->m_HalfSpawnArea.y),
-					Random(-m_Template->m_HalfSpawnArea.z, m_Template->m_HalfSpawnArea.z)) + pose.m_position, 1.0f),
+					Random(-key_inst_iter->m_EmitterCmp->m_HalfSpawnArea.x, key_inst_iter->m_EmitterCmp->m_HalfSpawnArea.x),
+					Random(-key_inst_iter->m_EmitterCmp->m_HalfSpawnArea.y, key_inst_iter->m_EmitterCmp->m_HalfSpawnArea.y),
+					Random(-key_inst_iter->m_EmitterCmp->m_HalfSpawnArea.z, key_inst_iter->m_EmitterCmp->m_HalfSpawnArea.z)) + pose.m_position, 1.0f),
 				Vector4(Vector3::PolarToCartesian(
-					m_Template->m_SpawnSpeed,
-					Random(m_Template->m_SpawnInclination.x, m_Template->m_SpawnInclination.y),
-					Random(m_Template->m_SpawnAzimuth.x, m_Template->m_SpawnAzimuth.y)), 1),
+					key_inst_iter->m_EmitterCmp->m_SpawnSpeed,
+					Random(key_inst_iter->m_EmitterCmp->m_SpawnInclination.x, key_inst_iter->m_EmitterCmp->m_SpawnInclination.y),
+					Random(key_inst_iter->m_EmitterCmp->m_SpawnAzimuth.x, key_inst_iter->m_EmitterCmp->m_SpawnAzimuth.y)), 1),
 				Vector4(1, 1, 1, 1), Vector2(1, 1), 0, 0);
 		}
 
 		if (key_inst_iter->m_SpawnCount <= 0)
 		{
+			_ASSERT(0 == key_inst_iter->m_EmitterCmp->m_DelayRemoveTime && key_inst_iter->m_EmitterCmp->m_ParticleLifeTime > 0);
+			key_inst_iter->m_EmitterCmp->m_DelayRemoveTime = key_inst_iter->m_EmitterCmp->m_ParticleLifeTime;
 			key_inst_iter = m_KeyInsts.erase(key_inst_iter);
 		}
 		else
@@ -323,12 +310,12 @@ void ActionTrackEmitterInst::Stop(void)
 {
 	_ASSERT(GetCurrentThreadId() == D3DContext::getSingleton().m_d3dThreadId || PhysxSdk::getSingleton().m_RenderTickMuted);
 
-	if (m_EmitterCmp)
+	KeyFrameInstList::iterator key_inst_iter = m_KeyInsts.begin();
+	for (; key_inst_iter != m_KeyInsts.end(); key_inst_iter++)
 	{
-		_ASSERT(m_EmitterCmp->m_Actor && m_EmitterCmp->m_DelayRemoveTime <= 0);
-		m_EmitterCmp->m_DelayRemoveTime = m_Template->m_ParticleLifeTime;
-		m_EmitterCmp.reset();
+		key_inst_iter->m_EmitterCmp->m_DelayRemoveTime = key_inst_iter->m_EmitterCmp->m_ParticleLifeTime;
 	}
+	m_KeyInsts.clear();
 }
 
 ActionTrackInstPtr ActionTrackVelocity::CreateInstance(Actor * _Actor) const

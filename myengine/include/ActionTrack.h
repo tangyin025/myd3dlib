@@ -219,52 +219,18 @@ public:
 
 class Material;
 
+class SphericalEmitter;
+
 class ActionTrackEmitter : public ActionTrack
 {
 public:
-	boost::shared_ptr<Material> m_EmitterMaterial;
-
-	unsigned int m_EmitterCapacity;
-
-	DWORD m_EmitterFaceType;
-
-	DWORD m_EmitterSpaceType;
-
-	my::Vector3 m_HalfSpawnArea;
-
-	my::Vector2 m_SpawnInclination;
-
-	my::Vector2 m_SpawnAzimuth;
-
-	float m_SpawnSpeed;
-
-	int m_SpawnBoneId;
-
-	my::Bone m_SpawnLocalPose;
-
-	float m_ParticleLifeTime;
-
-	float m_ParticleDamping;
-
-	my::Spline m_ParticleColorR;
-
-	my::Spline m_ParticleColorG;
-
-	my::Spline m_ParticleColorB;
-
-	my::Spline m_ParticleColorA;
-
-	my::Spline m_ParticleSizeX;
-
-	my::Spline m_ParticleSizeY;
-
-	my::Spline m_ParticleAngle;
-
 	struct KeyFrame
 	{
 		int SpawnCount;
 
 		float SpawnInterval;
+
+		SphericalEmitter* EmitterTmp;
 	};
 
 	typedef std::multimap<float, KeyFrame> KeyFrameMap;
@@ -273,33 +239,18 @@ public:
 
 public:
 	ActionTrackEmitter(void)
-		: m_EmitterCapacity(1024)
-		, m_EmitterFaceType(3) // FaceTypeCamera = 3
-		, m_EmitterSpaceType(0) // SpaceTypeWorld = 0
-		, m_HalfSpawnArea(0, 0, 0)
-		, m_SpawnInclination(D3DXToRadian(-90), D3DXToRadian(90))
-		, m_SpawnAzimuth(D3DXToRadian(0), D3DXToRadian(360))
-		, m_SpawnSpeed(0.0f)
-		, m_SpawnBoneId(-1)
-		, m_SpawnLocalPose(my::Vector3(0, 0, 0))
-		, m_ParticleLifeTime(1.0f)
-		, m_ParticleDamping(1.0f)
 	{
 	}
 
 	virtual ActionTrackInstPtr CreateInstance(Actor * _Actor) const;
 
-	void AddKeyFrame(float Time, int SpawnCount, float SpawnInterval);
+	void AddKeyFrame(float Time, int SpawnCount, float SpawnInterval, SphericalEmitter* EmitterTmp);
 };
-
-class SphericalEmitter;
 
 class ActionTrackEmitterInst : public ActionTrackInst
 {
 protected:
 	boost::shared_ptr<const ActionTrackEmitter> m_Template;
-
-	boost::shared_ptr<SphericalEmitter> m_EmitterCmp;
 
 	struct KeyFrameInst
 	{
@@ -308,6 +259,8 @@ protected:
 		int m_SpawnCount;
 
 		float m_SpawnInterval;
+
+		boost::shared_ptr<SphericalEmitter> m_EmitterCmp;
 
 		KeyFrameInst(int SpawnCount, float SpawnInterval)
 			: m_Time(0)
