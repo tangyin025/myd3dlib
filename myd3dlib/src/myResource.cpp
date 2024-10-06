@@ -646,10 +646,11 @@ DeviceResourceBasePtr ResourceMgr::AddResource(const std::string & key, DeviceRe
 	return result.first->second;
 }
 
-bool ResourceMgr::CheckIORequests(DWORD dwMilliseconds)
+int ResourceMgr::CheckIORequests(DWORD dwMilliseconds)
 {
 	_ASSERT(IsMainThread());
 
+	int max_req_priority = INT_MIN;
 	IORequestPtrPairList::iterator req_iter = m_IORequestList.begin();
 	for (; req_iter != m_IORequestList.end(); )
 	{
@@ -659,6 +660,7 @@ bool ResourceMgr::CheckIORequests(DWORD dwMilliseconds)
 		}
 		else
 		{
+			max_req_priority = my::Max(max_req_priority, req_iter->second->m_Priority);
 			req_iter++;
 		}
 	}
@@ -684,7 +686,7 @@ bool ResourceMgr::CheckIORequests(DWORD dwMilliseconds)
 
 	D3DContext::getSingleton().m_d3dDeviceSec.Leave();
 
-	return !m_IORequestList.empty();
+	return max_req_priority;
 }
 
 ResourceMgr::IORequestPtrPairList::iterator ResourceMgr::OnIORequestIteratorReady(IORequestPtrPairList::iterator req_iter)

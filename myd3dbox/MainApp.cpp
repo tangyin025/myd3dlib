@@ -815,7 +815,7 @@ BOOL CMainApp::OnIdle(LONG lCount)
 	my::InputMgr::Capture(m_fTotalTime, m_fElapsedTime);
 
 	BOOL bContinue = FALSE;
-	if (my::ResourceMgr::CheckIORequests(0))
+	if (my::ResourceMgr::CheckIORequests(0) > INT_MIN)
 	{
 		bContinue = TRUE;
 	}

@@ -455,7 +455,7 @@ namespace my
 			D3DContext::getSingleton().m_d3dDeviceSec.Enter();
 		}
 
-		bool CheckIORequests(DWORD dwMilliseconds);
+		int CheckIORequests(DWORD dwMilliseconds);
 
 		IORequestPtrPairList::iterator OnIORequestIteratorReady(IORequestPtrPairList::iterator req_iter);
 
