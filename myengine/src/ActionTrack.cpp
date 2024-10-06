@@ -233,6 +233,15 @@ void ActionTrackSoundInst::Stop(void)
 	}
 }
 
+ActionTrackEmitter::~ActionTrackEmitter(void)
+{
+	ActionTrackEmitter::KeyFrameMap::const_iterator key_iter = m_Keys.begin();
+	for (; key_iter != m_Keys.end(); key_iter++)
+	{
+		key_iter->second.EmitterTmp->m_Material->ReleaseResource();
+	}
+}
+
 ActionTrackInstPtr ActionTrackEmitter::CreateInstance(Actor * _Actor) const
 {
 	return ActionTrackInstPtr(new ActionTrackEmitterInst(_Actor, boost::static_pointer_cast<const ActionTrackEmitter>(shared_from_this())));
@@ -244,7 +253,8 @@ void ActionTrackEmitter::AddKeyFrame(float Time, int SpawnCount, float SpawnInte
 	_ASSERT(key_iter != m_Keys.end() && EmitterTmp);
 	key_iter->second.SpawnCount = SpawnCount;
 	key_iter->second.SpawnInterval = SpawnInterval;
-	key_iter->second.EmitterTmp = EmitterTmp;
+	key_iter->second.EmitterTmp = boost::dynamic_pointer_cast<SphericalEmitter>(EmitterTmp->Clone());
+	key_iter->second.EmitterTmp->m_Material->RequestResource();
 }
 
 ActionTrackEmitterInst::ActionTrackEmitterInst(Actor * _Actor, boost::shared_ptr<const ActionTrackEmitter> Template)

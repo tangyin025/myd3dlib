@@ -230,7 +230,7 @@ public:
 
 		float SpawnInterval;
 
-		SphericalEmitter* EmitterTmp;
+		boost::shared_ptr<SphericalEmitter> EmitterTmp;
 	};
 
 	typedef std::multimap<float, KeyFrame> KeyFrameMap;
@@ -241,6 +241,8 @@ public:
 	ActionTrackEmitter(void)
 	{
 	}
+
+	virtual ~ActionTrackEmitter(void);
 
 	virtual ActionTrackInstPtr CreateInstance(Actor * _Actor) const;
 
