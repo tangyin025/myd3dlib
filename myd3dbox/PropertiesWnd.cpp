@@ -4410,7 +4410,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		switch (PropertyId)
 		{
 		case PropertySplineNodeCount:
-			spline->resize(pProp->GetValue().uintVal, std::make_pair(0.0f, my::SplineNode(0, 0, 0)));
+			spline->resize(pProp->GetValue().uintVal, spline->empty() ? std::make_pair(0.0f, my::SplineNode(1, 0, 0)) : spline->back());
 			UpdatePropertiesSpline(pSpline, spline);
 			break;
 		case PropertySplineNodeX:
