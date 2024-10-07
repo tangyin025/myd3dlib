@@ -1877,7 +1877,8 @@ void EmitterComponent::AddParticlePairToPipeline(
 	{
 		if (RenderPipeline::PassTypeToMask(PassID) & (m_Material->m_PassMask & PassMask))
 		{
-			const char* num[] = { "0", "1", "2", "3", "4", "5" };
+			const char* num[] = { "0", "1", "2", "3", "4", "5", "6" };
+			_ASSERT(_countof(num) > FaceTypeStretchedCamera);
 			D3DXMACRO macro[4] = { { "MESH_TYPE", "1" },
 				{ "EMITTER_FACE_TYPE", num[m_EmitterFaceType] }, { m_Tiles.x > 1 || m_Tiles.y > 1 ? "TILED" : NULL, NULL }, {0} };
 			my::Effect* shader = pipeline->QueryShader(macro, m_Material->m_Shader.c_str(), PassID);

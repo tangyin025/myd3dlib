@@ -530,6 +530,45 @@ void CChildView::RenderSelectedComponent(IDirect3DDevice9 * pd3dDevice, Componen
 		}
 		break;
 
+	case Component::ComponentTypeCircularEmitter:
+	case Component::ComponentTypeSphericalEmitter:
+		{
+			ASSERT(pFrame->m_selactors.size() >= 1 && pFrame->m_selcmp == cmp);
+			CircularEmitter* cir_emit_cmp = dynamic_cast<CircularEmitter*>(cmp);
+			if (pFrame->m_selinstid < cir_emit_cmp->m_ParticleList.size())
+			{
+				const my::Emitter::Particle& particle = cir_emit_cmp->m_ParticleList[pFrame->m_selinstid];
+				my::Matrix4 p2World;
+				switch (cir_emit_cmp->m_EmitterSpaceType)
+				{
+				case EmitterComponent::SpaceTypeWorld:
+					p2World = GetParticleTransform(cir_emit_cmp->m_EmitterFaceType, particle, my::Matrix4::Identity(), m_Camera->m_View);
+					break;
+				case EmitterComponent::SpaceTypeLocal:
+					p2World = GetParticleTransform(cir_emit_cmp->m_EmitterFaceType, particle, cir_emit_cmp->m_Actor->m_World, m_Camera->m_View);
+					break;
+				}
+				void* pvb = theApp.m_ParticleVb.Lock(0, 0, D3DLOCK_READONLY);
+				void* pib = theApp.m_ParticleIb.Lock(0, 0, D3DLOCK_READONLY);
+				for (int i = 0; i < RenderPipeline::m_ParticlePrimitiveInfo[RenderPipeline::ParticlePrimitiveQuad][RenderPipeline::ParticlePrimitivePrimitiveCount]; i++)
+				{
+					unsigned short* pi = (unsigned short*)pib + RenderPipeline::m_ParticlePrimitiveInfo[RenderPipeline::ParticlePrimitiveQuad][RenderPipeline::ParticlePrimitiveStartIndex] + i * 3;
+					unsigned char* pv0 = (unsigned char*)pvb + *(pi + 0) * theApp.m_ParticleVertStride;
+					unsigned char* pv1 = (unsigned char*)pvb + *(pi + 1) * theApp.m_ParticleVertStride;
+					unsigned char* pv2 = (unsigned char*)pvb + *(pi + 2) * theApp.m_ParticleVertStride;
+					my::Vector3 v0 = theApp.m_ParticleVertElems.GetPosition(pv0).transformCoord(p2World);
+					my::Vector3 v1 = theApp.m_ParticleVertElems.GetPosition(pv1).transformCoord(p2World);
+					my::Vector3 v2 = theApp.m_ParticleVertElems.GetPosition(pv2).transformCoord(p2World);
+					PushLine(v0, v1, color);
+					PushLine(v1, v2, color);
+					PushLine(v2, v0, color);
+				}
+				theApp.m_ParticleVb.Unlock();
+				theApp.m_ParticleIb.Unlock();
+			}
+		}
+		break;
+
 	case Component::ComponentTypeStaticEmitter:
 		{
 			ASSERT(pFrame->m_selactors.size() >= 1 && pFrame->m_selcmp == cmp);
@@ -706,6 +745,11 @@ my::Matrix4 CChildView::GetParticleTransform(DWORD EmitterFaceType, const my::Em
 		return my::Matrix4::Compose(
 			my::Vector3(particle.m_Size.x, particle.m_Size.y, particle.m_Size.x),
 			my::Quaternion::RotationAxis(my::Vector3::unitX, particle.m_Angle) * my::Quaternion::RotationAxis(my::Vector3::unitY, D3DXToRadian(90) - polar.z),
+			particle.m_Position.transform(World).xyz);
+	case EmitterComponent::FaceTypeStretchedCamera:
+		return my::Matrix4::Compose(
+			my::Vector3(particle.m_Size.x, particle.m_Size.y, particle.m_Size.x),
+			my::Quaternion::RotationAxis(my::Vector3::unitZ, particle.m_Angle) * my::Quaternion::RotationAxis(my::Vector3::unitX, -polar.y) * my::Quaternion::RotationAxis(my::Vector3::unitY, D3DXToRadian(90) - polar.z),
 			particle.m_Position.transform(World).xyz);
 	}
 	return my::Matrix4::Identity();

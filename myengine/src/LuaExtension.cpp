@@ -2992,7 +2992,8 @@ void LuaContext::Init(void)
 				value("FaceTypeZ", EmitterComponent::FaceTypeZ),
 				value("FaceTypeCamera", EmitterComponent::FaceTypeCamera),
 				value("FaceTypeAngle", EmitterComponent::FaceTypeAngle),
-				value("FaceTypeAngleCamera", EmitterComponent::FaceTypeAngleCamera)
+				value("FaceTypeAngleCamera", EmitterComponent::FaceTypeAngleCamera),
+				value("FaceTypeStretchedCamera", EmitterComponent::FaceTypeStretchedCamera)
 			]
 			.def_readwrite("EmitterFaceType", &EmitterComponent::m_EmitterFaceType)
 			.enum_("SpaceType")

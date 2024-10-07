@@ -525,6 +525,7 @@ public:
 		FaceTypeCamera		= 3,
 		FaceTypeAngle		= 4,
 		FaceTypeAngleCamera = 5,
+		FaceTypeStretchedCamera = 6,
 	};
 
 	FaceType m_EmitterFaceType;

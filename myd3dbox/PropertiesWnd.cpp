@@ -136,7 +136,7 @@ static LPCTSTR g_ActorTypeDesc[physx::PxActorType::eACTOR_COUNT + 1] =
 	_T("None")
 };
 
-static LPCTSTR g_EmitterFaceType[EmitterComponent::FaceTypeAngleCamera + 1] =
+static LPCTSTR g_EmitterFaceType[EmitterComponent::FaceTypeStretchedCamera + 1] =
 {
 	_T("X"),
 	_T("Y"),
@@ -144,6 +144,7 @@ static LPCTSTR g_EmitterFaceType[EmitterComponent::FaceTypeAngleCamera + 1] =
 	_T("Camera"),
 	_T("Angle"),
 	_T("AngleCamera"),
+	_T("FaceTypeStretchedCamera"),
 };
 
 static LPCTSTR g_EmitterSpaceType[EmitterComponent::SpaceTypeLocal + 1] =
