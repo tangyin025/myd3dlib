@@ -1968,6 +1968,7 @@ void SphericalEmitter::save(Archive & ar, const unsigned int version) const
 	ar << BOOST_SERIALIZATION_NVP(m_SpawnBoneId);
 	ar << BOOST_SERIALIZATION_NVP(m_SpawnLocalPose);
 	ar << BOOST_SERIALIZATION_NVP(m_ParticleLifeTime);
+	ar << BOOST_SERIALIZATION_NVP(m_ParticleGravity);
 	ar << BOOST_SERIALIZATION_NVP(m_ParticleDamping);
 	ar << BOOST_SERIALIZATION_NVP(m_ParticleColorR);
 	ar << BOOST_SERIALIZATION_NVP(m_ParticleColorG);
@@ -1993,6 +1994,7 @@ void SphericalEmitter::load(Archive & ar, const unsigned int version)
 	ar >> BOOST_SERIALIZATION_NVP(m_SpawnBoneId);
 	ar >> BOOST_SERIALIZATION_NVP(m_SpawnLocalPose);
 	ar >> BOOST_SERIALIZATION_NVP(m_ParticleLifeTime);
+	ar >> BOOST_SERIALIZATION_NVP(m_ParticleGravity);
 	ar >> BOOST_SERIALIZATION_NVP(m_ParticleDamping);
 	ar >> BOOST_SERIALIZATION_NVP(m_ParticleColorR);
 	ar >> BOOST_SERIALIZATION_NVP(m_ParticleColorG);
@@ -2069,7 +2071,7 @@ void SphericalEmitter::DoTask(void)
 	Emitter::ParticleList::iterator particle_iter = m_ParticleList.begin();
 	for (; particle_iter != m_ParticleList.end(); particle_iter++)
 	{
-		particle_iter->m_Velocity.xyz *= powf(m_ParticleDamping, D3DContext::getSingleton().m_fElapsedTime);
+		particle_iter->m_Velocity.xyz = (particle_iter->m_Velocity.xyz + m_ParticleGravity * D3DContext::getSingleton().m_fElapsedTime) * powf(m_ParticleDamping, D3DContext::getSingleton().m_fElapsedTime);
 		particle_iter->m_Position.xyz += particle_iter->m_Velocity.xyz * D3DContext::getSingleton().m_fElapsedTime;
 		const float ParticleTime = particle_iter->m_Time + D3DContext::getSingleton().m_fElapsedTime;
 		particle_iter->m_Color.x = m_ParticleColorR.Interpolate(ParticleTime);

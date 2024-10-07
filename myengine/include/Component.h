@@ -673,6 +673,8 @@ public:
 
 	float m_ParticleLifeTime;
 
+	my::Vector3 m_ParticleGravity;
+
 	float m_ParticleDamping;
 
 	my::Spline m_ParticleColorR;
@@ -702,6 +704,7 @@ protected:
 		, m_SpawnBoneId(-1)
 		, m_SpawnLocalPose(my::Vector3(0, 0, 0))
 		, m_ParticleLifeTime(1)
+		, m_ParticleGravity(0, 0, 0)
 		, m_ParticleDamping(1.0f)
 		, m_DelayRemoveTime(0)
 	{
@@ -719,6 +722,7 @@ public:
 		, m_SpawnBoneId(-1)
 		, m_SpawnLocalPose(my::Vector3(0, 0, 0))
 		, m_ParticleLifeTime(1)
+		, m_ParticleGravity(0, 0, 0)
 		, m_ParticleDamping(1.0f)
 		, m_DelayRemoveTime(0)
 	{

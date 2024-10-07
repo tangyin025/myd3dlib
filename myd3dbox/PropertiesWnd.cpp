@@ -714,15 +714,18 @@ void CPropertiesWnd::UpdatePropertiesSphericalEmitter(CMFCPropertyGridProperty *
 	pComponent->GetSubItem(PropId + 11)->GetSubItem(1)->SetValue((_variant_t)D3DXToDegree(angle.y));
 	pComponent->GetSubItem(PropId + 11)->GetSubItem(2)->SetValue((_variant_t)D3DXToDegree(angle.z));
 	pComponent->GetSubItem(PropId + 12)->SetValue((_variant_t)sphe_emit_cmp->m_ParticleLifeTime);
-	pComponent->GetSubItem(PropId + 13)->SetValue((_variant_t)sphe_emit_cmp->m_ParticleDamping);
-	UpdatePropertiesSpline(pComponent->GetSubItem(PropId + 14), &sphe_emit_cmp->m_ParticleColorR);
-	UpdatePropertiesSpline(pComponent->GetSubItem(PropId + 15), &sphe_emit_cmp->m_ParticleColorG);
-	UpdatePropertiesSpline(pComponent->GetSubItem(PropId + 16), &sphe_emit_cmp->m_ParticleColorB);
-	UpdatePropertiesSpline(pComponent->GetSubItem(PropId + 17), &sphe_emit_cmp->m_ParticleColorA);
-	UpdatePropertiesSpline(pComponent->GetSubItem(PropId + 18), &sphe_emit_cmp->m_ParticleSizeX);
-	UpdatePropertiesSpline(pComponent->GetSubItem(PropId + 19), &sphe_emit_cmp->m_ParticleSizeY);
-	UpdatePropertiesSpline(pComponent->GetSubItem(PropId + 20), &sphe_emit_cmp->m_ParticleAngle);
-	UpdatePropertiesMaterial(pComponent->GetSubItem(PropId + 21), sphe_emit_cmp->m_Material.get());
+	pComponent->GetSubItem(PropId + 13)->GetSubItem(0)->SetValue((_variant_t)sphe_emit_cmp->m_ParticleGravity.x);
+	pComponent->GetSubItem(PropId + 13)->GetSubItem(1)->SetValue((_variant_t)sphe_emit_cmp->m_ParticleGravity.y);
+	pComponent->GetSubItem(PropId + 13)->GetSubItem(2)->SetValue((_variant_t)sphe_emit_cmp->m_ParticleGravity.z);
+	pComponent->GetSubItem(PropId + 14)->SetValue((_variant_t)sphe_emit_cmp->m_ParticleDamping);
+	UpdatePropertiesSpline(pComponent->GetSubItem(PropId + 15), &sphe_emit_cmp->m_ParticleColorR);
+	UpdatePropertiesSpline(pComponent->GetSubItem(PropId + 16), &sphe_emit_cmp->m_ParticleColorG);
+	UpdatePropertiesSpline(pComponent->GetSubItem(PropId + 17), &sphe_emit_cmp->m_ParticleColorB);
+	UpdatePropertiesSpline(pComponent->GetSubItem(PropId + 18), &sphe_emit_cmp->m_ParticleColorA);
+	UpdatePropertiesSpline(pComponent->GetSubItem(PropId + 19), &sphe_emit_cmp->m_ParticleSizeX);
+	UpdatePropertiesSpline(pComponent->GetSubItem(PropId + 20), &sphe_emit_cmp->m_ParticleSizeY);
+	UpdatePropertiesSpline(pComponent->GetSubItem(PropId + 21), &sphe_emit_cmp->m_ParticleAngle);
+	UpdatePropertiesMaterial(pComponent->GetSubItem(PropId + 22), sphe_emit_cmp->m_Material.get());
 }
 
 void CPropertiesWnd::UpdatePropertiesSpline(CMFCPropertyGridProperty * pSpline, my::Spline * spline)
@@ -1952,6 +1955,14 @@ void CPropertiesWnd::CreatePropertiesSphericalEmitter(CMFCPropertyGridProperty *
 	pSpawnLocalRot->AddSubItem(pProp);
 	CMFCPropertyGridProperty * pParticleLifeTime = new CSimpleProp(_T("ParticleLifeTime"), (_variant_t)sphe_emit_cmp->m_ParticleLifeTime, NULL, PropertySphericalEmitterParticleLifeTime);
 	pComponent->AddSubItem(pParticleLifeTime);
+	CMFCPropertyGridProperty* pParticleGravity = new CSimpleProp(_T("ParticleGravity"), PropertySphericalEmitterParticleGravity, TRUE);
+	pComponent->AddSubItem(pParticleGravity);
+	pProp = new CSimpleProp(_T("x"), (_variant_t)sphe_emit_cmp->m_ParticleGravity.x, NULL, PropertySphericalEmitterParticleGravityX);
+	pParticleGravity->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("y"), (_variant_t)sphe_emit_cmp->m_ParticleGravity.y, NULL, PropertySphericalEmitterParticleGravityY);
+	pParticleGravity->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("z"), (_variant_t)sphe_emit_cmp->m_ParticleGravity.z, NULL, PropertySphericalEmitterParticleGravityZ);
+	pParticleGravity->AddSubItem(pProp);
 	CMFCPropertyGridProperty * pParticleDamping = new CSimpleProp(_T("ParticleDamping"), (_variant_t)sphe_emit_cmp->m_ParticleDamping, NULL, PropertySphericalEmitterParticleDamping);
 	pComponent->AddSubItem(pParticleDamping);
 	CreatePropertiesSpline(pComponent, _T("ParticleColorR"), PropertySphericalEmitterParticleColorR, &sphe_emit_cmp->m_ParticleColorR);
@@ -2909,7 +2920,7 @@ unsigned int CPropertiesWnd::GetComponentPropCount(DWORD type)
 	case Component::ComponentTypeStaticEmitter:
 		return GetComponentPropCount(Component::ComponentTypeComponent) + 13;
 	case Component::ComponentTypeSphericalEmitter:
-		return GetComponentPropCount(Component::ComponentTypeComponent) + 22;
+		return GetComponentPropCount(Component::ComponentTypeComponent) + 23;
 	case Component::ComponentTypeTerrain:
 		return GetComponentPropCount(Component::ComponentTypeComponent) + 10;
 	case Component::ComponentTypeAnimator:
@@ -4317,6 +4328,10 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	case PropertySphericalEmitterSpawnLocalRotY:
 	case PropertySphericalEmitterSpawnLocalRotZ:
 	case PropertySphericalEmitterParticleLifeTime:
+	case PropertySphericalEmitterParticleGravity:
+	case PropertySphericalEmitterParticleGravityX:
+	case PropertySphericalEmitterParticleGravityY:
+	case PropertySphericalEmitterParticleGravityZ:
 	case PropertySphericalEmitterParticleDamping:
 	{
 		CMFCPropertyGridProperty* pComponent = NULL;
@@ -4335,6 +4350,9 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		case PropertySphericalEmitterSpawnLocalRotX:
 		case PropertySphericalEmitterSpawnLocalRotY:
 		case PropertySphericalEmitterSpawnLocalRotZ:
+		case PropertySphericalEmitterParticleGravityX:
+		case PropertySphericalEmitterParticleGravityY:
+		case PropertySphericalEmitterParticleGravityZ:
 			pComponent = pProp->GetParent()->GetParent();
 			break;
 		default:
@@ -4361,7 +4379,10 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			D3DXToRadian(pComponent->GetSubItem(PropId + 11)->GetSubItem(1)->GetValue().fltVal),
 			D3DXToRadian(pComponent->GetSubItem(PropId + 11)->GetSubItem(2)->GetValue().fltVal));
 		sphe_emit_cmp->m_ParticleLifeTime = pComponent->GetSubItem(PropId + 12)->GetValue().fltVal;
-		sphe_emit_cmp->m_ParticleDamping = pComponent->GetSubItem(PropId + 13)->GetValue().fltVal;
+		sphe_emit_cmp->m_ParticleGravity.x = pComponent->GetSubItem(PropId + 13)->GetSubItem(0)->GetValue().fltVal;
+		sphe_emit_cmp->m_ParticleGravity.y = pComponent->GetSubItem(PropId + 13)->GetSubItem(1)->GetValue().fltVal;
+		sphe_emit_cmp->m_ParticleGravity.z = pComponent->GetSubItem(PropId + 13)->GetSubItem(2)->GetValue().fltVal;
+		sphe_emit_cmp->m_ParticleDamping = pComponent->GetSubItem(PropId + 14)->GetValue().fltVal;
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
