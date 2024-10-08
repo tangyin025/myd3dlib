@@ -542,10 +542,10 @@ void CChildView::RenderSelectedComponent(IDirect3DDevice9 * pd3dDevice, Componen
 				switch (cir_emit_cmp->m_EmitterSpaceType)
 				{
 				case EmitterComponent::SpaceTypeWorld:
-					p2World = GetParticleTransform(cir_emit_cmp->m_EmitterFaceType, particle, my::Matrix4::Identity(), m_Camera->m_View);
+					p2World = GetParticleTransform(cir_emit_cmp->m_EmitterFaceType, particle, my::Matrix4::Identity(), my::Vector3(1), m_Camera->m_View);
 					break;
 				case EmitterComponent::SpaceTypeLocal:
-					p2World = GetParticleTransform(cir_emit_cmp->m_EmitterFaceType, particle, cir_emit_cmp->m_Actor->m_World, m_Camera->m_View);
+					p2World = GetParticleTransform(cir_emit_cmp->m_EmitterFaceType, particle, cir_emit_cmp->m_Actor->m_World, cir_emit_cmp->m_Actor->m_Scale, m_Camera->m_View);
 					break;
 				}
 				void* pvb = theApp.m_ParticleVb.Lock(0, 0, D3DLOCK_READONLY);
@@ -584,10 +584,10 @@ void CChildView::RenderSelectedComponent(IDirect3DDevice9 * pd3dDevice, Componen
 					switch (static_emit_cmp->m_EmitterSpaceType)
 					{
 					case EmitterComponent::SpaceTypeWorld:
-						p2World = GetParticleTransform(static_emit_cmp->m_EmitterFaceType, particle, my::Matrix4::Identity(), m_Camera->m_View);
+						p2World = GetParticleTransform(static_emit_cmp->m_EmitterFaceType, particle, my::Matrix4::Identity(), my::Vector3(1), m_Camera->m_View);
 						break;
 					case EmitterComponent::SpaceTypeLocal:
-						p2World = GetParticleTransform(static_emit_cmp->m_EmitterFaceType, particle, static_emit_cmp->m_Actor->m_World, m_Camera->m_View);
+						p2World = GetParticleTransform(static_emit_cmp->m_EmitterFaceType, particle, static_emit_cmp->m_Actor->m_World, static_emit_cmp->m_Actor->m_Scale, m_Camera->m_View);
 						break;
 					}
 					void* pvb = theApp.m_ParticleVb.Lock(0, 0, D3DLOCK_READONLY);
@@ -711,44 +711,44 @@ double CChildView::EndPerformanceCount(void)
 	return (double)(m_qwTime[1].QuadPart - m_qwTime[0].QuadPart) / theApp.m_llQPFTicksPerSec;
 }
 
-my::Matrix4 CChildView::GetParticleTransform(DWORD EmitterFaceType, const my::Emitter::Particle & particle, const my::Matrix4 & World, const my::Matrix4 & View)
+my::Matrix4 CChildView::GetParticleTransform(DWORD EmitterFaceType, const my::Emitter::Particle & particle, const my::Matrix4 & World, const my::Vector3 & Scale, const my::Matrix4 & View)
 {
 	my::Vector3 polar = View.getColumn<2>().xyz.cartesianToPolar();
 	switch (EmitterFaceType)
 	{
 	case EmitterComponent::FaceTypeX:
 		return my::Matrix4::Compose(
-			my::Vector3(particle.m_Size.x, particle.m_Size.y, particle.m_Size.x),
+			my::Vector3(particle.m_Size.x * Scale.x, particle.m_Size.y * Scale.y, particle.m_Size.x * Scale.z),
 			my::Quaternion::RotationAxis(my::Vector3::unitZ, particle.m_Angle) * my::Quaternion::RotationAxis(my::Vector3::unitY, D3DXToRadian(90)),
 			particle.m_Position.transform(World).xyz);
 	case EmitterComponent::FaceTypeY:
 		return my::Matrix4::Compose(
-			my::Vector3(particle.m_Size.x, particle.m_Size.y, particle.m_Size.x),
+			my::Vector3(particle.m_Size.x * Scale.x, particle.m_Size.y * Scale.y, particle.m_Size.x * Scale.z),
 			my::Quaternion::RotationAxis(my::Vector3::unitZ, particle.m_Angle) * my::Quaternion::RotationAxis(my::Vector3::unitX, D3DXToRadian(-90)),
 			particle.m_Position.transform(World).xyz);
 	case EmitterComponent::FaceTypeZ:
 		return my::Matrix4::Compose(
-			my::Vector3(particle.m_Size.x, particle.m_Size.y, particle.m_Size.x),
+			my::Vector3(particle.m_Size.x * Scale.x, particle.m_Size.y * Scale.y, particle.m_Size.x * Scale.z),
 			my::Quaternion::RotationAxis(my::Vector3::unitZ, particle.m_Angle),
 			particle.m_Position.transform(World).xyz);
 	case EmitterComponent::FaceTypeCamera:
 		return my::Matrix4::Compose(
-			my::Vector3(particle.m_Size.x, particle.m_Size.y, particle.m_Size.x),
+			my::Vector3(particle.m_Size.x * Scale.x, particle.m_Size.y * Scale.y, particle.m_Size.x * Scale.z),
 			my::Quaternion::RotationAxis(my::Vector3::unitZ, particle.m_Angle) * my::Quaternion::RotationAxis(my::Vector3::unitX, -polar.y) * my::Quaternion::RotationAxis(my::Vector3::unitY, D3DXToRadian(90) - polar.z),
 			particle.m_Position.transform(World).xyz);
 	case EmitterComponent::FaceTypeAngle:
 		return my::Matrix4::Compose(
-			my::Vector3(particle.m_Size.x, particle.m_Size.y, particle.m_Size.x),
+			my::Vector3(particle.m_Size.x * Scale.x, particle.m_Size.y * Scale.y, particle.m_Size.x * Scale.z),
 			my::Quaternion::RotationAxis(my::Vector3::unitY, particle.m_Angle),
 			particle.m_Position.transform(World).xyz);
 	case EmitterComponent::FaceTypeAngleCamera:
 		return my::Matrix4::Compose(
-			my::Vector3(particle.m_Size.x, particle.m_Size.y, particle.m_Size.x),
+			my::Vector3(particle.m_Size.x * Scale.x, particle.m_Size.y * Scale.y, particle.m_Size.x * Scale.z),
 			my::Quaternion::RotationAxis(my::Vector3::unitX, particle.m_Angle) * my::Quaternion::RotationAxis(my::Vector3::unitY, D3DXToRadian(90) - polar.z),
 			particle.m_Position.transform(World).xyz);
 	case EmitterComponent::FaceTypeStretchedCamera:
 		return my::Matrix4::Compose(
-			my::Vector3(particle.m_Size.x, particle.m_Size.y, particle.m_Size.x),
+			my::Vector3(particle.m_Size.x * Scale.x, particle.m_Size.y * Scale.y, particle.m_Size.x * Scale.z),
 			my::Quaternion::RotationAxis(my::Vector3::unitZ, particle.m_Angle) * my::Quaternion::RotationAxis(my::Vector3::unitX, -polar.y) * my::Quaternion::RotationAxis(my::Vector3::unitY, D3DXToRadian(90) - polar.z),
 			particle.m_Position.transform(World).xyz);
 	}
@@ -993,10 +993,10 @@ bool CChildView::OverlapTestFrustumAndParticles(const my::Frustum & frustum, con
 		switch (emitter->m_EmitterSpaceType)
 		{
 		case EmitterComponent::SpaceTypeWorld:
-			p2World = GetParticleTransform(emitter->m_EmitterFaceType, *part_iter, my::Matrix4::Identity(), m_Camera->m_View);
+			p2World = GetParticleTransform(emitter->m_EmitterFaceType, *part_iter, my::Matrix4::Identity(), my::Vector3(1), m_Camera->m_View);
 			break;
 		case EmitterComponent::SpaceTypeLocal:
-			p2World = GetParticleTransform(emitter->m_EmitterFaceType, *part_iter, emitter->m_Actor->m_World, m_Camera->m_View);
+			p2World = GetParticleTransform(emitter->m_EmitterFaceType, *part_iter, emitter->m_Actor->m_World, emitter->m_Actor->m_Scale, m_Camera->m_View);
 			break;
 		}
 		my::Frustum particle_ftm = frustum.transform(p2World.transpose());
@@ -1303,10 +1303,10 @@ my::RayResult CChildView::OverlapTestRayAndParticles(const my::Ray & ray, const 
 		switch (emitter->m_EmitterSpaceType)
 		{
 		case EmitterComponent::SpaceTypeWorld:
-			p2World = GetParticleTransform(emitter->m_EmitterFaceType, *part_iter, my::Matrix4::Identity(), m_Camera->m_View);
+			p2World = GetParticleTransform(emitter->m_EmitterFaceType, *part_iter, my::Matrix4::Identity(), my::Vector3(1), m_Camera->m_View);
 			break;
 		case EmitterComponent::SpaceTypeLocal:
-			p2World = GetParticleTransform(emitter->m_EmitterFaceType, *part_iter, emitter->m_Actor->m_World, m_Camera->m_View);
+			p2World = GetParticleTransform(emitter->m_EmitterFaceType, *part_iter, emitter->m_Actor->m_World, emitter->m_Actor->m_Scale, m_Camera->m_View);
 			break;
 		}
 		my::Ray particle_ray = ray.transform(p2World.inverse());
