@@ -28,6 +28,7 @@ class CEnvironmentWnd : public CDockablePane
 		CameraPropertyAov,
 		CameraPropertyLookAt,
 		CameraPropertyEuler,
+		CameraPropertyDistance,
 		CameraPropertyNearZ,
 		CameraPropertyFarZ,
 		CameraPropertyBkColor,

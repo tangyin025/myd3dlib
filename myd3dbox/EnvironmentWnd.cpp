@@ -106,6 +106,8 @@ void CEnvironmentWnd::InitPropList()
 	pProp = new CSimpleProp(_T("z"), (_variant_t)0.0f, NULL, Vector3PropertyZ);
 	pEuler->AddSubItem(pProp);
 
+	CMFCPropertyGridProperty* pDistance = new CSimpleProp(_T("Distance"), (_variant_t)0.0f, NULL, CameraPropertyDistance);
+	pCamera->AddSubItem(pDistance);
 	CMFCPropertyGridProperty* pNearZ = new CSimpleProp(_T("NearZ"), (_variant_t)0.0f, NULL, CameraPropertyNearZ);
 	pCamera->AddSubItem(pNearZ);
 	CMFCPropertyGridProperty* pFarZ = new CSimpleProp(_T("FarZ"), (_variant_t)0.0f, NULL, CameraPropertyFarZ);
@@ -229,6 +231,7 @@ void CEnvironmentWnd::OnCameraPropChanged(my::EventArg * arg)
 	pCamera->GetSubItem(CameraPropertyEuler)->GetSubItem(Vector3PropertyY)->SetValue((_variant_t)D3DXToDegree(camera_prop_arg->pView->m_Camera->m_Euler.y));
 	pCamera->GetSubItem(CameraPropertyEuler)->GetSubItem(Vector3PropertyZ)->SetValue((_variant_t)D3DXToDegree(camera_prop_arg->pView->m_Camera->m_Euler.z));
 
+	pCamera->GetSubItem(CameraPropertyDistance)->SetValue((_variant_t)model_view_camera->m_Distance);
 	pCamera->GetSubItem(CameraPropertyNearZ)->SetValue((_variant_t)camera_prop_arg->pView->m_Camera->m_Nz);
 	pCamera->GetSubItem(CameraPropertyFarZ)->SetValue((_variant_t)camera_prop_arg->pView->m_Camera->m_Fz);
 
@@ -379,6 +382,7 @@ LRESULT CEnvironmentWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			D3DXToRadian(pTopProp->GetSubItem(CameraPropertyEuler)->GetSubItem(Vector3PropertyX)->GetValue().fltVal),
 			D3DXToRadian(pTopProp->GetSubItem(CameraPropertyEuler)->GetSubItem(Vector3PropertyY)->GetValue().fltVal),
 			D3DXToRadian(pTopProp->GetSubItem(CameraPropertyEuler)->GetSubItem(Vector3PropertyZ)->GetValue().fltVal));
+		model_view_camera->m_Distance = pTopProp->GetSubItem(CameraPropertyDistance)->GetValue().fltVal;
 		pView->m_Camera->m_Nz = pTopProp->GetSubItem(CameraPropertyNearZ)->GetValue().fltVal;
 		pView->m_Camera->m_Fz = pTopProp->GetSubItem(CameraPropertyFarZ)->GetValue().fltVal;
 		pView->m_Camera->UpdateViewProj();
