@@ -8,6 +8,7 @@
 #include "MainFrm.h"
 #include "Actor.h"
 #include "NavigationSerialization.h"
+#include "ChildView.h"
 
 
 // CSnapshotDlg dialog
@@ -25,6 +26,7 @@ CSnapshotDlg::CSnapshotDlg(CWnd* pParent /*=nullptr*/)
 	, m_SnapEular(D3DXToRadian(-90), 0, 0)
 	, m_RTType(theApp.GetProfileInt(_T("Settings"), _T("SnapshotRTTypt"), RenderPipeline::RenderTargetOpaque))
 	, m_OpenImage(theApp.GetProfileInt(_T("Settings"), _T("SnapshotOpenImage"), TRUE))
+	, m_UseOrthoCamera(theApp.GetProfileInt(_T("Settings"), _T("SnapshotUseOrthoCamera"), TRUE))
 {
 	BYTE* pData;
 	UINT n;
@@ -111,6 +113,7 @@ void CSnapshotDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Check(pDX, IDC_CHECK9, m_ComponentTypes[8]);
 	DDX_Radio(pDX, IDC_RADIO1, m_RTType);
 	DDX_Check(pDX, IDC_CHECK10, m_OpenImage);
+	DDX_Check(pDX, IDC_CHECK11, m_UseOrthoCamera);
 
 	if (pDX->m_bSaveAndValidate)
 	{
@@ -121,6 +124,7 @@ void CSnapshotDlg::DoDataExchange(CDataExchange* pDX)
 		theApp.WriteProfileBinary(_T("Settings"), _T("SnapshotComponentTypes"), (LPBYTE)&m_ComponentTypes, sizeof(m_ComponentTypes));
 		theApp.WriteProfileInt(_T("Settings"), _T("SnapshotRTTypt"), m_RTType);
 		theApp.WriteProfileInt(_T("Settings"), _T("SnapshotOpenImage"), m_OpenImage);
+		theApp.WriteProfileInt(_T("Settings"), _T("SnapshotUseOrthoCamera"), m_UseOrthoCamera);
 	}
 }
 
@@ -349,16 +353,41 @@ void CSnapshotDlg::DoSnapshot()
 		}
 	};
 
+	CMainFrame* pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
+	ASSERT_VALID(pFrame);
+	CChildView* pView = DYNAMIC_DOWNCAST(CChildView, pFrame->GetActiveView());
+	ASSERT_VALID(pView);
 	RenderContext rc(this);
-	rc.m_Camera.reset(new my::OrthoCamera(m_SnapArea.Width(), -m_SnapArea.Height(), -2000, 2000));
-	my::OrthoCamera* ortho_camera = dynamic_cast<my::OrthoCamera*>(rc.m_Camera.get());
-	ortho_camera->m_Eye = m_SnapEye;
-	ortho_camera->m_Euler = m_SnapEular;
-	const my::Matrix4 Rotation = my::Matrix4::RotationYawPitchRoll(ortho_camera->m_Euler.y, ortho_camera->m_Euler.x, ortho_camera->m_Euler.z);
-	ortho_camera->m_View = (Rotation * my::Matrix4::Translation(ortho_camera->m_Eye)).inverse();
-	ortho_camera->m_Proj = my::Matrix4::OrthoOffCenterRH(m_SnapArea.l, m_SnapArea.r, m_SnapArea.b, m_SnapArea.t, ortho_camera->m_Nz, ortho_camera->m_Fz);
-	ortho_camera->m_ViewProj = ortho_camera->m_View * ortho_camera->m_Proj;
-	ortho_camera->m_InverseViewProj = ortho_camera->m_ViewProj.inverse();
+	if (m_UseOrthoCamera)
+	{
+		rc.m_Camera.reset(new my::OrthoCamera(m_SnapArea.Width(), -m_SnapArea.Height(), -2000, 2000));
+		my::OrthoCamera* ortho_camera = dynamic_cast<my::OrthoCamera*>(rc.m_Camera.get());
+		ortho_camera->m_Eye = m_SnapEye;
+		ortho_camera->m_Euler = m_SnapEular;
+		const my::Matrix4 Rotation = my::Matrix4::RotationYawPitchRoll(ortho_camera->m_Euler.y, ortho_camera->m_Euler.x, ortho_camera->m_Euler.z);
+		ortho_camera->m_View = (Rotation * my::Matrix4::Translation(ortho_camera->m_Eye)).inverse();
+		ortho_camera->m_Proj = my::Matrix4::OrthoOffCenterRH(m_SnapArea.l, m_SnapArea.r, m_SnapArea.b, m_SnapArea.t, ortho_camera->m_Nz, ortho_camera->m_Fz);
+		ortho_camera->m_ViewProj = ortho_camera->m_View * ortho_camera->m_Proj;
+		ortho_camera->m_InverseViewProj = ortho_camera->m_ViewProj.inverse();
+	}
+	else
+	{
+		my::ModelViewerCamera* model_view_camera = dynamic_cast<my::ModelViewerCamera*>(pView->m_Camera.get());
+		rc.m_Camera.reset(new my::PerspectiveCamera(model_view_camera->m_Fov, desc.Width / (float)desc.Height, model_view_camera->m_Nz, model_view_camera->m_Fz));
+		my::PerspectiveCamera* persp_camera = dynamic_cast<my::PerspectiveCamera*>(rc.m_Camera.get());
+		rc.m_Camera->m_Eye = m_SnapEye;
+		rc.m_Camera->m_Euler = m_SnapEular;
+		rc.m_Camera->m_View = my::Matrix4::Compose(my::Vector3::one, rc.m_Camera->m_Euler, rc.m_Camera->m_Eye).inverse();
+		rc.m_Camera->m_Proj = my::Matrix4::PerspectiveFovRH(persp_camera->m_Fov, persp_camera->m_Aspect, rc.m_Camera->m_Nz, rc.m_Camera->m_Fz);
+		rc.m_Camera->m_ViewProj = rc.m_Camera->m_View * rc.m_Camera->m_Proj;
+		rc.m_Camera->m_InverseViewProj = rc.m_Camera->m_ViewProj.inverse();
+	}
+	rc.m_WireFrame = pView->m_WireFrame;
+	rc.m_DofEnable = pView->m_DofEnable;
+	rc.m_BloomEnable = pView->m_BloomEnable;
+	rc.m_FxaaEnable = pView->m_FxaaEnable;
+	rc.m_SsaoEnable = pView->m_SsaoEnable;
+	rc.m_FogEnable = pView->m_FogEnable;
 	rc.m_NormalRT.reset(new my::Texture2D());
 	rc.m_NormalRT->CreateTexture(
 		desc.Width, desc.Height, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A32B32G32R32F, D3DPOOL_DEFAULT);

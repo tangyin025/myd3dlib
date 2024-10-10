@@ -51,4 +51,5 @@ public:
 	int m_RTType;
 	void DoSnapshot();
 	BOOL m_OpenImage;
+	BOOL m_UseOrthoCamera;
 };

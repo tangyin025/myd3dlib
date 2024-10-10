@@ -1182,6 +1182,7 @@ void CMainFrame::InitFileContext()
 			.def("GetComponentType", &SnapshotDlgGetComponentType)
 			.def("SetComponentType", &SnapshotDlgSetComponentType)
 			.def_readwrite("RTType", &CSnapshotDlg::m_RTType)
+			.def_readwrite("UseOrthoCamera", &CSnapshotDlg::m_UseOrthoCamera)
 			.def("DoSnapshot", &CSnapshotDlg::DoSnapshot)
 	];
 	luabind::globals(m_State)["theApp"] = &theApp;
