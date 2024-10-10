@@ -282,19 +282,19 @@ void CSnapshotDlg::DoSnapshot()
 				const my::Frustum& frustum;
 				RenderPipeline* pipeline;
 				unsigned int PassMask;
-				const my::Vector3& ViewPos;
-				const my::Vector3& TargetPos;
 				CMainFrame* pFrame;
+				CChildView* pView;
 				CSnapshotDlg* pDlg;
+				RenderContext* rc;
 
-				Callback(const my::Frustum& _frustum, RenderPipeline* _pipeline, unsigned int _PassMask, const my::Vector3& _ViewPos, const my::Vector3& _TargetPos, CMainFrame* _pFrame, CSnapshotDlg* _pDlg)
+				Callback(const my::Frustum& _frustum, RenderPipeline* _pipeline, unsigned int _PassMask, CMainFrame* _pFrame, CChildView* _pView, CSnapshotDlg* _pDlg, RenderContext* _rc)
 					: frustum(_frustum)
 					, pipeline(_pipeline)
 					, PassMask(_PassMask)
-					, ViewPos(_ViewPos)
-					, TargetPos(_TargetPos)
 					, pFrame(_pFrame)
+					, pView(_pView)
 					, pDlg(_pDlg)
+					, rc(_rc)
 				{
 				}
 
@@ -313,13 +313,18 @@ void CSnapshotDlg::DoSnapshot()
 						pFrame->m_ViewedActors.push_back(*actor);
 					}
 
+					const int Lod = pDlg->m_UseOrthoCamera ? 0 :
+						my::Min(actor->CalculateLod((actor->m_OctAabb->Center() - rc->m_Camera->m_Eye).magnitude()), Actor::MaxLod - 1);
+
+					my::ModelViewerCamera* model_view_camera = dynamic_cast<my::ModelViewerCamera*>(pView->m_Camera.get());
+
 					Actor::ComponentPtrList::iterator cmp_iter = actor->m_Cmps.begin();
 					for (; cmp_iter != actor->m_Cmps.end(); cmp_iter++)
 					{
-						if ((*cmp_iter)->GetComponentType() >= Component::ComponentTypeMesh
+						if ((*cmp_iter)->m_LodMask & (1 << Lod)
+							&& (*cmp_iter)->GetComponentType() >= Component::ComponentTypeMesh
 							&& (*cmp_iter)->GetComponentType() <= Component::ComponentTypeNavigation
-							&& pDlg->m_ComponentTypes[(*cmp_iter)->GetComponentType() - Component::ComponentTypeMesh]
-							&& (*cmp_iter)->m_LodMask & Component::LOD0)
+							&& pDlg->m_ComponentTypes[(*cmp_iter)->GetComponentType() - Component::ComponentTypeMesh])
 						{
 							if (!(*cmp_iter)->IsRequested())
 							{
@@ -334,11 +339,11 @@ void CSnapshotDlg::DoSnapshot()
 								&& PassMask & RenderPipeline::PassTypeToMask(RenderPipeline::PassTypeNormal))
 							{
 								Navigation* navi = dynamic_cast<Navigation*>(cmp_iter->get());
-								navi->DebugDraw(pDlg, frustum, ViewPos, TargetPos);
+								navi->DebugDraw(pDlg, frustum, rc->m_Camera->m_Eye, model_view_camera->m_LookAt);
 							}
 							else
 							{
-								(*cmp_iter)->AddToPipeline(frustum, pipeline, PassMask, ViewPos, TargetPos);
+								(*cmp_iter)->AddToPipeline(frustum, pipeline, PassMask, rc->m_Camera->m_Eye, model_view_camera->m_LookAt);
 							}
 						}
 					}
@@ -348,7 +353,9 @@ void CSnapshotDlg::DoSnapshot()
 
 			CMainFrame* pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 			ASSERT_VALID(pFrame);
-			Callback cb(frustum, pipeline, PassMask, m_Camera->m_Eye, m_Camera->m_Eye, pFrame, pDlg);
+			CChildView* pView = DYNAMIC_DOWNCAST(CChildView, pFrame->GetActiveView());
+			ASSERT_VALID(pView);
+			Callback cb(frustum, pipeline, PassMask, pFrame, pView, pDlg, this);
 			pFrame->QueryEntity(frustum, &cb);
 		}
 	};
