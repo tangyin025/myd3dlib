@@ -237,7 +237,7 @@ void CSnapshotDlg::OnOK()
 		::ShellExecute(AfxGetMainWnd()->m_hWnd, _T("open"), m_TexPath, NULL, NULL, SW_SHOWNORMAL);
 	}
 
-	CDialogEx::OnOK();
+	//CDialogEx::OnOK();
 }
 
 
