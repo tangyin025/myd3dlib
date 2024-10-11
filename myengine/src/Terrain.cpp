@@ -107,7 +107,8 @@ void TerrainChunk::RequestResource(void)
 		_ASSERT(!m_Vb);
 
 		std::string path = TerrainChunk::MakeChunkPath(terrain->m_ChunkPath, m_Row, m_Col);
-		IORequestPtr request(new TerrainChunkIORequest(path.c_str(), terrain->m_ColChunks, m_Row, m_Col, terrain->m_ChunkSize, terrain->m_VertexStride, 0));
+		IORequestPtr request(new TerrainChunkIORequest(path.c_str(), terrain->m_ColChunks, m_Row, m_Col, terrain->m_ChunkSize, terrain->m_VertexStride,
+			m_Lod[0] <= 0 ? Component::ResPriorityLod0 : m_Lod[0] <= 1 ? Component::ResPriorityLod1 : Component::ResPriorityLod2));
 		my::ResourceMgr::getSingleton().LoadIORequestAsync(
 			path, request, boost::bind(&TerrainChunk::OnVertexBufferReady, this, boost::placeholders::_1));
 	}
