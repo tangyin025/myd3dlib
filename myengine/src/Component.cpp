@@ -2040,10 +2040,10 @@ void SphericalEmitter::Update(float fElapsedTime)
 	{
 		m_SpawnTime += fElapsedTime;
 
-		const Bone pose = m_EmitterSpaceType == SpaceTypeWorld ?
-			m_Actor->GetAttachPose(m_SpawnBoneId, m_SpawnLocalPose.m_position, m_SpawnLocalPose.m_rotation) : m_SpawnLocalPose;
 		for (; m_SpawnTime >= 0; m_SpawnTime -= m_SpawnInterval)
 		{
+			const Bone pose = m_EmitterSpaceType == SpaceTypeWorld ?
+				m_Actor->GetAttachPose(m_SpawnBoneId, m_SpawnLocalPose.m_position, m_SpawnLocalPose.m_rotation) : m_SpawnLocalPose;
 			for (int i = 0; i < m_SpawnCount; i++)
 			{
 				Spawn(

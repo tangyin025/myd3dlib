@@ -226,9 +226,7 @@ class ActionTrackEmitter : public ActionTrack
 public:
 	struct KeyFrame
 	{
-		int SpawnCount;
-
-		float SpawnInterval;
+		float Length;
 
 		boost::shared_ptr<SphericalEmitter> EmitterTmp;
 	};
@@ -246,7 +244,7 @@ public:
 
 	virtual ActionTrackInstPtr CreateInstance(Actor * _Actor) const;
 
-	void AddKeyFrame(float Time, int SpawnCount, float SpawnInterval, SphericalEmitter* EmitterTmp);
+	void AddKeyFrame(float Time, float Length, SphericalEmitter* EmitterTmp);
 };
 
 class ActionTrackEmitterInst : public ActionTrackInst
@@ -258,16 +256,22 @@ protected:
 	{
 		float m_Time;
 
-		int m_SpawnCount;
+		float m_Length;
 
 		float m_SpawnInterval;
 
+		int m_SpawnCount;
+
+		float m_SpawnTime;
+
 		boost::shared_ptr<SphericalEmitter> m_EmitterCmp;
 
-		KeyFrameInst(int SpawnCount, float SpawnInterval)
+		KeyFrameInst(float Length, float SpawnInterval, int SpawnCount)
 			: m_Time(0)
-			, m_SpawnCount(SpawnCount)
+			, m_Length(Length)
 			, m_SpawnInterval(SpawnInterval)
+			, m_SpawnCount(SpawnCount)
+			, m_SpawnTime(0)
 		{
 		}
 	};
