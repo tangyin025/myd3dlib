@@ -1961,6 +1961,7 @@ void SphericalEmitter::save(Archive & ar, const unsigned int version) const
 	Capacity = m_ParticleList.capacity();
 	ar << BOOST_SERIALIZATION_NVP(Capacity);
 	ar << BOOST_SERIALIZATION_NVP(m_SpawnInterval);
+	ar << BOOST_SERIALIZATION_NVP(m_SpawnCount);
 	ar << BOOST_SERIALIZATION_NVP(m_HalfSpawnArea);
 	ar << BOOST_SERIALIZATION_NVP(m_SpawnInclination);
 	ar << BOOST_SERIALIZATION_NVP(m_SpawnAzimuth);
@@ -1987,6 +1988,7 @@ void SphericalEmitter::load(Archive & ar, const unsigned int version)
 	ar >> BOOST_SERIALIZATION_NVP(Capacity);
 	m_ParticleList.set_capacity(Capacity);
 	ar >> BOOST_SERIALIZATION_NVP(m_SpawnInterval);
+	ar >> BOOST_SERIALIZATION_NVP(m_SpawnCount);
 	ar >> BOOST_SERIALIZATION_NVP(m_HalfSpawnArea);
 	ar >> BOOST_SERIALIZATION_NVP(m_SpawnInclination);
 	ar >> BOOST_SERIALIZATION_NVP(m_SpawnAzimuth);
@@ -2036,22 +2038,25 @@ void SphericalEmitter::Update(float fElapsedTime)
 
 	if (m_SpawnInterval > 0)
 	{
+		m_SpawnTime += fElapsedTime;
+
 		const Bone pose = m_EmitterSpaceType == SpaceTypeWorld ?
 			m_Actor->GetAttachPose(m_SpawnBoneId, m_SpawnLocalPose.m_position, m_SpawnLocalPose.m_rotation) : m_SpawnLocalPose;
-
-		m_SpawnTime += fElapsedTime;
 		for (; m_SpawnTime >= 0; m_SpawnTime -= m_SpawnInterval)
 		{
-			Spawn(
-				Vector4(Vector3(
-					Random(-m_HalfSpawnArea.x, m_HalfSpawnArea.x),
-					Random(-m_HalfSpawnArea.y, m_HalfSpawnArea.y),
-					Random(-m_HalfSpawnArea.z, m_HalfSpawnArea.z)) + pose.m_position, 1),
-				Vector4(Vector3::PolarToCartesian(
-					m_SpawnSpeed,
-					Random(m_SpawnInclination.x, m_SpawnInclination.y),
-					Random(m_SpawnAzimuth.x, m_SpawnAzimuth.y)), 1),
-				Vector4(1, 1, 1, 1), Vector2(1, 1), 0, 0);
+			for (int i = 0; i < m_SpawnCount; i++)
+			{
+				Spawn(
+					Vector4(Vector3(
+						Random(-m_HalfSpawnArea.x, m_HalfSpawnArea.x),
+						Random(-m_HalfSpawnArea.y, m_HalfSpawnArea.y),
+						Random(-m_HalfSpawnArea.z, m_HalfSpawnArea.z)) + pose.m_position, 1),
+					Vector4(Vector3::PolarToCartesian(
+						m_SpawnSpeed,
+						Random(m_SpawnInclination.x, m_SpawnInclination.y),
+						Random(m_SpawnAzimuth.x, m_SpawnAzimuth.y)), 1),
+					Vector4(1, 1, 1, 1), Vector2(1, 1), 0, 0);
+			}
 		}
 	}
 
