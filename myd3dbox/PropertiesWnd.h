@@ -212,6 +212,7 @@ public:
 		PropertySphericalEmitter,
 		PropertySphericalEmitterParticleCapacity,
 		PropertySphericalEmitterSpawnInterval,
+		PropertySphericalEmitterSpawnCount,
 		PropertySphericalEmitterHalfSpawnArea,
 		PropertySphericalEmitterHalfSpawnAreaX,
 		PropertySphericalEmitterHalfSpawnAreaY,
