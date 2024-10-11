@@ -24,21 +24,24 @@ particle1.Shader="shader/mtl_Particle.fx"
 particle1.PassMask=Material.PassMaskTransparent
 particle1.ZWriteEnable=false
 particle1.BlendMode=Material.BlendModeAdditive
-particle1:AddParameter("g_Texture", "texture/flare.dds")
+particle1:SetParameter("g_Texture", "texture/flare.dds")
+local sphe_emit_cmp=SphericalEmitter(NamedObject.MakeUniqueName("sphe_emit_cmp"),1024,EmitterComponent.FaceTypeCamera,EmitterComponent.SpaceTypeWorld)
+sphe_emit_cmp.SpawnInterval=0.1
+sphe_emit_cmp.ParticleLifeTime=5
+sphe_emit_cmp.ParticleColorR:AddNode(0,1,0,0)
+sphe_emit_cmp.ParticleColorR:AddNode(3,0,0,0)
+sphe_emit_cmp.ParticleColorG:AddNode(0,1,0,0)
+sphe_emit_cmp.ParticleColorG:AddNode(3,0,0,0)
+sphe_emit_cmp.ParticleColorB:AddNode(0,1,0,0)
+sphe_emit_cmp.ParticleColorB:AddNode(3,0,0,0)
+sphe_emit_cmp.ParticleColorA:AddNode(0,1,0,0)
+sphe_emit_cmp.ParticleColorA:AddNode(3,0,0,0)
+sphe_emit_cmp.ParticleSizeX:AddNode(0,1,0,0)
+sphe_emit_cmp.ParticleSizeY:AddNode(0,1,0,0)
+sphe_emit_cmp.SpawnBoneId=skel:GetBoneIndex("Bip01_Neck")
+sphe_emit_cmp.Material=particle1
 local track=ActionTrackEmitter()
-track.EmitterSpaceType=EmitterComponent.SpaceTypeWorld
-track.EmitterMaterial=particle1
-track.ParticleLifeTime=5
-track.ParticleColorR:AddNode(0,1,0,0)
-track.ParticleColorR:AddNode(3,0,0,0)
-track.ParticleColorG:AddNode(0,1,0,0)
-track.ParticleColorG:AddNode(3,0,0,0)
-track.ParticleColorB:AddNode(0,1,0,0)
-track.ParticleColorB:AddNode(3,0,0,0)
-track.ParticleColorA:AddNode(0,1,0,0)
-track.ParticleColorA:AddNode(3,0,0,0)
-track.SpawnBoneId=skel:GetBoneIndex("Bip01_Neck")
-track:AddKeyFrame(0,99999,0.1)
+track:AddKeyFrame(0,99999,sphe_emit_cmp)
 act_tuowei:AddTrack(track)
 
 act_pose=Action(100)

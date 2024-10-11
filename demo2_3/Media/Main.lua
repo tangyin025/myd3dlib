@@ -8,9 +8,9 @@ actor2=Actor(NamedObject.MakeUniqueName("actor"),Vector3(0,1,-5),Quaternion.Iden
 local lambert2=Material()
 lambert2.Shader="shader/mtl_BlinnPhong.fx"
 lambert2.PassMask=Material.PassMaskShadowNormalOpaque
-lambert2:AddParameter("g_DiffuseTexture", "texture/Checker.bmp")
-lambert2:AddParameter("g_NormalTexture", "texture/Normal.dds")
-lambert2:AddParameter("g_SpecularTexture", "texture/White.dds")
+lambert2:SetParameter("g_DiffuseTexture", "texture/Checker.bmp")
+lambert2:SetParameter("g_NormalTexture", "texture/Normal.dds")
+lambert2:SetParameter("g_SpecularTexture", "texture/White.dds")
 local cmp2=MeshComponent(NamedObject.MakeUniqueName("mesh_cmp"))
 cmp2.MeshPath="mesh/Sphere.mesh.xml"
 cmp2.Material=lambert2

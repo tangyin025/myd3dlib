@@ -48,9 +48,12 @@
 	<z>1.000000000e+00</z>
 	<w>1.000000000e+00</w>
 </FogColor>
-<FogStartDistance>1.000000000e+01</FogStartDistance>
-<FogHeight>5.000000000e+01</FogHeight>
-<FogFalloff>9.999999776e-03</FogFalloff>
+<FogParams>
+	<x>1.000000000e+01</x>
+	<y>5.000000000e+01</y>
+	<z>0.000000000e+00</z>
+	<w>0.000000000e+00</w>
+</FogParams>
 <ActorListSize>2</ActorListSize>
 <Actor0 class_id="2" tracking_level="0" version="1">
 	<px class_id="3" tracking_level="1" version="0" object_id="_0">

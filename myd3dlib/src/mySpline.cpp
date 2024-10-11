@@ -62,7 +62,7 @@ SplineNode LinearNodes<SplineNode>::Lerp(LinearNodes<SplineNode>::const_iterator
 
 float Spline::Interpolate(float s) const
 {
-	return LinearNodes::Interpolate(s, SplineNode(0, 0, 0)).y;
+	return LinearNodes::Interpolate(s, SplineNode(1, 0, 0)).y;
 }
 
 Shake::Shake(float Duration, float Strength, int Vibrato, float StartMagnitude)

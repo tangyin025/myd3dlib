@@ -20,9 +20,9 @@ player:InsertComponent(controller_cmp)
 local lambert1=Material()
 lambert1.Shader="shader/mtl_BlinnPhong.fx"
 lambert1.PassMask=Material.PassMaskShadowNormalOpaque
-lambert1:AddParameter("g_DiffuseTexture", "character/casual19_m_35.jpg")
-lambert1:AddParameter("g_NormalTexture", "character/casual19_m_35_normal.png")
-lambert1:AddParameter("g_SpecularTexture", "character/casual19_m_35_spec.png")
+lambert1:SetParameter("g_DiffuseTexture", "character/casual19_m_35.jpg")
+lambert1:SetParameter("g_NormalTexture", "character/casual19_m_35_normal.png")
+lambert1:SetParameter("g_SpecularTexture", "character/casual19_m_35_spec.png")
 
 -- 模型
 local cmp=MeshComponent(NamedObject.MakeUniqueName("mesh_cmp"))
