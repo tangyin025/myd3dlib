@@ -88,7 +88,8 @@ void StaticEmitterChunk::RequestResource(void)
 		_ASSERT(!m_buff);
 
 		std::string path = StaticEmitterChunk::MakeChunkPath(emit_cmp->m_ChunkPath, m_Row, m_Col);
-		IORequestPtr request(new StaticEmitterChunkIORequest(path.c_str(), m_Row, m_Col, 0));
+		IORequestPtr request(new StaticEmitterChunkIORequest(path.c_str(), m_Row, m_Col,
+			m_Lod <= 0 ? Component::ResPriorityLod0 : m_Lod <= 1 ? Component::ResPriorityLod1 : Component::ResPriorityLod2));
 		my::ResourceMgr::getSingleton().LoadIORequestAsync(
 			path, request, boost::bind(&StaticEmitterChunk::OnChunkBufferReady, this, boost::placeholders::_1));
 	}
