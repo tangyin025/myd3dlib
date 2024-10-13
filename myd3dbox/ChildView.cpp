@@ -1453,9 +1453,6 @@ void CChildView::OnPaint()
 			//V(theApp.m_d3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CW));
 			//V(theApp.m_d3dDevice->SetRenderTarget(0, m_SwapChainBuffer->m_ptr));
 			//V(theApp.m_d3dDevice->SetDepthStencilSurface(m_DepthStencil->m_ptr));
-			my::ModelViewerCamera* model_view_camera = dynamic_cast<my::ModelViewerCamera*>(m_Camera.get());
-			//theApp.m_SkyLightCam->m_Eye = theApp.m_SkyLightCam->AlignUnit(model_view_camera->m_LookAt, my::Vector2(theApp.SHADOW_MAP_SIZE, theApp.SHADOW_MAP_SIZE));
-			//theApp.m_SkyLightCam->UpdateViewProj();
 			theApp.OnRender(theApp.m_d3dDevice, m_SwapChainBuffer->m_ptr, m_DepthStencil->m_ptr, &m_SwapChainBufferDesc, this, theApp.m_fAbsoluteTime, theApp.m_fElapsedTime);
 			V(theApp.m_d3dDevice->GetRenderTargetData(m_PositionRT->GetSurfaceLevel(0), m_OffscreenPositionRT->m_ptr));
 			V(theApp.m_d3dDevice->SetRenderTarget(0, m_SwapChainBuffer->m_ptr));
@@ -1521,8 +1518,9 @@ void CChildView::OnPaint()
 				};
 
 				begin(DU_DRAW_LINES, 2.0f);
-				Callback cb(this);
+				my::ModelViewerCamera* model_view_camera = dynamic_cast<my::ModelViewerCamera*>(m_Camera.get());
 				my::AABB viewbox(model_view_camera->m_LookAt, 33.0f);
+				Callback cb(this);
 				pFrame->m_offMeshConRoot.QueryEntity(viewbox, &cb);
 				end();
 

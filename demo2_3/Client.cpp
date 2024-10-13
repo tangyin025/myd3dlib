@@ -927,8 +927,6 @@ void Client::OnFrameTick(
 			actor_iter++;
 	}
 
-	m_SkyLightCam->UpdateViewProj();
-
 	m_Camera->UpdateViewProj();
 
 	m_ControllerMgr->computeInteractions(fElapsedTime, &m_ControllerFilter);

@@ -157,8 +157,6 @@ namespace my
 		virtual void OnDimensionChanged(const CSize & dim) = 0;
 
 		virtual float CalculateDimensionScaler(const Vector3 & WorldPos) const = 0;
-
-		Vector3 AlignUnit(const Vector3 & Pos, const Vector2 & dim) const;
 	};
 
 	typedef boost::shared_ptr<Camera> CameraPtr;

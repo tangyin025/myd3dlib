@@ -184,20 +184,6 @@ Frustum BaseCamera::RectangleToFrustum(const my::Rectangle & rc, const Vector2 &
 		Plane::FromTriangle(frt,flt,flb));
 }
 
-Vector3 Camera::AlignUnit(const Vector3 & Pos, const Vector2 & dim) const
-{
-	Matrix4 Rotation = Matrix4::RotationYawPitchRoll(m_Euler.y, m_Euler.x, m_Euler.z);
-
-	Matrix4 ViewProj = Rotation.inverse() * m_Proj;
-
-	Vector4 ViewEye = Pos.transform(ViewProj);
-
-	ViewEye.x = floor(ViewEye.x / ViewEye.w * dim.x * 0.5f) * 2.0f / dim.x * ViewEye.w;
-	ViewEye.y = floor(ViewEye.y / ViewEye.w * dim.y * 0.5f) * 2.0f / dim.y * ViewEye.w;
-
-	return ViewEye.transform(ViewProj.inverse()).xyz;
-}
-
 void OrthoCamera::UpdateViewProj(void)
 {
 	Matrix4 Rotation = Matrix4::RotationYawPitchRoll(m_Euler.y, m_Euler.x, m_Euler.z);

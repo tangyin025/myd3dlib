@@ -1734,7 +1734,6 @@ void LuaContext::Init(void)
 			.def_readwrite("Nz", &my::Camera::m_Nz)
 			.def_readwrite("Fz", &my::Camera::m_Fz)
 			.def("CalculateRay", &my::Camera::CalculateRay)
-			.def("AlignUnit", &my::Camera::AlignUnit)
 
 		, class_<my::OrthoCamera, my::Camera, boost::shared_ptr<my::Camera> >("OrthoCamera")
 			.def(constructor<float, float, float, float>())
