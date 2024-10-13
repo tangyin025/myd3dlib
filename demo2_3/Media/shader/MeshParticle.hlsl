@@ -1,5 +1,7 @@
 #include <CommonHeader.hlsl>
 
+float3 g_Scale; // only use .x, unsupport non affine transform
+
 #ifdef TILED
 int2 g_Tiles;
 #endif
@@ -57,7 +59,7 @@ float4 TransformPosWS(VS_INPUT In)
     float3 Offset = RotateAngleAxis(
         Right * In.Pos.x * In.SizeAngleTime.x + Up * In.Pos.y * In.SizeAngleTime.y + Dir * In.Pos.z * In.SizeAngleTime.x, In.SizeAngleTime.z, Dir);
 #endif
-	float4 Pos = mul(In.PosInst + float4(Offset, 0), g_World);
+	float4 Pos = mul(In.PosInst, g_World) + float4(Offset * g_Scale.x, 0);
 	return Pos;
 }
 

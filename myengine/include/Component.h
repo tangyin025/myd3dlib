@@ -542,6 +542,8 @@ public:
 
 	D3DXHANDLE handle_World;
 
+	D3DXHANDLE handle_Scale;
+
 	D3DXHANDLE handle_Tiles;
 
 protected:
@@ -550,6 +552,7 @@ protected:
 		, m_EmitterSpaceType(SpaceTypeWorld)
 		, m_Tiles(1, 1)
 		, handle_World(NULL)
+		, handle_Scale(NULL)
 		, handle_Tiles(NULL)
 	{
 	}
@@ -561,6 +564,7 @@ public:
 		, m_EmitterSpaceType(_SpaceType)
 		, m_Tiles(1, 1)
 		, handle_World(NULL)
+		, handle_Scale(NULL)
 		, handle_Tiles(NULL)
 	{
 	}

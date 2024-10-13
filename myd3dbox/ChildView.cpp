@@ -718,37 +718,37 @@ my::Matrix4 CChildView::GetParticleTransform(DWORD EmitterFaceType, const my::Em
 	{
 	case EmitterComponent::FaceTypeX:
 		return my::Matrix4::Compose(
-			my::Vector3(particle.m_Size.x * Scale.x, particle.m_Size.y * Scale.y, particle.m_Size.x * Scale.z),
+			my::Vector3(particle.m_Size.x * Scale.x, particle.m_Size.y * Scale.x, particle.m_Size.x * Scale.x),
 			my::Quaternion::RotationAxis(my::Vector3::unitZ, particle.m_Angle) * my::Quaternion::RotationAxis(my::Vector3::unitY, D3DXToRadian(90)),
 			particle.m_Position.transform(World).xyz);
 	case EmitterComponent::FaceTypeY:
 		return my::Matrix4::Compose(
-			my::Vector3(particle.m_Size.x * Scale.x, particle.m_Size.y * Scale.y, particle.m_Size.x * Scale.z),
+			my::Vector3(particle.m_Size.x * Scale.x, particle.m_Size.y * Scale.x, particle.m_Size.x * Scale.x),
 			my::Quaternion::RotationAxis(my::Vector3::unitZ, particle.m_Angle) * my::Quaternion::RotationAxis(my::Vector3::unitX, D3DXToRadian(-90)),
 			particle.m_Position.transform(World).xyz);
 	case EmitterComponent::FaceTypeZ:
 		return my::Matrix4::Compose(
-			my::Vector3(particle.m_Size.x * Scale.x, particle.m_Size.y * Scale.y, particle.m_Size.x * Scale.z),
+			my::Vector3(particle.m_Size.x * Scale.x, particle.m_Size.y * Scale.x, particle.m_Size.x * Scale.x),
 			my::Quaternion::RotationAxis(my::Vector3::unitZ, particle.m_Angle),
 			particle.m_Position.transform(World).xyz);
 	case EmitterComponent::FaceTypeCamera:
 		return my::Matrix4::Compose(
-			my::Vector3(particle.m_Size.x * Scale.x, particle.m_Size.y * Scale.y, particle.m_Size.x * Scale.z),
+			my::Vector3(particle.m_Size.x * Scale.x, particle.m_Size.y * Scale.x, particle.m_Size.x * Scale.x),
 			my::Quaternion::RotationAxis(my::Vector3::unitZ, particle.m_Angle) * my::Quaternion::RotationAxis(my::Vector3::unitX, -polar.y) * my::Quaternion::RotationAxis(my::Vector3::unitY, D3DXToRadian(90) - polar.z),
 			particle.m_Position.transform(World).xyz);
 	case EmitterComponent::FaceTypeAngle:
 		return my::Matrix4::Compose(
-			my::Vector3(particle.m_Size.x * Scale.x, particle.m_Size.y * Scale.y, particle.m_Size.x * Scale.z),
+			my::Vector3(particle.m_Size.x * Scale.x, particle.m_Size.y * Scale.x, particle.m_Size.x * Scale.x),
 			my::Quaternion::RotationAxis(my::Vector3::unitY, particle.m_Angle),
 			particle.m_Position.transform(World).xyz);
 	case EmitterComponent::FaceTypeAngleCamera:
 		return my::Matrix4::Compose(
-			my::Vector3(particle.m_Size.x * Scale.x, particle.m_Size.y * Scale.y, particle.m_Size.x * Scale.z),
+			my::Vector3(particle.m_Size.x * Scale.x, particle.m_Size.y * Scale.x, particle.m_Size.x * Scale.x),
 			my::Quaternion::RotationAxis(my::Vector3::unitX, particle.m_Angle) * my::Quaternion::RotationAxis(my::Vector3::unitY, D3DXToRadian(90) - polar.z),
 			particle.m_Position.transform(World).xyz);
 	case EmitterComponent::FaceTypeStretchedCamera:
 		return my::Matrix4::Compose(
-			my::Vector3(particle.m_Size.x * Scale.x, particle.m_Size.y * Scale.y, particle.m_Size.x * Scale.z),
+			my::Vector3(particle.m_Size.x * Scale.x, particle.m_Size.y * Scale.x, particle.m_Size.x * Scale.x),
 			my::Quaternion::RotationAxis(my::Vector3::unitZ, particle.m_Angle) * my::Quaternion::RotationAxis(my::Vector3::unitX, -polar.y) * my::Quaternion::RotationAxis(my::Vector3::unitY, D3DXToRadian(90) - polar.z),
 			particle.m_Position.transform(World).xyz);
 	}

@@ -1847,10 +1847,14 @@ void EmitterComponent::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * s
 	if (m_EmitterSpaceType == SpaceTypeWorld)
 	{
 		shader->SetMatrix(handle_World, my::Matrix4::identity);
+
+		shader->SetFloatArray(handle_Scale, &my::Vector3::one.x, 3);
 	}
 	else
 	{
 		shader->SetMatrix(handle_World, m_Actor->m_World);
+
+		shader->SetFloatArray(handle_Scale, &m_Actor->m_Scale.x, 3);
 	}
 
 	if (m_Tiles.x > 1 || m_Tiles.y > 1)
@@ -1887,6 +1891,8 @@ void EmitterComponent::AddParticlePairToPipeline(
 				if (!handle_World)
 				{
 					BOOST_VERIFY(handle_World = shader->GetParameterByName(NULL, "g_World"));
+
+					BOOST_VERIFY(handle_Scale = shader->GetParameterByName(NULL, "g_Scale"));
 				}
 
 				if ((m_Tiles.x > 1 || m_Tiles.y > 1) && !handle_Tiles)
