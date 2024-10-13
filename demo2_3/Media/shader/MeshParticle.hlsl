@@ -59,7 +59,11 @@ float4 TransformPosWS(VS_INPUT In)
     float3 Offset = RotateAngleAxis(
         Right * In.Pos.x * In.SizeAngleTime.x + Up * In.Pos.y * In.SizeAngleTime.y + Dir * In.Pos.z * In.SizeAngleTime.x, In.SizeAngleTime.z, Dir);
 #endif
+#if EMITTER_SPACE_TYPE == 0 // SpaceTypeWorld
+	float4 Pos = In.PosInst + float4(Offset, 0);
+#elif EMITTER_SPACE_TYPE == 1 // SpaceTypeLocal
 	float4 Pos = mul(In.PosInst, g_World) + float4(Offset * g_Scale.x, 0);
+#endif
 	return Pos;
 }
 
