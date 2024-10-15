@@ -51,11 +51,8 @@ local animator_cmp=Animator(NamedObject.MakeUniqueName("anim_cmp"))
 animator_cmp.Child0=node_run_slot
 animator_cmp:ReloadSequenceGroup()
 animator_cmp.SkeletonPath="character/casual19_m_highpoly.skeleton.xml"
-client:LoadSkeletonAsync(animator_cmp.SkeletonPath, function(res)
-	-- arg.self:AddJiggleBone("Bip01_R_Forearm",0.01,0.01,-10)
-	animator_cmp:AddIK(res:GetBoneIndex("Bip01_L_Thigh"), 0.1, 1)
-	animator_cmp:AddIK(res:GetBoneIndex("Bip01_R_Thigh"), 0.1, 1)
-end, 0)
+animator_cmp:AddIK(--[[res:GetBoneIndex("Bip01_L_Thigh")--]]47, 0.1, 1)
+animator_cmp:AddIK(--[[res:GetBoneIndex("Bip01_R_Thigh")--]]52, 0.1, 1)
 -- player:InsertComponent(animator_cmp)
 
 -- 角色行为
