@@ -167,13 +167,13 @@ namespace my
 
 		void SetMode(
 			DWORD dwMode,
-			DWORD dwApply = DS3D_IMMEDIATE);
+			DWORD dwApply = DS3D_DEFERRED);
 
 		DS3DBUFFER GetAllParameters(void);
 
 		void SetAllParameters(
 			LPCDS3DBUFFER pcDs3dBuffer,
-			DWORD dwApply = DS3D_IMMEDIATE);
+			DWORD dwApply = DS3D_DEFERRED);
 
 		D3DVALUE GetMaxDistance(void);
 
@@ -181,17 +181,17 @@ namespace my
 
 		void SetMaxDistance(
 			D3DVALUE flMaxDistance,
-			DWORD dwApply = DS3D_IMMEDIATE);
+			DWORD dwApply = DS3D_DEFERRED);
 
 		void SetMinDistance(
 			D3DVALUE flMinDistance,
-			DWORD dwApply = DS3D_IMMEDIATE);
+			DWORD dwApply = DS3D_DEFERRED);
 
 		Vector3 GetPosition(void);
 
 		void SetPosition(
 			const Vector3 & pos,
-			DWORD dwApply = DS3D_IMMEDIATE);
+			DWORD dwApply = DS3D_DEFERRED);
 
 		void GetConeAngles(
 			LPDWORD pdwInsideConeAngle,
@@ -204,21 +204,21 @@ namespace my
 		void SetConeAngles(
 			DWORD dwInsideConeAngle,
 			DWORD dwOutsideConeAngle,
-			DWORD dwApply = DS3D_IMMEDIATE);
+			DWORD dwApply = DS3D_DEFERRED);
 
 		void SetConeOrientation(
 			const Vector3 & ori,
-			DWORD dwApply = DS3D_IMMEDIATE);
+			DWORD dwApply = DS3D_DEFERRED);
 
 		void SetConeOutsideVolume(
 			LONG lConeOutsideVolume,
-			DWORD dwApply = DS3D_IMMEDIATE);
+			DWORD dwApply = DS3D_DEFERRED);
 
 		Vector3 GetVelocity(void);
 
 		void SetVelocity(
 			const Vector3 & vel,
-			DWORD dwApply = DS3D_IMMEDIATE);
+			DWORD dwApply = DS3D_DEFERRED);
 	};
 
 	class Sound3DListener
@@ -239,7 +239,7 @@ namespace my
 
 		void SetAllParameters(
 			LPCDS3DLISTENER pcListener,
-			DWORD dwApply = DS3D_IMMEDIATE);
+			DWORD dwApply = DS3D_DEFERRED);
 
 		D3DVALUE GetDistanceFactor(void);
 
@@ -249,15 +249,15 @@ namespace my
 
 		void SetDistanceFactor(
 			D3DVALUE flDistanceFactor,
-			DWORD dwApply = DS3D_IMMEDIATE);
+			DWORD dwApply = DS3D_DEFERRED);
 
 		void SetDopplerFactor(
 			D3DVALUE flDopplerFactor,
-			DWORD dwApply = DS3D_IMMEDIATE);
+			DWORD dwApply = DS3D_DEFERRED);
 
 		void SetRolloffFactor(
 			D3DVALUE flRolloffFactor,
-			DWORD dwApply = DS3D_IMMEDIATE);
+			DWORD dwApply = DS3D_DEFERRED);
 
 		void GetOrientation(
 			Vector3 & Front,
@@ -270,15 +270,15 @@ namespace my
 		void SetOrientation(
 			const Vector3 & Front,
 			const Vector3 & Top,
-			DWORD dwApply = DS3D_IMMEDIATE);
+			DWORD dwApply = DS3D_DEFERRED);
 
 		void SetPosition(
 			const Vector3 & pos,
-			DWORD dwApply = DS3D_IMMEDIATE);
+			DWORD dwApply = DS3D_DEFERRED);
 
 		void SetVelocity(
 			const Vector3 & vel,
-			DWORD dwApply = DS3D_IMMEDIATE);
+			DWORD dwApply = DS3D_DEFERRED);
 	};
 
 	class Wav : public DeviceResourceBase

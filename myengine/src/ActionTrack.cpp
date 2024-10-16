@@ -197,9 +197,22 @@ void ActionTrackSoundInst::UpdateTime(float LastTime, float Time)
 	_ASSERT(m_Actor);
 
 	SoundEventList::iterator event_iter = m_Events.begin();
-	for (; event_iter != m_Events.end() && !(*event_iter)->m_sbuffer; )
+	for (; event_iter != m_Events.end(); )
 	{
-		event_iter = m_Events.erase(event_iter);
+		if ((*event_iter)->m_sbuffer)
+		{
+			_ASSERT((*event_iter)->m_3dbuffer);
+
+			const Vector3& pos = m_Actor->m_World.getRow<3>().xyz;
+
+			(*event_iter)->m_3dbuffer->SetPosition(pos);
+
+			(*event_iter++)->m_3dbuffer->SetVelocity(m_Actor->GetLinearVelocity());
+		}
+		else
+		{
+			event_iter = m_Events.erase(event_iter);
+		}
 	}
 
 	const Vector3 listener_pos = SoundContext::getSingleton().m_listener->GetPosition();
@@ -212,11 +225,28 @@ void ActionTrackSoundInst::UpdateTime(float LastTime, float Time)
 		{
 			const Vector3& pos = m_Actor->m_World.getRow<3>().xyz;
 
-			if (key_iter->second.Loop || listener_pos.distanceSq(pos) < key_iter->second.MaxDistance * key_iter->second.MaxDistance)
+			Vector3 vel = m_Actor->GetLinearVelocity();
+
+			if (!key_iter->second.Loop && listener_pos.distanceSq(pos) >= key_iter->second.MaxDistance * key_iter->second.MaxDistance)
 			{
-				m_Events.push_back(SoundContext::getSingleton().Play(
-					key_iter->second.Sound, key_iter->second.StartSec, key_iter->second.EndSec, key_iter->second.Loop, pos, Vector3(0, 0, 0), key_iter->second.MinDistance, key_iter->second.MaxDistance));
+				float speed = vel.magnitude();
+				if (speed <= EPSILON_E6)
+				{
+					continue;
+				}
+
+				Vector3 dir = vel / speed;
+				my::RayResult res = my::IntersectionTests::rayAndSphere(pos, dir, listener_pos, key_iter->second.MaxDistance);
+				if (!res.first || res.second > speed * (key_iter->second.EndSec - key_iter->second.StartSec))
+				{
+					continue;
+				}
 			}
+
+			// Velocity is used only for calculating Doppler effect. It does not change the position of the buffer.
+			// https://learn.microsoft.com/en-us/previous-versions/windows/desktop/ee418001(v=vs.85)
+			m_Events.push_back(SoundContext::getSingleton().Play(
+				key_iter->second.Sound, key_iter->second.StartSec, key_iter->second.EndSec, key_iter->second.Loop, pos, vel, key_iter->second.MinDistance, key_iter->second.MaxDistance));
 		}
 	}
 }
