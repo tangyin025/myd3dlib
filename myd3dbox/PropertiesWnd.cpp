@@ -144,7 +144,7 @@ static LPCTSTR g_EmitterFaceType[EmitterComponent::FaceTypeStretchedCamera + 1] 
 	_T("Camera"),
 	_T("Angle"),
 	_T("AngleCamera"),
-	_T("FaceTypeStretchedCamera"),
+	_T("StretchedCamera"),
 };
 
 static LPCTSTR g_EmitterSpaceType[EmitterComponent::SpaceTypeLocal + 1] =
@@ -627,7 +627,7 @@ void CPropertiesWnd::UpdatePropertiesStaticEmitter(CMFCPropertyGridProperty * pC
 	pComponent->GetSubItem(PropId + 1)->SetValue((_variant_t)g_EmitterSpaceType[emit_cmp->m_EmitterSpaceType]);
 	pComponent->GetSubItem(PropId + 2)->GetSubItem(0)->SetValue((_variant_t)emit_cmp->m_Tiles.x);
 	pComponent->GetSubItem(PropId + 2)->GetSubItem(1)->SetValue((_variant_t)emit_cmp->m_Tiles.y);
-	pEmitterPrimitiveType->SetValue((_variant_t)g_EmitterPrimitiveType[emit_cmp->m_EmitterPrimitiveType]);
+	pEmitterPrimitiveType->SetValue((_variant_t)g_EmitterPrimitiveType[emit_cmp->m_ParticlePrimitiveType]);
 	pComponent->GetSubItem(PropId + 4)->SetValue((_variant_t)ms2ts(emit_cmp->m_MeshPath.c_str()).c_str());
 	pComponent->GetSubItem(PropId + 5)->SetValue((_variant_t)emit_cmp->m_MeshSubMeshId);
 	pComponent->GetSubItem(PropId + 6)->SetValue((_variant_t)(emit_cmp->m_Mesh ? emit_cmp->m_Mesh->m_AttribTable[emit_cmp->m_MeshSubMeshId].VertexCount : 0));
@@ -1798,7 +1798,7 @@ void CPropertiesWnd::CreatePropertiesStaticEmitter(CMFCPropertyGridProperty * pC
 	pTiles->AddSubItem(pProp);
 	pProp = new CSimpleProp(_T("y"), (_variant_t)emit_cmp->m_Tiles.y, NULL, PropertyEmitterTilesY);
 	pTiles->AddSubItem(pProp);
-	CComboProp * pEmitterPrimitiveType = new CComboProp(_T("PrimitiveType"), (_variant_t)g_EmitterPrimitiveType[emit_cmp->m_EmitterPrimitiveType], NULL, PropertyStaticEmitterPrimitiveType);
+	CComboProp * pEmitterPrimitiveType = new CComboProp(_T("PrimitiveType"), (_variant_t)g_EmitterPrimitiveType[emit_cmp->m_ParticlePrimitiveType], NULL, PropertyStaticEmitterPrimitiveType);
 	for (unsigned int i = 0; i < _countof(g_EmitterPrimitiveType); i++)
 	{
 		pEmitterPrimitiveType->AddOption(g_EmitterPrimitiveType[i], TRUE);
@@ -4279,7 +4279,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 				emit_cmp->RequestResource();
 			}
 		}
-		emit_cmp->m_EmitterPrimitiveType = (StaticEmitter::PrimitiveType)i;
+		emit_cmp->m_ParticlePrimitiveType = (StaticEmitter::PrimitiveType)i;
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;

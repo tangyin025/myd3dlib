@@ -546,6 +546,23 @@ public:
 
 	D3DXHANDLE handle_Tiles;
 
+	enum PrimitiveType
+	{
+		PrimitiveTypeTri = 0,
+		PrimitiveTypeQuad = 1,
+		PrimitiveTypeMesh = 2,
+	};
+
+	PrimitiveType m_ParticlePrimitiveType;
+
+	std::string m_MeshPath;
+
+	int m_MeshSubMeshId;
+
+	my::OgreMeshPtr m_Mesh;
+
+	CComPtr<IDirect3DVertexDeclaration9> m_Decl;
+
 protected:
 	EmitterComponent(void)
 		: m_EmitterFaceType(FaceTypeX)
@@ -554,6 +571,8 @@ protected:
 		, handle_World(NULL)
 		, handle_Scale(NULL)
 		, handle_Tiles(NULL)
+		, m_ParticlePrimitiveType(PrimitiveTypeQuad)
+		, m_MeshSubMeshId(0)
 	{
 	}
 
@@ -566,8 +585,12 @@ public:
 		, handle_World(NULL)
 		, handle_Scale(NULL)
 		, handle_Tiles(NULL)
+		, m_ParticlePrimitiveType(PrimitiveTypeQuad)
+		, m_MeshSubMeshId(0)
 	{
 	}
+
+	virtual ~EmitterComponent(void);
 
 	friend class boost::serialization::access;
 
@@ -579,12 +602,24 @@ public:
 		ar & BOOST_SERIALIZATION_NVP(m_EmitterSpaceType);
 		ar & BOOST_SERIALIZATION_NVP(m_Tiles.x);
 		ar & BOOST_SERIALIZATION_NVP(m_Tiles.y);
+		ar & BOOST_SERIALIZATION_NVP(m_ParticlePrimitiveType);
+		if (m_ParticlePrimitiveType == PrimitiveTypeMesh)
+		{
+			ar & BOOST_SERIALIZATION_NVP(m_MeshPath);
+			ar & BOOST_SERIALIZATION_NVP(m_MeshSubMeshId);
+		}
 	}
 
 	virtual DWORD GetComponentType(void) const
 	{
 		return TypeID;
 	}
+
+	void OnMeshReady(my::DeviceResourceBasePtr res);
+
+	virtual void RequestResource(void);
+
+	virtual void ReleaseResource(void);
 
 	virtual void OnResetShader(void);
 

@@ -1833,6 +1833,52 @@ my::Vector3 ClothComponent::GetExternalAcceleration(void) const
 	return (my::Vector3&)m_Cloth->getExternalAcceleration();
 }
 
+EmitterComponent::~EmitterComponent(void)
+{
+	if (IsRequested())
+	{
+		_ASSERT(false); ReleaseResource();
+	}
+}
+
+void EmitterComponent::OnMeshReady(my::DeviceResourceBasePtr res)
+{
+	OgreMeshPtr mesh = boost::dynamic_pointer_cast<my::OgreMesh>(res);
+
+	if (m_MeshSubMeshId >= mesh->m_AttribTable.size())
+	{
+		THROW_CUSEXCEPTION(str_printf("invalid sub mesh id %d for %s", m_MeshSubMeshId, res->m_Key));
+	}
+
+	m_Mesh = mesh;
+}
+
+void EmitterComponent::RequestResource(void)
+{
+	Component::RequestResource();
+
+	if (!m_MeshPath.empty())
+	{
+		_ASSERT(!m_Mesh);
+
+		my::ResourceMgr::getSingleton().LoadMeshAsync(m_MeshPath.c_str(), boost::bind(&EmitterComponent::OnMeshReady, this, boost::placeholders::_1), (m_LodMask & LOD0) ? ResPriorityLod0 : (m_LodMask & LOD1) ? ResPriorityLod1 : ResPriorityLod2);
+	}
+}
+
+void EmitterComponent::ReleaseResource(void)
+{
+	Component::ReleaseResource();
+
+	if (!m_MeshPath.empty())
+	{
+		my::ResourceMgr::getSingleton().RemoveIORequestCallback(m_MeshPath.c_str(), boost::bind(&EmitterComponent::OnMeshReady, this, boost::placeholders::_1));
+
+		m_Mesh.reset();
+
+		m_Decl.Release();
+	}
+}
+
 void EmitterComponent::OnResetShader(void)
 {
 	handle_World = NULL;
@@ -2056,11 +2102,11 @@ void SphericalEmitter::Update(float fElapsedTime)
 			for (int i = 0; i < m_SpawnCount; i++)
 			{
 				Spawn(
-					Vector4(Vector3(
+					Vector4(pose.m_rotation * Vector3(
 						Random(-m_HalfSpawnArea.x, m_HalfSpawnArea.x),
 						Random(-m_HalfSpawnArea.y, m_HalfSpawnArea.y),
 						Random(-m_HalfSpawnArea.z, m_HalfSpawnArea.z)) + pose.m_position, 1),
-					Vector4(Vector3::PolarToCartesian(
+					Vector4(pose.m_rotation * Vector3::PolarToCartesian(
 						m_SpawnSpeed,
 						Random(m_SpawnInclination.x, m_SpawnInclination.y),
 						Random(m_SpawnAzimuth.x, m_SpawnAzimuth.y)), 1),

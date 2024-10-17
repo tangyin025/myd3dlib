@@ -3002,18 +3002,18 @@ void LuaContext::Init(void)
 			]
 			.def_readwrite("EmitterSpaceType", &EmitterComponent::m_EmitterSpaceType)
 			.def_readwrite("Tiles", &EmitterComponent::m_Tiles)
-
-		, class_<StaticEmitter, bases<EmitterComponent, my::AABB>, boost::shared_ptr<Component> >("StaticEmitter")
-			.def(constructor<const char *, const my::AABB &, float, EmitterComponent::FaceType, EmitterComponent::SpaceType, StaticEmitter::PrimitiveType>())
 			.enum_("PrimitiveType")
 			[
-				value("PrimitiveTypeTri", StaticEmitter::PrimitiveTypeTri),
-				value("PrimitiveTypeQuad", StaticEmitter::PrimitiveTypeQuad),
-				value("PrimitiveTypeMesh", StaticEmitter::PrimitiveTypeMesh)
+				value("PrimitiveTypeTri", EmitterComponent::PrimitiveTypeTri),
+				value("PrimitiveTypeQuad", EmitterComponent::PrimitiveTypeQuad),
+				value("PrimitiveTypeMesh", EmitterComponent::PrimitiveTypeMesh)
 			]
-			.def_readwrite("EmitterPrimitiveType", &StaticEmitter::m_EmitterPrimitiveType)
-			.def_readwrite("MeshPath", &StaticEmitter::m_MeshPath)
-			.def_readwrite("MeshSubMeshId", &StaticEmitter::m_MeshSubMeshId)
+			.def_readwrite("ParticlePrimitiveType", &EmitterComponent::m_ParticlePrimitiveType)
+			.def_readwrite("MeshPath", &EmitterComponent::m_MeshPath)
+			.def_readwrite("MeshSubMeshId", &EmitterComponent::m_MeshSubMeshId)
+
+		, class_<StaticEmitter, bases<EmitterComponent, my::AABB>, boost::shared_ptr<Component> >("StaticEmitter")
+			.def(constructor<const char *, const my::AABB &, float, EmitterComponent::FaceType, EmitterComponent::SpaceType>())
 			.def_readonly("ChunkWidth", &StaticEmitter::m_ChunkWidth)
 			.def_readwrite("ChunkPath", &StaticEmitter::m_ChunkPath)
 			.def_readwrite("ChunkLodScale", &StaticEmitter::m_ChunkLodScale)
@@ -3042,6 +3042,7 @@ void LuaContext::Init(void)
 			.def_readwrite("SpawnBoneId", &SphericalEmitter::m_SpawnBoneId)
 			.def_readwrite("SpawnLocalPose", &SphericalEmitter::m_SpawnLocalPose)
 			.def_readwrite("ParticleLifeTime", &SphericalEmitter::m_ParticleLifeTime)
+			.def_readwrite("ParticleGravity", &SphericalEmitter::m_ParticleGravity)
 			.def_readwrite("ParticleDamping", &SphericalEmitter::m_ParticleDamping)
 			.def_readwrite("ParticleColorR", &SphericalEmitter::m_ParticleColorR)
 			.def_readwrite("ParticleColorG", &SphericalEmitter::m_ParticleColorG)
@@ -3050,6 +3051,7 @@ void LuaContext::Init(void)
 			.def_readwrite("ParticleSizeX", &SphericalEmitter::m_ParticleSizeX)
 			.def_readwrite("ParticleSizeY", &SphericalEmitter::m_ParticleSizeY)
 			.def_readwrite("ParticleAngle", &SphericalEmitter::m_ParticleAngle)
+			.def_readwrite("DelayRemoveTime", &SphericalEmitter::m_DelayRemoveTime)
 
 		, class_<TerrainChunk, my::OctEntity>("TerrainChunk")
 			.def_readonly("Row", &TerrainChunk::m_Row)

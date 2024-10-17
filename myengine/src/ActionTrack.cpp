@@ -268,7 +268,7 @@ ActionTrackEmitter::~ActionTrackEmitter(void)
 	ActionTrackEmitter::KeyFrameMap::const_iterator key_iter = m_Keys.begin();
 	for (; key_iter != m_Keys.end(); key_iter++)
 	{
-		key_iter->second.EmitterTmp->m_Material->ReleaseResource();
+		key_iter->second.EmitterTmp->ReleaseResource();
 	}
 }
 
@@ -283,7 +283,7 @@ void ActionTrackEmitter::AddKeyFrame(float Time, float Length, SphericalEmitter*
 	_ASSERT(key_iter != m_Keys.end() && EmitterTmp);
 	key_iter->second.Length = Length;
 	key_iter->second.EmitterTmp = boost::dynamic_pointer_cast<SphericalEmitter>(EmitterTmp->Clone());
-	key_iter->second.EmitterTmp->m_Material->RequestResource();
+	key_iter->second.EmitterTmp->RequestResource();
 }
 
 ActionTrackEmitterInst::ActionTrackEmitterInst(Actor * _Actor, boost::shared_ptr<const ActionTrackEmitter> Template)
@@ -324,11 +324,11 @@ void ActionTrackEmitterInst::UpdateTime(float LastTime, float Time)
 				for (int i = 0; i < key_inst_iter->m_SpawnCount; i++)
 				{
 					key_inst_iter->m_EmitterCmp->Spawn(
-						Vector4(Vector3(
+						Vector4(pose.m_rotation * Vector3(
 							Random(-key_inst_iter->m_EmitterCmp->m_HalfSpawnArea.x, key_inst_iter->m_EmitterCmp->m_HalfSpawnArea.x),
 							Random(-key_inst_iter->m_EmitterCmp->m_HalfSpawnArea.y, key_inst_iter->m_EmitterCmp->m_HalfSpawnArea.y),
 							Random(-key_inst_iter->m_EmitterCmp->m_HalfSpawnArea.z, key_inst_iter->m_EmitterCmp->m_HalfSpawnArea.z)) + pose.m_position, 1.0f),
-						Vector4(Vector3::PolarToCartesian(
+						Vector4(pose.m_rotation * Vector3::PolarToCartesian(
 							key_inst_iter->m_EmitterCmp->m_SpawnSpeed,
 							Random(key_inst_iter->m_EmitterCmp->m_SpawnInclination.x, key_inst_iter->m_EmitterCmp->m_SpawnInclination.y),
 							Random(key_inst_iter->m_EmitterCmp->m_SpawnAzimuth.x, key_inst_iter->m_EmitterCmp->m_SpawnAzimuth.y)), 1),
