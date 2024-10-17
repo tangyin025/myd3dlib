@@ -15,6 +15,8 @@ class MeshComponent;
 
 class ClothComponent;
 
+class EmitterComponent;
+
 class StaticEmitter;
 
 class SphericalEmitter;
@@ -185,6 +187,11 @@ public:
 		PropertyEmitterTiles,
 		PropertyEmitterTilesX,
 		PropertyEmitterTilesY,
+		PropertyEmitterPrimitiveType,
+		PropertyEmitterMeshPath,
+		PropertyEmitterMeshSubMeshId,
+		PropertyEmitterMeshNumVert,
+		PropertyEmitterMeshNumFace,
 		PropertyEmitterParticlePosition,
 		PropertyEmitterParticlePositionX,
 		PropertyEmitterParticlePositionY,
@@ -201,11 +208,6 @@ public:
 		PropertyEmitterParticleSizeX,
 		PropertyEmitterParticleSizeY,
 		PropertyEmitterParticleAngle,
-		PropertyStaticEmitterPrimitiveType,
-		PropertyStaticEmitterMeshPath,
-		PropertyStaticEmitterMeshSubMeshId,
-		PropertyStaticEmitterMeshNumVert,
-		PropertyStaticEmitterMeshNumFace,
 		PropertyStaticEmitterChunkWidth,
 		PropertyStaticEmitterChunkPath,
 		PropertyStaticEmitterChunkLodScale,
@@ -557,6 +559,7 @@ public:
 	static void UpdatePropertiesMaterial(CMFCPropertyGridProperty * pMaterial, Material * mtl);
 	static void UpdatePropertiesMaterialParameter(CMFCPropertyGridProperty * pParentCtrl, int NodeId, MaterialParameter * mtl_param);
 	void UpdatePropertiesCloth(CMFCPropertyGridProperty * pComponent, ClothComponent * cloth_cmp);
+	void UpdatePropertiesEmitter(CMFCPropertyGridProperty * pComponent, EmitterComponent * emit_cmp);
 	void UpdatePropertiesStaticEmitter(CMFCPropertyGridProperty * pComponent, StaticEmitter * emit_cmp);
 	void UpdatePropertiesStaticEmitterParticle(CMFCPropertyGridProperty * pParticle, const CPoint & chunkid, int instid, my::Emitter::Particle * particle);
 	void UpdatePropertiesSphericalEmitter(CMFCPropertyGridProperty * pComponent, SphericalEmitter * sphe_emit_cmp);
@@ -586,6 +589,7 @@ public:
 	static void CreatePropertiesMaterial(CMFCPropertyGridProperty * pParentCtrl, LPCTSTR lpszName, Material * mtl);
 	static void CreatePropertiesMaterialParameter(CMFCPropertyGridProperty * pParentCtrl, int NodeId, MaterialParameter * mtl_param);
 	void CreatePropertiesCloth(CMFCPropertyGridProperty * pComponent, ClothComponent * cloth_cmp);
+	void CreatePropertiesEmitter(CMFCPropertyGridProperty * pComponent, EmitterComponent * emit_cmp);
 	void CreatePropertiesStaticEmitter(CMFCPropertyGridProperty * pComponent, StaticEmitter * emit_cmp);
 	void CreatePropertiesStaticEmitterParticle(CMFCPropertyGridProperty * pParentProp, const CPoint & chunkid, int instid, my::Emitter::Particle * particle);
 	void CreatePropertiesSphericalEmitter(CMFCPropertyGridProperty * pComponent, SphericalEmitter * sphe_emit_cmp);

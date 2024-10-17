@@ -277,7 +277,6 @@ void StaticEmitter::AddToPipeline(const my::Frustum& frustum, RenderPipeline* pi
 					break;
 				}
 				case PrimitiveTypeMesh:
-				{
 					if (emit_cmp->m_Mesh)
 					{
 						if (!emit_cmp->m_Decl)
@@ -304,7 +303,6 @@ void StaticEmitter::AddToPipeline(const my::Frustum& frustum, RenderPipeline* pi
 							PassMask, chunk->m_buff->data(), chunk->m_buff->size() >> chunk->m_Lod, NULL, 0);
 					}
 					break;
-				}
 				}
 			}
 			return true;

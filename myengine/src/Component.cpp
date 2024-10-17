@@ -1998,13 +1998,49 @@ void CircularEmitter::AddToPipeline(const my::Frustum & frustum, RenderPipeline 
 
 		ParticleList::array_range array_two = m_ParticleList.array_two();
 
-		AddParticlePairToPipeline(pipeline, pipeline->m_ParticleVb.m_ptr, pipeline->m_ParticleIb.m_ptr, pipeline->m_ParticleIEDecl,
-			RenderPipeline::m_ParticlePrimitiveInfo[RenderPipeline::ParticlePrimitiveQuad][RenderPipeline::ParticlePrimitiveMinVertexIndex],
-			RenderPipeline::m_ParticlePrimitiveInfo[RenderPipeline::ParticlePrimitiveQuad][RenderPipeline::ParticlePrimitiveNumVertices],
-			pipeline->m_ParticleVertStride,
-			RenderPipeline::m_ParticlePrimitiveInfo[RenderPipeline::ParticlePrimitiveQuad][RenderPipeline::ParticlePrimitiveStartIndex],
-			RenderPipeline::m_ParticlePrimitiveInfo[RenderPipeline::ParticlePrimitiveQuad][RenderPipeline::ParticlePrimitivePrimitiveCount],
-			PassMask, array_one.first, array_one.second, array_two.first, array_two.second);
+		switch (m_ParticlePrimitiveType)
+		{
+		case PrimitiveTypeTri:
+		case PrimitiveTypeQuad:
+		{
+			_ASSERT(m_ParticlePrimitiveType < RenderPipeline::ParticlePrimitiveTypeCount);
+			AddParticlePairToPipeline(pipeline, pipeline->m_ParticleVb.m_ptr, pipeline->m_ParticleIb.m_ptr, pipeline->m_ParticleIEDecl,
+				RenderPipeline::m_ParticlePrimitiveInfo[RenderPipeline::ParticlePrimitiveQuad][RenderPipeline::ParticlePrimitiveMinVertexIndex],
+				RenderPipeline::m_ParticlePrimitiveInfo[RenderPipeline::ParticlePrimitiveQuad][RenderPipeline::ParticlePrimitiveNumVertices],
+				pipeline->m_ParticleVertStride,
+				RenderPipeline::m_ParticlePrimitiveInfo[RenderPipeline::ParticlePrimitiveQuad][RenderPipeline::ParticlePrimitiveStartIndex],
+				RenderPipeline::m_ParticlePrimitiveInfo[RenderPipeline::ParticlePrimitiveQuad][RenderPipeline::ParticlePrimitivePrimitiveCount],
+				PassMask, array_one.first, array_one.second, array_two.first, array_two.second);
+			break;
+		}
+		case PrimitiveTypeMesh:
+			if (m_Mesh)
+			{
+				if (!m_Decl)
+				{
+					std::vector<D3DVERTEXELEMENT9> ve = m_Mesh->m_VertexElems.BuildVertexElementList(0);
+					std::vector<D3DVERTEXELEMENT9> ie = pipeline->m_ParticleInstanceElems.BuildVertexElementList(1);
+					ve.insert(ve.end(), ie.begin(), ie.end());
+					D3DVERTEXELEMENT9 ve_end = D3DDECL_END();
+					ve.push_back(ve_end);
+
+					HRESULT hr;
+					if (FAILED(hr = my::D3DContext::getSingleton().m_d3dDevice->CreateVertexDeclaration(&ve[0], &m_Decl)))
+					{
+						THROW_D3DEXCEPTION(hr);
+					}
+				}
+
+				AddParticlePairToPipeline(pipeline, m_Mesh->m_Vb.m_ptr, m_Mesh->m_Ib.m_ptr, m_Decl,
+					m_Mesh->m_AttribTable[m_MeshSubMeshId].VertexStart,
+					m_Mesh->m_AttribTable[m_MeshSubMeshId].VertexCount,
+					m_Mesh->GetNumBytesPerVertex(),
+					m_Mesh->m_AttribTable[m_MeshSubMeshId].FaceStart * 3,
+					m_Mesh->m_AttribTable[m_MeshSubMeshId].FaceCount,
+					PassMask, array_one.first, array_one.second, array_two.first, array_two.second);
+			}
+			break;
+		}
 	}
 }
 
