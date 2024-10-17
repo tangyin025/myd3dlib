@@ -331,7 +331,7 @@ void ActionTrackEmitterInst::UpdateTime(float LastTime, float Time)
 						Vector4(pose.m_rotation * Vector3::PolarToCartesian(
 							key_inst_iter->m_EmitterCmp->m_SpawnSpeed,
 							Random(key_inst_iter->m_EmitterCmp->m_SpawnInclination.x, key_inst_iter->m_EmitterCmp->m_SpawnInclination.y),
-							Random(key_inst_iter->m_EmitterCmp->m_SpawnAzimuth.x, key_inst_iter->m_EmitterCmp->m_SpawnAzimuth.y)), 1),
+							Random(key_inst_iter->m_EmitterCmp->m_SpawnAzimuth.x, key_inst_iter->m_EmitterCmp->m_SpawnAzimuth.y)), 0),
 						Vector4(1, 1, 1, 1), Vector2(1, 1), 0, 0);
 				}
 			}

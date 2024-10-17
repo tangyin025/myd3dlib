@@ -2145,7 +2145,7 @@ void SphericalEmitter::Update(float fElapsedTime)
 					Vector4(pose.m_rotation * Vector3::PolarToCartesian(
 						m_SpawnSpeed,
 						Random(m_SpawnInclination.x, m_SpawnInclination.y),
-						Random(m_SpawnAzimuth.x, m_SpawnAzimuth.y)), 1),
+						Random(m_SpawnAzimuth.x, m_SpawnAzimuth.y)), 0),
 					Vector4(1, 1, 1, 1), Vector2(1, 1), 0, 0);
 			}
 		}
