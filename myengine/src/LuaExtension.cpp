@@ -408,6 +408,11 @@ static boost::iterator_range<StaticEmitterParticleIterator> static_emitter_get_p
 	return boost::make_iterator_range(StaticEmitterParticleIterator(emit_str, self->m_Chunks.begin()), StaticEmitterParticleIterator(emit_str, self->m_Chunks.end()));
 }
 
+static bool spherical_emitter_wait_task(SphericalEmitter* self, DWORD sec)
+{
+	return self->m_PostTaskEvent.Wait(sec);
+}
+
 static my::Bone animator_get_bone(Animator* self, int i)
 {
 	return self->anim_pose[i];
@@ -459,6 +464,11 @@ static void animation_node_set_child(AnimationNode* self, AnimationNodePtr node)
 static void animation_node_set_child_adopt(AnimationNode* self, int i, ScriptAnimationNodeBlendList* node)
 {
 	self->SetChild(i, AnimationNodePtr(node));
+}
+
+static int animation_node_get_child_num(AnimationNode* self)
+{
+	return self->m_Childs.size();
 }
 
 static bool navigation_find_nearest_poly(const Navigation* self, const my::Vector3& center, const my::Vector3& halfext, const dtQueryFilter* filter, unsigned int& nearestRef, my::Vector3& nearestPt)
@@ -3053,6 +3063,7 @@ void LuaContext::Init(void)
 			.def_readwrite("ParticleSizeY", &SphericalEmitter::m_ParticleSizeY)
 			.def_readwrite("ParticleAngle", &SphericalEmitter::m_ParticleAngle)
 			.def_readwrite("DelayRemoveTime", &SphericalEmitter::m_DelayRemoveTime)
+			.def("WaitTask", &spherical_emitter_wait_task)
 
 		, class_<TerrainChunk, my::OctEntity>("TerrainChunk")
 			.def_readonly("Row", &TerrainChunk::m_Row)
@@ -3301,8 +3312,7 @@ void LuaContext::Init(void)
 			.property("Child4", &animation_node_get_child<4>, &animation_node_set_child<4>)
 			.property("Child5", &animation_node_get_child<5>, &animation_node_set_child<5>)
 			.def("SetChildAdopt", &animation_node_set_child_adopt, adopt(boost::placeholders::_3))
-			.property("ChildNum", luabind::tag_function<size_t (const AnimationNode*)>(
-				boost::bind(&AnimationNode::AnimationNodePtrList::size, boost::bind(&AnimationNode::m_Childs, boost::placeholders::_1))))
+			.property("ChildNum", &animation_node_get_child_num)
 			.def("RemoveChild", &AnimationNode::RemoveChild)
 			.property("TopNode", (AnimationNode* (AnimationNode::*)(void))& AnimationNode::GetTopNode)
 			.def("FindSubNode", (AnimationNode* (AnimationNode::*)(const std::string&))& AnimationNode::FindSubNode)
