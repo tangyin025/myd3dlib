@@ -323,6 +323,8 @@ void ActionTrackEmitterInst::UpdateTime(float LastTime, float Time)
 					m_Actor->GetAttachPose(key_inst_iter->m_EmitterCmp->m_SpawnBoneId, key_inst_iter->m_EmitterCmp->m_SpawnLocalPose.m_position, key_inst_iter->m_EmitterCmp->m_SpawnLocalPose.m_rotation) : key_inst_iter->m_EmitterCmp->m_SpawnLocalPose;
 				for (int i = 0; i < key_inst_iter->m_SpawnCount; i++)
 				{
+					_ASSERT(key_inst_iter->m_EmitterCmp->m_PostTaskEvent.Wait(0));
+
 					key_inst_iter->m_EmitterCmp->Spawn(
 						Vector4(pose.m_rotation * Vector3(
 							Random(-key_inst_iter->m_EmitterCmp->m_HalfSpawnArea.x, key_inst_iter->m_EmitterCmp->m_HalfSpawnArea.x),

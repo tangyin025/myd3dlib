@@ -27,6 +27,8 @@ bool ParallelTaskManager::ParallelThreadDoTask(void)
 
 		task->DoTask();
 
+		task->m_PostTaskEvent.SetEvent();
+
 		return true;
 	}
 	return false;
@@ -88,6 +90,8 @@ void ParallelTaskManager::StopParallelThread(void)
 
 void ParallelTaskManager::PushTask(ParallelTask * task)
 {
+	_ASSERT(task->m_PostTaskEvent.Wait(0));
+	task->m_PostTaskEvent.ResetEvent();
 	m_TasksMutex.Wait(INFINITE);
 	m_Tasks.push_back(task);
 	m_TasksMutex.Release();

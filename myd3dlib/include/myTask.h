@@ -12,6 +12,13 @@ namespace my
 	class ParallelTask
 	{
 	public:
+		Event m_PostTaskEvent;
+
+		ParallelTask(void)
+			: m_PostTaskEvent(NULL, TRUE, TRUE, NULL)
+		{
+		}
+
 		virtual ~ParallelTask(void);
 
 		virtual void DoTask(void) = 0;
