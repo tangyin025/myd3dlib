@@ -1819,7 +1819,7 @@ UINT Control::GetHotkey(void)
 }
 
 StaticSkin::StaticSkin(void)
-	: m_FontHeight(13)
+	: m_FontHeight(12)
 	, m_FontFaceIndex(0)
 	, m_TextColor(D3DCOLOR_ARGB(255, 255, 255, 255))
 	, m_TextAlign(Font::AlignLeftTop)
