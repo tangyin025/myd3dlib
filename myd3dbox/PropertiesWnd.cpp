@@ -947,6 +947,12 @@ void CPropertiesWnd::UpdatePropertiesControl(my::Control * control)
 	pControl->GetSubItem(13)->GetSubItem(2)->SetValue((_variant_t)control->m_Skin->m_Image->m_Border.right);
 	pControl->GetSubItem(13)->GetSubItem(3)->SetValue((_variant_t)control->m_Skin->m_Image->m_Border.bottom);
 
+	pControl->GetSubItem(14)->SetValue((_variant_t)ms2ts(theApp.GetFullPath(control->m_Skin->m_VisibleShowSoundPath.c_str()).c_str()).c_str());
+	pControl->GetSubItem(15)->SetValue((_variant_t)ms2ts(theApp.GetFullPath(control->m_Skin->m_VisibleHideSoundPath.c_str()).c_str()).c_str());
+	pControl->GetSubItem(16)->SetValue((_variant_t)ms2ts(theApp.GetFullPath(control->m_Skin->m_MouseEnterSoundPath.c_str()).c_str()).c_str());
+	pControl->GetSubItem(17)->SetValue((_variant_t)ms2ts(theApp.GetFullPath(control->m_Skin->m_MouseLeaveSoundPath.c_str()).c_str()).c_str());
+	pControl->GetSubItem(18)->SetValue((_variant_t)ms2ts(theApp.GetFullPath(control->m_Skin->m_MouseClickSoundPath.c_str()).c_str()).c_str());
+
 	switch (control->GetControlType())
 	{
 	case my::Control::ControlTypeStatic:
@@ -2235,6 +2241,17 @@ void CPropertiesWnd::CreatePropertiesControl(my::Control * control)
 	pProp = new CSimpleProp(_T("w"), (_variant_t)control->m_Skin->m_Image->m_Border.bottom, NULL, PropertyControlImageBorderW);
 	pImageBorder->AddSubItem(pProp);
 
+	pProp = new CFileProp(_T("VisibleShowSound"), TRUE, (_variant_t)ms2ts(theApp.GetFullPath(control->m_Skin->m_VisibleShowSoundPath.c_str()).c_str()).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyControlVisibleShowSoundPath);
+	pControl->AddSubItem(pProp);
+	pProp = new CFileProp(_T("VisibleHideSound"), TRUE, (_variant_t)ms2ts(theApp.GetFullPath(control->m_Skin->m_VisibleHideSoundPath.c_str()).c_str()).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyControlVisibleHideSoundPath);
+	pControl->AddSubItem(pProp);
+	pProp = new CFileProp(_T("MouseEnterSound"), TRUE, (_variant_t)ms2ts(theApp.GetFullPath(control->m_Skin->m_MouseEnterSoundPath.c_str()).c_str()).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyControlMouseEnterSoundPath);
+	pControl->AddSubItem(pProp);
+	pProp = new CFileProp(_T("MouseLeaveSound"), TRUE, (_variant_t)ms2ts(theApp.GetFullPath(control->m_Skin->m_MouseLeaveSoundPath.c_str()).c_str()).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyControlMouseLeaveSoundPath);
+	pControl->AddSubItem(pProp);
+	pProp = new CFileProp(_T("MouseClickSound"), TRUE, (_variant_t)ms2ts(theApp.GetFullPath(control->m_Skin->m_MouseClickSoundPath.c_str()).c_str()).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyControlMouseClickSoundPath);
+	pControl->AddSubItem(pProp);
+
 	switch (control->GetControlType())
 	{
 	case my::Control::ControlTypeStatic:
@@ -3019,7 +3036,7 @@ unsigned int CPropertiesWnd::GetControlPropCount(DWORD type)
 	switch (type)
 	{
 	case my::Control::ControlTypeControl:
-		return 14;
+		return 19;
 	case my::Control::ControlTypeStatic:
 		return GetControlPropCount(my::Control::ControlTypeControl) + 10;
 	case my::Control::ControlTypeButton:
@@ -4866,6 +4883,45 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			pControl->GetSubItem(13)->GetSubItem(3)->GetValue().intVal);
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
+		break;
+	}
+	case PropertyControlVisibleShowSoundPath:
+	case PropertyControlVisibleHideSoundPath:
+	case PropertyControlMouseEnterSoundPath:
+	case PropertyControlMouseLeaveSoundPath:
+	case PropertyControlMouseClickSoundPath:
+	{
+		my::Control* control = (my::Control*)pProp->GetParent()->GetValue().pulVal;
+		std::string path = theApp.GetRelativePath(ts2ms(pProp->GetValue().bstrVal).c_str());
+		if (path.empty() && _tcslen(pProp->GetValue().bstrVal) > 0)
+		{
+			MessageBox(str_printf(_T("cannot relative path: %s"), pProp->GetValue().bstrVal).c_str());
+			UpdatePropertiesControl(control);
+			return 0;
+		}
+		control->m_Skin->ReleaseResource();
+		switch (PropertyId)
+		{
+		case PropertyControlVisibleShowSoundPath:
+			control->m_Skin->m_VisibleShowSoundPath = path;
+			break;
+		case PropertyControlVisibleHideSoundPath:
+			control->m_Skin->m_VisibleHideSoundPath = path;
+			break;
+		case PropertyControlMouseEnterSoundPath:
+			control->m_Skin->m_MouseEnterSoundPath = path;
+			break;
+		case PropertyControlMouseLeaveSoundPath:
+			control->m_Skin->m_MouseLeaveSoundPath = path;
+			break;
+		case PropertyControlMouseClickSoundPath:
+			control->m_Skin->m_MouseClickSoundPath = path;
+			break;
+		}
+		if (control->IsRequested())
+		{
+			control->m_Skin->RequestResource();
+		}
 		break;
 	}
 	case PropertyStaticText:
