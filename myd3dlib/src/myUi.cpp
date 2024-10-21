@@ -1857,17 +1857,20 @@ void StaticSkin::OnFontReady(my::DeviceResourceBasePtr res)
 	m_Font = boost::dynamic_pointer_cast<Font>(res);
 }
 
-void StaticSkin::DrawString(UIRender* ui_render, const std::wstring& text, const my::Rectangle& rect)
+void StaticSkin::DrawString(UIRender* ui_render, const std::wstring& text, const my::Rectangle& rect, DWORD color)
 {
-	if (m_Font)
+	DWORD alpha = color & D3DCOLOR_ARGB(255, 0, 0, 0);
+	if (m_Font && !text.empty() && alpha)
 	{
-		if (!(m_TextOutlineColor & D3DCOLOR_ARGB(255, 0, 0, 0)))
+		DWORD outlinealpha = m_TextOutlineColor & D3DCOLOR_ARGB(255, 0, 0, 0);
+		if (outlinealpha)
 		{
-			ui_render->PushString(rect, D3DContext::getSingleton().OnControlTranslate(text).c_str(), m_TextColor, m_TextAlign, m_Font.get());
+			DWORD OutlineColor = m_TextOutlineColor & D3DCOLOR_ARGB(0, 255, 255, 255) | (alpha >> 24) * (outlinealpha >> 24) / 255 << 24;
+			ui_render->PushString(rect, D3DContext::getSingleton().OnControlTranslate(text).c_str(), color, m_TextAlign, OutlineColor, m_TextOutlineWidth, m_Font.get());
 		}
 		else
 		{
-			ui_render->PushString(rect, D3DContext::getSingleton().OnControlTranslate(text).c_str(), m_TextColor, m_TextAlign, m_TextOutlineColor, m_TextOutlineWidth, m_Font.get());
+			ui_render->PushString(rect, D3DContext::getSingleton().OnControlTranslate(text).c_str(), color, m_TextAlign, m_Font.get());
 		}
 	}
 }
@@ -1903,7 +1906,7 @@ void Static::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offs
 
 			Skin->DrawImage(ui_render, m_Skin->m_Image, m_Rect, m_Skin->m_Color);
 
-			Skin->DrawString(ui_render, m_Text, m_Rect);
+			Skin->DrawString(ui_render, m_Text, m_Rect, Skin->m_TextColor);
 		}
 
 		ControlPtrList::iterator ctrl_iter = m_Childs.begin();
@@ -1959,7 +1962,7 @@ void ProgressBar::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 &
 			Rectangle ProgressRect(m_Rect.l, m_Rect.t, Lerp(m_Rect.l, m_Rect.r, Max(0.0f, Min(1.0f, m_BlendProgress))), m_Rect.b);
 			Skin->DrawImage(ui_render, Skin->m_ForegroundImage, ProgressRect, m_Skin->m_Color);
 
-			Skin->DrawString(ui_render, m_Text, m_Rect);
+			Skin->DrawString(ui_render, m_Text, m_Rect, Skin->m_TextColor);
 		}
 
 		ControlPtrList::iterator ctrl_iter = m_Childs.begin();
@@ -2055,7 +2058,7 @@ void Button::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offs
 				}
 			}
 
-			Skin->DrawString(ui_render, m_Text, ButtonRect);
+			Skin->DrawString(ui_render, m_Text, ButtonRect, Skin->m_TextColor);
 		}
 
 		ControlPtrList::iterator ctrl_iter = m_Childs.begin();
@@ -3346,7 +3349,7 @@ void CheckBox::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Of
 				}
 			}
 
-			Skin->DrawString(ui_render, m_Text, ButtonRect);
+			Skin->DrawString(ui_render, m_Text, ButtonRect, Skin->m_TextColor);
 		}
 
 		ControlPtrList::iterator ctrl_iter = m_Childs.begin();
@@ -3547,7 +3550,7 @@ void ComboBox::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Of
 				}
 			}
 
-			Skin->DrawString(ui_render, m_Text, BtnRect);
+			Skin->DrawString(ui_render, m_Text, BtnRect, Skin->m_TextColor);
 		}
 
 		ControlPtrList::iterator ctrl_iter = m_Childs.begin();

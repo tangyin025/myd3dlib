@@ -1099,10 +1099,10 @@ namespace my
 		static Vector4 FromArgb(DWORD argb)
 		{
 			return Vector4(
-				(argb >> 16 & 0xff) / 255.f,
-				(argb >> 8 & 0xff) / 255.f,
+				LOBYTE(argb >> 16) / 255.f,
+				LOBYTE(argb >> 8) / 255.f,
 				(argb & 0xff) / 255.f,
-				(argb >> 24 & 0xff) / 255.f);
+				LOBYTE(argb >> 24) / 255.f);
 		}
 
 		DWORD toArgb(void) const
