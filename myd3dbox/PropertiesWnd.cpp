@@ -298,6 +298,7 @@ void CPropertiesWnd::OnSelectionChanged(my::EventArg * arg)
 	}
 	else
 	{
+		m_wndPropList.EndEditItem(FALSE);
 		m_wndPropList.RemoveAll();
 		m_wndPropList.AdjustLayout();
 	}
