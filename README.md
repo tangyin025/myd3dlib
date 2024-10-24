@@ -25,7 +25,8 @@ libzip 1.9.2<br>
 Lua 5.1.5<br>
 Luabind 0.9.1<br>
 LuaJIT 2.1<br>
-minimp3<br>
+libogg 1.3.5<br>
+libvorbis 1.3.7<br>
 stb_image 2.27<br>
 
 screenshots

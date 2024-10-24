@@ -160,7 +160,7 @@ bool Mp3::PlayOnceByThread(void)
 	}
 
 	// set the default block which to begin playing
-	BOOST_VERIFY(::SetEvent(m_dsnp[0].hEventNotify));
+	BOOST_VERIFY(::SetEvent(m_dsnp[_countof(m_dsnp) - 1].hEventNotify));
 
 	//CachePtr cache = my::ResourceMgr::getSingleton().OpenIStream(m_Mp3Path.c_str())->GetWholeCache();
 
@@ -571,7 +571,13 @@ int convsize = 4096;
 										{
 											// out if stop event occured
 											m_dsbuffer->Stop();
-											break;
+											vorbis_block_clear(&vb);
+											vorbis_dsp_clear(&vd);
+											ogg_stream_clear(&os);
+											vorbis_comment_clear(&vc);
+											vorbis_info_clear(&vi);  /* must be called last */
+											ogg_sync_clear(&oy);
+											return false;
 										}
 
 										// calculate current block
