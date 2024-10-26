@@ -185,6 +185,7 @@ bool Mp3::PlayOnceByThread(void)
 	//				// normal play end, need to continue if looped
 	//				ret = true;
 	//			}
+	//			my::CriticalSectionLock lock(m_buffersec);
 	//			m_dsbuffer->Stop();
 	//		}
 	//		break;
@@ -227,7 +228,7 @@ bool Mp3::PlayOnceByThread(void)
 
 	//		DSBUFFERDESC dsbd;
 	//		dsbd.dwSize = sizeof(dsbd);
-	//		dsbd.dwFlags = DSBCAPS_CTRLVOLUME | DSBCAPS_CTRLPOSITIONNOTIFY | DSBCAPS_LOCSOFTWARE;
+	//		dsbd.dwFlags = DSBCAPS_CTRLVOLUME | DSBCAPS_CTRLPOSITIONNOTIFY | DSBCAPS_LOCSOFTWARE | DSBCAPS_GLOBALFOCUS;
 	//		dsbd.dwBufferBytes = m_wavfmt.nAvgBytesPerSec * BLOCK_COUNT;
 	//		dsbd.dwReserved = 0;
 	//		dsbd.lpwfxFormat = &m_wavfmt;
@@ -241,6 +242,7 @@ bool Mp3::PlayOnceByThread(void)
 
 	//		// create dsound buffer & notify
 	//		my::CriticalSectionLock lock(SoundContext::getSingleton().m_soundsec);
+	//		my::CriticalSectionLock lock2(m_buffersec);
 	//		m_dsbuffer = SoundContext::getSingleton().m_sound.CreateSoundBuffer(&dsbd);
 	//		lock.Unlock();
 	//		m_dsnotify = m_dsbuffer->GetNotify();
@@ -258,6 +260,7 @@ bool Mp3::PlayOnceByThread(void)
 	//		if (wait_res == WAIT_OBJECT_0)
 	//		{
 	//			// out if stop event occured
+	//			my::CriticalSectionLock lock(m_buffersec);
 	//			m_dsbuffer->Stop();
 	//			break;
 	//		}
@@ -272,6 +275,7 @@ bool Mp3::PlayOnceByThread(void)
 	//		// decoded sound buffer copying
 	//		unsigned char* audioPtr1, * audioPtr2;
 	//		DWORD audioBytes1, audioBytes2;
+	//		my::CriticalSectionLock lock(m_buffersec);
 	//		m_dsbuffer->Lock(m_dsnp[next_block].dwOffset, m_wavfmt.nAvgBytesPerSec, (LPVOID*)&audioPtr1, &audioBytes1, (LPVOID*)&audioPtr2, &audioBytes2, 0);
 	//		_ASSERT(audioBytes1 + audioBytes2 <= m_wavfmt.nAvgBytesPerSec);
 	//		if (audioPtr1 != NULL)
@@ -291,6 +295,7 @@ bool Mp3::PlayOnceByThread(void)
 	//			m_dsbuffer->SetCurrentPosition(m_dsnp[next_block].dwOffset);
 	//			m_dsbuffer->Play(0, DSBPLAY_LOOPING);
 	//		}
+	//		lock.Unlock();
 
 	//		// move remain buffer which havent been pushed into dsound buffer to header
 	//		size_t remain = sbuffer.size() - m_wavfmt.nAvgBytesPerSec;
@@ -341,7 +346,26 @@ int convsize = 4096;
 		/* Get the first page. */
 		if (ogg_sync_pageout(&oy, &og) != 1) {
 			/* have we simply run out of data?  If so, we're done. */
-			if (bytes < 4096)break;
+			if (bytes < 4096)
+			{
+				if (NULL != m_dsbuffer)
+				{
+					// wait for dsound buffer block playing
+					_ASSERT(sizeof(m_events) == sizeof(HANDLE) * _countof(m_events));
+					if (WAIT_OBJECT_0 == ::WaitForMultipleObjects(_countof(m_events), reinterpret_cast<HANDLE*>(m_events), FALSE, INFINITE))
+					{
+						my::CriticalSectionLock lock(m_buffersec);
+						m_dsbuffer->Stop();
+						lock.Unlock();
+						ogg_sync_clear(&oy);
+						return false;
+					}
+					// normal play end, need to continue if looped
+					my::CriticalSectionLock lock(m_buffersec);
+					m_dsbuffer->Stop();
+				}
+				break;
+			}
 
 			/* error case.  Must not be Vorbis data */
 			D3DContext::getSingleton().m_EventLog("Input does not appear to be an Ogg bitstream.\n");
@@ -457,7 +481,7 @@ int convsize = 4096;
 
 			DSBUFFERDESC dsbd;
 			dsbd.dwSize = sizeof(dsbd);
-			dsbd.dwFlags = DSBCAPS_CTRLVOLUME | DSBCAPS_CTRLPOSITIONNOTIFY | DSBCAPS_LOCSOFTWARE;
+			dsbd.dwFlags = DSBCAPS_CTRLVOLUME | DSBCAPS_CTRLPOSITIONNOTIFY | DSBCAPS_LOCSOFTWARE | DSBCAPS_GLOBALFOCUS;
 			dsbd.dwBufferBytes = m_wavfmt.nAvgBytesPerSec * BLOCK_COUNT;
 			dsbd.dwReserved = 0;
 			dsbd.lpwfxFormat = &m_wavfmt;
