@@ -2762,6 +2762,11 @@ void LuaContext::Init(void)
 			]
 
 		, class_<my::SoundBuffer, boost::shared_ptr<my::SoundBuffer> >("SoundBuffer")
+			.enum_("DSBVOLUME")
+			[
+				value("DSBVOLUME_MIN", DSBVOLUME_MIN),
+				value("DSBVOLUME_MAX", DSBVOLUME_MAX)
+			]
 			.def("Play", &my::SoundBuffer::Play)
 			.def("Stop", &my::SoundBuffer::Stop)
 			.property("Frequency", &my::SoundBuffer::GetFrequency, &my::SoundBuffer::SetFrequency)
@@ -3559,7 +3564,9 @@ void LuaContext::Init(void)
 
 		, class_<Mp3, boost::shared_ptr<Mp3> >("Mp3")
 			.def(constructor<>())
+			.def_readonly("Mp3Path", &Mp3::m_Mp3Path)
 			.def("Play", &Mp3::Play)
+			.property("Volume", &Mp3::GetVolume, &Mp3::SetVolume)
 			.def("StopAsync", &Mp3::StopAsync)
 			.def("Stop", &Mp3::Stop)
 

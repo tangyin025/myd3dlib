@@ -471,6 +471,7 @@ int convsize = 4096;
 
 			// create dsound buffer & notify
 			my::CriticalSectionLock lock(SoundContext::getSingleton().m_soundsec);
+			my::CriticalSectionLock lock2(m_buffersec);
 			m_dsbuffer = SoundContext::getSingleton().m_sound.CreateSoundBuffer(&dsbd);
 			lock.Unlock();
 			m_dsnotify = m_dsbuffer->GetNotify();
@@ -570,7 +571,9 @@ int convsize = 4096;
 										if (wait_res == WAIT_OBJECT_0)
 										{
 											// out if stop event occured
+											my::CriticalSectionLock lock(m_buffersec);
 											m_dsbuffer->Stop();
+											lock.Unlock();
 											vorbis_block_clear(&vb);
 											vorbis_dsp_clear(&vd);
 											ogg_stream_clear(&os);
@@ -590,6 +593,7 @@ int convsize = 4096;
 										// decoded sound buffer copying
 										unsigned char* audioPtr1, * audioPtr2;
 										DWORD audioBytes1, audioBytes2;
+										my::CriticalSectionLock lock(m_buffersec);
 										m_dsbuffer->Lock(m_dsnp[next_block].dwOffset, m_wavfmt.nAvgBytesPerSec, (LPVOID*)&audioPtr1, &audioBytes1, (LPVOID*)&audioPtr2, &audioBytes2, 0);
 										_ASSERT(audioBytes1 + audioBytes2 <= m_wavfmt.nAvgBytesPerSec);
 										if (audioPtr1 != NULL)
@@ -607,8 +611,10 @@ int convsize = 4096;
 										{
 											// reset play position
 											m_dsbuffer->SetCurrentPosition(m_dsnp[next_block].dwOffset);
+											m_dsbuffer->SetVolume(m_Volume);
 											m_dsbuffer->Play(0, DSBPLAY_LOOPING);
 										}
+										lock.Unlock();
 
 										// move remain buffer which havent been pushed into dsound buffer to header
 										size_t remain = convbuffer.size() - m_wavfmt.nAvgBytesPerSec;
@@ -699,6 +705,21 @@ void Mp3::Play(const char* path, bool Loop)
 	ResumeThread();
 }
 
+LONG Mp3::GetVolume(void)
+{
+	return m_Volume;
+}
+
+void Mp3::SetVolume(LONG lVolume)
+{
+	m_Volume = my::Clamp(lVolume, (LONG)DSBVOLUME_MIN, (LONG)DSBVOLUME_MAX);
+	my::CriticalSectionLock lock(m_buffersec);
+	if (m_dsbuffer)
+	{
+		m_dsbuffer->SetVolume(m_Volume);
+	}
+}
+
 void Mp3::StopAsync(void)
 {
 	m_events[0].SetEvent();
@@ -711,6 +732,8 @@ void Mp3::Stop(void)
 	WaitForThreadStopped(INFINITE);
 
 	CloseThread();
+
+	m_Mp3Path.clear();
 }
 
 DWORD Mp3::OnThreadProc(void)

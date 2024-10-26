@@ -60,12 +60,14 @@ public:
 
 class Mp3 : public my::Thread
 {
-protected:
+public:
 	static const DWORD BLOCK_COUNT = 3;
 
 	WAVEFORMATEX m_wavfmt;
 
 	my::SoundBufferPtr m_dsbuffer;
+
+	my::CriticalSection m_buffersec;
 
 	my::SoundNotifyPtr m_dsnotify;
 
@@ -77,6 +79,8 @@ protected:
 
 	bool m_Loop;
 
+	LONG m_Volume;
+
 	bool PlayOnceByThread(void);
 
 public:
@@ -85,6 +89,10 @@ public:
 	virtual ~Mp3(void);
 
 	void Play(const char * path, bool Loop);
+
+	LONG GetVolume(void);
+
+	void SetVolume(LONG lVolume);
 
 	void StopAsync(void);
 
