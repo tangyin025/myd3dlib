@@ -90,6 +90,8 @@ public:
 
 	void Play(const char * path, bool Loop);
 
+	bool IsPlaying(void);
+
 	LONG GetVolume(void);
 
 	void SetVolume(LONG lVolume);

@@ -729,6 +729,11 @@ void Mp3::Play(const char* path, bool Loop)
 	ResumeThread();
 }
 
+bool Mp3::IsPlaying(void)
+{
+	return WaitForThreadStopped(0) == FALSE;
+}
+
 LONG Mp3::GetVolume(void)
 {
 	return m_Volume;
@@ -756,8 +761,6 @@ void Mp3::Stop(void)
 	WaitForThreadStopped(INFINITE);
 
 	CloseThread();
-
-	m_Mp3Path.clear();
 }
 
 DWORD Mp3::OnThreadProc(void)
