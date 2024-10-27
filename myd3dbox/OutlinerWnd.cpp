@@ -228,7 +228,8 @@ void COutlinerWnd::OnLvnGetdispinfoList(NMHDR* pNMHDR, LRESULT* pResult)
 				pItem->iImage = 21 + 4;
 				break;
 			case my::Control::ControlTypeScrollBar:
-				pItem->iImage = 21 + 7;
+			case my::Control::ControlTypeHorizontalScrollBar:
+				pItem->iImage = 21 + 8;
 				break;
 			case my::Control::ControlTypeCheckBox:
 				pItem->iImage = 21 + 5;
