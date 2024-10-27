@@ -507,6 +507,8 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_UPDATE_COMMAND_UI(ID_CONTROL_COMBOBOX, &CMainFrame::OnUpdateControlCombobox)
 	ON_COMMAND(ID_CONTROL_LISTBOX, &CMainFrame::OnControlListbox)
 	ON_UPDATE_COMMAND_UI(ID_CONTROL_LISTBOX, &CMainFrame::OnUpdateControlListbox)
+	ON_COMMAND(ID_CONTROL_SCROLLBAR, &CMainFrame::OnControlScrollbar)
+	ON_UPDATE_COMMAND_UI(ID_CONTROL_SCROLLBAR, &CMainFrame::OnUpdateControlScrollbar)
 	ON_COMMAND_RANGE(ID_TOOLS_SCRIPT1, ID_TOOLS_SCRIPT_LAST, &CMainFrame::OnToolsScript1)
 	ON_UPDATE_COMMAND_UI_RANGE(ID_TOOLS_SCRIPT1, ID_TOOLS_SCRIPT_LAST, &CMainFrame::OnUpdateToolsScript1)
 	ON_COMMAND(ID_TOOLS_SNAPSHOT, &CMainFrame::OnToolsSnapshot)
@@ -2782,6 +2784,54 @@ void CMainFrame::OnControlListbox()
 
 
 void CMainFrame::OnUpdateControlListbox(CCmdUI* pCmdUI)
+{
+	// TODO: Add your command update UI handler code here
+	pCmdUI->Enable(!m_selctls.empty());
+}
+
+
+void CMainFrame::OnControlScrollbar()
+{
+	// TODO: Add your command handler code here
+	my::ScrollBarSkinPtr skin(new my::ScrollBarSkin());
+	skin->m_Image.reset(new my::ControlImage());
+	skin->m_Image->m_TexturePath = theApp.default_listbox_scrollbar_img;
+	skin->m_Image->m_Rect = theApp.default_listbox_scrollbar_img_rect;
+	skin->m_Image->m_Border = theApp.default_listbox_scrollbar_img_border;
+	skin->m_PressedOffset = theApp.default_button_pressed_offset;
+	skin->m_UpBtnNormalImage.reset(new my::ControlImage());
+	skin->m_UpBtnNormalImage->m_TexturePath = theApp.default_listbox_scrollbarupbtn_normalimg;
+	skin->m_UpBtnNormalImage->m_Rect = theApp.default_listbox_scrollbarupbtn_normalimg_rect;
+	skin->m_UpBtnNormalImage->m_Border = theApp.default_listbox_scrollbarupbtn_normalimg_border;
+	skin->m_UpBtnDisabledImage.reset(new my::ControlImage());
+	skin->m_UpBtnDisabledImage->m_TexturePath = theApp.default_listbox_scrollbarupbtn_disabledimg;
+	skin->m_UpBtnDisabledImage->m_Rect = theApp.default_listbox_scrollbarupbtn_disabledimg_rect;
+	skin->m_UpBtnDisabledImage->m_Border = theApp.default_listbox_scrollbarupbtn_disabledimg_border;
+	skin->m_DownBtnNormalImage.reset(new my::ControlImage());
+	skin->m_DownBtnNormalImage->m_TexturePath = theApp.default_listbox_scrollbardownbtn_normalimg;
+	skin->m_DownBtnNormalImage->m_Rect = theApp.default_listbox_scrollbardownbtn_normalimg_rect;
+	skin->m_DownBtnNormalImage->m_Border = theApp.default_listbox_scrollbardownbtn_normalimg_border;
+	skin->m_DownBtnDisabledImage.reset(new my::ControlImage());
+	skin->m_DownBtnDisabledImage->m_TexturePath = theApp.default_listbox_scrollbardownbtn_disabledimg;
+	skin->m_DownBtnDisabledImage->m_Rect = theApp.default_listbox_scrollbardownbtn_disabledimg_rect;
+	skin->m_DownBtnDisabledImage->m_Border = theApp.default_listbox_scrollbardownbtn_disabledimg_border;
+	skin->m_ThumbBtnNormalImage.reset(new my::ControlImage());
+	skin->m_ThumbBtnNormalImage->m_TexturePath = theApp.default_listbox_scrollbarthumbbtn_normalimg;
+	skin->m_ThumbBtnNormalImage->m_Rect = theApp.default_listbox_scrollbarthumbbtn_normalimg_rect;
+	skin->m_ThumbBtnNormalImage->m_Border = theApp.default_listbox_scrollbarthumbbtn_normalimg_border;
+
+	my::ScrollBarPtr scrollbar(new my::ScrollBar(my::NamedObject::MakeUniqueName((std::string(m_selctls.front()->GetName()) + "_scrollbar0").c_str()).c_str()));
+	scrollbar->m_Skin = skin;
+	scrollbar->m_x.offset = 10;
+	scrollbar->m_y.offset = 10;
+
+	m_selctls.front()->InsertControl(scrollbar);
+	m_selctls.front() = scrollbar.get();
+	OnSelChanged();
+}
+
+
+void CMainFrame::OnUpdateControlScrollbar(CCmdUI* pCmdUI)
 {
 	// TODO: Add your command update UI handler code here
 	pCmdUI->Enable(!m_selctls.empty());

@@ -237,6 +237,8 @@ public:
 	afx_msg void OnUpdateControlCombobox(CCmdUI* pCmdUI);
 	afx_msg void OnControlListbox();
 	afx_msg void OnUpdateControlListbox(CCmdUI* pCmdUI);
+	afx_msg void OnControlScrollbar();
+	afx_msg void OnUpdateControlScrollbar(CCmdUI* pCmdUI);
 	virtual BOOL OnShowPopupMenu(CMFCPopupMenu* pMenuPopup);
 	afx_msg void OnToolsScript1(UINT id);
 	afx_msg void OnUpdateToolsScript1(CCmdUI* pCmdUI);
