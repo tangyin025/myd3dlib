@@ -3300,6 +3300,176 @@ void ScrollBar::ScrollTo(int nPosition)
 	}
 }
 
+void HorizontalScrollBar::Draw(UIRender* ui_render, float fElapsedTime, const Vector2& Offset, const Vector2& Size)
+{
+	SimulateRepeatedScroll();
+
+	if (m_bVisible)
+	{
+		m_Rect = Rectangle::LeftTop(Offset.x + m_x.scale * Size.x + m_x.offset, Offset.y + m_y.scale * Size.y + m_y.offset, m_Width.scale * Size.x + m_Width.offset, m_Height.scale * Size.y + m_Height.offset);
+
+		if (m_Skin)
+		{
+			ScrollBarSkinPtr Skin = boost::dynamic_pointer_cast<ScrollBarSkin>(m_Skin);
+			_ASSERT(Skin);
+
+			Skin->DrawImage(ui_render, Skin->m_Image, m_Rect, m_Skin->m_Color);
+
+			Rectangle UpButtonRect = Rectangle::LeftTop(m_Rect.l, m_Rect.t, m_Rect.Width(), m_UpDownButtonHeight);
+			if (m_Arrow == CLICKED_UP || m_Arrow == HELD_UP)
+			{
+				UpButtonRect.offsetSelf(Skin->m_PressedOffset);
+			}
+
+			Rectangle DownButtonRect = Rectangle::RightBottom(m_Rect.r, m_Rect.b, m_Rect.Width(), m_UpDownButtonHeight);
+			if (m_Arrow == CLICKED_DOWN || m_Arrow == HELD_DOWN)
+			{
+				DownButtonRect.offsetSelf(Skin->m_PressedOffset);
+			}
+
+			if (m_bEnabled && m_nEnd - m_nStart > m_nPageSize)
+			{
+				Skin->DrawImage(ui_render, m_nPosition > 0 ? Skin->m_UpBtnNormalImage : Skin->m_UpBtnDisabledImage, UpButtonRect, m_Skin->m_Color);
+
+				Skin->DrawImage(ui_render, m_nPosition < m_nEnd - m_nPageSize ? Skin->m_DownBtnNormalImage : Skin->m_DownBtnDisabledImage, DownButtonRect, m_Skin->m_Color);
+
+				float fTrackHeight = m_Rect.Height() - m_UpDownButtonHeight * 2;
+				float fThumbHeight = fTrackHeight * m_nPageSize / (m_nEnd - m_nStart);
+				int nMaxPosition = m_nEnd - m_nStart - m_nPageSize;
+				float fThumbTop = m_Rect.t + m_UpDownButtonHeight + (float)(m_nPosition - m_nStart) / nMaxPosition * (fTrackHeight - fThumbHeight);
+				Rectangle ThumbButtonRect = Rectangle::LeftTop(m_Rect.l, fThumbTop, m_Rect.Width(), fThumbHeight);
+				if (m_bDrag)
+				{
+					ThumbButtonRect.offsetSelf(Skin->m_PressedOffset);
+				}
+
+				Skin->DrawImage(ui_render, Skin->m_ThumbBtnNormalImage, ThumbButtonRect, m_Skin->m_Color);
+			}
+			else
+			{
+				Skin->DrawImage(ui_render, Skin->m_UpBtnDisabledImage, UpButtonRect, m_Skin->m_Color);
+
+				Skin->DrawImage(ui_render, Skin->m_DownBtnDisabledImage, DownButtonRect, m_Skin->m_Color);
+			}
+		}
+
+		ControlPtrList::iterator ctrl_iter = m_Childs.begin();
+		for (; ctrl_iter != m_Childs.end(); ctrl_iter++)
+		{
+			(*ctrl_iter)->Draw(ui_render, fElapsedTime, m_Rect.LeftTop(), m_Rect.Extent());
+		}
+	}
+}
+
+bool HorizontalScrollBar::HandleMouse(UINT uMsg, const Vector2& pt, WPARAM wParam, LPARAM lParam)
+{
+	switch (uMsg)
+	{
+	case WM_LBUTTONDOWN:
+	case WM_LBUTTONDBLCLK:
+	{
+		Rectangle UpButtonRect = Rectangle::LeftTop(m_Rect.l, m_Rect.t, m_Rect.Width(), m_UpDownButtonHeight);
+		if (UpButtonRect.PtInRect(pt))
+		{
+			if (m_nPosition > m_nStart)
+				--m_nPosition;
+			m_Arrow = CLICKED_UP;
+			m_dwArrowTS = timeGetTime();
+			m_bPressed = true;
+			SetCaptureControl(this);
+			return true;
+		}
+
+		Rectangle DownButtonRect = Rectangle::RightBottom(m_Rect.r, m_Rect.b, m_Rect.Width(), m_UpDownButtonHeight);
+		if (DownButtonRect.PtInRect(pt))
+		{
+			if (m_nPosition + m_nPageSize < m_nEnd)
+				++m_nPosition;
+			m_Arrow = CLICKED_DOWN;
+			m_dwArrowTS = timeGetTime();
+			m_bPressed = true;
+			SetCaptureControl(this);
+			return true;
+		}
+
+		float fTrackHeight = m_Rect.Height() - m_UpDownButtonHeight * 2;
+		float fThumbHeight = fTrackHeight * m_nPageSize / (m_nEnd - m_nStart);
+		int nMaxPosition = m_nEnd - m_nStart - m_nPageSize;
+		float fMaxThumb = fTrackHeight - fThumbHeight;
+		float fThumbTop = (float)(m_nPosition - m_nStart) / nMaxPosition * fMaxThumb;
+		Rectangle ThumbButtonRect(m_Rect.l, UpButtonRect.b + fThumbTop, m_Rect.r, UpButtonRect.b + fThumbTop + fThumbHeight);
+		if (ThumbButtonRect.PtInRect(pt))
+		{
+			m_bDrag = true;
+			m_fThumbOffsetY = pt.y - fThumbTop;
+			SetCaptureControl(this);
+			return true;
+		}
+
+		if (pt.x >= ThumbButtonRect.l && pt.x < ThumbButtonRect.r)
+		{
+			if (pt.y >= UpButtonRect.b && pt.y < ThumbButtonRect.t)
+			{
+				Scroll(-m_nPageSize);
+				m_bPressed = true;
+				SetCaptureControl(this);
+				return true;
+			}
+			else if (pt.y >= ThumbButtonRect.b && pt.y < DownButtonRect.t)
+			{
+				Scroll(m_nPageSize);
+				m_bPressed = true;
+				SetCaptureControl(this);
+				return true;
+			}
+		}
+	}
+	break;
+
+	case WM_LBUTTONUP:
+		if (m_bPressed || m_bDrag)
+		{
+			SetCaptureControl(NULL);
+			m_bPressed = false;
+			m_bDrag = false;
+			m_Arrow = CLEAR;
+			OnMouseClick(pt);
+			break;
+		}
+		break;
+
+	case WM_MOUSEMOVE:
+		if (m_bDrag)
+		{
+			float fTrackHeight = m_Rect.Height() - m_UpDownButtonHeight * 2;
+			float fThumbHeight = fTrackHeight * m_nPageSize / (m_nEnd - m_nStart);
+			int nMaxPosition = m_nEnd - m_nStart - m_nPageSize;
+			float fMaxThumb = fTrackHeight - fThumbHeight;
+			float fThumbTop = pt.y - m_fThumbOffsetY;
+
+			//if(fThumbTop < 0)
+			//	fThumbTop = 0;
+			//else if(fThumbTop + fThumbHeight > m_Rect.Height() - m_UpDownButtonHeight * 2)
+			//	fThumbTop = m_Rect.Height() - m_UpDownButtonHeight * 2 - fThumbHeight;
+
+			m_nPosition = Max(m_nStart, Min(m_nEnd - m_nPageSize, (int)(m_nStart + (fThumbTop + fMaxThumb / (nMaxPosition * 2)) * nMaxPosition / fMaxThumb)));
+			return true;
+		}
+		break;
+
+	case WM_MOUSEWHEEL:
+	{
+		UINT uLines;
+		SystemParametersInfo(SPI_GETWHEELSCROLLLINES, 0, &uLines, 0);
+		int zDelta = (short)HIWORD(wParam) / WHEEL_DELTA;
+		Scroll(-zDelta * uLines);
+		return true;
+	}
+	break;
+	}
+	return false;
+}
+
 void CheckBox::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset, const Vector2 & Size)
 {
 	if(m_bVisible)

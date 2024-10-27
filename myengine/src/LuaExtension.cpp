@@ -2327,6 +2327,9 @@ void LuaContext::Init(void)
 			.def_readwrite("nStart", &my::ScrollBar::m_nStart) // ! should use property
 			.def_readwrite("nEnd", &my::ScrollBar::m_nEnd) // ! should use property
 
+		, class_<my::HorizontalScrollBar, my::ScrollBar, boost::shared_ptr<my::Control> >("HorizontalScrollBar")
+			.def(constructor<const char*>())
+
 		, class_<my::CheckBox, my::Button, boost::shared_ptr<my::Control> >("CheckBox")
 			.def(constructor<const char *>())
 			.def_readwrite("Checked", &my::CheckBox::m_Checked)

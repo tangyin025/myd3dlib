@@ -2820,7 +2820,7 @@ void CMainFrame::OnControlScrollbar()
 	skin->m_ThumbBtnNormalImage->m_Rect = theApp.default_listbox_scrollbarthumbbtn_normalimg_rect;
 	skin->m_ThumbBtnNormalImage->m_Border = theApp.default_listbox_scrollbarthumbbtn_normalimg_border;
 
-	my::ScrollBarPtr scrollbar(new my::ScrollBar(my::NamedObject::MakeUniqueName((std::string(m_selctls.front()->GetName()) + "_scrollbar0").c_str()).c_str()));
+	my::ScrollBarPtr scrollbar(new my::HorizontalScrollBar(my::NamedObject::MakeUniqueName((std::string(m_selctls.front()->GetName()) + "_scrollbar0").c_str()).c_str()));
 	scrollbar->m_Skin = skin;
 	scrollbar->m_x.offset = 10;
 	scrollbar->m_y.offset = 10;

@@ -1128,6 +1128,24 @@ namespace my
 
 	typedef boost::shared_ptr<ScrollBar> ScrollBarPtr;
 
+	class HorizontalScrollBar : public ScrollBar
+	{
+	protected:
+		HorizontalScrollBar(void)
+		{
+		}
+
+	public:
+		HorizontalScrollBar(const char* Name)
+			: ScrollBar(Name)
+		{
+		}
+
+		virtual void Draw(UIRender* ui_render, float fElapsedTime, const Vector2& Offset, const Vector2& Size);
+
+		virtual bool HandleMouse(UINT uMsg, const Vector2& pt, WPARAM wParam, LPARAM lParam);
+	};
+
 	class CheckBox : public Button
 	{
 	public:
