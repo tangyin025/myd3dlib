@@ -2194,6 +2194,7 @@ void LuaContext::Init(void)
 				value("ControlTypeEditBox", my::Control::ControlTypeEditBox),
 				value("ControlTypeImeEditBox", my::Control::ControlTypeImeEditBox),
 				value("ControlTypeScrollBar", my::Control::ControlTypeScrollBar),
+				value("ControlTypeHorizontalScrollBar", my::Control::ControlTypeHorizontalScrollBar),
 				value("ControlTypeCheckBox", my::Control::ControlTypeCheckBox),
 				value("ControlTypeComboBox", my::Control::ControlTypeComboBox),
 				value("ControlTypeListBox", my::Control::ControlTypeListBox),
