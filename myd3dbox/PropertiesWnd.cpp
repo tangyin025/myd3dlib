@@ -964,6 +964,7 @@ void CPropertiesWnd::UpdatePropertiesControl(my::Control * control)
 		UpdatePropertiesStatic(pControl, dynamic_cast<my::Static*>(control));
 		break;
 	case my::Control::ControlTypeScrollBar:
+	case my::Control::ControlTypeHorizontalScrollBar:
 		UpdatePropertiesScrollBar(pControl, dynamic_cast<my::ScrollBar*>(control));
 		break;
 	case my::Control::ControlTypeCheckBox:
@@ -2263,6 +2264,7 @@ void CPropertiesWnd::CreatePropertiesControl(my::Control * control)
 		CreatePropertiesStatic(pControl, dynamic_cast<my::Static*>(control));
 		break;
 	case my::Control::ControlTypeScrollBar:
+	case my::Control::ControlTypeHorizontalScrollBar:
 		CreatePropertiesScrollBar(pControl, dynamic_cast<my::ScrollBar*>(control));
 		break;
 	case my::Control::ControlTypeCheckBox:
@@ -3063,6 +3065,8 @@ LPCTSTR CPropertiesWnd::GetControlTypeName(DWORD type)
 		return _T("ImeEditBox");
 	case my::Control::ControlTypeScrollBar:
 		return _T("ScrollBar");
+	case my::Control::ControlTypeHorizontalScrollBar:
+		return _T("HorizontalScrollBar");
 	case my::Control::ControlTypeCheckBox:
 		return _T("CheckBox");
 	case my::Control::ControlTypeComboBox:

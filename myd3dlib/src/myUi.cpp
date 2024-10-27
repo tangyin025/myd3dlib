@@ -55,6 +55,8 @@ BOOST_CLASS_EXPORT(ScrollBarSkin)
 
 BOOST_CLASS_EXPORT(ScrollBar)
 
+BOOST_CLASS_EXPORT(HorizontalScrollBar)
+
 BOOST_CLASS_EXPORT(CheckBox)
 
 BOOST_CLASS_EXPORT(ComboBoxSkin)
@@ -3315,13 +3317,13 @@ void HorizontalScrollBar::Draw(UIRender* ui_render, float fElapsedTime, const Ve
 
 			Skin->DrawImage(ui_render, Skin->m_Image, m_Rect, m_Skin->m_Color);
 
-			Rectangle UpButtonRect = Rectangle::LeftTop(m_Rect.l, m_Rect.t, m_Rect.Width(), m_UpDownButtonHeight);
+			Rectangle UpButtonRect = Rectangle::LeftTop(m_Rect.l, m_Rect.t, m_UpDownButtonHeight, m_Rect.Height());
 			if (m_Arrow == CLICKED_UP || m_Arrow == HELD_UP)
 			{
 				UpButtonRect.offsetSelf(Skin->m_PressedOffset);
 			}
 
-			Rectangle DownButtonRect = Rectangle::RightBottom(m_Rect.r, m_Rect.b, m_Rect.Width(), m_UpDownButtonHeight);
+			Rectangle DownButtonRect = Rectangle::RightBottom(m_Rect.r, m_Rect.b, m_UpDownButtonHeight, m_Rect.Height());
 			if (m_Arrow == CLICKED_DOWN || m_Arrow == HELD_DOWN)
 			{
 				DownButtonRect.offsetSelf(Skin->m_PressedOffset);
@@ -3333,11 +3335,11 @@ void HorizontalScrollBar::Draw(UIRender* ui_render, float fElapsedTime, const Ve
 
 				Skin->DrawImage(ui_render, m_nPosition < m_nEnd - m_nPageSize ? Skin->m_DownBtnNormalImage : Skin->m_DownBtnDisabledImage, DownButtonRect, m_Skin->m_Color);
 
-				float fTrackHeight = m_Rect.Height() - m_UpDownButtonHeight * 2;
+				float fTrackHeight = m_Rect.Width() - m_UpDownButtonHeight * 2;
 				float fThumbHeight = fTrackHeight * m_nPageSize / (m_nEnd - m_nStart);
 				int nMaxPosition = m_nEnd - m_nStart - m_nPageSize;
-				float fThumbTop = m_Rect.t + m_UpDownButtonHeight + (float)(m_nPosition - m_nStart) / nMaxPosition * (fTrackHeight - fThumbHeight);
-				Rectangle ThumbButtonRect = Rectangle::LeftTop(m_Rect.l, fThumbTop, m_Rect.Width(), fThumbHeight);
+				float fThumbTop = m_Rect.l + m_UpDownButtonHeight + (float)(m_nPosition - m_nStart) / nMaxPosition * (fTrackHeight - fThumbHeight);
+				Rectangle ThumbButtonRect = Rectangle::LeftTop(fThumbTop, m_Rect.t, fThumbHeight, m_Rect.Height());
 				if (m_bDrag)
 				{
 					ThumbButtonRect.offsetSelf(Skin->m_PressedOffset);
@@ -3368,7 +3370,7 @@ bool HorizontalScrollBar::HandleMouse(UINT uMsg, const Vector2& pt, WPARAM wPara
 	case WM_LBUTTONDOWN:
 	case WM_LBUTTONDBLCLK:
 	{
-		Rectangle UpButtonRect = Rectangle::LeftTop(m_Rect.l, m_Rect.t, m_Rect.Width(), m_UpDownButtonHeight);
+		Rectangle UpButtonRect = Rectangle::LeftTop(m_Rect.l, m_Rect.t, m_UpDownButtonHeight, m_Rect.Height());
 		if (UpButtonRect.PtInRect(pt))
 		{
 			if (m_nPosition > m_nStart)
@@ -3380,7 +3382,7 @@ bool HorizontalScrollBar::HandleMouse(UINT uMsg, const Vector2& pt, WPARAM wPara
 			return true;
 		}
 
-		Rectangle DownButtonRect = Rectangle::RightBottom(m_Rect.r, m_Rect.b, m_Rect.Width(), m_UpDownButtonHeight);
+		Rectangle DownButtonRect = Rectangle::RightBottom(m_Rect.r, m_Rect.b, m_UpDownButtonHeight, m_Rect.Height());
 		if (DownButtonRect.PtInRect(pt))
 		{
 			if (m_nPosition + m_nPageSize < m_nEnd)
@@ -3392,30 +3394,30 @@ bool HorizontalScrollBar::HandleMouse(UINT uMsg, const Vector2& pt, WPARAM wPara
 			return true;
 		}
 
-		float fTrackHeight = m_Rect.Height() - m_UpDownButtonHeight * 2;
+		float fTrackHeight = m_Rect.Width() - m_UpDownButtonHeight * 2;
 		float fThumbHeight = fTrackHeight * m_nPageSize / (m_nEnd - m_nStart);
 		int nMaxPosition = m_nEnd - m_nStart - m_nPageSize;
 		float fMaxThumb = fTrackHeight - fThumbHeight;
 		float fThumbTop = (float)(m_nPosition - m_nStart) / nMaxPosition * fMaxThumb;
-		Rectangle ThumbButtonRect(m_Rect.l, UpButtonRect.b + fThumbTop, m_Rect.r, UpButtonRect.b + fThumbTop + fThumbHeight);
+		Rectangle ThumbButtonRect(UpButtonRect.r + fThumbTop, m_Rect.t, UpButtonRect.r + fThumbTop + fThumbHeight, m_Rect.b);
 		if (ThumbButtonRect.PtInRect(pt))
 		{
 			m_bDrag = true;
-			m_fThumbOffsetY = pt.y - fThumbTop;
+			m_fThumbOffsetY = pt.x - fThumbTop;
 			SetCaptureControl(this);
 			return true;
 		}
 
-		if (pt.x >= ThumbButtonRect.l && pt.x < ThumbButtonRect.r)
+		if (pt.y >= ThumbButtonRect.t && pt.y < ThumbButtonRect.b)
 		{
-			if (pt.y >= UpButtonRect.b && pt.y < ThumbButtonRect.t)
+			if (pt.x >= UpButtonRect.r && pt.x < ThumbButtonRect.l)
 			{
 				Scroll(-m_nPageSize);
 				m_bPressed = true;
 				SetCaptureControl(this);
 				return true;
 			}
-			else if (pt.y >= ThumbButtonRect.b && pt.y < DownButtonRect.t)
+			else if (pt.x >= ThumbButtonRect.r && pt.x < DownButtonRect.l)
 			{
 				Scroll(m_nPageSize);
 				m_bPressed = true;
@@ -3441,11 +3443,11 @@ bool HorizontalScrollBar::HandleMouse(UINT uMsg, const Vector2& pt, WPARAM wPara
 	case WM_MOUSEMOVE:
 		if (m_bDrag)
 		{
-			float fTrackHeight = m_Rect.Height() - m_UpDownButtonHeight * 2;
+			float fTrackHeight = m_Rect.Width() - m_UpDownButtonHeight * 2;
 			float fThumbHeight = fTrackHeight * m_nPageSize / (m_nEnd - m_nStart);
 			int nMaxPosition = m_nEnd - m_nStart - m_nPageSize;
 			float fMaxThumb = fTrackHeight - fThumbHeight;
-			float fThumbTop = pt.y - m_fThumbOffsetY;
+			float fThumbTop = pt.x - m_fThumbOffsetY;
 
 			//if(fThumbTop < 0)
 			//	fThumbTop = 0;

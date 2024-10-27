@@ -329,6 +329,7 @@ namespace my
 			ControlTypeEditBox,
 			ControlTypeImeEditBox,
 			ControlTypeScrollBar,
+			ControlTypeHorizontalScrollBar,
 			ControlTypeCheckBox,
 			ControlTypeComboBox,
 			ControlTypeListBox,
@@ -1139,6 +1140,19 @@ namespace my
 		HorizontalScrollBar(const char* Name)
 			: ScrollBar(Name)
 		{
+		}
+
+		friend class boost::serialization::access;
+
+		template<class Archive>
+		void serialize(Archive& ar, const unsigned int version)
+		{
+			ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(ScrollBar);
+		}
+
+		virtual DWORD GetControlType(void) const
+		{
+			return ControlTypeHorizontalScrollBar;
 		}
 
 		virtual void Draw(UIRender* ui_render, float fElapsedTime, const Vector2& Offset, const Vector2& Size);
