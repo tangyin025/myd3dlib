@@ -1186,10 +1186,10 @@ void CPropertiesWnd::UpdatePropertiesScrollBar(CMFCPropertyGridProperty * pContr
 	}
 
 	pControl->GetSubItem(PropId + 0)->SetValue((_variant_t)scrollbar->m_UpDownButtonHeight);
-	pControl->GetSubItem(PropId + 1)->SetValue((_variant_t)scrollbar->m_nPosition);
-	pControl->GetSubItem(PropId + 2)->SetValue((_variant_t)scrollbar->m_nPageSize);
-	pControl->GetSubItem(PropId + 3)->SetValue((_variant_t)scrollbar->m_nStart);
-	pControl->GetSubItem(PropId + 4)->SetValue((_variant_t)scrollbar->m_nEnd);
+	pControl->GetSubItem(PropId + 1)->SetValue((_variant_t)(long)scrollbar->m_nPosition);
+	pControl->GetSubItem(PropId + 2)->SetValue((_variant_t)(long)scrollbar->m_nPageSize);
+	pControl->GetSubItem(PropId + 3)->SetValue((_variant_t)(long)scrollbar->m_nStart);
+	pControl->GetSubItem(PropId + 4)->SetValue((_variant_t)(long)scrollbar->m_nEnd);
 
 	my::ScrollBarSkinPtr skin = boost::dynamic_pointer_cast<my::ScrollBarSkin>(scrollbar->m_Skin);
 	pControl->GetSubItem(PropId + 5)->GetSubItem(0)->SetValue((_variant_t)skin->m_PressedOffset.x);
@@ -2600,13 +2600,13 @@ void CPropertiesWnd::CreatePropertiesScrollBar(CMFCPropertyGridProperty * pContr
 
 	CMFCPropertyGridProperty* pUpDownButtonHeight = new CSimpleProp(_T("UpDownButtonHeight"), (_variant_t)scrollbar->m_UpDownButtonHeight, NULL, PropertyScrollBarUpDownButtonHeight);
 	pControl->AddSubItem(pUpDownButtonHeight);
-	CMFCPropertyGridProperty* pPosition = new CSimpleProp(_T("Position"), (_variant_t)scrollbar->m_nPosition, NULL, PropertyScrollBarPosition);
+	CMFCPropertyGridProperty* pPosition = new CSimpleProp(_T("Position"), (_variant_t)(long)scrollbar->m_nPosition, NULL, PropertyScrollBarPosition);
 	pControl->AddSubItem(pPosition);
-	CMFCPropertyGridProperty* pPageSize = new CSimpleProp(_T("PageSize"), (_variant_t)scrollbar->m_nPageSize, NULL, PropertyScrollBarPageSize);
+	CMFCPropertyGridProperty* pPageSize = new CSimpleProp(_T("PageSize"), (_variant_t)(long)scrollbar->m_nPageSize, NULL, PropertyScrollBarPageSize);
 	pControl->AddSubItem(pPageSize);
-	CMFCPropertyGridProperty* pStart = new CSimpleProp(_T("Start"), (_variant_t)scrollbar->m_nStart, NULL, PropertyScrollBarStart);
+	CMFCPropertyGridProperty* pStart = new CSimpleProp(_T("Start"), (_variant_t)(long)scrollbar->m_nStart, NULL, PropertyScrollBarStart);
 	pControl->AddSubItem(pStart);
-	CMFCPropertyGridProperty* pEnd = new CSimpleProp(_T("End"), (_variant_t)scrollbar->m_nEnd, NULL, PropertyScrollBarEnd);
+	CMFCPropertyGridProperty* pEnd = new CSimpleProp(_T("End"), (_variant_t)(long)scrollbar->m_nEnd, NULL, PropertyScrollBarEnd);
 	pControl->AddSubItem(pEnd);
 
 	my::ScrollBarSkinPtr skin = boost::dynamic_pointer_cast<my::ScrollBarSkin>(scrollbar->m_Skin);

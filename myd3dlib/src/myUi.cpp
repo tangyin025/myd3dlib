@@ -3079,7 +3079,7 @@ void ScrollBar::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & O
 
 			if(m_bEnabled && m_nEnd - m_nStart > m_nPageSize)
 			{
-				Skin->DrawImage(ui_render, m_nPosition > 0 ? Skin->m_UpBtnNormalImage : Skin->m_UpBtnDisabledImage, UpButtonRect, m_Skin->m_Color);
+				Skin->DrawImage(ui_render, m_nPosition > m_nStart ? Skin->m_UpBtnNormalImage : Skin->m_UpBtnDisabledImage, UpButtonRect, m_Skin->m_Color);
 
 				Skin->DrawImage(ui_render, m_nPosition < m_nEnd - m_nPageSize ? Skin->m_DownBtnNormalImage : Skin->m_DownBtnDisabledImage, DownButtonRect, m_Skin->m_Color);
 
@@ -3332,7 +3332,7 @@ void HorizontalScrollBar::Draw(UIRender* ui_render, float fElapsedTime, const Ve
 
 			if (m_bEnabled && m_nEnd - m_nStart > m_nPageSize)
 			{
-				Skin->DrawImage(ui_render, m_nPosition > 0 ? Skin->m_UpBtnNormalImage : Skin->m_UpBtnDisabledImage, UpButtonRect, m_Skin->m_Color);
+				Skin->DrawImage(ui_render, m_nPosition > m_nStart ? Skin->m_UpBtnNormalImage : Skin->m_UpBtnDisabledImage, UpButtonRect, m_Skin->m_Color);
 
 				Skin->DrawImage(ui_render, m_nPosition < m_nEnd - m_nPageSize ? Skin->m_DownBtnNormalImage : Skin->m_DownBtnDisabledImage, DownButtonRect, m_Skin->m_Color);
 
