@@ -3466,6 +3466,7 @@ bool HorizontalScrollBar::HandleMouse(UINT uMsg, const Vector2& pt, WPARAM wPara
 		SystemParametersInfo(SPI_GETWHEELSCROLLLINES, 0, &uLines, 0);
 		int zDelta = (short)HIWORD(wParam) / WHEEL_DELTA;
 		Scroll(-zDelta * uLines);
+		OnMouseClick(pt);
 		return true;
 	}
 	break;
