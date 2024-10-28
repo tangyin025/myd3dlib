@@ -36,7 +36,6 @@
 #define new new( _CLIENT_BLOCK, __FILE__, __LINE__ )
 #endif
 
-#define DEFAULT_UI_RES_X 1280
 #define DEFAULT_UI_RES_Y 720
 
 using namespace my;
@@ -428,7 +427,7 @@ Client::Client(void)
 	desc.add_options()
 		("path", boost::program_options::value(&path_list)->default_value(boost::assign::list_of("Media")("..\\demo2_3\\Media"), ""), "Path")
 		("shaderinclude", boost::program_options::value(&m_SystemIncludes)->default_value(boost::assign::list_of("shader"), ""), "Shader Include")
-		("width", boost::program_options::value(&m_WindowBackBufferWidthAtModeChange)->default_value(DEFAULT_UI_RES_X), "Width")
+		("width", boost::program_options::value(&m_WindowBackBufferWidthAtModeChange)->default_value(DEFAULT_UI_RES_Y * 16 / 9), "Width")
 		("height", boost::program_options::value(&m_WindowBackBufferHeightAtModeChange)->default_value(DEFAULT_UI_RES_Y), "Height")
 		("windowed", boost::program_options::value(&m_WindowedModeAtFirstCreate)->default_value(true), "Windowed")
 		("presentinterval", boost::program_options::value(&m_PresentIntervalAtFirstCreate)->default_value(D3DPRESENT_INTERVAL_IMMEDIATE), "Presentation Interval")
