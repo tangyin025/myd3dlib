@@ -1336,6 +1336,8 @@ namespace my
 
 		virtual void OnLayout(void);
 
+		virtual void OnSelectionChanged(void);
+
 		virtual Control * GetChildAtPoint(const Vector2 & pt, bool bIgnoreVisible);
 
 		void SetDropdownSize(const Vector2 & DropdownSize);

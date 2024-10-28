@@ -3762,11 +3762,7 @@ bool ComboBox::HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam)
 					{
 						SetSelected(m_iFocused);
 
-						if (m_EventSelectionChanged)
-						{
-							ControlEventArg arg(this);
-							m_EventSelectionChanged(&arg);
-						}
+						OnSelectionChanged();
 					}
 					m_bPressed = false;
 					return true;
@@ -3878,11 +3874,7 @@ bool ComboBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM 
 							{
 								SetSelected(i);
 
-								if(m_EventSelectionChanged)
-								{
-									ControlEventArg arg(this);
-									m_EventSelectionChanged(&arg);
-								}
+								OnSelectionChanged();
 							}
 							m_bPressed = false;
 							break;
@@ -3931,6 +3923,15 @@ void ComboBox::OnLayout(void)
 	m_ScrollBar->m_nPageSize = (int)((m_DropdownSize.y - m_Border.y - m_Border.w) / m_ItemHeight);
 
 	m_ScrollBar->m_nEnd = m_Items.size();
+}
+
+void ComboBox::OnSelectionChanged(void)
+{
+	if (m_EventSelectionChanged)
+	{
+		ControlEventArg arg(this);
+		m_EventSelectionChanged(&arg);
+	}
 }
 
 Control * ComboBox::GetChildAtPoint(const Vector2 & pt, bool bIgnoreVisible)
