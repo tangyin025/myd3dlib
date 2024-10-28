@@ -26,8 +26,11 @@ public:
 
 	BufferEventPairList m_pool;
 
+	LONG m_Volume;
+
 public:
 	SoundContext(void)
+		: m_Volume(DSBVOLUME_MAX)
 	{
 	}
 
@@ -79,7 +82,7 @@ public:
 
 	bool m_Loop;
 
-	LONG m_Volume;
+	volatile LONG m_Volume;
 
 	bool PlayOnceByThread(void);
 

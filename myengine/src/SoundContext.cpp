@@ -117,6 +117,7 @@ SoundEventPtr SoundContext::Play(my::WavPtr wav, float StartSec, float EndSec, b
 	{
 		buff_event_iter->second.reset(new SoundEvent());
 		buff_event_iter->second->m_sbuffer = &buff_event_iter->first;
+		buff_event_iter->first.SetVolume(m_Volume);
 		buff_event_iter->first.Play(0, DSBPLAY_TERMINATEBY_TIME | (Loop ? DSBPLAY_LOOPING : 0));
 		return buff_event_iter->second;
 	}
@@ -143,7 +144,8 @@ SoundEventPtr SoundContext::Play(my::WavPtr wav, float StartSec, float EndSec, b
 		ds3dbuff.flMinDistance = min_dist;
 		ds3dbuff.flMaxDistance = max_dist;
 		ds3dbuff.dwMode = DS3DMODE_NORMAL;
-		buff_event_iter->second->m_3dbuffer->SetAllParameters(&ds3dbuff, DS3D_IMMEDIATE);
+		buff_event_iter->second->m_3dbuffer->SetAllParameters(&ds3dbuff, DS3D_DEFERRED);
+		buff_event_iter->first.SetVolume(m_Volume);
 		buff_event_iter->first.Play(0, DSBPLAY_TERMINATEBY_TIME | (Loop ? DSBPLAY_LOOPING : 0));
 		return buff_event_iter->second;
 	}
