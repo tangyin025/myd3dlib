@@ -255,9 +255,9 @@ namespace my
 	public:
 		Keyboard(void);
 
-		static LPCTSTR TranslateKeyCode(KeyCode kc);
+		static const char * TranslateKeyCode(KeyCode kc);
 
-		static LPCTSTR TranslateVirtualKey(DWORD vk);
+		static const char * TranslateVirtualKey(DWORD vk);
 
 		void CreateKeyboard(LPDIRECTINPUT8 input, HWND hwnd);
 
@@ -366,7 +366,7 @@ namespace my
 		{
 		}
 
-		static LPCTSTR TranslatePov(DWORD pov);
+		static const char * TranslatePov(DWORD pov);
 
 		void CreateJoystick(
 			LPDIRECTINPUT8 input,
