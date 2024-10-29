@@ -2521,6 +2521,10 @@ void LuaContext::Init(void)
 #endif
 				value("WM_USER", WM_USER)
 			]
+			.scope
+			[
+				def("GetWindowMessageStr", &my::DxutWindow::GetWindowMessageStr)
+			]
 			.def_readonly("hWnd", &my::DxutWindow::m_hWnd)
 			.def("PostMessage", (BOOL(CWindow::*)(UINT))& my::DxutWindow::PostMessage)
 			.def("PostMessage", (BOOL(CWindow::*)(UINT, WPARAM))& my::DxutWindow::PostMessage)
