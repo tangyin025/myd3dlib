@@ -2497,6 +2497,7 @@ void LuaContext::Init(void)
 			[
 				value("WM_CLOSE", WM_CLOSE),
 				value("WM_KEYDOWN", WM_KEYDOWN),
+				value("WM_KEYUP", WM_KEYUP),
 				value("WM_MOUSEFIRST", WM_MOUSEFIRST),
 				value("WM_MOUSEMOVE", WM_MOUSEMOVE),
 				value("WM_LBUTTONDOWN", WM_LBUTTONDOWN),
@@ -2574,6 +2575,7 @@ void LuaContext::Init(void)
 			.enum_("KeyCode")
 			[
 				value("VK_ESCAPE", VK_ESCAPE),
+				value("VK_RETURN", VK_RETURN),
 				value("KC_UNASSIGNED", my::KC_UNASSIGNED),
 				value("KC_ESCAPE", my::KC_ESCAPE),
 				//value("KC_1", my::KC_1),
