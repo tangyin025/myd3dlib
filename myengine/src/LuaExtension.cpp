@@ -2721,6 +2721,7 @@ void LuaContext::Init(void)
 				def("TranslateKeyCode", &my::Keyboard::TranslateKeyCode),
 				def("TranslateVirtualKey", &my::Keyboard::TranslateVirtualKey)
 			]
+			.def("Capture", &my::Keyboard::Capture)
 			.def("SetKeyState", &my::Keyboard::SetKeyState)
 			.def("IsKeyDown", &my::Keyboard::IsKeyDown)
 			.def("IsKeyPress", &my::Keyboard::IsKeyPress)
