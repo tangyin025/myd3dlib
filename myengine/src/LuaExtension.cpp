@@ -2569,6 +2569,7 @@ void LuaContext::Init(void)
 		, class_<my::Keyboard, my::InputDevice, boost::shared_ptr<my::InputDevice> >("Keyboard")
 			.enum_("KeyCode")
 			[
+				value("VK_ESCAPE", VK_ESCAPE),
 				value("KC_UNASSIGNED", my::KC_UNASSIGNED),
 				value("KC_ESCAPE", my::KC_ESCAPE),
 				//value("KC_1", my::KC_1),
