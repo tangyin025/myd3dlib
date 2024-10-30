@@ -648,6 +648,7 @@ HRESULT Client::OnCreateDevice(
 			.def_readonly("keyboard", &Client::m_keyboard)
 			.def_readonly("mouse", &Client::m_mouse)
 			.def_readonly("joystick", &Client::m_joystick)
+			.def_readwrite("JoystickAxisDeadZone", &Client::m_JoystickAxisDeadZone)
 			.def_readonly("InitCfg", &Client::m_InitCfg)
 			.def("BindKey", &Client::BindKey)
 			.def("UnbindKey", &Client::UnbindKey)
