@@ -129,7 +129,7 @@ namespace my
 
 	class StreamDirMgr
 	{
-	protected:
+	public:
 		typedef boost::shared_ptr<StreamDir> ResourceDirPtr;
 
 		typedef std::vector<ResourceDirPtr> ResourceDirPtrList;

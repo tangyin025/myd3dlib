@@ -2070,7 +2070,11 @@ void LuaContext::Init(void)
 		, class_<my::IStream, boost::shared_ptr<my::IStream> >("IStream")
 			.def("GetWholeCache", &my::IStream::GetWholeCache)
 
+		, class_<my::StreamDir, boost::shared_ptr<my::StreamDir> >("StreamDir")
+			.def_readonly("dir", &my::StreamDir::m_dir)
+
 		, class_<my::ResourceMgr>("ResourceMgr")
+			.def_readonly("DirList", &my::ResourceMgr::m_DirList, return_stl_iterator)
 			.def("CheckPath", &my::ResourceMgr::CheckPath)
 			.def("GetFullPath", &my::ResourceMgr::GetFullPath)
 			.def("GetRelativePath", &my::ResourceMgr::GetRelativePath)

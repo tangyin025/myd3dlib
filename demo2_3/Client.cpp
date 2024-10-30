@@ -425,7 +425,7 @@ Client::Client(void)
 	boost::program_options::options_description desc("Options");
 	std::vector<std::string> path_list;
 	desc.add_options()
-		("path", boost::program_options::value(&path_list)->default_value(boost::assign::list_of("Media")("..\\demo2_3\\Media"), ""), "Path")
+		("path", boost::program_options::value(&path_list), "Paths")
 		("shaderinclude", boost::program_options::value(&m_SystemIncludes)->default_value(boost::assign::list_of("shader"), ""), "Shader Include")
 		("width", boost::program_options::value(&m_WindowBackBufferWidthAtModeChange)->default_value(DEFAULT_UI_RES_Y * 16 / 9), "Width")
 		("height", boost::program_options::value(&m_WindowBackBufferHeightAtModeChange)->default_value(DEFAULT_UI_RES_Y), "Height")
