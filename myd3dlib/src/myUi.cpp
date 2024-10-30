@@ -1308,6 +1308,7 @@ void Control::OnFocusOut(void)
 	if (m_bPressed)
 	{
 		m_bPressed = false;
+		SetCaptureControl(NULL);
 	}
 
 	if (m_EventFocusChanged)
@@ -3752,6 +3753,7 @@ bool ComboBox::HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam)
 				if (!m_bPressed)
 				{
 					m_bPressed = true;
+					SetCaptureControl(this);
 					m_iFocused = m_iSelected;
 					m_ScrollBar->ScrollTo(m_iFocused);
 					return true;
@@ -3765,6 +3767,7 @@ bool ComboBox::HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam)
 						OnSelectionChanged();
 					}
 					m_bPressed = false;
+					SetCaptureControl(NULL);
 					return true;
 				}
 			}
@@ -3795,6 +3798,7 @@ bool ComboBox::HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam)
 				if (m_bPressed)
 				{
 					m_bPressed = false;
+					SetCaptureControl(NULL);
 					return true;
 				}
 			}
@@ -3848,18 +3852,9 @@ bool ComboBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM 
 
 		case WM_LBUTTONDOWN:
 		case WM_LBUTTONDBLCLK:
-			if(m_Rect.PtInRect(pt))
-			{
-				m_bPressed = !m_bPressed;
-				m_iFocused = m_iSelected;
-				m_ScrollBar->ScrollTo(m_iFocused);
-				SetFocusControl(this);
-				SetCaptureControl(this);
-				return true;
-			}
-
 			if(m_bPressed)
 			{
+				_ASSERT(GetCaptured());
 				if(m_DropdownRect.PtInRect(pt))
 				{
 					int i = m_ScrollBar->m_nPosition;
@@ -3876,22 +3871,22 @@ bool ComboBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM 
 
 								OnSelectionChanged();
 							}
-							m_bPressed = false;
 							break;
 						}
 					}
-					OnMouseLeave(pt);
-					return true;
 				}
-			}
-			m_bPressed = false;
-			OnMouseLeave(pt);
-			break;
-
-		case WM_LBUTTONUP:
-			if (GetCaptureControl() == this)
-			{
+				m_bPressed = false;
 				SetCaptureControl(NULL);
+				return true;
+			}
+			else if (m_Rect.PtInRect(pt))
+			{
+				_ASSERT(!GetCaptured());
+				m_bPressed = true;
+				SetFocused(true);
+				SetCaptureControl(this);
+				m_iFocused = m_iSelected;
+				m_ScrollBar->ScrollTo(m_iFocused);
 				return true;
 			}
 			break;
