@@ -424,6 +424,7 @@ Client::Client(void)
 
 	boost::program_options::options_description desc("Options");
 	std::vector<std::string> path_list;
+	bool verticalsync;
 	desc.add_options()
 		("path", boost::program_options::value(&path_list), "Paths")
 		("shaderinclude", boost::program_options::value(&m_SystemIncludes)->default_value(boost::assign::list_of("shader"), ""), "Shader Include")
@@ -431,7 +432,7 @@ Client::Client(void)
 		("height", boost::program_options::value(&m_WindowBackBufferHeightAtModeChange)->default_value(DEFAULT_UI_RES_Y), "Height")
 		("windowed", boost::program_options::value(&m_WindowedModeAtFirstCreate)->default_value(true), "Windowed")
 		("refreshrate", boost::program_options::value(&m_RefreshRateAtFirstCreate)->default_value(59), "Refresh Rate")
-		("presentinterval", boost::program_options::value(&m_PresentIntervalAtFirstCreate)->default_value(D3DPRESENT_INTERVAL_IMMEDIATE), "Presentation Interval")
+		("verticalsync", boost::program_options::value(&verticalsync)->default_value(false), "Vertical Sync")
 		("joystickaxisdeadzone", boost::program_options::value(&m_JoystickAxisDeadZone)->default_value(3276), "Joystick Axis Dead Zone")
 		("mousemoveaxiscoef", boost::program_options::value(&m_MouseMoveAxisCoef)->default_value(5000), "Mouse Move Axis Coef")
 		("physxframeinterval", boost::program_options::value(&m_FrameInterval)->default_value(1/60.0f), "Physx Frame Interval")
@@ -469,6 +470,8 @@ Client::Client(void)
 			ResourceMgr::RegisterZipDir(*path_iter);
 		}
 	}
+
+	m_PresentIntervalAtFirstCreate = verticalsync ? D3DPRESENT_INTERVAL_DEFAULT : D3DPRESENT_INTERVAL_IMMEDIATE;
 
 	if (!m_InitDictFile.empty())
 	{
