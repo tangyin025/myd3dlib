@@ -637,7 +637,7 @@ HRESULT Client::OnCreateDevice(
 			.def_readwrite("FogEnable", &Client::m_FogEnable)
 			.def_readwrite("RTType", &Client::m_RTType)
 			.def_readonly("listener", &Client::m_listener)
-			.def_readwrite("Volume", &Client::m_Volume)
+			.property("Volume", &Client::GetVolume, &Client::SetVolume)
 			.def_readonly("Font", &Client::m_Font)
 			.def_readonly("Console", &Client::m_Console)
 			.def_readwrite("ViewedCenter", &Client::m_ViewedCenter)

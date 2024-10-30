@@ -41,6 +41,21 @@ void SoundContext::Shutdown(void)
 	m_pool.clear();
 }
 
+LONG SoundContext::GetVolume(void)
+{
+	return m_Volume;
+}
+
+void SoundContext::SetVolume(LONG lVolume)
+{
+	m_Volume = Clamp(lVolume, (LONG)DSBVOLUME_MIN, (LONG)DSBVOLUME_MAX);
+	BufferEventPairList::iterator buff_event_iter = m_pool.begin();
+	for (; buff_event_iter != m_pool.end(); buff_event_iter++)
+	{
+		buff_event_iter->second->m_sbuffer->SetVolume(m_Volume);
+	}
+}
+
 void SoundContext::ReleaseIdleBuffer(float fElapsedTime)
 {
 	BufferEventPairList::iterator buff_event_iter = m_pool.begin();
@@ -743,7 +758,7 @@ LONG Mp3::GetVolume(void)
 
 void Mp3::SetVolume(LONG lVolume)
 {
-	m_Volume = my::Clamp(lVolume, (LONG)DSBVOLUME_MIN, (LONG)DSBVOLUME_MAX);
+	m_Volume = Clamp(lVolume, (LONG)DSBVOLUME_MIN, (LONG)DSBVOLUME_MAX);
 	my::CriticalSectionLock lock(m_buffersec);
 	if (m_dsbuffer)
 	{

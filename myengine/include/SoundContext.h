@@ -38,6 +38,10 @@ public:
 
 	void Shutdown(void);
 
+	LONG GetVolume(void);
+
+	void SetVolume(LONG lVolume);
+
 	void ReleaseIdleBuffer(float fElapsedTime);
 
 	BufferEventPairList::iterator GetIdleBuffer(my::WavPtr wav, size_t startbyte, DWORD bytes, DWORD flags);
