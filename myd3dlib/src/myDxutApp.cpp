@@ -313,7 +313,7 @@ int DxutApp::Run(void)
 		CRect clientRect;
 		m_wnd->GetClientRect(&clientRect);
 
-		CreateDevice(m_WindowedModeAtFirstCreate, clientRect.Width(), clientRect.Height(), m_PresentIntervalAtFirstCreate);
+		CreateDevice(m_WindowedModeAtFirstCreate, clientRect.Width(), clientRect.Height(), m_RefreshRateAtFirstCreate, m_PresentIntervalAtFirstCreate);
 
 		m_wnd->ShowWindow(SW_SHOW);
 		m_wnd->UpdateWindow();
@@ -1699,7 +1699,7 @@ DXUTD3D9DeviceSettings DxutApp::FindValidDeviceSettings(const DXUTD3D9DeviceSett
 	return validDeviceSettings;
 }
 
-void DxutApp::CreateDevice(bool bWindowed, int nSuggestedWidth, int nSuggestedHeight, UINT nPresentInterval)
+void DxutApp::CreateDevice(bool bWindowed, int nSuggestedWidth, int nSuggestedHeight, UINT RefreshRate, UINT nPresentInterval)
 {
 	DXUTMatchOptions matchOptions;
 	matchOptions.eAdapterOrdinal = DXUTMT_IGNORE_INPUT;
@@ -1715,7 +1715,7 @@ void DxutApp::CreateDevice(bool bWindowed, int nSuggestedWidth, int nSuggestedHe
 	matchOptions.eDepthFormat = DXUTMT_IGNORE_INPUT;
 	matchOptions.eStencilFormat = DXUTMT_IGNORE_INPUT;
 	matchOptions.ePresentFlags = DXUTMT_IGNORE_INPUT;
-	matchOptions.eRefreshRate = DXUTMT_IGNORE_INPUT;
+	matchOptions.eRefreshRate = DXUTMT_CLOSEST_TO_INPUT;
 	matchOptions.ePresentInterval = DXUTMT_PRESERVE_INPUT;
 
 	DXUTD3D9DeviceSettings deviceSettings;
@@ -1723,6 +1723,7 @@ void DxutApp::CreateDevice(bool bWindowed, int nSuggestedWidth, int nSuggestedHe
 	deviceSettings.pp.Windowed = bWindowed;
 	deviceSettings.pp.BackBufferWidth = nSuggestedWidth;
 	deviceSettings.pp.BackBufferHeight = nSuggestedHeight;
+	deviceSettings.pp.FullScreen_RefreshRateInHz = RefreshRate;
 	deviceSettings.pp.PresentationInterval = nPresentInterval;
 
 	ChangeDevice(FindValidDeviceSettings(deviceSettings, matchOptions));
