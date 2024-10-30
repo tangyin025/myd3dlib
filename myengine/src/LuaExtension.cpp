@@ -2422,6 +2422,7 @@ void LuaContext::Init(void)
 			.property("Size", &CGrowableArray<D3DDISPLAYMODE>::GetSize)
 
 		, class_<DXUTD3D9DeviceSettings>("DXUTD3D9DeviceSettings")
+			.def(constructor<const DXUTD3D9DeviceSettings&>())
 			.enum_("VertexProcessingType")
 			[
 				value("D3DCREATE_SOFTWARE_VERTEXPROCESSING", D3DCREATE_SOFTWARE_VERTEXPROCESSING),
@@ -2537,7 +2538,7 @@ void LuaContext::Init(void)
 			.def_readonly("UnscaledElapsedTime", &my::D3DContext::m_fUnscaledElapsedTime)
 			.def_readonly("ElapsedTime", &my::D3DContext::m_fElapsedTime)
 			.def_readonly("TotalTime", &my::D3DContext::m_fTotalTime)
-			.def_readonly("DeviceSettings", &my::D3DContext::m_DeviceSettings, copy(result))
+			.def_readonly("DeviceSettings", &my::D3DContext::m_DeviceSettings/*, copy(result)*/)
 			.def_readonly("BackBufferSurfaceDesc", &my::D3DContext::m_BackBufferSurfaceDesc)
 			.def("FilterNamedObjects", &d3dcontext_filter_named_object_list, return_stl_iterator)
 			.def("GetNamedObject", &my::D3DContext::GetNamedObject)

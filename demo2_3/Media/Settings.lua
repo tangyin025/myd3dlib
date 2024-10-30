@@ -514,7 +514,7 @@ cbx_display_adapter.EventSelectionChanged=function(arg)
 end
 
 function RefreshDisplayAdapter()
-	local_device_settings=client.DeviceSettings
+	local_device_settings=DXUTD3D9DeviceSettings(client.DeviceSettings)
 	local adapter_info_list=client.AdapterInfoList
 	cbx_display_adapter:RemoveAllItems()
 	for i=0,adapter_info_list.Size-1 do
