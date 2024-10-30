@@ -420,7 +420,7 @@ Client::Client(void)
 {
 	char buff[MAX_PATH];
 	GetModuleFileNameA(NULL, buff, _countof(buff));
-	std::string cfg_file(PathFindFileNameA(buff), PathFindExtensionA(buff));
+	m_InitCfg.assign(PathFindFileNameA(buff), PathFindExtensionA(buff));
 
 	boost::program_options::options_description desc("Options");
 	std::vector<std::string> path_list;
@@ -453,7 +453,7 @@ Client::Client(void)
 		("shownavigation", boost::program_options::value(&m_ShowNavigation)->default_value(false), "Show Navigation")
 		;
 	boost::program_options::variables_map vm;
-	boost::program_options::store(boost::program_options::parse_config_file<char>((cfg_file + ".cfg").c_str(), desc, true), vm);
+	boost::program_options::store(boost::program_options::parse_config_file<char>((m_InitCfg + ".cfg").c_str(), desc, true), vm);
 	boost::program_options::store(boost::program_options::parse_command_line(__argc, __targv, desc), vm);
 	boost::program_options::notify(vm);
 
@@ -644,6 +644,7 @@ HRESULT Client::OnCreateDevice(
 			.def_readonly("keyboard", &Client::m_keyboard)
 			.def_readonly("mouse", &Client::m_mouse)
 			.def_readonly("joystick", &Client::m_joystick)
+			.def_readonly("InitCfg", &Client::m_InitCfg)
 			.def("BindKey", &Client::BindKey)
 			.def("UnbindKey", &Client::UnbindKey)
 			.def("GetKeyAxisRaw", &Client::GetKeyAxisRaw)

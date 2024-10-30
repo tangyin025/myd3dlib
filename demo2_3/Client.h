@@ -29,6 +29,8 @@ class Client
 	, public SoundContext
 {
 public:
+	std::string m_InitCfg;
+
 	my::UIRenderPtr m_UIRender;
 
 	my::FontPtr m_Font;
