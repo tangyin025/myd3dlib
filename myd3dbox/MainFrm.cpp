@@ -21,7 +21,6 @@
 #include "NavigationDlg.h"
 #include "SimplifyMeshDlg.h"
 #include "Animator.h"
-#include "Win32InputBox.h"
 #include <luabind/luabind.hpp>
 #include <luabind/operator.hpp>
 #include <luabind/iterator_policy.hpp>
