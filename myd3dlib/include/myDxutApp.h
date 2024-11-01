@@ -122,6 +122,7 @@ namespace my
 			: m_d3dThreadId(::GetCurrentThreadId())
 			, m_DeviceObjectsCreated(false)
 			, m_DeviceObjectsReset(false)
+			, m_BackBufferSurfaceDesc{ D3DFMT_UNKNOWN, D3DRTYPE_FORCE_DWORD, D3DUSAGE_RENDERTARGET, D3DPOOL_FORCE_DWORD, D3DMULTISAMPLE_NONE, 0, 800, 600 }
 		{
 		}
 

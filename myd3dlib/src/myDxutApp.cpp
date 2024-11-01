@@ -1857,7 +1857,7 @@ void DxutApp::ChangeDevice(DXUTD3D9DeviceSettings & deviceSettings)
 	}
 	else
 	{
-		if(m_d3dDevice && m_DeviceSettings.pp.Windowed)
+		if(!m_d3dDevice || m_DeviceSettings.pp.Windowed)
 		{
 			m_WindowBackBufferWidthAtModeChange = m_BackBufferSurfaceDesc.Width;
 			m_WindowBackBufferHeightAtModeChange = m_BackBufferSurfaceDesc.Height;
