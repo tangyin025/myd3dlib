@@ -348,11 +348,11 @@ namespace my
 			// start is now the start of the buffer, proper.
 			// Read from fptr_ in to the provided buffer
 			size_t n = fptr_->read(start, (buffer_.size() - (start - base)) * sizeof(_Elem));
-			if (n == 0)
+			if (n < sizeof(_Elem))
 				return traits_type::eof();
 
 			// Set buffer pointers
-			setg(base, start, start + n);
+			setg(base, start, start + n / sizeof(_Elem));
 
 			return traits_type::to_int_type(*gptr());
 		}
