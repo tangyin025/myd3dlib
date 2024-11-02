@@ -2546,6 +2546,7 @@ void LuaContext::Init(void)
 			.def_readonly("BackBufferSurfaceDesc", &my::D3DContext::m_BackBufferSurfaceDesc)
 			.def("FilterNamedObjects", &d3dcontext_filter_named_object_list, return_stl_iterator)
 			.def("GetNamedObject", &my::D3DContext::GetNamedObject)
+			.def("GetTranslation", &my::D3DContext::OnControlTranslate)
 
 		, class_<my::DxutApp, bases<my::D3DContext, CD3D9Enumeration> >("DxutApp")
 			.def_readonly("wnd", &my::DxutApp::m_wnd)
