@@ -374,11 +374,6 @@ static boost::iterator_range<shared_actor_list_iter> client_query_entity(Client*
 	return boost::make_iterator_range(shared_actor_list_iter(cb.acts->begin(), cb.acts), shared_actor_list_iter(cb.acts->end(), cb.acts));
 }
 
-void client_load_dictionary(Client* self, const std::wstring& path)
-{
-	self->m_Dicts.LoadFromFile(ws2ms(path.c_str()).c_str());
-}
-
 namespace boost
 {
 	namespace program_options
@@ -447,7 +442,6 @@ Client::Client(void)
 		("font", boost::program_options::value(&m_InitFont)->default_value("font/SourceHanSansCN-Regular.otf"), "Font")
 		("fontheight", boost::program_options::value(&m_InitFontHeight)->default_value(12), "Font Height")
 		("fontfaceindex", boost::program_options::value(&m_InitFontFaceIndex)->default_value(0), "Font Face Index")
-		("dictfile", boost::program_options::value(&m_InitDictFile), "Dictionary File")
 		("uieffect", boost::program_options::value(&m_InitUIEffect)->default_value("shader/UIEffect.fx"), "UI Effect")
 		("vieweddist", boost::program_options::value(&m_ViewedDist)->default_value(1000.0f), "Viewed Distance")
 		("actorcullingthreshold", boost::program_options::value(&m_ActorCullingThreshold)->default_value(10.0f), "Actor Culling Threshold")
@@ -473,11 +467,6 @@ Client::Client(void)
 	}
 
 	m_PresentIntervalAtFirstCreate = verticalsync ? D3DPRESENT_INTERVAL_DEFAULT : D3DPRESENT_INTERVAL_IMMEDIATE;
-
-	if (!m_InitDictFile.empty())
-	{
-		m_Dicts.LoadFromFile(m_InitDictFile.c_str());
-	}
 
 	m_Camera.reset(new FirstPersonCamera(D3DXToRadian(m_InitFov), 1.333333f, 0.1f, 3000.0f));
 	const float k = cos(D3DXToRadian(45));
@@ -678,7 +667,6 @@ HRESULT Client::OnCreateDevice(
 			.def("QueryEntity", &client_query_entity, luabind::return_stl_iterator)
 			.def("RemoveViewedActor", &Client::RemoveViewedActor)
 			//.def("OnControlSound", &Client::OnControlSound)
-			.def("LoadDictionary", &client_load_dictionary)
 			.def("Play", (SoundEventPtr(SoundContext::*)(my::WavPtr, float, float, bool)) & Client::Play)
 			.def("Play", (SoundEventPtr(SoundContext::*)(my::WavPtr, float, float, bool, const my::Vector3&, const my::Vector3&, float, float)) & Client::Play)
 			.def("LoadSceneAsync", &Client::LoadSceneAsync<luabind::object>)
@@ -1307,16 +1295,6 @@ void Client::RemoveViewedActor(Actor* actor)
 void Client::OnControlSound(boost::shared_ptr<my::Wav> wav)
 {
 	SoundContext::Play(wav, 0, 60.0f, false);
-}
-
-const std::wstring& Client::OnControlTranslate(const std::wstring& wstr)
-{
-	DictionaryNode::childmap::iterator iter = m_Dicts.m_children->find(wstr);
-	if (iter != m_Dicts.m_children->end())
-	{
-		return iter->second.m_data;
-	}
-	return wstr;
 }
 
 void Client::OnPostCapture(double fTime, float fElapsedTime)

@@ -35,8 +35,6 @@ public:
 
 	my::FontPtr m_Font;
 
-	DictionaryNode m_Dicts;
-
 	ConsolePtr m_Console;
 
 	float m_InitFov;
@@ -54,8 +52,6 @@ public:
 	int m_InitFontHeight;
 
 	int m_InitFontFaceIndex;
-
-	std::string m_InitDictFile;
 
 	std::string m_InitUIEffect;
 
@@ -142,8 +138,6 @@ public:
 	void RemoveViewedActor(Actor* actor);
 
 	virtual void OnControlSound(boost::shared_ptr<my::Wav> wav);
-
-	virtual const std::wstring& OnControlTranslate(const std::wstring& wstr);
 
 	virtual void OnPostCapture(double fTime, float fElapsedTime);
 
