@@ -219,8 +219,16 @@ void ActionTrackSoundInst::UpdateTime(float LastTime, float Time)
 
 	ActionTrackSound::KeyFrameMap::const_iterator key_iter = m_Template->m_Keys.lower_bound(LastTime);
 	ActionTrackSound::KeyFrameMap::const_iterator key_end = m_Template->m_Keys.lower_bound(Time);
-	for (; key_iter != key_end; key_iter++)
+	ActionTrackSound::KeyFrameMap::const_iterator next_key_iter = key_iter;
+	for (; key_iter != key_end; key_iter = next_key_iter)
 	{
+		next_key_iter++;
+		for (; next_key_iter != key_end && next_key_iter->first == key_iter->first; next_key_iter++)
+		{
+
+		}
+		std::advance(key_iter, my::Random((int)std::distance(key_iter, next_key_iter)));
+
 		if (key_iter->second.Sound)
 		{
 			const Vector3& pos = m_Actor->m_World.getRow<3>().xyz;
