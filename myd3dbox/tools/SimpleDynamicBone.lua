@@ -16,4 +16,7 @@ act:InsertComponent(anim_cmp)
 theApp.MainWnd:AddEntity(act,act.aabb:transform(act.World),1.0,0.1)
 
 local skel=theApp:LoadSkeleton(anim_cmp.SkeletonPath)
-anim_cmp:AddDynamicBone(skel:GetBoneIndex("joint2"),0.1,0.001,-10)
+anim_cmp:AddDynamicBone(skel:GetBoneIndex("joint2"),0.4,0.001,-10)
+anim_cmp:AddDynamicBone(skel:GetBoneIndex("joint3"),0.3,0.001,-10)
+anim_cmp:AddDynamicBone(skel:GetBoneIndex("joint4"),0.2,0.001,-10)
+anim_cmp:AddDynamicBone(skel:GetBoneIndex("joint5"),0.1,0.001,-10)

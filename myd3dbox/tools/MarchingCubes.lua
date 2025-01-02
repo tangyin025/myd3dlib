@@ -27,9 +27,9 @@ function EditorBehavior:__init(name)
 	self.Material.Shader="shader/mtl_BlinnPhong.fx"
 	self.Material.PassMask=Material.PassMaskShadowNormalOpaque
 	self.Material.CullMode=Material.D3DCULL_NONE
-	self.Material:AddParameter("g_DiffuseTexture","texture/Checker.bmp")
-	self.Material:AddParameter("g_NormalTexture","texture/Normal.dds")
-	self.Material:AddParameter("g_SpecularTexture","texture/White.dds")
+	self.Material:SetParameter("g_DiffuseTexture","texture/Checker.bmp")
+	self.Material:SetParameter("g_NormalTexture","texture/Normal.dds")
+	self.Material:SetParameter("g_SpecularTexture","texture/White.dds")
 end
 
 function EditorBehavior:__finalize()
@@ -77,9 +77,9 @@ function EditorBehavior:Update(elapsedTime)
 		self.target_pos=pos
 
 		-- 设置grids，同时更新grid周围cubes
-		if theApp.keyboard:IsKeyPress(Keyboard.KC_Z) then
+		if theApp.keyboard:IsKeyPress(--[[Keyboard.KC_Z--]]0x2C) then
 			self:AddGrid(self.target_pos.x,self.target_pos.y,self.target_pos.z)
-		elseif theApp.keyboard:IsKeyPress(Keyboard.KC_X) and local_grid_id then
+		elseif theApp.keyboard:IsKeyPress(--[[Keyboard.KC_X--]]0x2D) and local_grid_id then
 			local local_x,local_y,local_z=idToCoord(local_grid_id)
 			self:RemoveGrid(local_x,local_y,local_z)
 		end
