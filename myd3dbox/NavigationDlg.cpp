@@ -469,7 +469,7 @@ public:
 						my::Vector3 halfExt = bindingBox.Extent() * 0.5f;
 						physx::PxBoxGeometry box(halfExt.x, halfExt.y, halfExt.z);
 						physx::PxHeightFieldGeometry hfGeom(heightField.get(), physx::PxMeshGeometryFlags(), terrain->CalculateHeightScale() * terrain->m_Actor->m_Scale.y, terrain->m_Actor->m_Scale.x, terrain->m_Actor->m_Scale.z);
-						std::vector<physx::PxU32> results(2048);
+						std::vector<physx::PxU32> results(8192);
 						bool overflow;
 						physx::PxU32 count = physx::PxMeshQuery::findOverlapHeightField(
 							box, physx::PxTransform((physx::PxVec3&)bindingBox.Center()),
