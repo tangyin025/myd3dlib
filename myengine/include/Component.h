@@ -138,6 +138,15 @@ public:
 		return m_Requested;
 	}
 
+	virtual void SetSignatureFlags(DWORD Flags)
+	{
+	}
+
+	virtual DWORD GetSignatureFlags(void) const
+	{
+		return 0;
+	}
+
 	virtual void OnResetShader(void)
 	{
 	}

@@ -21,6 +21,7 @@ function EditorBehavior:__init(name)
 	print("EditorBehavior:__init")
     Component.__init(self,name)
 	self._name=name
+	self.SignatureFlags=bit.bor(Component.SignatureFlagAddToPipeline)
 	self.grids={}
 	self.cubes={}
 	self.Material=Material()

@@ -748,8 +748,15 @@ struct ScriptControl : my::Control, luabind::wrap_base
 
 struct ScriptComponent : Component, luabind::wrap_base
 {
+	DWORD m_SignatureFlags;
+
+	enum {
+		SignatureFlagAddToPipeline = 1 << 0
+	};
+
 	ScriptComponent(const char* Name)
 		: Component(Name)
+		, m_SignatureFlags(0)
 	{
 		// ! make sure the ownership of lua part when using shared_ptr pass to Actor::InsertComponent
 	}
@@ -767,6 +774,16 @@ struct ScriptComponent : Component, luabind::wrap_base
 	virtual DWORD GetComponentType(void) const
 	{
 		return TypeID;
+	}
+
+	virtual void SetSignatureFlags(DWORD Flags)
+	{
+		m_SignatureFlags = Flags;
+	}
+
+	virtual DWORD GetSignatureFlags(void) const
+	{
+		return m_SignatureFlags;
 	}
 
 	virtual void RequestResource(void)
@@ -1025,15 +1042,19 @@ struct ScriptComponent : Component, luabind::wrap_base
 			my::DialogMgr::getSingleton().m_UIPassObjs.push_back(boost::bind(&Component::OnGUI, this, boost::placeholders::_1, boost::placeholders::_2, boost::placeholders::_3));
 		}
 
-		my::CriticalSectionLock lock(LuaContext::getSingleton().m_StateSec);
+		// ! AddToPipeline will compete m_StateSec with OnPxThreadSubstep
+		if (m_SignatureFlags & SignatureFlagAddToPipeline)
+		{
+			my::CriticalSectionLock lock(LuaContext::getSingleton().m_StateSec);
 
-		try
-		{
-			luabind::wrap_base::call<void>("AddToPipeline", frustum, pipeline, PassMask, ViewPos, TargetPos);
-		}
-		catch (const luabind::error& e)
-		{
-			my::D3DContext::getSingleton().m_EventLog(lua_tostring(e.state(), -1));
+			try
+			{
+				luabind::wrap_base::call<void>("AddToPipeline", frustum, pipeline, PassMask, ViewPos, TargetPos);
+			}
+			catch (const luabind::error& e)
+			{
+				my::D3DContext::getSingleton().m_EventLog(lua_tostring(e.state(), -1));
+			}
 		}
 	}
 
@@ -2919,6 +2940,11 @@ void LuaContext::Init(void)
 				value("ComponentTypeScript", Component::ComponentTypeScript)
 			]
 			.property("ComponentType", &Component::GetComponentType)
+			.enum_("SignatureFlag")
+			[
+				value("SignatureFlagAddToPipeline", ScriptComponent::SignatureFlagAddToPipeline)
+			]
+			.property("SignatureFlags", &Component::GetSignatureFlags, &Component::SetSignatureFlags)
 			.enum_("LODMask")
 			[
 				value("LOD0", Component::LOD0),
