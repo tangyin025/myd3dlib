@@ -504,11 +504,11 @@ void RenderPipeline::OnRender(
 		Vector3 eye = Vector3(0.0f, 0.0f, m_CascadeLayerCent[i]).transformCoord(pRC->m_Camera->m_InverseViewProj);
 		const float radius = ltf.distance(eye);
 		const Matrix4 Proj = Matrix4::OrthoOffCenterRH(-radius, radius, -radius, radius, Min(-radius, m_SkyLightCam->m_Nz), radius);
-		//const Matrix4 ViewProj = Rotation.inverse() * Proj;
-		//Vector4 ProjEye = eye.transform(ViewProj);
-		//ProjEye.x = floor(ProjEye.x / ProjEye.w * SHADOW_MAP_SIZE * 0.5f) * 2.0f / SHADOW_MAP_SIZE * ProjEye.w;
-		//ProjEye.y = floor(ProjEye.y / ProjEye.w * SHADOW_MAP_SIZE * 0.5f) * 2.0f / SHADOW_MAP_SIZE * ProjEye.w;
-		//eye = ProjEye.transform(ViewProj.inverse()).xyz;
+		const Matrix4 ViewProj = Rotation.inverse() * Proj;
+		Vector4 ProjEye = eye.transform(ViewProj);
+		ProjEye.x = floor(ProjEye.x / ProjEye.w * SHADOW_MAP_SIZE * 0.5f) * 2.0f / SHADOW_MAP_SIZE * ProjEye.w;
+		ProjEye.y = floor(ProjEye.y / ProjEye.w * SHADOW_MAP_SIZE * 0.5f) * 2.0f / SHADOW_MAP_SIZE * ProjEye.w;
+		eye = ProjEye.transform(ViewProj.inverse()).xyz;
 		const Matrix4 View = (Rotation * Matrix4::Translation(eye)).inverse();
 		SkyLightViewProj[i] = { View * Proj };
 
