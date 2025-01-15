@@ -192,6 +192,12 @@ public:
 
 	ComponentPtrList m_Cmps;
 
+	DWORD m_SignatureFlags;
+
+	enum {
+		SignatureFlagUpdate = 1 << 0
+	};
+
 	boost::shared_ptr<physx::PxRigidActor> m_PxActor;
 
 	Actor * m_Base;
@@ -236,6 +242,7 @@ protected:
 		, m_LodDist(33.0f)
 		, m_LodFactor(2.0f)
 		, m_CullingDistSq(69696.0f)
+		, m_SignatureFlags(0)
 		, m_Base(NULL)
 		, m_BaseBoneId(-1)
 	{
@@ -254,6 +261,7 @@ public:
 		, m_LodDist(33.0f)
 		, m_LodFactor(2.0f)
 		, m_CullingDistSq(69696.0f)
+		, m_SignatureFlags(0)
 		, m_Base(NULL)
 		, m_BaseBoneId(-1)
 	{

@@ -344,6 +344,11 @@ void Actor::Update(float fElapsedTime)
 		UpdateOctNode();
 	}
 
+	if (!(m_SignatureFlags & SignatureFlagUpdate))
+	{
+		return;
+	}
+
 	// ! ScriptActionTrackInst::UpdateTime may invalidate action_inst_iter by self:Play, StopAction..
 	ActionInstPtrList::iterator action_inst_iter = m_ActionInstList.begin();
 	for (; action_inst_iter != m_ActionInstList.end(); )
@@ -744,6 +749,26 @@ void Actor::InsertComponent(unsigned int i, ComponentPtr cmp)
 	m_Cmps.insert(m_Cmps.begin() + i, cmp);
 
 	cmp->m_Actor = this;
+
+	switch (cmp->GetComponentType())
+	{
+	//case Component::ComponentTypeComponent:
+	//case Component::ComponentTypeActor:
+	//case Component::ComponentTypeController:
+	//case Component::ComponentTypeMesh:
+	case Component::ComponentTypeCloth:
+	//case Component::ComponentTypeEmitter:
+	//case Component::ComponentTypeStaticEmitter:
+	//case Component::ComponentTypeCircularEmitter:
+	case Component::ComponentTypeSphericalEmitter:
+	//case Component::ComponentTypeTerrain:
+	case Component::ComponentTypeAnimator:
+	//case Component::ComponentTypeNavigation:
+	//case Component::ComponentTypeSteering:
+	case Component::ComponentTypeScript:
+		m_SignatureFlags |= SignatureFlagUpdate;
+		break;
+	}
 
 	if (cmp->m_PxShape && m_PxActor)
 	{
