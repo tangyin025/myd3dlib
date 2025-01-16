@@ -321,21 +321,18 @@ void PhysxScene::AdvanceSync(float fElapsedTime)
 
 	for (; m_Timer.Step(PhysxSdk::getSingleton().m_FrameInterval/* * my::D3DContext::getSingleton().m_fTimeScale*/); )
 	{
-		m_EventPxThreadSubstep(PhysxSdk::getSingleton().m_FrameInterval/* * my::D3DContext::getSingleton().m_fTimeScale*/);
-
 		m_PxScene->simulate(PhysxSdk::getSingleton().m_FrameInterval/* * my::D3DContext::getSingleton().m_fTimeScale*/, NULL, 0, 0, true);
 
 		m_PxScene->fetchResults(true, &m_ErrorState);
 
 		_ASSERT(0 == m_ErrorState);
+
+		m_EventPxThreadSubstep(PhysxSdk::getSingleton().m_FrameInterval/* * my::D3DContext::getSingleton().m_fTimeScale*/);
 	}
 }
 
 void PhysxScene::Substep(StepperTask & completionTask)
 {
-	// ! be aware of multi thread
-	m_EventPxThreadSubstep(PhysxSdk::getSingleton().m_FrameInterval/* * my::D3DContext::getSingleton().m_fTimeScale*/);
-
 	m_PxScene->simulate(PhysxSdk::getSingleton().m_FrameInterval/* * my::D3DContext::getSingleton().m_fTimeScale*/, &completionTask, 0, 0, true);
 }
 
@@ -344,6 +341,9 @@ void PhysxScene::SubstepDone(StepperTask * ownerTask)
 	m_PxScene->fetchResults(true, &m_ErrorState);
 
 	_ASSERT(0 == m_ErrorState);
+
+	// ! be aware of multi thread
+	m_EventPxThreadSubstep(PhysxSdk::getSingleton().m_FrameInterval/* * my::D3DContext::getSingleton().m_fTimeScale*/);
 
 	if(m_Timer.Step(PhysxSdk::getSingleton().m_FrameInterval/* * my::D3DContext::getSingleton().m_fTimeScale*/))
 	{
