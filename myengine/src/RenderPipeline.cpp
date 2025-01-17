@@ -14,6 +14,7 @@
 #include <boost/regex.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
+#include <boost/utility/string_view.hpp>
 #include <fstream>
 
 using namespace my;
@@ -90,16 +91,16 @@ static size_t _hash_value(const D3DXMACRO* pDefines, const char * path)
 {
 	// ! maybe hash conflict
 	size_t seed = 0;
-	boost::hash_combine(seed, std::string(path));
+	boost::hash_combine(seed, boost::string_view(path));
 	if (pDefines)
 	{
 		const D3DXMACRO* macro_iter = pDefines;
 		for (; macro_iter->Name; macro_iter++)
 		{
-			boost::hash_combine(seed, std::string(macro_iter->Name));
+			boost::hash_combine(seed, boost::string_view(macro_iter->Name));
 			if (macro_iter->Definition)
 			{
-				boost::hash_combine(seed, std::string(macro_iter->Definition));
+				boost::hash_combine(seed, boost::string_view(macro_iter->Definition));
 			}
 		}
 	}
