@@ -2856,10 +2856,6 @@ void LuaContext::Init(void)
 			.def("SetPosition", &my::Sound3DListener::SetPosition)
 			.def("GetVelocity", &my::Sound3DListener::GetVelocity)
 			.def("SetVelocity", &my::Sound3DListener::SetVelocity)
-
-		, class_<my::Timer, boost::shared_ptr<my::Timer> >("Timer")
-			.def(constructor<>())
-			.def_readwrite("RemainingTime", &my::Timer::m_RemainingTime)
 	];
 
 	module(m_State)[
@@ -3609,6 +3605,7 @@ void LuaContext::Init(void)
 			]
 			.def("SetControllerDebugRenderingFlags", &PhysxScene::SetControllerDebugRenderingFlags)
 			.property("Gravity", &PhysxScene::GetGravity, &PhysxScene::SetGravity)
+			.def_readonly("RemainingTime", &PhysxScene::m_RemainingTime)
 			.def("Raycast", &physxscene_raycast)
 			.def("OverlapBox", &physxscene_overlap_box)
 			.def("OverlapSphere", &physxscene_overlap_sphere)

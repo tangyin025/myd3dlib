@@ -171,6 +171,7 @@ public:
 class PhysxScene
 	: public physx::PxSimulationEventCallback
 	, public physx::PxContactModifyCallback
+	, public my::Timer
 {
 public:
 	class StepperTask
@@ -190,8 +191,6 @@ public:
 	};
 
 	StepperTask m_Completion0, m_Completion1;
-
-	my::Timer m_Timer;
 
 	my::Event m_Sync;
 
