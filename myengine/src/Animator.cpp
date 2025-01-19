@@ -328,11 +328,7 @@ void AnimationNodeSlot::Tick(float fElapsedTime, float fTotalWeight)
 		{
 			if (seq_iter->m_TargetWeight <= 0)
 			{
-				if (seq_iter->m_GroupOwner)
-				{
-					seq_iter->m_GroupOwner->RemoveSequenceGroup(seq_iter->m_Group, &*seq_iter);
-				}
-				seq_iter = m_SequenceSlot.erase(seq_iter);
+				seq_iter = RemoveSlotIter(seq_iter);
 				continue;
 			}
 			seq_iter->m_Weight = seq_iter->m_TargetWeight;
@@ -422,8 +418,24 @@ my::BoneList & AnimationNodeSlot::GetPose(my::BoneList & pose, int root_i, const
 
 void AnimationNodeSlot::Play(const std::string & Name, float Rate, float Weight, float BlendTime, float BlendOutTime, const std::string & Group, int Priority, DWORD_PTR UserData)
 {
-	SequenceList::iterator seq_iter = m_SequenceSlot.insert(std::upper_bound(m_SequenceSlot.begin(), m_SequenceSlot.end(), Priority,
-		boost::bind(std::greater<float>(), boost::placeholders::_1, boost::bind(&Sequence::m_Priority, boost::placeholders::_2))), Sequence());
+	// ! prevent infinite seqs for unactive slot
+	if (m_SequenceSlot.size() >= 4)
+	{
+		SequenceList::reverse_iterator seq_riter = m_SequenceSlot.rbegin();
+		for (; seq_riter != m_SequenceSlot.rend(); seq_riter++)
+		{
+			if (seq_riter->m_TargetWeight <= 0 && seq_riter->m_Weight <= 0)
+			{
+				RemoveSlotIter((++seq_riter).base());
+				goto after_remove_seq;
+			}
+		}
+		RemoveSlotIter((++m_SequenceSlot.rbegin()).base());
+	}
+after_remove_seq:
+
+	SequenceList::iterator seq_iter = m_SequenceSlot.insert(std::lower_bound(m_SequenceSlot.begin(), m_SequenceSlot.end(), Priority,
+		boost::bind(std::greater<float>(), boost::bind(&Sequence::m_Priority, boost::placeholders::_1), boost::placeholders::_2)), Sequence());
 	if (seq_iter != m_SequenceSlot.end())
 	{
 		Animator* Root = dynamic_cast<Animator*>(GetTopNode());
@@ -448,6 +460,15 @@ void AnimationNodeSlot::Play(const std::string & Name, float Rate, float Weight,
 			Root->AddSequenceGroup(seq_iter->m_Group, &*seq_iter);
 		}
 	}
+}
+
+AnimationNodeSlot::SequenceList::iterator AnimationNodeSlot::RemoveSlotIter(SequenceList::iterator iter)
+{
+	if (iter->m_GroupOwner)
+	{
+		iter->m_GroupOwner->RemoveSequenceGroup(iter->m_Group, &*iter);
+	}
+	return m_SequenceSlot.erase(iter);
 }
 
 void AnimationNodeSlot::StopSlotIter(SequenceList::iterator iter, float BlendOutTime)

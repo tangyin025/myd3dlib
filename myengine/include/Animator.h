@@ -212,6 +212,8 @@ public:
 
 	void Play(const std::string & Name, float Rate, float Weight, float BlendTime, float BlendOutTime, const std::string & Group, int Priority, DWORD_PTR UserData);
 
+	SequenceList::iterator RemoveSlotIter(SequenceList::iterator iter);
+
 	void StopSlotIter(SequenceList::iterator iter, float BlendOutTime);
 
 	void StopSlotByUserData(DWORD_PTR UserData, float BlendOutTime);
