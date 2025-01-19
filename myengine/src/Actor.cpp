@@ -745,6 +745,8 @@ void Actor::InsertComponent(unsigned int i, ComponentPtr cmp)
 
 	_ASSERT(i <= m_Cmps.size());
 
+	_ASSERT(!m_Node || !PhysxSdk::getSingleton().m_RenderTickMuted);
+
 	// ! Component::RequestResource may change other cmp's life time
 	m_Cmps.insert(m_Cmps.begin() + i, cmp);
 
@@ -791,6 +793,8 @@ void Actor::InsertComponent(unsigned int i, ComponentPtr cmp)
 void Actor::RemoveComponent(unsigned int i)
 {
 	_ASSERT(i < m_Cmps.size());
+
+	_ASSERT(!m_Node || !PhysxSdk::getSingleton().m_RenderTickMuted);
 
 	ComponentPtrList::iterator cmp_iter = m_Cmps.begin() + i;
 
