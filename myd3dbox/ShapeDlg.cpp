@@ -193,6 +193,7 @@ void CShapeDlg::OnClickedButton4()
 	}
 
 	std::basic_string<TCHAR> FullPath = theApp.GetFullPath(ts2ms((LPCTSTR)m_AssetPath).c_str());
+	FullPath.append(_T("\0"), 1);
 	SHFILEOPSTRUCT shfo;
 	ZeroMemory(&shfo, sizeof(shfo));
 	shfo.hwnd = AfxGetMainWnd()->m_hWnd;

@@ -81,7 +81,8 @@ void CStaticEmitterDlg::OnOK()
 			return;
 		}
 
-		std::basic_string<TCHAR> FullPath = theApp.GetFullPath(ts2ms((LPCTSTR)m_AssetPath).c_str()) + _T("_*");
+		std::basic_string<TCHAR> FullPath = theApp.GetFullPath(ts2ms((LPCTSTR)m_AssetPath).c_str());
+		FullPath.append(_T("_*\0"), 3);
 		SHFILEOPSTRUCT shfo;
 		ZeroMemory(&shfo, sizeof(shfo));
 		shfo.hwnd = AfxGetMainWnd()->m_hWnd;
