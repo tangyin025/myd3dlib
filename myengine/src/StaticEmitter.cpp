@@ -356,7 +356,7 @@ void StaticEmitterStream::Flush(void)
 			_ASSERT(chunk_iter->second.m_OctAabb);
 
 			std::string path = StaticEmitterChunk::MakeChunkPath(m_emit->m_ChunkPath, dirty_iter->first.first, dirty_iter->first.second);
-			std::string FullPath = my::ResourceMgr::getSingleton().GetFullPath(path.c_str());
+			std::basic_string<TCHAR> FullPath = my::ResourceMgr::getSingleton().GetFullPath(path.c_str());
 			if (buff->empty())
 			{
 				StaticEmitterChunkBufferPtr dummy = buff->shared_from_this();
@@ -368,7 +368,7 @@ void StaticEmitterStream::Flush(void)
 					m_emit->m_ViewedChunks.erase(viewed_chunk_iter);
 				}
 
-				BOOST_VERIFY(!my::ResourceMgr::getSingleton().CheckPath(FullPath.c_str()) || 0 == _unlink(FullPath.c_str()));
+				BOOST_VERIFY(!my::ResourceMgr::getSingleton().CheckPath(path.c_str()) || 0 == _tunlink(FullPath.c_str()));
 				m_emit->RemoveEntity(&chunk_iter->second);
 				m_buffs.erase(chunk_iter->first);
 				m_emit->m_Chunks.erase(chunk_iter);

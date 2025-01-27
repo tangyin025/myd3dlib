@@ -6,6 +6,8 @@
 #include "Actor.h"
 #include "myDxutApp.h"
 #include "libc.h"
+#include <fcntl.h>
+#include <io.h>
 #include <extensions/PxCollectionExt.h>
 #include <boost/archive/polymorphic_xml_iarchive.hpp>
 #include <boost/archive/polymorphic_xml_oarchive.hpp>
@@ -51,6 +53,26 @@ void PhysxAllocator::deallocate(void * ptr)
 uint32_t PhysxInputData::getLength() const
 {
 	return m_istr->GetSize();
+}
+
+PhysxFileOutputStream::PhysxFileOutputStream(LPCTSTR pFilename)
+	: m_fp(0)
+{
+	errno_t err = _tsopen_s(&m_fp, pFilename, _O_CREAT | _O_TRUNC | _O_WRONLY | _O_BINARY, _SH_DENYWR, _S_IREAD | _S_IWRITE);
+	if (0 != err)
+	{
+		THROW_CUSEXCEPTION(str_printf("cannot open file archive: %S", pFilename));
+	}
+}
+
+PhysxFileOutputStream::~PhysxFileOutputStream(void)
+{
+	_close(m_fp);
+}
+
+uint32_t PhysxFileOutputStream::write(const void* src, uint32_t count)
+{
+	return _write(m_fp, src, count);
 }
 
 bool PhysxSdk::Init(void)

@@ -927,7 +927,7 @@ void CNavigationDlg::OnOK()
 	// Show performance stats.
 	duLogBuildTimes(*this, this->getAccumulatedTime(RC_TIMER_TOTAL));
 
-	Navigation::SaveNavMesh(m_navMesh, ms2ts(theApp.GetFullPath(ts2ms((LPCTSTR)m_AssetPath).c_str()).c_str()).c_str());
+	Navigation::SaveNavMesh(m_navMesh, theApp.GetFullPath(ts2ms((LPCTSTR)m_AssetPath).c_str()).c_str());
 
 	CDialogEx::OnOK();
 }
@@ -1004,9 +1004,9 @@ void CNavigationDlg::OnChangeEdit21()
 	// TODO:  Add your control notification handler code here
 	CString strText;
 	GetDlgItemText(IDC_EDIT21, strText);
-	std::string FullPath = theApp.GetFullPath(ts2ms((LPCTSTR)strText).c_str());
-	WIN32_FIND_DATAA data;
-	HANDLE h = FindFirstFileA(FullPath.c_str(), &data);
+	std::basic_string<TCHAR> FullPath = theApp.GetFullPath(ts2ms((LPCTSTR)strText).c_str());
+	WIN32_FIND_DATA data;
+	HANDLE h = FindFirstFile(FullPath.c_str(), &data);
 	if (h == INVALID_HANDLE_VALUE)
 	{
 		SetDlgItemText(IDC_STATIC6, _T(""));

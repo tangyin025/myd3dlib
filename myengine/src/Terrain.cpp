@@ -897,7 +897,7 @@ void Terrain::CreateHeightFieldShape(TerrainStream * tstr, const char * HeightFi
 		hfDesc.samples.data = Samples.data();
 		hfDesc.samples.stride = sizeof(Samples[0][0]);
 
-		physx::PxDefaultFileOutputStream writeBuffer(my::ResourceMgr::getSingleton().GetFullPath(HeightFieldPath).c_str());
+		PhysxFileOutputStream writeBuffer(my::ResourceMgr::getSingleton().GetFullPath(HeightFieldPath).c_str());
 		bool status = PhysxSdk::getSingleton().m_Cooking->cookHeightField(hfDesc, writeBuffer);
 		if (!status)
 		{
@@ -1152,7 +1152,7 @@ void TerrainStream::Flush(void)
 
 				my::VertexBuffer* vb = GetVB(k, l);
 				std::string path = TerrainChunk::MakeChunkPath(m_terrain->m_ChunkPath, k, l);
-				std::string FullPath = my::ResourceMgr::getSingleton().GetFullPath(path.c_str());
+				std::basic_string<TCHAR> FullPath = my::ResourceMgr::getSingleton().GetFullPath(path.c_str());
 				std::fstream fstr(FullPath, std::ios::in | std::ios::out | std::ios::binary, _SH_DENYRW);
 				_ASSERT(fstr.is_open());
 
@@ -1229,7 +1229,7 @@ my::VertexBuffer * TerrainStream::GetVB(int k, int l)
 				for (int l = 0; l < m_terrain->m_ColChunks; l++)
 				{
 					std::string path = TerrainChunk::MakeChunkPath(m_terrain->m_ChunkPath, k, l);
-					std::string FullPath = my::ResourceMgr::getSingleton().GetFullPath(path.c_str());
+					std::basic_string<TCHAR> FullPath = my::ResourceMgr::getSingleton().GetFullPath(path.c_str());
 					std::ofstream ofs(FullPath, std::ios::binary, _SH_DENYRW);
 					_ASSERT(ofs.is_open());
 					std::vector<char> buff(m_terrain->m_IndexTable.shape()[0] * m_terrain->m_IndexTable.shape()[1] * m_terrain->m_VertexStride);

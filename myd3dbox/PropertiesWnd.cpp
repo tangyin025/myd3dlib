@@ -492,7 +492,7 @@ void CPropertiesWnd::UpdatePropertiesMesh(CMFCPropertyGridProperty * pComponent,
 void CPropertiesWnd::UpdatePropertiesMaterial(CMFCPropertyGridProperty * pMaterial, Material * mtl)
 {
 	pMaterial->SetValue((_variant_t)(DWORD_PTR)mtl);
-	pMaterial->GetSubItem(0)->SetValue((_variant_t)ms2ts(theApp.GetFullPath(mtl->m_Shader.c_str()).c_str()).c_str());
+	pMaterial->GetSubItem(0)->SetValue((_variant_t)theApp.GetFullPath(mtl->m_Shader.c_str()).c_str());
 	pMaterial->GetSubItem(1)->SetValue((_variant_t)GetPassMaskDesc(mtl->m_PassMask));
 	pMaterial->GetSubItem(2)->SetValue((_variant_t)g_CullModeDesc[mtl->m_CullMode - 1]);
 	pMaterial->GetSubItem(3)->SetValue((_variant_t)(VARIANT_BOOL)mtl->m_ZEnable);
@@ -572,7 +572,7 @@ void CPropertiesWnd::UpdatePropertiesMaterialParameter(CMFCPropertyGridProperty 
 	}
 	case MaterialParameter::ParameterTypeTexture:
 		pParentCtrl->GetSubItem(NodeId)->SetValue((_variant_t)
-			ms2ts(theApp.GetFullPath(dynamic_cast<MaterialParameterTexture *>(mtl_param)->m_TexturePath.c_str()).c_str()).c_str());
+			theApp.GetFullPath(dynamic_cast<MaterialParameterTexture *>(mtl_param)->m_TexturePath.c_str()).c_str());
 		break;
 	}
 }
@@ -838,7 +838,7 @@ void CPropertiesWnd::UpdatePropertiesAnimator(CMFCPropertyGridProperty* pCompone
 		CreatePropertiesAnimator(pComponent, animator);
 		return;
 	}
-	pComponent->GetSubItem(PropId + 0)->SetValue((_variant_t)ms2ts(theApp.GetFullPath(animator->m_SkeletonPath.c_str()).c_str()).c_str());
+	pComponent->GetSubItem(PropId + 0)->SetValue((_variant_t)theApp.GetFullPath(animator->m_SkeletonPath.c_str()).c_str());
 
 	UpdatePropertiesAnimationNode(pComponent->GetSubItem(PropId + 1), animator->m_Childs[0].get());
 }
@@ -938,7 +938,7 @@ void CPropertiesWnd::UpdatePropertiesControl(my::Control * control)
 	COLORREF color = RGB(LOBYTE(control->m_Skin->m_Color >> 16), LOBYTE(control->m_Skin->m_Color >> 8), LOBYTE(control->m_Skin->m_Color));
 	(DYNAMIC_DOWNCAST(CColorProp, pControl->GetSubItem(9)))->SetColor(color);
 	pControl->GetSubItem(10)->SetValue((_variant_t)(long)LOBYTE(control->m_Skin->m_Color >> 24));
-	pControl->GetSubItem(11)->SetValue((_variant_t)ms2ts(theApp.GetFullPath(control->m_Skin->m_Image->m_TexturePath.c_str()).c_str()).c_str());
+	pControl->GetSubItem(11)->SetValue((_variant_t)theApp.GetFullPath(control->m_Skin->m_Image->m_TexturePath.c_str()).c_str());
 	pControl->GetSubItem(12)->GetSubItem(0)->SetValue((_variant_t)control->m_Skin->m_Image->m_Rect.left);
 	pControl->GetSubItem(12)->GetSubItem(1)->SetValue((_variant_t)control->m_Skin->m_Image->m_Rect.top);
 	pControl->GetSubItem(12)->GetSubItem(2)->SetValue((_variant_t)(long)control->m_Skin->m_Image->m_Rect.Width());
@@ -948,11 +948,11 @@ void CPropertiesWnd::UpdatePropertiesControl(my::Control * control)
 	pControl->GetSubItem(13)->GetSubItem(2)->SetValue((_variant_t)control->m_Skin->m_Image->m_Border.right);
 	pControl->GetSubItem(13)->GetSubItem(3)->SetValue((_variant_t)control->m_Skin->m_Image->m_Border.bottom);
 
-	pControl->GetSubItem(14)->SetValue((_variant_t)ms2ts(theApp.GetFullPath(control->m_Skin->m_VisibleShowSoundPath.c_str()).c_str()).c_str());
-	pControl->GetSubItem(15)->SetValue((_variant_t)ms2ts(theApp.GetFullPath(control->m_Skin->m_VisibleHideSoundPath.c_str()).c_str()).c_str());
-	pControl->GetSubItem(16)->SetValue((_variant_t)ms2ts(theApp.GetFullPath(control->m_Skin->m_MouseEnterSoundPath.c_str()).c_str()).c_str());
-	pControl->GetSubItem(17)->SetValue((_variant_t)ms2ts(theApp.GetFullPath(control->m_Skin->m_MouseLeaveSoundPath.c_str()).c_str()).c_str());
-	pControl->GetSubItem(18)->SetValue((_variant_t)ms2ts(theApp.GetFullPath(control->m_Skin->m_MouseClickSoundPath.c_str()).c_str()).c_str());
+	pControl->GetSubItem(14)->SetValue((_variant_t)theApp.GetFullPath(control->m_Skin->m_VisibleShowSoundPath.c_str()).c_str());
+	pControl->GetSubItem(15)->SetValue((_variant_t)theApp.GetFullPath(control->m_Skin->m_VisibleHideSoundPath.c_str()).c_str());
+	pControl->GetSubItem(16)->SetValue((_variant_t)theApp.GetFullPath(control->m_Skin->m_MouseEnterSoundPath.c_str()).c_str());
+	pControl->GetSubItem(17)->SetValue((_variant_t)theApp.GetFullPath(control->m_Skin->m_MouseLeaveSoundPath.c_str()).c_str());
+	pControl->GetSubItem(18)->SetValue((_variant_t)theApp.GetFullPath(control->m_Skin->m_MouseClickSoundPath.c_str()).c_str());
 
 	switch (control->GetControlType())
 	{
@@ -995,7 +995,7 @@ void CPropertiesWnd::UpdatePropertiesStatic(CMFCPropertyGridProperty * pControl,
 	pControl->GetSubItem(PropId + 0)->SetValue((_variant_t)ws2ts(boost::algorithm::replace_all_copy(static_ctl->m_Text, L"\n", L"\\n")).c_str());
 
 	my::StaticSkinPtr skin = boost::dynamic_pointer_cast<my::StaticSkin>(static_ctl->m_Skin);
-	pControl->GetSubItem(PropId + 1)->SetValue((_variant_t)ms2ts(theApp.GetFullPath(skin->m_FontPath.c_str()).c_str()).c_str());
+	pControl->GetSubItem(PropId + 1)->SetValue((_variant_t)theApp.GetFullPath(skin->m_FontPath.c_str()).c_str());
 	pControl->GetSubItem(PropId + 2)->SetValue((_variant_t)(long)skin->m_FontHeight);
 
 	TCHAR buff[65];
@@ -1050,7 +1050,7 @@ void CPropertiesWnd::UpdatePropertiesProgressBar(CMFCPropertyGridProperty * pCon
 	}
 	pControl->GetSubItem(PropId + 0)->SetValue((_variant_t)progressbar->m_Progress);
 	my::ProgressBarSkinPtr skin = boost::dynamic_pointer_cast<my::ProgressBarSkin>(progressbar->m_Skin);
-	pControl->GetSubItem(PropId + 1)->SetValue((_variant_t)ms2ts(theApp.GetFullPath(skin->m_ForegroundImage->m_TexturePath.c_str()).c_str()).c_str());
+	pControl->GetSubItem(PropId + 1)->SetValue((_variant_t)theApp.GetFullPath(skin->m_ForegroundImage->m_TexturePath.c_str()).c_str());
 	pControl->GetSubItem(PropId + 2)->GetSubItem(0)->SetValue((_variant_t)skin->m_ForegroundImage->m_Rect.left);
 	pControl->GetSubItem(PropId + 2)->GetSubItem(1)->SetValue((_variant_t)skin->m_ForegroundImage->m_Rect.top);
 	pControl->GetSubItem(PropId + 2)->GetSubItem(2)->SetValue((_variant_t)(long)skin->m_ForegroundImage->m_Rect.Width());
@@ -1077,7 +1077,7 @@ void CPropertiesWnd::UpdatePropertiesButton(CMFCPropertyGridProperty * pControl,
 	pControl->GetSubItem(PropId + 2)->GetSubItem(0)->SetValue((_variant_t)skin->m_PressedOffset.x);
 	pControl->GetSubItem(PropId + 2)->GetSubItem(1)->SetValue((_variant_t)skin->m_PressedOffset.y);
 
-	pControl->GetSubItem(PropId + 3)->SetValue((_variant_t)ms2ts(theApp.GetFullPath(skin->m_DisabledImage->m_TexturePath.c_str()).c_str()).c_str());
+	pControl->GetSubItem(PropId + 3)->SetValue((_variant_t)theApp.GetFullPath(skin->m_DisabledImage->m_TexturePath.c_str()).c_str());
 	pControl->GetSubItem(PropId + 4)->GetSubItem(0)->SetValue((_variant_t)skin->m_DisabledImage->m_Rect.left);
 	pControl->GetSubItem(PropId + 4)->GetSubItem(1)->SetValue((_variant_t)skin->m_DisabledImage->m_Rect.top);
 	pControl->GetSubItem(PropId + 4)->GetSubItem(2)->SetValue((_variant_t)(long)skin->m_DisabledImage->m_Rect.Width());
@@ -1087,7 +1087,7 @@ void CPropertiesWnd::UpdatePropertiesButton(CMFCPropertyGridProperty * pControl,
 	pControl->GetSubItem(PropId + 5)->GetSubItem(2)->SetValue((_variant_t)skin->m_DisabledImage->m_Border.right);
 	pControl->GetSubItem(PropId + 5)->GetSubItem(3)->SetValue((_variant_t)skin->m_DisabledImage->m_Border.bottom);
 
-	pControl->GetSubItem(PropId + 6)->SetValue((_variant_t)ms2ts(theApp.GetFullPath(skin->m_PressedImage->m_TexturePath.c_str()).c_str()).c_str());
+	pControl->GetSubItem(PropId + 6)->SetValue((_variant_t)theApp.GetFullPath(skin->m_PressedImage->m_TexturePath.c_str()).c_str());
 	pControl->GetSubItem(PropId + 7)->GetSubItem(0)->SetValue((_variant_t)skin->m_PressedImage->m_Rect.left);
 	pControl->GetSubItem(PropId + 7)->GetSubItem(1)->SetValue((_variant_t)skin->m_PressedImage->m_Rect.top);
 	pControl->GetSubItem(PropId + 7)->GetSubItem(2)->SetValue((_variant_t)(long)skin->m_PressedImage->m_Rect.Width());
@@ -1097,7 +1097,7 @@ void CPropertiesWnd::UpdatePropertiesButton(CMFCPropertyGridProperty * pControl,
 	pControl->GetSubItem(PropId + 8)->GetSubItem(2)->SetValue((_variant_t)skin->m_PressedImage->m_Border.right);
 	pControl->GetSubItem(PropId + 8)->GetSubItem(3)->SetValue((_variant_t)skin->m_PressedImage->m_Border.bottom);
 
-	pControl->GetSubItem(PropId + 9)->SetValue((_variant_t)ms2ts(theApp.GetFullPath(skin->m_MouseOverImage->m_TexturePath.c_str()).c_str()).c_str());
+	pControl->GetSubItem(PropId + 9)->SetValue((_variant_t)theApp.GetFullPath(skin->m_MouseOverImage->m_TexturePath.c_str()).c_str());
 	pControl->GetSubItem(PropId + 10)->GetSubItem(0)->SetValue((_variant_t)skin->m_MouseOverImage->m_Rect.left);
 	pControl->GetSubItem(PropId + 10)->GetSubItem(1)->SetValue((_variant_t)skin->m_MouseOverImage->m_Rect.top);
 	pControl->GetSubItem(PropId + 10)->GetSubItem(2)->SetValue((_variant_t)(long)skin->m_MouseOverImage->m_Rect.Width());
@@ -1136,7 +1136,7 @@ void CPropertiesWnd::UpdatePropertiesEditBox(CMFCPropertyGridProperty * pControl
 	pControl->GetSubItem(PropId + 0)->GetSubItem(3)->SetValue((_variant_t)editbox->m_Border.w);
 
 	my::EditBoxSkinPtr skin = boost::dynamic_pointer_cast<my::EditBoxSkin>(editbox->m_Skin);
-	pControl->GetSubItem(PropId + 1)->SetValue((_variant_t)ms2ts(theApp.GetFullPath(skin->m_DisabledImage->m_TexturePath.c_str()).c_str()).c_str());
+	pControl->GetSubItem(PropId + 1)->SetValue((_variant_t)theApp.GetFullPath(skin->m_DisabledImage->m_TexturePath.c_str()).c_str());
 	pControl->GetSubItem(PropId + 2)->GetSubItem(0)->SetValue((_variant_t)skin->m_DisabledImage->m_Rect.left);
 	pControl->GetSubItem(PropId + 2)->GetSubItem(1)->SetValue((_variant_t)skin->m_DisabledImage->m_Rect.top);
 	pControl->GetSubItem(PropId + 2)->GetSubItem(2)->SetValue((_variant_t)(long)skin->m_DisabledImage->m_Rect.Width());
@@ -1146,7 +1146,7 @@ void CPropertiesWnd::UpdatePropertiesEditBox(CMFCPropertyGridProperty * pControl
 	pControl->GetSubItem(PropId + 3)->GetSubItem(2)->SetValue((_variant_t)skin->m_DisabledImage->m_Border.right);
 	pControl->GetSubItem(PropId + 3)->GetSubItem(3)->SetValue((_variant_t)skin->m_DisabledImage->m_Border.bottom);
 
-	pControl->GetSubItem(PropId + 4)->SetValue((_variant_t)ms2ts(theApp.GetFullPath(skin->m_FocusedImage->m_TexturePath.c_str()).c_str()).c_str());
+	pControl->GetSubItem(PropId + 4)->SetValue((_variant_t)theApp.GetFullPath(skin->m_FocusedImage->m_TexturePath.c_str()).c_str());
 	pControl->GetSubItem(PropId + 5)->GetSubItem(0)->SetValue((_variant_t)skin->m_FocusedImage->m_Rect.left);
 	pControl->GetSubItem(PropId + 5)->GetSubItem(1)->SetValue((_variant_t)skin->m_FocusedImage->m_Rect.top);
 	pControl->GetSubItem(PropId + 5)->GetSubItem(2)->SetValue((_variant_t)(long)skin->m_FocusedImage->m_Rect.Width());
@@ -1164,7 +1164,7 @@ void CPropertiesWnd::UpdatePropertiesEditBox(CMFCPropertyGridProperty * pControl
 	(DYNAMIC_DOWNCAST(CColorProp, pControl->GetSubItem(PropId + 9)))->SetColor(color);
 	pControl->GetSubItem(PropId + 10)->SetValue((_variant_t)(long)LOBYTE(skin->m_CaretColor >> 24));
 
-	pControl->GetSubItem(PropId + 11)->SetValue((_variant_t)ms2ts(theApp.GetFullPath(skin->m_CaretImage->m_TexturePath.c_str()).c_str()).c_str());
+	pControl->GetSubItem(PropId + 11)->SetValue((_variant_t)theApp.GetFullPath(skin->m_CaretImage->m_TexturePath.c_str()).c_str());
 	pControl->GetSubItem(PropId + 12)->GetSubItem(0)->SetValue((_variant_t)skin->m_CaretImage->m_Rect.left);
 	pControl->GetSubItem(PropId + 12)->GetSubItem(1)->SetValue((_variant_t)skin->m_CaretImage->m_Rect.top);
 	pControl->GetSubItem(PropId + 12)->GetSubItem(2)->SetValue((_variant_t)(long)skin->m_CaretImage->m_Rect.Width());
@@ -1195,7 +1195,7 @@ void CPropertiesWnd::UpdatePropertiesScrollBar(CMFCPropertyGridProperty * pContr
 	pControl->GetSubItem(PropId + 5)->GetSubItem(0)->SetValue((_variant_t)skin->m_PressedOffset.x);
 	pControl->GetSubItem(PropId + 5)->GetSubItem(1)->SetValue((_variant_t)skin->m_PressedOffset.y);
 
-	pControl->GetSubItem(PropId + 6)->SetValue((_variant_t)ms2ts(theApp.GetFullPath(skin->m_UpBtnNormalImage->m_TexturePath.c_str()).c_str()).c_str());
+	pControl->GetSubItem(PropId + 6)->SetValue((_variant_t)theApp.GetFullPath(skin->m_UpBtnNormalImage->m_TexturePath.c_str()).c_str());
 	pControl->GetSubItem(PropId + 7)->GetSubItem(0)->SetValue((_variant_t)skin->m_UpBtnNormalImage->m_Rect.left);
 	pControl->GetSubItem(PropId + 7)->GetSubItem(1)->SetValue((_variant_t)skin->m_UpBtnNormalImage->m_Rect.top);
 	pControl->GetSubItem(PropId + 7)->GetSubItem(2)->SetValue((_variant_t)(long)skin->m_UpBtnNormalImage->m_Rect.Width());
@@ -1205,7 +1205,7 @@ void CPropertiesWnd::UpdatePropertiesScrollBar(CMFCPropertyGridProperty * pContr
 	pControl->GetSubItem(PropId + 8)->GetSubItem(2)->SetValue((_variant_t)skin->m_UpBtnNormalImage->m_Border.right);
 	pControl->GetSubItem(PropId + 8)->GetSubItem(3)->SetValue((_variant_t)skin->m_UpBtnNormalImage->m_Border.bottom);
 
-	pControl->GetSubItem(PropId + 9)->SetValue((_variant_t)ms2ts(theApp.GetFullPath(skin->m_UpBtnDisabledImage->m_TexturePath.c_str()).c_str()).c_str());
+	pControl->GetSubItem(PropId + 9)->SetValue((_variant_t)theApp.GetFullPath(skin->m_UpBtnDisabledImage->m_TexturePath.c_str()).c_str());
 	pControl->GetSubItem(PropId + 10)->GetSubItem(0)->SetValue((_variant_t)skin->m_UpBtnDisabledImage->m_Rect.left);
 	pControl->GetSubItem(PropId + 10)->GetSubItem(1)->SetValue((_variant_t)skin->m_UpBtnDisabledImage->m_Rect.top);
 	pControl->GetSubItem(PropId + 10)->GetSubItem(2)->SetValue((_variant_t)(long)skin->m_UpBtnDisabledImage->m_Rect.Width());
@@ -1215,7 +1215,7 @@ void CPropertiesWnd::UpdatePropertiesScrollBar(CMFCPropertyGridProperty * pContr
 	pControl->GetSubItem(PropId + 11)->GetSubItem(3)->SetValue((_variant_t)skin->m_UpBtnDisabledImage->m_Border.bottom);
 	pControl->GetSubItem(PropId + 11)->GetSubItem(0)->SetValue((_variant_t)skin->m_UpBtnDisabledImage->m_Border.left);
 
-	pControl->GetSubItem(PropId + 12)->SetValue((_variant_t)ms2ts(theApp.GetFullPath(skin->m_DownBtnNormalImage->m_TexturePath.c_str()).c_str()).c_str());
+	pControl->GetSubItem(PropId + 12)->SetValue((_variant_t)theApp.GetFullPath(skin->m_DownBtnNormalImage->m_TexturePath.c_str()).c_str());
 	pControl->GetSubItem(PropId + 13)->GetSubItem(0)->SetValue((_variant_t)skin->m_DownBtnNormalImage->m_Rect.left);
 	pControl->GetSubItem(PropId + 13)->GetSubItem(1)->SetValue((_variant_t)skin->m_DownBtnNormalImage->m_Rect.top);
 	pControl->GetSubItem(PropId + 13)->GetSubItem(2)->SetValue((_variant_t)(long)skin->m_DownBtnNormalImage->m_Rect.Width());
@@ -1225,7 +1225,7 @@ void CPropertiesWnd::UpdatePropertiesScrollBar(CMFCPropertyGridProperty * pContr
 	pControl->GetSubItem(PropId + 14)->GetSubItem(2)->SetValue((_variant_t)skin->m_DownBtnNormalImage->m_Border.right);
 	pControl->GetSubItem(PropId + 14)->GetSubItem(3)->SetValue((_variant_t)skin->m_DownBtnNormalImage->m_Border.bottom);
 
-	pControl->GetSubItem(PropId + 15)->SetValue((_variant_t)ms2ts(theApp.GetFullPath(skin->m_DownBtnDisabledImage->m_TexturePath.c_str()).c_str()).c_str());
+	pControl->GetSubItem(PropId + 15)->SetValue((_variant_t)theApp.GetFullPath(skin->m_DownBtnDisabledImage->m_TexturePath.c_str()).c_str());
 	pControl->GetSubItem(PropId + 16)->GetSubItem(0)->SetValue((_variant_t)skin->m_DownBtnDisabledImage->m_Rect.left);
 	pControl->GetSubItem(PropId + 16)->GetSubItem(1)->SetValue((_variant_t)skin->m_DownBtnDisabledImage->m_Rect.top);
 	pControl->GetSubItem(PropId + 16)->GetSubItem(2)->SetValue((_variant_t)(long)skin->m_DownBtnDisabledImage->m_Rect.Width());
@@ -1235,7 +1235,7 @@ void CPropertiesWnd::UpdatePropertiesScrollBar(CMFCPropertyGridProperty * pContr
 	pControl->GetSubItem(PropId + 17)->GetSubItem(2)->SetValue((_variant_t)skin->m_DownBtnDisabledImage->m_Border.right);
 	pControl->GetSubItem(PropId + 17)->GetSubItem(3)->SetValue((_variant_t)skin->m_DownBtnDisabledImage->m_Border.bottom);
 
-	pControl->GetSubItem(PropId + 18)->SetValue((_variant_t)ms2ts(theApp.GetFullPath(skin->m_ThumbBtnNormalImage->m_TexturePath.c_str()).c_str()).c_str());
+	pControl->GetSubItem(PropId + 18)->SetValue((_variant_t)theApp.GetFullPath(skin->m_ThumbBtnNormalImage->m_TexturePath.c_str()).c_str());
 	pControl->GetSubItem(PropId + 19)->GetSubItem(0)->SetValue((_variant_t)skin->m_ThumbBtnNormalImage->m_Rect.left);
 	pControl->GetSubItem(PropId + 19)->GetSubItem(1)->SetValue((_variant_t)skin->m_ThumbBtnNormalImage->m_Rect.top);
 	pControl->GetSubItem(PropId + 19)->GetSubItem(2)->SetValue((_variant_t)(long)skin->m_ThumbBtnNormalImage->m_Rect.Width());
@@ -1279,7 +1279,7 @@ void CPropertiesWnd::UpdatePropertiesComboBox(CMFCPropertyGridProperty * pContro
 	pControl->GetSubItem(PropId + 5)->SetValue((_variant_t)(long)combobox->m_Items.size());
 
 	my::ComboBoxSkinPtr skin = boost::dynamic_pointer_cast<my::ComboBoxSkin>(combobox->m_Skin);
-	pControl->GetSubItem(PropId + 6)->SetValue((_variant_t)ms2ts(theApp.GetFullPath(skin->m_DropdownImage->m_TexturePath.c_str()).c_str()).c_str());
+	pControl->GetSubItem(PropId + 6)->SetValue((_variant_t)theApp.GetFullPath(skin->m_DropdownImage->m_TexturePath.c_str()).c_str());
 	pControl->GetSubItem(PropId + 7)->GetSubItem(0)->SetValue((_variant_t)skin->m_DropdownImage->m_Rect.left);
 	pControl->GetSubItem(PropId + 7)->GetSubItem(1)->SetValue((_variant_t)skin->m_DropdownImage->m_Rect.top);
 	pControl->GetSubItem(PropId + 7)->GetSubItem(2)->SetValue((_variant_t)(long)skin->m_DropdownImage->m_Rect.Width());
@@ -1294,7 +1294,7 @@ void CPropertiesWnd::UpdatePropertiesComboBox(CMFCPropertyGridProperty * pContro
 	pControl->GetSubItem(PropId + 10)->SetValue((_variant_t)(long)LOBYTE(skin->m_DropdownItemTextColor >> 24));
 	pControl->GetSubItem(PropId + 11)->SetValue(GetFontAlignDesc(skin->m_DropdownItemTextAlign));
 
-	pControl->GetSubItem(PropId + 12)->SetValue((_variant_t)ms2ts(theApp.GetFullPath(skin->m_DropdownItemMouseOverImage->m_TexturePath.c_str()).c_str()).c_str());
+	pControl->GetSubItem(PropId + 12)->SetValue((_variant_t)theApp.GetFullPath(skin->m_DropdownItemMouseOverImage->m_TexturePath.c_str()).c_str());
 	pControl->GetSubItem(PropId + 13)->GetSubItem(0)->SetValue((_variant_t)skin->m_DropdownItemMouseOverImage->m_Rect.left);
 	pControl->GetSubItem(PropId + 13)->GetSubItem(1)->SetValue((_variant_t)skin->m_DropdownItemMouseOverImage->m_Rect.top);
 	pControl->GetSubItem(PropId + 13)->GetSubItem(2)->SetValue((_variant_t)(long)skin->m_DropdownItemMouseOverImage->m_Rect.Width());
@@ -1594,7 +1594,7 @@ void CPropertiesWnd::CreatePropertiesMaterial(CMFCPropertyGridProperty * pParent
 	CMFCPropertyGridProperty * pMaterial = new CSimpleProp(lpszName, PropertyMaterial, FALSE);
 	pParentCtrl->AddSubItem(pMaterial);
 	pMaterial->SetValue((_variant_t)(DWORD_PTR)mtl);
-	CMFCPropertyGridProperty * pProp = new CFileProp(_T("Shader"), TRUE, (_variant_t)ms2ts(theApp.GetFullPath(mtl->m_Shader.c_str()).c_str()).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyMaterialShader);
+	CMFCPropertyGridProperty * pProp = new CFileProp(_T("Shader"), TRUE, (_variant_t)theApp.GetFullPath(mtl->m_Shader.c_str()).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyMaterialShader);
 	pMaterial->AddSubItem(pProp);
 	CComboProp * pPassMask = new CComboProp(_T("PassMask"), (_variant_t)GetPassMaskDesc(mtl->m_PassMask), NULL, PropertyMaterialPassMask);
 	for (unsigned int i = 0; i < _countof(g_PassMaskDesc); i++)
@@ -1718,7 +1718,7 @@ void CPropertiesWnd::CreatePropertiesMaterialParameter(CMFCPropertyGridProperty 
 		break;
 	}
 	case MaterialParameter::ParameterTypeTexture:
-		pProp = new CFileProp(name.c_str(), TRUE, (_variant_t)ms2ts(theApp.GetFullPath(dynamic_cast<MaterialParameterTexture *>(mtl_param)->m_TexturePath.c_str()).c_str()).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyMaterialParameterTexture);
+		pProp = new CFileProp(name.c_str(), TRUE, (_variant_t)theApp.GetFullPath(dynamic_cast<MaterialParameterTexture *>(mtl_param)->m_TexturePath.c_str()).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyMaterialParameterTexture);
 		pParentCtrl->AddSubItem(pProp);
 		break;
 	}
@@ -2074,7 +2074,7 @@ void CPropertiesWnd::CreatePropertiesAnimator(CMFCPropertyGridProperty* pCompone
 {
 	ASSERT(pComponent->GetSubItemsCount() == GetComponentPropCount(Component::ComponentTypeComponent));
 
-	CMFCPropertyGridProperty * pProp = new CFileProp(_T("SkeletonPath"), TRUE, (_variant_t)ms2ts(theApp.GetFullPath(animator->m_SkeletonPath.c_str()).c_str()).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyAnimatorSkeletonPath);
+	CMFCPropertyGridProperty * pProp = new CFileProp(_T("SkeletonPath"), TRUE, (_variant_t)theApp.GetFullPath(animator->m_SkeletonPath.c_str()).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyAnimatorSkeletonPath);
 	pProp->Enable(FALSE);
 	pComponent->AddSubItem(pProp);
 
@@ -2218,7 +2218,7 @@ void CPropertiesWnd::CreatePropertiesControl(my::Control * control)
 	CMFCPropertyGridProperty* pAlpha = new CSliderProp(_T("Alpha"), (long)LOBYTE(control->m_Skin->m_Color >> 24), NULL, PropertyControlColorAlpha);
 	pControl->AddSubItem(pAlpha);
 
-	CMFCPropertyGridProperty* pImagePath = new CFileProp(_T("Image"), TRUE, (_variant_t)ms2ts(theApp.GetFullPath(control->m_Skin->m_Image->m_TexturePath.c_str()).c_str()).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyControlImagePath);
+	CMFCPropertyGridProperty* pImagePath = new CFileProp(_T("Image"), TRUE, (_variant_t)theApp.GetFullPath(control->m_Skin->m_Image->m_TexturePath.c_str()).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyControlImagePath);
 	pControl->AddSubItem(pImagePath);
 
 	CMFCPropertyGridProperty* pImageRect = new CSimpleProp(_T("ImageRect"), PropertyControlImageRect, TRUE);
@@ -2243,15 +2243,15 @@ void CPropertiesWnd::CreatePropertiesControl(my::Control * control)
 	pProp = new CSimpleProp(_T("w"), (_variant_t)control->m_Skin->m_Image->m_Border.bottom, NULL, PropertyControlImageBorderW);
 	pImageBorder->AddSubItem(pProp);
 
-	pProp = new CFileProp(_T("VisibleShowSound"), TRUE, (_variant_t)ms2ts(theApp.GetFullPath(control->m_Skin->m_VisibleShowSoundPath.c_str()).c_str()).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyControlVisibleShowSoundPath);
+	pProp = new CFileProp(_T("VisibleShowSound"), TRUE, (_variant_t)theApp.GetFullPath(control->m_Skin->m_VisibleShowSoundPath.c_str()).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyControlVisibleShowSoundPath);
 	pControl->AddSubItem(pProp);
-	pProp = new CFileProp(_T("VisibleHideSound"), TRUE, (_variant_t)ms2ts(theApp.GetFullPath(control->m_Skin->m_VisibleHideSoundPath.c_str()).c_str()).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyControlVisibleHideSoundPath);
+	pProp = new CFileProp(_T("VisibleHideSound"), TRUE, (_variant_t)theApp.GetFullPath(control->m_Skin->m_VisibleHideSoundPath.c_str()).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyControlVisibleHideSoundPath);
 	pControl->AddSubItem(pProp);
-	pProp = new CFileProp(_T("MouseEnterSound"), TRUE, (_variant_t)ms2ts(theApp.GetFullPath(control->m_Skin->m_MouseEnterSoundPath.c_str()).c_str()).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyControlMouseEnterSoundPath);
+	pProp = new CFileProp(_T("MouseEnterSound"), TRUE, (_variant_t)theApp.GetFullPath(control->m_Skin->m_MouseEnterSoundPath.c_str()).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyControlMouseEnterSoundPath);
 	pControl->AddSubItem(pProp);
-	pProp = new CFileProp(_T("MouseLeaveSound"), TRUE, (_variant_t)ms2ts(theApp.GetFullPath(control->m_Skin->m_MouseLeaveSoundPath.c_str()).c_str()).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyControlMouseLeaveSoundPath);
+	pProp = new CFileProp(_T("MouseLeaveSound"), TRUE, (_variant_t)theApp.GetFullPath(control->m_Skin->m_MouseLeaveSoundPath.c_str()).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyControlMouseLeaveSoundPath);
 	pControl->AddSubItem(pProp);
-	pProp = new CFileProp(_T("MouseClickSound"), TRUE, (_variant_t)ms2ts(theApp.GetFullPath(control->m_Skin->m_MouseClickSoundPath.c_str()).c_str()).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyControlMouseClickSoundPath);
+	pProp = new CFileProp(_T("MouseClickSound"), TRUE, (_variant_t)theApp.GetFullPath(control->m_Skin->m_MouseClickSoundPath.c_str()).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyControlMouseClickSoundPath);
 	pControl->AddSubItem(pProp);
 
 	switch (control->GetControlType())
@@ -2291,7 +2291,7 @@ void CPropertiesWnd::CreatePropertiesStatic(CMFCPropertyGridProperty * pControl,
 
 	my::StaticSkinPtr skin = boost::dynamic_pointer_cast<my::StaticSkin>(static_ctl->m_Skin);
 
-	CMFCPropertyGridProperty* pFontPath = new CFileProp(_T("FontPath"), TRUE, (_variant_t)ms2ts(theApp.GetFullPath(skin->m_FontPath.c_str()).c_str()).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyStaticFontPath);
+	CMFCPropertyGridProperty* pFontPath = new CFileProp(_T("FontPath"), TRUE, (_variant_t)theApp.GetFullPath(skin->m_FontPath.c_str()).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyStaticFontPath);
 	pControl->AddSubItem(pFontPath);
 	CMFCPropertyGridProperty* pFontHeight = new CSimpleProp(_T("FontHeight"), (_variant_t)(long)skin->m_FontHeight, NULL, PropertyStaticFontHeight);
 	pControl->AddSubItem(pFontHeight);
@@ -2356,7 +2356,7 @@ void CPropertiesWnd::CreatePropertiesProgressBar(CMFCPropertyGridProperty * pCon
 
 	my::ProgressBarSkinPtr skin = boost::dynamic_pointer_cast<my::ProgressBarSkin>(progressbar->m_Skin);
 
-	CMFCPropertyGridProperty* pForegroundImagePath = new CFileProp(_T("ForegroundImage"), TRUE, (_variant_t)ms2ts(theApp.GetFullPath(skin->m_ForegroundImage->m_TexturePath.c_str()).c_str()).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyProgressBarForegroundImagePath);
+	CMFCPropertyGridProperty* pForegroundImagePath = new CFileProp(_T("ForegroundImage"), TRUE, (_variant_t)theApp.GetFullPath(skin->m_ForegroundImage->m_TexturePath.c_str()).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyProgressBarForegroundImagePath);
 	pControl->AddSubItem(pForegroundImagePath);
 
 	CMFCPropertyGridProperty* pForegroundImageRect = new CSimpleProp(_T("ForegroundImageRect"), PropertyProgressBarForegroundImageRect, TRUE);
@@ -2401,7 +2401,7 @@ void CPropertiesWnd::CreatePropertiesButton(CMFCPropertyGridProperty * pControl,
 	pProp = new CSimpleProp(_T("y"), (_variant_t)skin->m_PressedOffset.y, NULL, PropertyButtonPressedOffsetY);
 	pPressedOffset->AddSubItem(pProp);
 
-	CMFCPropertyGridProperty* pDisabledImagePath = new CFileProp(_T("DisabledImage"), TRUE, (_variant_t)ms2ts(theApp.GetFullPath(skin->m_DisabledImage->m_TexturePath.c_str()).c_str()).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyButtonDisabledImagePath);
+	CMFCPropertyGridProperty* pDisabledImagePath = new CFileProp(_T("DisabledImage"), TRUE, (_variant_t)theApp.GetFullPath(skin->m_DisabledImage->m_TexturePath.c_str()).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyButtonDisabledImagePath);
 	pControl->AddSubItem(pDisabledImagePath);
 
 	CMFCPropertyGridProperty* pDisabledImageRect = new CSimpleProp(_T("DisabledImageRect"), PropertyButtonDisabledImageRect, TRUE);
@@ -2426,7 +2426,7 @@ void CPropertiesWnd::CreatePropertiesButton(CMFCPropertyGridProperty * pControl,
 	pProp = new CSimpleProp(_T("w"), (_variant_t)skin->m_DisabledImage->m_Border.bottom, NULL, PropertyButtonDisabledImageBorderW);
 	pDisabledImageBorder->AddSubItem(pProp);
 
-	CMFCPropertyGridProperty* pPressedImagePath = new CFileProp(_T("PressedImage"), TRUE, (_variant_t)ms2ts(theApp.GetFullPath(skin->m_PressedImage->m_TexturePath.c_str()).c_str()).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyButtonPressedImagePath);
+	CMFCPropertyGridProperty* pPressedImagePath = new CFileProp(_T("PressedImage"), TRUE, (_variant_t)theApp.GetFullPath(skin->m_PressedImage->m_TexturePath.c_str()).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyButtonPressedImagePath);
 	pControl->AddSubItem(pPressedImagePath);
 
 	CMFCPropertyGridProperty* pPressedImageRect = new CSimpleProp(_T("PressedImageRect"), PropertyButtonPressedImageRect, TRUE);
@@ -2451,7 +2451,7 @@ void CPropertiesWnd::CreatePropertiesButton(CMFCPropertyGridProperty * pControl,
 	pProp = new CSimpleProp(_T("w"), (_variant_t)skin->m_PressedImage->m_Border.bottom, NULL, PropertyButtonPressedImageBorderW);
 	pPressedImageBorder->AddSubItem(pProp);
 
-	CMFCPropertyGridProperty* pMouseOverImagePath = new CFileProp(_T("MouseOverImage"), TRUE, (_variant_t)ms2ts(theApp.GetFullPath(skin->m_MouseOverImage->m_TexturePath.c_str()).c_str()).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyButtonMouseOverImagePath);
+	CMFCPropertyGridProperty* pMouseOverImagePath = new CFileProp(_T("MouseOverImage"), TRUE, (_variant_t)theApp.GetFullPath(skin->m_MouseOverImage->m_TexturePath.c_str()).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyButtonMouseOverImagePath);
 	pControl->AddSubItem(pMouseOverImagePath);
 
 	CMFCPropertyGridProperty* pMouseOverImageRect = new CSimpleProp(_T("MouseOverImageRect"), PropertyButtonMouseOverImageRect, TRUE);
@@ -2504,7 +2504,7 @@ void CPropertiesWnd::CreatePropertiesEditBox(CMFCPropertyGridProperty * pControl
 
 	my::EditBoxSkinPtr skin = boost::dynamic_pointer_cast<my::EditBoxSkin>(editbox->m_Skin);
 
-	CMFCPropertyGridProperty* pDisabledImagePath = new CFileProp(_T("DisabledImage"), TRUE, (_variant_t)ms2ts(theApp.GetFullPath(skin->m_DisabledImage->m_TexturePath.c_str()).c_str()).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyEditBoxDisabledImagePath);
+	CMFCPropertyGridProperty* pDisabledImagePath = new CFileProp(_T("DisabledImage"), TRUE, (_variant_t)theApp.GetFullPath(skin->m_DisabledImage->m_TexturePath.c_str()).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyEditBoxDisabledImagePath);
 	pControl->AddSubItem(pDisabledImagePath);
 
 	CMFCPropertyGridProperty* pDisabledImageRect = new CSimpleProp(_T("DisabledImageRect"), PropertyEditBoxDisabledImageRect, TRUE);
@@ -2529,7 +2529,7 @@ void CPropertiesWnd::CreatePropertiesEditBox(CMFCPropertyGridProperty * pControl
 	pProp = new CSimpleProp(_T("w"), (_variant_t)skin->m_DisabledImage->m_Border.bottom, NULL, PropertyEditBoxDisabledImageBorderW);
 	pDisabledImageBorder->AddSubItem(pProp);
 
-	CMFCPropertyGridProperty* pFocusedImagePath = new CFileProp(_T("FocusedImage"), TRUE, (_variant_t)ms2ts(theApp.GetFullPath(skin->m_FocusedImage->m_TexturePath.c_str()).c_str()).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyEditBoxFocusedImagePath);
+	CMFCPropertyGridProperty* pFocusedImagePath = new CFileProp(_T("FocusedImage"), TRUE, (_variant_t)theApp.GetFullPath(skin->m_FocusedImage->m_TexturePath.c_str()).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyEditBoxFocusedImagePath);
 	pControl->AddSubItem(pFocusedImagePath);
 
 	CMFCPropertyGridProperty* pFocusedImageRect = new CSimpleProp(_T("FocusedImageRect"), PropertyEditBoxFocusedImageRect, TRUE);
@@ -2568,7 +2568,7 @@ void CPropertiesWnd::CreatePropertiesEditBox(CMFCPropertyGridProperty * pControl
 	CMFCPropertyGridProperty* pCaretColorAlpha = new CSliderProp(_T("SelBkAlpha"), (long)LOBYTE(skin->m_CaretColor >> 24), NULL, PropertyEditBoxCaretColorAlpha);
 	pControl->AddSubItem(pCaretColorAlpha);
 
-	CMFCPropertyGridProperty* pCaretImagePath = new CFileProp(_T("CaretImage"), TRUE, (_variant_t)ms2ts(theApp.GetFullPath(skin->m_CaretImage->m_TexturePath.c_str()).c_str()).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyEditBoxCaretImagePath);
+	CMFCPropertyGridProperty* pCaretImagePath = new CFileProp(_T("CaretImage"), TRUE, (_variant_t)theApp.GetFullPath(skin->m_CaretImage->m_TexturePath.c_str()).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyEditBoxCaretImagePath);
 	pControl->AddSubItem(pCaretImagePath);
 
 	CMFCPropertyGridProperty* pCaretImageRect = new CSimpleProp(_T("CaretImageRect"), PropertyEditBoxCaretImageRect, TRUE);
@@ -2618,7 +2618,7 @@ void CPropertiesWnd::CreatePropertiesScrollBar(CMFCPropertyGridProperty * pContr
 	pProp = new CSimpleProp(_T("y"), (_variant_t)skin->m_PressedOffset.y, NULL, PropertyScrollBarPressedOffsetY);
 	pPressedOffset->AddSubItem(pProp);
 
-	CMFCPropertyGridProperty* pScrollBarUpBtnNormalImagePath = new CFileProp(_T("ScrollBarUpBtnNormalImage"), TRUE, (_variant_t)ms2ts(theApp.GetFullPath(skin->m_UpBtnNormalImage->m_TexturePath.c_str()).c_str()).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyScrollBarUpBtnNormalImagePath);
+	CMFCPropertyGridProperty* pScrollBarUpBtnNormalImagePath = new CFileProp(_T("ScrollBarUpBtnNormalImage"), TRUE, (_variant_t)theApp.GetFullPath(skin->m_UpBtnNormalImage->m_TexturePath.c_str()).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyScrollBarUpBtnNormalImagePath);
 	pControl->AddSubItem(pScrollBarUpBtnNormalImagePath);
 
 	CMFCPropertyGridProperty* pScrollBarUpBtnNormalImageRect = new CSimpleProp(_T("ScrollBarUpBtnNormalImageRect"), PropertyScrollBarUpBtnNormalImageRect, TRUE);
@@ -2643,7 +2643,7 @@ void CPropertiesWnd::CreatePropertiesScrollBar(CMFCPropertyGridProperty * pContr
 	pProp = new CSimpleProp(_T("w"), (_variant_t)skin->m_UpBtnNormalImage->m_Border.bottom, NULL, PropertyScrollBarUpBtnNormalImageBorderW);
 	pScrollBarUpBtnNormalImageBorder->AddSubItem(pProp);
 
-	CMFCPropertyGridProperty* pScrollBarUpBtnDisabledImagePath = new CFileProp(_T("ScrollBarUpBtnDisabledImage"), TRUE, (_variant_t)ms2ts(theApp.GetFullPath(skin->m_UpBtnDisabledImage->m_TexturePath.c_str()).c_str()).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyScrollBarUpBtnDisabledImagePath);
+	CMFCPropertyGridProperty* pScrollBarUpBtnDisabledImagePath = new CFileProp(_T("ScrollBarUpBtnDisabledImage"), TRUE, (_variant_t)theApp.GetFullPath(skin->m_UpBtnDisabledImage->m_TexturePath.c_str()).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyScrollBarUpBtnDisabledImagePath);
 	pControl->AddSubItem(pScrollBarUpBtnDisabledImagePath);
 
 	CMFCPropertyGridProperty* pScrollBarUpBtnDisabledImageRect = new CSimpleProp(_T("ScrollBarUpBtnDisabledImageRect"), PropertyScrollBarUpBtnDisabledImageRect, TRUE);
@@ -2668,7 +2668,7 @@ void CPropertiesWnd::CreatePropertiesScrollBar(CMFCPropertyGridProperty * pContr
 	pProp = new CSimpleProp(_T("w"), (_variant_t)skin->m_UpBtnDisabledImage->m_Border.bottom, NULL, PropertyScrollBarUpBtnDisabledImageBorderW);
 	pScrollBarUpBtnDisabledImageBorder->AddSubItem(pProp);
 
-	CMFCPropertyGridProperty* pScrollBarDownBtnNormalImagePath = new CFileProp(_T("ScrollBarDownBtnNormalImage"), TRUE, (_variant_t)ms2ts(theApp.GetFullPath(skin->m_DownBtnNormalImage->m_TexturePath.c_str()).c_str()).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyScrollBarDownBtnNormalImagePath);
+	CMFCPropertyGridProperty* pScrollBarDownBtnNormalImagePath = new CFileProp(_T("ScrollBarDownBtnNormalImage"), TRUE, (_variant_t)theApp.GetFullPath(skin->m_DownBtnNormalImage->m_TexturePath.c_str()).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyScrollBarDownBtnNormalImagePath);
 	pControl->AddSubItem(pScrollBarDownBtnNormalImagePath);
 
 	CMFCPropertyGridProperty* pScrollBarDownBtnNormalImageRect = new CSimpleProp(_T("ScrollBarDownBtnNormalImageRect"), PropertyScrollBarDownBtnNormalImageRect, TRUE);
@@ -2693,7 +2693,7 @@ void CPropertiesWnd::CreatePropertiesScrollBar(CMFCPropertyGridProperty * pContr
 	pProp = new CSimpleProp(_T("w"), (_variant_t)skin->m_DownBtnNormalImage->m_Border.bottom, NULL, PropertyScrollBarDownBtnNormalImageBorderW);
 	pScrollBarDownBtnNormalImageBorder->AddSubItem(pProp);
 
-	CMFCPropertyGridProperty* pScrollBarDownBtnDisabledImagePath = new CFileProp(_T("ScrollBarDownBtnDisabledImage"), TRUE, (_variant_t)ms2ts(theApp.GetFullPath(skin->m_DownBtnDisabledImage->m_TexturePath.c_str()).c_str()).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyScrollBarDownBtnDisabledImagePath);
+	CMFCPropertyGridProperty* pScrollBarDownBtnDisabledImagePath = new CFileProp(_T("ScrollBarDownBtnDisabledImage"), TRUE, (_variant_t)theApp.GetFullPath(skin->m_DownBtnDisabledImage->m_TexturePath.c_str()).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyScrollBarDownBtnDisabledImagePath);
 	pControl->AddSubItem(pScrollBarDownBtnDisabledImagePath);
 
 	CMFCPropertyGridProperty* pScrollBarDownBtnDisabledImageRect = new CSimpleProp(_T("ScrollBarDownBtnDisabledImageRect"), PropertyScrollBarDownBtnDisabledImageRect, TRUE);
@@ -2718,7 +2718,7 @@ void CPropertiesWnd::CreatePropertiesScrollBar(CMFCPropertyGridProperty * pContr
 	pProp = new CSimpleProp(_T("w"), (_variant_t)skin->m_DownBtnDisabledImage->m_Border.bottom, NULL, PropertyScrollBarDownBtnDisabledImageBorderW);
 	pScrollBarDownBtnDisabledImageBorder->AddSubItem(pProp);
 
-	CMFCPropertyGridProperty* pScrollBarThumbBtnNormalImagePath = new CFileProp(_T("ScrollBarThumbBtnNormalImage"), TRUE, (_variant_t)ms2ts(theApp.GetFullPath(skin->m_ThumbBtnNormalImage->m_TexturePath.c_str()).c_str()).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyScrollBarThumbBtnNormalImagePath);
+	CMFCPropertyGridProperty* pScrollBarThumbBtnNormalImagePath = new CFileProp(_T("ScrollBarThumbBtnNormalImage"), TRUE, (_variant_t)theApp.GetFullPath(skin->m_ThumbBtnNormalImage->m_TexturePath.c_str()).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyScrollBarThumbBtnNormalImagePath);
 	pControl->AddSubItem(pScrollBarThumbBtnNormalImagePath);
 
 	CMFCPropertyGridProperty* pScrollBarThumbBtnNormalImageRect = new CSimpleProp(_T("ScrollBarThumbBtnNormalImageRect"), PropertyScrollBarThumbBtnNormalImageRect, TRUE);
@@ -2788,7 +2788,7 @@ void CPropertiesWnd::CreatePropertiesComboBox(CMFCPropertyGridProperty * pContro
 
 	my::ComboBoxSkinPtr skin = boost::dynamic_pointer_cast<my::ComboBoxSkin>(combobox->m_Skin);
 
-	CMFCPropertyGridProperty* pDropdownImagePath = new CFileProp(_T("DropdownImage"), TRUE, (_variant_t)ms2ts(theApp.GetFullPath(skin->m_DropdownImage->m_TexturePath.c_str()).c_str()).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyComboBoxDropdownImagePath);
+	CMFCPropertyGridProperty* pDropdownImagePath = new CFileProp(_T("DropdownImage"), TRUE, (_variant_t)theApp.GetFullPath(skin->m_DropdownImage->m_TexturePath.c_str()).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyComboBoxDropdownImagePath);
 	pControl->AddSubItem(pDropdownImagePath);
 
 	CMFCPropertyGridProperty* pDropdownImageRect = new CSimpleProp(_T("DropdownImageRect"), PropertyComboBoxDropdownImageRect, TRUE);
@@ -2827,7 +2827,7 @@ void CPropertiesWnd::CreatePropertiesComboBox(CMFCPropertyGridProperty * pContro
 	}
 	pControl->AddSubItem(pDropdownItemTextAlign);
 
-	CMFCPropertyGridProperty* pDropdownItemMouseOverImagePath = new CFileProp(_T("DropdownItemMouseOverImage"), TRUE, (_variant_t)ms2ts(theApp.GetFullPath(skin->m_DropdownItemMouseOverImage->m_TexturePath.c_str()).c_str()).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyComboBoxDropdownItemMouseOverImagePath);
+	CMFCPropertyGridProperty* pDropdownItemMouseOverImagePath = new CFileProp(_T("DropdownItemMouseOverImage"), TRUE, (_variant_t)theApp.GetFullPath(skin->m_DropdownItemMouseOverImage->m_TexturePath.c_str()).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyComboBoxDropdownItemMouseOverImagePath);
 	pControl->AddSubItem(pDropdownItemMouseOverImagePath);
 
 	CMFCPropertyGridProperty* pDropdownItemMouseOverImageRect = new CSimpleProp(_T("DropdownItemMouseOverImageRect"), PropertyComboBoxDropdownItemMouseOverImageRect, TRUE);
@@ -3736,7 +3736,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	case PropertyMeshPath:
 	{
 		//MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>((Component *)pProp->GetParent()->GetValue().ulVal);
-		//std::string path = theApp.GetRelativePath(ts2ms(pProp->GetValue().bstrVal).c_str());
+		//std::string path = theApp.GetRelativePath(pProp->GetValue().bstrVal);
 		//if (path.empty())
 		//{
 		//	MessageBox(str_printf(_T("cannot relative path: %s"), pProp->GetValue().bstrVal).c_str());
@@ -3785,7 +3785,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	case PropertyMaterialShader:
 	{
 		Material* material = (Material*)pProp->GetParent()->GetValue().pulVal;
-		std::string path = theApp.GetRelativePath(ts2ms(pProp->GetValue().bstrVal).c_str());
+		std::string path = theApp.GetRelativePath(pProp->GetValue().bstrVal);
 		if (path.empty())
 		{
 			MessageBox(str_printf(_T("cannot relative path: %s"), pProp->GetValue().bstrVal).c_str());
@@ -4001,7 +4001,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		Material * mtl = (Material *)pProp->GetParent()->GetParent()->GetValue().pulVal;
 		INT i = CSimpleProp::GetSubIndexInParent(pProp);
 		ASSERT(mtl->m_ParameterList[i]->GetParameterType() == MaterialParameter::ParameterTypeTexture);
-		std::string path = theApp.GetRelativePath(ts2ms(pProp->GetValue().bstrVal).c_str());
+		std::string path = theApp.GetRelativePath(pProp->GetValue().bstrVal);
 		if (path.empty())
 		{
 			MessageBox(str_printf(_T("cannot relative path: %s"), pProp->GetValue().bstrVal).c_str());
@@ -4222,7 +4222,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			{
 				emit_cmp->ReleaseResource();
 			}
-			emit_cmp->m_MeshPath = theApp.GetRelativePath(ts2ms((LPCTSTR)dlg.GetPathName()).c_str());
+			emit_cmp->m_MeshPath = theApp.GetRelativePath((LPCTSTR)dlg.GetPathName());
 			emit_cmp->m_MeshSubMeshId = 0;
 			if (requested)
 			{
@@ -4827,7 +4827,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	case PropertyControlImagePath:
 	{
 		my::Control* control = (my::Control*)pProp->GetParent()->GetValue().pulVal;
-		std::string path = theApp.GetRelativePath(ts2ms(pProp->GetValue().bstrVal).c_str());
+		std::string path = theApp.GetRelativePath(pProp->GetValue().bstrVal);
 		if (path.empty() && _tcslen(pProp->GetValue().bstrVal) > 0)
 		{
 			MessageBox(str_printf(_T("cannot relative path: %s"), pProp->GetValue().bstrVal).c_str());
@@ -4897,7 +4897,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	case PropertyControlMouseClickSoundPath:
 	{
 		my::Control* control = (my::Control*)pProp->GetParent()->GetValue().pulVal;
-		std::string path = theApp.GetRelativePath(ts2ms(pProp->GetValue().bstrVal).c_str());
+		std::string path = theApp.GetRelativePath(pProp->GetValue().bstrVal);
 		if (path.empty() && _tcslen(pProp->GetValue().bstrVal) > 0)
 		{
 			MessageBox(str_printf(_T("cannot relative path: %s"), pProp->GetValue().bstrVal).c_str());
@@ -4956,7 +4956,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		}
 		my::Control* control = (my::Control*)pControl->GetValue().pulVal;
 		unsigned int PropId = GetControlPropCount(my::Control::ControlTypeControl);
-		std::string path = theApp.GetRelativePath(ts2ms(pControl->GetSubItem(PropId + 1)->GetValue().bstrVal).c_str());
+		std::string path = theApp.GetRelativePath(pControl->GetSubItem(PropId + 1)->GetValue().bstrVal);
 		if (path.empty())
 		{
 			MessageBox(str_printf(_T("cannot relative path: %s"), pControl->GetSubItem(PropId + 1)->GetValue().bstrVal).c_str());
@@ -5033,7 +5033,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	case PropertyProgressBarForegroundImagePath:
 	{
 		my::ProgressBar* progressbar = dynamic_cast<my::ProgressBar*>((my::Control*)pProp->GetParent()->GetValue().pulVal);
-		std::string path = theApp.GetRelativePath(ts2ms(pProp->GetValue().bstrVal).c_str());
+		std::string path = theApp.GetRelativePath(pProp->GetValue().bstrVal);
 		if (path.empty() && _tcslen(pProp->GetValue().bstrVal) > 0)
 		{
 			MessageBox(str_printf(_T("cannot relative path: %s"), pProp->GetValue().bstrVal).c_str());
@@ -5142,7 +5142,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	case PropertyButtonDisabledImagePath:
 	{
 		my::Button* button = dynamic_cast<my::Button*>((my::Control*)pProp->GetParent()->GetValue().pulVal);
-		std::string path = theApp.GetRelativePath(ts2ms(pProp->GetValue().bstrVal).c_str());
+		std::string path = theApp.GetRelativePath(pProp->GetValue().bstrVal);
 		if (path.empty() && _tcslen(pProp->GetValue().bstrVal) > 0)
 		{
 			MessageBox(str_printf(_T("cannot relative path: %s"), pProp->GetValue().bstrVal).c_str());
@@ -5211,7 +5211,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	case PropertyButtonPressedImagePath:
 	{
 		my::Button* button = dynamic_cast<my::Button*>((my::Control*)pProp->GetParent()->GetValue().pulVal);
-		std::string path = theApp.GetRelativePath(ts2ms(pProp->GetValue().bstrVal).c_str());
+		std::string path = theApp.GetRelativePath(pProp->GetValue().bstrVal);
 		if (path.empty() && _tcslen(pProp->GetValue().bstrVal) > 0)
 		{
 			MessageBox(str_printf(_T("cannot relative path: %s"), pProp->GetValue().bstrVal).c_str());
@@ -5280,7 +5280,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	case PropertyButtonMouseOverImagePath:
 	{
 		my::Button* button = dynamic_cast<my::Button*>((my::Control*)pProp->GetParent()->GetValue().pulVal);
-		std::string path = theApp.GetRelativePath(ts2ms(pProp->GetValue().bstrVal).c_str());
+		std::string path = theApp.GetRelativePath(pProp->GetValue().bstrVal);
 		if (path.empty() && _tcslen(pProp->GetValue().bstrVal) > 0)
 		{
 			MessageBox(str_printf(_T("cannot relative path: %s"), pProp->GetValue().bstrVal).c_str());
@@ -5378,7 +5378,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	case PropertyEditBoxDisabledImagePath:
 	{
 		my::EditBox* button = dynamic_cast<my::EditBox*>((my::Control*)pProp->GetParent()->GetValue().pulVal);
-		std::string path = theApp.GetRelativePath(ts2ms(pProp->GetValue().bstrVal).c_str());
+		std::string path = theApp.GetRelativePath(pProp->GetValue().bstrVal);
 		if (path.empty() && _tcslen(pProp->GetValue().bstrVal) > 0)
 		{
 			MessageBox(str_printf(_T("cannot relative path: %s"), pProp->GetValue().bstrVal).c_str());
@@ -5447,7 +5447,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	case PropertyEditBoxFocusedImagePath:
 	{
 		my::EditBox* editbox = dynamic_cast<my::EditBox*>((my::Control*)pProp->GetParent()->GetValue().pulVal);
-		std::string path = theApp.GetRelativePath(ts2ms(pProp->GetValue().bstrVal).c_str());
+		std::string path = theApp.GetRelativePath(pProp->GetValue().bstrVal);
 		if (path.empty() && _tcslen(pProp->GetValue().bstrVal) > 0)
 		{
 			MessageBox(str_printf(_T("cannot relative path: %s"), pProp->GetValue().bstrVal).c_str());
@@ -5542,7 +5542,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	case PropertyEditBoxCaretImagePath:
 	{
 		my::EditBox* button = dynamic_cast<my::EditBox*>((my::Control*)pProp->GetParent()->GetValue().pulVal);
-		std::string path = theApp.GetRelativePath(ts2ms(pProp->GetValue().bstrVal).c_str());
+		std::string path = theApp.GetRelativePath(pProp->GetValue().bstrVal);
 		if (path.empty() && _tcslen(pProp->GetValue().bstrVal) > 0)
 		{
 			MessageBox(str_printf(_T("cannot relative path: %s"), pProp->GetValue().bstrVal).c_str());
@@ -5653,7 +5653,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	case PropertyScrollBarUpBtnNormalImagePath:
 	{
 		my::ScrollBar* scrollbar = dynamic_cast<my::ScrollBar*>((my::Control*)pProp->GetParent()->GetValue().pulVal);
-		std::string path = theApp.GetRelativePath(ts2ms(pProp->GetValue().bstrVal).c_str());
+		std::string path = theApp.GetRelativePath(pProp->GetValue().bstrVal);
 		if (path.empty() && _tcslen(pProp->GetValue().bstrVal) > 0)
 		{
 			MessageBox(str_printf(_T("cannot relative path: %s"), pProp->GetValue().bstrVal).c_str());
@@ -5722,7 +5722,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	case PropertyScrollBarUpBtnDisabledImagePath:
 	{
 		my::ScrollBar* scrollbar = dynamic_cast<my::ScrollBar*>((my::Control*)pProp->GetParent()->GetValue().pulVal);
-		std::string path = theApp.GetRelativePath(ts2ms(pProp->GetValue().bstrVal).c_str());
+		std::string path = theApp.GetRelativePath(pProp->GetValue().bstrVal);
 		if (path.empty() && _tcslen(pProp->GetValue().bstrVal) > 0)
 		{
 			MessageBox(str_printf(_T("cannot relative path: %s"), pProp->GetValue().bstrVal).c_str());
@@ -5791,7 +5791,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	case PropertyScrollBarDownBtnNormalImagePath:
 	{
 		my::ScrollBar* scrollbar = dynamic_cast<my::ScrollBar*>((my::Control*)pProp->GetParent()->GetValue().pulVal);
-		std::string path = theApp.GetRelativePath(ts2ms(pProp->GetValue().bstrVal).c_str());
+		std::string path = theApp.GetRelativePath(pProp->GetValue().bstrVal);
 		if (path.empty() && _tcslen(pProp->GetValue().bstrVal) > 0)
 		{
 			MessageBox(str_printf(_T("cannot relative path: %s"), pProp->GetValue().bstrVal).c_str());
@@ -5860,7 +5860,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	case PropertyScrollBarDownBtnDisabledImagePath:
 	{
 		my::ScrollBar* scrollbar = dynamic_cast<my::ScrollBar*>((my::Control*)pProp->GetParent()->GetValue().pulVal);
-		std::string path = theApp.GetRelativePath(ts2ms(pProp->GetValue().bstrVal).c_str());
+		std::string path = theApp.GetRelativePath(pProp->GetValue().bstrVal);
 		if (path.empty() && _tcslen(pProp->GetValue().bstrVal) > 0)
 		{
 			MessageBox(str_printf(_T("cannot relative path: %s"), pProp->GetValue().bstrVal).c_str());
@@ -5929,7 +5929,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	case PropertyScrollBarThumbBtnNormalImagePath:
 	{
 		my::ScrollBar* scrollbar = dynamic_cast<my::ScrollBar*>((my::Control*)pProp->GetParent()->GetValue().pulVal);
-		std::string path = theApp.GetRelativePath(ts2ms(pProp->GetValue().bstrVal).c_str());
+		std::string path = theApp.GetRelativePath(pProp->GetValue().bstrVal);
 		if (path.empty() && _tcslen(pProp->GetValue().bstrVal) > 0)
 		{
 			MessageBox(str_printf(_T("cannot relative path: %s"), pProp->GetValue().bstrVal).c_str());
@@ -6062,7 +6062,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	case PropertyComboBoxDropdownImagePath:
 	{
 		my::ComboBox* combobox = dynamic_cast<my::ComboBox*>((my::Control*)pProp->GetParent()->GetValue().pulVal);
-		std::string path = theApp.GetRelativePath(ts2ms(pProp->GetValue().bstrVal).c_str());
+		std::string path = theApp.GetRelativePath(pProp->GetValue().bstrVal);
 		if (path.empty() && _tcslen(pProp->GetValue().bstrVal) > 0)
 		{
 			MessageBox(str_printf(_T("cannot relative path: %s"), pProp->GetValue().bstrVal).c_str());
@@ -6155,7 +6155,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	case PropertyComboBoxDropdownItemMouseOverImagePath:
 	{
 		my::ComboBox* combobox = dynamic_cast<my::ComboBox*>((my::Control*)pProp->GetParent()->GetValue().pulVal);
-		std::string path = theApp.GetRelativePath(ts2ms(pProp->GetValue().bstrVal).c_str());
+		std::string path = theApp.GetRelativePath(pProp->GetValue().bstrVal);
 		if (path.empty() && _tcslen(pProp->GetValue().bstrVal) > 0)
 		{
 			MessageBox(str_printf(_T("cannot relative path: %s"), pProp->GetValue().bstrVal).c_str());

@@ -82,9 +82,9 @@ namespace my
 
 		virtual bool CheckPath(const char * path) = 0;
 
-		virtual std::string GetFullPath(const char * path) = 0;
+		virtual std::basic_string<TCHAR> GetFullPath(const char * path) = 0;
 
-		virtual std::string GetRelativePath(const char * path) = 0;
+		virtual std::string GetRelativePath(const TCHAR * path) = 0;
 
 		virtual IStreamPtr OpenIStream(const char * path) = 0;
 	};
@@ -103,9 +103,9 @@ namespace my
 
 		bool CheckPath(const char * path);
 
-		std::string GetFullPath(const char * path);
+		std::basic_string<TCHAR> GetFullPath(const char * path);
 
-		std::string GetRelativePath(const char * path);
+		std::string GetRelativePath(const TCHAR * path);
 
 		IStreamPtr OpenIStream(const char * path);
 	};
@@ -120,9 +120,9 @@ namespace my
 
 		bool CheckPath(const char * path);
 
-		std::string GetFullPath(const char * path);
+		std::basic_string<TCHAR> GetFullPath(const char * path);
 
-		std::string GetRelativePath(const char * path);
+		std::string GetRelativePath(const TCHAR * path);
 
 		IStreamPtr OpenIStream(const char * path);
 	};
@@ -151,9 +151,9 @@ namespace my
 
 		bool CheckPath(const char * path);
 
-		std::string GetFullPath(const char * path);
+		std::basic_string<TCHAR> GetFullPath(const char * path);
 
-		std::string GetRelativePath(const char * path);
+		std::string GetRelativePath(const TCHAR * path);
 
 		IStreamPtr OpenIStream(const char * path);
 	};

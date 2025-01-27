@@ -926,7 +926,7 @@ void MeshComponent::CreateTriangleMeshShape(my::OgreMesh * mesh, const char * Tr
 		}
 		desc.triangles.data = (unsigned char*)mesh->LockIndexBuffer() + rang.FaceStart * desc.triangles.stride;
 
-		physx::PxDefaultFileOutputStream writeBuffer(my::ResourceMgr::getSingleton().GetFullPath(TriangleMeshPath).c_str());
+		PhysxFileOutputStream writeBuffer(my::ResourceMgr::getSingleton().GetFullPath(TriangleMeshPath).c_str());
 		bool status = PhysxSdk::getSingleton().m_Cooking->cookTriangleMesh(desc, writeBuffer);
 		mesh->UnlockIndexBuffer();
 		mesh->UnlockVertexBuffer();
@@ -967,7 +967,7 @@ void MeshComponent::CreateConvexMeshShape(my::OgreMesh * mesh, const char * Conv
 		}
 		desc.vertexLimit = 256;
 
-		physx::PxDefaultFileOutputStream writeBuffer(my::ResourceMgr::getSingleton().GetFullPath(ConvexMeshPath).c_str());
+		PhysxFileOutputStream writeBuffer(my::ResourceMgr::getSingleton().GetFullPath(ConvexMeshPath).c_str());
 		bool status = PhysxSdk::getSingleton().m_Cooking->cookConvexMesh(desc, writeBuffer);
 		mesh->UnlockVertexBuffer();
 		if (!status)
@@ -1335,7 +1335,7 @@ void ClothComponent::CreateClothFromMesh(const char * ClothFabricPath, my::OgreM
 
 		physx::PxClothMeshQuadifier quadifier(desc);
 		physx::PxClothMeshDesc desc2 = quadifier.getDescriptor();
-		physx::PxDefaultFileOutputStream writeBuffer(my::ResourceMgr::getSingleton().GetFullPath(ClothFabricPath).c_str());
+		PhysxFileOutputStream writeBuffer(my::ResourceMgr::getSingleton().GetFullPath(ClothFabricPath).c_str());
 		physx::PxClothFabricCooker cooker(desc2, (physx::PxVec3&)gravity, true);
 		cooker.save(writeBuffer, true);
 	}

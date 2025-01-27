@@ -73,6 +73,19 @@ public:
 	}
 };
 
+class PhysxFileOutputStream : public physx::PxOutputStream
+{
+protected:
+	int m_fp;
+
+public:
+	PhysxFileOutputStream(LPCTSTR pFilename);
+
+	virtual ~PhysxFileOutputStream(void);
+
+	virtual uint32_t write(const void* src, uint32_t count);
+};
+
 class PhysxSdk
 	: public my::SingletonInstance<PhysxSdk>
 	, public physx::PxErrorCallback

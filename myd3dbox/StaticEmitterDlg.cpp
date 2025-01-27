@@ -81,14 +81,14 @@ void CStaticEmitterDlg::OnOK()
 			return;
 		}
 
-		std::string FullPath = theApp.GetFullPath(ts2ms((LPCTSTR)m_AssetPath).c_str()) + "_*";
-		SHFILEOPSTRUCTA shfo;
+		std::basic_string<TCHAR> FullPath = theApp.GetFullPath(ts2ms((LPCTSTR)m_AssetPath).c_str()) + _T("_*");
+		SHFILEOPSTRUCT shfo;
 		ZeroMemory(&shfo, sizeof(shfo));
 		shfo.hwnd = AfxGetMainWnd()->m_hWnd;
 		shfo.wFunc = FO_DELETE;
 		shfo.pFrom = FullPath.c_str();
 		shfo.fFlags = FOF_ALLOWUNDO | FOF_FILESONLY | FOF_NOCONFIRMATION | FOF_NORECURSION;
-		int res = SHFileOperationA(&shfo);
+		int res = SHFileOperation(&shfo);
 		if (res != 0)
 		{
 			return;
@@ -127,9 +127,9 @@ void CStaticEmitterDlg::OnChangeEdit1()
 	// TODO:  Add your control notification handler code here
 	CString strText;
 	GetDlgItemText(IDC_EDIT1, strText);
-	std::string FullPath = theApp.GetFullPath(ts2ms((LPCTSTR)strText).c_str()) + "_*";
-	WIN32_FIND_DATAA data;
-	HANDLE h = FindFirstFileA(FullPath.c_str(), &data);
+	std::basic_string<TCHAR> FullPath = theApp.GetFullPath(ts2ms((LPCTSTR)strText).c_str()) + _T("_*");
+	WIN32_FIND_DATA data;
+	HANDLE h = FindFirstFile(FullPath.c_str(), &data);
 	if (h == INVALID_HANDLE_VALUE)
 	{
 		SetDlgItemText(IDC_STATIC5, _T(""));

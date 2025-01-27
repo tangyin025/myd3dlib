@@ -195,12 +195,12 @@ bool ZipIStreamDir::CheckPath(const char * path)
 	return true;
 }
 
-std::string ZipIStreamDir::GetFullPath(const char * path)
+std::basic_string<TCHAR> ZipIStreamDir::GetFullPath(const char * path)
 {
-	return std::string();
+	return std::basic_string<TCHAR>();
 }
 
-std::string ZipIStreamDir::GetRelativePath(const char * path)
+std::string ZipIStreamDir::GetRelativePath(const TCHAR * path)
 {
 	return std::string();
 }
@@ -228,18 +228,21 @@ IStreamPtr ZipIStreamDir::OpenIStream(const char * path)
 
 bool FileIStreamDir::CheckPath(const char * path)
 {
-	return !GetFullPath(path).empty();
+	char dummy_path[MAX_PATH];
+	strcpy_s(dummy_path, _countof(dummy_path), m_dir.c_str());
+	::PathAppendA(dummy_path, path);
+	return PathFileExistsA(dummy_path);
 }
 
-std::string FileIStreamDir::GetFullPath(const char * path)
+std::basic_string<TCHAR> FileIStreamDir::GetFullPath(const char * path)
 {
-	std::string fullPath;
-	char * lpFilePath;
+	std::basic_string<TCHAR> fullPath;
+	LPTSTR lpFilePath;
 	DWORD dwLen = MAX_PATH;
 	do
 	{
 		fullPath.resize(dwLen);
-		dwLen = SearchPathA(m_dir.c_str(), path, NULL, fullPath.size(), &fullPath[0], &lpFilePath);
+		dwLen = SearchPath(ms2ts(m_dir.c_str()).c_str(), ms2ts(path).c_str(), NULL, fullPath.size(), &fullPath[0], &lpFilePath);
 	}
 	while(dwLen > fullPath.size());
 
@@ -247,18 +250,22 @@ std::string FileIStreamDir::GetFullPath(const char * path)
 	return fullPath;
 }
 
-std::string FileIStreamDir::GetRelativePath(const char * path)
+std::string FileIStreamDir::GetRelativePath(const TCHAR * path)
 {
-	char currentDir[MAX_PATH];
-	::GetCurrentDirectoryA(_countof(currentDir), currentDir);
-	::PathAppendA(currentDir, m_dir.c_str());
-	char relativePath[MAX_PATH];
-	if (::PathRelativePathToA(relativePath, currentDir, FILE_ATTRIBUTE_DIRECTORY, path, 0))
+	TCHAR currentDir[MAX_PATH];
+	::GetCurrentDirectory(_countof(currentDir), currentDir);
+	::PathAppend(currentDir, ms2ts(m_dir.c_str()).c_str());
+	TCHAR relativePath[MAX_PATH];
+	if (::PathRelativePathTo(relativePath, currentDir, FILE_ATTRIBUTE_DIRECTORY, path, 0))
 	{
-		char canonicalizedPath[MAX_PATH];
-		if (::PathCanonicalizeA(canonicalizedPath, relativePath) && CheckPath(canonicalizedPath))
+		TCHAR canonicalizedPath[MAX_PATH];
+		if (::PathCanonicalize(canonicalizedPath, relativePath))
 		{
-			return std::string(canonicalizedPath);
+			std::string ret = ts2ms(canonicalizedPath);
+			if (CheckPath(ret.c_str()))
+			{
+				return ret;
+			}
 		}
 	}
 
@@ -267,13 +274,13 @@ std::string FileIStreamDir::GetRelativePath(const char * path)
 
 IStreamPtr FileIStreamDir::OpenIStream(const char * path)
 {
-	std::string fullPath = GetFullPath(path);
+	std::basic_string<TCHAR> fullPath = GetFullPath(path);
 	if(fullPath.empty())
 	{
 		THROW_CUSEXCEPTION(str_printf("cannot open file archive: %s", path));
 	}
 
-	return FileIStream::Open(ms2ts(fullPath.c_str()).c_str());
+	return FileIStream::Open(fullPath.c_str());
 }
 
 void StreamDirMgr::RegisterZipDir(const std::string & zip_path)
@@ -311,22 +318,22 @@ bool StreamDirMgr::CheckPath(const char * path)
 	return PathFileExistsA(path);
 }
 
-std::string StreamDirMgr::GetFullPath(const char * path)
+std::basic_string<TCHAR> StreamDirMgr::GetFullPath(const char * path)
 {
 	if (path[0] == '\0')
 	{
-		return std::string();
+		return std::basic_string<TCHAR>();
 	}
 
 	if(!PathIsRelativeA(path))
 	{
-		return path;
+		return ms2ts(path);
 	}
 
 	ResourceDirPtrList::iterator dir_iter = m_DirList.begin();
 	for(; dir_iter != m_DirList.end(); dir_iter++)
 	{
-		std::string ret = (*dir_iter)->GetFullPath(path);
+		std::basic_string<TCHAR> ret = (*dir_iter)->GetFullPath(path);
 		if(!ret.empty())
 		{
 			return ret;
@@ -334,29 +341,39 @@ std::string StreamDirMgr::GetFullPath(const char * path)
 	}
 
 	// ! will return the default first combined path
-	char currentDir[MAX_PATH];
-	::GetCurrentDirectoryA(_countof(currentDir), currentDir);
-	if(!m_DirList.empty())
+	TCHAR currentDir[MAX_PATH];
+	::GetCurrentDirectory(_countof(currentDir), currentDir);
+	dir_iter = m_DirList.begin();
+	for (; dir_iter != m_DirList.end(); dir_iter++)
 	{
-		::PathAppendA(currentDir, m_DirList.front()->m_dir.c_str());
+		FileIStreamDir* dir = dynamic_cast<FileIStreamDir*>(dir_iter->get());
+		if (dir)
+		{
+			::PathAppend(currentDir, ms2ts(dir->m_dir.c_str()).c_str());
+			break;
+		}
 	}
-	::PathAppendA(currentDir, path);
-	return std::string(currentDir);
+	::PathAppend(currentDir, ms2ts(path).c_str());
+	return std::basic_string<TCHAR>(currentDir);
 }
 
-std::string StreamDirMgr::GetRelativePath(const char * path)
+std::string StreamDirMgr::GetRelativePath(const TCHAR * path)
 {
 	if (path[0] == '\0')
 	{
 		return std::string();
 	}
 
-	if (PathIsRelativeA(path))
+	if (PathIsRelative(path))
 	{
-		char canonicalizedPath[MAX_PATH];
-		if (::PathCanonicalizeA(canonicalizedPath, path) && CheckPath(canonicalizedPath))
+		TCHAR canonicalizedPath[MAX_PATH];
+		if (::PathCanonicalize(canonicalizedPath, path))
 		{
-			return std::string(canonicalizedPath);
+			std::string ret = ts2ms(canonicalizedPath);
+			if (CheckPath(ret.c_str()))
+			{
+				return ret;
+			}
 		}
 		return std::string();
 	}

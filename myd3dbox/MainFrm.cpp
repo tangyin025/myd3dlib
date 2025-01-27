@@ -1677,7 +1677,7 @@ void CMainFrame::OnComponentMesh()
 		return;
 	}
 
-	std::string path = theApp.GetRelativePath(ts2ms((LPCTSTR)dlg.GetPathName()).c_str());
+	std::string path = theApp.GetRelativePath((LPCTSTR)dlg.GetPathName());
 	if (path.empty())
 	{
 		MessageBox(str_printf(_T("cannot relative path: %s"), (LPCTSTR)dlg.GetPathName()).c_str());
@@ -1789,7 +1789,7 @@ void CMainFrame::OnComponentCloth()
 		return;
 	}
 
-	std::string MeshPath = theApp.GetRelativePath(ts2ms((LPCTSTR)dlg.GetPathName()).c_str());
+	std::string MeshPath = theApp.GetRelativePath((LPCTSTR)dlg.GetPathName());
 	if (MeshPath.empty())
 	{
 		MessageBox(str_printf(_T("cannot relative path: %s"), (LPCTSTR)dlg.GetPathName()).c_str());
@@ -1818,8 +1818,8 @@ void CMainFrame::OnComponentCloth()
 	}
 
 	std::string ClothFabricPath = MeshPath + ".pxclothfabric";
-	std::string FullPath = theApp.GetFullPath(ClothFabricPath.c_str());
-	if (!DeleteFileA(FullPath.c_str()))
+	std::basic_string<TCHAR> FullPath = theApp.GetFullPath(ClothFabricPath.c_str());
+	if (!DeleteFile(FullPath.c_str()))
 	{
 		DWORD code = GetLastError();
 		if (code != ERROR_FILE_NOT_FOUND)
@@ -2275,7 +2275,7 @@ void CMainFrame::OnComponentAnimator()
 		return;
 	}
 
-	std::string path = theApp.GetRelativePath(ts2ms((LPCTSTR)dlg.GetPathName()).c_str());
+	std::string path = theApp.GetRelativePath((LPCTSTR)dlg.GetPathName());
 	if (path.empty())
 	{
 		MessageBox(str_printf(_T("cannot relative path: %s"), (LPCTSTR)dlg.GetPathName()).c_str());

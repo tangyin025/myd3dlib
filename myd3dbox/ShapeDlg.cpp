@@ -171,7 +171,7 @@ void CShapeDlg::OnChangeEdit11()
 
 	CString strText;
 	GetDlgItemText(IDC_EDIT11, strText);
-	if (my::ResourceMgr::getSingleton().CheckPath(theApp.GetFullPath(ts2ms((LPCTSTR)strText).c_str()).c_str()))
+	if (PathFileExists(theApp.GetFullPath(ts2ms((LPCTSTR)strText).c_str()).c_str()))
 	{
 		GetDlgItem(IDC_BUTTON4)->EnableWindow(TRUE);
 	}
@@ -192,17 +192,17 @@ void CShapeDlg::OnClickedButton4()
 		return;
 	}
 
-	std::string FullPath = theApp.GetFullPath(ts2ms((LPCTSTR)m_AssetPath).c_str());
-	SHFILEOPSTRUCTA shfo;
+	std::basic_string<TCHAR> FullPath = theApp.GetFullPath(ts2ms((LPCTSTR)m_AssetPath).c_str());
+	SHFILEOPSTRUCT shfo;
 	ZeroMemory(&shfo, sizeof(shfo));
 	shfo.hwnd = AfxGetMainWnd()->m_hWnd;
 	shfo.wFunc = FO_DELETE;
 	shfo.pFrom = FullPath.c_str();
 	shfo.fFlags = FOF_ALLOWUNDO | FOF_FILESONLY | FOF_NOCONFIRMATION | FOF_NORECURSION;
-	int res = SHFileOperationA(&shfo);
+	int res = SHFileOperation(&shfo);
 	if (res != 0)
 	{
-		MessageBox(str_printf(_T("SHFileOperation failed: %s"), ms2ts(FullPath.c_str()).c_str()).c_str());
+		MessageBox(str_printf(_T("SHFileOperation failed: %s"), FullPath.c_str()).c_str());
 	}
 
 	OnChangeEdit11();
