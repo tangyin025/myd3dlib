@@ -244,6 +244,7 @@ public:
 	afx_msg void OnUpdateToolsScript1(CCmdUI* pCmdUI);
 	afx_msg void OnToolsSnapshot();
 	afx_msg void OnUpdateIndicatorCoord(CCmdUI* pCmdUI);
+	afx_msg void OnUpdateIndicatorPostfix(CCmdUI* pCmdUI);
 	afx_msg void OnToolsPlaying();
 	afx_msg void OnUpdateToolsPlaying(CCmdUI* pCmdUI);
 	afx_msg void OnToolsSnapToGrid();

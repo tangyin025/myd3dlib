@@ -512,6 +512,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_UPDATE_COMMAND_UI_RANGE(ID_TOOLS_SCRIPT1, ID_TOOLS_SCRIPT_LAST, &CMainFrame::OnUpdateToolsScript1)
 	ON_COMMAND(ID_TOOLS_SNAPSHOT, &CMainFrame::OnToolsSnapshot)
 	ON_UPDATE_COMMAND_UI(ID_INDICATOR_COORD, &CMainFrame::OnUpdateIndicatorCoord)
+	ON_UPDATE_COMMAND_UI(ID_INDICATOR_POSTFIX, &CMainFrame::OnUpdateIndicatorPostfix)
 	ON_COMMAND(ID_TOOLS_PLAYING, &CMainFrame::OnToolsPlaying)
 	ON_UPDATE_COMMAND_UI(ID_TOOLS_PLAYING, &CMainFrame::OnUpdateToolsPlaying)
 	ON_COMMAND(ID_TOOLS_SNAP_TO_GRID, &CMainFrame::OnToolsSnapToGrid)
@@ -547,6 +548,8 @@ END_MESSAGE_MAP()
 static UINT indicators[] =
 {
 	ID_SEPARATOR,           // status line indicator
+	ID_INDICATOR_COORD,
+	ID_INDICATOR_POSTFIX,
 	ID_INDICATOR_CAPS,
 	ID_INDICATOR_NUM,
 	ID_INDICATOR_SCRL,
@@ -2950,6 +2953,15 @@ void CMainFrame::OnUpdateIndicatorCoord(CCmdUI* pCmdUI)
 		}
 		pCmdUI->SetText(text);
 	}
+}
+
+
+void CMainFrame::OnUpdateIndicatorPostfix(CCmdUI* pCmdUI)
+{
+	// TODO: Add your command update UI handler code here
+	CString text;
+	text.Format(_T("%d"), my::NamedObject::postfix_i);
+	pCmdUI->SetText(text);
 }
 
 

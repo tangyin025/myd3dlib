@@ -827,6 +827,7 @@ END
 STRINGTABLE
 BEGIN
     IDP_OLE_INIT_FAILED     "OLE initialization failed.  Make sure that the OLE libraries are the correct version."
+    ID_INDICATOR_POSTFIX    "postfix"
 END
 
 STRINGTABLE
