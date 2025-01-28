@@ -46,6 +46,7 @@
 #include "TerrainToObjDlg.h"
 //#include "../FastNoiseLite/Cpp/FastNoiseLite.h"
 //#include "clipper.hpp"
+#include "../HdriToCubemap/HdriToCubemap/HdriToCubemap.hpp"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -1332,6 +1333,12 @@ void CMainFrame::InitFileContext()
 		//	.def("AddPath", &ClipperLib::ClipperOffset::AddPath)
 		//	.def("AddPaths", &ClipperLib::ClipperOffset::AddPaths)
 		//	.def("Execute", (void (ClipperLib::ClipperOffset::*)(ClipperLib::Paths&, double))& ClipperLib::ClipperOffset::Execute, luabind::pure_out_value(boost::placeholders::_2))
+
+		, luabind::class_<HdriToCubemap<float> >("HdriToCubemapFloat")
+			.def(luabind::constructor<const std::string&, int, bool>())
+			.property("CubemapResolution", &HdriToCubemap<float>::getCubemapResolution)
+			.property("NumChannels", &HdriToCubemap<float>::getNumChannels)
+			.def("writeCubemap", &HdriToCubemap<float>::writeCubemap)
 	];
 	luabind::globals(m_State)["theApp"] = &theApp;
 }

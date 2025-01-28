@@ -28,6 +28,7 @@ LuaJIT 2.1<br>
 libogg 1.3.5<br>
 libvorbis 1.3.7<br>
 stb_image 2.27<br>
+HdriToCubemap<br>
 
 screenshots
 ----

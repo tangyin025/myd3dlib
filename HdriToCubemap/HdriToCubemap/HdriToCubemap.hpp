@@ -11,10 +11,10 @@
 
 #pragma once
 
-#define STB_IMAGE_IMPLEMENTATION
+//#define STB_IMAGE_IMPLEMENTATION
 #define STB_IMAGE_WRITE_IMPLEMENTATION
-#include "stb_image/stb_image.h"
-#include "stb_image/stb_image_write.h"
+#include "stb_image.h"
+#include "stb_image_write.h"
 
 #define _USE_MATH_DEFINES
 #include <math.h>
@@ -108,13 +108,13 @@ HdriToCubemap<T>::~HdriToCubemap()
 template<typename T>
 void HdriToCubemap<T>::writeCubemap(const std::string& outputFolder)
 {  
-    stbi_flip_vertically_on_write(1);
+    //stbi_flip_vertically_on_write(1);
     std::vector<std::string> filenames = {"front", "back", "left", "right", "up", "down"};
     for (int i = 0; i < 6; i++)
     {   
         int success;
         
-        std::string path = outputFolder + (outputFolder.empty() ? "" : "/" ) + filenames[i];
+        std::string path = outputFolder + (outputFolder.empty() ? "" : "_" ) + filenames[i];
         if (m_isHdri)
         {
             path += ".hdr";
@@ -169,8 +169,8 @@ void HdriToCubemap<T>::calculateCubemap()
 
                 if (!m_filterLinear)
                 {
-                    int colNearest = std::clamp((int)colHdri, 0, m_width - 1);
-                    int rowNearest = std::clamp((int)rowHdri, 0, m_height - 1);
+                    int colNearest = my::Clamp((int)colHdri, 0, m_width - 1);
+                    int rowNearest = my::Clamp((int)rowHdri, 0, m_height - 1);
 
                     face[col * m_channels + m_cubemapResolution * row * m_channels] = m_imageData[colNearest * m_channels + m_width * rowNearest * m_channels] ; // red
                     face[col * m_channels + m_cubemapResolution * row * m_channels + 1] = m_imageData[colNearest * m_channels + m_width * rowNearest * m_channels + 1]; //green
@@ -211,11 +211,11 @@ void HdriToCubemap<T>::calculateCubemap()
 
                     for (int j = 0; j < m_channels; j++)
                     {   
-                        unsigned char interpolatedValue = static_cast<unsigned char>(m_imageData[low_idx_column * m_channels + m_width * low_idx_row * m_channels + j] * f1 + 
+                        T interpolatedValue = m_imageData[low_idx_column * m_channels + m_width * low_idx_row * m_channels + j] * f1 + 
                                                     m_imageData[low_idx_column * m_channels + m_width * high_idx_row * m_channels + j] * f2 + 
                                                     m_imageData[high_idx_column * m_channels + m_width * low_idx_row * m_channels + j] * f3 + 
-                                                    m_imageData[high_idx_column * m_channels + m_width * high_idx_row * m_channels + j] * f4);
-                        face[col * m_channels + m_cubemapResolution * row * m_channels + j] = std::clamp(interpolatedValue, (uint8_t)0, (uint8_t)255);
+                                                    m_imageData[high_idx_column * m_channels + m_width * high_idx_row * m_channels + j] * f4;
+                        face[col * m_channels + m_cubemapResolution * row * m_channels + j] = interpolatedValue;
                     }
                 }
             }
