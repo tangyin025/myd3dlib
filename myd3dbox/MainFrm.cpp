@@ -1585,7 +1585,7 @@ void CMainFrame::OnFileSaveAs()
 	{
 		strPathName.LoadString(AFX_IDS_UNTITLED);
 	}
-	CFileDialog dlg(FALSE, NULL, NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, 0);
+	CFileDialog dlg(FALSE, _T("xml"), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, _T("xml|*.xml|txt|*.txt|binary|*.*||"), NULL, 0);
 	dlg.m_ofn.lpstrFile = strPathName.GetBuffer(_MAX_PATH);
 	INT_PTR nResult = dlg.DoModal();
 	strPathName.ReleaseBuffer();
