@@ -3006,14 +3006,14 @@ void CMainFrame::OnUpdateToolsPlaying(CCmdUI* pCmdUI)
 void CMainFrame::OnToolsSnapToGrid()
 {
 	// TODO: Add your command handler code here
-	theApp.default_tool_snap_to_grid = !theApp.default_tool_snap_to_grid;
+	theApp.default_snap_to_grid = !theApp.default_snap_to_grid;
 }
 
 
 void CMainFrame::OnUpdateToolsSnapToGrid(CCmdUI* pCmdUI)
 {
 	// TODO: Add your command update UI handler code here
-	pCmdUI->SetCheck((GetKeyState('X') & 0x8000) ? !theApp.default_tool_snap_to_grid : theApp.default_tool_snap_to_grid);
+	pCmdUI->SetCheck((GetKeyState('X') & 0x8000) ? !theApp.default_snap_to_grid : theApp.default_snap_to_grid);
 }
 
 
