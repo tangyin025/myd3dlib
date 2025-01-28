@@ -138,7 +138,7 @@ static int luaL_loadfile(lua_State *L, const char *filename)
 	{
 		CMainFrame* pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 		ASSERT_VALID(pFrame);
-		std::string dir = theApp.default_tool_script_pattern.c_str();
+		std::string dir = theApp.default_script_pattern.c_str();
 		// ! c++11 contains a null-terminated, https://cplusplus.com/reference/string/string/data/
 		PathRemoveFileSpecA(const_cast<char*>(dir.data()));
 		dir.resize(strlen(dir.c_str()));
@@ -2854,7 +2854,7 @@ BOOL CMainFrame::OnShowPopupMenu(CMFCPopupMenu* pMenuPopup)
 				const int first_script_index = i;
 				WIN32_FIND_DATAA ffd;
 				HANDLE hFind = INVALID_HANDLE_VALUE;
-				hFind = FindFirstFileA(theApp.default_tool_script_pattern.c_str(), &ffd);
+				hFind = FindFirstFileA(theApp.default_script_pattern.c_str(), &ffd);
 				if (hFind == INVALID_HANDLE_VALUE)
 				{
 					break;

@@ -380,8 +380,8 @@ BOOL CMainApp::InitInstance()
 		("default_grid_subdivisions", boost::program_options::value(&default_grid_subdivisions)->default_value(5), "Default grid subdivisions")
 		("default_grid_color", boost::program_options::value(&default_grid_color)->default_value(D3DCOLOR_ARGB(255, 127, 127, 127)), "Default grid color")
 		("default_grid_axis_color", boost::program_options::value(&default_grid_axis_color)->default_value(D3DCOLOR_ARGB(255, 0, 0, 0)), "Default grid axis color")
-		("default_snap_to_grid", boost::program_options::value(&default_snap_to_grid)->default_value(false), "Default tool snap to grid")
-		("default_tool_script_pattern", boost::program_options::value(&default_tool_script_pattern)->default_value("tools/*.lua"), "Default tool script pattern")
+		("default_snap_to_grid", boost::program_options::value(&default_snap_to_grid)->default_value(false), "Default snap to grid")
+		("default_script_pattern", boost::program_options::value(&default_script_pattern)->default_value("scripts/*.lua"), "Default script pattern")
 		("default_emitter_chunk_width", boost::program_options::value(&default_emitter_chunk_width)->default_value(4.0f), "Default emitter chunk width")
 		("default_font_path", boost::program_options::value(&default_font_path)->default_value("font/SourceHanSansCN-Regular.otf"), "Default font")
 		("default_font_height", boost::program_options::value(&default_font_height)->default_value(12), "Default font height")
@@ -560,7 +560,7 @@ BOOL CMainApp::InitInstance()
 		}
 	}
 
-	boost::algorithm::replace_all(default_tool_script_pattern, "/", "\\");
+	boost::algorithm::replace_all(default_script_pattern, "/", "\\");
 
 	if (!default_dictionary_file.empty())
 	{
