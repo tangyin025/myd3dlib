@@ -362,7 +362,7 @@ BOOL CMainApp::InitInstance()
 	boost::program_options::options_description desc("Options");
 	std::vector<std::string> path_list;
 	desc.add_options()
-		("path", boost::program_options::value(&path_list)->default_value(boost::assign::list_of("..\\demo2_3\\Media")("Media"), ""), "Path")
+		("path", boost::program_options::value(&path_list)->default_value(boost::assign::list_of("..\\demo2_3\\Media"), ""), "Path")
 		("shaderinclude", boost::program_options::value(&m_SystemIncludes)->default_value(boost::assign::list_of("shader"), ""), "Shader Include")
 		("default_fov", boost::program_options::value(&default_fov)->default_value(60.0f), "Default fov")
 		("default_physx_frame_interval", boost::program_options::value(&m_FrameInterval)->default_value(1 / 60.0f), "Default physx frame interval")

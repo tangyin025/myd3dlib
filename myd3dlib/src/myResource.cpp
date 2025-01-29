@@ -228,10 +228,8 @@ IStreamPtr ZipIStreamDir::OpenIStream(const char * path)
 
 bool FileIStreamDir::CheckPath(const char * path)
 {
-	char dummy_path[MAX_PATH];
-	strcpy_s(dummy_path, _countof(dummy_path), m_dir.c_str());
-	::PathAppendA(dummy_path, path);
-	return PathFileExistsA(dummy_path);
+	std::string dummy_path = m_dir + "\\" + path;
+	return PathFileExistsA(dummy_path.c_str());
 }
 
 std::basic_string<TCHAR> FileIStreamDir::GetFullPath(const char * path)
