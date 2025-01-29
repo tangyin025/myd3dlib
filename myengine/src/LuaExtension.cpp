@@ -1844,9 +1844,11 @@ void LuaContext::Init(void)
 				//value("D3DFMT_R8G8B8", D3DFMT_R8G8B8),
 				value("D3DFMT_A8R8G8B8", D3DFMT_A8R8G8B8),
 				value("D3DFMT_X8R8G8B8", D3DFMT_X8R8G8B8),
+				value("D3DFMT_L8", D3DFMT_L8),
 				value("D3DFMT_DXT1", D3DFMT_DXT1),
 				value("D3DFMT_DXT3", D3DFMT_DXT3),
-				value("D3DFMT_DXT5", D3DFMT_DXT5)
+				value("D3DFMT_DXT5", D3DFMT_DXT5),
+				value("D3DFMT_A16B16G16R16F", D3DFMT_A16B16G16R16F)
 			]
 			.def("GenerateMipSubLevels", &basetexture_generate_mip_sub_levels)
 			.def("GetLevelDesc", &my::BaseTexture::GetLevelDesc)

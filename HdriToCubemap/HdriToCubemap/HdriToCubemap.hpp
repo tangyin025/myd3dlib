@@ -60,7 +60,7 @@ template <>
 HdriToCubemap<unsigned char>::HdriToCubemap(const std::string& pathHdri, int cubemapResolution, bool filterLinear)
     : m_cubemapResolution(cubemapResolution), m_filterLinear(filterLinear)
 {
-    stbi_set_flip_vertically_on_load(1);
+    //stbi_set_flip_vertically_on_load(1);
     m_isHdri = stbi_is_hdr(pathHdri.c_str());
     if (m_isHdri)
         std::cout << "Warning: image will be converted from hdr to ldr by stb_image. Use float-type template argument to create an hdr cubemap\n";
@@ -140,8 +140,8 @@ void HdriToCubemap<T>::calculateCubemap()
         {{{1.0f, -1.0f, 1.0f},  {-1.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f}}},   // back 
         {{{-1.0f, -1.0f, 1.0f}, {0.0f, 0.0f, -1.0f}, {0.0f, 1.0f, 0.0f}}},  // left
         {{{1.0f, -1.0f, -1.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f, 0.0f}}},   // right
-        {{{-1.0f, 1.0f, -1.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 1.0f}}},   // up
-        {{{-1.0f, -1.0f, 1.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f, -1.0f}}}   // down
+        {{{-1.0f, -1.0f, 1.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f, -1.0f}}},   // down
+        {{{-1.0f, 1.0f, -1.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 1.0f}}}   // up
 	}};
 
     for (int i = 0; i < 6; i++)
