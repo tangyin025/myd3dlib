@@ -383,7 +383,7 @@ AAAAAAAAgEIAAAAAAACAPwAAAAAAAAD/
 											<MaterialParameter object_id="_45">
 												<m_Name>g_DiffuseTexture</m_Name>
 											</MaterialParameter>
-											<m_TexturePath>texture/cloudy_noon_UP.jpg</m_TexturePath>
+											<m_TexturePath>texture/cloudy_noon_BK.jpg</m_TexturePath>
 										</px>
 									</item>
 								</m_ParameterList>
@@ -429,7 +429,7 @@ AAAAAAAAgEIAAAAAAACAPwAAAAAAAAD/
 											<MaterialParameter object_id="_51">
 												<m_Name>g_DiffuseTexture</m_Name>
 											</MaterialParameter>
-											<m_TexturePath>texture/cloudy_noon_BK.jpg</m_TexturePath>
+											<m_TexturePath>texture/cloudy_noon_LF.jpg</m_TexturePath>
 										</px>
 									</item>
 								</m_ParameterList>
@@ -475,7 +475,7 @@ AAAAAAAAgEIAAAAAAACAPwAAAAAAAAD/
 											<MaterialParameter object_id="_57">
 												<m_Name>g_DiffuseTexture</m_Name>
 											</MaterialParameter>
-											<m_TexturePath>texture/cloudy_noon_DN.jpg</m_TexturePath>
+											<m_TexturePath>texture/cloudy_noon_RT.jpg</m_TexturePath>
 										</px>
 									</item>
 								</m_ParameterList>
@@ -521,7 +521,7 @@ AAAAAAAAgEIAAAAAAACAPwAAAAAAAAD/
 											<MaterialParameter object_id="_63">
 												<m_Name>g_DiffuseTexture</m_Name>
 											</MaterialParameter>
-											<m_TexturePath>texture/cloudy_noon_RT.jpg</m_TexturePath>
+											<m_TexturePath>texture/cloudy_noon_UP.jpg</m_TexturePath>
 										</px>
 									</item>
 								</m_ParameterList>
@@ -567,7 +567,7 @@ AAAAAAAAgEIAAAAAAACAPwAAAAAAAAD/
 											<MaterialParameter object_id="_69">
 												<m_Name>g_DiffuseTexture</m_Name>
 											</MaterialParameter>
-											<m_TexturePath>texture/cloudy_noon_LF.jpg</m_TexturePath>
+											<m_TexturePath>texture/cloudy_noon_DN.jpg</m_TexturePath>
 										</px>
 									</item>
 								</m_ParameterList>
