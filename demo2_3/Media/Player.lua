@@ -12,34 +12,34 @@ require "Action.lua"
 -- mesh2:SaveOgreMesh("Media/mesh/Cylinder.mesh.xml")
 
 -- 创建Player主体
-player=Actor("local_player",Vector3(0,3,0),Quaternion.Identity(),Vector3(0.01,0.01,0.01),AABB(-100,100))
+player=Actor("local_player",Vector3(0,3,0),Quaternion.Identity(),Vector3(0.1),AABB(-100,100))
 local controller_cmp=Controller(NamedObject.MakeUniqueName("controller_cmp"),1.5,0.1,0.1,0.5,0)
 player:InsertComponent(controller_cmp)
 
 -- 模型材质
-local lambert1=Material()
-lambert1.Shader="shader/mtl_BlinnPhong.fx"
-lambert1.PassMask=Material.PassMaskShadowNormalOpaque
-lambert1:SetParameter("g_DiffuseTexture", "character/casual19_m_35.jpg")
-lambert1:SetParameter("g_NormalTexture", "character/casual19_m_35_normal.png")
-lambert1:SetParameter("g_SpecularTexture", "character/casual19_m_35_spec.png")
-
--- 模型
-local cmp=MeshComponent(NamedObject.MakeUniqueName("mesh_cmp"))
-cmp.MeshPath="character/casual19_m_highpoly.mesh.xml"
-cmp.Material=lambert1
-player:InsertComponent(cmp)
+for i=0,3 do
+	local cmp=MeshComponent(NamedObject.MakeUniqueName("mesh_cmp"))
+	cmp.MeshPath="character/jack.mesh.xml"
+	cmp.MeshSubMeshId=i
+	cmp.Material=Material()
+	cmp.Material.Shader="shader/mtl_BlinnPhong.fx"
+	cmp.Material.PassMask=Material.PassMaskShadowNormalOpaque
+	cmp.Material:SetParameter("g_DiffuseTexture", "character/jack.dds")
+	cmp.Material:SetParameter("g_NormalTexture", "texture/Normal.dds")
+	cmp.Material:SetParameter("g_SpecularTexture", "character/jack_s.dds")
+	player:InsertComponent(cmp)
+end
 
 -- 构建动画树
 local rate_walk=AnimationNodeRate("rate_walk")
 rate_walk.Speed0=1.2
-rate_walk.Child0=AnimationNodeSequence("walk",1.0,true,"move")
+rate_walk.Child0=AnimationNodeSequence("clip_run",1.0,true,"move")
 local node_walk=AnimationNodeBlendList("node_walk",2)
-node_walk.Child0=AnimationNodeSequence("idle1")
+node_walk.Child0=AnimationNodeSequence("clip_stand")
 node_walk.Child1=rate_walk
 local rate_run=AnimationNodeRate("rate_run")
 rate_run.Speed0=7
-rate_run.Child0=AnimationNodeSequence("run",1.0,true,"move")
+rate_run.Child0=AnimationNodeSequence("clip_run",1.0,true,"move")
 local node_run=AnimationNodeBlendList("node_run",2)
 node_run:SetChildAdopt(0,node_walk)
 node_run.Child1=rate_run
@@ -50,9 +50,9 @@ node_run_slot:SetChildAdopt(0,node_run)
 local animator_cmp=Animator(NamedObject.MakeUniqueName("anim_cmp"))
 animator_cmp.Child0=node_run_slot
 animator_cmp:ReloadSequenceGroup()
-animator_cmp.SkeletonPath="character/casual19_m_highpoly.skeleton.xml"
-animator_cmp:AddIK(--[[res:GetBoneIndex("Bip01_L_Thigh")--]]47, 0.1, 1)
-animator_cmp:AddIK(--[[res:GetBoneIndex("Bip01_R_Thigh")--]]52, 0.1, 1)
+animator_cmp.SkeletonPath="character/jack.skeleton.xml"
+animator_cmp:AddIK(SAction.skel:GetBoneIndex("joint1"), 0.1, 1)
+animator_cmp:AddIK(SAction.skel:GetBoneIndex("joint82"), 0.1, 1)
 -- player:InsertComponent(animator_cmp)
 
 -- 角色行为
