@@ -2144,7 +2144,7 @@ void LuaContext::Init(void)
 			.def("clear", &my::EventFunction::clear)
 
 		, class_<my::ControlEventArg, my::EventArg>("ControlEventArg")
-			.def_readonly("self", &my::ControlEventArg::self)
+			.def_readonly("self", &my::ControlEventArg::self) // ! will infinite ++m_dependency_cnt if self was wrap_base obj, ref: object_rep::add_dependency
 
 		, class_<my::VisibleEventArg, my::ControlEventArg>("VisibleEventArg")
 			.def_readonly("Visible", &my::VisibleEventArg::Visible)
