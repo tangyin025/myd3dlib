@@ -6,12 +6,11 @@ texture g_MeshTexture;
 sampler MeshTextureSampler = sampler_state
 {
     Texture = <g_MeshTexture>;
+    MipFilter = LINEAR;
+    MinFilter = LINEAR;
+    MagFilter = LINEAR;
     ADDRESSU = CLAMP;
     ADDRESSV = CLAMP;
-    ADDRESSW = CLAMP;
-    MagFilter = LINEAR;
-    MinFilter = LINEAR;
-    MipFilter = NONE;
 };
 
 //--------------------------------------------------------------------------------------
