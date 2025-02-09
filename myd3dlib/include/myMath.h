@@ -593,19 +593,26 @@ namespace my
 				x * rhs.y - y * rhs.x);
 		}
 
-		Vector3 perpendicular(const Vector3 & side) const
-		{
-			return side - operator *(dot(side));
-		}
-
 		float dot(const Vector3 & rhs) const
 		{
 			return x * rhs.x + y * rhs.y + z * rhs.z;
 		}
 
-		float dot2D(const Vector3& rhs) const
+		float dot2D(const Vector3 & rhs) const
 		{
 			return x * rhs.x + z * rhs.z;
+		}
+
+		Vector3 perpendicular(const Vector3 & side) const
+		{
+			return side - operator *(dot(side));
+		}
+
+		Vector3 slide(const Vector3 & plane_normal) const
+		{
+			//_ASSERT(IS_NORMALIZED(plane_normal));
+
+			return operator -(plane_normal * dot(plane_normal));
 		}
 
 		float magnitude(void) const
