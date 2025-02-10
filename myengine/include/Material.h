@@ -472,7 +472,7 @@ public:
 
 	void ParseShaderParameters(void);
 
-	MaterialParameterPtr GetParameter(const std::string& Name);
+	MaterialParameter * GetParameter(const char* Name) const;
 
 	template <typename T>
 	void SetParameter(const char* Name, const T& Value);

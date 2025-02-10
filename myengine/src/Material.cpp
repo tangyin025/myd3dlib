@@ -548,23 +548,23 @@ void Material::ParseShaderParameters(void)
 	}
 }
 
-MaterialParameterPtr Material::GetParameter(const std::string& Name)
+MaterialParameter * Material::GetParameter(const char* Name) const
 {
-	MaterialParameterPtrList::iterator param_iter = m_ParameterList.begin();
+	MaterialParameterPtrList::const_iterator param_iter = m_ParameterList.begin();
 	for (; param_iter != m_ParameterList.end(); param_iter++)
 	{
 		if ((*param_iter)->m_Name == Name)
 		{
-			return *param_iter;
+			return param_iter->get();
 		}
 	}
-	return MaterialParameterPtr();
+	return NULL;
 }
 
 template <>
 void Material::SetParameter<CPoint>(const char* Name, const CPoint& Value)
 {
-	MaterialParameterPtr param = GetParameter(Name);
+	MaterialParameter * param = GetParameter(Name);
 	if (!param)
 	{
 		m_ParameterList.push_back(MaterialParameterPtr(new MaterialParameterInt2(this, Name, Value)));
@@ -575,13 +575,13 @@ void Material::SetParameter<CPoint>(const char* Name, const CPoint& Value)
 		my::D3DContext::getSingleton().m_EventLog(str_printf("dose not have int2 param: %s", Name).c_str());
 		return;
 	}
-	boost::dynamic_pointer_cast<MaterialParameterInt2>(param)->m_Value = Value;
+	dynamic_cast<MaterialParameterInt2*>(param)->m_Value = Value;
 }
 
 template <>
 void Material::SetParameter<float>(const char* Name, const float& Value)
 {
-	MaterialParameterPtr param = GetParameter(Name);
+	MaterialParameter * param = GetParameter(Name);
 	if (!param)
 	{
 		m_ParameterList.push_back(MaterialParameterPtr(new MaterialParameterFloat(this, Name, Value)));
@@ -592,13 +592,13 @@ void Material::SetParameter<float>(const char* Name, const float& Value)
 		my::D3DContext::getSingleton().m_EventLog(str_printf("dose not have float param: %s", Name).c_str());
 		return;
 	}
-	boost::dynamic_pointer_cast<MaterialParameterFloat>(param)->m_Value = Value;
+	dynamic_cast<MaterialParameterFloat*>(param)->m_Value = Value;
 }
 
 template <>
 void Material::SetParameter<my::Vector2>(const char* Name, const my::Vector2& Value)
 {
-	MaterialParameterPtr param = GetParameter(Name);
+	MaterialParameter * param = GetParameter(Name);
 	if (!param)
 	{
 		m_ParameterList.push_back(MaterialParameterPtr(new MaterialParameterFloat2(this, Name, Value)));
@@ -609,13 +609,13 @@ void Material::SetParameter<my::Vector2>(const char* Name, const my::Vector2& Va
 		my::D3DContext::getSingleton().m_EventLog(str_printf("dose not have Vector2 param: %s", Name).c_str());
 		return;
 	}
-	boost::dynamic_pointer_cast<MaterialParameterFloat2>(param)->m_Value = Value;
+	dynamic_cast<MaterialParameterFloat2*>(param)->m_Value = Value;
 }
 
 template <>
 void Material::SetParameter<my::Vector3>(const char* Name, const my::Vector3& Value)
 {
-	MaterialParameterPtr param = GetParameter(Name);
+	MaterialParameter * param = GetParameter(Name);
 	if (!param)
 	{
 		m_ParameterList.push_back(MaterialParameterPtr(new MaterialParameterFloat3(this, Name, Value)));
@@ -626,13 +626,13 @@ void Material::SetParameter<my::Vector3>(const char* Name, const my::Vector3& Va
 		my::D3DContext::getSingleton().m_EventLog(str_printf("dose not have Vector3 param: %s", Name).c_str());
 		return;
 	}
-	boost::dynamic_pointer_cast<MaterialParameterFloat3>(param)->m_Value = Value;
+	dynamic_cast<MaterialParameterFloat3*>(param)->m_Value = Value;
 }
 
 template <>
 void Material::SetParameter<my::Vector4>(const char* Name, const my::Vector4& Value)
 {
-	MaterialParameterPtr param = GetParameter(Name);
+	MaterialParameter * param = GetParameter(Name);
 	if (!param)
 	{
 		m_ParameterList.push_back(MaterialParameterPtr(new MaterialParameterFloat4(this, Name, Value)));
@@ -643,13 +643,13 @@ void Material::SetParameter<my::Vector4>(const char* Name, const my::Vector4& Va
 		my::D3DContext::getSingleton().m_EventLog(str_printf("dose not have Vector4 param: %s", Name).c_str());
 		return;
 	}
-	boost::dynamic_pointer_cast<MaterialParameterFloat4>(param)->m_Value = Value;
+	dynamic_cast<MaterialParameterFloat4*>(param)->m_Value = Value;
 }
 
 template <>
 void Material::SetParameter<std::string>(const char* Name, const std::string& Value)
 {
-	MaterialParameterPtr param = GetParameter(Name);
+	MaterialParameter * param = GetParameter(Name);
 	if (!param)
 	{
 		m_ParameterList.push_back(MaterialParameterPtr(new MaterialParameterTexture(this, Name, Value)));
@@ -660,7 +660,7 @@ void Material::SetParameter<std::string>(const char* Name, const std::string& Va
 		my::D3DContext::getSingleton().m_EventLog(str_printf("dose not have Texture param: %s", Name).c_str());
 		return;
 	}
-	_ASSERT(!ResourceMgr::getSingleton().FindIORequestCallback(boost::bind(&MaterialParameterTexture::OnTextureReady, param.get(), boost::placeholders::_1)));
-	_ASSERT(!boost::dynamic_pointer_cast<MaterialParameterTexture>(param)->m_Texture);
-	boost::dynamic_pointer_cast<MaterialParameterTexture>(param)->m_TexturePath = Value;
+	_ASSERT(!ResourceMgr::getSingleton().FindIORequestCallback(boost::bind(&MaterialParameterTexture::OnTextureReady, param, boost::placeholders::_1)));
+	_ASSERT(!dynamic_cast<MaterialParameterTexture*>(param)->m_Texture);
+	dynamic_cast<MaterialParameterTexture*>(param)->m_TexturePath = Value;
 }

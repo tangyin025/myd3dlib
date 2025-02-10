@@ -2897,6 +2897,7 @@ void LuaContext::Init(void)
 				value("PassMaskNormalTransparent", Material::PassMaskNormalTransparent)
 			]
 			.def(constructor<>())
+			.def_readonly("Cmp", &Material::m_Cmp)
 			.def_readwrite("Shader", &Material::m_Shader)
 			.def_readwrite("PassMask", &Material::m_PassMask)
 			.def_readwrite("CullMode", &Material::m_CullMode)
@@ -2911,12 +2912,48 @@ void LuaContext::Init(void)
 			.def("RequestResource", &Material::RequestResource)
 			.def("ReleaseResource", &Material::ReleaseResource)
 			.def("ParseShaderParameters", &Material::ParseShaderParameters)
+			.def("GetParameter", &Material::GetParameter)
 			.def("SetParameter", &Material::SetParameter<CPoint>)
 			.def("SetParameter", &Material::SetParameter<float>)
 			.def("SetParameter", &Material::SetParameter<my::Vector2>)
 			.def("SetParameter", &Material::SetParameter<my::Vector3>)
 			.def("SetParameter", &Material::SetParameter<my::Vector4>)
 			.def("SetParameter", &Material::SetParameter<std::string>)
+
+		, class_<MaterialParameter>("MaterialParameter")
+			.def_readonly("Owner", &MaterialParameter::m_Owner)
+			.def_readonly("Name", &MaterialParameter::m_Name)
+			.enum_("ParameterType")
+			[
+				value("ParameterTypeNone", MaterialParameter::ParameterTypeNone),
+				value("ParameterTypeInt2", MaterialParameter::ParameterTypeInt2),
+				value("ParameterTypeFloat", MaterialParameter::ParameterTypeFloat),
+				value("ParameterTypeFloat2", MaterialParameter::ParameterTypeFloat2),
+				value("ParameterTypeFloat3", MaterialParameter::ParameterTypeFloat3),
+				value("ParameterTypeFloat4", MaterialParameter::ParameterTypeFloat4),
+				value("ParameterTypeTexture", MaterialParameter::ParameterTypeTexture),
+				value("ParameterTypeInvWorldView", MaterialParameter::ParameterTypeInvWorldView)
+			]
+			.property("ParameterType", &MaterialParameter::GetParameterType)
+			.property("Requested", &MaterialParameter::IsRequested)
+
+		, class_<MaterialParameterInt2, MaterialParameter>("MaterialParameterInt2")
+			.def_readonly("Value", &MaterialParameterInt2::m_Value)
+
+		, class_<MaterialParameterFloat, MaterialParameter>("MaterialParameterFloat")
+			.def_readonly("Value", &MaterialParameterFloat::m_Value)
+
+		, class_<MaterialParameterFloat2, MaterialParameter>("MaterialParameterFloat2")
+			.def_readonly("Value", &MaterialParameterFloat2::m_Value)
+
+		, class_<MaterialParameterFloat3, MaterialParameter>("MaterialParameterFloat3")
+			.def_readonly("Value", &MaterialParameterFloat3::m_Value)
+
+		, class_<MaterialParameterFloat4, MaterialParameter>("MaterialParameterFloat4")
+			.def_readonly("Value", &MaterialParameterFloat4::m_Value)
+
+		, class_<MaterialParameterTexture, MaterialParameter>("MaterialParameterTexture")
+			.def_readonly("Value", &MaterialParameterTexture::m_TexturePath)
 
 		, class_<Component, my::NamedObject, ScriptComponent/*, boost::shared_ptr<Component>*/ >("Component")
 			.def(constructor<const char *>())
