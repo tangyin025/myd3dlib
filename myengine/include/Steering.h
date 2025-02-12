@@ -80,6 +80,10 @@ public:
 		return TypeID;
 	}
 
+	my::Vector3 GetVelocity(void) const;
+
+	void SetVelocity(const my::Vector3& Velocity);
+
 	my::Vector3 SeekDir(my::Vector3 Force, float dtime);
 
 	CrowdAgentState SeekTarget(const my::Vector3 & Target, const dtQueryFilter & filter, float dtime, unsigned int filterWord0, my::Vector3 & desiredVel, my::Vector3 & startPos, my::Vector3 & endPos);

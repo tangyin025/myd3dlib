@@ -31,6 +31,20 @@ Steering::~Steering(void)
 {
 }
 
+my::Vector3 Steering::GetVelocity(void) const
+{
+	return m_Forward * m_Speed;
+}
+
+void Steering::SetVelocity(const my::Vector3& Velocity)
+{
+	m_Speed = Velocity.magnitude();
+	if (m_Speed != 0)
+	{
+		m_Forward = Velocity / m_Speed;
+	}
+}
+
 my::Vector3 Steering::SeekDir(my::Vector3 Force, float dtime)
 {
 	// https://github.com/meshula/OpenSteer/blob/master/src/SimpleVehicle.cpp
@@ -397,7 +411,7 @@ Steering::CrowdAgentState Steering::SeekTarget(const my::Vector3& Target, const 
 		const Controller* neicontroller = nei_controllers[i];
 
 		Vector3 npos = neicontroller->GetPosition();
-		Vector3 vel = nei->m_Forward * nei->m_Speed;
+		Vector3 vel = nei->GetVelocity();
 		ObstacleAvoidanceContext::getSingleton().addCircle(&npos.x, neicontroller->GetRadius(), &vel.x, &vel.x);
 	}
 
