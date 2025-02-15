@@ -72,8 +72,8 @@ RenderPipeline::RenderPipeline(void)
 	, m_SsaoScale(10.0f)
 	, handle_FogColor(NULL)
 	, handle_FogParams(NULL)
-	, m_FogColor(1.0f, 1.0f, 1.0f, 1.0f)
-	, m_FogParams(10.0f, 50.0f, 0.0f, 0.0f)
+	, m_FogColor(0.518f, 0.553f, 0.608f, 1.0f)
+	, m_FogParams(0.01, 0.0f, 0.0f, 0.0f)
 {
 	for (int i = 0; i < _countof(m_ShadowRT); i++)
 	{
@@ -616,7 +616,7 @@ void RenderPipeline::OnRender(
 	if (pRC->m_FogEnable)
 	{
 		D3DXMACRO macro[] = { { 0 } };
-		my::Effect* FogEffect = QueryShader(macro, "shader/HeightFog.fx", PassTypeShadow);
+		my::Effect* FogEffect = QueryShader(macro, "shader/DeferredFog.fx", PassTypeShadow);
 		if (FogEffect)
 		{
 			if (!handle_FogColor)

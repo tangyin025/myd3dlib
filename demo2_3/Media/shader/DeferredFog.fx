@@ -1,8 +1,8 @@
 
 #include "CommonHeader.hlsl"
 
-float4 g_FogColor = { 1, 1, 1, 1 };
-float4 g_FogParams = { 10, 50, 0, 0 };
+float4 g_FogColor = { 0.518, 0.553, 0.608, 1 };
+float4 g_FogParams = { 0.01, 0, 0, 0 };
 
 //--------------------------------------------------------------------------------------
 // Vertex shader output structure
@@ -16,7 +16,8 @@ struct VS_OUTPUT
 float4 HeightFogPS( VS_OUTPUT In ) : COLOR0
 {
     float4 PosVS = tex2D(PositionRTSampler, In.TextureUV);
-    return float4(g_FogColor.xyz, saturate((-PosVS.z - g_FogParams.x) / (g_FogParams.y - g_FogParams.x)));
+    // https://learn.microsoft.com/en-us/windows/win32/direct3d9/fog-formulas#exponential-fog
+    return float4(g_FogColor.xyz, 1 - 1 / exp(-PosVS.z * g_FogParams.x));
 }
 
 //--------------------------------------------------------------------------------------
