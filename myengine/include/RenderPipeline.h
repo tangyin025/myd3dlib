@@ -191,6 +191,8 @@ public:
 
 	D3DXHANDLE handle_scale;
 
+	D3DXHANDLE handle_SsaoProj;
+
 	float m_SsaoBias;
 
 	float m_SsaoIntensity;

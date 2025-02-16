@@ -98,6 +98,8 @@ sampler NormalRTSampler = sampler_state
 	MipFilter = NONE;
 	MinFilter = POINT;
 	MagFilter = POINT;
+    ADDRESSU = CLAMP;
+    ADDRESSV = CLAMP;
 };
 
 sampler PositionRTSampler = sampler_state
@@ -106,6 +108,8 @@ sampler PositionRTSampler = sampler_state
 	MipFilter = NONE;
 	MinFilter = POINT;
 	MagFilter = POINT;
+    ADDRESSU = CLAMP;
+    ADDRESSV = CLAMP;
 };
 
 sampler SpecularRTSampler = sampler_state
@@ -114,6 +118,8 @@ sampler SpecularRTSampler = sampler_state
 	MipFilter = NONE;
 	MinFilter = POINT;
 	MagFilter = POINT;
+    ADDRESSU = CLAMP;
+    ADDRESSV = CLAMP;
 };
 
 sampler LightRTSampler = sampler_state
@@ -122,6 +128,8 @@ sampler LightRTSampler = sampler_state
 	MipFilter = NONE;
 	MinFilter = POINT;
 	MagFilter = POINT;
+    ADDRESSU = CLAMP;
+    ADDRESSV = CLAMP;
 };
 
 sampler OpaqueRTSampler = sampler_state
@@ -140,6 +148,8 @@ sampler DownFilterRTSampler = sampler_state
 	MipFilter = Linear;
 	MinFilter = Point;
 	MagFilter = Linear;
+    ADDRESSU = CLAMP;
+    ADDRESSV = CLAMP;
 };
 
 float DistributionGGX(float3 N, float3 H, float roughness)

@@ -66,6 +66,7 @@ RenderPipeline::RenderPipeline(void)
 	, handle_intensity(NULL)
 	, handle_sample_rad(NULL)
 	, handle_scale(NULL)
+	, handle_SsaoProj(NULL)
 	, m_SsaoBias(0.2f)
 	, m_SsaoIntensity(5.0f)
 	, m_SsaoRadius(100.0f)
@@ -573,6 +574,7 @@ void RenderPipeline::OnRender(
 				BOOST_VERIFY(handle_intensity = SsaoEffect->GetParameterByName(NULL, "g_intensity"));
 				BOOST_VERIFY(handle_sample_rad = SsaoEffect->GetParameterByName(NULL, "g_sample_rad"));
 				BOOST_VERIFY(handle_scale = SsaoEffect->GetParameterByName(NULL, "g_scale"));
+				BOOST_VERIFY(handle_SsaoProj = SsaoEffect->GetParameterByName(NULL, "g_Proj"));
 			}
 
 			V(pd3dDevice->SetFVF(D3DFVF_XYZRHW | D3DFVF_TEX1));
@@ -583,6 +585,7 @@ void RenderPipeline::OnRender(
 			SsaoEffect->SetFloat(handle_intensity, m_SsaoIntensity);
 			SsaoEffect->SetFloat(handle_sample_rad, m_SsaoRadius);
 			SsaoEffect->SetFloat(handle_scale, m_SsaoScale);
+			SsaoEffect->SetMatrix(handle_SsaoProj, pRC->m_Camera->m_Proj);
 			SsaoEffect->Begin(D3DXFX_DONOTSAVESTATE | D3DXFX_DONOTSAVESAMPLERSTATE | D3DXFX_DONOTSAVESHADERSTATE);
 			SsaoEffect->BeginPass(0);
 			V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, quad, sizeof(quad[0])));
