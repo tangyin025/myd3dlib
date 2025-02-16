@@ -62,6 +62,7 @@ RenderPipeline::RenderPipeline(void)
 	, m_BloomFactor(1.0f)
 	, handle_InputTexture(NULL)
 	, handle_RCPFrame(NULL)
+	, handle_OcclusionRT(NULL)
 	, handle_bias(NULL)
 	, handle_intensity(NULL)
 	, handle_sample_rad(NULL)
@@ -534,7 +535,6 @@ void RenderPipeline::OnRender(
 	CComPtr<IDirect3DSurface9> NormalSurf = pRC->m_NormalRT->GetSurfaceLevel(0);
 	CComPtr<IDirect3DSurface9> SpecularSurf = pRC->m_SpecularRT->GetSurfaceLevel(0);
 	CComPtr<IDirect3DSurface9> PositionSurf = pRC->m_PositionRT->GetSurfaceLevel(0);
-	CComPtr<IDirect3DSurface9> LightSurf = pRC->m_LightRT->GetSurfaceLevel(0);
 	m_SimpleSample->SetVector(handle_Eye, pRC->m_Camera->m_Eye);
 	m_SimpleSample->SetMatrix(handle_View, pRC->m_Camera->m_View);
 	m_SimpleSample->SetMatrix(handle_ViewProj, pRC->m_Camera->m_ViewProj);
@@ -557,10 +557,10 @@ void RenderPipeline::OnRender(
 	V(pd3dDevice->SetRenderTarget(2, NULL));
 	RenderAllObjects(pd3dDevice, PassTypeNormalTransparent, pRC, fTime, fElapsedTime);
 
+	CComPtr<IDirect3DSurface9> LightSurf = pRC->m_LightRT->GetSurfaceLevel(0);
 	m_SimpleSample->SetTexture(handle_NormalRT, pRC->m_NormalRT.get());
 	m_SimpleSample->SetTexture(handle_SpecularRT, pRC->m_SpecularRT.get());
 	m_SimpleSample->SetTexture(handle_PositionRT, pRC->m_PositionRT.get());
-	V(pd3dDevice->SetRenderTarget(0, LightSurf));
 	V(pd3dDevice->SetRenderTarget(1, NULL));
 	if (pRC->m_SsaoEnable)
 	{
@@ -570,6 +570,7 @@ void RenderPipeline::OnRender(
 		{
 			if (!handle_bias)
 			{
+				BOOST_VERIFY(handle_OcclusionRT = SsaoEffect->GetParameterByName(NULL, "g_OcclusionRT"));
 				BOOST_VERIFY(handle_bias = SsaoEffect->GetParameterByName(NULL, "g_bias"));
 				BOOST_VERIFY(handle_intensity = SsaoEffect->GetParameterByName(NULL, "g_intensity"));
 				BOOST_VERIFY(handle_sample_rad = SsaoEffect->GetParameterByName(NULL, "g_sample_rad"));
@@ -577,6 +578,8 @@ void RenderPipeline::OnRender(
 				BOOST_VERIFY(handle_SsaoProj = SsaoEffect->GetParameterByName(NULL, "g_Proj"));
 			}
 
+			CComPtr<IDirect3DSurface9> OcclusionSurf = pRC->m_OcclusionRT->GetSurfaceLevel(0);
+			V(pd3dDevice->SetRenderTarget(0, OcclusionSurf));
 			V(pd3dDevice->SetFVF(D3DFVF_XYZRHW | D3DFVF_TEX1));
 			V(pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CW));
 			V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE));
@@ -590,11 +593,20 @@ void RenderPipeline::OnRender(
 			SsaoEffect->BeginPass(0);
 			V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, quad, sizeof(quad[0])));
 			SsaoEffect->EndPass();
+			if (false)
+				D3DXSaveTextureToFileA("aaa.bmp", D3DXIFF_BMP, pRC->m_OcclusionRT->m_ptr, NULL);
+
+			SsaoEffect->SetTexture(handle_OcclusionRT, pRC->m_OcclusionRT.get());
+			V(pd3dDevice->SetRenderTarget(0, LightSurf));
+			SsaoEffect->BeginPass(1);
+			V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, quad, sizeof(quad[0])));
+			SsaoEffect->EndPass();
 			SsaoEffect->End();
 		}
 	}
 	else
 	{
+		V(pd3dDevice->SetRenderTarget(0, LightSurf));
 		V(pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET, D3DCOLOR_COLORVALUE(
 			m_AmbientColor.x, m_AmbientColor.y, m_AmbientColor.z, 0), 0, 0));
 	}

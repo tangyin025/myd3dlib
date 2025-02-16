@@ -183,6 +183,8 @@ public:
 
 	D3DXHANDLE handle_RCPFrame;
 
+	D3DXHANDLE handle_OcclusionRT;
+
 	D3DXHANDLE handle_bias;
 
 	D3DXHANDLE handle_intensity;
@@ -280,6 +282,8 @@ public:
 		boost::shared_ptr<my::Texture2D> m_SpecularRT;
 
 		boost::shared_ptr<my::Texture2D> m_PositionRT;
+
+		boost::shared_ptr<my::Texture2D> m_OcclusionRT;
 
 		boost::shared_ptr<my::Texture2D> m_LightRT;
 

@@ -5,6 +5,17 @@ float g_intensity=5;
 float g_sample_rad=100;
 float g_scale=10;
 float4x4 g_Proj;
+texture g_OcclusionRT;
+
+sampler OcclusionRTSampler = sampler_state
+{
+	Texture = <g_OcclusionRT>;
+	MipFilter = NONE;
+	MinFilter = POINT;
+	MagFilter = POINT;
+    ADDRESSU = CLAMP;
+    ADDRESSV = CLAMP;
+};
 
 float3 ssaoKernel[64]=
 {
@@ -100,7 +111,7 @@ struct VS_OUTPUT
     float2 TextureUV  : TEXCOORD0;  // vertex texture coords 
 };
 
-float4 MainPS(VS_OUTPUT In) : COLOR0
+float4 OcclusionPS(VS_OUTPUT In) : COLOR0
 {
 	// https://learnopengl.com/Advanced-Lighting/SSAO
 	float3 fragPos = tex2D(PositionRTSampler, In.TextureUV).xyz;
@@ -124,9 +135,26 @@ float4 MainPS(VS_OUTPUT In) : COLOR0
 
 		float sampleDepth = tex2D(PositionRTSampler, offset.xy).z;
 		float rangeCheck = smoothstep(0.0, 1.0, g_sample_rad / abs(fragPos.z - sampleDepth));
-		occlusion += (sampleDepth >= sample.z ? 1.0 : 0.0) * rangeCheck;
+		occlusion += (sampleDepth >= sample.z + 0.01 ? 1.0 : 0.0) * rangeCheck;
 	}
-	return float4(g_AmbientColor.xyz * (1.0 - occlusion / 64), 0);
+	return float4(1.0 - occlusion / 64, 0, 0, 0);
+}
+
+float4 AmbientPS(VS_OUTPUT In) : COLOR0
+{
+	// return float4(g_AmbientColor.xyz * tex2D(OcclusionRTSampler, In.TextureUV).xyz, 0);
+
+	float2 texelSize = 1.0 / g_ScreenDim;
+    float result = 0.0;
+    for (int x = -2; x < 2; ++x) 
+    {
+        for (int y = -2; y < 2; ++y) 
+        {
+			float2 offset = float2(x, y) * texelSize;
+			result += tex2D(OcclusionRTSampler, offset + In.TextureUV).r;
+        }
+    }
+	return float4(g_AmbientColor.xyz * result / (4.0 * 4.0), 0);
 }
 
 technique RenderScene
@@ -134,6 +162,11 @@ technique RenderScene
     pass P0
     {
 		VertexShader = null;
-		PixelShader = compile ps_3_0 MainPS();
+		PixelShader = compile ps_3_0 OcclusionPS();
+	}
+    pass P1
+    {
+		VertexShader = null;
+		PixelShader = compile ps_3_0 AmbientPS();
 	}
 }

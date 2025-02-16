@@ -101,6 +101,7 @@ CChildView::CChildView()
 	m_NormalRT.reset(new my::Texture2D());
 	m_SpecularRT.reset(new my::Texture2D());
 	m_PositionRT.reset(new my::Texture2D());
+	m_OcclusionRT.reset(new my::Texture2D());
 	m_LightRT.reset(new my::Texture2D());
 	for (unsigned int i = 0; i < RenderPipeline::RTChain::RTArray::static_size; i++)
 	{
@@ -244,6 +245,10 @@ void CChildView::OnResetDevice(void)
 	m_PositionRT->CreateTexture(
 		m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A32B32G32R32F, D3DPOOL_DEFAULT);
 
+	ASSERT(!m_OcclusionRT->m_ptr);
+	m_OcclusionRT->CreateTexture(
+		m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height, 1, D3DUSAGE_RENDERTARGET, D3DFMT_L8, D3DPOOL_DEFAULT);
+
 	ASSERT(!m_LightRT->m_ptr);
 	m_LightRT->CreateTexture(
 		m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT);
@@ -272,6 +277,7 @@ void CChildView::OnLostDevice(void)
 	m_NormalRT->OnDestroyDevice();
 	m_SpecularRT->OnDestroyDevice();
 	m_PositionRT->OnDestroyDevice();
+	m_OcclusionRT->OnDestroyDevice();
 	m_LightRT->OnDestroyDevice();
 	for (unsigned int i = 0; i < RenderPipeline::RTChain::RTArray::static_size; i++)
 	{
