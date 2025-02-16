@@ -1,9 +1,9 @@
 
 #include "CommonHeader.hlsl"
-float g_bias=0.2;
-float g_intensity=5;
-float g_sample_rad=100;
-float g_scale=10;
+float g_bias=0.01;
+float g_intensity=1;
+float g_sample_rad=0.5;
+float g_scale=1;
 float4x4 g_Proj;
 texture g_OcclusionRT;
 
@@ -135,9 +135,9 @@ float4 OcclusionPS(VS_OUTPUT In) : COLOR0
 
 		float sampleDepth = tex2D(PositionRTSampler, offset.xy).z;
 		float rangeCheck = smoothstep(0.0, 1.0, g_sample_rad / abs(fragPos.z - sampleDepth));
-		occlusion += (sampleDepth >= sample.z + 0.01 ? 1.0 : 0.0) * rangeCheck;
+		occlusion += (sampleDepth >= sample.z + g_bias ? 1.0 : 0.0) * rangeCheck;
 	}
-	return float4(1.0 - occlusion / 64, 0, 0, 0);
+	return float4(pow(1.0 - occlusion / 64, g_intensity), 0, 0, 0);
 }
 
 float4 AmbientPS(VS_OUTPUT In) : COLOR0

@@ -38,19 +38,19 @@
 	<z>1.000000000e+00</z>
 </BloomColor>
 <BloomFactor>1.000000000e+00</BloomFactor>
-<SsaoBias>2.000000030e-01</SsaoBias>
-<SsaoIntensity>5.000000000e+00</SsaoIntensity>
-<SsaoRadius>1.000000000e+02</SsaoRadius>
-<SsaoScale>1.000000000e+01</SsaoScale>
+<SsaoBias>9.999999776e-03</SsaoBias>
+<SsaoIntensity>1.000000000e+00</SsaoIntensity>
+<SsaoRadius>5.000000000e-01</SsaoRadius>
+<SsaoScale>1.000000000e+00</SsaoScale>
 <FogColor>
-	<x>1.000000000e+00</x>
-	<y>1.000000000e+00</y>
-	<z>1.000000000e+00</z>
+	<x>5.180000067e-01</x>
+	<y>5.529999733e-01</y>
+	<z>6.079999804e-01</z>
 	<w>1.000000000e+00</w>
 </FogColor>
 <FogParams>
-	<x>1.000000000e+01</x>
-	<y>5.000000000e+01</y>
+	<x>9.999999776e-03</x>
+	<y>0.000000000e+00</y>
 	<z>0.000000000e+00</z>
 	<w>0.000000000e+00</w>
 </FogParams>
@@ -62,14 +62,14 @@
 		</NamedObject>
 		<m_aabb class_id="5" tracking_level="0" version="0">
 			<m_min>
-				<x>-4.096000000e+03</x>
-				<y>-4.096000000e+03</y>
-				<z>-4.096000000e+03</z>
+				<x>0.000000000e+00</x>
+				<y>-1.000000000e+00</y>
+				<z>0.000000000e+00</z>
 			</m_min>
 			<m_max>
-				<x>4.096000000e+03</x>
-				<y>4.096000000e+03</y>
-				<z>4.096000000e+03</z>
+				<x>6.400000000e+01</x>
+				<y>1.000000000e+00</y>
+				<z>6.400000000e+01</z>
 			</m_max>
 		</m_aabb>
 		<m_Position>
@@ -90,7 +90,7 @@
 		</m_Scale>
 		<m_LodDist>3.300000000e+01</m_LodDist>
 		<m_LodFactor>2.000000000e+00</m_LodFactor>
-		<m_CullingDistSq>6.969599795e+14</m_CullingDistSq>
+		<m_CullingDistSq>2.048000000e+03</m_CullingDistSq>
 		<ActorType>0</ActorType>
 		<m_Cmps class_id="7" tracking_level="0" version="0">
 			<count>7</count>
@@ -104,7 +104,7 @@
 						<m_LodMask>7</m_LodMask>
 						<m_Material class_id="11" tracking_level="0" version="1">
 							<px class_id="12" tracking_level="1" version="0" object_id="_5">
-								<m_Shader>shader\mtl_Splatmap.fx</m_Shader>
+								<m_Shader>shader/mtl_Splatmap.fx</m_Shader>
 								<m_PassMask>35</m_PassMask>
 								<m_CullMode>2</m_CullMode>
 								<m_ZEnable>1</m_ZEnable>
@@ -634,12 +634,12 @@ AAAAAAAAgEIAAAAAAACAPwAAAAAAAAD/
 				<px class_id_reference="22" object_id="_72">
 					<Component object_id="_73">
 						<NamedObject object_id="_74">
-							<Name>actor5_pCubeShape1</Name>
+							<Name>actor5_mesh0</Name>
 						</NamedObject>
 						<m_LodMask>7</m_LodMask>
 						<m_Material>
 							<px class_id_reference="12" object_id="_75">
-								<m_Shader>shader\mtl_BlinnPhong.fx</m_Shader>
+								<m_Shader>shader/mtl_BlinnPhong.fx</m_Shader>
 								<m_PassMask>35</m_PassMask>
 								<m_CullMode>2</m_CullMode>
 								<m_ZEnable>1</m_ZEnable>
