@@ -183,8 +183,6 @@ public:
 
 	D3DXHANDLE handle_RCPFrame;
 
-	D3DXHANDLE handle_OcclusionRT;
-
 	D3DXHANDLE handle_bias;
 
 	D3DXHANDLE handle_intensity;
@@ -193,7 +191,7 @@ public:
 
 	D3DXHANDLE handle_scale;
 
-	D3DXHANDLE handle_SsaoProj;
+	D3DXHANDLE handle_OcclusionRT;
 
 	float m_SsaoBias;
 

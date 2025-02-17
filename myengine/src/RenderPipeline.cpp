@@ -62,16 +62,15 @@ RenderPipeline::RenderPipeline(void)
 	, m_BloomFactor(1.0f)
 	, handle_InputTexture(NULL)
 	, handle_RCPFrame(NULL)
-	, handle_OcclusionRT(NULL)
 	, handle_bias(NULL)
 	, handle_intensity(NULL)
 	, handle_sample_rad(NULL)
 	, handle_scale(NULL)
-	, handle_SsaoProj(NULL)
-	, m_SsaoBias(0.1f)
-	, m_SsaoIntensity(1.0f)
-	, m_SsaoRadius(0.5f)
-	, m_SsaoScale(1.0f)
+	, handle_OcclusionRT(NULL)
+	, m_SsaoBias(0.2f)
+	, m_SsaoIntensity(5.0f)
+	, m_SsaoRadius(100.0f)
+	, m_SsaoScale(10.0f)
 	, handle_FogColor(NULL)
 	, handle_FogParams(NULL)
 	, m_FogColor(0.518f, 0.553f, 0.608f, 1.0f)
@@ -570,12 +569,11 @@ void RenderPipeline::OnRender(
 		{
 			if (!handle_bias)
 			{
-				BOOST_VERIFY(handle_OcclusionRT = SsaoEffect->GetParameterByName(NULL, "g_OcclusionRT"));
 				BOOST_VERIFY(handle_bias = SsaoEffect->GetParameterByName(NULL, "g_bias"));
 				BOOST_VERIFY(handle_intensity = SsaoEffect->GetParameterByName(NULL, "g_intensity"));
 				BOOST_VERIFY(handle_sample_rad = SsaoEffect->GetParameterByName(NULL, "g_sample_rad"));
 				BOOST_VERIFY(handle_scale = SsaoEffect->GetParameterByName(NULL, "g_scale"));
-				BOOST_VERIFY(handle_SsaoProj = SsaoEffect->GetParameterByName(NULL, "g_Proj"));
+				BOOST_VERIFY(handle_OcclusionRT = SsaoEffect->GetParameterByName(NULL, "g_OcclusionRT"));
 			}
 
 			CComPtr<IDirect3DSurface9> OcclusionSurf = pRC->m_OcclusionRT->GetSurfaceLevel(0);
@@ -588,7 +586,6 @@ void RenderPipeline::OnRender(
 			SsaoEffect->SetFloat(handle_intensity, m_SsaoIntensity);
 			SsaoEffect->SetFloat(handle_sample_rad, m_SsaoRadius);
 			SsaoEffect->SetFloat(handle_scale, m_SsaoScale);
-			SsaoEffect->SetMatrix(handle_SsaoProj, pRC->m_Camera->m_Proj);
 			SsaoEffect->Begin(D3DXFX_DONOTSAVESTATE | D3DXFX_DONOTSAVESAMPLERSTATE | D3DXFX_DONOTSAVESHADERSTATE);
 			SsaoEffect->BeginPass(0);
 			V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, quad, sizeof(quad[0])));

@@ -38,10 +38,10 @@
 	<z>1.000000000e+00</z>
 </BloomColor>
 <BloomFactor>1.000000000e+00</BloomFactor>
-<SsaoBias>9.999999776e-03</SsaoBias>
-<SsaoIntensity>1.000000000e+00</SsaoIntensity>
-<SsaoRadius>5.000000000e-01</SsaoRadius>
-<SsaoScale>1.000000000e+00</SsaoScale>
+<SsaoBias>2.000000030e-01</SsaoBias>
+<SsaoIntensity>5.000000000e+00</SsaoIntensity>
+<SsaoRadius>1.000000000e+02</SsaoRadius>
+<SsaoScale>1.000000000e+01</SsaoScale>
 <FogColor>
 	<x>5.180000067e-01</x>
 	<y>5.529999733e-01</y>
