@@ -576,8 +576,7 @@ void RenderPipeline::OnRender(
 				BOOST_VERIFY(handle_OcclusionRT = SsaoEffect->GetParameterByName(NULL, "g_OcclusionRT"));
 			}
 
-			CComPtr<IDirect3DSurface9> OcclusionSurf = pRC->m_OcclusionRT->GetSurfaceLevel(0);
-			V(pd3dDevice->SetRenderTarget(0, OcclusionSurf));
+			V(pd3dDevice->SetRenderTarget(0, pRC->m_OpaqueRT.GetNextTarget()->GetSurfaceLevel(0)));
 			V(pd3dDevice->SetFVF(D3DFVF_XYZRHW | D3DFVF_TEX1));
 			V(pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CW));
 			V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE));
@@ -591,9 +590,9 @@ void RenderPipeline::OnRender(
 			V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, quad, sizeof(quad[0])));
 			SsaoEffect->EndPass();
 			if (false)
-				D3DXSaveTextureToFileA("aaa.bmp", D3DXIFF_BMP, pRC->m_OcclusionRT->m_ptr, NULL);
+				D3DXSaveTextureToFileA("aaa.bmp", D3DXIFF_BMP, pRC->m_OpaqueRT.GetNextTarget()->m_ptr, NULL);
 
-			SsaoEffect->SetTexture(handle_OcclusionRT, pRC->m_OcclusionRT.get());
+			SsaoEffect->SetTexture(handle_OcclusionRT, pRC->m_OpaqueRT.GetNextTarget().get());
 			V(pd3dDevice->SetRenderTarget(0, LightSurf));
 			SsaoEffect->BeginPass(1);
 			V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, quad, sizeof(quad[0])));

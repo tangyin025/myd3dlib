@@ -281,8 +281,6 @@ public:
 
 		boost::shared_ptr<my::Texture2D> m_PositionRT;
 
-		boost::shared_ptr<my::Texture2D> m_OcclusionRT;
-
 		boost::shared_ptr<my::Texture2D> m_LightRT;
 
 		RTChain m_OpaqueRT;
