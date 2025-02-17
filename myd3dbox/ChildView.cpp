@@ -238,7 +238,7 @@ void CChildView::OnResetDevice(void)
 
 	ASSERT(!m_SpecularRT->m_ptr);
 	m_SpecularRT->CreateTexture(
-		m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A32B32G32R32F, D3DPOOL_DEFAULT);
+		m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT);
 
 	ASSERT(!m_PositionRT->m_ptr);
 	m_PositionRT->CreateTexture(

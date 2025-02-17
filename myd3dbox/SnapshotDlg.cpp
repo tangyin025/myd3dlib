@@ -400,7 +400,7 @@ void CSnapshotDlg::DoSnapshot()
 		desc.Width, desc.Height, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A32B32G32R32F, D3DPOOL_DEFAULT);
 	rc.m_SpecularRT.reset(new my::Texture2D());
 	rc.m_SpecularRT->CreateTexture(
-		desc.Width, desc.Height, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A32B32G32R32F, D3DPOOL_DEFAULT);
+		desc.Width, desc.Height, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT);
 	rc.m_PositionRT.reset(new my::Texture2D());
 	rc.m_PositionRT->CreateTexture(
 		desc.Width, desc.Height, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A32B32G32R32F, D3DPOOL_DEFAULT);
