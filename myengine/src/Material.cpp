@@ -44,6 +44,8 @@ BOOST_CLASS_EXPORT(MaterialParameterTexture)
 
 BOOST_CLASS_EXPORT(MaterialParameterInvWorldView)
 
+BOOST_CLASS_EXPORT(MaterialParameterFarZ)
+
 BOOST_CLASS_EXPORT(Material)
 
 bool MaterialParameter::operator == (const MaterialParameter & rhs) const
@@ -178,6 +180,12 @@ void MaterialParameterInvWorldView::Set(my::Effect * shader, LPARAM lparam, Rend
 	_ASSERT(m_Handle && m_Owner && m_Owner->m_Cmp);
 	Matrix4 InvWorldView = (m_Owner->m_Cmp->m_Actor->m_World * pRC->m_Camera->m_View).inverse();
 	shader->SetMatrix(m_Handle, InvWorldView);
+}
+
+void MaterialParameterFarZ::Set(my::Effect* shader, LPARAM lparam, RenderPipeline::IRenderContext* pRC)
+{
+	_ASSERT(m_Handle);
+	shader->SetFloat(m_Handle, pRC->m_Camera->m_Proj._43 / pRC->m_Camera->m_Proj._33);
 }
 
 template<class Archive>
@@ -348,8 +356,8 @@ void Material::ParseShaderParameters(void)
 
 	CachePtr cache = my::ResourceMgr::getSingleton().OpenIStream(m_Shader.c_str())->GetWholeCache();
 	cache->push_back(0);
-	//                     1 2     3       4        5        6        7         8              9                               10                11
-	boost::regex reg("^\\s*((int2)|(float)|(float2)|(float3)|(float4)|(texture)|(float4x4))\\s+(\\w+)\\s*:\\s*MaterialParameter(\\s*<[^>]+>)?\\s*(=\\s*[^;]+)?;");
+	//                     1 2     3       4        5        6        7             8                               9                 10
+	boost::regex reg("^\\s*((int2)|(float)|(float2)|(float3)|(float4)|(texture))\\s+(\\w+)\\s*:\\s*MaterialParameter(\\s*<[^>]+>)?\\s*(=\\s*[^;]+)?;");
 	boost::match_results<const char *> what;
 	const char * start = (const char *)&(*cache)[0];
 	const char * end = (const char *)&(*cache)[cache->size() - 1];
@@ -357,12 +365,23 @@ void Material::ParseShaderParameters(void)
 	dummy_params.swap(m_ParameterList);
 	for (; boost::regex_search(start, end, what, reg, boost::match_default); start = what[0].second)
 	{
-		std::string Name = what[9];
-		std::string Annotations = what[10];
-		std::string Initialize = what[11];
+		std::string Name = what[8];
+		std::string Annotations = what[9];
+		std::string Initialize = what[10];
 		MaterialParameterPtrList::const_iterator dummy_param_iter = boost::find_if(dummy_params,
 			boost::bind(std::equal_to<std::string>(), boost::bind(&MaterialParameter::m_Name, boost::bind(&MaterialParameterPtr::get, boost::placeholders::_1)), Name));
-		if (what[2].matched)
+
+		boost::regex reg_value("bool\\s+UseInvWorldView\\s*=\\s*true");
+		boost::match_results<std::string::const_iterator> what2;
+		if (boost::regex_search(Annotations, what2, reg_value, boost::match_default))
+		{
+			m_ParameterList.push_back(MaterialParameterPtr(new MaterialParameterInvWorldView(this, Name)));
+		}
+		else if (boost::regex_search(Annotations, what2, boost::regex("bool\\sUseFarZ\\s*=\\s*true"), boost::match_default))
+		{
+			m_ParameterList.push_back(MaterialParameterPtr(new MaterialParameterFarZ(this, Name)));
+		}
+		else if (what[2].matched)
 		{
 			CPoint Value(0, 0);
 			if (dummy_param_iter != dummy_params.end() && (*dummy_param_iter)->GetParameterType() == MaterialParameter::ParameterTypeInt2)
@@ -372,7 +391,6 @@ void Material::ParseShaderParameters(void)
 			else
 			{
 				boost::regex reg_value("(-?\\d+)\\s*,\\s*(-?\\d+)");
-				boost::match_results<std::string::const_iterator> what2;
 				if (boost::regex_search(Initialize, what2, reg_value, boost::match_default))
 				{
 					Value.x = boost::lexical_cast<int>(what2[1]);
@@ -381,7 +399,7 @@ void Material::ParseShaderParameters(void)
 			}
 			m_ParameterList.push_back(MaterialParameterPtr(new MaterialParameterInt2(this, Name, Value)));
 		}
-		if (what[3].matched)
+		else if (what[3].matched)
 		{
 			float Value = 0.0f;
 			if (dummy_param_iter != dummy_params.end() && (*dummy_param_iter)->GetParameterType() == MaterialParameter::ParameterTypeFloat)
@@ -391,7 +409,6 @@ void Material::ParseShaderParameters(void)
 			else
 			{
 				boost::regex reg_value("-?\\d+(\\.\\d+)?");
-				boost::match_results<std::string::const_iterator> what2;
 				if (boost::regex_search(Initialize, what2, reg_value, boost::match_default))
 				{
 					Value = boost::lexical_cast<float>(what2[0]);
@@ -409,7 +426,6 @@ void Material::ParseShaderParameters(void)
 			else
 			{
 				boost::regex reg_value("(-?\\d+(\\.\\d+)?)\\s*,\\s*(-?\\d+(\\.\\d+)?)");
-				boost::match_results<std::string::const_iterator> what2;
 				if (boost::regex_search(Initialize, what2, reg_value, boost::match_default))
 				{
 					Value.x = boost::lexical_cast<float>(what2[1]);
@@ -428,7 +444,6 @@ void Material::ParseShaderParameters(void)
 			else
 			{
 				boost::regex reg_value("(-?\\d+(\\.\\d+)?)\\s*,\\s*(-?\\d+(\\.\\d+)?)\\s*,\\s*(-?\\d+(\\.\\d+)?)");
-				boost::match_results<std::string::const_iterator> what2;
 				if (boost::regex_search(Initialize, what2, reg_value, boost::match_default))
 				{
 					Value.x = boost::lexical_cast<float>(what2[1]);
@@ -448,7 +463,6 @@ void Material::ParseShaderParameters(void)
 			else
 			{
 				boost::regex reg_value("(-?\\d+(\\.\\d+)?)\\s*,\\s*(-?\\d+(\\.\\d+)?)\\s*,\\s*(-?\\d+(\\.\\d+)?)\\s*,\\s*(-?\\d+(\\.\\d+)?)");
-				boost::match_results<std::string::const_iterator> what2;
 				if (boost::regex_search(Initialize, what2, reg_value, boost::match_default))
 				{
 					Value.x = boost::lexical_cast<float>(what2[1]);
@@ -469,22 +483,12 @@ void Material::ParseShaderParameters(void)
 			else
 			{
 				boost::regex reg_value("string\\s+path\\s*=\\s*\\\"([^\"]+)\\\"");
-				boost::match_results<std::string::const_iterator> what2;
 				if (boost::regex_search(Annotations, what2, reg_value, boost::match_default))
 				{
 					Path = what2[1];
 				}
 			}
 			m_ParameterList.push_back(MaterialParameterPtr(new MaterialParameterTexture(this, Name, Path)));
-		}
-		else if (what[8].matched)
-		{
-			boost::regex reg_value("bool\\s+UseInvWorldView\\s*=\\s*true");
-			boost::match_results<std::string::const_iterator> what2;
-			if (boost::regex_search(Annotations, what2, reg_value, boost::match_default))
-			{
-				m_ParameterList.push_back(MaterialParameterPtr(new MaterialParameterInvWorldView(this, Name)));
-			}
 		}
 	}
 
