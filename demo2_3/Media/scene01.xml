@@ -105,7 +105,7 @@
 						<m_Material class_id="11" tracking_level="0" version="1">
 							<px class_id="12" tracking_level="1" version="0" object_id="_5">
 								<m_Shader>shader/mtl_Splatmap.fx</m_Shader>
-								<m_PassMask>35</m_PassMask>
+								<m_PassMask>19</m_PassMask>
 								<m_CullMode>2</m_CullMode>
 								<m_ZEnable>1</m_ZEnable>
 								<m_ZWriteEnable>1</m_ZWriteEnable>
@@ -320,7 +320,7 @@ AAAAAAAAgEIAAAAAAACAPwAAAAAAAAD/
 						<m_Material>
 							<px class_id_reference="12" object_id="_37">
 								<m_Shader>shader/mtl_Skybox.fx</m_Shader>
-								<m_PassMask>16</m_PassMask>
+								<m_PassMask>8</m_PassMask>
 								<m_CullMode>3</m_CullMode>
 								<m_ZEnable>0</m_ZEnable>
 								<m_ZWriteEnable>1</m_ZWriteEnable>
@@ -366,7 +366,7 @@ AAAAAAAAgEIAAAAAAACAPwAAAAAAAAD/
 						<m_Material>
 							<px class_id_reference="12" object_id="_43">
 								<m_Shader>shader/mtl_Skybox.fx</m_Shader>
-								<m_PassMask>16</m_PassMask>
+								<m_PassMask>8</m_PassMask>
 								<m_CullMode>3</m_CullMode>
 								<m_ZEnable>0</m_ZEnable>
 								<m_ZWriteEnable>1</m_ZWriteEnable>
@@ -412,7 +412,7 @@ AAAAAAAAgEIAAAAAAACAPwAAAAAAAAD/
 						<m_Material>
 							<px class_id_reference="12" object_id="_49">
 								<m_Shader>shader/mtl_Skybox.fx</m_Shader>
-								<m_PassMask>16</m_PassMask>
+								<m_PassMask>8</m_PassMask>
 								<m_CullMode>3</m_CullMode>
 								<m_ZEnable>0</m_ZEnable>
 								<m_ZWriteEnable>1</m_ZWriteEnable>
@@ -458,7 +458,7 @@ AAAAAAAAgEIAAAAAAACAPwAAAAAAAAD/
 						<m_Material>
 							<px class_id_reference="12" object_id="_55">
 								<m_Shader>shader/mtl_Skybox.fx</m_Shader>
-								<m_PassMask>16</m_PassMask>
+								<m_PassMask>8</m_PassMask>
 								<m_CullMode>3</m_CullMode>
 								<m_ZEnable>0</m_ZEnable>
 								<m_ZWriteEnable>1</m_ZWriteEnable>
@@ -504,7 +504,7 @@ AAAAAAAAgEIAAAAAAACAPwAAAAAAAAD/
 						<m_Material>
 							<px class_id_reference="12" object_id="_61">
 								<m_Shader>shader/mtl_Skybox.fx</m_Shader>
-								<m_PassMask>16</m_PassMask>
+								<m_PassMask>8</m_PassMask>
 								<m_CullMode>3</m_CullMode>
 								<m_ZEnable>0</m_ZEnable>
 								<m_ZWriteEnable>1</m_ZWriteEnable>
@@ -550,7 +550,7 @@ AAAAAAAAgEIAAAAAAACAPwAAAAAAAAD/
 						<m_Material>
 							<px class_id_reference="12" object_id="_67">
 								<m_Shader>shader/mtl_Skybox.fx</m_Shader>
-								<m_PassMask>16</m_PassMask>
+								<m_PassMask>8</m_PassMask>
 								<m_CullMode>3</m_CullMode>
 								<m_ZEnable>0</m_ZEnable>
 								<m_ZWriteEnable>1</m_ZWriteEnable>
@@ -640,7 +640,7 @@ AAAAAAAAgEIAAAAAAACAPwAAAAAAAAD/
 						<m_Material>
 							<px class_id_reference="12" object_id="_75">
 								<m_Shader>shader/mtl_BlinnPhong.fx</m_Shader>
-								<m_PassMask>35</m_PassMask>
+								<m_PassMask>19</m_PassMask>
 								<m_CullMode>2</m_CullMode>
 								<m_ZEnable>1</m_ZEnable>
 								<m_ZWriteEnable>1</m_ZWriteEnable>
