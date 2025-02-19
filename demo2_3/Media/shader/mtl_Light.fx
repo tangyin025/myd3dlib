@@ -44,9 +44,6 @@ technique RenderScene
     pass PassTypeNormal
     {          
     }
-    pass PassTypeNormalTrans
-    {          
-    }
     pass PassTypeLight
     {          
 		VertexShader = compile vs_3_0 LightVS();

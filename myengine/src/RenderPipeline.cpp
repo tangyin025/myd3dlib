@@ -221,8 +221,6 @@ const char * RenderPipeline::PassTypeToStr(unsigned int pass_type)
 		return "PassTypeShadow";
 	case PassTypeNormal:
 		return "PassTypeNormal";
-	case PassTypeNormalTransparent:
-		return "PassTypeNormalTransparent";
 	case PassTypeLight:
 		return "PassTypeLight";
 	case PassTypeBackground:
@@ -529,7 +527,7 @@ void RenderPipeline::OnRender(
 		ShadowSurf.Release();
 	}
 
-	pRC->QueryRenderComponent(Frustum::ExtractMatrix(pRC->m_Camera->m_ViewProj), this, PassTypeToMask(PassTypeNormal) | PassTypeToMask(PassTypeNormalTransparent) | PassTypeToMask(PassTypeLight) | PassTypeToMask(PassTypeBackground) | PassTypeToMask(PassTypeOpaque) | PassTypeToMask(PassTypeTransparent));
+	pRC->QueryRenderComponent(Frustum::ExtractMatrix(pRC->m_Camera->m_ViewProj), this, PassTypeToMask(PassTypeNormal) | PassTypeToMask(PassTypeLight) | PassTypeToMask(PassTypeBackground) | PassTypeToMask(PassTypeOpaque) | PassTypeToMask(PassTypeTransparent));
 
 	CComPtr<IDirect3DSurface9> NormalSurf = pRC->m_NormalRT->GetSurfaceLevel(0);
 	CComPtr<IDirect3DSurface9> SpecularSurf = pRC->m_SpecularRT->GetSurfaceLevel(0);
@@ -552,15 +550,12 @@ void RenderPipeline::OnRender(
 	V(pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, 0, 0.0f, 0));
 	RenderAllObjects(pd3dDevice, PassTypeNormal, pRC, fTime, fElapsedTime);
 
-	m_SimpleSample->SetTexture(handle_PositionRT, pRC->m_PositionRT.get());
-	V(pd3dDevice->SetRenderTarget(2, NULL));
-	RenderAllObjects(pd3dDevice, PassTypeNormalTransparent, pRC, fTime, fElapsedTime);
-
 	CComPtr<IDirect3DSurface9> LightSurf = pRC->m_LightRT->GetSurfaceLevel(0);
 	m_SimpleSample->SetTexture(handle_NormalRT, pRC->m_NormalRT.get());
 	m_SimpleSample->SetTexture(handle_SpecularRT, pRC->m_SpecularRT.get());
 	m_SimpleSample->SetTexture(handle_PositionRT, pRC->m_PositionRT.get());
 	V(pd3dDevice->SetRenderTarget(1, NULL));
+	V(pd3dDevice->SetRenderTarget(2, NULL));
 	if (pRC->m_SsaoEnable)
 	{
 		D3DXMACRO macro[] = { { 0 } };

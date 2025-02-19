@@ -356,8 +356,8 @@ void Material::ParseShaderParameters(void)
 
 	CachePtr cache = my::ResourceMgr::getSingleton().OpenIStream(m_Shader.c_str())->GetWholeCache();
 	cache->push_back(0);
-	//                     1 2     3       4        5        6        7             8                               9                 10
-	boost::regex reg("^\\s*((int2)|(float)|(float2)|(float3)|(float4)|(texture))\\s+(\\w+)\\s*:\\s*MaterialParameter(\\s*<[^>]+>)?\\s*(=\\s*[^;]+)?;");
+	//                     1 2     3       4        5        6        7         8              9                               10                11
+	boost::regex reg("^\\s*((int2)|(float)|(float2)|(float3)|(float4)|(texture)|(float4x4))\\s+(\\w+)\\s*:\\s*MaterialParameter(\\s*<[^>]+>)?\\s*(=\\s*[^;]+)?;");
 	boost::match_results<const char *> what;
 	const char * start = (const char *)&(*cache)[0];
 	const char * end = (const char *)&(*cache)[cache->size() - 1];
@@ -365,9 +365,9 @@ void Material::ParseShaderParameters(void)
 	dummy_params.swap(m_ParameterList);
 	for (; boost::regex_search(start, end, what, reg, boost::match_default); start = what[0].second)
 	{
-		std::string Name = what[8];
-		std::string Annotations = what[9];
-		std::string Initialize = what[10];
+		std::string Name = what[9];
+		std::string Annotations = what[10];
+		std::string Initialize = what[11];
 		MaterialParameterPtrList::const_iterator dummy_param_iter = boost::find_if(dummy_params,
 			boost::bind(std::equal_to<std::string>(), boost::bind(&MaterialParameter::m_Name, boost::bind(&MaterialParameterPtr::get, boost::placeholders::_1)), Name));
 
@@ -492,14 +492,14 @@ void Material::ParseShaderParameters(void)
 		}
 	}
 
-	//                             1 2               3                4                     5               6                    7                8                     9                      10
-	boost::regex reg_pass("pass\\s+((PassTypeShadow)|(PassTypeNormal)|(PassTypeNormalTransparent)|(PassTypeLight)|(PassTypeBackground)|(PassTypeOpaque)|(PassTypeTransparent))(\\s*<[^>]+>)?\\s*{\\s*(\\w*)[^}]*}");
+	//                             1 2               3                4               5                    6                7                     8                      9
+	boost::regex reg_pass("pass\\s+((PassTypeShadow)|(PassTypeNormal)|(PassTypeLight)|(PassTypeBackground)|(PassTypeOpaque)|(PassTypeTransparent))(\\s*<[^>]+>)?\\s*{\\s*(\\w*)[^}]*}");
 	start = (const char *)&(*cache)[0];
 	end = (const char *)&(*cache)[cache->size() - 1];
 	m_PassMask = 0;
 	for (; boost::regex_search(start, end, what, reg_pass, boost::match_default); start = what[0].second)
 	{
-		std::string assignment = what[10];
+		std::string assignment = what[9];
 		if (what[2].matched)
 		{
 			if (!assignment.empty())
@@ -518,31 +518,24 @@ void Material::ParseShaderParameters(void)
 		{
 			if (!assignment.empty())
 			{
-				m_PassMask |= 1 << RenderPipeline::PassTypeNormalTransparent;
+				m_PassMask |= 1 << RenderPipeline::PassTypeLight;
 			}
 		}
 		else if (what[5].matched)
 		{
 			if (!assignment.empty())
 			{
-				m_PassMask |= 1 << RenderPipeline::PassTypeLight;
+				m_PassMask |= 1 << RenderPipeline::PassTypeBackground;
 			}
 		}
 		else if (what[6].matched)
 		{
 			if (!assignment.empty())
 			{
-				m_PassMask |= 1 << RenderPipeline::PassTypeBackground;
-			}
-		}
-		else if (what[7].matched)
-		{
-			if (!assignment.empty())
-			{
 				m_PassMask |= 1 << RenderPipeline::PassTypeOpaque;
 			}
 		}
-		else if (what[8].matched)
+		else if (what[7].matched)
 		{
 			if (!assignment.empty())
 			{

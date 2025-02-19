@@ -133,12 +133,6 @@ technique RenderScene
     }
     pass PassTypeNormal
     {          
-    }
-    pass PassTypeNormalTrans
-    {          
-		BlendOp = ADD;
-		SrcBlend = SRCALPHA;
-		DestBlend = ONE;
         VertexShader = compile vs_3_0 NormalVS();
         PixelShader  = compile ps_3_0 NormalPS(); 
     }
@@ -150,10 +144,10 @@ technique RenderScene
 	}
     pass PassTypeOpaque
     {          
+        VertexShader = compile vs_3_0 OpaqueVS();
+        PixelShader  = compile ps_3_0 OpaquePS(); 
     }
     pass PassTypeTransparent
     {          
-        VertexShader = compile vs_3_0 OpaqueVS();
-        PixelShader  = compile ps_3_0 OpaquePS(); 
     }
 }

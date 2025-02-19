@@ -117,9 +117,6 @@ technique RenderScene
     pass PassTypeNormal
     {          
     }
-    pass PassTypeNormalTrans
-    {          
-    }
     pass PassTypeLight
     {          
     }

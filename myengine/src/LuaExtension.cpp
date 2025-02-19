@@ -2893,8 +2893,7 @@ void LuaContext::Init(void)
 				value("PassMaskOpaque", Material::PassMaskOpaque),
 				value("PassMaskNormalOpaque", Material::PassMaskNormalOpaque),
 				value("PassMaskShadowNormalOpaque", Material::PassMaskShadowNormalOpaque),
-				value("PassMaskTransparent", Material::PassMaskTransparent),
-				value("PassMaskNormalTransparent", Material::PassMaskNormalTransparent)
+				value("PassMaskTransparent", Material::PassMaskTransparent)
 			]
 			.def(constructor<>())
 			.def_readonly("Cmp", &Material::m_Cmp)
@@ -3538,7 +3537,6 @@ void LuaContext::Init(void)
 			[
 				luabind::value("PassTypeShadow", RenderPipeline::PassTypeShadow),
 				luabind::value("PassTypeNormal", RenderPipeline::PassTypeNormal),
-				luabind::value("PassTypeNormalTransparent", RenderPipeline::PassTypeNormalTransparent),
 				luabind::value("PassTypeLight", RenderPipeline::PassTypeLight),
 				luabind::value("PassTypeBackground", RenderPipeline::PassTypeBackground),
 				luabind::value("PassTypeOpaque", RenderPipeline::PassTypeOpaque),

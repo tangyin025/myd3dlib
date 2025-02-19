@@ -43,11 +43,10 @@ public:
 	{
 		PassTypeShadow			= 0,
 		PassTypeNormal			= 1,
-		PassTypeNormalTransparent	= 2,
-		PassTypeLight			= 3,
-		PassTypeBackground		= 4,
-		PassTypeOpaque			= 5,
-		PassTypeTransparent		= 6,
+		PassTypeLight			= 2,
+		PassTypeBackground		= 3,
+		PassTypeOpaque			= 4,
+		PassTypeTransparent		= 5,
 		PassTypeNum
 	};
 
