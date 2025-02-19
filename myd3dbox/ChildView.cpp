@@ -2349,61 +2349,61 @@ void CChildView::OnMouseMove(UINT nFlags, CPoint point)
 			case CMainFrame::ControlHandleLeftTop:
 				(*ctrl_iter)->m_x.offset = pt.x - pFrame->m_ctlhandleoff.x;
 				(*ctrl_iter)->m_y.offset = pt.y - pFrame->m_ctlhandleoff.y;
-				ALIGN_TO_GRID((*ctrl_iter)->m_x.offset);
-				ALIGN_TO_GRID((*ctrl_iter)->m_y.offset);
+				ALIGN_TO_VALUE((*ctrl_iter)->m_x.offset, 5.0f);
+				ALIGN_TO_VALUE((*ctrl_iter)->m_y.offset, 5.0f);
 				(*ctrl_iter)->m_Width.offset = pFrame->m_ctlhandlesz.x - (*ctrl_iter)->m_x.offset;
 				(*ctrl_iter)->m_Height.offset = pFrame->m_ctlhandlesz.y - (*ctrl_iter)->m_y.offset;
 				(*ctrl_iter)->OnLayout();
 				break;
 			case CMainFrame::ControlHandleCenterTop:
 				(*ctrl_iter)->m_y.offset = pt.y - pFrame->m_ctlhandleoff.y;
-				ALIGN_TO_GRID((*ctrl_iter)->m_y.offset);
+				ALIGN_TO_VALUE((*ctrl_iter)->m_y.offset, 5.0f);
 				(*ctrl_iter)->m_Height.offset = pFrame->m_ctlhandlesz.y - (*ctrl_iter)->m_y.offset;
 				(*ctrl_iter)->OnLayout();
 				break;
 			case CMainFrame::ControlHandleRightTop:
 				(*ctrl_iter)->m_y.offset = pt.y - pFrame->m_ctlhandleoff.y;
 				(*ctrl_iter)->m_Width.offset = pFrame->m_ctlhandlesz.x + pt.x;
-				ALIGN_TO_GRID((*ctrl_iter)->m_y.offset);
-				ALIGN_TO_GRID((*ctrl_iter)->m_Width.offset);
+				ALIGN_TO_VALUE((*ctrl_iter)->m_y.offset, 5.0f);
+				ALIGN_TO_VALUE((*ctrl_iter)->m_Width.offset, 5.0f);
 				(*ctrl_iter)->m_Height.offset = pFrame->m_ctlhandlesz.y - (*ctrl_iter)->m_y.offset;
 				(*ctrl_iter)->OnLayout();
 				break;
 			case CMainFrame::ControlHandleLeftMiddle:
 				(*ctrl_iter)->m_x.offset = pt.x - pFrame->m_ctlhandleoff.x;
-				ALIGN_TO_GRID((*ctrl_iter)->m_x.offset);
+				ALIGN_TO_VALUE((*ctrl_iter)->m_x.offset, 5.0f);
 				(*ctrl_iter)->m_Width.offset = pFrame->m_ctlhandlesz.x - (*ctrl_iter)->m_x.offset;
 				(*ctrl_iter)->OnLayout();
 				break;
 			case CMainFrame::ControlHandleCenterMiddle:
 				(*ctrl_iter)->m_x.offset = pt.x - pFrame->m_ctlhandleoff.x;
 				(*ctrl_iter)->m_y.offset = pt.y - pFrame->m_ctlhandleoff.y;
-				ALIGN_TO_GRID((*ctrl_iter)->m_x.offset);
-				ALIGN_TO_GRID((*ctrl_iter)->m_y.offset);
+				ALIGN_TO_VALUE((*ctrl_iter)->m_x.offset, 5.0f);
+				ALIGN_TO_VALUE((*ctrl_iter)->m_y.offset, 5.0f);
 				break;
 			case CMainFrame::ControlHandleRightMiddle:
 				(*ctrl_iter)->m_Width.offset = pFrame->m_ctlhandlesz.x + pt.x;
-				ALIGN_TO_GRID((*ctrl_iter)->m_Width.offset);
+				ALIGN_TO_VALUE((*ctrl_iter)->m_Width.offset, 5.0f);
 				(*ctrl_iter)->OnLayout();
 				break;
 			case CMainFrame::ControlHandleLeftBottom:
 				(*ctrl_iter)->m_x.offset = pt.x - pFrame->m_ctlhandleoff.x;
 				(*ctrl_iter)->m_Height.offset = pFrame->m_ctlhandlesz.y + pt.y;
-				ALIGN_TO_GRID((*ctrl_iter)->m_x.offset);
-				ALIGN_TO_GRID((*ctrl_iter)->m_Height.offset);
+				ALIGN_TO_VALUE((*ctrl_iter)->m_x.offset, 5.0f);
+				ALIGN_TO_VALUE((*ctrl_iter)->m_Height.offset, 5.0f);
 				(*ctrl_iter)->m_Width.offset = pFrame->m_ctlhandlesz.x - (*ctrl_iter)->m_x.offset;
 				(*ctrl_iter)->OnLayout();
 				break;
 			case CMainFrame::ControlHandleCenterBottom:
 				(*ctrl_iter)->m_Height.offset = pFrame->m_ctlhandlesz.y + pt.y;
-				ALIGN_TO_GRID((*ctrl_iter)->m_Height.offset);
+				ALIGN_TO_VALUE((*ctrl_iter)->m_Height.offset, 5.0f);
 				(*ctrl_iter)->OnLayout();
 				break;
 			case CMainFrame::ControlHandleRightBottom:
 				(*ctrl_iter)->m_Width.offset = pFrame->m_ctlhandlesz.x + pt.x;
 				(*ctrl_iter)->m_Height.offset = pFrame->m_ctlhandlesz.y + pt.y;
-				ALIGN_TO_GRID((*ctrl_iter)->m_Width.offset);
-				ALIGN_TO_GRID((*ctrl_iter)->m_Height.offset);
+				ALIGN_TO_VALUE((*ctrl_iter)->m_Width.offset, 5.0f);
+				ALIGN_TO_VALUE((*ctrl_iter)->m_Height.offset, 5.0f);
 				(*ctrl_iter)->OnLayout();
 				break;
 			}

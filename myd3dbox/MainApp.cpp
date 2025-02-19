@@ -344,6 +344,7 @@ BOOL CMainApp::InitInstance()
 	// such as the name of your company or organization
 	SetRegistryKey(_T("Local AppWizard-Generated Applications"));
 	LoadStdProfileSettings(4);  // Load standard INI file options (including MRU)
+	default_snap_to_grid = GetProfileInt(_T("Settings"), _T("SnapToGrid"), FALSE);
 
 	InitContextMenuManager();
 
@@ -380,7 +381,7 @@ BOOL CMainApp::InitInstance()
 		("default_grid_subdivisions", boost::program_options::value(&default_grid_subdivisions)->default_value(5), "Default grid subdivisions")
 		("default_grid_color", boost::program_options::value(&default_grid_color)->default_value(D3DCOLOR_ARGB(255, 127, 127, 127)), "Default grid color")
 		("default_grid_axis_color", boost::program_options::value(&default_grid_axis_color)->default_value(D3DCOLOR_ARGB(255, 0, 0, 0)), "Default grid axis color")
-		("default_snap_to_grid", boost::program_options::value(&default_snap_to_grid)->default_value(false), "Default snap to grid")
+		//("default_snap_to_grid", boost::program_options::value(&default_snap_to_grid)->default_value(FALSE), "Default snap to grid")
 		("default_script_pattern", boost::program_options::value(&default_script_pattern)->default_value("scripts/*.lua"), "Default script pattern")
 		("default_emitter_chunk_width", boost::program_options::value(&default_emitter_chunk_width)->default_value(4.0f), "Default emitter chunk width")
 		("default_font_path", boost::program_options::value(&default_font_path)->default_value("font/SourceHanSansCN-Regular.otf"), "Default font")
@@ -851,6 +852,8 @@ int CMainApp::ExitInstance()
 {
 	// TODO: Add your specialized code here and/or call the base class
 	PhysxSdk::Shutdown();
+
+	WriteProfileInt(_T("Settings"), _T("SnapToGrid"), default_snap_to_grid);
 
 	return CWinAppEx::ExitInstance();
 }
