@@ -49,6 +49,7 @@ public:
 	unsigned int default_grid_subdivisions;
 	D3DCOLOR default_grid_color;
 	D3DCOLOR default_grid_axis_color;
+	float default_ui_grid_size;
 	BOOL default_snap_to_grid;
 	std::string default_script_pattern;
 	float default_emitter_chunk_width;

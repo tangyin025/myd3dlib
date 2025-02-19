@@ -2303,8 +2303,6 @@ void CChildView::OnLButtonDblClk(UINT nFlags, CPoint point)
 
 #define ALIGN_TO_VALUE(v, a)  if ((GetKeyState('X') & 0x8000) ? !theApp.default_snap_to_grid : theApp.default_snap_to_grid) (v) = my::Terrace((v), (a));
 
-#define ALIGN_TO_GRID(v) ALIGN_TO_VALUE(v, theApp.default_grid_lines_every / theApp.default_grid_subdivisions);
-
 void CChildView::OnMouseMove(UINT nFlags, CPoint point)
 {
 	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
@@ -2349,61 +2347,61 @@ void CChildView::OnMouseMove(UINT nFlags, CPoint point)
 			case CMainFrame::ControlHandleLeftTop:
 				(*ctrl_iter)->m_x.offset = pt.x - pFrame->m_ctlhandleoff.x;
 				(*ctrl_iter)->m_y.offset = pt.y - pFrame->m_ctlhandleoff.y;
-				ALIGN_TO_VALUE((*ctrl_iter)->m_x.offset, 5.0f);
-				ALIGN_TO_VALUE((*ctrl_iter)->m_y.offset, 5.0f);
+				ALIGN_TO_VALUE((*ctrl_iter)->m_x.offset, theApp.default_ui_grid_size);
+				ALIGN_TO_VALUE((*ctrl_iter)->m_y.offset, theApp.default_ui_grid_size);
 				(*ctrl_iter)->m_Width.offset = pFrame->m_ctlhandlesz.x - (*ctrl_iter)->m_x.offset;
 				(*ctrl_iter)->m_Height.offset = pFrame->m_ctlhandlesz.y - (*ctrl_iter)->m_y.offset;
 				(*ctrl_iter)->OnLayout();
 				break;
 			case CMainFrame::ControlHandleCenterTop:
 				(*ctrl_iter)->m_y.offset = pt.y - pFrame->m_ctlhandleoff.y;
-				ALIGN_TO_VALUE((*ctrl_iter)->m_y.offset, 5.0f);
+				ALIGN_TO_VALUE((*ctrl_iter)->m_y.offset, theApp.default_ui_grid_size);
 				(*ctrl_iter)->m_Height.offset = pFrame->m_ctlhandlesz.y - (*ctrl_iter)->m_y.offset;
 				(*ctrl_iter)->OnLayout();
 				break;
 			case CMainFrame::ControlHandleRightTop:
 				(*ctrl_iter)->m_y.offset = pt.y - pFrame->m_ctlhandleoff.y;
 				(*ctrl_iter)->m_Width.offset = pFrame->m_ctlhandlesz.x + pt.x;
-				ALIGN_TO_VALUE((*ctrl_iter)->m_y.offset, 5.0f);
-				ALIGN_TO_VALUE((*ctrl_iter)->m_Width.offset, 5.0f);
+				ALIGN_TO_VALUE((*ctrl_iter)->m_y.offset, theApp.default_ui_grid_size);
+				ALIGN_TO_VALUE((*ctrl_iter)->m_Width.offset, theApp.default_ui_grid_size);
 				(*ctrl_iter)->m_Height.offset = pFrame->m_ctlhandlesz.y - (*ctrl_iter)->m_y.offset;
 				(*ctrl_iter)->OnLayout();
 				break;
 			case CMainFrame::ControlHandleLeftMiddle:
 				(*ctrl_iter)->m_x.offset = pt.x - pFrame->m_ctlhandleoff.x;
-				ALIGN_TO_VALUE((*ctrl_iter)->m_x.offset, 5.0f);
+				ALIGN_TO_VALUE((*ctrl_iter)->m_x.offset, theApp.default_ui_grid_size);
 				(*ctrl_iter)->m_Width.offset = pFrame->m_ctlhandlesz.x - (*ctrl_iter)->m_x.offset;
 				(*ctrl_iter)->OnLayout();
 				break;
 			case CMainFrame::ControlHandleCenterMiddle:
 				(*ctrl_iter)->m_x.offset = pt.x - pFrame->m_ctlhandleoff.x;
 				(*ctrl_iter)->m_y.offset = pt.y - pFrame->m_ctlhandleoff.y;
-				ALIGN_TO_VALUE((*ctrl_iter)->m_x.offset, 5.0f);
-				ALIGN_TO_VALUE((*ctrl_iter)->m_y.offset, 5.0f);
+				ALIGN_TO_VALUE((*ctrl_iter)->m_x.offset, theApp.default_ui_grid_size);
+				ALIGN_TO_VALUE((*ctrl_iter)->m_y.offset, theApp.default_ui_grid_size);
 				break;
 			case CMainFrame::ControlHandleRightMiddle:
 				(*ctrl_iter)->m_Width.offset = pFrame->m_ctlhandlesz.x + pt.x;
-				ALIGN_TO_VALUE((*ctrl_iter)->m_Width.offset, 5.0f);
+				ALIGN_TO_VALUE((*ctrl_iter)->m_Width.offset, theApp.default_ui_grid_size);
 				(*ctrl_iter)->OnLayout();
 				break;
 			case CMainFrame::ControlHandleLeftBottom:
 				(*ctrl_iter)->m_x.offset = pt.x - pFrame->m_ctlhandleoff.x;
 				(*ctrl_iter)->m_Height.offset = pFrame->m_ctlhandlesz.y + pt.y;
-				ALIGN_TO_VALUE((*ctrl_iter)->m_x.offset, 5.0f);
-				ALIGN_TO_VALUE((*ctrl_iter)->m_Height.offset, 5.0f);
+				ALIGN_TO_VALUE((*ctrl_iter)->m_x.offset, theApp.default_ui_grid_size);
+				ALIGN_TO_VALUE((*ctrl_iter)->m_Height.offset, theApp.default_ui_grid_size);
 				(*ctrl_iter)->m_Width.offset = pFrame->m_ctlhandlesz.x - (*ctrl_iter)->m_x.offset;
 				(*ctrl_iter)->OnLayout();
 				break;
 			case CMainFrame::ControlHandleCenterBottom:
 				(*ctrl_iter)->m_Height.offset = pFrame->m_ctlhandlesz.y + pt.y;
-				ALIGN_TO_VALUE((*ctrl_iter)->m_Height.offset, 5.0f);
+				ALIGN_TO_VALUE((*ctrl_iter)->m_Height.offset, theApp.default_ui_grid_size);
 				(*ctrl_iter)->OnLayout();
 				break;
 			case CMainFrame::ControlHandleRightBottom:
 				(*ctrl_iter)->m_Width.offset = pFrame->m_ctlhandlesz.x + pt.x;
 				(*ctrl_iter)->m_Height.offset = pFrame->m_ctlhandlesz.y + pt.y;
-				ALIGN_TO_VALUE((*ctrl_iter)->m_Width.offset, 5.0f);
-				ALIGN_TO_VALUE((*ctrl_iter)->m_Height.offset, 5.0f);
+				ALIGN_TO_VALUE((*ctrl_iter)->m_Width.offset, theApp.default_ui_grid_size);
+				ALIGN_TO_VALUE((*ctrl_iter)->m_Height.offset, theApp.default_ui_grid_size);
 				(*ctrl_iter)->OnLayout();
 				break;
 			}
@@ -2459,33 +2457,33 @@ void CChildView::OnMouseMove(UINT nFlags, CPoint point)
 				{
 				case Pivot::PivotDragAxisX:
 					(*sel_iter)->m_Position.x = pose.m_position.x + pFrame->m_Pivot.m_Pos.x - pFrame->m_Pivot.m_DragRot.x;
-					ALIGN_TO_GRID((*sel_iter)->m_Position.x);
+					ALIGN_TO_VALUE((*sel_iter)->m_Position.x, theApp.default_grid_lines_every / theApp.default_grid_subdivisions);
 					break;
 				case Pivot::PivotDragAxisY:
 					(*sel_iter)->m_Position.y = pose.m_position.y + pFrame->m_Pivot.m_Pos.y - pFrame->m_Pivot.m_DragRot.y;
-					ALIGN_TO_GRID((*sel_iter)->m_Position.y);
+					ALIGN_TO_VALUE((*sel_iter)->m_Position.y, theApp.default_grid_lines_every / theApp.default_grid_subdivisions);
 					break;
 				case Pivot::PivotDragAxisZ:
 					(*sel_iter)->m_Position.z = pose.m_position.z + pFrame->m_Pivot.m_Pos.z - pFrame->m_Pivot.m_DragRot.z;
-					ALIGN_TO_GRID((*sel_iter)->m_Position.z);
+					ALIGN_TO_VALUE((*sel_iter)->m_Position.z, theApp.default_grid_lines_every / theApp.default_grid_subdivisions);
 					break;
 				case Pivot::PivotDragPlanX:
 					(*sel_iter)->m_Position.y = pose.m_position.y + pFrame->m_Pivot.m_Pos.y - pFrame->m_Pivot.m_DragRot.y;
 					(*sel_iter)->m_Position.z = pose.m_position.z + pFrame->m_Pivot.m_Pos.z - pFrame->m_Pivot.m_DragRot.z;
-					ALIGN_TO_GRID((*sel_iter)->m_Position.y);
-					ALIGN_TO_GRID((*sel_iter)->m_Position.z);
+					ALIGN_TO_VALUE((*sel_iter)->m_Position.y, theApp.default_grid_lines_every / theApp.default_grid_subdivisions);
+					ALIGN_TO_VALUE((*sel_iter)->m_Position.z, theApp.default_grid_lines_every / theApp.default_grid_subdivisions);
 					break;
 				case Pivot::PivotDragPlanY:
 					(*sel_iter)->m_Position.x = pose.m_position.x + pFrame->m_Pivot.m_Pos.x - pFrame->m_Pivot.m_DragRot.x;
 					(*sel_iter)->m_Position.z = pose.m_position.z + pFrame->m_Pivot.m_Pos.z - pFrame->m_Pivot.m_DragRot.z;
-					ALIGN_TO_GRID((*sel_iter)->m_Position.x);
-					ALIGN_TO_GRID((*sel_iter)->m_Position.z);
+					ALIGN_TO_VALUE((*sel_iter)->m_Position.x, theApp.default_grid_lines_every / theApp.default_grid_subdivisions);
+					ALIGN_TO_VALUE((*sel_iter)->m_Position.z, theApp.default_grid_lines_every / theApp.default_grid_subdivisions);
 					break;
 				case Pivot::PivotDragPlanZ:
 					(*sel_iter)->m_Position.x = pose.m_position.x + pFrame->m_Pivot.m_Pos.x - pFrame->m_Pivot.m_DragRot.x;
 					(*sel_iter)->m_Position.y = pose.m_position.y + pFrame->m_Pivot.m_Pos.y - pFrame->m_Pivot.m_DragRot.y;
-					ALIGN_TO_GRID((*sel_iter)->m_Position.x);
-					ALIGN_TO_GRID((*sel_iter)->m_Position.y);
+					ALIGN_TO_VALUE((*sel_iter)->m_Position.x, theApp.default_grid_lines_every / theApp.default_grid_subdivisions);
+					ALIGN_TO_VALUE((*sel_iter)->m_Position.y, theApp.default_grid_lines_every / theApp.default_grid_subdivisions);
 					break;
 				}
 				(*sel_iter)->UpdateWorld();
