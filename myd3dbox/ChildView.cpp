@@ -256,7 +256,7 @@ void CChildView::OnResetDevice(void)
 
 		ASSERT(!m_DownFilterRT.m_RenderTarget[i]->m_ptr);
 		m_DownFilterRT.m_RenderTarget[i]->CreateTexture(
-			m_SwapChainBufferDesc.Width / 4, m_SwapChainBufferDesc.Height / 4, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT);
+			m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT);
 	}
 
 	ASSERT(!m_OffscreenPositionRT->m_ptr);

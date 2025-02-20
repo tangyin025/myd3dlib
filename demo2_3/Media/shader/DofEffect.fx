@@ -71,7 +71,7 @@ float4 ColorBGlurH( VS_OUTPUT In ) : COLOR0
 
     for (int i = 0; i < g_cKernelSize; i++)
     {    
-        Color += tex2D( DownFilterRTSampler, In.TextureUV + PixelKernelH[i].xy / g_ScreenDim * 4 ) * BlurWeights[i];
+        Color += tex2D( DownFilterRTSampler, In.TextureUV + PixelKernelH[i].xy / g_ScreenDim ) * BlurWeights[i];
     }
     
     return Color;
@@ -83,7 +83,7 @@ float4 ColorBGlurV( VS_OUTPUT In ) : COLOR0
 
     for (int i = 0; i < g_cKernelSize; i++)
     {    
-        Color += tex2D( DownFilterRTSampler, In.TextureUV + PixelKernelV[i].xy / g_ScreenDim * 4 ) * BlurWeights[i];
+        Color += tex2D( DownFilterRTSampler, In.TextureUV + PixelKernelV[i].xy / g_ScreenDim ) * BlurWeights[i];
     }
     
     return Color;

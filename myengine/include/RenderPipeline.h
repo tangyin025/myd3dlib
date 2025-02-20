@@ -485,8 +485,6 @@ public:
 
 	static const char * PassTypeToStr(unsigned int pass_type);
 
-	static void UpdateQuad(QuadVertex * quad, const my::Vector2 & dim);
-
 	HRESULT OnCreateDevice(
 		IDirect3DDevice9 * pd3dDevice,
 		const D3DSURFACE_DESC * pBackBufferSurfaceDesc);
