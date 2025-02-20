@@ -67,6 +67,7 @@ struct VS_OUTPUT
 {
     float4 Position   : POSITION;   // vertex position 
     float2 TextureUV  : TEXCOORD0;  // vertex texture coords 
+    float2 TextureUV2  : TEXCOORD1;  // vertex texture coords 
 };
 
 float4 ExtractBright(VS_OUTPUT In) : COLOR0
@@ -102,7 +103,7 @@ float4 ColorBGlurV( VS_OUTPUT In ) : COLOR0
 
 float4 BloomPS( VS_OUTPUT In ) : COLOR0
 {
-    float3 ColorOrig = tex2D( OpaqueRTSampler, In.TextureUV );
+    float3 ColorOrig = tex2D( OpaqueRTSampler, In.TextureUV2 );
 
     float3 ColorBlur = tex2D( DownFilterRTSampler, In.TextureUV );
 	

@@ -467,6 +467,7 @@ public:
 	{
 		float x, y, z, rhw;
 		float u, v;
+		float u2, v2;
 	};
 
 public:

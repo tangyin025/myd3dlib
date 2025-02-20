@@ -434,33 +434,42 @@ void RenderPipeline::OnDestroyDevice(void)
 
 static void _UpdateQuad(RenderPipeline::QuadVertex* quad, const my::Vector2& Dim, const my::Vector2& Extent, const my::Vector2& Scale)
 {
+	// https://github.com/microsoft/DirectX-SDK-Samples/blob/main/C++/Direct3D/PostProcess/PostProcess.cpp#L1177
 	quad[0].x = -0.5f;
 	quad[0].y = -0.5f;
 	quad[0].z = 1.0f;
 	quad[0].rhw = 1.0f;
 	quad[0].u = 0.0f;
 	quad[0].v = 0.0f;
+	quad[0].u2 = 0.0f;
+	quad[0].v2 = 0.0f;
 
 	quad[1].x = -0.5f;
-	quad[1].y = Dim.y - 0.5f;
+	quad[1].y = Dim.y * Scale.y - 0.5f;
 	quad[1].z = 1.0f;
 	quad[1].rhw = 1.0f;
 	quad[1].u = 0.0f;
-	quad[1].v = 1.0f;
+	quad[1].v = Extent.y;
+	quad[1].u2 = 0.0f;
+	quad[1].v2 = 1.0f;
 
-	quad[2].x = Dim.x - 0.5f;
-	quad[2].y = Dim.y - 0.5f;
+	quad[2].x = Dim.x * Scale.x - 0.5f;
+	quad[2].y = Dim.y * Scale.y - 0.5f;
 	quad[2].z = 1.0f;
 	quad[2].rhw = 1.0f;
-	quad[2].u = 1.0f;
-	quad[2].v = 1.0f;
+	quad[2].u = Extent.x;
+	quad[2].v = Extent.y;
+	quad[2].u2 = 1.0f;
+	quad[2].v2 = 1.0f;
 
-	quad[3].x = Dim.x - 0.5f;
+	quad[3].x = Dim.x * Scale.x - 0.5f;
 	quad[3].y = -0.5f;
 	quad[3].z = 1.0f;
 	quad[3].rhw = 1.0f;
-	quad[3].u = 1.0f;
+	quad[3].u = Extent.x;
 	quad[3].v = 0.0f;
+	quad[3].u2 = 1.0f;
+	quad[3].v2 = 0.0f;
 }
 
 void RenderPipeline::OnRender(
@@ -568,7 +577,7 @@ void RenderPipeline::OnRender(
 			}
 
 			V(pd3dDevice->SetRenderTarget(0, pRC->m_OpaqueRT.GetNextTarget()->GetSurfaceLevel(0)));
-			V(pd3dDevice->SetFVF(D3DFVF_XYZRHW | D3DFVF_TEX1));
+			V(pd3dDevice->SetFVF(D3DFVF_XYZRHW | D3DFVF_TEX2));
 			V(pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CW));
 			V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE));
 			V(pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE));
@@ -624,7 +633,7 @@ void RenderPipeline::OnRender(
 				BOOST_VERIFY(handle_FogParams = FogEffect->GetParameterByName(NULL, "g_FogParams"));
 			}
 
-			V(pd3dDevice->SetFVF(D3DFVF_XYZRHW | D3DFVF_TEX1));
+			V(pd3dDevice->SetFVF(D3DFVF_XYZRHW | D3DFVF_TEX2));
 			V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE));
 			V(pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE));
 			V(pd3dDevice->SetRenderState(D3DRS_BLENDOP, D3DBLENDOP_ADD));
@@ -666,7 +675,7 @@ void RenderPipeline::OnRender(
 			m_SimpleSample->SetTexture(handle_OpaqueRT, pRC->m_OpaqueRT.GetNextSource().get());
 			m_SimpleSample->SetTexture(handle_DownFilterRT, pRC->m_DownFilterRT.GetNextSource().get());
 			V(pd3dDevice->SetRenderTarget(0, pRC->m_DownFilterRT.GetNextTarget()->GetSurfaceLevel(0)));
-			V(pd3dDevice->SetFVF(D3DFVF_XYZRHW | D3DFVF_TEX1));
+			V(pd3dDevice->SetFVF(D3DFVF_XYZRHW | D3DFVF_TEX2));
 			V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE));
 			V(pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE));
 			UINT passes = DofEffect->Begin(D3DXFX_DONOTSAVESTATE | D3DXFX_DONOTSAVESAMPLERSTATE | D3DXFX_DONOTSAVESHADERSTATE);
@@ -713,7 +722,7 @@ void RenderPipeline::OnRender(
 			BloomEffect->SetVector(handle_BloomColor, m_BloomColor);
 			BloomEffect->SetFloat(handle_BloomFactor, m_BloomFactor);
 			m_SimpleSample->SetTexture(handle_OpaqueRT, pRC->m_OpaqueRT.GetNextSource().get());
-			V(pd3dDevice->SetFVF(D3DFVF_XYZRHW | D3DFVF_TEX1));
+			V(pd3dDevice->SetFVF(D3DFVF_XYZRHW | D3DFVF_TEX2));
 			V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE));
 			V(pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE));
 			UINT passes = BloomEffect->Begin(D3DXFX_DONOTSAVESTATE | D3DXFX_DONOTSAVESAMPLERSTATE | D3DXFX_DONOTSAVESHADERSTATE);
@@ -722,27 +731,40 @@ void RenderPipeline::OnRender(
 			V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, quad, sizeof(quad[0])));
 			BloomEffect->EndPass();
 			pRC->m_DownFilterRT.Flip();
+			if (false)
+				D3DXSaveTextureToFileA("aaa.bmp", D3DXIFF_BMP, pRC->m_DownFilterRT.GetNextSource()->m_ptr, NULL);
+
+			V(pd3dDevice->StretchRect(
+				pRC->m_DownFilterRT.GetNextSource()->GetSurfaceLevel(0),
+				CRect(0, 0, ScreenSurfDesc->Width, ScreenSurfDesc->Height),
+				pRC->m_DownFilterRT.GetNextTarget()->GetSurfaceLevel(0),
+				CRect(0, 0, ScreenSurfDesc->Width / 4, ScreenSurfDesc->Height / 4), D3DTEXF_LINEAR));
+			pRC->m_DownFilterRT.Flip();
+			if (false)
+				D3DXSaveTextureToFileA("aaa.bmp", D3DXIFF_BMP, pRC->m_DownFilterRT.GetNextSource()->m_ptr, NULL);
+
+			V(pd3dDevice->ColorFill(pRC->m_DownFilterRT.GetNextTarget()->GetSurfaceLevel(0), NULL, D3DCOLOR_ARGB(255, 0, 0, 0)));
+
+			V(pd3dDevice->StretchRect(
+				pRC->m_DownFilterRT.GetNextSource()->GetSurfaceLevel(0),
+				CRect(0, 0, ScreenSurfDesc->Width / 4, ScreenSurfDesc->Height / 4),
+				pRC->m_DownFilterRT.GetNextTarget()->GetSurfaceLevel(0),
+				CRect(0, 0, ScreenSurfDesc->Width / 8, ScreenSurfDesc->Height / 8), D3DTEXF_LINEAR));
+			pRC->m_DownFilterRT.Flip();
+			if (false)
+				D3DXSaveTextureToFileA("aaa.bmp", D3DXIFF_BMP, pRC->m_DownFilterRT.GetNextSource()->m_ptr, NULL);
+
+			V(pd3dDevice->ColorFill(pRC->m_DownFilterRT.GetNextTarget()->GetSurfaceLevel(0), NULL, D3DCOLOR_ARGB(255, 0, 0, 0)));
 
 			m_SimpleSample->SetTexture(handle_DownFilterRT, pRC->m_DownFilterRT.GetNextSource().get());
 			V(pd3dDevice->SetRenderTarget(0, pRC->m_DownFilterRT.GetNextTarget()->GetSurfaceLevel(0)));
 			BloomEffect->BeginPass(1);
+			_UpdateQuad(quad, Vector2((float)ScreenSurfDesc->Width, (float)ScreenSurfDesc->Height), Vector2(0.125f), Vector2(0.125f));
 			V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, quad, sizeof(quad[0])));
 			BloomEffect->EndPass();
 			pRC->m_DownFilterRT.Flip();
-
-			m_SimpleSample->SetTexture(handle_DownFilterRT, pRC->m_DownFilterRT.GetNextSource().get());
-			V(pd3dDevice->SetRenderTarget(0, pRC->m_DownFilterRT.GetNextTarget()->GetSurfaceLevel(0)));
-			BloomEffect->BeginPass(2);
-			V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, quad, sizeof(quad[0])));
-			BloomEffect->EndPass();
-			pRC->m_DownFilterRT.Flip();
-
-			m_SimpleSample->SetTexture(handle_DownFilterRT, pRC->m_DownFilterRT.GetNextSource().get());
-			V(pd3dDevice->SetRenderTarget(0, pRC->m_DownFilterRT.GetNextTarget()->GetSurfaceLevel(0)));
-			BloomEffect->BeginPass(1);
-			V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, quad, sizeof(quad[0])));
-			BloomEffect->EndPass();
-			pRC->m_DownFilterRT.Flip();
+			if (false)
+				D3DXSaveTextureToFileA("aaa.bmp", D3DXIFF_BMP, pRC->m_DownFilterRT.GetNextSource()->m_ptr, NULL);
 
 			m_SimpleSample->SetTexture(handle_DownFilterRT, pRC->m_DownFilterRT.GetNextSource().get());
 			V(pd3dDevice->SetRenderTarget(0, pRC->m_DownFilterRT.GetNextTarget()->GetSurfaceLevel(0)));
@@ -754,8 +776,32 @@ void RenderPipeline::OnRender(
 				D3DXSaveTextureToFileA("aaa.bmp", D3DXIFF_BMP, pRC->m_DownFilterRT.GetNextSource()->m_ptr, NULL);
 
 			m_SimpleSample->SetTexture(handle_DownFilterRT, pRC->m_DownFilterRT.GetNextSource().get());
+			V(pd3dDevice->SetRenderTarget(0, pRC->m_DownFilterRT.GetNextTarget()->GetSurfaceLevel(0)));
+			BloomEffect->BeginPass(1);
+			V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, quad, sizeof(quad[0])));
+			BloomEffect->EndPass();
+			pRC->m_DownFilterRT.Flip();
+
+			m_SimpleSample->SetTexture(handle_DownFilterRT, pRC->m_DownFilterRT.GetNextSource().get());
+			V(pd3dDevice->SetRenderTarget(0, pRC->m_DownFilterRT.GetNextTarget()->GetSurfaceLevel(0)));
+			BloomEffect->BeginPass(2);
+			V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, quad, sizeof(quad[0])));
+			BloomEffect->EndPass();
+			pRC->m_DownFilterRT.Flip();
+
+			V(pd3dDevice->StretchRect(
+				pRC->m_DownFilterRT.GetNextSource()->GetSurfaceLevel(0),
+				CRect(0, 0, ScreenSurfDesc->Width / 8, ScreenSurfDesc->Height / 8),
+				pRC->m_DownFilterRT.GetNextTarget()->GetSurfaceLevel(0),
+				CRect(0, 0, ScreenSurfDesc->Width / 4, ScreenSurfDesc->Height / 4), D3DTEXF_LINEAR));
+			pRC->m_DownFilterRT.Flip();
+			if (false)
+				D3DXSaveTextureToFileA("aaa.bmp", D3DXIFF_BMP, pRC->m_DownFilterRT.GetNextSource()->m_ptr, NULL);
+
+			m_SimpleSample->SetTexture(handle_DownFilterRT, pRC->m_DownFilterRT.GetNextSource().get());
 			V(pd3dDevice->SetRenderTarget(0, pRC->m_OpaqueRT.GetNextTarget()->GetSurfaceLevel(0)));
 			BloomEffect->BeginPass(3);
+			_UpdateQuad(quad, Vector2((float)ScreenSurfDesc->Width, (float)ScreenSurfDesc->Height), Vector2(0.25f), Vector2(1));
 			V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, quad, sizeof(quad[0])));
 			BloomEffect->EndPass();
 			BloomEffect->End();
@@ -775,7 +821,7 @@ void RenderPipeline::OnRender(
 				BOOST_VERIFY(handle_RCPFrame = FxaaEffect->GetParameterByName(NULL, "RCPFrame"));
 			}
 			V(pd3dDevice->SetRenderTarget(0, pRC->m_OpaqueRT.GetNextTarget()->GetSurfaceLevel(0)));
-			V(pd3dDevice->SetFVF(D3DFVF_XYZRHW | D3DFVF_TEX1));
+			V(pd3dDevice->SetFVF(D3DFVF_XYZRHW | D3DFVF_TEX2));
 			V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE));
 			V(pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE));
 			FxaaEffect->SetTexture(handle_InputTexture, pRC->m_OpaqueRT.GetNextSource().get());
@@ -801,7 +847,7 @@ void RenderPipeline::OnRender(
 		{
 			//V(pd3dDevice->StretchRect(NormalSurf, NULL, ScreenSurf, NULL, D3DTEXF_NONE));
 			V(pd3dDevice->SetRenderTarget(0, ScreenSurf));
-			V(pd3dDevice->SetFVF(D3DFVF_XYZRHW | D3DFVF_TEX1));
+			V(pd3dDevice->SetFVF(D3DFVF_XYZRHW | D3DFVF_TEX2));
 			V(pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CW));
 			V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE));
 			V(pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE));
