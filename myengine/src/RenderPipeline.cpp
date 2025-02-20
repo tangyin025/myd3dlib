@@ -667,9 +667,14 @@ void RenderPipeline::OnRender(
 				BOOST_VERIFY(handle_DofParams = DofEffect->GetParameterByName(NULL, "g_DofParams"));
 			}
 
-			V(pd3dDevice->StretchRect(pRC->m_OpaqueRT.GetNextSource()->GetSurfaceLevel(0), NULL,
-				pRC->m_DownFilterRT.GetNextTarget()->GetSurfaceLevel(0), NULL, D3DTEXF_NONE)); // ! d3dref only support D3DTEXF_NONE
+			V(pd3dDevice->StretchRect(
+				pRC->m_OpaqueRT.GetNextSource()->GetSurfaceLevel(0),
+				CRect(0, 0, ScreenSurfDesc->Width, ScreenSurfDesc->Height),
+				pRC->m_DownFilterRT.GetNextTarget()->GetSurfaceLevel(0),
+				CRect(0, 0, ScreenSurfDesc->Width / 4, ScreenSurfDesc->Height / 4), D3DTEXF_LINEAR));
 			pRC->m_DownFilterRT.Flip();
+			if (false)
+				D3DXSaveTextureToFileA("aaa.bmp", D3DXIFF_BMP, pRC->m_DownFilterRT.GetNextSource()->m_ptr, NULL);
 
 			DofEffect->SetVector(handle_DofParams, m_DofParams);
 			m_SimpleSample->SetTexture(handle_OpaqueRT, pRC->m_OpaqueRT.GetNextSource().get());
@@ -680,10 +685,12 @@ void RenderPipeline::OnRender(
 			V(pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE));
 			UINT passes = DofEffect->Begin(D3DXFX_DONOTSAVESTATE | D3DXFX_DONOTSAVESAMPLERSTATE | D3DXFX_DONOTSAVESHADERSTATE);
 			DofEffect->BeginPass(0);
-			_UpdateQuad(quad, Vector2((float)ScreenSurfDesc->Width, (float)ScreenSurfDesc->Height), Vector2(1), Vector2(1));
+			_UpdateQuad(quad, Vector2((float)ScreenSurfDesc->Width, (float)ScreenSurfDesc->Height), Vector2(0.25f), Vector2(0.25f));
 			V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, quad, sizeof(quad[0])));
 			DofEffect->EndPass();
 			pRC->m_DownFilterRT.Flip();
+			if (false)
+				D3DXSaveTextureToFileA("aaa.bmp", D3DXIFF_BMP, pRC->m_DownFilterRT.GetNextSource()->m_ptr, NULL);
 
 			m_SimpleSample->SetTexture(handle_DownFilterRT, pRC->m_DownFilterRT.GetNextSource().get());
 			V(pd3dDevice->SetRenderTarget(0, pRC->m_DownFilterRT.GetNextTarget()->GetSurfaceLevel(0)));
@@ -695,8 +702,24 @@ void RenderPipeline::OnRender(
 				D3DXSaveTextureToFileA("aaa.bmp", D3DXIFF_BMP, pRC->m_DownFilterRT.GetNextSource()->m_ptr, NULL);
 
 			m_SimpleSample->SetTexture(handle_DownFilterRT, pRC->m_DownFilterRT.GetNextSource().get());
+			V(pd3dDevice->SetRenderTarget(0, pRC->m_DownFilterRT.GetNextTarget()->GetSurfaceLevel(0)));
+			DofEffect->BeginPass(0);
+			_UpdateQuad(quad, Vector2((float)ScreenSurfDesc->Width, (float)ScreenSurfDesc->Height), Vector2(0.25f), Vector2(0.25f));
+			V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, quad, sizeof(quad[0])));
+			DofEffect->EndPass();
+			pRC->m_DownFilterRT.Flip();
+
+			m_SimpleSample->SetTexture(handle_DownFilterRT, pRC->m_DownFilterRT.GetNextSource().get());
+			V(pd3dDevice->SetRenderTarget(0, pRC->m_DownFilterRT.GetNextTarget()->GetSurfaceLevel(0)));
+			DofEffect->BeginPass(1);
+			V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, quad, sizeof(quad[0])));
+			DofEffect->EndPass();
+			pRC->m_DownFilterRT.Flip();
+
+			m_SimpleSample->SetTexture(handle_DownFilterRT, pRC->m_DownFilterRT.GetNextSource().get());
 			V(pd3dDevice->SetRenderTarget(0, pRC->m_OpaqueRT.GetNextTarget()->GetSurfaceLevel(0)));
 			DofEffect->BeginPass(2);
+			_UpdateQuad(quad, Vector2((float)ScreenSurfDesc->Width, (float)ScreenSurfDesc->Height), Vector2(0.25f), Vector2(1));
 			V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, quad, sizeof(quad[0])));
 			DofEffect->EndPass();
 			DofEffect->End();

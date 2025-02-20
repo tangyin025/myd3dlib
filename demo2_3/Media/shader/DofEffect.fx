@@ -63,6 +63,7 @@ struct VS_OUTPUT
 {
     float4 Position   : POSITION;   // vertex position 
     float2 TextureUV  : TEXCOORD0;  // vertex texture coords 
+    float2 TextureUV2  : TEXCOORD1;  // vertex texture coords 
 };
 
 float4 ColorBGlurH( VS_OUTPUT In ) : COLOR0
@@ -106,11 +107,11 @@ float ComputeDepthBlur(float depth)
 
 float4 DofCombine( VS_OUTPUT In ) : COLOR0
 {
-    float3 ColorOrig = tex2D( OpaqueRTSampler, In.TextureUV );
+    float3 ColorOrig = tex2D( OpaqueRTSampler, In.TextureUV2 );
 
     float3 ColorBlur = tex2D( DownFilterRTSampler, In.TextureUV );
 
-    float Blur = ComputeDepthBlur(-tex2D( PositionRTSampler, In.TextureUV ).z);
+    float Blur = ComputeDepthBlur(-tex2D( PositionRTSampler, In.TextureUV2 ).z);
 
     return float4( lerp( ColorOrig, ColorBlur, saturate(Blur) ), 1.0f );
 }
