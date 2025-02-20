@@ -155,8 +155,6 @@ public:
 		PropertyMaterialParameterFloatValueZ,
 		PropertyMaterialParameterFloatValueW,
 		PropertyMaterialParameterColor,
-		PropertyMaterialParameterColorRGB,
-		PropertyMaterialParameterColorAlpha,
 		PropertyMaterialParameterTexture,
 		PropertyCloth,
 		PropertyClothColor,

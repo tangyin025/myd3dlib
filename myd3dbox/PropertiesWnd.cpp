@@ -546,27 +546,26 @@ void CPropertiesWnd::UpdatePropertiesMaterialParameter(CMFCPropertyGridProperty 
 	case MaterialParameter::ParameterTypeFloat3:
 	{
 		const my::Vector3 & Value = dynamic_cast<MaterialParameterFloat3 *>(mtl_param)->m_Value;
-		pParentCtrl->GetSubItem(NodeId)->GetSubItem(0)->SetValue((_variant_t)Value.x);
-		pParentCtrl->GetSubItem(NodeId)->GetSubItem(1)->SetValue((_variant_t)Value.y);
-		pParentCtrl->GetSubItem(NodeId)->GetSubItem(2)->SetValue((_variant_t)Value.z);
-		break;
-	}
-	case MaterialParameter::ParameterTypeFloat4:
-	{
-		const my::Vector4 & Value = dynamic_cast<MaterialParameterFloat4*>(mtl_param)->m_Value;
 		if (boost::regex_search(mtl_param->m_Name, g_rcolor, boost::match_default))
 		{
 			COLORREF color = RGB(Value.x * 255, Value.y * 255, Value.z * 255);
-			(DYNAMIC_DOWNCAST(CColorProp, pParentCtrl->GetSubItem(NodeId)->GetSubItem(0)))->SetColor(color);
-			pParentCtrl->GetSubItem(NodeId)->GetSubItem(1)->SetValue((_variant_t)(long)(Value.w * 255));
+			(DYNAMIC_DOWNCAST(CColorProp, pParentCtrl->GetSubItem(NodeId)))->SetColor(color);
 		}
 		else
 		{
 			pParentCtrl->GetSubItem(NodeId)->GetSubItem(0)->SetValue((_variant_t)Value.x);
 			pParentCtrl->GetSubItem(NodeId)->GetSubItem(1)->SetValue((_variant_t)Value.y);
 			pParentCtrl->GetSubItem(NodeId)->GetSubItem(2)->SetValue((_variant_t)Value.z);
-			pParentCtrl->GetSubItem(NodeId)->GetSubItem(3)->SetValue((_variant_t)Value.w);
 		}
+		break;
+	}
+	case MaterialParameter::ParameterTypeFloat4:
+	{
+		const my::Vector4 & Value = dynamic_cast<MaterialParameterFloat4*>(mtl_param)->m_Value;
+		pParentCtrl->GetSubItem(NodeId)->GetSubItem(0)->SetValue((_variant_t)Value.x);
+		pParentCtrl->GetSubItem(NodeId)->GetSubItem(1)->SetValue((_variant_t)Value.y);
+		pParentCtrl->GetSubItem(NodeId)->GetSubItem(2)->SetValue((_variant_t)Value.z);
+		pParentCtrl->GetSubItem(NodeId)->GetSubItem(3)->SetValue((_variant_t)Value.w);
 		break;
 	}
 	case MaterialParameter::ParameterTypeTexture:
@@ -1677,33 +1676,16 @@ void CPropertiesWnd::CreatePropertiesMaterialParameter(CMFCPropertyGridProperty 
 	case MaterialParameter::ParameterTypeFloat3:
 	{
 		const my::Vector3 & Value = dynamic_cast<MaterialParameterFloat3 *>(mtl_param)->m_Value;
-		CMFCPropertyGridProperty * pParameter = new CSimpleProp(name.c_str(), PropertyMaterialParameterFloat3, TRUE);
-		pParentCtrl->AddSubItem(pParameter);
-		pProp = new CSimpleProp(_T("x"), (_variant_t)Value.x, NULL, PropertyMaterialParameterFloatValueX);
-		pParameter->AddSubItem(pProp);
-		pProp = new CSimpleProp(_T("y"), (_variant_t)Value.y, NULL, PropertyMaterialParameterFloatValueY);
-		pParameter->AddSubItem(pProp);
-		pProp = new CSimpleProp(_T("z"), (_variant_t)Value.z, NULL, PropertyMaterialParameterFloatValueZ);
-		pParameter->AddSubItem(pProp);
-		break;
-	}
-	case MaterialParameter::ParameterTypeFloat4:
-	{
-		const my::Vector4 & Value = dynamic_cast<MaterialParameterFloat4*>(mtl_param)->m_Value;
 		if (boost::regex_search(mtl_param->m_Name, g_rcolor, boost::match_default))
 		{
-			CMFCPropertyGridProperty* pParameter = new CSimpleProp(name.c_str(), PropertyMaterialParameterColor, TRUE);
-			pParentCtrl->AddSubItem(pParameter);
 			COLORREF color = RGB(Value.x * 255, Value.y * 255, Value.z * 255);
-			CColorProp* pColor = new CColorProp(_T("Color"), color, NULL, NULL, PropertyMaterialParameterColorRGB);
+			CColorProp* pColor = new CColorProp(name.c_str(), color, NULL, NULL, PropertyMaterialParameterColor);
 			pColor->EnableOtherButton(_T("Other..."));
-			pParameter->AddSubItem(pColor);
-			CMFCPropertyGridProperty* pAlpha = new CSliderProp(_T("_Alpha"), (long)(Value.w * 255), NULL, PropertyMaterialParameterColorAlpha);
-			pParameter->AddSubItem(pAlpha);
+			pParentCtrl->AddSubItem(pColor);
 		}
 		else
 		{
-			CMFCPropertyGridProperty* pParameter = new CSimpleProp(name.c_str(), PropertyMaterialParameterFloat4, TRUE);
+			CMFCPropertyGridProperty* pParameter = new CSimpleProp(name.c_str(), PropertyMaterialParameterFloat3, TRUE);
 			pParentCtrl->AddSubItem(pParameter);
 			pProp = new CSimpleProp(_T("x"), (_variant_t)Value.x, NULL, PropertyMaterialParameterFloatValueX);
 			pParameter->AddSubItem(pProp);
@@ -1711,9 +1693,22 @@ void CPropertiesWnd::CreatePropertiesMaterialParameter(CMFCPropertyGridProperty 
 			pParameter->AddSubItem(pProp);
 			pProp = new CSimpleProp(_T("z"), (_variant_t)Value.z, NULL, PropertyMaterialParameterFloatValueZ);
 			pParameter->AddSubItem(pProp);
-			pProp = new CSimpleProp(_T("w"), (_variant_t)Value.w, NULL, PropertyMaterialParameterFloatValueW);
-			pParameter->AddSubItem(pProp);
 		}
+		break;
+	}
+	case MaterialParameter::ParameterTypeFloat4:
+	{
+		const my::Vector4 & Value = dynamic_cast<MaterialParameterFloat4*>(mtl_param)->m_Value;
+		CMFCPropertyGridProperty* pParameter = new CSimpleProp(name.c_str(), PropertyMaterialParameterFloat4, TRUE);
+		pParentCtrl->AddSubItem(pParameter);
+		pProp = new CSimpleProp(_T("x"), (_variant_t)Value.x, NULL, PropertyMaterialParameterFloatValueX);
+		pParameter->AddSubItem(pProp);
+		pProp = new CSimpleProp(_T("y"), (_variant_t)Value.y, NULL, PropertyMaterialParameterFloatValueY);
+		pParameter->AddSubItem(pProp);
+		pProp = new CSimpleProp(_T("z"), (_variant_t)Value.z, NULL, PropertyMaterialParameterFloatValueZ);
+		pParameter->AddSubItem(pProp);
+		pProp = new CSimpleProp(_T("w"), (_variant_t)Value.w, NULL, PropertyMaterialParameterFloatValueW);
+		pParameter->AddSubItem(pProp);
 		break;
 	}
 	case MaterialParameter::ParameterTypeTexture:
@@ -3941,8 +3936,6 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	case PropertyMaterialParameterFloatValueZ:
 	case PropertyMaterialParameterFloatValueW:
 	case PropertyMaterialParameterColor:
-	case PropertyMaterialParameterColorRGB:
-	case PropertyMaterialParameterColorAlpha:
 	{
 		CMFCPropertyGridProperty * pParameter = NULL;
 		switch (PropertyId)
@@ -3957,8 +3950,6 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		case PropertyMaterialParameterFloatValueY:
 		case PropertyMaterialParameterFloatValueZ:
 		case PropertyMaterialParameterFloatValueW:
-		case PropertyMaterialParameterColorRGB:
-		case PropertyMaterialParameterColorAlpha:
 			pParameter = pProp->GetParent();
 			break;
 		}
@@ -3984,10 +3975,10 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			break;
 		case PropertyMaterialParameterColor:
 		{
-			ASSERT(mtl->m_ParameterList[i]->GetParameterType() == MaterialParameter::ParameterTypeFloat4);
-			COLORREF color = (DYNAMIC_DOWNCAST(CColorProp, pParameter->GetSubItem(0)))->GetColor();
-			boost::dynamic_pointer_cast<MaterialParameterFloat4>(mtl->m_ParameterList[i])->m_Value = my::Vector4(
-				GetRValue(color) / 255.0f, GetGValue(color) / 255.0f, GetBValue(color) / 255.0f, pParameter->GetSubItem(1)->GetValue().lVal / 255.0f);
+			ASSERT(mtl->m_ParameterList[i]->GetParameterType() == MaterialParameter::ParameterTypeFloat3);
+			COLORREF color = (DYNAMIC_DOWNCAST(CColorProp, pParameter))->GetColor();
+			boost::dynamic_pointer_cast<MaterialParameterFloat3>(mtl->m_ParameterList[i])->m_Value = my::Vector3(
+				GetRValue(color) / 255.0f, GetGValue(color) / 255.0f, GetBValue(color) / 255.0f);
 			break;
 		}
 		}
