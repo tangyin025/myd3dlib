@@ -3544,7 +3544,7 @@ bool CheckBox::HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam)
 		case WM_KEYDOWN:
 			if (wParam == VK_RETURN)
 			{
-				m_Checked = true;
+				m_Checked = !m_Checked;
 
 				return Control::HandleKeyboard(uMsg, wParam, lParam);
 			}
@@ -3564,7 +3564,7 @@ bool CheckBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM 
 		case WM_LBUTTONDBLCLK:
 			if(HitTest(pt))
 			{
-				m_Checked = true;
+				m_Checked = !m_Checked;
 
 				return Control::HandleMouse(uMsg, pt, wParam, lParam);
 			}

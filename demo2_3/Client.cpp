@@ -621,6 +621,7 @@ HRESULT Client::OnCreateDevice(
 			.property("Volume", &Client::GetVolume, &Client::SetVolume)
 			.def_readonly("Font", &Client::m_Font)
 			.def_readonly("Console", &Client::m_Console)
+			.def_readonly("InitLoadShaderCache", &Client::m_InitLoadShaderCache)
 			.def_readwrite("ViewedCenter", &Client::m_ViewedCenter)
 			.def_readwrite("ViewedDist", &Client::m_ViewedDist)
 			.def_readwrite("ActorCullingThreshold", &Client::m_ActorCullingThreshold)
