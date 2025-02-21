@@ -3537,7 +3537,7 @@ void CheckBox::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Of
 
 bool CheckBox::HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-	if (m_bEnabled && m_bVisible)
+	if (!m_EventMouseClick && m_bEnabled && m_bVisible)
 	{
 		switch (uMsg)
 		{
@@ -3556,7 +3556,7 @@ bool CheckBox::HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 bool CheckBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lParam)
 {
-	if(m_bEnabled && m_bVisible)
+	if (!m_EventMouseClick && m_bEnabled && m_bVisible)
 	{
 		switch(uMsg)
 		{
