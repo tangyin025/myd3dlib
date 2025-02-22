@@ -765,10 +765,10 @@ void CPropertiesWnd::UpdatePropertiesSplineNode(CMFCPropertyGridProperty * pSpli
 {
 	CMFCPropertyGridProperty * pProp = pSpline->GetSubItem(NodeId + 1);
 	_ASSERT(pProp);
-	pProp->GetSubItem(PropertySplineNodeX - PropertySplineNodeX)->SetValue((_variant_t)node->first);
-	pProp->GetSubItem(PropertySplineNodeY - PropertySplineNodeX)->SetValue((_variant_t)node->second.y);
-	pProp->GetSubItem(PropertySplineNodeK0 - PropertySplineNodeX)->SetValue((_variant_t)node->second.k0);
-	pProp->GetSubItem(PropertySplineNodeK - PropertySplineNodeX)->SetValue((_variant_t)node->second.k);
+	pProp->GetSubItem(PropertySplineNodeX - PropertySplineNodeX)->SetValue((_variant_t)node->x);
+	pProp->GetSubItem(PropertySplineNodeY - PropertySplineNodeX)->SetValue((_variant_t)node->y);
+	pProp->GetSubItem(PropertySplineNodeK0 - PropertySplineNodeX)->SetValue((_variant_t)node->k0);
+	pProp->GetSubItem(PropertySplineNodeK - PropertySplineNodeX)->SetValue((_variant_t)node->k);
 }
 
 void CPropertiesWnd::UpdatePropertiesTerrain(CMFCPropertyGridProperty * pComponent, Terrain * terrain)
@@ -2009,13 +2009,13 @@ void CPropertiesWnd::CreatePropertiesSplineNode(CMFCPropertyGridProperty * pSpli
 {
 	CMFCPropertyGridProperty * pNode = new CSimpleProp(_T("Node"), NodeId, TRUE);
 	pSpline->AddSubItem(pNode);
-	CMFCPropertyGridProperty * pProp = new CSimpleProp(_T("x"), (_variant_t)node->first, NULL, PropertySplineNodeX);
+	CMFCPropertyGridProperty * pProp = new CSimpleProp(_T("x"), (_variant_t)node->x, NULL, PropertySplineNodeX);
 	pNode->AddSubItem(pProp);
-	pProp = new CSimpleProp(_T("y"), (_variant_t)node->second.y, NULL, PropertySplineNodeY);
+	pProp = new CSimpleProp(_T("y"), (_variant_t)node->y, NULL, PropertySplineNodeY);
 	pNode->AddSubItem(pProp);
-	pProp = new CSimpleProp(_T("k0"), (_variant_t)node->second.k0, NULL, PropertySplineNodeK0);
+	pProp = new CSimpleProp(_T("k0"), (_variant_t)node->k0, NULL, PropertySplineNodeK0);
 	pNode->AddSubItem(pProp);
-	pProp = new CSimpleProp(_T("k"), (_variant_t)node->second.k, NULL, PropertySplineNodeK);
+	pProp = new CSimpleProp(_T("k"), (_variant_t)node->k, NULL, PropertySplineNodeK);
 	pNode->AddSubItem(pProp);
 }
 
@@ -4442,7 +4442,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		switch (PropertyId)
 		{
 		case PropertySplineNodeCount:
-			spline->resize(pProp->GetValue().uintVal, spline->empty() ? std::make_pair(0.0f, my::SplineNode(1, 0, 0)) : spline->back());
+			spline->resize(pProp->GetValue().uintVal, spline->empty() ? my::Spline::value_type(0.0f, 1.0f, 0.0f, 0.0f) : spline->back());
 			UpdatePropertiesSpline(pSpline, spline);
 			break;
 		case PropertySplineNodeX:
@@ -4454,10 +4454,10 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			int NodeId = (int)pNode->GetData();
 			_ASSERT(NodeId < (int)spline->size());
 			my::Spline::value_type & node = (*spline)[NodeId];
-			node.first = pNode->GetSubItem(PropertySplineNodeX - PropertySplineNodeX)->GetValue().fltVal;
-			node.second.y = pNode->GetSubItem(PropertySplineNodeY - PropertySplineNodeX)->GetValue().fltVal;
-			node.second.k0 = pNode->GetSubItem(PropertySplineNodeK0 - PropertySplineNodeX)->GetValue().fltVal;
-			node.second.k = pNode->GetSubItem(PropertySplineNodeK - PropertySplineNodeX)->GetValue().fltVal;
+			node.x = pNode->GetSubItem(PropertySplineNodeX - PropertySplineNodeX)->GetValue().fltVal;
+			node.y = pNode->GetSubItem(PropertySplineNodeY - PropertySplineNodeX)->GetValue().fltVal;
+			node.k0 = pNode->GetSubItem(PropertySplineNodeK0 - PropertySplineNodeX)->GetValue().fltVal;
+			node.k = pNode->GetSubItem(PropertySplineNodeK - PropertySplineNodeX)->GetValue().fltVal;
 		}
 		break;
 		}

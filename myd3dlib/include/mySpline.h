@@ -8,47 +8,75 @@
 namespace my
 {
 	template <typename T>
-	class LinearNodes : public std::vector<std::pair<float, T> >
+	class LinearNode
+	{
+	public:
+		float x, k0, k;
+
+		T y;
+
+	protected:
+		LinearNode(void)
+			//: x(0)
+			//, v(0)
+			//, k0(0)
+			//, k(0)
+		{
+		}
+
+		friend class boost::serialization::access;
+
+	public:
+		LinearNode(float _x, const T & _y, float _k0, float _k)
+			: x(_x), y(_y), k0(_k0), k(_k)
+		{
+		}
+	};
+
+	template <typename T>
+	class LinearNodes : public std::vector<LinearNode<T> >
 	{
 	public:
 		LinearNodes(void)
 		{
 		}
 
-		void AddNode(float x, const T& v)
+		void AddNode(float x, const T & y, float k0, float k)
 		{
 			iterator iter = std::lower_bound(begin(), end(), x,
-				boost::bind(std::less<float>(), boost::bind(&value_type::first, boost::placeholders::_1), boost::placeholders::_2));
-			if (iter != end() && iter->first == x)
+				boost::bind(std::less<float>(), boost::bind(&LinearNode<T>::x, boost::placeholders::_1), boost::placeholders::_2));
+			if (iter != end() && iter->x == x)
 			{
-				iter->second = v;
+				iter->y = y;
+				iter->k0 = k0;
+				iter->k = k;
 			}
 			else
 			{
-				insert(iter, std::make_pair(x, v));
+				insert(iter, LinearNode<T>(x, y, k0, k));
 			}
 		}
 
 		float GetLength(void) const
 		{
-			return !empty() ? back().first : 0;
+			return !empty() ? back().x : 0;
 		}
 
-		T Interpolate(float s, const T& value) const
+		T Interpolate(float s, const T & value) const
 		{
 			const_iterator iter = std::upper_bound(begin(), end(), s,
-				boost::bind(std::less<float>(), boost::placeholders::_1, boost::bind(&value_type::first, boost::placeholders::_2)));
+				boost::bind(std::less<float>(), boost::placeholders::_1, boost::bind(&LinearNode<T>::x, boost::placeholders::_2)));
 			if (iter != begin())
 			{
 				if (iter != end())
 				{
 					return Lerp(iter - 1, iter, s);
 				}
-				return (iter - 1)->second;
+				return (iter - 1)->y;
 			}
 			else if (iter != end())
 			{
-				return iter->second;
+				return iter->y;
 			}
 			return value;
 		}
@@ -56,26 +84,7 @@ namespace my
 		T Lerp(const_iterator lhs, const_iterator rhs, float s) const;
 	};
 
-	class SplineNode
-	{
-	public:
-		float y, k0, k;
-
-	public:
-		SplineNode(void)
-			//: y(0)
-			//, k0(0)
-			//, k(0)
-		{
-		}
-
-		SplineNode(float _y, float _k0, float _k)
-			: y(_y), k0(_k0), k(_k)
-		{
-		}
-	};
-
-	class Spline : public LinearNodes<SplineNode>
+	class Spline : public LinearNodes<float>
 	{
 	public:
 		Spline(void)

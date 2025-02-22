@@ -16,15 +16,29 @@ using namespace my;
 
 BOOST_CLASS_EXPORT(Spline)
 
+template <>
+float LinearNodes<float>::Lerp(LinearNodes<float>::const_iterator lhs, LinearNodes<float>::const_iterator rhs, float s) const
+{
+	_ASSERT(s >= lhs->x && s < rhs->x);
+
+	float t = (s - lhs->x) / (rhs->x - lhs->x);
+
+	float a = lhs->k * (rhs->x - lhs->x) - (rhs->y - lhs->y);
+
+	float b = -rhs->k0 * (rhs->x - lhs->x) + (rhs->y - lhs->y);
+
+	return (1 - t) * lhs->y + t * rhs->y + t * (1 - t) * (a * (1 - t) + b * t);
+}
+
 namespace boost { 
 	namespace serialization {
 		template<class Archive>
-		inline void serialize(Archive & ar, std::pair<float, SplineNode> & t, const unsigned int file_version)
+		inline void serialize(Archive & ar, LinearNode<float> & t, const unsigned int file_version)
 		{
-			ar & BOOST_SERIALIZATION_NVP(t.first);
-			ar & BOOST_SERIALIZATION_NVP(t.second.y);
-			ar & BOOST_SERIALIZATION_NVP(t.second.k0);
-			ar & BOOST_SERIALIZATION_NVP(t.second.k);
+			ar & BOOST_SERIALIZATION_NVP(t.x);
+			ar & BOOST_SERIALIZATION_NVP(t.y);
+			ar & BOOST_SERIALIZATION_NVP(t.k0);
+			ar & BOOST_SERIALIZATION_NVP(t.k);
 		}
 	}
 }
@@ -32,37 +46,23 @@ namespace boost {
 template<class Archive>
 void Spline::save(Archive& ar, const unsigned int version) const
 {
-	ar << boost::serialization::make_nvp("SplineNodeList", boost::serialization::base_object<std::vector<std::pair<float, SplineNode> > >(*this));
+	ar << boost::serialization::make_nvp("SplineNodeList", boost::serialization::base_object<std::vector<LinearNode<float> > >(*this));
 }
 
 template<class Archive>
 void Spline::load(Archive& ar, const unsigned int version)
 {
-	ar >> boost::serialization::make_nvp("SplineNodeList", boost::serialization::base_object<std::vector<std::pair<float, SplineNode> > >(*this));
+	ar >> boost::serialization::make_nvp("SplineNodeList", boost::serialization::base_object<std::vector<LinearNode<float> > >(*this));
 }
 
 void Spline::AddNode(float x, float y, float k0, float k)
 {
-	LinearNodes::AddNode(x, SplineNode(y, k0, k));
-}
-
-template <>
-SplineNode LinearNodes<SplineNode>::Lerp(LinearNodes<SplineNode>::const_iterator lhs, LinearNodes<SplineNode>::const_iterator rhs, float s) const
-{
-	_ASSERT(s >= lhs->first && s < rhs->first);
-
-	float t = (s - lhs->first) / (rhs->first - lhs->first);
-
-	float a = lhs->second.k * (rhs->first - lhs->first) - (rhs->second.y - lhs->second.y);
-
-	float b = -rhs->second.k0 * (rhs->first - lhs->first) + (rhs->second.y - lhs->second.y);
-
-	return SplineNode((1 - t) * lhs->second.y + t * rhs->second.y + t * (1 - t) * (a * (1 - t) + b * t), 0, 0);
+	LinearNodes::AddNode(x, y, k0, k);
 }
 
 float Spline::Interpolate(float s) const
 {
-	return LinearNodes::Interpolate(s, SplineNode(1, 0, 0)).y;
+	return LinearNodes::Interpolate(s, 1.0f);
 }
 
 Shake::Shake(float Duration, float Strength, int Vibrato, float StartMagnitude)
