@@ -338,7 +338,7 @@ item_y=item_y-item_height
 local chx_windowed=CheckBox("chx_windowed")
 chx_windowed.x=UDim(0,235)
 chx_windowed.y=UDim(0,item_y)
-chx_windowed.Width=UDim(0,120)
+chx_windowed.Width=UDim(0,22)
 chx_windowed.Height=UDim(0,22)
 chx_windowed.Text="        Windowed"
 chx_windowed.Skin=ButtonSkin()
@@ -369,7 +369,7 @@ dlg:InsertControl(dlg.ChildNum,chx_windowed)
 local chx_full_screen=CheckBox("chx_full_screen")
 chx_full_screen.x=UDim(0,360)
 chx_full_screen.y=UDim(0,item_y)
-chx_full_screen.Width=UDim(0,120)
+chx_full_screen.Width=UDim(0,22)
 chx_full_screen.Height=UDim(0,22)
 chx_full_screen.Text="        Full Screen"
 chx_full_screen.Skin=chx_windowed.Skin:Clone()
@@ -495,12 +495,14 @@ end
 local chx_windowed=client:GetNamedObject("chx_windowed")
 local chx_full_screen=client:GetNamedObject("chx_full_screen")
 chx_windowed.EventMouseClick=function(arg)
-	chx_full_screen.Checked=not chx_windowed.Checked
-	OnWindowedFullScreenChanged()
+	chx_windowed.Checked=true
+	chx_full_screen.Checked=false
+OnWindowedFullScreenChanged()
 end
 chx_full_screen.EventMouseClick=function(arg)
-	chx_windowed.Checked=not chx_full_screen.Checked
-	OnWindowedFullScreenChanged()
+	chx_windowed.Checked=false
+	chx_full_screen.Checked=true
+OnWindowedFullScreenChanged()
 end
 
 local cbx_render_device=client:GetNamedObject("cbx_render_device")
