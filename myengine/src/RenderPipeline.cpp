@@ -32,6 +32,7 @@ RenderPipeline::RenderPipeline(void)
 	, m_SkyLightCam(new my::OrthoCamera(30.0f, 30.0f, -100, 100))
 	, m_SkyLightColor(1.0f, 1.0f, 1.0f, 1.0f)
 	, m_AmbientColor(0.3f, 0.3f, 0.3f, 3.0f)
+	, m_FogColor(0.518f, 0.553f, 0.608f, 0.01f)
 	, m_BkColor(D3DCOLOR_ARGB(0, 66, 75, 121))
 	, handle_Time(NULL)
 	, handle_ScreenDim(NULL)
@@ -46,6 +47,7 @@ RenderPipeline::RenderPipeline(void)
 	, handle_SkyLightViewProj(NULL)
 	, handle_SkyLightColor(NULL)
 	, handle_AmbientColor(NULL)
+	, handle_FogColor(NULL)
 	, handle_NormalRT(NULL)
 	, handle_SpecularRT(NULL)
 	, handle_PositionRT(NULL)
@@ -71,10 +73,6 @@ RenderPipeline::RenderPipeline(void)
 	, m_SsaoIntensity(5.0f)
 	, m_SsaoRadius(100.0f)
 	, m_SsaoScale(10.0f)
-	, handle_FogColor(NULL)
-	, handle_FogParams(NULL)
-	, m_FogColor(0.518f, 0.553f, 0.608f, 1.0f)
-	, m_FogParams(0.01, 0.0f, 0.0f, 0.0f)
 {
 	for (int i = 0; i < _countof(m_ShadowRT); i++)
 	{
@@ -301,6 +299,7 @@ HRESULT RenderPipeline::OnCreateDevice(
 	BOOST_VERIFY(handle_SkyLightViewProj = m_SimpleSample->GetParameterByName(NULL, "g_SkyLightViewProj"));
 	BOOST_VERIFY(handle_SkyLightColor = m_SimpleSample->GetParameterByName(NULL, "g_SkyLightColor"));
 	BOOST_VERIFY(handle_AmbientColor = m_SimpleSample->GetParameterByName(NULL, "g_AmbientColor"));
+	BOOST_VERIFY(handle_FogColor = m_SimpleSample->GetParameterByName(NULL, "g_FogColor"));
 	for (int i = 0; i < _countof(handle_ShadowRT); i++)
 	{
 		char buff[64];
@@ -544,6 +543,7 @@ void RenderPipeline::OnRender(
 	m_SimpleSample->SetMatrixArray(handle_SkyLightViewProj, SkyLightViewProj, _countof(SkyLightViewProj));
 	m_SimpleSample->SetVector(handle_SkyLightColor, m_SkyLightColor);
 	m_SimpleSample->SetVector(handle_AmbientColor, m_AmbientColor);
+	m_SimpleSample->SetVector(handle_FogColor, m_FogColor);
 	for (int i = 0; i < _countof(handle_ShadowRT); i++)
 	{
 		m_SimpleSample->SetTexture(handle_ShadowRT[i], m_ShadowRT[i].get());
@@ -620,35 +620,6 @@ void RenderPipeline::OnRender(
 	V(pd3dDevice->SetRenderState(D3DRS_FILLMODE, !pRC->m_WireFrame ? D3DFILL_SOLID : D3DFILL_WIREFRAME));
 
 	RenderAllObjects(pd3dDevice, PassTypeOpaque, pRC, fTime, fElapsedTime);
-
-	if (pRC->m_FogEnable)
-	{
-		D3DXMACRO macro[] = { { 0 } };
-		my::Effect* FogEffect = QueryShader(macro, "shader/DeferredFog.fx", PassTypeShadow);
-		if (FogEffect)
-		{
-			if (!handle_FogColor)
-			{
-				BOOST_VERIFY(handle_FogColor = FogEffect->GetParameterByName(NULL, "g_FogColor"));
-				BOOST_VERIFY(handle_FogParams = FogEffect->GetParameterByName(NULL, "g_FogParams"));
-			}
-
-			V(pd3dDevice->SetFVF(D3DFVF_XYZRHW | D3DFVF_TEX2));
-			V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE));
-			V(pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE));
-			V(pd3dDevice->SetRenderState(D3DRS_BLENDOP, D3DBLENDOP_ADD));
-			V(pd3dDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA));
-			V(pd3dDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA));
-			FogEffect->SetVector(handle_FogColor, m_FogColor);
-			FogEffect->SetVector(handle_FogParams, m_FogParams);
-			FogEffect->Begin(D3DXFX_DONOTSAVESTATE | D3DXFX_DONOTSAVESAMPLERSTATE | D3DXFX_DONOTSAVESHADERSTATE);
-			FogEffect->BeginPass(0);
-			_UpdateQuad(quad, Vector2((float)ScreenSurfDesc->Width, (float)ScreenSurfDesc->Height), Vector2(1), Vector2(1));
-			V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, quad, sizeof(quad[0])));
-			FogEffect->EndPass();
-			FogEffect->End();
-		}
-	}
 
 	V(pd3dDevice->StretchRect(pRC->m_OpaqueRT.GetNextTarget()->GetSurfaceLevel(0), NULL, pRC->m_OpaqueRT.GetNextSource()->GetSurfaceLevel(0), NULL, D3DTEXF_NONE));
 	m_SimpleSample->SetTexture(handle_OpaqueRT, pRC->m_OpaqueRT.GetNextSource().get());
@@ -1204,7 +1175,6 @@ void RenderPipeline::ClearShaderCache(void)
 	handle_LuminanceThreshold = NULL;
 	handle_InputTexture = NULL;
 	handle_bias = NULL;
-	handle_FogColor = NULL;
 }
 
 void RenderPipeline::DrawIndexedPrimitive(

@@ -19,6 +19,7 @@ public:
 	my::Vector3 m_SkyLightCamEuler;
 	my::Vector4 m_SkyLightColor;
 	my::Vector4 m_AmbientColor;
+	my::Vector4 m_FogColor;
 	D3DCOLOR m_BkColor;
 	my::Vector4 m_ShadowBias;
 	my::Vector4 m_DofParams;
@@ -29,8 +30,6 @@ public:
 	float m_SsaoIntensity;
 	float m_SsaoRadius;
 	float m_SsaoScale;
-	my::Vector4 m_FogColor;
-	my::Vector4 m_FogParams;
 	typedef std::vector<boost::shared_ptr<Actor> > ActorPtrList;
 	ActorPtrList m_ActorList;
 	typedef std::vector<boost::shared_ptr<my::Dialog> > DialogPtrList;

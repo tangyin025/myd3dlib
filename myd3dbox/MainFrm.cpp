@@ -1375,6 +1375,9 @@ BOOL CMainFrame::OpenFileContext(LPCTSTR lpszFileName)
 	theApp.m_SkyLightCam->m_Euler = scene->m_SkyLightCamEuler;
 	theApp.m_SkyLightColor = scene->m_SkyLightColor;
 	theApp.m_AmbientColor = scene->m_AmbientColor;
+	theApp.m_FogColor = scene->m_FogColor;
+	theApp.m_BkColor = scene->m_BkColor;
+	theApp.m_CascadeLayerBias = scene->m_ShadowBias;
 	theApp.m_DofParams = scene->m_DofParams;
 	theApp.m_LuminanceThreshold = scene->m_LuminanceThreshold;
 	theApp.m_BloomColor = scene->m_BloomColor;
@@ -1383,8 +1386,6 @@ BOOL CMainFrame::OpenFileContext(LPCTSTR lpszFileName)
 	theApp.m_SsaoIntensity = scene->m_SsaoIntensity;
 	theApp.m_SsaoRadius = scene->m_SsaoRadius;
 	theApp.m_SsaoScale = scene->m_SsaoScale;
-	theApp.m_FogColor = scene->m_FogColor;
-	theApp.m_FogParams = scene->m_FogParams;
 
 	SceneContext::ActorPtrList::iterator act_iter = scene->m_ActorList.begin();
 	for (; act_iter != scene->m_ActorList.end(); act_iter++)
@@ -1445,6 +1446,7 @@ BOOL CMainFrame::SaveFileContext(LPCTSTR lpszPathName)
 	*oa << boost::serialization::make_nvp("SkyLightCam.m_Euler", theApp.m_SkyLightCam->m_Euler);
 	*oa << boost::serialization::make_nvp("SkyLightColor", theApp.m_SkyLightColor);
 	*oa << boost::serialization::make_nvp("AmbientColor", theApp.m_AmbientColor);
+	*oa << boost::serialization::make_nvp("FogColor", theApp.m_FogColor);
 	*oa << boost::serialization::make_nvp("BkColor", theApp.m_BkColor);
 	*oa << boost::serialization::make_nvp("ShadowBias", theApp.m_CascadeLayerBias);
 	*oa << boost::serialization::make_nvp("DofParams", theApp.m_DofParams);
@@ -1455,8 +1457,6 @@ BOOL CMainFrame::SaveFileContext(LPCTSTR lpszPathName)
 	*oa << boost::serialization::make_nvp("SsaoIntensity", theApp.m_SsaoIntensity);
 	*oa << boost::serialization::make_nvp("SsaoRadius", theApp.m_SsaoRadius);
 	*oa << boost::serialization::make_nvp("SsaoScale", theApp.m_SsaoScale);
-	*oa << boost::serialization::make_nvp("FogColor", theApp.m_FogColor);
-	*oa << boost::serialization::make_nvp("FogParams", theApp.m_FogParams);
 
 	LONG ActorListSize = cb.acts.size();
 	*oa << BOOST_SERIALIZATION_NVP(ActorListSize);

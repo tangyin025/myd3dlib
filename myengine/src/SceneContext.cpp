@@ -27,6 +27,7 @@ void SceneContextRequest::LoadResource(void)
 		*ia >> boost::serialization::make_nvp("SkyLightCam.m_Euler", scene->m_SkyLightCamEuler);
 		*ia >> boost::serialization::make_nvp("SkyLightColor", scene->m_SkyLightColor);
 		*ia >> boost::serialization::make_nvp("AmbientColor", scene->m_AmbientColor);
+		*ia >> boost::serialization::make_nvp("FogColor", scene->m_FogColor);
 		*ia >> boost::serialization::make_nvp("BkColor", scene->m_BkColor);
 		*ia >> boost::serialization::make_nvp("ShadowBias", scene->m_ShadowBias);
 		*ia >> boost::serialization::make_nvp("DofParams", scene->m_DofParams);
@@ -37,8 +38,6 @@ void SceneContextRequest::LoadResource(void)
 		*ia >> boost::serialization::make_nvp("SsaoIntensity", scene->m_SsaoIntensity);
 		*ia >> boost::serialization::make_nvp("SsaoRadius", scene->m_SsaoRadius);
 		*ia >> boost::serialization::make_nvp("SsaoScale", scene->m_SsaoScale);
-		*ia >> boost::serialization::make_nvp("FogColor", scene->m_FogColor);
-		*ia >> boost::serialization::make_nvp("FogParams", scene->m_FogParams);
 
 		LONG ActorListSize;
 		*ia >> BOOST_SERIALIZATION_NVP(ActorListSize);

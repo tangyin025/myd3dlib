@@ -143,6 +143,13 @@ void CEnvironmentWnd::InitPropList()
 	pProp = new CSimpleProp(_T("AmbientSpecular"), (_variant_t)1.0f, NULL, SkyLightPropertyAmbientSpecular);
 	pSkyLight->AddSubItem(pProp);
 
+	CColorProp * pFogColor = new CColorProp(_T("FogColor"), color, NULL, NULL, SkyLightPropertyFogColor);
+	pFogColor->EnableOtherButton(_T("Other..."));
+	pSkyLight->AddSubItem(pFogColor);
+
+	pProp = new CSimpleProp(_T("FogDensity"), (_variant_t)1.0f, NULL, SkyLightPropertyFogDensity);
+	pSkyLight->AddSubItem(pProp);
+
 	CMFCPropertyGridProperty* pSkyLightShadowBias = new CSimpleProp(_T("ShadowBias"), SkyLightPropertyShadowBias, TRUE);
 	pSkyLight->AddSubItem(pSkyLightShadowBias);
 	pProp = new CSimpleProp(_T("x"), (_variant_t)0.0f, NULL, Vector3PropertyX);
@@ -189,22 +196,6 @@ void CEnvironmentWnd::InitPropList()
 	pSSAO->AddSubItem(pProp);
 	pProp = new CSimpleProp(_T("Scale"), (_variant_t)1.0f, NULL, SSAOPropertyScale);
 	pSSAO->AddSubItem(pProp);
-
-	CMFCPropertyGridProperty * pFog = new CSimpleProp(_T("Fog"), PropertyFog, FALSE);
-	m_wndPropList.AddProperty(pFog, FALSE, FALSE);
-	pProp = new CCheckBoxProp(_T("Enable"), FALSE, NULL, FogPropertyEnable);
-	pFog->AddSubItem(pProp);
-	CColorProp * pBgColor = new CColorProp(_T("Color"), 0, NULL, NULL, FogPropertyColor);
-	pBgColor->EnableOtherButton(_T("Other..."));
-	pFog->AddSubItem(pBgColor);
-	pProp = new CSimpleProp(_T("Param0"), (_variant_t)1.0f, NULL, FogPropertyParam0);
-	pFog->AddSubItem(pProp);
-	pProp = new CSimpleProp(_T("Param1"), (_variant_t)1.0f, NULL, FogPropertyParam1);
-	pFog->AddSubItem(pProp);
-	pProp = new CSimpleProp(_T("Param2"), (_variant_t)1.0f, NULL, FogPropertyParam2);
-	pFog->AddSubItem(pProp);
-	pProp = new CSimpleProp(_T("Param3"), (_variant_t)1.0f, NULL, FogPropertyParam3);
-	pFog->AddSubItem(pProp);
 
 	m_wndPropList.AdjustLayout();
 }
@@ -253,6 +244,11 @@ void CEnvironmentWnd::OnCameraPropChanged(my::EventArg * arg)
 
 	pSkyLight->GetSubItem(SkyLightPropertyAmbientSpecular)->SetValue((_variant_t)theApp.m_AmbientColor.w);
 
+	color = RGB(theApp.m_FogColor.x * 255, theApp.m_FogColor.y * 255, theApp.m_FogColor.z * 255);
+	(DYNAMIC_DOWNCAST(CColorProp, pSkyLight->GetSubItem(SkyLightPropertyFogColor)))->SetColor((_variant_t)color);
+
+	pSkyLight->GetSubItem(SkyLightPropertyFogDensity)->SetValue((_variant_t)theApp.m_FogColor.w);
+
 	pSkyLight->GetSubItem(SkyLightPropertyShadowBias)->GetSubItem(Vector3PropertyX)->SetValue((_variant_t)theApp.m_CascadeLayerBias.x);
 	pSkyLight->GetSubItem(SkyLightPropertyShadowBias)->GetSubItem(Vector3PropertyY)->SetValue((_variant_t)theApp.m_CascadeLayerBias.y);
 	pSkyLight->GetSubItem(SkyLightPropertyShadowBias)->GetSubItem(Vector3PropertyZ)->SetValue((_variant_t)theApp.m_CascadeLayerBias.z);
@@ -277,15 +273,6 @@ void CEnvironmentWnd::OnCameraPropChanged(my::EventArg * arg)
 	pSSAO->GetSubItem(SSAOPropertyIntensity)->SetValue((_variant_t)theApp.m_SsaoIntensity);
 	pSSAO->GetSubItem(SSAOPropertyRadius)->SetValue((_variant_t)theApp.m_SsaoRadius);
 	pSSAO->GetSubItem(SSAOPropertyScale)->SetValue((_variant_t)theApp.m_SsaoScale);
-
-	CMFCPropertyGridProperty * pFog = m_wndPropList.GetProperty(PropertyFog);
-	pFog->GetSubItem(FogPropertyEnable)->SetValue((_variant_t)(VARIANT_BOOL)camera_prop_arg->pView->m_FogEnable);
-	color = RGB(theApp.m_FogColor.x * 255, theApp.m_FogColor.y * 255, theApp.m_FogColor.z * 255);
-	(DYNAMIC_DOWNCAST(CColorProp, pFog->GetSubItem(FogPropertyColor)))->SetColor((_variant_t)color);
-	pFog->GetSubItem(FogPropertyParam0)->SetValue((_variant_t)theApp.m_FogParams.x);
-	pFog->GetSubItem(FogPropertyParam1)->SetValue((_variant_t)theApp.m_FogParams.y);
-	pFog->GetSubItem(FogPropertyParam2)->SetValue((_variant_t)theApp.m_FogParams.z);
-	pFog->GetSubItem(FogPropertyParam3)->SetValue((_variant_t)theApp.m_FogParams.w);
 
 	m_wndPropList.Invalidate(FALSE);
 }
@@ -407,6 +394,11 @@ LRESULT CEnvironmentWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 
 		theApp.m_AmbientColor.w = pTopProp->GetSubItem(SkyLightPropertyAmbientSpecular)->GetValue().fltVal;
 
+		color = (DYNAMIC_DOWNCAST(CColorProp, pTopProp->GetSubItem(SkyLightPropertyFogColor)))->GetColor();
+		theApp.m_FogColor.xyz = my::Vector3(GetRValue(color) / 255.0f, GetGValue(color) / 255.0f, GetBValue(color) / 255.0f);
+
+		theApp.m_FogColor.w = pTopProp->GetSubItem(SkyLightPropertyFogDensity)->GetValue().fltVal;
+
 		theApp.m_CascadeLayerBias = my::Vector4(
 			pTopProp->GetSubItem(SkyLightPropertyShadowBias)->GetSubItem(Vector3PropertyX)->GetValue().fltVal,
 			pTopProp->GetSubItem(SkyLightPropertyShadowBias)->GetSubItem(Vector3PropertyY)->GetValue().fltVal,
@@ -438,17 +430,6 @@ LRESULT CEnvironmentWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		theApp.m_SsaoIntensity = pTopProp->GetSubItem(SSAOPropertyIntensity)->GetValue().fltVal;
 		theApp.m_SsaoRadius = pTopProp->GetSubItem(SSAOPropertyRadius)->GetValue().fltVal;
 		theApp.m_SsaoScale = pTopProp->GetSubItem(SSAOPropertyScale)->GetValue().fltVal;
-	}
-	break;
-	case PropertyFog:
-	{
-		pView->m_FogEnable = pTopProp->GetSubItem(FogPropertyEnable)->GetValue().boolVal != 0;
-		COLORREF color = (DYNAMIC_DOWNCAST(CColorProp, pTopProp->GetSubItem(FogPropertyColor)))->GetColor();
-		theApp.m_FogColor.xyz = my::Vector3(GetRValue(color) / 255.0f, GetGValue(color) / 255.0f, GetBValue(color) / 255.0f);
-		theApp.m_FogParams.x = pTopProp->GetSubItem(FogPropertyParam0)->GetValue().fltVal;
-		theApp.m_FogParams.y = pTopProp->GetSubItem(FogPropertyParam1)->GetValue().fltVal;
-		theApp.m_FogParams.z = pTopProp->GetSubItem(FogPropertyParam2)->GetValue().fltVal;
-		theApp.m_FogParams.w = pTopProp->GetSubItem(FogPropertyParam3)->GetValue().fltVal;
 	}
 	break;
 	}

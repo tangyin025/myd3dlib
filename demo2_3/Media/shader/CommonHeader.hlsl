@@ -40,6 +40,7 @@ shared float3 g_SkyLightDir;
 shared float4x4 g_SkyLightViewProj[CASCADE_LAYER_NUM];
 shared float4 g_SkyLightColor;
 shared float4 g_AmbientColor;
+shared float4 g_FogColor;
 shared texture g_ShadowRT0;
 #if CASCADE_LAYER_NUM > 1
 shared texture g_ShadowRT1;
@@ -246,6 +247,11 @@ float GetLigthAmount(float4 PosWS, float InvScreenDepth)
 	}
 #endif
 	return 1;
+}
+
+float GetFogFactor(float depth)
+{
+	return 1 - 1 / exp(depth * g_FogColor.a);
 }
 
 float ScreenDoorTransparency(float Alpha, float2 SPos)

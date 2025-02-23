@@ -19,7 +19,6 @@ class CEnvironmentWnd : public CDockablePane
 		PropertyDepthOfField,
 		PropertyBloom,
 		PropertySSAO,
-		PropertyFog,
 	};
 
 	enum CameraProperty
@@ -51,6 +50,8 @@ class CEnvironmentWnd : public CDockablePane
 		SkyLightPropertySpecular,
 		SkyLightPropertyAmbientColor,
 		SkyLightPropertyAmbientSpecular,
+		SkyLightPropertyFogColor,
+		SkyLightPropertyFogDensity,
 		SkyLightPropertyShadowBias,
 	};
 
@@ -78,16 +79,6 @@ class CEnvironmentWnd : public CDockablePane
 		SSAOPropertyIntensity,
 		SSAOPropertyRadius,
 		SSAOPropertyScale,
-	};
-
-	enum FogProperty
-	{
-		FogPropertyEnable,
-		FogPropertyColor,
-		FogPropertyParam0,
-		FogPropertyParam1,
-		FogPropertyParam2,
-		FogPropertyParam3,
 	};
 
 	enum Vector3Property

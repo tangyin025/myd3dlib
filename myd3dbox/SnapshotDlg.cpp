@@ -394,7 +394,6 @@ void CSnapshotDlg::DoSnapshot()
 	rc.m_BloomEnable = pView->m_BloomEnable;
 	rc.m_FxaaEnable = pView->m_FxaaEnable;
 	rc.m_SsaoEnable = pView->m_SsaoEnable;
-	rc.m_FogEnable = pView->m_FogEnable;
 	rc.m_NormalRT.reset(new my::Texture2D());
 	rc.m_NormalRT->CreateTexture(
 		desc.Width, desc.Height, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A32B32G32R32F, D3DPOOL_DEFAULT);

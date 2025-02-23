@@ -118,6 +118,8 @@ public:
 
 	my::Vector4 m_AmbientColor;
 
+	my::Vector4 m_FogColor;
+
 	D3DCOLOR m_BkColor;
 
 	boost::shared_ptr<my::Effect> m_SimpleSample;
@@ -147,6 +149,8 @@ public:
 	D3DXHANDLE handle_SkyLightColor;
 
 	D3DXHANDLE handle_AmbientColor;
+
+	D3DXHANDLE handle_FogColor;
 
 	D3DXHANDLE handle_ShadowRT[CASCADE_LAYER_NUM];
 
@@ -199,14 +203,6 @@ public:
 	float m_SsaoRadius;
 
 	float m_SsaoScale;
-
-	D3DXHANDLE handle_FogColor;
-
-	D3DXHANDLE handle_FogParams;
-
-	my::Vector4 m_FogColor;
-
-	my::Vector4 m_FogParams;
 
 	struct RTChain
 	{
@@ -272,8 +268,6 @@ public:
 
 		bool m_SsaoEnable;
 
-		bool m_FogEnable;
-
 		boost::shared_ptr<my::Texture2D> m_NormalRT;
 
 		boost::shared_ptr<my::Texture2D> m_SpecularRT;
@@ -294,7 +288,6 @@ public:
 			, m_BloomEnable(false)
 			, m_FxaaEnable(false)
 			, m_SsaoEnable(false)
-			, m_FogEnable(false)
 			, m_RTType(RenderTargetOpaque)
 		{
 		}
