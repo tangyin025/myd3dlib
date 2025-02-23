@@ -125,6 +125,7 @@ struct OPAQUE_VS_OUTPUT
 	float3 ViewVS			: TEXCOORD1;
 	float4 PosWS			: TEXCOORD2;
 	float InvScreenDepth	: TEXCOORD3;
+	float fogFactor			: TEXCOORD4;
 };
 
 OPAQUE_VS_OUTPUT OpaqueVS( VS_INPUT In )
@@ -141,6 +142,7 @@ OPAQUE_VS_OUTPUT OpaqueVS( VS_INPUT In )
     Output.InvScreenDepth = Output.Pos.w / Output.Pos.z;
     float3 View = normalize(positionWS - g_Eye);
 	Output.ViewVS = mul(View, (float3x3)g_View);
+	Output.fogFactor = GetFogFactor(length(Output.ViewVS));
 
 	// /////////////////////////////////////////////////////////////////////
 	// //lighting & color
@@ -208,7 +210,7 @@ float4 OpaquePS( OPAQUE_VS_OUTPUT In ) : COLOR0
     float SkySpecular = DistributionGGX(SkyLightDirVS, Ref, 0.8) * g_SkyLightColor.w * 0.3 * SkyLightAmount;
     float4 ScreenLight = tex2D(LightRTSampler, (In.Pos.xy + 0.5f) / g_ScreenDim);
 	float3 Final = In.Color.xyz * (ScreenLight.xyz + SkyDiffuse) + ScreenLight.w + SkySpecular;
-	return float4(Final, 1);
+    return float4(lerp(Final, g_FogColor.xyz, In.fogFactor), 1);
 }
 
 technique RenderScene

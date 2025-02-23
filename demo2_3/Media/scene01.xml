@@ -18,6 +18,12 @@
 	<z>3.000000119e-01</z>
 	<w>3.000000119e-01</w>
 </AmbientColor>
+<FogColor>
+	<x>5.180000067e-01</x>
+	<y>5.529999733e-01</y>
+	<z>6.079999804e-01</z>
+	<w>9.999999776e-03</w>
+</FogColor>
 <BkColor>4344697</BkColor>
 <ShadowBias>
 	<x>1.000000047e-03</x>
@@ -42,18 +48,6 @@
 <SsaoIntensity>5.000000000e+00</SsaoIntensity>
 <SsaoRadius>1.000000000e+02</SsaoRadius>
 <SsaoScale>1.000000000e+01</SsaoScale>
-<FogColor>
-	<x>5.180000067e-01</x>
-	<y>5.529999733e-01</y>
-	<z>6.079999804e-01</z>
-	<w>1.000000000e+00</w>
-</FogColor>
-<FogParams>
-	<x>9.999999776e-03</x>
-	<y>0.000000000e+00</y>
-	<z>0.000000000e+00</z>
-	<w>0.000000000e+00</w>
-</FogParams>
 <ActorListSize>2</ActorListSize>
 <Actor0 class_id="2" tracking_level="0" version="1">
 	<px class_id="3" tracking_level="1" version="0" object_id="_0">

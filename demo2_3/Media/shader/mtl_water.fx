@@ -48,6 +48,7 @@ struct TRANSPARENT_VS_OUTPUT
 	float3 Tangent		: TEXCOORD4;
 	float3 Binormal		: TEXCOORD5;
 	float3 ViewWS		: TEXCOORD6;
+	float fogFactor		: TEXCOORD7;
 };
 
 TRANSPARENT_VS_OUTPUT TransparentVS( VS_INPUT In )
@@ -91,6 +92,7 @@ TRANSPARENT_VS_OUTPUT TransparentVS( VS_INPUT In )
 	Output.Tangent = float3(1,0,0);//TransformTangent(In);
     Output.Binormal = cross(Output.Normal, Output.Tangent);
     Output.ViewWS = PosWS.xyz - g_Eye; // ! dont normalize here
+	Output.fogFactor = GetFogFactor(length(Output.ViewWS));
 	return Output;
 }
 
@@ -106,7 +108,8 @@ float4 TransparentPS( TRANSPARENT_VS_OUTPUT In ) : COLOR
 	float3 reflection = reflect(pixel_to_eye_vector, Normal);
 	float3 reflection_color = texCUBE(ReflectTextureSampler, reflection).xyz;
 	float fres = Fresnel(Normal, pixel_to_eye_vector, g_FresExp, g_ReflStrength);
-	return float4(reflection_color * fres + g_WaterColor * (1 - fres), 0.5);
+	float3 Final = reflection_color * fres + g_WaterColor * (1 - fres);
+	return float4(lerp(Final, g_FogColor.xyz, In.fogFactor), 0.5);
 }
 
 technique RenderScene

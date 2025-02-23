@@ -29,6 +29,7 @@ struct TRANSPARENT_VS_OUTPUT
 	float3 Tangent		: TEXCOORD3;
 	float3 Binormal		: TEXCOORD4;
 	float3 ViewWS		: TEXCOORD5;
+	float fogFactor		: TEXCOORD7;
 };
 
 TRANSPARENT_VS_OUTPUT TransparentVS( VS_INPUT In )
@@ -43,6 +44,7 @@ TRANSPARENT_VS_OUTPUT TransparentVS( VS_INPUT In )
 	Output.Tangent = TransformTangent(In);
 	Output.Binormal = cross(Output.Tangent, Output.Normal); // ! left handed water_bump.dds
 	Output.ViewWS = g_Eye - Output.PosWS.xyz; // ! dont normalize here
+	Output.fogFactor = GetFogFactor(length(Output.ViewWS));
 	
 	float3x3 m = float3x3(Output.Tangent,Output.Binormal,Output.Normal);
 	float4 nt0 = tex2Dlod(NormalTextureSampler, float4(Output.texCoord0,0,0));
@@ -96,7 +98,8 @@ float4 TransparentPS( TRANSPARENT_VS_OUTPUT In ) : COLOR
 		max(0,1-pixel_to_eye_vector.y)*(300.0/(300+pixel_to_eye_length));
 		
 	// return float4(g_WaterScatterColor*scatter_factor,1);
-	return float4(color+specular+g_WaterScatterColor*scatter_factor,1);
+	float3 Final=color+specular+g_WaterScatterColor*scatter_factor;
+    return float4(lerp(Final, g_FogColor.xyz, In.fogFactor), 1);
 }
 
 technique RenderScene
