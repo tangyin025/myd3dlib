@@ -34,8 +34,6 @@ BOOST_CLASS_EXPORT(AnimationNodeSubTree)
 
 BOOST_CLASS_EXPORT(AnimationNodeBlendList)
 
-BOOST_CLASS_EXPORT(AnimationNodeRate)
-
 BOOST_CLASS_EXPORT(Animator)
 
 AnimationNode::~AnimationNode(void)
@@ -664,23 +662,6 @@ my::BoneList & AnimationNodeBlendList::GetPose(my::BoneList & pose, int root_i, 
 	return pose;
 }
 
-void AnimationNodeRate::Tick(float fElapsedTime, float fTotalWeight)
-{
-	if (m_Childs[0])
-	{
-		m_Childs[0]->Tick(fElapsedTime * m_Rate, fTotalWeight);
-	}
-}
-
-my::BoneList & AnimationNodeRate::GetPose(my::BoneList & pose, int root_i, const my::BoneHierarchy & boneHierarchy) const
-{
-	if (m_Childs[0])
-	{
-		return m_Childs[0]->GetPose(pose, root_i, boneHierarchy);
-	}
-	return pose;
-}
-
 template<class Archive>
 void Animator::save(Archive & ar, const unsigned int version) const
 {
@@ -759,7 +740,7 @@ void Animator::ReleaseResource(void)
 
 void Animator::Update(float fElapsedTime)
 {
-	Tick(fElapsedTime * m_Rate, 1.0f);
+	Tick(fElapsedTime, 1.0f);
 }
 
 void Animator::Tick(float fElapsedTime, float fTotalWeight)

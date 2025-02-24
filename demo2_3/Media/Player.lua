@@ -31,15 +31,11 @@ for i=0,3 do
 end
 
 -- 构建动画树
-local rate_walk=AnimationNodeRate("rate_walk")
-rate_walk.Speed0=1.2
-rate_walk.Child0=AnimationNodeSequence("clip_run",1.0,true,"move")
+local rate_walk=AnimationNodeSequence("clip_run",1.0,true,"move")
 local node_walk=AnimationNodeBlendList("node_walk",2)
 node_walk.Child0=AnimationNodeSequence("clip_stand")
 node_walk.Child1=rate_walk
-local rate_run=AnimationNodeRate("rate_run")
-rate_run.Speed0=7
-rate_run.Child0=AnimationNodeSequence("clip_run",1.0,true,"move")
+local rate_run=AnimationNodeSequence("clip_run",1.0,true,"move")
 local node_run=AnimationNodeBlendList("node_run",2)
 node_run:SetChildAdopt(0,node_walk)
 node_run.Child1=rate_run

@@ -3458,16 +3458,11 @@ void LuaContext::Init(void)
 			.def("GetActiveChild", &AnimationNodeBlendList::GetActiveChild)
 			.def("Tick", &AnimationNodeBlendList::Tick, &ScriptAnimationNodeBlendList::default_Tick)
 
-		, class_<AnimationNodeRate, AnimationNode, boost::shared_ptr<AnimationNode> >("AnimationNodeRate")
-			.def(constructor<const char*>())
-			.def_readwrite("Rate", &AnimationNodeRate::m_Rate)
-
 		, class_<Animator, bases<Component, AnimationNode>, boost::shared_ptr<Component> >("Animator") // ! luabind::bases for accessing AnimationNodeSlot properties from boost::shared_ptr<Component>
 			.def(constructor<const char*>())
 			.def_readwrite("SkeletonPath", &Animator::m_SkeletonPath)
 			.def_readonly("Skeleton", &Animator::m_Skeleton)
 			.def_readonly("anim_pose", &Animator::anim_pose, return_stl_iterator)
-			.def_readwrite("Rate", &Animator::m_Rate)
 			.def("ReloadSequenceGroup", &Animator::ReloadSequenceGroup)
 			.def("AddDynamicBone", &Animator::AddDynamicBone)
 			.def("AddIK", &Animator::AddIK)
