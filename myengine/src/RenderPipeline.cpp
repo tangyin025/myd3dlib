@@ -867,7 +867,11 @@ void RenderPipeline::OnRender(
 		V(pd3dDevice->StretchRect(pRC->m_OpaqueRT.GetNextSource()->GetSurfaceLevel(0), NULL, ScreenSurf, NULL, D3DTEXF_NONE));
 		break;
 	case RenderTargetDownFilter:
-		V(pd3dDevice->StretchRect(pRC->m_DownFilterRT.GetNextSource()->GetSurfaceLevel(0), NULL, ScreenSurf, NULL, D3DTEXF_NONE));
+		V(pd3dDevice->StretchRect(
+			pRC->m_DownFilterRT.GetNextSource()->GetSurfaceLevel(0),
+			CRect(0, 0, ScreenSurfDesc->Width / 4, ScreenSurfDesc->Height / 4),
+			ScreenSurf,
+			CRect(0, 0, ScreenSurfDesc->Width, ScreenSurfDesc->Height), D3DTEXF_LINEAR));
 		break;
 	}
 
