@@ -59,6 +59,7 @@ RenderPipeline::RenderPipeline(void)
 	, handle_LuminanceThreshold(NULL)
 	, handle_BloomColor(NULL)
 	, handle_BloomFactor(NULL)
+	, handle_BloomPixel2Texel(NULL)
 	, m_LuminanceThreshold(0.5f)
 	, m_BloomColor(1.0f, 1.0f, 1.0f)
 	, m_BloomFactor(1.0f)
@@ -709,12 +710,14 @@ void RenderPipeline::OnRender(
 				BOOST_VERIFY(handle_LuminanceThreshold = BloomEffect->GetParameterByName(NULL, "_LuminanceThreshold"));
 				BOOST_VERIFY(handle_BloomColor = BloomEffect->GetParameterByName(NULL, "_BloomColor"));
 				BOOST_VERIFY(handle_BloomFactor = BloomEffect->GetParameterByName(NULL, "_BloomFactor"));
+				BOOST_VERIFY(handle_BloomPixel2Texel = BloomEffect->GetParameterByName(NULL, "_Pixel2Texel"));
 			}
 
 			V(pd3dDevice->SetRenderTarget(0, pRC->m_DownFilterRT.GetNextTarget()->GetSurfaceLevel(0)));
 			BloomEffect->SetFloat(handle_LuminanceThreshold, m_LuminanceThreshold);
 			BloomEffect->SetVector(handle_BloomColor, m_BloomColor);
 			BloomEffect->SetFloat(handle_BloomFactor, m_BloomFactor);
+			BloomEffect->SetVector(handle_BloomPixel2Texel, Vector2(0.001388888888888889f * ScreenSurfDesc->Height / ScreenSurfDesc->Width, 0.001388888888888889f));
 			m_SimpleSample->SetTexture(handle_OpaqueRT, pRC->m_OpaqueRT.GetNextSource().get());
 			V(pd3dDevice->SetFVF(D3DFVF_XYZRHW | D3DFVF_TEX2));
 			V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE));

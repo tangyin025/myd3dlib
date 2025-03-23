@@ -176,6 +176,8 @@ public:
 
 	D3DXHANDLE handle_BloomFactor;
 
+	D3DXHANDLE handle_BloomPixel2Texel;
+
 	float m_LuminanceThreshold;
 
 	my::Vector3 m_BloomColor;
