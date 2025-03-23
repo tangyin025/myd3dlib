@@ -68,8 +68,9 @@ RenderPipeline::RenderPipeline(void)
 	, handle_RCPFrame(NULL)
 	, handle_bias(NULL)
 	, handle_intensity(NULL)
-	, handle_sample_rad(NULL)
+	//, handle_sample_rad(NULL)
 	, handle_scale(NULL)
+	, handle_Kernel2Texel(NULL)
 	, handle_OcclusionRT(NULL)
 	, m_SsaoBias(0.2f)
 	, m_SsaoIntensity(5.0f)
@@ -573,8 +574,9 @@ void RenderPipeline::OnRender(
 			{
 				BOOST_VERIFY(handle_bias = SsaoEffect->GetParameterByName(NULL, "g_bias"));
 				BOOST_VERIFY(handle_intensity = SsaoEffect->GetParameterByName(NULL, "g_intensity"));
-				BOOST_VERIFY(handle_sample_rad = SsaoEffect->GetParameterByName(NULL, "g_sample_rad"));
+				//BOOST_VERIFY(handle_sample_rad = SsaoEffect->GetParameterByName(NULL, "g_sample_rad"));
 				BOOST_VERIFY(handle_scale = SsaoEffect->GetParameterByName(NULL, "g_scale"));
+				BOOST_VERIFY(handle_Kernel2Texel = SsaoEffect->GetParameterByName(NULL, "_Kernel2Texel"));
 				BOOST_VERIFY(handle_OcclusionRT = SsaoEffect->GetParameterByName(NULL, "g_OcclusionRT"));
 			}
 
@@ -585,8 +587,9 @@ void RenderPipeline::OnRender(
 			V(pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE));
 			SsaoEffect->SetFloat(handle_bias, m_SsaoBias);
 			SsaoEffect->SetFloat(handle_intensity, m_SsaoIntensity);
-			SsaoEffect->SetFloat(handle_sample_rad, m_SsaoRadius);
+			//SsaoEffect->SetFloat(handle_sample_rad, m_SsaoRadius);
 			SsaoEffect->SetFloat(handle_scale, m_SsaoScale);
+			SsaoEffect->SetVector(handle_Kernel2Texel, Vector2(0.001388888888888889f * ScreenSurfDesc->Height / ScreenSurfDesc->Width * m_SsaoRadius, 0.001388888888888889f * m_SsaoRadius));
 			SsaoEffect->Begin(D3DXFX_DONOTSAVESTATE | D3DXFX_DONOTSAVESAMPLERSTATE | D3DXFX_DONOTSAVESHADERSTATE);
 			SsaoEffect->BeginPass(0);
 			_UpdateQuad(quad, Vector2((float)ScreenSurfDesc->Width, (float)ScreenSurfDesc->Height), Vector2(1), Vector2(1));

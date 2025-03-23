@@ -194,9 +194,11 @@ public:
 
 	D3DXHANDLE handle_intensity;
 
-	D3DXHANDLE handle_sample_rad;
+	//D3DXHANDLE handle_sample_rad;
 
 	D3DXHANDLE handle_scale;
+
+	D3DXHANDLE handle_Kernel2Texel;
 
 	D3DXHANDLE handle_OcclusionRT;
 

@@ -2,7 +2,7 @@
 #include "CommonHeader.hlsl"
 float g_bias=0.2;
 float g_intensity=5;
-float g_sample_rad=100;
+// float g_sample_rad=100;
 float g_scale=10;
 texture g_OcclusionRT;
 
@@ -56,6 +56,8 @@ float2 ssaoNoise[16]=
 	{-0.089441284537315, 0.0065105808898807}
 };
 
+float2 _Kernel2Texel = float2( 1.0, 1.0 );
+
 struct VS_OUTPUT
 {
     float4 Position   : POSITION;   // vertex position 
@@ -92,13 +94,12 @@ float4 OcclusionPS(VS_OUTPUT In) : COLOR0
 	float3 fragPos = tex2D(PositionRTSampler, In.TextureUV).xyz;
 	float3 normal = tex2D(NormalRTSampler, In.TextureUV).xyz;
 	float2 noise = ssaoNoise[In.TextureUV.y * g_ScreenDim.y % 4 * 4 + In.TextureUV.x * g_ScreenDim.x % 4];
-	float2 aspect = float2(g_sample_rad / 720 / fragPos.z * g_ScreenDim.y / g_ScreenDim.x, g_sample_rad / 720 / fragPos.z);
 
 	float occlusion = 0;
 	for (int i = 0; i < 16; i++)
 	{
 		float2 kernel = ssaoKernel[i] + noise;
-		kernel *= aspect;
+		kernel *= _Kernel2Texel / fragPos.z;
 		float3 offset = tex2D(PositionRTSampler, In.TextureUV + kernel).xyz - fragPos;
 
 		const float3 v = normalize(offset);
