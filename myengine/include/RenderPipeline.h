@@ -168,6 +168,8 @@ public:
 
 	D3DXHANDLE handle_DofParams;
 
+	D3DXHANDLE handle_DofPixel2Texel;
+
 	my::Vector4 m_DofParams;
 
 	D3DXHANDLE handle_LuminanceThreshold;

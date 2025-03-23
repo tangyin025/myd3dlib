@@ -39,6 +39,8 @@ float2 PixelKernelV[g_cKernelSize] =
     { 0,  6 },
 };
 
+float2 _Pixel2Texel = float2( 1.0, 1.0 );
+
 static const float BlurWeights[g_cKernelSize] = 
 {
     0.002216,
@@ -72,7 +74,7 @@ float4 ColorBGlurH( VS_OUTPUT In ) : COLOR0
 
     for (int i = 0; i < g_cKernelSize; i++)
     {    
-        Color += tex2D( DownFilterRTSampler, In.TextureUV + PixelKernelH[i].xy / g_ScreenDim ) * BlurWeights[i];
+        Color += tex2D( DownFilterRTSampler, In.TextureUV + PixelKernelH[i].xy * _Pixel2Texel ) * BlurWeights[i];
     }
     
     return Color;
@@ -84,7 +86,7 @@ float4 ColorBGlurV( VS_OUTPUT In ) : COLOR0
 
     for (int i = 0; i < g_cKernelSize; i++)
     {    
-        Color += tex2D( DownFilterRTSampler, In.TextureUV + PixelKernelV[i].xy / g_ScreenDim ) * BlurWeights[i];
+        Color += tex2D( DownFilterRTSampler, In.TextureUV + PixelKernelV[i].xy * _Pixel2Texel ) * BlurWeights[i];
     }
     
     return Color;

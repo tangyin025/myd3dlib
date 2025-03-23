@@ -55,6 +55,7 @@ RenderPipeline::RenderPipeline(void)
 	, handle_OpaqueRT(NULL)
 	, handle_DownFilterRT(NULL)
 	, handle_DofParams(NULL)
+	, handle_DofPixel2Texel(NULL)
 	, m_DofParams(5.0f, 15.0f, 25.0f, 1.0f)
 	, handle_LuminanceThreshold(NULL)
 	, handle_BloomColor(NULL)
@@ -637,6 +638,7 @@ void RenderPipeline::OnRender(
 			if (!handle_DofParams)
 			{
 				BOOST_VERIFY(handle_DofParams = DofEffect->GetParameterByName(NULL, "g_DofParams"));
+				BOOST_VERIFY(handle_DofPixel2Texel = DofEffect->GetParameterByName(NULL, "_Pixel2Texel"));
 			}
 
 			V(pd3dDevice->StretchRect(
@@ -649,6 +651,7 @@ void RenderPipeline::OnRender(
 				D3DXSaveTextureToFileA("aaa.bmp", D3DXIFF_BMP, pRC->m_DownFilterRT.GetNextSource()->m_ptr, NULL);
 
 			DofEffect->SetVector(handle_DofParams, m_DofParams);
+			DofEffect->SetVector(handle_DofPixel2Texel, Vector2(0.001388888888888889f * ScreenSurfDesc->Height / ScreenSurfDesc->Width, 0.001388888888888889f));
 			m_SimpleSample->SetTexture(handle_OpaqueRT, pRC->m_OpaqueRT.GetNextSource().get());
 			m_SimpleSample->SetTexture(handle_DownFilterRT, pRC->m_DownFilterRT.GetNextSource().get());
 			V(pd3dDevice->SetRenderTarget(0, pRC->m_DownFilterRT.GetNextTarget()->GetSurfaceLevel(0)));
