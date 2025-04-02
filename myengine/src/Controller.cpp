@@ -176,12 +176,14 @@ unsigned int Controller::GetShapeFlags(void) const
 
 unsigned int Controller::Move(const my::Vector3 & disp, float minDist, float elapsedTime, unsigned int filterWord0)
 {
+#ifdef _DEBUG
 	m_PxControllerMoveMuted = true;
 	BOOST_SCOPE_EXIT(&m_PxControllerMoveMuted)
 	{
 		m_PxControllerMoveMuted = false;
 	}
 	BOOST_SCOPE_EXIT_END
+#endif
 		
 	physx::PxControllerCollisionFlags moveFlags;
 

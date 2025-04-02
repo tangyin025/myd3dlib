@@ -20,7 +20,9 @@ public:
 
 	unsigned int m_DescShapeFlags;
 
-	bool m_PxControllerMoveMuted;
+#ifdef _DEBUG
+	volatile bool m_PxControllerMoveMuted;
+#endif
 
 	boost::shared_ptr<physx::PxMaterial> m_PxMaterial;
 
@@ -31,7 +33,9 @@ protected:
 		: m_DescSimulationFilterWord0(0)
 		, m_DescQueryFilterWord0(0)
 		, m_DescShapeFlags(physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSIMULATION_SHAPE | physx::PxShapeFlag::eSCENE_QUERY_SHAPE)
+#ifdef _DEBUG
 		, m_PxControllerMoveMuted(false)
+#endif
 	{
 	}
 
@@ -41,7 +45,9 @@ public:
 		, m_DescSimulationFilterWord0(0)
 		, m_DescQueryFilterWord0(0)
 		, m_DescShapeFlags(physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSIMULATION_SHAPE | physx::PxShapeFlag::eSCENE_QUERY_SHAPE)
+#ifdef _DEBUG
 		, m_PxControllerMoveMuted(false)
+#endif
 	{
 		m_desc.height = Height;
 		m_desc.radius = Radius;
