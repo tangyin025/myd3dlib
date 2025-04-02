@@ -325,32 +325,6 @@ public:
 	virtual bool OnControllerFilter(const physx::PxController& a, const physx::PxController& b);
 
 	void removeRenderActorsFromPhysicsActor(const physx::PxActor * actor);
-
-	bool Overlap(
-		const physx::PxGeometry & geometry,
-		const my::Vector3 & Position,
-		const my::Quaternion & Rotation,
-		unsigned int filterWord0,
-		const my::EventCallback & callback,
-		unsigned int MaxNbTouches) const;
-
-	bool Raycast(
-		const my::Vector3 & origin,
-		const my::Vector3 & unitDir,
-		float distance,
-		unsigned int filterWord0,
-		const my::EventCallback & callback,
-		unsigned int MaxNbTouches) const;
-
-	bool Sweep(
-		const physx::PxGeometry & geometry,
-		const my::Vector3 & Position,
-		const my::Quaternion & Rotation,
-		const my::Vector3 & unitDir,
-		float distance,
-		unsigned int filterWord0,
-		const my::EventCallback & callback,
-		unsigned int MaxNbTouches) const;
 };
 
 class PhysxSpatialIndex
