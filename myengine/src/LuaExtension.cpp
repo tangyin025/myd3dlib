@@ -1199,10 +1199,99 @@ static my::Effect* renderpipeline_query_shader(RenderPipeline* self, const luabi
 	return self->QueryShader(macs.data(), path, PassID);
 }
 
-static bool physxscene_raycast(PhysxScene* self,
-	const my::Vector3& origin, const my::Vector3& unitDir, float distance, unsigned int filterWord0, const luabind::object& callback, unsigned int MaxNbTouches)
+class RaycastHitIterator : public std::iterator<std::forward_iterator_tag, RaycastHitArg*>
 {
-	return self->Raycast(origin, unitDir, distance, filterWord0, boost::bind(&luabind::call_function<bool, my::EventArg*>, boost::ref(callback), boost::placeholders::_1), MaxNbTouches);
+protected:
+	boost::shared_ptr<physx::PxRaycastHit[]> buff;
+
+	physx::PxRaycastHit* buff_iter;
+
+	RaycastHitArg arg;
+
+public:
+	explicit RaycastHitIterator(boost::shared_ptr<physx::PxRaycastHit[]> _buff, physx::PxRaycastHit* _buff_iter)
+		: buff(_buff)
+		, buff_iter(_buff_iter)
+		, arg(NULL, NULL, 0, my::Vector3(0), my::Vector3(1, 0, 0), 0, 0, 0)
+	{
+	}
+	// Assignment operator
+	RaycastHitIterator& operator=(const RaycastHitIterator& src)
+	{
+		buff = src.buff;
+		buff_iter = src.buff_iter;
+	}
+	// Dereference an iterator
+	RaycastHitArg* operator*()
+	{
+		// When the value is one step more than the last, it's an end iterator
+		if (!buff_iter->shape->userData)
+		{
+			throw std::logic_error("Cannot dereference an end iterator.");
+		}
+		arg.cmp = (Component*)buff_iter->shape->userData;
+		arg.actor = arg.cmp->m_Actor;
+		arg.faceIndex = buff_iter->faceIndex;
+		arg.position = (my::Vector3&)buff_iter->position;
+		arg.normal = (my::Vector3&)buff_iter->normal;
+		arg.distance = buff_iter->distance;
+		arg.u = buff_iter->u;
+		arg.v = buff_iter->v;
+		return &arg;
+	}
+	// Prefix increment operator
+	RaycastHitIterator& operator++()
+	{
+		// When the value is one step more than the last, it's an end iterator
+		//if (buff_iter == buff->end())
+		//{
+		//	throw std::logic_error("Cannot dereference an end iterator.");
+		//}
+		buff_iter++;
+		return *this;
+	}
+	// Postfix increment operator
+	RaycastHitIterator operator++(int)
+	{
+		RaycastHitIterator temp = *this;
+		temp++;                                      // Increment the value by the range step
+		return temp;                                 // The iterator before it's incremented
+	}
+	// Comparisons
+	bool operator==(const RaycastHitIterator& iter) const
+	{
+		return buff == iter.buff && buff_iter == iter.buff_iter;
+	}
+	bool operator!=(const RaycastHitIterator& iter) const
+	{
+		return buff != iter.buff || buff_iter != iter.buff_iter;
+	}
+};
+
+static boost::iterator_range<RaycastHitIterator> physxscene_raycast(PhysxScene* self,
+	const my::Vector3& origin, const my::Vector3& unitDir, float distance, unsigned int filterWord0, unsigned int MaxNbTouches)
+{
+	boost::shared_ptr<physx::PxRaycastHit[]> buff(new physx::PxRaycastHit[my::Max(MaxNbTouches, 1u)]);
+	physx::PxRaycastBuffer hitbuff(buff.get(), MaxNbTouches);
+	hitbuff.block.distance = FLT_MAX;
+	physx::PxQueryFilterData filterData = physx::PxQueryFilterData(
+		physx::PxFilterData(filterWord0, 0, 0, 0), physx::PxQueryFlag::eDYNAMIC | physx::PxQueryFlag::eSTATIC /*| physx::PxQueryFlag::ePREFILTER | physx::PxQueryFlag::eANY_HIT*/);
+	if (self->m_PxScene->raycast((physx::PxVec3&)origin, (physx::PxVec3&)unitDir, distance, hitbuff, physx::PxHitFlag::eDEFAULT, filterData, NULL, NULL))
+	{
+		if (hitbuff.hasBlock)
+		{
+			buff[0] = hitbuff.block;
+			return boost::make_iterator_range(
+				RaycastHitIterator(buff, buff.get()), RaycastHitIterator(buff, buff.get() + 1));
+		}
+		else
+		{
+			return boost::make_iterator_range(
+				RaycastHitIterator(buff, buff.get()), RaycastHitIterator(buff, buff.get() + hitbuff.nbTouches));
+		}
+	}
+	return boost::make_iterator_range(
+		RaycastHitIterator(buff, buff.get()), RaycastHitIterator(buff, buff.get()));
 }
 
 class OverlapHitIterator : public std::iterator<std::forward_iterator_tag, OverlapHitArg*>
@@ -3844,7 +3933,7 @@ void LuaContext::Init(void)
 			.def("SetControllerDebugRenderingFlags", &PhysxScene::SetControllerDebugRenderingFlags)
 			.property("Gravity", &PhysxScene::GetGravity, &PhysxScene::SetGravity)
 			.def_readonly("RemainingTime", &PhysxScene::m_RemainingTime)
-			.def("Raycast", &physxscene_raycast)
+			.def("Raycast", &physxscene_raycast, return_stl_iterator)
 			.def("BoxOverlap", &physxscene_box_overlap, return_stl_iterator)
 			.def("SphereOverlap", &physxscene_sphere_overlap, return_stl_iterator)
 			.def("BoxSweep", &physxscene_box_sweep, return_stl_iterator)
