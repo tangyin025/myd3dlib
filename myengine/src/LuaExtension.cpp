@@ -1205,18 +1205,118 @@ static bool physxscene_raycast(PhysxScene* self,
 	return self->Raycast(origin, unitDir, distance, filterWord0, boost::bind(&luabind::call_function<bool, my::EventArg*>, boost::ref(callback), boost::placeholders::_1), MaxNbTouches);
 }
 
-static bool physxscene_overlap_box(PhysxScene* self,
-	float hx, float hy, float hz, const my::Vector3& Position, const my::Quaternion& Rotation, unsigned int filterWord0, const luabind::object& callback, unsigned int MaxNbTouches)
+class OverlapHitIterator : public std::iterator<std::forward_iterator_tag, OverlapHitArg*>
 {
-	physx::PxBoxGeometry box(hx, hy, hz);
-	return self->Overlap(box, Position, Rotation, filterWord0, boost::bind(&luabind::call_function<bool, my::EventArg*>, boost::ref(callback), boost::placeholders::_1), MaxNbTouches);
+protected:
+	boost::shared_ptr<physx::PxOverlapHit[]> buff;
+
+	physx::PxOverlapHit* buff_iter;
+
+	OverlapHitArg arg;
+
+public:
+	explicit OverlapHitIterator(boost::shared_ptr<physx::PxOverlapHit[]> _buff, physx::PxOverlapHit* _buff_iter)
+		: buff(_buff)
+		, buff_iter(_buff_iter)
+		, arg(NULL, NULL, 0)
+	{
+	}
+	// Assignment operator
+	OverlapHitIterator& operator=(const OverlapHitIterator& src)
+	{
+		buff = src.buff;
+		buff_iter = src.buff_iter;
+	}
+	// Dereference an iterator
+	OverlapHitArg* operator*()
+	{
+		// When the value is one step more than the last, it's an end iterator
+		if (!buff_iter->shape->userData)
+		{
+			throw std::logic_error("Cannot dereference an end iterator.");
+		}
+		arg.cmp = (Component*)buff_iter->shape->userData;
+		arg.actor = arg.cmp->m_Actor;
+		arg.faceIndex = buff_iter->faceIndex;
+		return &arg;
+	}
+	// Prefix increment operator
+	OverlapHitIterator& operator++()
+	{
+		// When the value is one step more than the last, it's an end iterator
+		//if (buff_iter == buff->end())
+		//{
+		//	throw std::logic_error("Cannot dereference an end iterator.");
+		//}
+		buff_iter++;
+		return *this;
+	}
+	// Postfix increment operator
+	OverlapHitIterator operator++(int)
+	{
+		OverlapHitIterator temp = *this;
+		temp++;                                      // Increment the value by the range step
+		return temp;                                 // The iterator before it's incremented
+	}
+	// Comparisons
+	bool operator==(const OverlapHitIterator& iter) const
+	{
+		return buff == iter.buff && buff_iter == iter.buff_iter;
+	}
+	bool operator!=(const OverlapHitIterator& iter) const
+	{
+		return buff != iter.buff || buff_iter != iter.buff_iter;
+	}
+};
+
+static boost::iterator_range<OverlapHitIterator> physxscene_box_overlap(PhysxScene* self,
+	float hx, float hy, float hz, const my::Vector3& Position, const my::Quaternion& Rotation, unsigned int filterWord0, unsigned int MaxNbTouches)
+{
+	boost::shared_ptr<physx::PxOverlapHit[]> buff(new physx::PxOverlapHit[my::Max(MaxNbTouches, 1u)]);
+	physx::PxOverlapBuffer hitbuff(buff.get(), MaxNbTouches);
+	physx::PxQueryFilterData filterData = physx::PxQueryFilterData(
+		physx::PxFilterData(filterWord0, 0, 0, 0), physx::PxQueryFlag::eDYNAMIC | physx::PxQueryFlag::eSTATIC /*| physx::PxQueryFlag::ePREFILTER | physx::PxQueryFlag::eANY_HIT*/);
+	if (self->m_PxScene->overlap(physx::PxBoxGeometry(hx, hy, hz), physx::PxTransform((physx::PxVec3&)Position, (physx::PxQuat&)Rotation), hitbuff, filterData, NULL))
+	{
+		if (hitbuff.hasBlock)
+		{
+			buff[0] = hitbuff.block;
+			return boost::make_iterator_range(
+				OverlapHitIterator(buff, buff.get()), OverlapHitIterator(buff, buff.get() + 1));
+		}
+		else
+		{
+			return boost::make_iterator_range(
+				OverlapHitIterator(buff, buff.get()), OverlapHitIterator(buff, buff.get() + hitbuff.nbTouches));
+		}
+	}
+	return boost::make_iterator_range(
+		OverlapHitIterator(buff, buff.get()), OverlapHitIterator(buff, buff.get()));
 }
 
-static bool physxscene_overlap_sphere(PhysxScene* self,
-	float radius, const my::Vector3& Position, unsigned int filterWord0, const luabind::object& callback, unsigned int MaxNbTouches)
+static boost::iterator_range<OverlapHitIterator> physxscene_sphere_overlap(PhysxScene* self,
+	float radius, const my::Vector3& Position, unsigned int filterWord0, unsigned int MaxNbTouches)
 {
-	physx::PxSphereGeometry sphere(radius);
-	return self->Overlap(sphere, Position, my::Quaternion::Identity(), filterWord0, boost::bind(&luabind::call_function<bool, my::EventArg*>, boost::ref(callback), boost::placeholders::_1), MaxNbTouches);
+	boost::shared_ptr<physx::PxOverlapHit[]> buff(new physx::PxOverlapHit[my::Max(MaxNbTouches, 1u)]);
+	physx::PxOverlapBuffer hitbuff(buff.get(), MaxNbTouches);
+	physx::PxQueryFilterData filterData = physx::PxQueryFilterData(
+		physx::PxFilterData(filterWord0, 0, 0, 0), physx::PxQueryFlag::eDYNAMIC | physx::PxQueryFlag::eSTATIC /*| physx::PxQueryFlag::ePREFILTER | physx::PxQueryFlag::eANY_HIT*/);
+	if (self->m_PxScene->overlap(physx::PxSphereGeometry(radius), physx::PxTransform((physx::PxVec3&)Position, (physx::PxQuat&)my::Quaternion::identity), hitbuff, filterData, NULL))
+	{
+		if (hitbuff.hasBlock)
+		{
+			buff[0] = hitbuff.block;
+			return boost::make_iterator_range(
+				OverlapHitIterator(buff, buff.get()), OverlapHitIterator(buff, buff.get() + 1));
+		}
+		else
+		{
+			return boost::make_iterator_range(
+				OverlapHitIterator(buff, buff.get()), OverlapHitIterator(buff, buff.get() + hitbuff.nbTouches));
+		}
+	}
+	return boost::make_iterator_range(
+		OverlapHitIterator(buff, buff.get()), OverlapHitIterator(buff, buff.get()));
 }
 
 static bool physxscene_sweep_box(PhysxScene* self,
@@ -3638,8 +3738,8 @@ void LuaContext::Init(void)
 			.property("Gravity", &PhysxScene::GetGravity, &PhysxScene::SetGravity)
 			.def_readonly("RemainingTime", &PhysxScene::m_RemainingTime)
 			.def("Raycast", &physxscene_raycast)
-			.def("OverlapBox", &physxscene_overlap_box)
-			.def("OverlapSphere", &physxscene_overlap_sphere)
+			.def("BoxOverlap", &physxscene_box_overlap, return_stl_iterator)
+			.def("SphereOverlap", &physxscene_sphere_overlap, return_stl_iterator)
 			.def("SweepBox", &physxscene_sweep_box)
 			.def("SweepSphere", &physxscene_sweep_sphere)
 
