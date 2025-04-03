@@ -1529,6 +1529,32 @@ static boost::iterator_range<SweepHitIterator> physxscene_sphere_sweep(PhysxScen
 		SweepHitIterator(buff, buff.get()), SweepHitIterator(buff, buff.get()));
 }
 
+static boost::iterator_range<SweepHitIterator> physxscene_capsule_sweep(PhysxScene* self,
+	float radius, float halfHeight, const my::Vector3& Position, const my::Quaternion& Rotation, const my::Vector3& unitDir, float distance, unsigned int filterWord0, unsigned int MaxNbTouches)
+{
+	boost::shared_ptr<physx::PxSweepHit[]> buff(new physx::PxSweepHit[my::Max(MaxNbTouches, 1u)]);
+	physx::PxSweepBuffer hitbuff(buff.get(), MaxNbTouches);
+	physx::PxQueryFilterData filterData = physx::PxQueryFilterData(
+		physx::PxFilterData(filterWord0, 0, 0, 0), physx::PxQueryFlag::eDYNAMIC | physx::PxQueryFlag::eSTATIC /*| physx::PxQueryFlag::ePREFILTER | physx::PxQueryFlag::eANY_HIT*/);
+	if (self->m_PxScene->sweep(physx::PxCapsuleGeometry(radius, halfHeight),
+		physx::PxTransform((physx::PxVec3&)Position, (physx::PxQuat&)Rotation), (physx::PxVec3&)unitDir, distance, hitbuff, physx::PxHitFlag::eDEFAULT, filterData, NULL, NULL, 0.0f))
+	{
+		if (hitbuff.hasBlock)
+		{
+			buff[0] = hitbuff.block;
+			return boost::make_iterator_range(
+				SweepHitIterator(buff, buff.get()), SweepHitIterator(buff, buff.get() + 1));
+		}
+		else
+		{
+			return boost::make_iterator_range(
+				SweepHitIterator(buff, buff.get()), SweepHitIterator(buff, buff.get() + hitbuff.nbTouches));
+		}
+	}
+	return boost::make_iterator_range(
+		SweepHitIterator(buff, buff.get()), SweepHitIterator(buff, buff.get()));
+}
+
 static void indexedbitmap_save_indexed_bitmap(my::IndexedBitmap * self, const char * path, const luabind::object & get_color)
 {
 	self->SaveIndexedBitmap(path, boost::bind(&luabind::call_function<DWORD, unsigned char>, boost::ref(get_color), boost::placeholders::_1));
@@ -3938,6 +3964,7 @@ void LuaContext::Init(void)
 			.def("SphereOverlap", &physxscene_sphere_overlap, return_stl_iterator)
 			.def("BoxSweep", &physxscene_box_sweep, return_stl_iterator)
 			.def("SphereSweep", &physxscene_sphere_sweep, return_stl_iterator)
+			.def("CapsuleSweep", &physxscene_capsule_sweep, return_stl_iterator)
 
 		, class_<SoundEvent, boost::shared_ptr<SoundEvent> >("SoundEvent")
 			.def_readonly("sbuffer", &SoundEvent::m_sbuffer)
