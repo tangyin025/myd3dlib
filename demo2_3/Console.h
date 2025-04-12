@@ -19,8 +19,6 @@ public:
 
 	int m_lend;
 
-	my::FontPtr m_Font;
-
 	my::ScrollBarPtr m_ScrollBar;
 
 	my::CriticalSection m_linesSec;
