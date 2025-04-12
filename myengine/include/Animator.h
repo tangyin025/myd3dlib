@@ -129,8 +129,6 @@ public:
 		ar & BOOST_SERIALIZATION_NVP(m_Group);
 	}
 
-	AnimationNodeSequence & operator = (const AnimationNodeSequence & rhs);
-
 	virtual void Tick(float fElapsedTime, float fTotalWeight);
 
 	void Advance(float fElapsedTime);

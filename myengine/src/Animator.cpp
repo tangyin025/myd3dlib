@@ -170,33 +170,6 @@ AnimationNodeSequence::~AnimationNodeSequence(void)
 	}
 }
 
-AnimationNodeSequence & AnimationNodeSequence::operator = (const AnimationNodeSequence & rhs)
-{
-	if (m_GroupOwner)
-	{
-		m_GroupOwner->RemoveSequenceGroup(m_Group, this);
-	}
-
-	m_Time = rhs.m_Time;
-	m_TargetWeight = rhs.m_TargetWeight;
-	m_LastElapsedTime = rhs.m_LastElapsedTime;
-	m_Name = rhs.m_Name;
-	m_Rate = rhs.m_Rate;
-	m_Loop = rhs.m_Loop;
-	m_Group = rhs.m_Group;
-
-	if (rhs.m_GroupOwner)
-	{
-		Animator * TmpGroupOwner = rhs.m_GroupOwner;
-
-		rhs.m_GroupOwner->RemoveSequenceGroup(rhs.m_Group, const_cast<AnimationNodeSequence *>(&rhs));
-
-		TmpGroupOwner->AddSequenceGroup(m_Group, this);
-	}
-
-	return *this;
-}
-
 void AnimationNodeSequence::Tick(float fElapsedTime, float fTotalWeight)
 {
 	m_TargetWeight = fTotalWeight;
