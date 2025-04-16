@@ -1161,6 +1161,8 @@ void CMainFrame::InitFileContext()
 
 		, luabind::def("FindFiles", &FindFiles, luabind::return_stl_iterator)
 
+		, luabind::def("GetKeyState", &GetAsyncKeyState)
+
 		, luabind::class_<D3DXIMAGE_INFO>("D3DXIMAGE_INFO")
 			.def_readonly("Width", &D3DXIMAGE_INFO::Width)
 			.def_readonly("Height", &D3DXIMAGE_INFO::Height)
