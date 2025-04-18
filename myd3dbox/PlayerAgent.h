@@ -50,8 +50,6 @@ public:
 
 	std::vector<MeshComponentPtr> m_Meshes;
 
-	my::OgreSkeletonAnimationPtr m_Skel;
-
 	unsigned int m_LastMoveFlags;
 
 	float m_Submergence;

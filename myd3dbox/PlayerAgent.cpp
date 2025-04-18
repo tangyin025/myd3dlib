@@ -11,6 +11,7 @@
 #include "Material.h"
 #include <boost/regex.hpp>
 #include <boost/lexical_cast.hpp>
+#include "rapidxml.hpp"
 
 using namespace my;
 
@@ -92,20 +93,6 @@ void PlayerAgent::RequestResource(void)
 	VERIFY(m_Controller = m_Actor->GetFirstComponent<Controller>());
 	VERIFY(m_Steering = m_Actor->GetFirstComponent<Steering>());
 	VERIFY(m_Animator = m_Actor->GetFirstComponent<Animator>());
-
-	if (!m_Skel && !theApp.default_player_anim_list.empty() && theApp.CheckPath(theApp.default_player_anim_list.front().c_str()))
-	{
-		m_Skel = theApp.LoadSkeleton(theApp.default_player_anim_list.front().c_str());
-		for (int i = 1; i < theApp.default_player_anim_list.size(); i++)
-		{
-			m_Skel->AddOgreSkeletonAnimationFromFile(theApp.default_player_anim_list[i].c_str());
-		}
-
-		for (int i = 0; i < theApp.default_player_ik_nodes.size(); i++)
-		{
-			m_Animator->AddIK(m_Skel->GetBoneIndex(theApp.default_player_ik_nodes[i].c_str()), 0.08f, theApp.default_physx_shape_filterword0);
-		}
-	}
 }
 
 void PlayerAgent::ReleaseResource(void)
@@ -265,33 +252,32 @@ void PlayerAgent::Update(float fElapsedTime)
 		m_Controller->SetUpDirection(Vector3(0, 1, 0));
 	}
 
-	for (int i = 0; i < theApp.default_player_mesh_list.size(); i++)
+	if (!theApp.default_player_mesh.empty() && m_Meshes.empty())
 	{
-		if (i >= m_Meshes.size())
-		{
-			boost::regex reg("([^;]+);(\\d+)");
-			boost::match_results<std::string::iterator> what;
-			std::string::iterator start = theApp.default_player_mesh_list[i].begin();
-			std::string::iterator end = theApp.default_player_mesh_list[i].end();
-			if (boost::regex_search(start, end, what, reg, boost::match_default))
-			{
-				MaterialPtr mtl(new Material());
-				mtl->m_Shader = "shader/mtl_BlinnPhong.fx";
-				mtl->m_PassMask = Material::PassMaskShadowNormalOpaque;
-				start = what[0].second;
-				boost::regex reg_param(";(\\w+),([^;]+)");
-				boost::match_results<std::string::iterator> what2;
-				for (; boost::regex_search(start, end, what2, reg_param, boost::match_default); start = what2[0].second)
-				{
-					mtl->SetParameter(what2[1].str().c_str(), what2[2].str());
-				}
+		my::CachePtr cache = my::ResourceMgr::getSingleton().OpenIStream(theApp.default_player_mesh.c_str())->GetWholeCache();
+		cache->push_back(0);
+		rapidxml::xml_document<char> doc;
+		doc.parse<0>((char*)&(*cache)[0]);
 
-				m_Meshes.push_back(MeshComponentPtr(new MeshComponent(NULL)));
-				m_Meshes[i]->m_MeshPath = what[1];
-				m_Meshes[i]->m_MeshSubMeshId = boost::lexical_cast<int>(what[2]);
-				m_Meshes[i]->SetMaterial(mtl);
-				m_Actor->InsertComponent(m_Meshes[i]);
-			}
+		const rapidxml::xml_node<char>* node_root = &doc;
+		DEFINE_XML_NODE_SIMPLE(mesh, root);
+		DEFINE_XML_NODE_SIMPLE(submeshes, mesh);
+		DEFINE_XML_NODE_SIMPLE(submesh, submeshes);
+		for (int submesh_i = 0; node_submesh != NULL; node_submesh = node_submesh->next_sibling(), submesh_i++)
+		{
+			MaterialPtr mtl(new Material());
+			mtl->m_Shader = "shader/mtl_BlinnPhong.fx";
+			mtl->m_PassMask = Material::PassMaskShadowNormalOpaque;
+			mtl->SetParameter("g_DiffuseTexture", std::string("texture/Checker.bmp"));
+			mtl->SetParameter("g_NormalTexture", std::string("texture/Normal.dds"));
+			mtl->SetParameter("g_SpecularTexture", std::string("texture/Gray.dds"));
+
+			MeshComponentPtr mesh(new MeshComponent(NULL));
+			mesh->m_MeshPath = theApp.default_player_mesh;
+			mesh->m_MeshSubMeshId = submesh_i;
+			mesh->SetMaterial(mtl);
+			m_Actor->InsertComponent(mesh);
+			m_Meshes.push_back(mesh);
 		}
 	}
 }

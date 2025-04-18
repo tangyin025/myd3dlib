@@ -204,9 +204,8 @@ public:
 	float default_player_swim_force;
 	float default_player_look_distance;
 	float default_player_collision_height;
-	std::vector<std::string> default_player_mesh_list;
-	std::vector<std::string> default_player_anim_list;
-	std::vector<std::string> default_player_ik_nodes;
+	std::string default_player_mesh;
+	std::string default_player_skel;
 	unsigned int default_player_water_filterword0;
 	float default_player_water_buoyancy;
 	float default_player_water_drag;

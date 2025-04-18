@@ -637,10 +637,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		theApp.default_player_breaking_speed, 0.0f, NULL)));
 	m_Player->InsertComponent(ComponentPtr(new PlayerAgent(NULL)));
 	AnimatorPtr animator(new Animator(NULL));
-	if (!theApp.default_player_anim_list.empty())
-	{
-		animator->m_SkeletonPath = theApp.default_player_anim_list.front();
-	}
+	animator->m_SkeletonPath = theApp.default_player_skel;
 	AnimationNodePtr node_run_blend_list(new NodeRunBlendList("node_run_blend_list"));
 	node_run_blend_list->SetChild(0, AnimationNodePtr(new AnimationNodeSequence("clip_drop", 1.0f, true, "move")));
 	node_run_blend_list->SetChild(1, AnimationNodePtr(new AnimationNodeSequence("clip_stand", 1.0f, true, "idle")));
