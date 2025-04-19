@@ -198,8 +198,6 @@ public:
 	float default_player_run_speed;
 	float default_player_breaking_speed;
 	float default_player_seek_force;
-	float default_player_climb_enter_slope;
-	float default_player_climb_leave_slope;
 	float default_player_swim_depth;
 	float default_player_swim_force;
 	float default_player_look_distance;

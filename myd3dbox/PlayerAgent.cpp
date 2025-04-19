@@ -36,7 +36,6 @@ NodeRunBlendList::NodeRunBlendList(const char* Name)
 void NodeRunBlendList::Tick(float fElapsedTime, float fTotalWeight)
 {
 	PlayerAgent* Agent = static_cast<Animator*>(GetTopNode())->m_Actor->GetFirstComponent<PlayerAgent>();
-	const Vector3& Up = Agent->m_Controller->GetUpDirection();
 	if (Agent->m_Suspending <= 0.0f)
 	{
 		if (GetTargetWeight(0) < 0.5f)
@@ -44,15 +43,6 @@ void NodeRunBlendList::Tick(float fElapsedTime, float fTotalWeight)
 			SetActiveChild(0, 0.3f);
 		}
 		dynamic_cast<AnimationNodeSequence*>(m_Childs[0].get())->m_Rate = Agent->m_Steering->m_Speed / 5.2f;
-	}
-	else if (GetTargetWeight(3) < 0.5f && Up.y < theApp.default_player_climb_enter_slope
-		|| GetTargetWeight(3) >= 0.5f && Up.y <= theApp.default_player_climb_leave_slope)
-	{
-		if (GetTargetWeight(3) < 0.5f)
-		{
-			SetActiveChild(3, 0.1f);
-		}
-		dynamic_cast<AnimationNodeSequence*>(m_Childs[3].get())->m_Rate = Agent->m_Steering->m_Speed / 2.6f;
 	}
 	else if (Agent->m_Steering->m_Speed > 0.1f)
 	{
@@ -125,14 +115,8 @@ void PlayerAgent::Update(float fElapsedTime)
 	}
 
 	Vector3 pos = m_Controller->GetFootPosition();
-	const Vector3& up = m_Controller->GetUpDirection();
-	AnimationNodeBlendListPtr node_run_blend_list = boost::dynamic_pointer_cast<AnimationNodeBlendList>(m_Animator->GetChild(0)->GetChild(0));
 	Quaternion rot;
-	if (node_run_blend_list->GetTargetWeight(3) >= 0.5f)
-	{
-		rot = Quaternion::RotationAxis(Vector3(0, 1, 0), atan2f(-up.x, -up.z));
-	}
-	else if (m_Steering->m_Speed > 0)
+	if (m_Steering->m_Speed > 0)
 	{
 		rot = Quaternion::RotationAxis(Vector3(0, 1, 0), atan2f(m_Steering->m_Forward.x, m_Steering->m_Forward.z));
 	}
@@ -167,43 +151,9 @@ void PlayerAgent::Update(float fElapsedTime)
 	if (lensq > 0)
 	{
 		dir /= sqrt(lensq);
-		if (node_run_blend_list->GetTargetWeight(3) < 0.5f)
-		{
-			Vector3 forward = model_view_camera->m_View.getColumn<0>().xyz.cross(up).normalize(Vector3(0, 0, 0));
-			Vector3 right = up.cross(forward);
-			m_MoveDir = forward * dir.y + right * dir.x;
-		}
-		else
-		{
-			Vector3 right = Vector3(0, 1, 0).cross(up).normalize(rot * Vector3(-1, 0, 0));
-			Vector3 forward = right.cross(up);
-			m_MoveDir = forward * dir.y + right * dir.x;
-		}
-
-		//if (m_Suspending > 0 && m_LastMoveFlags != 0)
-		//{
-		//	physx::PxSweepBuffer hit;
-		//	physx::PxCapsuleGeometry capsule(m_Controller->GetRadius() + m_Controller->GetContactOffset(), m_Controller->GetHeight() * 0.5f);
-		//	physx::PxQueryFilterData filterData = physx::PxQueryFilterData(
-		//		physx::PxFilterData(theApp.default_physx_shape_filterword0, 0, 0, 0), physx::PxQueryFlag::eDYNAMIC | physx::PxQueryFlag::eSTATIC);
-		//	my::Vector3 start = m_Controller->GetPosition() + m_Controller->GetContactNormalDownPass() * m_Controller->GetStepOffset() + m_MoveDir * 3.0f;
-		//	if (pFrame->m_PxScene->sweep(capsule,
-		//		physx::PxTransform((physx::PxVec3&)start, static_cast<physx::Cct::CapsuleController*>(m_Controller->m_PxController.get())->mUserParams.mQuatFromUp),
-		//		(physx::PxVec3&)-m_Controller->GetContactNormalDownPass(),
-		//		m_Controller->GetStepOffset() * 2,
-		//		hit, physx::PxHitFlag::eDEFAULT, filterData, NULL, NULL, 0.0f))
-		//	{
-		//		my::Vector3 end = start - m_Controller->GetContactNormalDownPass() * hit.block.distance;
-		//		m_MoveDir = (end - m_Controller->GetPosition()).normalize();
-		//		m_Controller->SetUpDirection(m_MoveDir.perpendicular(m_Controller->GetContactNormalDownPass()).normalize(Vector3(0, 1, 0)));
-		//	}
-		//	else
-		//	{
-		//		my::Vector3 end = start - m_Controller->GetContactNormalDownPass() * m_Controller->GetStepOffset();
-		//		m_MoveDir = (end - m_Controller->GetPosition()).normalize();
-		//		m_Controller->SetUpDirection(m_MoveDir.perpendicular(m_Controller->GetContactNormalDownPass()).normalize(Vector3(0, 1, 0)));
-		//	}
-		//}
+		Vector3 right = model_view_camera->m_View.getColumn<0>().xyz;
+		Vector3 forward = right.cross(m_Controller->GetUpDirection()).normalize(Vector3(1, 0, 0));
+		m_MoveDir = forward * dir.y + right * dir.x;
 	}
 	else
 	{
@@ -235,11 +185,7 @@ void PlayerAgent::Update(float fElapsedTime)
 		Vector3 HorizontalVel;
 		if (lensq > 0)
 		{
-			HorizontalVel = (forward * dir.y + right * dir.x) * HorizontalSpeed;
-		}
-		else if (node_run_blend_list->GetTargetWeight(3) >= 0.5f)
-		{
-			HorizontalVel = Vector3(up.xz(), 0).normalize(Vector3(0, 0, 0)) * HorizontalSpeed;
+			HorizontalVel = m_MoveDir * HorizontalSpeed;
 		}
 		else
 		{
@@ -249,7 +195,6 @@ void PlayerAgent::Update(float fElapsedTime)
 			HorizontalVel + Vector3(0, sqrt(-1.0f * 2.0f * theApp.default_physx_scene_gravity.y), 0);
 		m_Actor->PlayAction(ActionTbl::getSingleton().Jump.get());
 		m_Suspending = 0.0f;
-		m_Controller->SetUpDirection(Vector3(0, 1, 0));
 	}
 
 	if (!theApp.default_player_mesh.empty() && m_Meshes.empty())
@@ -315,7 +260,7 @@ void PlayerAgent::OnPxThreadSubstep(float dtime)
 	}
 	else if (m_Suspending <= 0.0f)
 	{
-		//_ASSERT(m_Controller->GetUpDirection() == Vector3(0, 1, 0));
+		_ASSERT(m_Controller->GetUpDirection() == Vector3(0, 1, 0));
 		m_VerticalSpeed += gravity * dtime;
 		m_VerticalSpeed *= 1.0f - theApp.default_player_water_drag * m_Submergence * dtime;
 		Vector3 vel = m_Steering->GetVelocity() +
@@ -337,38 +282,7 @@ void PlayerAgent::OnPxThreadSubstep(float dtime)
 	{
 		m_VerticalSpeed = Lerp(m_VerticalSpeed, 0.0f, 1.0f - pow(0.5f, 30 * dtime));
 		m_Suspending = 0.2f;
-		if (moveFlags & physx::PxControllerCollisionFlag::eCOLLISION_SIDES
-			&& m_Controller->GetTouchedComponent() && m_Controller->GetContactNormalSidePass().y > m_Controller->GetSlopeLimit())
-		{
-			m_Controller->SetUpDirection(m_Controller->GetContactNormalSidePass());
-		}
-		else if(m_Controller->GetTouchedComponent())
-		{
-			m_Controller->SetUpDirection(m_Controller->GetContactNormalDownPass());
-		}
 	}
-	else if (moveFlags & physx::PxControllerCollisionFlag::eCOLLISION_SIDES)
-	{
-		if (m_Suspending <= 0.0f)
-		{
-			m_VerticalSpeed = 0;
-			m_Suspending = 0.2f;
-			m_Controller->SetUpDirection(m_Controller->GetContactNormalSidePass());
-		}
-	}
-	else if (!moveFlags && m_LastMoveFlags)
-	{
-		const Vector3 & up = m_Controller->GetUpDirection();
-		if (up.y <= m_Controller->GetSlopeLimit())
-		{
-			Vector3 vel = m_Steering->GetVelocity() + up * m_VerticalSpeed;
-			m_VerticalSpeed = vel.y;
-			m_Steering->m_Speed = m_Steering->m_MaxSpeed;
-			m_Steering->m_Forward = -up;
-		}
-		m_Controller->SetUpDirection(Vector3(0, 1, 0));
-	}
-	m_LastMoveFlags = moveFlags;
 }
 
 void PlayerAgent::OnPxThreadShapeHit(my::EventArg* arg)

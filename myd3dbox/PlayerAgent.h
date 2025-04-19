@@ -50,8 +50,6 @@ public:
 
 	std::vector<MeshComponentPtr> m_Meshes;
 
-	unsigned int m_LastMoveFlags;
-
 	float m_Submergence;
 
 	PlayerAgent(const char* Name)
@@ -60,7 +58,6 @@ public:
 		, m_ClimbLerp(0, 1, 0)
 		, m_VerticalSpeed(0)
 		, m_Suspending(0.0f)
-		, m_LastMoveFlags(0)
 		, m_Submergence(0)
 	{
 	}
