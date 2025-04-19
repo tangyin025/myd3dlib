@@ -50,15 +50,12 @@ public:
 
 	std::vector<MeshComponentPtr> m_Meshes;
 
-	float m_Submergence;
-
 	PlayerAgent(const char* Name)
 		: Component(Name)
 		, m_MoveDir(0, 0, 0)
 		, m_ClimbLerp(0, 1, 0)
 		, m_VerticalSpeed(0)
 		, m_Suspending(0.0f)
-		, m_Submergence(0)
 	{
 	}
 

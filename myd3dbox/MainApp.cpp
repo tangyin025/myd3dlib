@@ -532,13 +532,9 @@ BOOL CMainApp::InitInstance()
 		("default_player_run_speed", boost::program_options::value(&default_player_run_speed)->default_value(5.0f), "Default player run speed")
 		("default_player_breaking_speed", boost::program_options::value(&default_player_breaking_speed)->default_value(20.0f), "Default player breaking speed")
 		("default_player_seek_force", boost::program_options::value(&default_player_seek_force)->default_value(50.0f), "Default player seek force")
-		("default_player_swim_depth", boost::program_options::value(&default_player_swim_depth)->default_value(0.5f), "Default player swim depth")
-		("default_player_swim_force", boost::program_options::value(&default_player_swim_force)->default_value(15.0f), "Default player swim force")
 		("default_player_look_distance", boost::program_options::value(&default_player_look_distance)->default_value(3.0f), "Default player look distance")
 		("default_player_collision_height", boost::program_options::value(&default_player_collision_height)->default_value(1000.0f), "Default player collision height")
 		("default_player_water_filterword0", boost::program_options::value(&default_player_water_filterword0)->default_value(0x02), "Default player water filterword0")
-		("default_player_water_buoyancy", boost::program_options::value(&default_player_water_buoyancy)->default_value(1.5f), "Default player water buoyancy")
-		("default_player_water_drag", boost::program_options::value(&default_player_water_drag)->default_value(5.0f), "Default player water drag")
 		("default_player_air_drag", boost::program_options::value(&default_player_air_drag)->default_value(0.6f), "Default player air drag")
 		;
 	boost::program_options::variables_map vm;

@@ -198,15 +198,11 @@ public:
 	float default_player_run_speed;
 	float default_player_breaking_speed;
 	float default_player_seek_force;
-	float default_player_swim_depth;
-	float default_player_swim_force;
 	float default_player_look_distance;
 	float default_player_collision_height;
 	std::string default_player_mesh;
 	std::string default_player_skel;
 	unsigned int default_player_water_filterword0;
-	float default_player_water_buoyancy;
-	float default_player_water_drag;
 	float default_player_air_drag;
 	BOOL m_bNeedDraw;
 	my::EventSignal m_EventNamedObjectCreate;

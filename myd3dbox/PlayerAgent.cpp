@@ -234,24 +234,7 @@ void PlayerAgent::OnPxThreadSubstep(float dtime)
 		m_Suspending -= dtime;
 	}
 
-	CMainFrame* pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
-	ASSERT_VALID(pFrame);
-
-	physx::PxRaycastBuffer hit;
-	physx::PxQueryFilterData filterData = physx::PxQueryFilterData(physx::PxFilterData(theApp.default_player_water_filterword0, 0, 0, 0),
-		physx::PxQueryFlag::eDYNAMIC | physx::PxQueryFlag::eSTATIC /*| physx::PxQueryFlag::ePREFILTER | physx::PxQueryFlag::eANY_HIT*/);
-	if (pFrame->m_PxScene->raycast((physx::PxVec3&)(m_Controller->GetPosition() + Vector3(0, 1000, 0)),
-		physx::PxVec3(0, -1, 0), 1000, hit, physx::PxHitFlag::eDISTANCE, filterData, NULL, NULL))
-	{
-		m_Submergence = my::Clamp((1000 - hit.block.distance) / theApp.default_player_swim_depth, 0.0f, 1.0f);
-	}
-	else
-	{
-		m_Submergence = 0;
-	}
-
 	Vector3 disp;
-	const float gravity = theApp.default_physx_scene_gravity.y * (1.0f - theApp.default_player_water_buoyancy * m_Submergence);
 	if (m_Actor->TickActionAndGetDisplacement(dtime, disp))
 	{
 		Vector3 vel = disp / dtime;
@@ -261,17 +244,15 @@ void PlayerAgent::OnPxThreadSubstep(float dtime)
 	else if (m_Suspending <= 0.0f)
 	{
 		_ASSERT(m_Controller->GetUpDirection() == Vector3(0, 1, 0));
-		m_VerticalSpeed += gravity * dtime;
-		m_VerticalSpeed *= 1.0f - theApp.default_player_water_drag * m_Submergence * dtime;
-		Vector3 vel = m_Steering->GetVelocity() +
-			m_MoveDir * (theApp.m_keyboard->IsKeyDown(KeyCode::KC_LSHIFT) ? theApp.default_player_swim_force * 4 : theApp.default_player_swim_force) * m_Submergence * dtime;
-		vel *= 1.0f - Lerp(theApp.default_player_air_drag, theApp.default_player_water_drag, m_Submergence) * dtime;
+		m_VerticalSpeed += theApp.default_physx_scene_gravity.y * dtime;
+		Vector3 vel = m_Steering->GetVelocity();
+		vel *= 1.0f - theApp.default_player_air_drag * dtime;
 		m_Steering->SetVelocity(vel);
 		disp = (vel + m_Controller->GetUpDirection() * m_VerticalSpeed) * dtime;
 	}
 	else
 	{
-		m_VerticalSpeed += gravity * dtime;
+		m_VerticalSpeed += theApp.default_physx_scene_gravity.y * dtime;
 		m_Steering->m_MaxSpeed = theApp.m_keyboard->IsKeyDown(KeyCode::KC_LSHIFT) ? theApp.default_player_run_speed * 4 : theApp.default_player_run_speed;
 		Vector3 vel = m_Steering->SeekDir(m_MoveDir * theApp.default_player_seek_force, dtime) + m_Controller->GetUpDirection() * m_VerticalSpeed;
 		disp = vel * dtime;
