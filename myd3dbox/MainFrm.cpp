@@ -1646,10 +1646,10 @@ void CMainFrame::OnFileNew()
 	//my::OgreSkeletonAnimationPtr skel = theApp.LoadSkeleton(animator->m_SkeletonPath.c_str());
 	//animator->AddDynamicBone(skel->GetBoneIndex("joint2"), skel->m_boneHierarchy, 0.1, 0.001, -10);
 
-	////TerrainPtr terrain(new Terrain(my::NamedObject::MakeUniqueName("terrain").c_str(), 2, 2, 32, 1.0f));
+	////TerrainPtr terrain(new Terrain(my::NamedObject::MakeUniqueName("terrain0").c_str(), 2, 2, 32, 1.0f));
 	////terrain->AddMaterial(mtl);
 
-	////ActorPtr actor(new Actor(my::NamedObject::MakeUniqueName("actor").c_str(), my::Vector3(-terrain->m_RowChunks*terrain->m_ChunkSize/2, 0, -terrain->m_ColChunks*terrain->m_ChunkSize/2), my::Quaternion::Identity(), my::Vector3(1, 1, 1), my::AABB(-1, 1)));
+	////ActorPtr actor(new Actor(my::NamedObject::MakeUniqueName("actor0").c_str(), my::Vector3(-terrain->m_RowChunks*terrain->m_ChunkSize/2, 0, -terrain->m_ColChunks*terrain->m_ChunkSize/2), my::Quaternion::Identity(), my::Vector3(1, 1, 1), my::AABB(-1, 1)));
 	////actor->InsertComponent(terrain);
 	////actor->UpdateAABB();
 	////actor->UpdateWorld();
@@ -1666,7 +1666,7 @@ void CMainFrame::OnFileNew()
 
 	////for (int i = 0; i < 300000; i++)
 	////{
-	////	ActorPtr actor(new Actor(my::NamedObject::MakeUniqueName("actor").c_str(), my::Vector3(my::Random(-3000.0f, 3000.0f), 0, my::Random(-3000.0f, 3000.0f)), my::Quaternion::Identity(), my::Vector3(1, 1, 1), my::AABB(-1, 1)));
+	////	ActorPtr actor(new Actor(my::NamedObject::MakeUniqueName("actor0").c_str(), my::Vector3(my::Random(-3000.0f, 3000.0f), 0, my::Random(-3000.0f, 3000.0f)), my::Quaternion::Identity(), my::Vector3(1, 1, 1), my::AABB(-1, 1)));
 	////	actor->UpdateAABB();
 	////	actor->UpdateWorld();
 	////	AddEntity(actor.get(), actor->m_aabb.transform(actor->m_World), 0.1f, 0.1f);
@@ -1775,7 +1775,7 @@ void CMainFrame::OnCreateActor()
 			Pos = boost::dynamic_pointer_cast<my::ModelViewerCamera>(pView->m_Camera)->m_LookAt;
 		}
 	}
-	ActorPtr actor(new Actor(my::NamedObject::MakeUniqueName("actor").c_str(), Pos, my::Quaternion::Identity(), my::Vector3(1,1,1), my::AABB(-1,1)));
+	ActorPtr actor(new Actor(my::NamedObject::MakeUniqueName("actor0").c_str(), Pos, my::Quaternion::Identity(), my::Vector3(1,1,1), my::AABB(-1,1)));
 	actor->UpdateWorld();
 	AddEntity(actor.get(), actor->m_aabb.transform(actor->m_World), Actor::MinBlock, Actor::Threshold);
 	m_ActorList.push_back(actor);
@@ -1798,7 +1798,7 @@ void CMainFrame::OnCreateController()
 		return;
 	}
 
-	ControllerPtr controller_cmp(new Controller(my::NamedObject::MakeUniqueName((std::string((*actor_iter)->GetName()) + "_controller").c_str()).c_str(), 1.0f, 1.0f, 0.1f, 0.5f, 0.0f));
+	ControllerPtr controller_cmp(new Controller(my::NamedObject::MakeUniqueName((std::string((*actor_iter)->GetName()) + "_controller0").c_str()).c_str(), 1.0f, 1.0f, 0.1f, 0.5f, 0.0f));
 	(*actor_iter)->InsertComponent(controller_cmp);
 	(*actor_iter)->UpdateAABB();
 	(*actor_iter)->UpdateOctNode();
@@ -1978,7 +1978,7 @@ void CMainFrame::OnComponentCloth()
 			THROW_WINEXCEPTION(GetLastError());
 	}
 
-	ClothComponentPtr cloth_cmp(new ClothComponent(my::NamedObject::MakeUniqueName((std::string((*actor_iter)->GetName()) + "_cloth").c_str()).c_str()));
+	ClothComponentPtr cloth_cmp(new ClothComponent(my::NamedObject::MakeUniqueName((std::string((*actor_iter)->GetName()) + "_cloth0").c_str()).c_str()));
 	cloth_cmp->CreateClothFromMesh(ClothFabricPath.c_str(), mesh, GetGravity());
 
 	//// set solver settings
@@ -2046,7 +2046,7 @@ void CMainFrame::OnComponentStaticEmitter()
 		return;
 	}
 
-	CStaticEmitterDlg dlg(my::NamedObject::MakeUniqueName((std::string((*actor_iter)->GetName()) + "_static_emit").c_str()).c_str());
+	CStaticEmitterDlg dlg(my::NamedObject::MakeUniqueName((std::string((*actor_iter)->GetName()) + "_static_emit0").c_str()).c_str());
 	dlg.m_BoundingBox = (*actor_iter)->m_aabb;
 	dlg.m_ChunkWidth = theApp.default_emitter_chunk_width / (*actor_iter)->m_Scale.x;
 	dlg.m_ChunkLodScale = 1 / (*actor_iter)->m_Scale.x;
@@ -2080,7 +2080,7 @@ void CMainFrame::OnComponentSphericalemitter()
 	}
 
 	SphericalEmitterPtr sphe_emit_cmp(new SphericalEmitter(my::NamedObject::MakeUniqueName(
-		(std::string((*actor_iter)->GetName()) + "_sphe_emit").c_str()).c_str(), 1024, EmitterComponent::FaceTypeCamera, EmitterComponent::SpaceTypeLocal));
+		(std::string((*actor_iter)->GetName()) + "_sphe_emit0").c_str()).c_str(), 1024, EmitterComponent::FaceTypeCamera, EmitterComponent::SpaceTypeLocal));
 	sphe_emit_cmp->m_SpawnInterval = 1 / 10.0f;
 	sphe_emit_cmp->m_HalfSpawnArea = my::Vector3(0, 0, 0);
 	sphe_emit_cmp->m_SpawnInclination = my::Vector2(D3DXToRadian(45), D3DXToRadian(90));
@@ -2126,7 +2126,7 @@ void CMainFrame::OnComponentTerrain()
 		return;
 	}
 
-	CTerrainDlg dlg(my::NamedObject::MakeUniqueName((std::string((*actor_iter)->GetName()) + "_terrain").c_str()).c_str());
+	CTerrainDlg dlg(my::NamedObject::MakeUniqueName((std::string((*actor_iter)->GetName()) + "_terrain0").c_str()).c_str());
 	dlg.m_ActorScale = (*actor_iter)->m_Scale;
 	dlg.m_ChunkLodScale = 1 / (*actor_iter)->m_Scale.x;
 	if (dlg.DoModal() != IDOK)
@@ -2447,7 +2447,7 @@ void CMainFrame::OnComponentAnimator()
 		return;
 	}
 
-	AnimatorPtr animator(new Animator(my::NamedObject::MakeUniqueName((std::string((*actor_iter)->GetName()) + "_animator").c_str()).c_str()));
+	AnimatorPtr animator(new Animator(my::NamedObject::MakeUniqueName((std::string((*actor_iter)->GetName()) + "_animator0").c_str()).c_str()));
 	animator->m_SkeletonPath = path;
 	(*actor_iter)->InsertComponent(animator);
 
@@ -2486,7 +2486,7 @@ void CMainFrame::OnCreateNavigation()
 		return;
 	}
 
-	NavigationPtr navi_cmp(new Navigation(my::NamedObject::MakeUniqueName((std::string((*actor_iter)->GetName()) + "_navigation").c_str()).c_str(), GetAllEntityAABB(my::AABB::Invalid())));
+	NavigationPtr navi_cmp(new Navigation(my::NamedObject::MakeUniqueName((std::string((*actor_iter)->GetName()) + "_navigation0").c_str()).c_str(), GetAllEntityAABB(my::AABB::Invalid())));
 
 	CNavigationDlg dlg;
 	dlg.m_bindingBox = *navi_cmp;
