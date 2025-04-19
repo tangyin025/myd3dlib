@@ -29,6 +29,8 @@ class Client
 	, public SoundContext
 {
 public:
+	const unsigned int DEFAULT_UI_RES_Y;
+
 	std::string m_InitCfg;
 
 	my::UIRenderPtr m_UIRender;
@@ -72,7 +74,7 @@ public:
 	int m_ShowCursorCount;
 
 public:
-	Client(void);
+	Client(int _DEFAULT_UI_RES_Y);
 
 	virtual ~Client(void);
 

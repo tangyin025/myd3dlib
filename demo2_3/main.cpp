@@ -17,6 +17,7 @@ class Demo
 {
 public:
 	Demo::Demo(void)
+		: Client(720)
 	{
 	}
 

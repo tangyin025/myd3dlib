@@ -36,8 +36,6 @@
 #define new new( _CLIENT_BLOCK, __FILE__, __LINE__ )
 #endif
 
-#define DEFAULT_UI_RES_Y 720
-
 using namespace my;
 
 class EffectUIRender
@@ -397,9 +395,10 @@ namespace boost
 	}
 }
 
-Client::Client(void)
+Client::Client(int _DEFAULT_UI_RES_Y)
 	: OctRoot(-4096, 4096)
 	, InputMgr(32)
+	, DEFAULT_UI_RES_Y(_DEFAULT_UI_RES_Y)
 	, m_UIRender(new EffectUIRender())
 	, m_ViewedCenter(0, 0, 0)
 	, m_ShowCursorCount(0)
@@ -620,6 +619,7 @@ HRESULT Client::OnCreateDevice(
 			.def_readonly("listener", &Client::m_listener)
 			.def_readonly("FrameInterval", &Client::m_FrameInterval)
 			.property("Volume", &Client::GetVolume, &Client::SetVolume)
+			.def_readonly("DEFAULT_UI_RES_Y", &Client::DEFAULT_UI_RES_Y)
 			.def_readonly("Font", &Client::m_Font)
 			.def_readonly("Console", &Client::m_Console)
 			.def_readonly("InitLoadShaderCache", &Client::m_InitLoadShaderCache)
