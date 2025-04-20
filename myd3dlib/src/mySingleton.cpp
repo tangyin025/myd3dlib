@@ -94,6 +94,7 @@ std::string NamedObject::MakeUniqueName(const char * Prefix)
 	else
 		name_without_postfix.assign(Prefix);
 
+	// ! If high-probability numbers are concentrated at the front of the sequence, using sequential guessing.
 	std::string ret(Max((size_t)128, name_without_postfix.length() + 16), '\0');
 	for (; ; postfix_i++)
 	{
