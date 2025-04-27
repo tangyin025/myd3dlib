@@ -637,11 +637,14 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		theApp.default_player_breaking_speed, 0.0f, NULL)));
 	m_Player->InsertComponent(ComponentPtr(new PlayerAgent(NULL)));
 	AnimatorPtr animator(new Animator(NULL));
-	animator->m_SkeletonPath = theApp.default_player_skel;
+	std::vector<std::string> skels;
+	boost::algorithm::split(skels, theApp.default_player_skel, boost::is_any_of(",;"), boost::algorithm::token_compress_off);
+	skels.resize(4);
+	animator->m_SkeletonPath = skels[0];
 	AnimationNodePtr node_run_blend_list(new NodeRunBlendList("node_run_blend_list"));
-	node_run_blend_list->SetChild(0, AnimationNodePtr(new AnimationNodeSequence("clip_drop", 1.0f, true, "move")));
-	node_run_blend_list->SetChild(1, AnimationNodePtr(new AnimationNodeSequence("clip_stand", 1.0f, true, "idle")));
-	node_run_blend_list->SetChild(2, AnimationNodePtr(new AnimationNodeSequence("clip_run", 1.0f, true, "move")));
+	node_run_blend_list->SetChild(0, AnimationNodePtr(new AnimationNodeSequence(skels[1].c_str(), 1.0f, true, "idle")));
+	node_run_blend_list->SetChild(1, AnimationNodePtr(new AnimationNodeSequence(skels[2].c_str(), 1.0f, true, "move")));
+	node_run_blend_list->SetChild(2, AnimationNodePtr(new AnimationNodeSequence(skels[3].c_str(), 1.0f, true, "move")));
 	AnimationNodeSlotPtr node_run_blend_list_slot(new AnimationNodeSlot("node_run_blend_list_slot"));
 	node_run_blend_list_slot->SetChild(0, node_run_blend_list);
 	animator->SetChild(0, node_run_blend_list_slot);

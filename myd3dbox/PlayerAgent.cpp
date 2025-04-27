@@ -38,25 +38,25 @@ void NodeRunBlendList::Tick(float fElapsedTime, float fTotalWeight)
 	PlayerAgent* Agent = static_cast<Animator*>(GetTopNode())->m_Actor->GetFirstComponent<PlayerAgent>();
 	if (Agent->m_Suspending <= 0.0f)
 	{
-		if (GetTargetWeight(0) < 0.5f)
-		{
-			SetActiveChild(0, 0.3f);
-		}
-		dynamic_cast<AnimationNodeSequence*>(m_Childs[0].get())->m_Rate = Agent->m_Steering->m_Speed / 5.2f;
-	}
-	else if (Agent->m_Steering->m_Speed > 0.1f)
-	{
 		if (GetTargetWeight(2) < 0.5f)
 		{
-			SetActiveChild(2, 0.1f);
+			SetActiveChild(2, 0.3f);
 		}
-		dynamic_cast<AnimationNodeSequence*>(m_Childs[2].get())->m_Rate = Agent->m_Steering->m_Speed / 2.6f;
+		dynamic_cast<AnimationNodeSequence*>(m_Childs[2].get())->m_Rate = Agent->m_Steering->m_Speed / 5.2f;
 	}
-	else
+	else if (Agent->m_Steering->m_Speed > 0.1f)
 	{
 		if (GetTargetWeight(1) < 0.5f)
 		{
 			SetActiveChild(1, 0.1f);
+		}
+		dynamic_cast<AnimationNodeSequence*>(m_Childs[1].get())->m_Rate = Agent->m_Steering->m_Speed / 2.6f;
+	}
+	else
+	{
+		if (GetTargetWeight(0) < 0.5f)
+		{
+			SetActiveChild(0, 0.1f);
 		}
 	}
 	AnimationNodeBlendList::Tick(fElapsedTime, fTotalWeight);
