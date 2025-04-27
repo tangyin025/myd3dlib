@@ -11,6 +11,7 @@
 #include "Material.h"
 #include <boost/regex.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/algorithm/string.hpp>
 #include "rapidxml.hpp"
 
 using namespace my;
@@ -199,7 +200,10 @@ void PlayerAgent::Update(float fElapsedTime)
 
 	if (!theApp.default_player_mesh.empty() && m_Meshes.empty())
 	{
-		my::CachePtr cache = my::ResourceMgr::getSingleton().OpenIStream(theApp.default_player_mesh.c_str())->GetWholeCache();
+		std::vector<std::string> meshes;
+		boost::algorithm::split(meshes, theApp.default_player_mesh, boost::is_any_of(",;"), boost::algorithm::token_compress_off);
+		meshes.resize(4);
+		my::CachePtr cache = my::ResourceMgr::getSingleton().OpenIStream(meshes[0].c_str())->GetWholeCache();
 		cache->push_back(0);
 		rapidxml::xml_document<char> doc;
 		doc.parse<0>((char*)&(*cache)[0]);
@@ -213,12 +217,12 @@ void PlayerAgent::Update(float fElapsedTime)
 			MaterialPtr mtl(new Material());
 			mtl->m_Shader = "shader/mtl_BlinnPhong.fx";
 			mtl->m_PassMask = Material::PassMaskShadowNormalOpaque;
-			mtl->SetParameter("g_DiffuseTexture", std::string("texture/Checker.bmp"));
-			mtl->SetParameter("g_NormalTexture", std::string("texture/Normal.dds"));
-			mtl->SetParameter("g_SpecularTexture", std::string("texture/Gray.dds"));
+			mtl->SetParameter("g_DiffuseTexture", meshes[1]);
+			mtl->SetParameter("g_NormalTexture", meshes[2]);
+			mtl->SetParameter("g_SpecularTexture", meshes[3]);
 
 			MeshComponentPtr mesh(new MeshComponent(NULL));
-			mesh->m_MeshPath = theApp.default_player_mesh;
+			mesh->m_MeshPath = meshes[0];
 			mesh->m_MeshSubMeshId = submesh_i;
 			mesh->SetMaterial(mtl);
 			m_Actor->InsertComponent(mesh);
