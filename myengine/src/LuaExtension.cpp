@@ -3520,13 +3520,13 @@ void LuaContext::Init(void)
 			.def("RayTest2D", &TerrainStream::RayTest2D)
 
 		, class_<Controller, Component, boost::shared_ptr<Component> >("Controller")
+			.def(constructor<const char*, float, float, float, float, float>())
 			.enum_("CollisionFlag")
 			[
 				value("eCOLLISION_SIDES", physx::PxControllerCollisionFlag::eCOLLISION_SIDES),
 				value("eCOLLISION_UP", physx::PxControllerCollisionFlag::eCOLLISION_UP),
 				value("eCOLLISION_DOWN", physx::PxControllerCollisionFlag::eCOLLISION_DOWN)
 			]
-			.def(constructor<const char*, float, float, float, float, float>())
 			.def("Move", &Controller::Move)
 			.property("Height", &Controller::GetHeight, &Controller::SetHeight)
 			.property("Radius", &Controller::GetRadius, &Controller::SetRadius)

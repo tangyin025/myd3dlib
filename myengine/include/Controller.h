@@ -37,6 +37,10 @@ protected:
 		, m_PxControllerMoveMuted(false)
 #endif
 	{
+		m_desc.reportCallback = this;
+		m_desc.behaviorCallback = this;
+		m_desc.nonWalkableMode = physx::PxControllerNonWalkableMode::ePREVENT_CLIMBING;
+		m_desc.userData = this;
 	}
 
 public:
@@ -54,6 +58,10 @@ public:
 		m_desc.slopeLimit = SlopeLimit;
 		m_desc.contactOffset = ContactOffset;
 		m_desc.stepOffset = StepOffset;
+		m_desc.reportCallback = this;
+		m_desc.behaviorCallback = this;
+		m_desc.nonWalkableMode = physx::PxControllerNonWalkableMode::ePREVENT_CLIMBING;
+		m_desc.userData = this;
 	}
 
 	virtual ~Controller(void);

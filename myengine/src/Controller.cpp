@@ -55,9 +55,6 @@ void Controller::RequestResource(void)
 	m_desc.position = physx::PxExtendedVec3(m_Actor->m_Position.x, m_Actor->m_Position.y + m_desc.contactOffset + m_desc.radius + m_desc.height * 0.5f, m_Actor->m_Position.z);
 	m_desc.upDirection = physx::PxVec3(0.0f, 1.0f, 0.0f);
 	m_desc.material = m_PxMaterial.get();
-	m_desc.reportCallback = this;
-	m_desc.behaviorCallback = this;
-	m_desc.userData = this;
 
 	m_PxController.reset(scene->m_ControllerMgr->createController(m_desc), PhysxDeleter<physx::PxController>());
 

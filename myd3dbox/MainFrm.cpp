@@ -1145,6 +1145,7 @@ void CMainFrame::InitFileContext()
 			.property("ActiveView", &CMainFrame::GetActiveView)
 			.def_readonly("RenderingView", &CMainFrame::m_RenderingView)
 			.def_readonly("IndicatorCoord", &CMainFrame::m_IndicatorCoord)
+			.def_readonly("Player", &CMainFrame::m_Player)
 			.def("addOffMeshConnection", &CMainFrame::addOffMeshConnection)
 
 		, luabind::class_<CMainApp, luabind::bases<my::D3DContext, my::ResourceMgr, RenderPipeline> >("MainApp")
