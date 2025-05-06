@@ -631,7 +631,8 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		theApp.default_player_height,
 		theApp.default_player_radius,
 		theApp.default_player_contact_offset,
-		theApp.default_player_step_offset, 0.0f)));
+		theApp.default_player_step_offset,
+		theApp.default_player_slope_limit)));
 	m_Player->InsertComponent(ComponentPtr(new Steering(NULL,
 		theApp.default_player_run_speed,
 		theApp.default_player_breaking_speed, 0.0f, NULL)));
@@ -3133,8 +3134,8 @@ void CMainFrame::OnToolsPlaying()
 		physx::PxRaycastBuffer hit;
 		physx::PxQueryFilterData filterData = physx::PxQueryFilterData(
 			physx::PxFilterData(0x01, 0, 0, 0), physx::PxQueryFlag::eDYNAMIC | physx::PxQueryFlag::eSTATIC /*| physx::PxQueryFlag::ePREFILTER | physx::PxQueryFlag::eANY_HIT*/);
-		if (m_PxScene->raycast((physx::PxVec3&)(m_Player->m_Position - controller->GetFootOffset() + my::Vector3(0, theApp.default_player_collision_height, 0)),
-			physx::PxVec3(0, -1, 0), theApp.default_player_collision_height, hit, physx::PxHitFlag::eDEFAULT, filterData, NULL, NULL))
+		if (m_PxScene->raycast((physx::PxVec3&)(m_Player->m_Position - controller->GetFootOffset() + my::Vector3(0, 1000, 0)),
+			physx::PxVec3(0, -1, 0), 1000, hit, physx::PxHitFlag::eDEFAULT, filterData, NULL, NULL))
 		{
 			boost::dynamic_pointer_cast<ActionTrackPose>(ActionTbl::getSingleton().Climb->m_TrackList[0])->m_ParamPose =
 				my::Bone((my::Vector3&)hit.block.position + controller->GetFootOffset(), m_Player->m_Rotation);

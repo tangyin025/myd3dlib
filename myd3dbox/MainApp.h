@@ -195,11 +195,11 @@ public:
 	float default_player_radius;
 	float default_player_contact_offset;
 	float default_player_step_offset;
+	float default_player_slope_limit;
 	float default_player_run_speed;
 	float default_player_breaking_speed;
 	float default_player_seek_force;
 	float default_player_look_distance;
-	float default_player_collision_height;
 	std::string default_player_mesh;
 	std::string default_player_skel;
 	unsigned int default_player_water_filterword0;
