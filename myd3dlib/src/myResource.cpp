@@ -26,22 +26,6 @@
 
 using namespace my;
 
-CachePtr my::IStream::GetWholeCache(void)
-{
-	CachePtr cache(new Cache(GetSize()));
-	if(0 == cache->size())
-	{
-		THROW_CUSEXCEPTION("read stream cache failed");
-	}
-
-	int ret = read(&(*cache)[0], cache->size());
-	if(ret != cache->size())
-	{
-		THROW_CUSEXCEPTION("read stream cache failed");
-	}
-	return cache;
-}
-
 ZipIStream::ZipIStream(boost::shared_ptr<zip_stat_t> stat, zip_file_t * zipf, CriticalSection & DirSec)
 	: m_stat(stat)
 	, m_zipf(zipf)

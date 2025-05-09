@@ -54,6 +54,22 @@ ShaderResourceBase::~ShaderResourceBase(void)
 	D3DContext::getSingleton().m_ShaderObjects.erase(this);
 }
 
+CachePtr my::IStream::GetWholeCache(void)
+{
+	CachePtr cache(new Cache(GetSize()));
+	if (0 == cache->size())
+	{
+		THROW_CUSEXCEPTION("read stream cache failed");
+	}
+
+	int ret = read(&(*cache)[0], cache->size());
+	if (ret != cache->size())
+	{
+		THROW_CUSEXCEPTION("read stream cache failed");
+	}
+	return cache;
+}
+
 unsigned int NamedObject::postfix_i = 0;
 
 NamedObject::NamedObject(void)
