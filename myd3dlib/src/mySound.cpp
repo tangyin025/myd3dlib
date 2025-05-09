@@ -489,13 +489,23 @@ void Sound3DListener::SetVelocity(
 	V(m_ptr->SetVelocity(vel.x, vel.y, vel.z, dwApply));
 }
 
-void Wav::CreateWavFromMmio(
-	HMMIO hmmio)
+void Wav::CreateWavFromFile(
+	LPCTSTR pFilename)
 {
+	CreateWavFromFileInStream(FileIStream::Open(pFilename));
+}
+
+void Wav::CreateWavFromFileInStream(
+	my::IStreamPtr istr)
+{
+	// Name: CWaveFile::ReadMMIO()
+	// Desc: Support function for reading from a multimedia I/O stream.
+	//       m_hmmio must be valid before calling.  This function uses it to
+	//       update m_ckRiff, and m_pwfx.
 	ZeroMemory(&parent, sizeof(parent));
-	if (MMSYSERR_NOERROR != mmioDescend(hmmio, &parent, NULL, 0))
+	unsigned int offset = offsetof(MMCKINFO, dwDataOffset);
+	if (offset != istr->read(&parent, offset))
 	{
-		mmioClose(hmmio, 0);
 		THROW_CUSEXCEPTION("mmioDescend parent failed");
 	}
 
@@ -503,16 +513,15 @@ void Wav::CreateWavFromMmio(
 	if ((parent.ckid != FOURCC_RIFF) ||
 		(parent.fccType != mmioFOURCC('W', 'A', 'V', 'E')))
 	{
-		mmioClose(hmmio, 0);
 		THROW_CUSEXCEPTION("parent.fccType != mmioFOURCC('W', 'A', 'V', 'E')");
 	}
 
 	// Search the input file for for the 'fmt ' chunk.
 	ZeroMemory(&child, sizeof(child));
-	child.fccType = mmioFOURCC('f', 'm', 't', ' ');
-	if (MMSYSERR_NOERROR != mmioDescend(hmmio, &child, &parent, MMIO_FINDCHUNK))
+	offset = offsetof(MMCKINFO, fccType);
+	if (offset != istr->read(&child, offset) ||
+		child.ckid != mmioFOURCC('f', 'm', 't', ' '))
 	{
-		mmioClose(hmmio, 0);
 		THROW_CUSEXCEPTION("mmioDescend child failed");
 	}
 
@@ -521,15 +530,13 @@ void Wav::CreateWavFromMmio(
 	PCMWAVEFORMAT pcmWaveFormat;
 	if (child.cksize < sizeof(pcmWaveFormat))
 	{
-		mmioClose(hmmio, 0);
 		THROW_CUSEXCEPTION("child.cksize < sizeof(pcmWaveFormat)");
 	}
 
 	// Read the 'fmt ' chunk into <pcmWaveFormat>.
-	if (mmioRead(hmmio, (HPSTR)&pcmWaveFormat,
+	if (istr->read(&pcmWaveFormat,
 		sizeof(pcmWaveFormat)) != sizeof(pcmWaveFormat))
 	{
-		mmioClose(hmmio, 0);
 		THROW_CUSEXCEPTION("mmioRead pcmWaveFormat failed");
 	}
 
@@ -547,9 +554,8 @@ void Wav::CreateWavFromMmio(
 	{
 		// Read in length of extra bytes.
 		WORD cbExtraBytes = 0L;
-		if (mmioRead(hmmio, (CHAR*)&cbExtraBytes, sizeof(WORD)) != sizeof(WORD))
+		if (istr->read((CHAR*)&cbExtraBytes, sizeof(WORD)) != sizeof(WORD))
 		{
-			mmioClose(hmmio, 0);
 			THROW_CUSEXCEPTION("mmioRead cbExtraBytes failed");
 		}
 
@@ -560,120 +566,55 @@ void Wav::CreateWavFromMmio(
 		wavfmt->cbSize = cbExtraBytes;
 
 		// Now, read those extra bytes into the structure, if cbExtraAlloc != 0.
-		if (mmioRead(hmmio, (CHAR*)(((BYTE*)&(wavfmt->cbSize)) + sizeof(WORD)),
+		if (istr->read((CHAR*)(((BYTE*)&(wavfmt->cbSize)) + sizeof(WORD)),
 			cbExtraBytes) != cbExtraBytes)
 		{
-			mmioClose(hmmio, 0);
 			THROW_CUSEXCEPTION("mmioRead extra bytes failed");
 		}
 	}
 
-	// Ascend the input file out of the 'fmt ' chunk.
-	if (MMSYSERR_NOERROR != mmioAscend(hmmio, &child, 0))
-	{
-		mmioClose(hmmio, 0);
-		THROW_CUSEXCEPTION("mmioAscend child failed");
-	}
+	//// Ascend the input file out of the 'fmt ' chunk.
+	//if (MMSYSERR_NOERROR != mmioAscend(hmmio, &child, 0))
+	//{
+	//	mmioClose(hmmio, 0);
+	//	THROW_CUSEXCEPTION("mmioAscend child failed");
+	//}
 
 	// Search the input file for the 'data' chunk.
 	ZeroMemory(&child, sizeof(child));
-	child.ckid = mmioFOURCC('d', 'a', 't', 'a');
-	if (MMSYSERR_NOERROR != mmioDescend(hmmio, &child, &parent, MMIO_FINDCHUNK))
+	offset = offsetof(MMCKINFO, fccType);
+	if (offset != istr->read(&child, offset) ||
+		child.ckid != mmioFOURCC('d', 'a', 't', 'a'))
 	{
-		mmioClose(hmmio, 0);
 		THROW_CUSEXCEPTION("mmioDescend child failed");
 	}
 
 	// Copy the bytes from the io to the buffer.
 	buffer.resize(child.cksize);
-	if ((LONG)child.cksize != mmioRead(hmmio, (HPSTR)&buffer[0], child.cksize))
+	if ((LONG)child.cksize != istr->read((HPSTR)&buffer[0], child.cksize))
 	{
-		mmioClose(hmmio, 0);
 		THROW_CUSEXCEPTION("mmioRead buffer failed");
 	}
-
-	mmioClose(hmmio, 0);
 }
-
-void Wav::CreateWavFromFile(
-	LPCTSTR pFilename)
-{
-	CreateWavFromFileInStream(FileIStream::Open(pFilename));
-}
-
-void Wav::CreateWavFromFileInStream(
-	my::IStreamPtr istr)
-{
-	struct IOProc
-	{
-		static LRESULT CALLBACK MMIOProc(
-			LPSTR lpmmioinfo,
-			UINT uMsg,
-			LPARAM lParam1,
-			LPARAM lParam2)
-		{
-			MMIOINFO* pinfo = (MMIOINFO*)lpmmioinfo;
-			switch (uMsg)
-			{
-			case MMIOM_OPEN:
-			{
-				return 0;
-			}
-			case MMIOM_CLOSE:
-			{
-				return 0;
-			}
-			case MMIOM_READ:
-			{
-				my::IStream* istr = (my::IStream*)pinfo->pchBuffer;
-				int iread = istr->read((void*)lParam1, lParam2);
-				pinfo->lDiskOffset += iread;
-				return iread;
-			}
-			case MMIOM_SEEK:
-			{
-				my::IStream* istr = (my::IStream*)pinfo->pchBuffer;
-				long loff = istr->seek(lParam1, lParam2);
-				pinfo->lDiskOffset = loff;
-				return loff;
-			}
-			}
-			return -1;
-		}
-	};
-
-	MMIOINFO mmioinfo = { 0 };
-	mmioinfo.dwFlags = MMIO_READ;
-	mmioinfo.pIOProc = IOProc::MMIOProc;
-	mmioinfo.pchBuffer = (HPSTR)istr.get();
-
-	HMMIO hmmio;
-	if (NULL == (hmmio = mmioOpen(NULL, &mmioinfo, MMIO_READ)))
-	{
-		THROW_CUSEXCEPTION("open wave file failed");
-	}
-
-	CreateWavFromMmio(hmmio);
-}
-
-void Wav::CreateWavFromFileInMemory(
-	LPCVOID Memory,
-	DWORD SizeOfMemory)
-{
-	MMIOINFO mmioinfo;
-	ZeroMemory(&mmioinfo, sizeof(mmioinfo));
-	mmioinfo.fccIOProc = FOURCC_MEM;
-	mmioinfo.pchBuffer = (char*)Memory;
-	mmioinfo.cchBuffer = SizeOfMemory;
-
-	HMMIO hmmio;
-	if (NULL == (hmmio = mmioOpen(NULL, &mmioinfo, MMIO_READ)))
-	{
-		THROW_CUSEXCEPTION("open wave file failed");
-	}
-
-	CreateWavFromMmio(hmmio);
-}
+//
+//void Wav::CreateWavFromFileInMemory(
+//	LPCVOID Memory,
+//	DWORD SizeOfMemory)
+//{
+//	MMIOINFO mmioinfo;
+//	ZeroMemory(&mmioinfo, sizeof(mmioinfo));
+//	mmioinfo.fccIOProc = FOURCC_MEM;
+//	mmioinfo.pchBuffer = (char*)Memory;
+//	mmioinfo.cchBuffer = SizeOfMemory;
+//
+//	HMMIO hmmio;
+//	if (NULL == (hmmio = mmioOpen(NULL, &mmioinfo, MMIO_READ)))
+//	{
+//		THROW_CUSEXCEPTION("open wave file failed");
+//	}
+//
+//	CreateWavFromMmio(hmmio);
+//}
 
 size_t Wav::SecToBlockByte(const WAVEFORMATEX& fmt, float sec)
 {

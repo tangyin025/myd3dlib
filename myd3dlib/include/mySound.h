@@ -309,18 +309,15 @@ namespace my
 		{
 		}
 
-		void CreateWavFromMmio(
-			HMMIO hmmio);
-
 		void CreateWavFromFile(
 			LPCTSTR pFilename);
 
 		void CreateWavFromFileInStream(
 			my::IStreamPtr istr);
 
-		void CreateWavFromFileInMemory(
-			LPCVOID Memory,
-			DWORD SizeOfMemory);
+		//void CreateWavFromFileInMemory(
+		//	LPCVOID Memory,
+		//	DWORD SizeOfMemory);
 
 		static size_t SecToBlockByte(const WAVEFORMATEX & fmt, float sec);
 	};
