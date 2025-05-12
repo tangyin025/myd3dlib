@@ -660,7 +660,7 @@ void Joystick::CreateJoystick(
 	LONG max_y,
 	LONG min_z,
 	LONG max_z,
-	float dead_zone)
+	DWORD dead_zone)
 {
 	LPDIRECTINPUTDEVICE8 device;
 	if(FAILED(hr = input->CreateDevice(rguid, &device, NULL)))
@@ -699,27 +699,37 @@ void Joystick::CreateJoystick(
 	//dipr.lMax = max_z;
 	//SetProperty(DIPROP_RANGE, &dipr.diph);
 
-	//_ASSERT(dead_zone >= 0 && dead_zone <= 100);
+	_ASSERT(dead_zone >= 0 && dead_zone <= 10000);
 
-	//DIPROPDWORD dipd  = {sizeof(dipd), sizeof(dipd.diph)};
-	//dipd.diph.dwObj = DIJOFS_X;
-	//dipd.diph.dwHow = DIPH_BYOFFSET;
-	//dipd.dwData = (DWORD)(dead_zone * 100);
-	//SetProperty(DIPROP_DEADZONE, &dipd.diph);
+	DIPROPDWORD dipd  = {sizeof(dipd), sizeof(dipd.diph)};
+	dipd.diph.dwObj = DIJOFS_X;
+	dipd.diph.dwHow = DIPH_BYOFFSET;
+	dipd.dwData = dead_zone;
+	SetProperty(DIPROP_DEADZONE, &dipd.diph);
 
-	//dipd.diph.dwObj = DIJOFS_Y;
-	//dipd.diph.dwHow = DIPH_BYOFFSET;
-	//dipd.dwData = (DWORD)(dead_zone * 100);
-	//SetProperty(DIPROP_DEADZONE, &dipd.diph);
+	dipd.diph.dwObj = DIJOFS_Y;
+	dipd.diph.dwHow = DIPH_BYOFFSET;
+	dipd.dwData = dead_zone;
+	SetProperty(DIPROP_DEADZONE, &dipd.diph);
 
-	//dipd.diph.dwObj = DIJOFS_Z;
-	//dipd.diph.dwHow = DIPH_BYOFFSET;
-	//dipd.dwData = (DWORD)(dead_zone * 100);
-	//SetProperty(DIPROP_DEADZONE, &dipd.diph);
+	dipd.diph.dwObj = DIJOFS_Z;
+	dipd.diph.dwHow = DIPH_BYOFFSET;
+	dipd.dwData = dead_zone;
+	SetProperty(DIPROP_DEADZONE, &dipd.diph);
+
+	dipd.diph.dwObj = DIJOFS_RX;
+	dipd.diph.dwHow = DIPH_BYOFFSET;
+	dipd.dwData = dead_zone;
+	SetProperty(DIPROP_DEADZONE, &dipd.diph);
+
+	dipd.diph.dwObj = DIJOFS_RY;
+	dipd.diph.dwHow = DIPH_BYOFFSET;
+	dipd.dwData = dead_zone;
+	SetProperty(DIPROP_DEADZONE, &dipd.diph);
 
 	//dipd.diph.dwObj = DIJOFS_RZ;
 	//dipd.diph.dwHow = DIPH_BYOFFSET;
-	//dipd.dwData = (DWORD)(dead_zone * 100);
+	//dipd.dwData = dead_zone;
 	//SetProperty(DIPROP_DEADZONE, &dipd.diph);
 
 	ZeroMemory(&m_State, sizeof(m_State));
@@ -810,7 +820,7 @@ void InputMgr::Create(HINSTANCE hinst, HWND hwnd)
 	desc.max_y =  255;
 	desc.min_z = -255;
 	desc.max_z =  255;
-	desc.dead_zone = 10;
+	desc.dead_zone = m_JoystickAxisDeadZone;
 	m_input->EnumDevices(DI8DEVCLASS_GAMECTRL, JoystickFinderCallback, &desc, DIEDFL_ATTACHEDONLY);
 	if (desc.joystick)
 	{
@@ -1049,27 +1059,27 @@ LONG InputMgr::GetKeyAxisRaw(DWORD Key) const
 					switch (value_iter->second)
 					{
 					case 0:
-						if (m_joystick->GetX() < 32767 - m_JoystickAxisDeadZone || m_joystick->GetX() > 32767 + m_JoystickAxisDeadZone)
+						if (m_joystick->GetX() < 32767 || m_joystick->GetX() > 32767)
 							return m_joystick->GetX();
 						break;
 					case 1:
-						if (m_joystick->GetY() < 32767 - m_JoystickAxisDeadZone || m_joystick->GetY() > 32767 + m_JoystickAxisDeadZone)
+						if (m_joystick->GetY() < 32767 || m_joystick->GetY() > 32767)
 							return m_joystick->GetY();
 						break;
 					case 2:
-						if (m_joystick->GetZ() < 32767 - m_JoystickAxisDeadZone || m_joystick->GetZ() > 32767 + m_JoystickAxisDeadZone)
+						if (m_joystick->GetZ() < 32767 || m_joystick->GetZ() > 32767)
 							return m_joystick->GetZ();
 						break;
 					case 3:
-						if (m_joystick->GetRx() < 32767 - m_JoystickAxisDeadZone || m_joystick->GetRx() > 32767 + m_JoystickAxisDeadZone)
+						if (m_joystick->GetRx() < 32767 || m_joystick->GetRx() > 32767)
 							return m_joystick->GetRx();
 						break;
 					case 4:
-						if (m_joystick->GetRy() < 32767 - m_JoystickAxisDeadZone || m_joystick->GetRy() > 32767 + m_JoystickAxisDeadZone)
+						if (m_joystick->GetRy() < 32767 || m_joystick->GetRy() > 32767)
 							return m_joystick->GetRy();
 						break;
 					case 5:
-						if (m_joystick->GetRz() < 32767 - m_JoystickAxisDeadZone || m_joystick->GetRz() > 32767 + m_JoystickAxisDeadZone)
+						if (m_joystick->GetRz() < 32767 || m_joystick->GetRz() > 32767)
 							return m_joystick->GetRz();
 						break;
 					}
@@ -1081,27 +1091,27 @@ LONG InputMgr::GetKeyAxisRaw(DWORD Key) const
 					switch (value_iter->second)
 					{
 					case 0:
-						if (m_joystick->GetX() < 32767 - m_JoystickAxisDeadZone || m_joystick->GetX() > 32767 + m_JoystickAxisDeadZone)
+						if (m_joystick->GetX() < 32767 || m_joystick->GetX() > 32767)
 							return m_joystick->GetX();
 						break;
 					case 1:
-						if (m_joystick->GetY() < 32767 - m_JoystickAxisDeadZone || m_joystick->GetY() > 32767 + m_JoystickAxisDeadZone)
+						if (m_joystick->GetY() < 32767 || m_joystick->GetY() > 32767)
 							return m_joystick->GetY();
 						break;
 					case 2:
-						if (m_joystick->GetZ() < 32767 - m_JoystickAxisDeadZone || m_joystick->GetZ() > 32767 + m_JoystickAxisDeadZone)
+						if (m_joystick->GetZ() < 32767 || m_joystick->GetZ() > 32767)
 							return m_joystick->GetZ();
 						break;
 					case 3:
-						if (m_joystick->GetRx() < 32767 - m_JoystickAxisDeadZone || m_joystick->GetRx() > 32767 + m_JoystickAxisDeadZone)
+						if (m_joystick->GetRx() < 32767 || m_joystick->GetRx() > 32767)
 							return m_joystick->GetRx();
 						break;
 					case 4:
-						if (m_joystick->GetRy() < 32767 - m_JoystickAxisDeadZone || m_joystick->GetRy() > 32767 + m_JoystickAxisDeadZone)
+						if (m_joystick->GetRy() < 32767 || m_joystick->GetRy() > 32767)
 							return m_joystick->GetRy();
 						break;
 					case 5:
-						if (m_joystick->GetRz() < 32767 - m_JoystickAxisDeadZone || m_joystick->GetRz() > 32767 + m_JoystickAxisDeadZone)
+						if (m_joystick->GetRz() < 32767 || m_joystick->GetRz() > 32767)
 							return m_joystick->GetRz();
 						break;
 					}

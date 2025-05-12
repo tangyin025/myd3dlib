@@ -378,7 +378,7 @@ namespace my
 			LONG max_y,
 			LONG min_z,
 			LONG max_z,
-			float dead_zone);
+			DWORD dead_zone);
 
 		bool Capture(void);
 
@@ -459,7 +459,7 @@ namespace my
 			LONG max_y;
 			LONG min_z;
 			LONG max_z;
-			float dead_zone;
+			DWORD dead_zone;
 			JoystickPtr joystick;
 		};
 
@@ -490,7 +490,7 @@ namespace my
 
 		KeyPairListList m_BindKeys;
 
-		LONG m_JoystickAxisDeadZone;
+		DWORD m_JoystickAxisDeadZone;
 
 		DWORD m_LastPressKey;
 
@@ -503,7 +503,7 @@ namespace my
 	public:
 		InputMgr(size_t KeyCount)
 			: m_BindKeys(KeyCount)
-			, m_JoystickAxisDeadZone(3276)
+			, m_JoystickAxisDeadZone(1000)
 			, m_LastPressKey(UINT32_MAX)
 			, m_LastPressTime(0)
 			, m_LastPressCount(0)
