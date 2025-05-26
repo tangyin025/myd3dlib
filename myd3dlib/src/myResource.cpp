@@ -1404,7 +1404,7 @@ void EffectIORequest::CreateResource(LPDIRECT3DDEVICE9 pd3dDevice)
 	EffectPtr res(new Effect());
 	ResourceMgr::getSingleton().m_LocalInclude = boost::replace_all_copy(m_path, "/", "\\");
 	PathRemoveFileSpecA(&ResourceMgr::getSingleton().m_LocalInclude[0]);
-	res->CreateEffect(&(*m_cache)[0], m_cache->size(), &m_d3dmacros[0], ResourceMgr::getSingletonPtr(), 0, ResourceMgr::getSingleton().m_EffectPool);
+	res->CreateEffect(&(*m_cache)[0], m_cache->size(), &m_d3dmacros[0], ResourceMgr::getSingletonPtr(), D3DXSHADER_PACKMATRIX_COLUMNMAJOR | D3DXSHADER_OPTIMIZATION_LEVEL3 | D3DXFX_LARGEADDRESSAWARE, ResourceMgr::getSingleton().m_EffectPool);
 	m_res = res;
 }
 

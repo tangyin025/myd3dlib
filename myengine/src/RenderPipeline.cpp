@@ -134,7 +134,7 @@ my::Effect * RenderPipeline::QueryShader(const D3DXMACRO* pDefines, const char *
 	CComPtr<ID3DXBuffer> err;
 	CComPtr<ID3DXEffectCompiler> compiler;
 	if (FAILED(D3DXCreateEffectCompiler((LPCSTR)cache->data(), (UINT)cache->size(), pDefines,
-		my::ResourceMgr::getSingletonPtr(), D3DXSHADER_PACKMATRIX_COLUMNMAJOR | D3DXSHADER_OPTIMIZATION_LEVEL3 | D3DXFX_LARGEADDRESSAWARE, &compiler, &err)))
+		my::ResourceMgr::getSingletonPtr(), D3DXSHADER_PACKMATRIX_COLUMNMAJOR | D3DXSHADER_OPTIMIZATION_LEVEL3, &compiler, &err)))
 	{
 		my::D3DContext::getSingleton().m_EventLog(err ? (char *)err->GetBufferPointer() : "QueryShader failed");
 		m_ShaderCache.insert(std::make_pair(seed, my::EffectPtr()));
@@ -148,7 +148,7 @@ my::Effect * RenderPipeline::QueryShader(const D3DXMACRO* pDefines, const char *
 	}
 
 	CComPtr<ID3DXBuffer> buff;
-	if (FAILED(compiler->CompileEffect(D3DXSHADER_OPTIMIZATION_LEVEL3, &buff, &err)))
+	if (FAILED(compiler->CompileEffect(D3DXSHADER_PACKMATRIX_COLUMNMAJOR | D3DXSHADER_OPTIMIZATION_LEVEL3, &buff, &err)))
 	{
 		my::D3DContext::getSingleton().m_EventLog(err ? (char *)err->GetBufferPointer() : "QueryShader failed");
 		m_ShaderCache.insert(std::make_pair(seed, my::EffectPtr()));
@@ -169,7 +169,7 @@ my::Effect * RenderPipeline::QueryShader(const D3DXMACRO* pDefines, const char *
 
 	LPD3DXEFFECT pEffect = NULL;
 	if (FAILED(D3DXCreateEffect(my::D3DContext::getSingleton().m_d3dDevice,
-		buff->GetBufferPointer(), buff->GetBufferSize(), NULL, NULL, D3DXSHADER_OPTIMIZATION_LEVEL3 | D3DXFX_LARGEADDRESSAWARE, my::ResourceMgr::getSingleton().m_EffectPool, &pEffect, &err)))
+		buff->GetBufferPointer(), buff->GetBufferSize(), NULL, NULL, D3DXFX_LARGEADDRESSAWARE, my::ResourceMgr::getSingleton().m_EffectPool, &pEffect, &err)))
 	{
 		my::D3DContext::getSingleton().m_EventLog(err ? (char *)err->GetBufferPointer() : "QueryShader failed");
 		m_ShaderCache.insert(std::make_pair(seed, my::EffectPtr()));
@@ -206,7 +206,7 @@ void RenderPipeline::LoadShaderCache(LPCTSTR szDir)
 					std::basic_string<TCHAR> path(szDir);
 					path.append(_T("\\")).append(ffd.cFileName);
 					my::EffectPtr shader(new my::Effect());
-					shader->CreateEffectFromFile(path.c_str(), NULL, NULL, D3DXSHADER_OPTIMIZATION_LEVEL3, my::ResourceMgr::getSingleton().m_EffectPool);
+					shader->CreateEffectFromFile(path.c_str(), NULL, NULL, D3DXFX_LARGEADDRESSAWARE, my::ResourceMgr::getSingleton().m_EffectPool);
 					m_ShaderCache.insert(std::make_pair(seed, shader));
 				}
 			}
