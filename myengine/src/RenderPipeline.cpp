@@ -89,7 +89,7 @@ RenderPipeline::~RenderPipeline(void)
 {
 }
 
-static size_t _hash_value(const D3DXMACRO* pDefines, const char * path)
+static size_t _hash_value(const char * path, const D3DXMACRO * pDefines)
 {
 	// ! maybe hash conflict
 	size_t seed = 0;
@@ -109,9 +109,9 @@ static size_t _hash_value(const D3DXMACRO* pDefines, const char * path)
 	return seed;
 }
 
-my::Effect * RenderPipeline::QueryShader(const D3DXMACRO* pDefines, const char * path, unsigned int PassID)
+my::Effect * RenderPipeline::QueryShader(const char * path, const D3DXMACRO * pDefines, unsigned int PassID)
 {
-	size_t seed = _hash_value(pDefines, path);
+	size_t seed = _hash_value(path, pDefines);
 	ShaderCacheMap::iterator shader_iter = m_ShaderCache.find(seed);
 	if (shader_iter != m_ShaderCache.end())
 	{
@@ -566,8 +566,8 @@ void RenderPipeline::OnRender(
 	V(pd3dDevice->SetRenderTarget(2, NULL));
 	if (pRC->m_SsaoEnable)
 	{
-		D3DXMACRO macro[] = { { 0 } };
-		my::Effect* SsaoEffect = QueryShader(macro, "shader/SSAO.fx", PassTypeShadow);
+		D3DXMACRO macros[] = { { 0 } };
+		my::Effect* SsaoEffect = QueryShader("shader/SSAO.fx", macros, PassTypeShadow);
 		if (SsaoEffect)
 		{
 			if (!handle_bias)
@@ -634,8 +634,8 @@ void RenderPipeline::OnRender(
 
 	if (pRC->m_DofEnable)
 	{
-		D3DXMACRO macro[] = { { 0 } };
-		my::Effect* DofEffect = QueryShader(macro, "shader/DofEffect.fx", PassTypeShadow);
+		D3DXMACRO macros[] = { { 0 } };
+		my::Effect* DofEffect = QueryShader("shader/DofEffect.fx", macros, PassTypeShadow);
 		if (DofEffect)
 		{
 			if (!handle_DofParams)
@@ -707,8 +707,8 @@ void RenderPipeline::OnRender(
 
 	if (pRC->m_BloomEnable)
 	{
-		D3DXMACRO macro[] = { { 0 } };
-		my::Effect* BloomEffect = QueryShader(macro, "shader/Bloom.fx", PassTypeShadow);
+		D3DXMACRO macros[] = { { 0 } };
+		my::Effect* BloomEffect = QueryShader("shader/Bloom.fx", macros, PassTypeShadow);
 		if (BloomEffect)
 		{
 			if (!handle_LuminanceThreshold)
@@ -814,8 +814,8 @@ void RenderPipeline::OnRender(
 
 	if (pRC->m_FxaaEnable)
 	{
-		D3DXMACRO macro[] = { { 0 } };
-		my::Effect* FxaaEffect = QueryShader(macro, "shader/FXAA.fx", PassTypeShadow);
+		D3DXMACRO macros[] = { { 0 } };
+		my::Effect* FxaaEffect = QueryShader("shader/FXAA.fx", macros, PassTypeShadow);
 		if (FxaaEffect)
 		{
 			if (!handle_InputTexture)
@@ -844,8 +844,8 @@ void RenderPipeline::OnRender(
 	{
 	case RenderTargetNormal:
 	{
-		D3DXMACRO macro[] = { { 0 } };
-		my::Effect* NormalCvt = QueryShader(macro, "shader/NormalCvt.fx", PassTypeShadow);
+		D3DXMACRO macros[] = { { 0 } };
+		my::Effect* NormalCvt = QueryShader("shader/NormalCvt.fx", macros, PassTypeShadow);
 		if (NormalCvt)
 		{
 			//V(pd3dDevice->StretchRect(NormalSurf, NULL, ScreenSurf, NULL, D3DTEXF_NONE));

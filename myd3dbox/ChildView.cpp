@@ -466,13 +466,13 @@ void CChildView::RenderSelectedComponent(IDirect3DDevice9 * pd3dDevice, Componen
 			MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>(cmp);
 			if (mesh_cmp->m_Mesh)
 			{
-				D3DXMACRO macro[3] = { { "MESH_TYPE", "0" }, { 0 } };
+				D3DXMACRO macros[3] = { { "MESH_TYPE", "0" }, { 0 } };
 				Animator* animator = cmp->m_Actor->GetFirstComponent<Animator>();
 				if (animator && mesh_cmp->m_Mesh->m_VertexElems.elems[D3DDECLUSAGE_BLENDINDICES][0].Type == D3DDECLTYPE_UBYTE4)
 				{
-					macro[1].Name = "SKELETON";
+					macros[1].Name = "SKELETON";
 				}
-				my::Effect* shader = theApp.QueryShader(macro, "shader/mtl_simplecolor.fx", RenderPipeline::PassTypeToMask(RenderPipeline::PassTypeOpaque));
+				my::Effect* shader = theApp.QueryShader("shader/mtl_simplecolor.fx", macros, RenderPipeline::PassTypeToMask(RenderPipeline::PassTypeOpaque));
 				if (shader)
 				{
 					shader->SetMatrix(shader->GetParameterByName(NULL, "g_World"), mesh_cmp->m_InstanceType != MeshComponent::InstanceTypeBatch ? mesh_cmp->m_Actor->m_World : my::Matrix4::identity);
@@ -496,8 +496,8 @@ void CChildView::RenderSelectedComponent(IDirect3DDevice9 * pd3dDevice, Componen
 			ClothComponent* cloth_cmp = dynamic_cast<ClothComponent*>(cmp);
 			if (!cloth_cmp->m_VertexData.empty())
 			{
-				D3DXMACRO macro[2] = { { "MESH_TYPE", "0" }, { 0 } };
-				my::Effect* shader = theApp.QueryShader(macro, "shader/mtl_simplecolor.fx", RenderPipeline::PassTypeToMask(RenderPipeline::PassTypeOpaque));
+				D3DXMACRO macros[2] = { { "MESH_TYPE", "0" }, { 0 } };
+				my::Effect* shader = theApp.QueryShader("shader/mtl_simplecolor.fx", macros, RenderPipeline::PassTypeToMask(RenderPipeline::PassTypeOpaque));
 				if (shader)
 				{
 					shader->SetMatrix(shader->GetParameterByName(NULL, "g_World"), cloth_cmp->m_Actor->m_World);

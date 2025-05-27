@@ -474,7 +474,7 @@ public:
 
 	virtual ~RenderPipeline(void);
 
-	my::Effect * QueryShader(const D3DXMACRO* pDefines, const char * path, unsigned int PassID);
+	my::Effect * QueryShader(const char * path, const D3DXMACRO * pDefines, unsigned int PassID);
 
 	void LoadShaderCache(LPCTSTR szDir);
 

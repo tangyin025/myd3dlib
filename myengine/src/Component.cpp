@@ -856,17 +856,17 @@ void MeshComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline * 
 			{
 				if (RenderPipeline::PassTypeToMask(PassID) & (m_Material->m_PassMask & PassMask))
 				{
-					D3DXMACRO macro[4] = { { "MESH_TYPE", "0" }, { 0 } };
+					D3DXMACRO macros[4] = { { "MESH_TYPE", "0" }, { 0 } };
 					int j = 1;
 					if (m_InstanceType == InstanceTypeInstance)
 					{
-						macro[j++].Name = "INSTANCE";
+						macros[j++].Name = "INSTANCE";
 					}
 					if (animator && !animator->m_DualQuats.empty() /*&& m_Mesh->m_VertexElems.elems[D3DDECLUSAGE_BLENDINDICES][0].Type == D3DDECLTYPE_UBYTE4*/)
 					{
-						macro[j++].Name = "SKELETON";
+						macros[j++].Name = "SKELETON";
 					}
-					my::Effect* shader = pipeline->QueryShader(macro, m_Material->m_Shader.c_str(), PassID);
+					my::Effect* shader = pipeline->QueryShader(m_Material->m_Shader.c_str(), macros, PassID);
 					if (shader)
 					{
 						if (!handle_World)
@@ -1679,8 +1679,8 @@ void ClothComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline *
 			{
 				if (RenderPipeline::PassTypeToMask(PassID) & (m_Material->m_PassMask & PassMask))
 				{
-					D3DXMACRO macro[2] = { { "MESH_TYPE", "0" }, { 0 } };
-					my::Effect* shader = pipeline->QueryShader(macro, m_Material->m_Shader.c_str(), PassID);
+					D3DXMACRO macros[2] = { { "MESH_TYPE", "0" }, { 0 } };
+					my::Effect* shader = pipeline->QueryShader(m_Material->m_Shader.c_str(), macros, PassID);
 					if (shader)
 					{
 						if (!handle_World)
@@ -1929,12 +1929,12 @@ void EmitterComponent::AddParticlePairToPipeline(
 		{
 			const char* num[] = { "0", "1", "2", "3", "4", "5", "6" };
 			_ASSERT(_countof(num) > FaceTypeStretchedCamera);
-			D3DXMACRO macro[5] = {
+			D3DXMACRO macros[5] = {
 				{ "MESH_TYPE", "1" },
 				{ "EMITTER_FACE_TYPE", num[m_EmitterFaceType] },
 				{ "EMITTER_SPACE_TYPE", num[m_EmitterSpaceType]},
 				{m_Tiles.x > 1 || m_Tiles.y > 1 ? "TILED" : NULL, NULL}, {0} };
-			my::Effect* shader = pipeline->QueryShader(macro, m_Material->m_Shader.c_str(), PassID);
+			my::Effect* shader = pipeline->QueryShader(m_Material->m_Shader.c_str(), macros, PassID);
 			if (shader)
 			{
 				if (!handle_World)

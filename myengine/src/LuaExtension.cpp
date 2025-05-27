@@ -1182,21 +1182,24 @@ typedef boost::shared_container_iterator<cmp_list> shared_cmp_list_iter;
 
 extern boost::iterator_range<shared_cmp_list_iter> controller_get_geom_stream(const Controller* self);
 
-static my::Effect* renderpipeline_query_shader(RenderPipeline* self, const luabind::object& macros, const char* path, unsigned int PassID)
+static void renderpipeline_query_shader(RenderPipeline* self, const char* path, const luabind::object& macro_tbl, unsigned int PassID)
 {
-	std::vector<D3DXMACRO> macs;
-	std::vector<std::string> strs;
-	luabind::iterator iter(macros), end;
+	std::vector<D3DXMACRO> macros;
+	std::list<std::string> strs;
+	luabind::iterator iter(macro_tbl), end;
 	for (; iter != end; iter++)
 	{
+		D3DXMACRO m = { 0 };
 		strs.push_back(boost::lexical_cast<std::string>(iter.key()));
+		m.Name = strs.back().c_str();
 		strs.push_back(boost::lexical_cast<std::string>(*iter));
-		D3DXMACRO m = { (strs.rbegin() + 1)->c_str(), strs.rbegin()->c_str() };
-		macs.push_back(m);
+		m.Definition = strs.back().empty() ? 0 : strs.back().c_str();
+		macros.push_back(m);
 	}
 	D3DXMACRO m = { 0 };
-	macs.push_back(m);
-	return self->QueryShader(macs.data(), path, PassID);
+	macros.push_back(m);
+	BOOST_VERIFY(!my::ResourceMgr::getSingleton().CheckPath(path)
+		|| self->QueryShader(path, macros.data(), PassID) != NULL);
 }
 
 class RaycastHitIterator : public std::iterator<std::forward_iterator_tag, RaycastHitArg*>
