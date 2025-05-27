@@ -54,6 +54,8 @@ public:
 
 	ShaderCacheMap m_ShaderCache;
 
+	bool m_LoadShaderCache;
+
 	my::D3DVertexElementSet m_ParticleVertElems;
 
 	my::D3DVertexElementSet m_ParticleInstanceElems;
@@ -475,8 +477,6 @@ public:
 	virtual ~RenderPipeline(void);
 
 	my::Effect * QueryShader(const char * path, const D3DXMACRO * pDefines, unsigned int PassID);
-
-	void LoadShaderCache(LPCTSTR szDir);
 
 	static unsigned int PassTypeToMask(unsigned int pass_type)
 	{

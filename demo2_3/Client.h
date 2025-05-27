@@ -47,8 +47,6 @@ public:
 
 	int m_InitIOThreadNum;
 
-	bool m_InitLoadShaderCache;
-
 	std::string m_InitFont;
 
 	int m_InitFontHeight;

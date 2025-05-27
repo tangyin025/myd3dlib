@@ -42,7 +42,6 @@ public:
 	float default_physx_joint_localframe;
 	float default_physx_joint_limits;
 	int default_io_thread_num;
-	bool default_load_shader_cache;
 	int default_remaining_actor_max;
 	float default_grid_length;
 	float default_grid_lines_every;

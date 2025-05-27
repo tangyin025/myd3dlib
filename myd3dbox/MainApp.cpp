@@ -365,6 +365,7 @@ BOOL CMainApp::InitInstance()
 	desc.add_options()
 		("path", boost::program_options::value(&path_list)->default_value(boost::assign::list_of("..\\demo2_3\\Media"), ""), "Path")
 		("shaderinclude", boost::program_options::value(&m_SystemIncludes)->default_value(boost::assign::list_of("shader"), ""), "Shader Include")
+		("loadshadercache", boost::program_options::value(&m_LoadShaderCache)->default_value(false), "Load shader cache")
 		("default_fov", boost::program_options::value(&default_fov)->default_value(60.0f), "Default fov")
 		("default_physx_frame_interval", boost::program_options::value(&m_FrameInterval)->default_value(1 / 60.0f), "Default physx frame interval")
 		("default_max_lowed_timestep", boost::program_options::value(&m_MaxAllowedTimestep)->default_value(0.1f), "Default max allowed timestep")
@@ -374,7 +375,6 @@ BOOL CMainApp::InitInstance()
 		("default_physx_joint_localframe", boost::program_options::value(&default_physx_joint_localframe)->default_value(0.1f), "Default physx joint localframe")
 		("default_physx_joint_limits", boost::program_options::value(&default_physx_joint_limits)->default_value(0.1f), "Default physx joint limits")
 		("default_io_thread_num", boost::program_options::value(&default_io_thread_num)->default_value(3), "Default io thread num")
-		("default_load_shader_cache", boost::program_options::value(&default_load_shader_cache)->default_value(true), "Default load shader cache")
 		("default_remaining_actor_max", boost::program_options::value(&default_remaining_actor_max)->default_value(30000), "Default remaining actor max")
 		("default_grid_length", boost::program_options::value(&default_grid_length)->default_value(12.0f), "Default grid length")
 		("default_grid_lines_every", boost::program_options::value(&default_grid_lines_every)->default_value(5.0f), "Default grid lines every")
@@ -635,13 +635,6 @@ HRESULT CMainApp::OnCreateDevice(
 	{
 		TRACE(my::D3DException::Translate(hr));
 		return hr;
-	}
-
-	if (default_load_shader_cache)
-	{
-		TCHAR szDir[MAX_PATH];
-		GetCurrentDirectory(_countof(szDir), szDir);
-		RenderPipeline::LoadShaderCache(szDir);
 	}
 
 	if (FAILED(hr = m_UIRender->OnCreateDevice(pd3dDevice, &m_BackBufferSurfaceDesc)))

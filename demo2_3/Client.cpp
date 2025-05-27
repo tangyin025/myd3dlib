@@ -413,6 +413,7 @@ Client::Client(int _DEFAULT_UI_RES_Y)
 	desc.add_options()
 		("path", boost::program_options::value(&path_list), "Paths")
 		("shaderinclude", boost::program_options::value(&m_SystemIncludes)->default_value(boost::assign::list_of("shader"), ""), "Shader Include")
+		("loadshadercache", boost::program_options::value(&m_LoadShaderCache)->default_value(true), "Load Shader Cache")
 		("width", boost::program_options::value(&m_WindowBackBufferWidthAtModeChange)->default_value(DEFAULT_UI_RES_Y * 16 / 9), "Width")
 		("height", boost::program_options::value(&m_WindowBackBufferHeightAtModeChange)->default_value(DEFAULT_UI_RES_Y), "Height")
 		("windowed", boost::program_options::value(&m_WindowedModeAtFirstCreate)->default_value(true), "Windowed")
@@ -430,7 +431,6 @@ Client::Client(int _DEFAULT_UI_RES_Y)
 		("physxsceneflags", boost::program_options::value(&m_InitPhysxSceneFlags)->default_value(physx::PxSceneFlag::eENABLE_PCM | physx::PxSceneFlag::eENABLE_ACTIVETRANSFORMS | physx::PxSceneFlag::eENABLE_CCD), "Physx Scene Flags")
 		("physxscenegravity", boost::program_options::value(&m_InitPhysxSceneGravity)->default_value(Vector3(0, -19.6f, 0), ""), "Init Physx Scene Gravity")
 		("iothreadnum", boost::program_options::value(&m_InitIOThreadNum)->default_value(3), "IO Thread Number")
-		("loadshadercache", boost::program_options::value(&m_InitLoadShaderCache)->default_value(true), "Load Shader Cache")
 		("font", boost::program_options::value(&m_InitFont)->default_value("font/SourceHanSansCN-Regular.otf"), "Font")
 		("fontheight", boost::program_options::value(&m_InitFontHeight)->default_value(12), "Font Height")
 		("fontfaceindex", boost::program_options::value(&m_InitFontFaceIndex)->default_value(0), "Font Face Index")
@@ -564,13 +564,6 @@ HRESULT Client::OnCreateDevice(
 		return hr;
 	}
 
-	if (m_InitLoadShaderCache)
-	{
-		TCHAR szDir[MAX_PATH];
-		GetCurrentDirectory(_countof(szDir), szDir);
-		RenderPipeline::LoadShaderCache(szDir);
-	}
-
 	if (!(m_Font = LoadFont(m_InitFont.c_str(), m_InitFontHeight, m_InitFontFaceIndex)))
 	{
 		THROW_CUSEXCEPTION("create m_Font failed");
@@ -609,6 +602,7 @@ HRESULT Client::OnCreateDevice(
 			.def_readwrite("DlgView", &Client::m_View)
 			.def_readwrite("DlgProj", &Client::m_Proj)
 			.def_readwrite("DlgViewProj", &Client::m_ViewProj)
+			.def_readonly("LoadShaderCache", &Client::m_LoadShaderCache)
 			.def_readwrite("Camera", &Client::m_Camera)
 			.def_readwrite("WireFrame", &Client::m_WireFrame)
 			.def_readwrite("DofEnable", &Client::m_DofEnable)
@@ -622,7 +616,6 @@ HRESULT Client::OnCreateDevice(
 			.def_readonly("DEFAULT_UI_RES_Y", &Client::DEFAULT_UI_RES_Y)
 			.def_readonly("Font", &Client::m_Font)
 			.def_readonly("Console", &Client::m_Console)
-			.def_readonly("InitLoadShaderCache", &Client::m_InitLoadShaderCache)
 			.def_readwrite("ViewedCenter", &Client::m_ViewedCenter)
 			.def_readwrite("ViewedDist", &Client::m_ViewedDist)
 			.def_readwrite("ActorCullingThreshold", &Client::m_ActorCullingThreshold)

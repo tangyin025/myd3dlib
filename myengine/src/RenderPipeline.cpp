@@ -25,7 +25,8 @@ const UINT RenderPipeline::m_ParticlePrimitiveInfo[ParticlePrimitiveTypeCount][4
 };
 
 RenderPipeline::RenderPipeline(void)
-	: SHADOW_MAP_SIZE(1024)
+	: m_LoadShaderCache(false)
+	, SHADOW_MAP_SIZE(1024)
 	, m_CascadeLayer(0.011325952596962, 0.0030774015467614, 0.00036962624290027, FLT_MIN)
 	, m_CascadeLayerCent(0.022430079057813, 0.0048506590537727, 0.00068016158184037, 2.8240716346772e-05)
 	, m_CascadeLayerBias(0.001f, 0.001f, 0.001f, 0.001f)
@@ -123,7 +124,7 @@ my::Effect * RenderPipeline::QueryShader(const char * path, const D3DXMACRO * pD
 	osstr.write(path, pName - path);
 	osstr << "_" << std::hex << seed << ".fxo";
 	std::string BuffPath = osstr.str();
-	if (ResourceMgr::getSingleton().CheckPath(BuffPath.c_str()))
+	if (m_LoadShaderCache && ResourceMgr::getSingleton().CheckPath(BuffPath.c_str()))
 	{
 		CachePtr cache = ResourceMgr::getSingleton().OpenIStream(BuffPath.c_str())->GetWholeCache();
 		EffectPtr res(new Effect());
@@ -193,38 +194,6 @@ my::Effect * RenderPipeline::QueryShader(const char * path, const D3DXMACRO * pD
 	res->CreateEffect(buff->GetBufferPointer(), buff->GetBufferSize(), NULL, NULL, D3DXFX_LARGEADDRESSAWARE, ResourceMgr::getSingleton().m_EffectPool);
 	m_ShaderCache.insert(std::make_pair(seed, res));
 	return res.get();
-}
-
-void RenderPipeline::LoadShaderCache(LPCTSTR szDir)
-{
-	std::basic_string<TCHAR> dir(szDir);
-	dir.append(_T("\\*"));
-	WIN32_FIND_DATA ffd;
-	HANDLE hFind = FindFirstFile(dir.c_str(), &ffd);
-	if (hFind != INVALID_HANDLE_VALUE)
-	{
-		do
-		{
-			if (!(ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
-			{
-				boost::basic_regex<TCHAR> reg(_T("ShaderCache_([0-9a-fA-F]+)"));
-				boost::match_results<const TCHAR *> what;
-				if (boost::regex_search(ffd.cFileName, what, reg, boost::match_default) && what[1].matched)
-				{
-					std::basic_string<TCHAR> seed_str(what[1].first, what[1].second);
-					std::basic_stringstream<TCHAR> ss;
-					ss << std::hex << seed_str;
-					size_t seed;
-					ss >> seed;
-					std::basic_string<TCHAR> path(szDir);
-					path.append(_T("\\")).append(ffd.cFileName);
-					my::EffectPtr shader(new my::Effect());
-					shader->CreateEffectFromFile(path.c_str(), NULL, NULL, D3DXFX_LARGEADDRESSAWARE, my::ResourceMgr::getSingleton().m_EffectPool);
-					m_ShaderCache.insert(std::make_pair(seed, shader));
-				}
-			}
-		} while (FindNextFile(hFind, &ffd) != 0);
-	}
 }
 
 const char * RenderPipeline::PassTypeToStr(unsigned int pass_type)
