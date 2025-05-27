@@ -119,16 +119,12 @@ my::Effect * RenderPipeline::QueryShader(const char * path, const D3DXMACRO * pD
 		return shader_iter->second.get();
 	}
 
-	LPSTR pName = PathFindFileNameA(path);
-	std::ostringstream osstr;
-	osstr.write(path, pName - path);
-	osstr << "_" << std::hex << seed << ".fxo";
-	std::string BuffPath = osstr.str();
-	if (m_LoadShaderCache && ResourceMgr::getSingleton().CheckPath(BuffPath.c_str()))
+	TCHAR BuffPath[MAX_PATH];
+	_stprintf_s(BuffPath, _countof(BuffPath), _T("ShaderCache_%zx"), seed);
+	if (m_LoadShaderCache && PathFileExists(BuffPath))
 	{
-		CachePtr cache = ResourceMgr::getSingleton().OpenIStream(BuffPath.c_str())->GetWholeCache();
 		EffectPtr res(new Effect());
-		res->CreateEffect(&(*cache)[0], cache->size(), NULL, NULL, D3DXFX_LARGEADDRESSAWARE, ResourceMgr::getSingleton().m_EffectPool);
+		res->CreateEffectFromFile(BuffPath, NULL, NULL, D3DXFX_LARGEADDRESSAWARE, ResourceMgr::getSingleton().m_EffectPool);
 		m_ShaderCache.insert(std::make_pair(seed, res));
 		return res.get();
 	}
@@ -185,8 +181,7 @@ my::Effect * RenderPipeline::QueryShader(const char * path, const D3DXMACRO * pD
 		err.Release();
 	}
 
-	std::basic_string<TCHAR> FullPath = ResourceMgr::getSingleton().GetFullPath(BuffPath.c_str());
-	std::ofstream ofs(FullPath, std::ios::binary, _SH_DENYRW);
+	std::ofstream ofs(BuffPath, std::ios::binary, _SH_DENYRW);
 	ofs.write((char*)buff->GetBufferPointer(), buff->GetBufferSize());
 	ofs.flush();
 
