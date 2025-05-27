@@ -90,7 +90,7 @@ RenderPipeline::~RenderPipeline(void)
 {
 }
 
-static size_t _hash_value(const char * path, const D3DXMACRO * pDefines)
+my::Effect * RenderPipeline::QueryShader(const char * path, const D3DXMACRO * pDefines, unsigned int PassID)
 {
 	// ! maybe hash conflict
 	size_t seed = 0;
@@ -107,12 +107,7 @@ static size_t _hash_value(const char * path, const D3DXMACRO * pDefines)
 			}
 		}
 	}
-	return seed;
-}
 
-my::Effect * RenderPipeline::QueryShader(const char * path, const D3DXMACRO * pDefines, unsigned int PassID)
-{
-	size_t seed = _hash_value(path, pDefines);
 	ShaderCacheMap::iterator shader_iter = m_ShaderCache.find(seed);
 	if (shader_iter != m_ShaderCache.end())
 	{
@@ -130,13 +125,18 @@ my::Effect * RenderPipeline::QueryShader(const char * path, const D3DXMACRO * pD
 	}
 
 	std::ofstream log(_T("build_shader_log.txt"), std::ios::app, _SH_DENYRW);
-	log << "client:QueryShader(\"" << path << "\", {";
+	log << "client:QueryShader(\"" << path << "\",\"";
 	const D3DXMACRO* macro_iter = pDefines;
 	for (; macro_iter->Name; macro_iter++)
 	{
-		log << macro_iter->Name << "=" << (macro_iter->Definition ? macro_iter->Definition : "\"\"") << ",";
+		log << macro_iter->Name;
+		if (macro_iter->Definition)
+		{
+			log << "=" << macro_iter->Definition;
+		}
+		log << ",";
 	}
-	log << "}," << PassID << ")" << std::endl;
+	log << "\"," << PassID << ")--" << std::hex << seed << std::endl;
 
 	if (!ResourceMgr::getSingleton().CheckPath(path))
 	{
