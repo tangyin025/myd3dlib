@@ -118,6 +118,29 @@ my::Effect * RenderPipeline::QueryShader(const char * path, const D3DXMACRO * pD
 		return shader_iter->second.get();
 	}
 
+	LPSTR pName = PathFindFileNameA(path);
+	std::ostringstream osstr;
+	osstr.write(path, pName - path);
+	osstr << "_" << std::hex << seed << ".fxo";
+	std::string BuffPath = osstr.str();
+	if (ResourceMgr::getSingleton().CheckPath(BuffPath.c_str()))
+	{
+		CachePtr cache = ResourceMgr::getSingleton().OpenIStream(BuffPath.c_str())->GetWholeCache();
+		EffectPtr res(new Effect());
+		res->CreateEffect(&(*cache)[0], cache->size(), NULL, NULL, D3DXFX_LARGEADDRESSAWARE, ResourceMgr::getSingleton().m_EffectPool);
+		m_ShaderCache.insert(std::make_pair(seed, res));
+		return res.get();
+	}
+
+	std::ofstream log(_T("build_shader_log.txt"), std::ios::app, _SH_DENYRW);
+	log << "client:QueryShader(\"" << path << "\", {";
+	const D3DXMACRO* macro_iter = pDefines;
+	for (; macro_iter->Name; macro_iter++)
+	{
+		log << macro_iter->Name << "=" << (macro_iter->Definition ? macro_iter->Definition : "\"\"") << ",";
+	}
+	log << "}," << PassID << ")" << std::endl;
+
 	if (!ResourceMgr::getSingleton().CheckPath(path))
 	{
 		my::D3DContext::getSingleton().m_EventLog(str_printf("Check Path failed: %s", path).c_str());
@@ -127,7 +150,7 @@ my::Effect * RenderPipeline::QueryShader(const char * path, const D3DXMACRO * pD
 
 	CachePtr cache = ResourceMgr::getSingleton().OpenIStream(path)->GetWholeCache();
 
-	my::ResourceMgr::getSingleton().m_LocalInclude = path;
+	my::ResourceMgr::getSingleton().m_LocalInclude.assign(path);
 	boost::replace_all(my::ResourceMgr::getSingleton().m_LocalInclude, "/", "\\");
 	PathRemoveFileSpecA(&my::ResourceMgr::getSingleton().m_LocalInclude[0]);
 
@@ -161,25 +184,15 @@ my::Effect * RenderPipeline::QueryShader(const char * path, const D3DXMACRO * pD
 		err.Release();
 	}
 
-	TCHAR BuffPath[MAX_PATH];
-	_stprintf_s(BuffPath, _countof(BuffPath), _T("ShaderCache_%zx"), seed);
-	std::ofstream ofs(BuffPath, std::ios::binary, _SH_DENYRW);
+	std::basic_string<TCHAR> FullPath = ResourceMgr::getSingleton().GetFullPath(BuffPath.c_str());
+	std::ofstream ofs(FullPath, std::ios::binary, _SH_DENYRW);
 	ofs.write((char*)buff->GetBufferPointer(), buff->GetBufferSize());
 	ofs.flush();
 
-	LPD3DXEFFECT pEffect = NULL;
-	if (FAILED(D3DXCreateEffect(my::D3DContext::getSingleton().m_d3dDevice,
-		buff->GetBufferPointer(), buff->GetBufferSize(), NULL, NULL, D3DXFX_LARGEADDRESSAWARE, my::ResourceMgr::getSingleton().m_EffectPool, &pEffect, &err)))
-	{
-		my::D3DContext::getSingleton().m_EventLog(err ? (char *)err->GetBufferPointer() : "QueryShader failed");
-		m_ShaderCache.insert(std::make_pair(seed, my::EffectPtr()));
-		return NULL;
-	}
-
-	my::EffectPtr shader(new my::Effect());
-	shader->Create(pEffect);
-	m_ShaderCache.insert(std::make_pair(seed, shader));
-	return shader.get();
+	my::EffectPtr res(new my::Effect());
+	res->CreateEffect(buff->GetBufferPointer(), buff->GetBufferSize(), NULL, NULL, D3DXFX_LARGEADDRESSAWARE, ResourceMgr::getSingleton().m_EffectPool);
+	m_ShaderCache.insert(std::make_pair(seed, res));
+	return res.get();
 }
 
 void RenderPipeline::LoadShaderCache(LPCTSTR szDir)
