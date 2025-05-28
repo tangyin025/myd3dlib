@@ -17,6 +17,7 @@
 #include "myFont.h"
 #include "mySound.h"
 #include "rapidxml.hpp"
+#include <boost/regex.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/pool/pool.hpp>
 #define STB_IMAGE_IMPLEMENTATION
@@ -1368,19 +1369,25 @@ EffectIORequest::EffectIORequest(const char * path, std::string macros, int Prio
 	: IORequest(Priority)
 	, m_path(path)
 {
-	boost::trim_if(macros, boost::algorithm::is_any_of(" \t,"));
-	if (!macros.empty())
+	std::vector<std::string> macro_list;
+	boost::algorithm::split(macro_list, macros, boost::is_any_of(",;"), boost::algorithm::token_compress_off);
+	boost::regex reg("(\\w+)\\s*(=\\s*(\\S+))?");
+	boost::match_results<std::string::const_iterator> what;
+	std::vector<std::string>::iterator macro_iter = macro_list.begin();
+	for (; macro_iter != macro_list.end(); macro_iter++)
 	{
-		boost::algorithm::split(m_macros, macros, boost::algorithm::is_any_of(" \t,"), boost::algorithm::token_compress_on);
-	}
-
-	std::vector<std::string>::const_iterator macro_iter = m_macros.begin();
-	for(; macro_iter != m_macros.end(); macro_iter++)
-	{
-		D3DXMACRO d3dmacro;
-		d3dmacro.Name = macro_iter->c_str();
-		d3dmacro.Definition = NULL;
-		m_d3dmacros.push_back(d3dmacro);
+		if (boost::regex_search(*macro_iter, what, reg, boost::match_default))
+		{
+			D3DXMACRO m = { 0 };
+			m_macros.push_back(what[1]);
+			m.Name = m_macros.back().c_str();
+			if (what[2].matched)
+			{
+				m_macros.push_back(what[3]);
+				m.Definition = m_macros.back().c_str();
+			}
+			m_d3dmacros.push_back(m);
+		}
 	}
 	D3DXMACRO end = {0};
 	m_d3dmacros.push_back(end);
