@@ -95,16 +95,14 @@ my::Effect * RenderPipeline::QueryShader(const char * path, const D3DXMACRO * pD
 	// ! maybe hash conflict
 	size_t seed = 0;
 	boost::hash_combine(seed, boost::string_view(path));
-	if (pDefines)
+	const D3DXMACRO* macro_iter = pDefines;
+	_ASSERT(macro_iter);
+	for (; macro_iter->Name; macro_iter++)
 	{
-		const D3DXMACRO* macro_iter = pDefines;
-		for (; macro_iter->Name; macro_iter++)
+		boost::hash_combine(seed, boost::string_view(macro_iter->Name));
+		if (macro_iter->Definition)
 		{
-			boost::hash_combine(seed, boost::string_view(macro_iter->Name));
-			if (macro_iter->Definition)
-			{
-				boost::hash_combine(seed, boost::string_view(macro_iter->Definition));
-			}
+			boost::hash_combine(seed, boost::string_view(macro_iter->Definition));
 		}
 	}
 
@@ -114,19 +112,30 @@ my::Effect * RenderPipeline::QueryShader(const char * path, const D3DXMACRO * pD
 		return shader_iter->second.get();
 	}
 
-	TCHAR BuffPath[MAX_PATH];
-	_stprintf_s(BuffPath, _countof(BuffPath), _T("ShaderCache_%zx"), seed);
-	if (m_LoadShaderCache && PathFileExists(BuffPath))
+	LPSTR pExt = PathFindExtensionA(path);
+	std::string BuffPath(path, pExt - path);
+	macro_iter = pDefines;
+	for (; macro_iter->Name; macro_iter++)
 	{
+		BuffPath.append(macro_iter->Name);
+		if (macro_iter->Definition)
+		{
+			BuffPath.append(macro_iter->Definition);
+		}
+	}
+	BuffPath.append(".fxo");
+	if (m_LoadShaderCache && ResourceMgr::getSingleton().CheckPath(BuffPath.c_str()))
+	{
+		CachePtr cache = ResourceMgr::getSingleton().OpenIStream(BuffPath.c_str())->GetWholeCache();
 		EffectPtr res(new Effect());
-		res->CreateEffectFromFile(BuffPath, NULL, NULL, D3DXFX_LARGEADDRESSAWARE, ResourceMgr::getSingleton().m_EffectPool);
+		res->CreateEffect(&(*cache)[0], cache->size(), NULL, NULL, D3DXFX_LARGEADDRESSAWARE, ResourceMgr::getSingleton().m_EffectPool);
 		m_ShaderCache.insert(std::make_pair(seed, res));
 		return res.get();
 	}
 
 	std::ofstream log(_T("build_shader_log.txt"), std::ios::app, _SH_DENYRW);
 	log << "client:QueryShader(\"" << path << "\",\"";
-	const D3DXMACRO* macro_iter = pDefines;
+	macro_iter = pDefines;
 	for (; macro_iter->Name; macro_iter++)
 	{
 		log << macro_iter->Name;
@@ -181,7 +190,8 @@ my::Effect * RenderPipeline::QueryShader(const char * path, const D3DXMACRO * pD
 		err.Release();
 	}
 
-	std::ofstream ofs(BuffPath, std::ios::binary, _SH_DENYRW);
+	std::basic_string<TCHAR> FullPath = ResourceMgr::getSingleton().GetFullPath(BuffPath.c_str());
+	std::ofstream ofs(FullPath, std::ios::binary, _SH_DENYRW);
 	ofs.write((char*)buff->GetBufferPointer(), buff->GetBufferSize());
 	ofs.flush();
 
