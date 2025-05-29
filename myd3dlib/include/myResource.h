@@ -583,14 +583,14 @@ namespace my
 	protected:
 		std::string m_path;
 
-		std::vector<std::string> m_macros;
+		std::string m_macros;
 
 		std::vector<D3DXMACRO> m_d3dmacros;
 
 		CachePtr m_cache;
 
 	public:
-		EffectIORequest(const char * path, std::string macros, int Priority);
+		EffectIORequest(const char * path, const char * macros, int Priority);
 
 		virtual void LoadResource(void);
 

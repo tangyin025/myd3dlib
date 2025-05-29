@@ -138,12 +138,15 @@ my::Effect * RenderPipeline::QueryShader(const char * path, const D3DXMACRO * pD
 	macro_iter = pDefines;
 	for (; macro_iter->Name; macro_iter++)
 	{
-		log << macro_iter->Name;
+		log << "<" << macro_iter->Name;
 		if (macro_iter->Definition)
 		{
-			log << "=" << macro_iter->Definition;
+			log << ">" << macro_iter->Definition << "</" << macro_iter->Name << ">";
 		}
-		log << ",";
+		else
+		{
+			log << "/>";
+		}
 	}
 	log << "\"," << PassID << ")--" << std::hex << seed << std::endl;
 

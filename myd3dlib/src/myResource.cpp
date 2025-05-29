@@ -1365,31 +1365,25 @@ void SkeletonIORequest::CreateResource(LPDIRECT3DDEVICE9 pd3dDevice)
 	}
 }
 
-EffectIORequest::EffectIORequest(const char * path, std::string macros, int Priority)
+EffectIORequest::EffectIORequest(const char * path, const char * macros, int Priority)
 	: IORequest(Priority)
 	, m_path(path)
+	, m_macros(macros)
 {
-	std::vector<std::string> macro_list;
-	boost::algorithm::split(macro_list, macros, boost::is_any_of(",;"), boost::algorithm::token_compress_off);
-	boost::regex reg("(\\w+)\\s*(=\\s*(\\S+))?");
-	boost::match_results<std::string::const_iterator> what;
-	std::vector<std::string>::iterator macro_iter = macro_list.begin();
-	for (; macro_iter != macro_list.end(); macro_iter++)
+	rapidxml::xml_document<char> doc;
+	doc.parse<0>(&m_macros[0]);
+	rapidxml::xml_node<char>* node = doc.first_node();
+	for (; node != NULL; node = node->next_sibling())
 	{
-		if (boost::regex_search(*macro_iter, what, reg, boost::match_default))
+		D3DXMACRO m = { 0 };
+		m.Name = node->name();
+		if (node->value()[0])
 		{
-			D3DXMACRO m = { 0 };
-			m_macros.push_back(what[1]);
-			m.Name = m_macros.back().c_str();
-			if (what[2].matched)
-			{
-				m_macros.push_back(what[3]);
-				m.Definition = m_macros.back().c_str();
-			}
-			m_d3dmacros.push_back(m);
+			m.Definition = node->value();
 		}
+		m_d3dmacros.push_back(m);
 	}
-	D3DXMACRO end = {0};
+	D3DXMACRO end = { 0 };
 	m_d3dmacros.push_back(end);
 }
 

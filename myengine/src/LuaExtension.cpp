@@ -41,7 +41,6 @@ extern "C" {
 #include "SceneContext.h"
 #include "rapidxml_print.hpp"
 #include <boost/scope_exit.hpp>
-#include <boost/algorithm/string.hpp>
 #include <boost/range/algorithm/transform.hpp>
 #include <boost/range/iterator_range.hpp>
 #include <boost/shared_container_iterator.hpp>
@@ -1183,32 +1182,24 @@ typedef boost::shared_container_iterator<cmp_list> shared_cmp_list_iter;
 
 extern boost::iterator_range<shared_cmp_list_iter> controller_get_geom_stream(const Controller* self);
 
-static void renderpipeline_query_shader(RenderPipeline* self, const char* path, const std::string & macro_desc, unsigned int PassID)
+static void renderpipeline_query_shader(RenderPipeline* self, const char* path, std::string macro_desc, unsigned int PassID)
 {
 	std::vector<D3DXMACRO> macros;
-	std::list<std::string> strs;
-	std::vector<std::string> macro_list;
-	boost::algorithm::split(macro_list, macro_desc, boost::is_any_of(",;"), boost::algorithm::token_compress_off);
-	boost::regex reg("(\\w+)\\s*(=\\s*(\\S+))?");
-	boost::match_results<std::string::const_iterator> what;
-	std::vector<std::string>::iterator macro_iter = macro_list.begin();
-	for (; macro_iter != macro_list.end(); macro_iter++)
+	rapidxml::xml_document<char> doc;
+	doc.parse<0>(&macro_desc[0]);
+	rapidxml::xml_node<char>* node = doc.first_node();
+	for (; node != NULL; node = node->next_sibling())
 	{
-		if (boost::regex_search(*macro_iter, what, reg, boost::match_default))
+		D3DXMACRO m = { 0 };
+		m.Name = node->name();
+		if (node->value()[0])
 		{
-			D3DXMACRO m = { 0 };
-			strs.push_back(what[1]);
-			m.Name = strs.back().c_str();
-			if (what[2].matched)
-			{
-				strs.push_back(what[3]);
-				m.Definition = strs.back().c_str();
-			}
-			macros.push_back(m);
+			m.Definition = node->value();
 		}
+		macros.push_back(m);
 	}
-	D3DXMACRO m = { 0 };
-	macros.push_back(m);
+	D3DXMACRO end = { 0 };
+	macros.push_back(end);
 	BOOST_VERIFY(self->QueryShader(path, macros.data(), PassID));
 }
 
