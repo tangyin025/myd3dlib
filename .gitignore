@@ -1,0 +1,17 @@
+.vs/
+01_*/
+02_*/
+Debug/
+Release/
+新建文件夹/
+demo2_3/Media/shader/*.fxo
+LuaJIT/src/host/buildvm_arch.h
+LuaJIT/src/jit/vmdef.lua
+LuaJIT/src/lj_bcdef.h
+LuaJIT/src/lj_ffdef.h
+LuaJIT/src/lj_folddef.h
+LuaJIT/src/lj_libdef.h
+LuaJIT/src/lj_recdef.h
+LuaJIT/src/lj_vm.obj
+myd3dbox/myd3dbox.aps
+*.user
