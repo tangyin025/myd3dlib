@@ -1096,7 +1096,7 @@ void ClothComponent::save(Archive & ar, const unsigned int version) const
 	ActorSerializationContext* pxar = dynamic_cast<ActorSerializationContext*>(&ar);
 	_ASSERT(pxar);
 
-	UpdateVertexData(const_cast<unsigned char*>(m_VertexData.data()), m_particles.data(), m_particles.size(), NULL);
+	const_cast<ClothComponent*>(this)->UpdateVertexData(const_cast<unsigned char*>(m_VertexData.data()), m_particles.data(), m_particles.size(), NULL);
 
 	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(Component);
 	unsigned int VertexSize = m_VertexData.size();
@@ -1713,7 +1713,7 @@ void ClothComponent::Update(float fElapsedTime)
 	}
 }
 
-void ClothComponent::UpdateVertexData(unsigned char* pVertices, const physx::PxClothParticle* particles, unsigned int NbParticles, Animator* animator) const
+void ClothComponent::UpdateVertexData(unsigned char* pVertices, const physx::PxClothParticle* particles, unsigned int NbParticles, Animator* animator)
 {
 	if (animator && !animator->m_DualQuats.empty() && m_VertexElems.elems[D3DDECLUSAGE_BLENDINDICES][0].Type == D3DDECLTYPE_UBYTE4)
 	{

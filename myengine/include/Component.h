@@ -505,7 +505,7 @@ public:
 
 	virtual void Update(float fElapsedTime);
 
-	void UpdateVertexData(unsigned char * pVertices, const physx::PxClothParticle * particles, unsigned int NbParticles, Animator* animator) const;
+	void UpdateVertexData(unsigned char * pVertices, const physx::PxClothParticle * particles, unsigned int NbParticles, Animator* animator);
 
 	void OnPxThreadSubstep(float dtime);
 
