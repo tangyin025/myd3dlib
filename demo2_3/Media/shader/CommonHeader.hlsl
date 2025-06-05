@@ -137,8 +137,8 @@ sampler OpaqueRTSampler = sampler_state
 {
 	Texture = <g_OpaqueRT>;
 	MipFilter = NONE;
-	MinFilter = POINT;
-    MagFilter = POINT;
+	MinFilter = Linear;
+    MagFilter = Linear;
     ADDRESSU = CLAMP;
     ADDRESSV = CLAMP;
 };
@@ -146,8 +146,8 @@ sampler OpaqueRTSampler = sampler_state
 sampler DownFilterRTSampler = sampler_state
 {
 	Texture = <g_DownFilterRT>;
-	MipFilter = Linear;
-	MinFilter = Point;
+	MipFilter = NONE;
+	MinFilter = Linear;
 	MagFilter = Linear;
     ADDRESSU = CLAMP;
     ADDRESSV = CLAMP;

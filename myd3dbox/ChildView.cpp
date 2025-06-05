@@ -106,6 +106,7 @@ CChildView::CChildView()
 	{
 		m_OpaqueRT.m_RenderTarget[i].reset(new my::Texture2D());
 		m_DownFilter4RT.m_RenderTarget[i].reset(new my::Texture2D());
+		m_DownFilter8RT.m_RenderTarget[i].reset(new my::Texture2D());
 	}
 	m_OffscreenPositionRT.reset(new my::Surface());
 	ZeroMemory(&m_qwTime, sizeof(m_qwTime));
@@ -257,6 +258,10 @@ void CChildView::OnResetDevice(void)
 		ASSERT(!m_DownFilter4RT.m_RenderTarget[i]->m_ptr);
 		m_DownFilter4RT.m_RenderTarget[i]->CreateTexture(
 			m_SwapChainBufferDesc.Width / 4, m_SwapChainBufferDesc.Height / 4, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT);
+
+		ASSERT(!m_DownFilter8RT.m_RenderTarget[i]->m_ptr);
+		m_DownFilter8RT.m_RenderTarget[i]->CreateTexture(
+			m_SwapChainBufferDesc.Width / 8, m_SwapChainBufferDesc.Height / 8, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT);
 	}
 
 	ASSERT(!m_OffscreenPositionRT->m_ptr);
@@ -277,6 +282,7 @@ void CChildView::OnLostDevice(void)
 	{
 		m_OpaqueRT.m_RenderTarget[i]->OnDestroyDevice();
 		m_DownFilter4RT.m_RenderTarget[i]->OnDestroyDevice();
+		m_DownFilter8RT.m_RenderTarget[i]->OnDestroyDevice();
 	}
 	m_OffscreenPositionRT->OnDestroyDevice();
 }

@@ -288,6 +288,8 @@ public:
 
 		RTChain m_DownFilter4RT;
 
+		RTChain m_DownFilter8RT;
+
 		RenderTargetType m_RTType;
 
 		IRenderContext(void)
