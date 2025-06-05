@@ -473,7 +473,7 @@ Client::Client(int _DEFAULT_UI_RES_Y)
 	for (unsigned int i = 0; i < RenderPipeline::RTChain::RTArray::static_size; i++)
 	{
 		m_OpaqueRT.m_RenderTarget[i].reset(new Texture2D());
-		m_DownFilterRT.m_RenderTarget[i].reset(new Texture2D());
+		m_DownFilter4RT.m_RenderTarget[i].reset(new Texture2D());
 	}
 }
 
@@ -719,8 +719,8 @@ HRESULT Client::OnResetDevice(
 		m_OpaqueRT.m_RenderTarget[i]->CreateTexture(
 			pBackBufferSurfaceDesc->Width, pBackBufferSurfaceDesc->Height, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT);
 
-		m_DownFilterRT.m_RenderTarget[i]->CreateTexture(
-			pBackBufferSurfaceDesc->Width, pBackBufferSurfaceDesc->Height, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT);
+		m_DownFilter4RT.m_RenderTarget[i]->CreateTexture(
+			pBackBufferSurfaceDesc->Width / 4, pBackBufferSurfaceDesc->Height / 4, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT);
 	}
 
 	return S_OK;
@@ -742,7 +742,7 @@ void Client::OnLostDevice(void)
 	{
 		m_OpaqueRT.m_RenderTarget[i]->OnDestroyDevice();
 
-		m_DownFilterRT.m_RenderTarget[i]->OnDestroyDevice();
+		m_DownFilter4RT.m_RenderTarget[i]->OnDestroyDevice();
 	}
 
 	m_UIRender->OnLostDevice();

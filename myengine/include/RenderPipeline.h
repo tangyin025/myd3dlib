@@ -286,7 +286,7 @@ public:
 
 		RTChain m_OpaqueRT;
 
-		RTChain m_DownFilterRT;
+		RTChain m_DownFilter4RT;
 
 		RenderTargetType m_RTType;
 
