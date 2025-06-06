@@ -57,7 +57,6 @@ class CEnvironmentWnd : public CDockablePane
 
 	enum DepthOfFieldProperty
 	{
-		DepthOfFieldEnable,
 		DepthOfFieldParam0,
 		DepthOfFieldParam1,
 		DepthOfFieldParam2,

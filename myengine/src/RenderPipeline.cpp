@@ -57,7 +57,7 @@ RenderPipeline::RenderPipeline(void)
 	, handle_DownFilterRT(NULL)
 	, handle_DofParams(NULL)
 	, handle_DofPixel2Texel(NULL)
-	, m_DofParams(5.0f, 15.0f, 25.0f, 1.0f)
+	, m_DofParams(5.0f, 15.0f, 25.0f, 0.0f)
 	, handle_LuminanceThreshold(NULL)
 	, handle_BloomColor(NULL)
 	, handle_BloomFactor(NULL)
@@ -622,7 +622,7 @@ void RenderPipeline::OnRender(
 
 	pRC->m_OpaqueRT.Flip();
 
-	if (pRC->m_DofEnable)
+	if (m_DofParams.w > EPSILON_E3)
 	{
 		D3DXMACRO macros[] = { { 0 } };
 		my::Effect* DofEffect = QueryShader("shader/DofEffect.fx", macros, PassTypeShadow);

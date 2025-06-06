@@ -268,8 +268,6 @@ public:
 
 		bool m_WireFrame;
 
-		bool m_DofEnable;
-
 		bool m_BloomEnable;
 
 		bool m_FxaaEnable;
@@ -294,7 +292,6 @@ public:
 
 		IRenderContext(void)
 			: m_WireFrame(false)
-			, m_DofEnable(false)
 			, m_BloomEnable(false)
 			, m_FxaaEnable(false)
 			, m_SsaoEnable(false)

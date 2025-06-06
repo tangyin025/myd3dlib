@@ -95,7 +95,6 @@ BEGIN
         POPUP "Render Mode"
         BEGIN
             MENUITEM "WireFrame",                   ID_RENDERMODE_WIREFRAME
-            MENUITEM "DepthOfField",                ID_RENDERMODE_DEPTHOFFIELD
             MENUITEM "Bloom",                       ID_RENDERMODE_BLOOM
             MENUITEM "FXAA",                        ID_RENDERMODE_FXAA
             MENUITEM "SSAO",                        ID_RENDERMODE_SSAO

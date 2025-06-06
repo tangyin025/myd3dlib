@@ -161,8 +161,6 @@ void CEnvironmentWnd::InitPropList()
 
 	CMFCPropertyGridProperty * pDepthOfField = new CSimpleProp(_T("DepthOfField"), PropertyDepthOfField, FALSE);
 	m_wndPropList.AddProperty(pDepthOfField, FALSE, FALSE);
-	pProp = new CCheckBoxProp(_T("Enable"), FALSE, NULL, DepthOfFieldEnable);
-	pDepthOfField->AddSubItem(pProp);
 	pProp = new CSimpleProp(_T("Param0"), (_variant_t)1.0f, NULL, DepthOfFieldParam0);
 	pDepthOfField->AddSubItem(pProp);
 	pProp = new CSimpleProp(_T("Param1"), (_variant_t)1.0f, NULL, DepthOfFieldParam1);
@@ -254,7 +252,6 @@ void CEnvironmentWnd::OnCameraPropChanged(my::EventArg * arg)
 	pSkyLight->GetSubItem(SkyLightPropertyShadowBias)->GetSubItem(Vector3PropertyZ)->SetValue((_variant_t)theApp.m_CascadeLayerBias.z);
 
 	CMFCPropertyGridProperty * pDepthOfField = m_wndPropList.GetProperty(PropertyDepthOfField);
-	pDepthOfField->GetSubItem(DepthOfFieldEnable)->SetValue((_variant_t)(VARIANT_BOOL)camera_prop_arg->pView->m_DofEnable);
 	pDepthOfField->GetSubItem(DepthOfFieldParam0)->SetValue((_variant_t)theApp.m_DofParams.x);
 	pDepthOfField->GetSubItem(DepthOfFieldParam1)->SetValue((_variant_t)theApp.m_DofParams.y);
 	pDepthOfField->GetSubItem(DepthOfFieldParam2)->SetValue((_variant_t)theApp.m_DofParams.z);
@@ -407,7 +404,6 @@ LRESULT CEnvironmentWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	break;
 	case PropertyDepthOfField:
 	{
-		pView->m_DofEnable = pTopProp->GetSubItem(DepthOfFieldEnable)->GetValue().boolVal != 0;
 		theApp.m_DofParams.x = pTopProp->GetSubItem(DepthOfFieldParam0)->GetValue().fltVal;
 		theApp.m_DofParams.y = pTopProp->GetSubItem(DepthOfFieldParam1)->GetValue().fltVal;
 		theApp.m_DofParams.z = pTopProp->GetSubItem(DepthOfFieldParam2)->GetValue().fltVal;

@@ -390,7 +390,6 @@ void CSnapshotDlg::DoSnapshot()
 		rc.m_Camera->m_InverseViewProj = rc.m_Camera->m_ViewProj.inverse();
 	}
 	rc.m_WireFrame = pView->m_WireFrame;
-	rc.m_DofEnable = pView->m_DofEnable;
 	rc.m_BloomEnable = pView->m_BloomEnable;
 	rc.m_FxaaEnable = pView->m_FxaaEnable;
 	rc.m_SsaoEnable = pView->m_SsaoEnable;

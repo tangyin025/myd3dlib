@@ -46,8 +46,6 @@ BEGIN_MESSAGE_MAP(CChildView, CView)
 	ON_UPDATE_COMMAND_UI(ID_RENDERMODE_WIREFRAME, &CChildView::OnUpdateRendermodeWireframe)
 	ON_COMMAND(ID_SHOW_COLLISION, &CChildView::OnShowCollisiondebug)
 	ON_UPDATE_COMMAND_UI(ID_SHOW_COLLISION, &CChildView::OnUpdateShowCollisiondebug)
-	ON_COMMAND(ID_RENDERMODE_DEPTHOFFIELD, &CChildView::OnRendermodeDepthoffield)
-	ON_UPDATE_COMMAND_UI(ID_RENDERMODE_DEPTHOFFIELD, &CChildView::OnUpdateRendermodeDepthoffield)
 	ON_COMMAND(ID_RENDERMODE_BLOOM, &CChildView::OnRendermodeBloom)
 	ON_UPDATE_COMMAND_UI(ID_RENDERMODE_BLOOM, &CChildView::OnUpdateRendermodeBloom)
 	ON_COMMAND(ID_RENDERMODE_FXAA, &CChildView::OnRendermodeFxaa)
@@ -2741,19 +2739,6 @@ void CChildView::OnUpdateShowCollisiondebug(CCmdUI *pCmdUI)
 	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
 	pCmdUI->SetCheck(pFrame->m_PxScene->getVisualizationParameter(physx::PxVisualizationParameter::eSCALE) > 0);
-}
-
-void CChildView::OnRendermodeDepthoffield()
-{
-	// TODO: Add your command handler code here
-	m_DofEnable = !m_DofEnable;
-	Invalidate();
-}
-
-void CChildView::OnUpdateRendermodeDepthoffield(CCmdUI *pCmdUI)
-{
-	// TODO: Add your command update UI handler code here
-	pCmdUI->SetCheck(m_DofEnable);
 }
 
 void CChildView::OnRendermodeBloom()
