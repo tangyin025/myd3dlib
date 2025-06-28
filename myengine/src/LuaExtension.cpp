@@ -192,6 +192,12 @@ static unsigned int Counter(void)
 	return ++c;
 }
 
+static unsigned int lcg(unsigned int seed)
+{
+	// https://bookdown.org/rdpeng/advstatcomp/random-number-generation.html
+	return seed * 1664525u + 1013904223u;
+}
+
 static std::string PrintCallStack(void)
 {
 	std::ostringstream osstr;
@@ -2444,6 +2450,8 @@ void LuaContext::Init(void)
 		def("ARGB", &ARGB)
 
 		, def("Counter", &Counter)
+
+		, def("lcg", &lcg)
 
 		, def("PrintCallStack", (std::string (*)(void))& PrintCallStack)
 
