@@ -822,9 +822,9 @@ void MeshComponent::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shad
 
 	shader->SetVector(handle_MeshColor, m_MeshColor);
 
-	Animator* animator = m_Actor->GetFirstComponent<Animator>();
+	Animator* animator = m_Mesh->m_VertexElems.elems[D3DDECLUSAGE_BLENDINDICES][0].Type == D3DDECLTYPE_UBYTE4 ? m_Actor->GetFirstComponent<Animator>() : NULL;
 
-	if (animator && !animator->m_DualQuats.empty() && m_Mesh->m_VertexElems.elems[D3DDECLUSAGE_BLENDINDICES][0].Type == D3DDECLTYPE_UBYTE4)
+	if (animator && !animator->m_DualQuats.empty())
 	{
 		shader->SetMatrixArray(handle_dualquat, &animator->m_DualQuats[0], animator->m_DualQuats.size());
 	}
@@ -851,7 +851,8 @@ void MeshComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline * 
 	{
 		if (m_Material && (m_Material->m_PassMask & PassMask))
 		{
-			Animator* animator = m_Actor->GetFirstComponent<Animator>();
+			Animator* animator = m_Mesh->m_VertexElems.elems[D3DDECLUSAGE_BLENDINDICES][0].Type == D3DDECLTYPE_UBYTE4 ? m_Actor->GetFirstComponent<Animator>() : NULL;
+
 			for (unsigned int PassID = 0; PassID < RenderPipeline::PassTypeNum; PassID++)
 			{
 				if (RenderPipeline::PassTypeToMask(PassID) & (m_Material->m_PassMask & PassMask))
@@ -862,7 +863,7 @@ void MeshComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline * 
 					{
 						macros[j++].Name = "INSTANCE";
 					}
-					if (animator && !animator->m_DualQuats.empty() /*&& m_Mesh->m_VertexElems.elems[D3DDECLUSAGE_BLENDINDICES][0].Type == D3DDECLTYPE_UBYTE4*/)
+					if (animator && !animator->m_DualQuats.empty())
 					{
 						macros[j++].Name = "SKELETON";
 					}
@@ -875,7 +876,7 @@ void MeshComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline * 
 							BOOST_VERIFY(handle_MeshColor = shader->GetParameterByName(NULL, "g_MeshColor"));
 						}
 
-						if (!handle_dualquat && animator && !animator->m_DualQuats.empty() /*&& m_Mesh->m_VertexElems.elems[D3DDECLUSAGE_BLENDINDICES][0].Type == D3DDECLTYPE_UBYTE4*/)
+						if (!handle_dualquat && animator && !animator->m_DualQuats.empty())
 						{
 							BOOST_VERIFY(handle_World = shader->GetParameterByName(NULL, "g_World"));
 							BOOST_VERIFY(handle_MeshColor = shader->GetParameterByName(NULL, "g_MeshColor"));
@@ -1706,7 +1707,9 @@ void ClothComponent::Update(float fElapsedTime)
 		physx::PxClothParticleData* readData = m_Cloth->lockParticleData(physx::PxDataAccessFlag::eREADABLE);
 		if (readData)
 		{
-			UpdateVertexData(m_VertexData.data(), readData->particles, m_Cloth->getNbParticles(), m_Actor->GetFirstComponent<Animator>());
+			Animator* animator = m_VertexElems.elems[D3DDECLUSAGE_BLENDINDICES][0].Type == D3DDECLTYPE_UBYTE4 ? m_Actor->GetFirstComponent<Animator>() : NULL;
+
+			UpdateVertexData(m_VertexData.data(), readData->particles, m_Cloth->getNbParticles(), animator);
 
 			readData->unlock();
 		}
@@ -1715,7 +1718,7 @@ void ClothComponent::Update(float fElapsedTime)
 
 void ClothComponent::UpdateVertexData(unsigned char* pVertices, const physx::PxClothParticle* particles, unsigned int NbParticles, Animator* animator)
 {
-	if (animator && !animator->m_DualQuats.empty() && m_VertexElems.elems[D3DDECLUSAGE_BLENDINDICES][0].Type == D3DDECLTYPE_UBYTE4)
+	if (animator && !animator->m_DualQuats.empty())
 	{
 		for (unsigned int i = 0; i < NbParticles; i++)
 		{
@@ -1754,13 +1757,13 @@ void ClothComponent::OnPxThreadSubstep(float dtime)
 {
 	_ASSERT(m_Actor);
 
-	Animator* animator = m_Actor->GetFirstComponent<Animator>();
+	Animator* animator = m_VertexElems.elems[D3DDECLUSAGE_BLENDINDICES][0].Type == D3DDECLTYPE_UBYTE4 ? m_Actor->GetFirstComponent<Animator>() : NULL;
 
 	if (!m_ClothSphereBones.empty())
 	{
 		unsigned int NbSpheres = m_ClothSphereBones.size();
 		boost::array<physx::PxClothCollisionSphere, 32> ClothSpheres;
-		if (animator && !animator->m_DualQuats.empty() && m_VertexElems.elems[D3DDECLUSAGE_BLENDINDICES][0].Type == D3DDECLTYPE_UBYTE4)
+		if (animator && !animator->m_DualQuats.empty())
 		{
 			for (unsigned int i = 0; i < NbSpheres; i++)
 			{
@@ -1791,7 +1794,7 @@ void ClothComponent::OnPxThreadSubstep(float dtime)
 	physx::PxClothParticleData* readData = m_Cloth->lockParticleData(physx::PxDataAccessFlag::eWRITABLE);
 	if (readData)
 	{
-		if (animator && !animator->m_DualQuats.empty() && m_VertexElems.elems[D3DDECLUSAGE_BLENDINDICES][0].Type == D3DDECLTYPE_UBYTE4)
+		if (animator && !animator->m_DualQuats.empty())
 		{
 			physx::PxClothParticle* particles = readData->particles;
 			unsigned int NbParticles = m_Cloth->getNbParticles();
