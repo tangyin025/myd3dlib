@@ -31,7 +31,7 @@ class Steering;
 
 class Animator;
 
-class PlayerAgent : public Component
+class PlayerBehavior : public Component
 {
 public:
 	Controller* m_Controller;
@@ -50,7 +50,7 @@ public:
 
 	std::vector<MeshComponentPtr> m_Meshes;
 
-	PlayerAgent(const char* Name)
+	PlayerBehavior(const char* Name)
 		: Component(Name)
 		, m_MoveDir(0, 0, 0)
 		, m_ClimbLerp(0, 1, 0)
@@ -59,7 +59,7 @@ public:
 	{
 	}
 
-	virtual ~PlayerAgent(void);
+	virtual ~PlayerBehavior(void);
 
 	enum { TypeID = ComponentTypeScript };
 

@@ -1,7 +1,7 @@
 // Copyright (c) 2011-2024 tangyin025
 // License: MIT
 #include "stdafx.h"
-#include "PlayerAgent.h"
+#include "PlayerBehavior.h"
 #include "MainApp.h"
 #include "MainFrm.h"
 #include "ChildView.h"
@@ -36,22 +36,22 @@ NodeRunBlendList::NodeRunBlendList(const char* Name)
 
 void NodeRunBlendList::Tick(float fElapsedTime, float fTotalWeight)
 {
-	PlayerAgent* Agent = static_cast<Animator*>(GetTopNode())->m_Actor->GetFirstComponent<PlayerAgent>();
-	if (Agent->m_Suspending <= 0.0f)
+	PlayerBehavior* behavior = static_cast<Animator*>(GetTopNode())->m_Actor->GetFirstComponent<PlayerBehavior>();
+	if (behavior->m_Suspending <= 0.0f)
 	{
 		if (GetTargetWeight(2) < 0.5f)
 		{
 			SetActiveChild(2, 0.3f);
 		}
-		dynamic_cast<AnimationNodeSequence*>(m_Childs[2].get())->m_Rate = Agent->m_Steering->m_Speed / 5.2f;
+		dynamic_cast<AnimationNodeSequence*>(m_Childs[2].get())->m_Rate = behavior->m_Steering->m_Speed / 5.2f;
 	}
-	else if (Agent->m_Steering->m_Speed > 0.1f)
+	else if (behavior->m_Steering->m_Speed > 0.1f)
 	{
 		if (GetTargetWeight(1) < 0.5f)
 		{
 			SetActiveChild(1, 0.1f);
 		}
-		dynamic_cast<AnimationNodeSequence*>(m_Childs[1].get())->m_Rate = Agent->m_Steering->m_Speed / 2.6f;
+		dynamic_cast<AnimationNodeSequence*>(m_Childs[1].get())->m_Rate = behavior->m_Steering->m_Speed / 2.6f;
 	}
 	else
 	{
@@ -63,20 +63,20 @@ void NodeRunBlendList::Tick(float fElapsedTime, float fTotalWeight)
 	AnimationNodeBlendList::Tick(fElapsedTime, fTotalWeight);
 }
 
-PlayerAgent::~PlayerAgent(void)
+PlayerBehavior::~PlayerBehavior(void)
 {
 	_ASSERT(!IsRequested());
 }
 
-void PlayerAgent::RequestResource(void)
+void PlayerBehavior::RequestResource(void)
 {
 	Component::RequestResource();
 
 	CMainFrame* pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
-	pFrame->m_EventPxThreadSubstep.connect(boost::bind(&PlayerAgent::OnPxThreadSubstep, this, boost::placeholders::_1));
+	pFrame->m_EventPxThreadSubstep.connect(boost::bind(&PlayerBehavior::OnPxThreadSubstep, this, boost::placeholders::_1));
 
-	m_Actor->m_EventPxThreadShapeHit.connect(boost::bind(&PlayerAgent::OnPxThreadShapeHit, this, boost::placeholders::_1));
+	m_Actor->m_EventPxThreadShapeHit.connect(boost::bind(&PlayerBehavior::OnPxThreadShapeHit, this, boost::placeholders::_1));
 
 	theApp.m_mouse->Unacquire();
 	theApp.m_mouse->SetCooperativeLevel(AfxGetMainWnd()->GetSafeHwnd(), DISCL_FOREGROUND | DISCL_EXCLUSIVE);
@@ -86,15 +86,15 @@ void PlayerAgent::RequestResource(void)
 	VERIFY(m_Animator = m_Actor->GetFirstComponent<Animator>());
 }
 
-void PlayerAgent::ReleaseResource(void)
+void PlayerBehavior::ReleaseResource(void)
 {
 	Component::ReleaseResource();
 
 	CMainFrame* pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
-	pFrame->m_EventPxThreadSubstep.disconnect(boost::bind(&PlayerAgent::OnPxThreadSubstep, this, boost::placeholders::_1));
+	pFrame->m_EventPxThreadSubstep.disconnect(boost::bind(&PlayerBehavior::OnPxThreadSubstep, this, boost::placeholders::_1));
 
-	m_Actor->m_EventPxThreadShapeHit.disconnect(boost::bind(&PlayerAgent::OnPxThreadShapeHit, this, boost::placeholders::_1));
+	m_Actor->m_EventPxThreadShapeHit.disconnect(boost::bind(&PlayerBehavior::OnPxThreadShapeHit, this, boost::placeholders::_1));
 
 	theApp.m_mouse->Unacquire();
 	theApp.m_mouse->SetCooperativeLevel(AfxGetMainWnd()->GetSafeHwnd(), DISCL_FOREGROUND | DISCL_NONEXCLUSIVE);
@@ -108,7 +108,7 @@ void PlayerAgent::ReleaseResource(void)
 	//m_Animator->RemoveChild(0); // ! AnimationNodeSequence destructor _ASSERT(false)
 }
 
-void PlayerAgent::Update(float fElapsedTime)
+void PlayerBehavior::Update(float fElapsedTime)
 {
 	if (theApp.m_keyboard->IsKeyPress(KeyCode::KC_ESCAPE))
 	{
@@ -231,7 +231,7 @@ void PlayerAgent::Update(float fElapsedTime)
 	}
 }
 
-void PlayerAgent::OnPxThreadSubstep(float dtime)
+void PlayerBehavior::OnPxThreadSubstep(float dtime)
 {
 	if (m_Suspending > 0.0f)
 	{
@@ -270,7 +270,7 @@ void PlayerAgent::OnPxThreadSubstep(float dtime)
 	}
 }
 
-void PlayerAgent::OnPxThreadShapeHit(my::EventArg* arg)
+void PlayerBehavior::OnPxThreadShapeHit(my::EventArg* arg)
 {
 	ShapeHitEventArg* hit = static_cast<ShapeHitEventArg*>(arg);
 	if (hit->flag & physx::PxControllerCollisionFlag::eCOLLISION_DOWN)

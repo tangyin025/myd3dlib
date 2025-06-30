@@ -38,7 +38,7 @@
 #include <boost/algorithm/string.hpp>
 #include "DeleteCmpsDlg.h"
 #include "SnapshotDlg.h"
-#include "PlayerAgent.h"
+#include "PlayerBehavior.h"
 #include "Steering.h"
 #include "ActionTrack.h"
 #include "rapidxml.hpp"
@@ -636,7 +636,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	m_Player->InsertComponent(ComponentPtr(new Steering(NULL,
 		theApp.default_player_run_speed,
 		theApp.default_player_breaking_speed, 0.0f, NULL)));
-	m_Player->InsertComponent(ComponentPtr(new PlayerAgent(NULL)));
+	m_Player->InsertComponent(ComponentPtr(new PlayerBehavior(NULL)));
 	AnimatorPtr animator(new Animator(NULL));
 	std::vector<std::string> skels;
 	boost::algorithm::split(skels, theApp.default_player_skel, boost::is_any_of(",;"), boost::algorithm::token_compress_off);

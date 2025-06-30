@@ -13,7 +13,7 @@
 #include "StaticEmitter.h"
 #include <boost/scope_exit.hpp>
 #include <boost/range/algorithm/find_if.hpp>
-#include "PlayerAgent.h"
+#include "PlayerBehavior.h"
 #include "Controller.h"
 
 #ifdef _DEBUG
@@ -1533,17 +1533,17 @@ void CChildView::OnPaint()
 
 			if (pFrame->m_Player->m_Requested && pFrame->m_PxScene->getVisualizationParameter(physx::PxVisualizationParameter::eSCALE) > 0)
 			{
-				PlayerAgent* agent = pFrame->m_Player->GetFirstComponent<PlayerAgent>();
-				ASSERT(agent);
-				PushLine(pFrame->m_Player->m_Position, pFrame->m_Player->m_Position + agent->m_MoveDir, D3DCOLOR_ARGB(255, 255, 255, 0));
-				PushLine(pFrame->m_Player->m_Position, pFrame->m_Player->m_Position + agent->m_Controller->GetUpDirection(), D3DCOLOR_ARGB(255, 255, 0, 0));
-				PushLine(agent->m_Controller->GetTouchedPosWorld(), agent->m_Controller->GetTouchedPosWorld() + agent->m_Controller->GetContactNormalDownPass(), D3DCOLOR_ARGB(255, 0, 255, 0));
-				PushLine(agent->m_Controller->GetTouchedPosWorld(), agent->m_Controller->GetTouchedPosWorld() + agent->m_Controller->GetContactNormalSidePass(), D3DCOLOR_ARGB(255, 0, 0, 255));
+				PlayerBehavior* behavior = pFrame->m_Player->GetFirstComponent<PlayerBehavior>();
+				ASSERT(behavior);
+				PushLine(pFrame->m_Player->m_Position, pFrame->m_Player->m_Position + behavior->m_MoveDir, D3DCOLOR_ARGB(255, 255, 255, 0));
+				PushLine(pFrame->m_Player->m_Position, pFrame->m_Player->m_Position + behavior->m_Controller->GetUpDirection(), D3DCOLOR_ARGB(255, 255, 0, 0));
+				PushLine(behavior->m_Controller->GetTouchedPosWorld(), behavior->m_Controller->GetTouchedPosWorld() + behavior->m_Controller->GetContactNormalDownPass(), D3DCOLOR_ARGB(255, 0, 255, 0));
+				PushLine(behavior->m_Controller->GetTouchedPosWorld(), behavior->m_Controller->GetTouchedPosWorld() + behavior->m_Controller->GetContactNormalSidePass(), D3DCOLOR_ARGB(255, 0, 0, 255));
 				my::Vector3 pt = m_Camera->WorldToScreen(pFrame->m_Player->m_Position, my::Vector2((float)m_SwapChainBufferDesc.Width, (float)m_SwapChainBufferDesc.Height));
 				if (pt.z > 0.0f && pt.z < 1.0f)
 				{
 					wchar_t buff[256];
-					swprintf_s(buff, _countof(buff), L"%f", D3DXToDegree(asinf(agent->m_Controller->GetUpDirection().y)));
+					swprintf_s(buff, _countof(buff), L"%f", D3DXToDegree(asinf(behavior->m_Controller->GetUpDirection().y)));
 					theApp.m_UIRender->PushString(my::Rectangle::LeftTop(floorf(pt.x), floorf(pt.y), 1, 1), buff, D3DCOLOR_ARGB(255, 255, 0, 0), my::Font::AlignLeftTop, theApp.m_Font.get());
 				}
 			}
