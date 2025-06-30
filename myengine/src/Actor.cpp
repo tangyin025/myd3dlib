@@ -545,14 +545,13 @@ void Actor::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline
 {
 	for (int Lod = m_Lod; Lod < MaxLod; )
 	{
-		bool lodRequested = false;
 		ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
 		for (; cmp_iter != m_Cmps.end(); cmp_iter++)
 		{
-			if (((*cmp_iter)->m_LodMask & 1 << Lod))
+			if ((*cmp_iter)->m_LodMask & 1 << Lod)
 			{
 				if ((*cmp_iter)->IsRequested()
-					&& ((*cmp_iter)->GetComponentType() != Component::ComponentTypeMesh || static_cast<MeshComponent*>(cmp_iter->get())->m_Mesh))
+					&& ((*cmp_iter)->GetComponentType() != Component::ComponentTypeMesh || static_cast<MeshComponent*>(cmp_iter->get())->m_Mesh || static_cast<MeshComponent*>(cmp_iter->get())->m_MeshPath.empty()))
 				{
 					(*cmp_iter)->AddToPipeline(frustum, pipeline, PassMask, ViewPos, TargetPos);
 				}
