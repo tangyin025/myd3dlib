@@ -855,7 +855,7 @@ bool PhysxSpatialIndex::Sweep(const physx::PxGeometry& geometry, const my::Vecto
 
 my::AABB PhysxSpatialIndex::CalculateAABB(void) const
 {
-	my::AABB ret(FLT_MAX, -FLT_MAX);
+	my::AABB ret = my::AABB::Invalid();
 	for (int i = 0; i < GetTriangleNum(); i++)
 	{
 		my::Vector3 v0, v1, v2;

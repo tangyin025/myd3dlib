@@ -2059,11 +2059,11 @@ AABB OgreMesh::CalculateAABB(DWORD AttribId)
 	const D3DXATTRIBUTERANGE& rang = m_AttribTable[AttribId];
 	void* pVertices = LockVertexBuffer(D3DLOCK_READONLY);
 	DWORD VertexStride = GetNumBytesPerVertex();
-	AABB ret(FLT_MAX, -FLT_MAX);
-	for (DWORD i = 0; i < rang.VertexCount; i++)
+	AABB ret = AABB::Invalid();
+	for (DWORD i = rang.VertexStart; i < rang.VertexStart + rang.VertexCount; i++)
 	{
-		unsigned char* pVertex = (unsigned char*)pVertices + rang.VertexStart * VertexStride + i * VertexStride;
-		const Vector3 vertex = m_VertexElems.GetPosition(pVertex);
+		unsigned char* pVertex = (unsigned char*)pVertices + i * VertexStride;
+		const Vector3 & vertex = m_VertexElems.GetPosition(pVertex);
 		ret.unionSelf(vertex);
 	}
 	UnlockVertexBuffer();

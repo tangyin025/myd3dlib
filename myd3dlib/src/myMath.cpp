@@ -309,8 +309,6 @@ Frustum & Frustum::transformSelf(const Matrix4 & InverseTranspose)
 	return *this;
 }
 
-const AABB AABB::invalid(FLT_MAX, -FLT_MAX);
-
 AABB AABB::transform(const Matrix4 & m) const
 {
 	Vector3 v[] =

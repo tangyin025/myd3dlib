@@ -2620,7 +2620,19 @@ void CChildView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 					Actor::ComponentPtrList::iterator cmp_iter = pFrame->m_selactors.front()->m_Cmps.begin();
 					for (; cmp_iter != pFrame->m_selactors.front()->m_Cmps.end(); cmp_iter++)
 					{
-						if ((*cmp_iter)->GetComponentType() == Component::ComponentTypeTerrain && cmp_iter->get() == pFrame->m_selcmp)
+						if ((*cmp_iter)->GetComponentType() == Component::ComponentTypeMesh && cmp_iter->get() == pFrame->m_selcmp)
+						{
+							MeshComponent* mesh_cmp = dynamic_cast<MeshComponent*>(cmp_iter->get());
+							my::AABB chunk_box = mesh_cmp->CalculateAABB().transform(mesh_cmp->m_InstanceType != MeshComponent::InstanceTypeBatch ? mesh_cmp->m_Actor->m_World : my::Matrix4::identity);
+							float chunk_radius = chunk_box.Extent().magnitude() * 0.5f;
+							if ((model_view_camera->m_LookAt - chunk_box.Center()).magnitudeSq() > EPSILON_E6 * EPSILON_E6
+								|| fabs(model_view_camera->m_Distance - chunk_radius / asin(model_view_camera->m_Fov * 0.5f)) > EPSILON_E6)
+							{
+								focus_box = chunk_box;
+							}
+							break;
+						}
+						else if ((*cmp_iter)->GetComponentType() == Component::ComponentTypeTerrain && cmp_iter->get() == pFrame->m_selcmp)
 						{
 							Terrain * terrain = dynamic_cast<Terrain *>(cmp_iter->get());
 							my::AABB chunk_box = terrain->m_Chunks[pFrame->m_selchunkid.x][pFrame->m_selchunkid.y].m_OctAabb->transform(terrain->m_Actor->m_World);

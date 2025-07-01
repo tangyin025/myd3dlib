@@ -3178,8 +3178,6 @@ namespace my
 
 		Vector3 m_max;
 
-		static const AABB invalid;
-
 	public:
 		AABB(void)
 			//: m_min(-FLT_MAX,-FLT_MAX,-FLT_MAX)
