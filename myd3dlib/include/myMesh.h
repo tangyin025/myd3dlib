@@ -460,7 +460,7 @@ namespace my
 
 		void Transform(const Matrix4 & trans);
 
-		AABB CalculateAABB(void);
+		AABB CalculateAABB(DWORD AttribId);
 	};
 
 	typedef boost::shared_ptr<OgreMesh> OgreMeshPtr;

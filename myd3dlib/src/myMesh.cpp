@@ -2054,15 +2054,15 @@ void OgreMesh::Transform(const Matrix4 & trans)
 	}
 }
 
-AABB OgreMesh::CalculateAABB(void)
+AABB OgreMesh::CalculateAABB(DWORD AttribId)
 {
-	AABB ret(FLT_MAX, -FLT_MAX);
+	const D3DXATTRIBUTERANGE& rang = m_AttribTable[AttribId];
 	void* pVertices = LockVertexBuffer(D3DLOCK_READONLY);
-	DWORD NumVertices = GetNumVertices();
 	DWORD VertexStride = GetNumBytesPerVertex();
-	for (int vertex_i = 0; vertex_i < (int)NumVertices; vertex_i++)
+	AABB ret(FLT_MAX, -FLT_MAX);
+	for (DWORD i = 0; i < rang.VertexCount; i++)
 	{
-		unsigned char* pVertex = (unsigned char*)pVertices + vertex_i * VertexStride;
+		unsigned char* pVertex = (unsigned char*)pVertices + rang.VertexStart * VertexStride + i * VertexStride;
 		const Vector3 vertex = m_VertexElems.GetPosition(pVertex);
 		ret.unionSelf(vertex);
 	}
