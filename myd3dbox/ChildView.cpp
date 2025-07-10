@@ -2620,7 +2620,7 @@ void CChildView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 					Actor::ComponentPtrList::iterator cmp_iter = pFrame->m_selactors.front()->m_Cmps.begin();
 					for (; cmp_iter != pFrame->m_selactors.front()->m_Cmps.end(); cmp_iter++)
 					{
-						if ((*cmp_iter)->GetComponentType() == Component::ComponentTypeMesh && cmp_iter->get() == pFrame->m_selcmp)
+						if ((*cmp_iter)->GetComponentType() == Component::ComponentTypeMesh && cmp_iter->get() == pFrame->m_selcmp && dynamic_cast<MeshComponent*>(cmp_iter->get())->m_Mesh)
 						{
 							MeshComponent* mesh_cmp = dynamic_cast<MeshComponent*>(cmp_iter->get());
 							my::AABB chunk_box = mesh_cmp->CalculateAABB().transform(mesh_cmp->m_InstanceType != MeshComponent::InstanceTypeBatch ? mesh_cmp->m_Actor->m_World : my::Matrix4::identity);
