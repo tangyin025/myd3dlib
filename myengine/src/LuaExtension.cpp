@@ -141,24 +141,9 @@ static void cubetexture_load_cube_map_surface_from_file(my::CubeTexture* self, D
 	V(D3DXLoadSurfaceFromFile(surf, NULL, pDestRect, u8tots(u8_path).c_str(), pSourceRect, Filter, 0, NULL));
 }
 
-static int ogremesh_get_material_num(const my::OgreMesh* self)
+static int ogremesh_get_attribute_num(const my::OgreMesh* self)
 {
-	return (int)self->m_MaterialNameList.size();
-}
-
-static const std::string& ogremesh_get_material_name(const my::OgreMesh* self, int i)
-{
-	return self->m_MaterialNameList[i];
-}
-
-static int ogremesh_get_lod_num(const my::OgreMesh* self)
-{
-	return (int)self->m_LodNameList.size();
-}
-
-static const std::string& ogremesh_get_lod_name(const my::OgreMesh* self, int i)
-{
-	return self->m_LodNameList[i];
+	return (int)self->m_AttribTable.size();
 }
 
 static unsigned int ogreskeletonanimation_get_bone_num(my::OgreSkeletonAnimation* self)
@@ -2274,11 +2259,7 @@ void LuaContext::Init(void)
 			.def("SimplifyMesh", &my::OgreMesh::SimplifyMesh)
 			.def("SaveObj", &my::OgreMesh::SaveObj)
 			.def("Transform", &my::OgreMesh::Transform)
-			.property("MaterialNum", &ogremesh_get_material_num)
-			.def("GetMaterialName", &ogremesh_get_material_name)
-			.property("LodNum", &ogremesh_get_lod_num)
-			.def("GetLodName", &ogremesh_get_lod_name)
-			.def_readonly("skeletonlink", &my::OgreMesh::m_skeletonlink)
+			.property("NumAttributes", &ogremesh_get_attribute_num)
 			.def("CalculateAABB", &my::OgreMesh::CalculateAABB)
 
 		, class_<my::BoneHierarchyNode>("BoneHierarchyNode")

@@ -1001,7 +1001,6 @@ void OgreMesh::CreateMeshFromOgreXml(
 
 		for (int submesh_i = 0; node_submesh != NULL; node_submesh = node_submesh->next_sibling(), submesh_i++)
 		{
-			rapidxml::xml_attribute<char>* attr_material = node_submesh->first_attribute("material");
 			DEFINE_XML_ATTRIBUTE_BOOL_SIMPLE(use32bitindexes, submesh);
 			DEFINE_XML_ATTRIBUTE_BOOL_SIMPLE(usesharedvertices, submesh);
 			if (!usesharedvertices)
@@ -1014,8 +1013,6 @@ void OgreMesh::CreateMeshFromOgreXml(
 			{
 				THROW_CUSEXCEPTION("!triangle_list");
 			}
-
-			m_MaterialNameList.push_back(attr_material ? attr_material->value() : "_missing_material_");
 
 			DEFINE_XML_NODE_SIMPLE(faces, submesh);
 			DEFINE_XML_ATTRIBUTE_INT_SIMPLE(count, faces);
@@ -1042,7 +1039,6 @@ void OgreMesh::CreateMeshFromOgreXml(
 
 		for (int submesh_i = 0; node_submesh != NULL; node_submesh = node_submesh->next_sibling(), submesh_i++)
 		{
-			rapidxml::xml_attribute<char>* attr_material = node_submesh->first_attribute("material");
 			DEFINE_XML_ATTRIBUTE_BOOL_SIMPLE(use32bitindexes, submesh);
 			DEFINE_XML_ATTRIBUTE_BOOL_SIMPLE(usesharedvertices, submesh);
 			if (usesharedvertices)
@@ -1055,8 +1051,6 @@ void OgreMesh::CreateMeshFromOgreXml(
 			{
 				THROW_CUSEXCEPTION("!triangle_list");
 			}
-
-			m_MaterialNameList.push_back(attr_material ? attr_material->value() : "_missing_material_");
 
 			DEFINE_XML_NODE(node_geometry, node_submesh, geometry);
 			DEFINE_XML_ATTRIBUTE_INT_SIMPLE(vertexcount, geometry);
@@ -1368,23 +1362,6 @@ void OgreMesh::CreateMeshFromOgreXml(
 	//D3DContext::getSingleton().m_d3dDeviceSec.Enter();
 	//OptimizeInplace(D3DXMESHOPT_ATTRSORT | D3DXMESHOPT_VERTEXCACHE, &adjacency[0], &m_Adjacency[0], NULL, NULL);
 	//D3DContext::getSingleton().m_d3dDeviceSec.Leave();
-
-	rapidxml::xml_node<char>* node_levelofdetail = node_mesh->first_node("levelofdetail");
-	if (node_levelofdetail)
-	{
-		rapidxml::xml_node<char>* node_lodmanual = node_levelofdetail->first_node("lodmanual");
-		for (; node_lodmanual; node_lodmanual = node_lodmanual->next_sibling("lodmanual"))
-		{
-			DEFINE_XML_ATTRIBUTE_SIMPLE(meshname, lodmanual);
-			m_LodNameList.push_back(attr_meshname->value());
-		}
-	}
-
-	rapidxml::xml_node<char>* node_skeletonlink = node_mesh->first_node("skeletonlink");
-	if (node_skeletonlink)
-	{
-		m_skeletonlink.assign(node_skeletonlink->first_attribute("name")->value());
-	}
 }
 //
 //void OgreMesh::CreateMeshFromObjInFile(
@@ -1569,7 +1546,6 @@ void OgreMesh::AppendMesh(OgreMesh* other, DWORD AttribId, const Matrix4& trans,
 	rang.VertexCount = other->m_AttribTable[AttribId].VertexCount;
 	m_AttribTable.push_back(rang);
 	SetAttributeTable(&m_AttribTable[0], m_AttribTable.size());
-	m_MaterialNameList.push_back(other->m_MaterialNameList[AttribId]);
 }
 
 void OgreMesh::CombineMesh(OgreMesh* other, DWORD AttribId, const Matrix4& trans, const Matrix4& uv_trans)
@@ -1736,8 +1712,8 @@ void OgreMesh::SaveOgreMesh(const char * path, bool useSharedGeom)
 	{
 		// Start submesh description
 		ofs << "\t\t<submesh ";
-		// Write material name
-		ofs << "material=\"" << m_MaterialNameList[m_AttribTable[i].AttribId] << "\" ";
+		//// Write material name
+		//ofs << "material=\"" << m_MaterialNameList[m_AttribTable[i].AttribId] << "\" ";
 		DWORD use32bitindexes = GetOptions() & D3DXMESH_32BIT;
 		// Write use32bitIndexes flag
 		ofs << "use32bitindexes=\"";
@@ -1863,8 +1839,8 @@ void OgreMesh::SaveOgreMesh(const char * path, bool useSharedGeom)
 	}
 	UnlockIndexBuffer();
 	ofs << "\t</submeshes>\n";
-	// write skeleton link
-	ofs << "\t<skeletonlink name=\"" << m_skeletonlink << "\"/>\n";
+	//// write skeleton link
+	//ofs << "\t<skeletonlink name=\"" << m_skeletonlink << "\"/>\n";
 	// Write shared geometry bone assignments
 	if (useSharedGeom)
 	{
@@ -1909,7 +1885,6 @@ boost::shared_ptr<OgreMesh> OgreMesh::Optimize(DWORD Flags)
 	OgreMeshPtr optimized_mesh(new OgreMesh());
 	optimized_mesh->Create(Mesh::Optimize(Flags, &adjacency[0], &adjacency_out[0]).Detach());
 	//optimized_mesh->m_Adjacency = m_Adjacency;
-	optimized_mesh->m_MaterialNameList = m_MaterialNameList;
 	optimized_mesh->m_VertexElems = m_VertexElems;
 	DWORD AttribTblCount = 0;
 	optimized_mesh->GetAttributeTable(NULL, &AttribTblCount);
@@ -1939,7 +1914,6 @@ boost::shared_ptr<OgreMesh> OgreMesh::SimplifyMesh(DWORD MinValue, DWORD Options
 	OgreMeshPtr simplified_mesh(new OgreMesh());
 	simplified_mesh->Create(Mesh::SimplifyMesh(&adjacency[0], MinValue, Options).Detach());
 	//simplified_mesh->m_Adjacency = m_Adjacency;
-	simplified_mesh->m_MaterialNameList = m_MaterialNameList;
 	simplified_mesh->m_VertexElems = m_VertexElems;
 	DWORD AttribTblCount = 0;
 	simplified_mesh->GetAttributeTable(NULL, &AttribTblCount);

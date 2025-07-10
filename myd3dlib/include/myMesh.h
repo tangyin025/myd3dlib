@@ -393,12 +393,6 @@ namespace my
 	public:
 		D3DVertexElementSet m_VertexElems;
 
-		std::vector<std::string> m_MaterialNameList;
-
-		std::vector<std::string> m_LodNameList;
-
-		std::string m_skeletonlink;
-
 		std::vector<D3DXATTRIBUTERANGE> m_AttribTable;
 
 		CComPtr<IDirect3DVertexDeclaration9> m_Decl;
