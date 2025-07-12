@@ -2084,6 +2084,10 @@ void LuaContext::Init(void)
 			.def(constructor<float, float, float, float>())
 			.def_readwrite("LocalVel", &my::FirstPersonCamera::m_LocalVel)
 
+		, class_<my::ProgressiveMesh>("ProgressiveMesh")
+			.def(constructor<my::OgreMesh*>())
+			.def("Collapse", &my::ProgressiveMesh::Collapse)
+
 		, class_<my::OctEntity>("OctEntity")
 			.def_readonly("OctAabb", &my::OctEntity::m_OctAabb)
 	];

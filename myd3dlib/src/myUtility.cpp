@@ -4,8 +4,7 @@
 #include "libc.h"
 #include "myCollision.h"
 #include "myDxutApp.h"
-#include "rapidxml.hpp"
-#include <boost/bind/bind.hpp>
+#include "myMesh.h"
 
 using namespace my;
 
@@ -530,4 +529,170 @@ LRESULT FirstPersonCamera::MsgProc(
 		break;
 	}
 	return 0;
+}
+
+ProgressiveMesh::ProgressiveMesh(OgreMesh* Mesh)
+	: m_Mesh(Mesh)
+	, m_Verts(Mesh->GetNumVertices())
+{
+	VOID* pIndices = m_Mesh->LockIndexBuffer(D3DLOCK_READONLY);
+	for (int i = 0; i < m_Mesh->GetNumFaces(); i++)
+	{
+		PMTriangle tri;
+		tri.vi[0] = m_Mesh->GetOptions() & D3DXMESH_32BIT ? *((DWORD*)pIndices + i * 3 + 0) : *((WORD*)pIndices + i * 3 + 0);
+		tri.vi[1] = m_Mesh->GetOptions() & D3DXMESH_32BIT ? *((DWORD*)pIndices + i * 3 + 1) : *((WORD*)pIndices + i * 3 + 1);
+		tri.vi[2] = m_Mesh->GetOptions() & D3DXMESH_32BIT ? *((DWORD*)pIndices + i * 3 + 2) : *((WORD*)pIndices + i * 3 + 2);
+		tri.removed = false;
+		m_Tris.push_back(tri);
+	}
+	m_Mesh->UnlockIndexBuffer();
+
+	for (int i = 0; i < m_Mesh->m_AttribTable.size(); i++)
+	{
+		const D3DXATTRIBUTERANGE& rang = m_Mesh->m_AttribTable[i];
+		for (int j = rang.FaceStart; j < rang.FaceStart + rang.FaceCount; j++)
+		{
+			for (int k = 0; k < _countof(m_Tris[j].vi); k++)
+			{
+				PMVertex& pmv = m_Verts[m_Tris[j].vi[k]];
+				_ASSERT(std::find(pmv.tris.begin(), pmv.tris.end(), j) == pmv.tris.end());
+				pmv.tris.push_back(j);
+			}
+		}
+	}
+
+	VOID* pVertices = m_Mesh->LockVertexBuffer();
+	std::vector<PMVertex>::iterator vert_iter = m_Verts.begin();
+	for (; vert_iter != m_Verts.end(); vert_iter++)
+	{
+		std::vector<int>::iterator tri_iter = vert_iter->tris.begin();
+		for (; tri_iter != vert_iter->tris.end(); tri_iter++)
+		{
+			const Vector3 v[3] = {
+				m_Mesh->m_VertexElems.GetPosition((unsigned char*)pVertices + m_Tris[*tri_iter].vi[0] * m_Mesh->GetNumBytesPerVertex()),
+				m_Mesh->m_VertexElems.GetPosition((unsigned char*)pVertices + m_Tris[*tri_iter].vi[1] * m_Mesh->GetNumBytesPerVertex()),
+				m_Mesh->m_VertexElems.GetPosition((unsigned char*)pVertices + m_Tris[*tri_iter].vi[2] * m_Mesh->GetNumBytesPerVertex()) };
+
+			vert_iter->planes.push_back(Plane::FromTriangle(v[0], v[1], v[2]));
+		}
+	}
+	m_Mesh->UnlockVertexBuffer();
+
+	for (vert_iter = m_Verts.begin(); vert_iter != m_Verts.end(); vert_iter++)
+	{
+		UpdateCollapseCost(vert_iter);
+	}
+}
+
+void ProgressiveMesh::UpdateCollapseCost(std::vector<PMVertex>::iterator vert_iter)
+{
+	vert_iter->neighbors.clear();
+	std::vector<int>::iterator tri_iter = vert_iter->tris.begin();
+	for (; tri_iter != vert_iter->tris.end(); tri_iter++)
+	{
+		PMTriangle& tri = m_Tris[*tri_iter];
+		vert_iter->neighbors.insert(tri.vi, tri.vi + _countof(tri.vi));
+	}
+	vert_iter->neighbors.erase(std::distance(m_Verts.begin(), vert_iter));
+
+	vert_iter->collapsecost = FLT_MAX;
+	vert_iter->collapseto = -1;
+	VOID* pVertices = m_Mesh->LockVertexBuffer();
+	std::set<int>::iterator nei_iter = vert_iter->neighbors.begin();
+	for (; nei_iter != vert_iter->neighbors.end(); nei_iter++)
+	{
+		_ASSERT(m_Verts[*nei_iter].collapsecost < FLT_MAX);
+
+		Vector3 pos = m_Mesh->m_VertexElems.GetPosition((unsigned char*)pVertices + *nei_iter * m_Mesh->GetNumBytesPerVertex());
+		float cost = 0;
+		std::vector<Plane>::iterator plane_iter = vert_iter->planes.begin();
+		for (; plane_iter != vert_iter->planes.end(); plane_iter++)
+		{
+			cost += fabsf(plane_iter->DistanceToPoint(pos));
+		}
+
+		if (cost < vert_iter->collapsecost)
+		{
+			vert_iter->collapsecost = cost;
+			vert_iter->collapseto = *nei_iter;
+		}
+	}
+	m_Mesh->UnlockVertexBuffer();
+}
+
+void ProgressiveMesh::Collapse(int numCollapses)
+{
+	for (; numCollapses > 0; numCollapses--)
+	{
+		float bestCost = FLT_MAX;
+		int collapseverti = -1;
+		std::vector<PMVertex>::iterator vert_iter = m_Verts.begin();
+		for (; vert_iter != m_Verts.end(); vert_iter++)
+		{
+			if (vert_iter->collapsecost < bestCost)
+			{
+				collapseverti = std::distance(m_Verts.begin(), vert_iter);
+				bestCost = vert_iter->collapsecost;
+			}
+		}
+		_ASSERT(collapseverti >= 0);
+
+		PMVertex& collapsevert = m_Verts[collapseverti];
+		std::vector<int>::iterator tri_iter = collapsevert.tris.begin();
+		for (; tri_iter != collapsevert.tris.end(); tri_iter++)
+		{
+			PMTriangle& tri = m_Tris[*tri_iter];
+			_ASSERT(!tri.removed);
+			int* viend = tri.vi + _countof(tri.vi);
+			if (std::find(&tri.vi[0], viend, collapsevert.collapseto) != viend)
+			{
+				for (int i = 0; i < _countof(tri.vi); i++)
+				{
+					if (tri.vi[i] != collapseverti)
+					{
+						PMVertex& neivert = m_Verts[tri.vi[i]];
+						std::vector<int>::iterator rem_tri_iter = std::find(neivert.tris.begin(), neivert.tris.end(), *tri_iter);
+						_ASSERT(rem_tri_iter != neivert.tris.end());
+						neivert.tris.erase(rem_tri_iter);
+					}
+				}
+			}
+			else
+			{
+				PMTriangle new_tri(tri);
+				_ASSERT(!new_tri.removed);
+				int* new_viend = new_tri.vi + _countof(new_tri.vi);
+				int* replace_vi = std::find(&new_tri.vi[0], new_viend, collapseverti);
+				_ASSERT(replace_vi != new_viend);
+				*replace_vi = collapsevert.collapseto;
+				m_Tris.push_back(new_tri);
+				int new_trii = m_Tris.size() - 1;
+
+				for (int i = 0; i < _countof(tri.vi); i++)
+				{
+					if (tri.vi[i] != collapseverti)
+					{
+						PMVertex& neivert = m_Verts[tri.vi[i]];
+						std::vector<int>::iterator rem_tri_iter = std::find(neivert.tris.begin(), neivert.tris.end(), *tri_iter);
+						_ASSERT(rem_tri_iter != neivert.tris.end());
+						*rem_tri_iter = new_trii;
+					}
+				}
+
+				PMVertex& collapsetovert = m_Verts[collapsevert.collapseto];
+				_ASSERT(collapsetovert.tris.end() == std::find(collapsetovert.tris.begin(), collapsetovert.tris.end(), new_trii));
+				collapsetovert.tris.push_back(new_trii);
+			}
+			tri.removed = true;
+		}
+		collapsevert.collapsecost = FLT_MAX;
+
+		std::set<int>::iterator nei_iter = collapsevert.neighbors.begin();
+		for (; nei_iter != collapsevert.neighbors.end(); nei_iter++)
+		{
+			std::vector<PMVertex>::iterator nei_vert_iter = m_Verts.begin() + *nei_iter;
+			_ASSERT(nei_vert_iter->collapsecost < FLT_MAX);
+			UpdateCollapseCost(nei_vert_iter);
+		}
+	}
 }

@@ -290,4 +290,38 @@ namespace my
 			LPARAM lParam,
 			bool * pbNoFurtherProcessing);
 	};
+
+	class OgreMesh;
+
+	class ProgressiveMesh
+	{
+	public:
+		OgreMesh* m_Mesh;
+
+		struct PMTriangle
+		{
+			int vi[3];
+			bool removed;
+		};
+
+		std::vector<PMTriangle> m_Tris;
+
+		struct PMVertex
+		{
+			std::vector<int> tris;
+			std::vector<Plane> planes;
+			std::set<int> neighbors;
+			float collapsecost;
+			int collapseto;
+		};
+
+		std::vector<PMVertex> m_Verts;
+
+	public:
+		ProgressiveMesh(OgreMesh* Mesh);
+
+		void UpdateCollapseCost(std::vector<PMVertex>::iterator vert_iter);
+
+		void Collapse(int numCollapses);
+	};
 }
