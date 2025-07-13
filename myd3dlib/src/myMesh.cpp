@@ -1624,8 +1624,8 @@ const D3DXATTRIBUTERANGE& OgreMesh::AppendToAttrib(const D3DXATTRIBUTERANGE& ran
 			{
 				*((WORD*)pIndices + (rang.FaceStart + rang.FaceCount + i) * 3 + j) = idx;
 			}
-			pAttrBuffer[rang.FaceStart + rang.FaceCount + i] = rang.AttribId;
 		}
+		pAttrBuffer[rang.FaceStart + rang.FaceCount + i] = rang.AttribId;
 	}
 	other->UnlockIndexBuffer();
 	UnlockIndexBuffer();

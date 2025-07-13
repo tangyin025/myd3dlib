@@ -2087,6 +2087,7 @@ void LuaContext::Init(void)
 		, class_<my::ProgressiveMesh>("ProgressiveMesh")
 			.def(constructor<my::OgreMesh*>())
 			.def("Collapse", &my::ProgressiveMesh::Collapse)
+			.def("BuildMesh", &my::ProgressiveMesh::BuildMesh)
 
 		, class_<my::OctEntity>("OctEntity")
 			.def_readonly("OctAabb", &my::OctEntity::m_OctAabb)

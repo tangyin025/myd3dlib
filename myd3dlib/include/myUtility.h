@@ -323,5 +323,7 @@ namespace my
 		void UpdateCollapseCost(std::vector<PMVertex>::iterator vert_iter);
 
 		void Collapse(int numCollapses);
+
+		boost::shared_ptr<OgreMesh> BuildMesh(void);
 	};
 }
