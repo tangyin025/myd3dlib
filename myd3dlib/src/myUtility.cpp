@@ -627,7 +627,7 @@ void ProgressiveMesh::UpdateCollapseCost(std::vector<PMVertex>::iterator vert_it
 
 void ProgressiveMesh::Collapse(int numCollapses)
 {
-	for (; numCollapses > 0; numCollapses--)
+	for (int Collapse = 0; Collapse < numCollapses; Collapse++)
 	{
 		float bestCost = FLT_MAX;
 		int collapseverti = -1;
@@ -646,6 +646,7 @@ void ProgressiveMesh::Collapse(int numCollapses)
 		std::vector<int>::iterator tri_iter = collapsevert.tris.begin();
 		for (; tri_iter != collapsevert.tris.end(); tri_iter++)
 		{
+			m_Tris.reserve(m_Tris.size() + 1);  // ! avoid dangling reference
 			PMTriangle& tri = m_Tris[*tri_iter];
 			_ASSERT(tri.AttribId >= 0);
 			int* viend = tri.vi + _countof(tri.vi);
