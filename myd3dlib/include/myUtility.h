@@ -320,6 +320,8 @@ namespace my
 	public:
 		ProgressiveMesh(OgreMesh* Mesh);
 
+		void UpdateNeighbors(std::vector<PMVertex>::iterator vert_iter);
+
 		void UpdateCollapseCost(std::vector<PMVertex>::iterator vert_iter);
 
 		void Collapse(int numCollapses);

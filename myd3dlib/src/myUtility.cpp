@@ -585,11 +585,13 @@ ProgressiveMesh::ProgressiveMesh(OgreMesh* Mesh)
 
 	for (vert_iter = m_Verts.begin(); vert_iter != m_Verts.end(); vert_iter++)
 	{
+		UpdateNeighbors(vert_iter);
+
 		UpdateCollapseCost(vert_iter);
 	}
 }
 
-void ProgressiveMesh::UpdateCollapseCost(std::vector<PMVertex>::iterator vert_iter)
+void ProgressiveMesh::UpdateNeighbors(std::vector<PMVertex>::iterator vert_iter)
 {
 	vert_iter->neighbors.clear();
 	std::vector<int>::iterator tri_iter = vert_iter->tris.begin();
@@ -599,7 +601,10 @@ void ProgressiveMesh::UpdateCollapseCost(std::vector<PMVertex>::iterator vert_it
 		vert_iter->neighbors.insert(tri.vi, tri.vi + _countof(tri.vi));
 	}
 	vert_iter->neighbors.erase(std::distance(m_Verts.begin(), vert_iter));
+}
 
+void ProgressiveMesh::UpdateCollapseCost(std::vector<PMVertex>::iterator vert_iter)
+{
 	vert_iter->collapsecost = FLT_MAX;
 	vert_iter->collapseto = -1;
 	VOID* pVertices = m_Mesh->LockVertexBuffer();
@@ -698,6 +703,9 @@ void ProgressiveMesh::Collapse(int numCollapses)
 		{
 			std::vector<PMVertex>::iterator nei_vert_iter = m_Verts.begin() + *nei_iter;
 			_ASSERT(nei_vert_iter->collapsecost < FLT_MAX);
+
+			UpdateNeighbors(nei_vert_iter);
+
 			UpdateCollapseCost(nei_vert_iter);
 		}
 	}
