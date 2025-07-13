@@ -538,11 +538,10 @@ ProgressiveMesh::ProgressiveMesh(OgreMesh* Mesh)
 	VOID* pIndices = m_Mesh->LockIndexBuffer(D3DLOCK_READONLY);
 	for (int i = 0; i < m_Mesh->GetNumFaces(); i++)
 	{
-		PMTriangle tri;
-		tri.vi[0] = m_Mesh->GetOptions() & D3DXMESH_32BIT ? *((DWORD*)pIndices + i * 3 + 0) : *((WORD*)pIndices + i * 3 + 0);
-		tri.vi[1] = m_Mesh->GetOptions() & D3DXMESH_32BIT ? *((DWORD*)pIndices + i * 3 + 1) : *((WORD*)pIndices + i * 3 + 1);
-		tri.vi[2] = m_Mesh->GetOptions() & D3DXMESH_32BIT ? *((DWORD*)pIndices + i * 3 + 2) : *((WORD*)pIndices + i * 3 + 2);
-		tri.removed = false;
+		PMTriangle tri = { {
+			m_Mesh->GetOptions() & D3DXMESH_32BIT ? *((DWORD*)pIndices + i * 3 + 0) : *((WORD*)pIndices + i * 3 + 0),
+			m_Mesh->GetOptions() & D3DXMESH_32BIT ? *((DWORD*)pIndices + i * 3 + 1) : *((WORD*)pIndices + i * 3 + 1),
+			m_Mesh->GetOptions() & D3DXMESH_32BIT ? *((DWORD*)pIndices + i * 3 + 2) : *((WORD*)pIndices + i * 3 + 2) }, -1 };
 		m_Tris.push_back(tri);
 	}
 	m_Mesh->UnlockIndexBuffer();
@@ -552,10 +551,13 @@ ProgressiveMesh::ProgressiveMesh(OgreMesh* Mesh)
 		const D3DXATTRIBUTERANGE& rang = m_Mesh->m_AttribTable[i];
 		for (int j = rang.FaceStart; j < rang.FaceStart + rang.FaceCount; j++)
 		{
+			_ASSERT(m_Tris[j].AttribId < 0);
+			m_Tris[j].AttribId = i;
+
 			for (int k = 0; k < _countof(m_Tris[j].vi); k++)
 			{
 				PMVertex& pmv = m_Verts[m_Tris[j].vi[k]];
-				_ASSERT(std::find(pmv.tris.begin(), pmv.tris.end(), j) == pmv.tris.end());
+				_ASSERT(pmv.tris.end() == std::find(pmv.tris.begin(), pmv.tris.end(), j));
 				pmv.tris.push_back(j);
 			}
 		}
@@ -642,7 +644,7 @@ void ProgressiveMesh::Collapse(int numCollapses)
 		for (; tri_iter != collapsevert.tris.end(); tri_iter++)
 		{
 			PMTriangle& tri = m_Tris[*tri_iter];
-			_ASSERT(!tri.removed);
+			_ASSERT(tri.AttribId >= 0);
 			int* viend = tri.vi + _countof(tri.vi);
 			if (std::find(&tri.vi[0], viend, collapsevert.collapseto) != viend)
 			{
@@ -660,7 +662,7 @@ void ProgressiveMesh::Collapse(int numCollapses)
 			else
 			{
 				PMTriangle new_tri(tri);
-				_ASSERT(!new_tri.removed);
+				_ASSERT(new_tri.AttribId >= 0);
 				int* new_viend = new_tri.vi + _countof(new_tri.vi);
 				int* replace_vi = std::find(&new_tri.vi[0], new_viend, collapseverti);
 				_ASSERT(replace_vi != new_viend);
@@ -683,7 +685,7 @@ void ProgressiveMesh::Collapse(int numCollapses)
 				_ASSERT(collapsetovert.tris.end() == std::find(collapsetovert.tris.begin(), collapsetovert.tris.end(), new_trii));
 				collapsetovert.tris.push_back(new_trii);
 			}
-			tri.removed = true;
+			tri.AttribId = -1;
 		}
 		collapsevert.collapsecost = FLT_MAX;
 

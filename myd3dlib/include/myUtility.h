@@ -301,7 +301,7 @@ namespace my
 		struct PMTriangle
 		{
 			int vi[3];
-			bool removed;
+			int AttribId;
 		};
 
 		std::vector<PMTriangle> m_Tris;
