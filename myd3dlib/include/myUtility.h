@@ -309,7 +309,7 @@ namespace my
 		struct PMVertex
 		{
 			std::vector<int> tris;
-			std::vector<Plane> planes;
+			boost::shared_ptr<std::vector<Plane> > planes;
 			std::map<int, int> neighbors;
 			bool isBorder;
 			float collapsecost;

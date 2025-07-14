@@ -8,6 +8,7 @@
 #include <boost/lambda/lambda.hpp>
 #include <boost/lambda/bind.hpp>
 #include <boost/multi_array.hpp>
+#include <boost/tuple/tuple_comparison.hpp>
 
 using namespace my;
 
@@ -566,10 +567,18 @@ ProgressiveMesh::ProgressiveMesh(OgreMesh* Mesh)
 		}
 	}
 
+	typedef std::map<boost::tuple<float, float, float>, boost::shared_ptr<std::vector<Plane> > > pos_plane_map;
+	pos_plane_map ppmap;
+
 	VOID* pVertices = m_Mesh->LockVertexBuffer();
 	std::vector<PMVertex>::iterator vert_iter = m_Verts.begin();
 	for (; vert_iter != m_Verts.end(); vert_iter++)
 	{
+		const Vector3& pos = m_Mesh->m_VertexElems.GetPosition((unsigned char*)pVertices + std::distance(m_Verts.begin(), vert_iter) * m_Mesh->GetNumBytesPerVertex());
+		std::pair<pos_plane_map::iterator, bool> res = ppmap.insert(std::make_pair(
+			boost::make_tuple(pos.x, pos.y, pos.z), boost::shared_ptr<std::vector<Plane> >(new std::vector<Plane>)));
+		vert_iter->planes = res.first->second;
+
 		std::vector<int>::iterator tri_iter = vert_iter->tris.begin();
 		for (; tri_iter != vert_iter->tris.end(); tri_iter++)
 		{
@@ -578,7 +587,7 @@ ProgressiveMesh::ProgressiveMesh(OgreMesh* Mesh)
 				m_Mesh->m_VertexElems.GetPosition((unsigned char*)pVertices + m_Tris[*tri_iter].vi[1] * m_Mesh->GetNumBytesPerVertex()),
 				m_Mesh->m_VertexElems.GetPosition((unsigned char*)pVertices + m_Tris[*tri_iter].vi[2] * m_Mesh->GetNumBytesPerVertex()) };
 
-			vert_iter->planes.push_back(Plane::FromTriangle(v[0], v[1], v[2]));
+			vert_iter->planes->push_back(Plane::FromTriangle(v[0], v[1], v[2]));
 		}
 	}
 	m_Mesh->UnlockVertexBuffer();
@@ -625,20 +634,23 @@ void ProgressiveMesh::UpdateCollapseCost(std::vector<PMVertex>::iterator vert_it
 	std::map<int, int>::iterator nei_iter = vert_iter->neighbors.begin();
 	for (; nei_iter != vert_iter->neighbors.end(); nei_iter++)
 	{
-		_ASSERT(m_Verts[nei_iter->first].collapsecost < FLT_MAX);
-
-		Vector3 pos = m_Mesh->m_VertexElems.GetPosition((unsigned char*)pVertices + nei_iter->first * m_Mesh->GetNumBytesPerVertex());
-		float cost = 0;
-		std::vector<Plane>::iterator plane_iter = vert_iter->planes.begin();
-		for (; plane_iter != vert_iter->planes.end(); plane_iter++)
+		PMVertex& neivert = m_Verts[nei_iter->first];
+		_ASSERT(neivert.collapsecost < FLT_MAX);
+		if (!vert_iter->isBorder || neivert.isBorder)
 		{
-			cost += fabsf(plane_iter->DistanceToPoint(pos));
-		}
+			const Vector3& pos = m_Mesh->m_VertexElems.GetPosition((unsigned char*)pVertices + nei_iter->first * m_Mesh->GetNumBytesPerVertex());
+			float cost = 0;
+			std::vector<Plane>::iterator plane_iter = vert_iter->planes->begin();
+			for (; plane_iter != vert_iter->planes->end(); plane_iter++)
+			{
+				cost += fabsf(plane_iter->DistanceToPoint(pos));
+			}
 
-		if (cost < vert_iter->collapsecost)
-		{
-			vert_iter->collapsecost = cost;
-			vert_iter->collapseto = nei_iter->first;
+			if (cost < vert_iter->collapsecost)
+			{
+				vert_iter->collapsecost = cost;
+				vert_iter->collapseto = nei_iter->first;
+			}
 		}
 	}
 	m_Mesh->UnlockVertexBuffer();
@@ -659,7 +671,11 @@ void ProgressiveMesh::Collapse(int numCollapses)
 				bestCost = vert_iter->collapsecost;
 			}
 		}
-		_ASSERT(collapseverti >= 0);
+
+		if (collapseverti < 0)
+		{
+			break;
+		}
 
 		PMVertex& collapsevert = m_Verts[collapseverti];
 		std::vector<int>::iterator tri_iter = collapsevert.tris.begin();
@@ -716,14 +732,12 @@ void ProgressiveMesh::Collapse(int numCollapses)
 		for (; nei_iter != collapsevert.neighbors.end(); nei_iter++)
 		{
 			std::vector<PMVertex>::iterator nei_vert_iter = m_Verts.begin() + nei_iter->first;
-			_ASSERT(nei_vert_iter->collapsecost < FLT_MAX);
 			UpdateNeighbors(nei_vert_iter);
 		}
 
 		for (nei_iter = collapsevert.neighbors.begin(); nei_iter != collapsevert.neighbors.end(); nei_iter++)
 		{
 			std::vector<PMVertex>::iterator nei_vert_iter = m_Verts.begin() + nei_iter->first;
-			_ASSERT(nei_vert_iter->collapsecost < FLT_MAX);
 			UpdateCollapseCost(nei_vert_iter);
 		}
 	}
