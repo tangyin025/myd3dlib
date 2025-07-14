@@ -310,7 +310,8 @@ namespace my
 		{
 			std::vector<int> tris;
 			std::vector<Plane> planes;
-			std::set<int> neighbors;
+			std::map<int, int> neighbors;
+			bool isBorder;
 			float collapsecost;
 			int collapseto;
 		};
