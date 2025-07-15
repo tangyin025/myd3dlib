@@ -953,19 +953,23 @@ bool Mesh::FrustumTest(
 void OgreMesh::CreateMeshFromOgreXmlInFile(
 	LPCTSTR pFilename,
 	bool bComputeTangentFrame,
-	DWORD dwMeshOptions)
+	DWORD dwMeshOptions,
+	unsigned int reserveVertices,
+	unsigned int reserveFaces)
 {
 	CachePtr cache = FileIStream::Open(pFilename)->GetWholeCache();
 	cache->push_back(0);
 
-	CreateMeshFromOgreXmlInMemory((char *)&(*cache)[0], cache->size(), bComputeTangentFrame, dwMeshOptions);
+	CreateMeshFromOgreXmlInMemory((char *)&(*cache)[0], cache->size(), bComputeTangentFrame, dwMeshOptions, reserveVertices, reserveFaces);
 }
 
 void OgreMesh::CreateMeshFromOgreXmlInMemory(
 	LPSTR pSrcData,
 	UINT srcDataLen,
 	bool bComputeTangentFrame,
-	DWORD dwMeshOptions)
+	DWORD dwMeshOptions,
+	unsigned int reserveVertices,
+	unsigned int reserveFaces)
 {
 	_ASSERT(0 == pSrcData[srcDataLen-1]);
 
@@ -979,13 +983,15 @@ void OgreMesh::CreateMeshFromOgreXmlInMemory(
 		THROW_CUSEXCEPTION(e.what());
 	}
 
-	CreateMeshFromOgreXml(&doc, bComputeTangentFrame, dwMeshOptions);
+	CreateMeshFromOgreXml(&doc, bComputeTangentFrame, dwMeshOptions, reserveVertices, reserveFaces);
 }
 
 void OgreMesh::CreateMeshFromOgreXml(
 	const rapidxml::xml_node<char> * node_root,
 	bool bComputeTangentFrame,
-	DWORD dwMeshOptions)
+	DWORD dwMeshOptions,
+	unsigned int reserveVertices,
+	unsigned int reserveFaces)
 {
 	DEFINE_XML_NODE_SIMPLE(mesh, root);
 	DEFINE_XML_NODE_SIMPLE(submeshes, mesh);
@@ -1079,7 +1085,7 @@ void OgreMesh::CreateMeshFromOgreXml(
 		}
 	}
 
-	if (!(dwMeshOptions & D3DXMESH_32BIT) && (total_vertices >= USHRT_MAX || total_faces >= USHRT_MAX))
+	if (!(dwMeshOptions & D3DXMESH_32BIT) && (Max(reserveVertices, total_vertices) >= USHRT_MAX || Max(reserveFaces, total_faces) >= USHRT_MAX))
 	{
 		D3DContext::getSingleton().m_EventLog("facecount overflow ( >= 65535 )");
 		dwMeshOptions |= D3DXMESH_32BIT;
@@ -1144,7 +1150,7 @@ void OgreMesh::CreateMeshFromOgreXml(
 	D3DContext::getSingleton().m_d3dDeviceSec.Leave();
 
 	D3DContext::getSingleton().m_d3dDeviceSec.Enter();
-	CreateMesh(total_faces, total_vertices, velist.data(), dwMeshOptions);
+	CreateMesh(Max(reserveFaces, total_faces), Max(reserveVertices, total_vertices), velist.data(), dwMeshOptions);
 	D3DContext::getSingleton().m_d3dDeviceSec.Leave();
 
 	D3DContext::getSingleton().m_d3dDeviceSec.Enter();
@@ -1517,10 +1523,10 @@ void OgreMesh::CreateMeshFromOgreXml(
 //	}
 //}
 
-void OgreMesh::CreateMeshFromOther(OgreMesh* other, DWORD AttribId, const Matrix4& trans, const Matrix4& uv_trans, unsigned int vertex_capacity, unsigned int face_capacity)
+void OgreMesh::CreateMeshFromOther(OgreMesh* other, DWORD AttribId, const Matrix4& trans, const Matrix4& uv_trans, unsigned int reserveVertices, unsigned int reserveFaces)
 {
 	DWORD dwMeshOptions = other->GetOptions();
-	if (!(dwMeshOptions & D3DXMESH_32BIT) && Max<DWORD>(vertex_capacity, other->GetNumVertices()) >= USHRT_MAX)
+	if (!(dwMeshOptions & D3DXMESH_32BIT) && Max<DWORD>(reserveVertices, other->GetNumVertices()) >= USHRT_MAX)
 	{
 		dwMeshOptions |= D3DXMESH_32BIT;
 	}
@@ -1536,7 +1542,7 @@ void OgreMesh::CreateMeshFromOther(OgreMesh* other, DWORD AttribId, const Matrix
 		THROW_D3DEXCEPTION(hr);
 	}
 
-	CreateMesh(Max<DWORD>(face_capacity, other->GetNumFaces()), Max<DWORD>(vertex_capacity, other->GetNumVertices()), velist.data(), dwMeshOptions);
+	CreateMesh(Max<DWORD>(reserveFaces, other->GetNumFaces()), Max<DWORD>(reserveVertices, other->GetNumVertices()), velist.data(), dwMeshOptions);
 
 	AppendMesh(other, AttribId, trans, uv_trans);
 }
@@ -1647,7 +1653,7 @@ void OgreMesh::AppendProgressiveMesh(ProgressiveMesh* pmesh)
 	_ASSERT(GetNumBytesPerVertex() == pmesh->m_Mesh->GetNumBytesPerVertex());
 
 	DWORD FaceStart = 0;
-	for (int i = 0; i < pmesh->m_NumAttribs; i++)
+	for (int i = 0; i < m_AttribTable.size(); i++)
 	{
 		const D3DXATTRIBUTERANGE & rang = m_AttribTable[i];
 		if (rang.FaceStart + rang.FaceCount > FaceStart)
@@ -1657,13 +1663,19 @@ void OgreMesh::AppendProgressiveMesh(ProgressiveMesh* pmesh)
 	}
 
 	DWORD NumFaces = pmesh->GetNumFaces();
+	if (FaceStart + NumFaces > GetNumFaces())
+	{
+		THROW_CUSEXCEPTION(str_printf("OgreMesh::AppendProgressiveMesh: face(%u + %u) overflow", FaceStart, NumFaces));
+	}
 
 	VOID* pIndices = LockIndexBuffer();
 	DWORD* pAttrBuffer = LockAttributeBuffer();
-	int face_i = FaceStart;
-	for (int i = 0; i < pmesh->m_NumAttribs; i++, FaceStart = face_i)
+	int face_i = FaceStart, face_start = FaceStart;
+	for (int i = 0; i < pmesh->m_NumAttribs; i++, face_start = face_i)
 	{
 		D3DXATTRIBUTERANGE rang = m_AttribTable[i];
+		rang.AttribId = m_AttribTable.size();
+
 		std::vector<ProgressiveMesh::PMTriangle>::iterator tri_iter = pmesh->m_Tris.begin();
 		for (; tri_iter != pmesh->m_Tris.end(); tri_iter++)
 		{
@@ -1683,11 +1695,11 @@ void OgreMesh::AppendProgressiveMesh(ProgressiveMesh* pmesh)
 					idx[face_i * 3 + 1] = tri_iter->vi[1];
 					idx[face_i * 3 + 2] = tri_iter->vi[2];
 				}
-				pAttrBuffer[face_i++] = i;
+				pAttrBuffer[face_i++] = rang.AttribId;
 			}
 		}
-		rang.FaceStart = FaceStart;
-		rang.FaceCount = face_i - FaceStart;
+		rang.FaceStart = face_start;
+		rang.FaceCount = face_i - face_start;
 		m_AttribTable.push_back(rang);
 	}
 	_ASSERT(face_i - FaceStart == NumFaces);

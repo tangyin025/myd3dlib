@@ -1961,7 +1961,7 @@ void CMainFrame::OnComponentCloth()
 	{
 		doc.parse<0>((char*)&(*cache)[0]);
 
-		mesh->CreateMeshFromOgreXml(&doc, true, D3DXMESH_MANAGED);
+		mesh->CreateMeshFromOgreXml(&doc, true, D3DXMESH_MANAGED, 0, 0);
 	}
 	catch (rapidxml::parse_error& e)
 	{

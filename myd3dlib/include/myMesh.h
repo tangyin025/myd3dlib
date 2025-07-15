@@ -415,18 +415,24 @@ namespace my
 		void CreateMeshFromOgreXmlInFile(
 			LPCTSTR pFilename,
 			bool bComputeTangentFrame = true,
-			DWORD dwMeshOptions = D3DXMESH_MANAGED);
+			DWORD dwMeshOptions = D3DXMESH_MANAGED,
+			unsigned int reserveVertices = 0,
+			unsigned int reserveFaces = 0);
 
 		void CreateMeshFromOgreXmlInMemory(
 			LPSTR pSrcData,
 			UINT srcDataLen,
-			bool bComputeTangentFrame = true,
-			DWORD dwMeshOptions = D3DXMESH_MANAGED);
+			bool bComputeTangentFrame,
+			DWORD dwMeshOptions,
+			unsigned int reserveVertices,
+			unsigned int reserveFaces);
 
 		void CreateMeshFromOgreXml(
 			const rapidxml::xml_node<char> * node_root,
-			bool bComputeTangentFrame = true,
-			DWORD dwMeshOptions = D3DXMESH_MANAGED);
+			bool bComputeTangentFrame,
+			DWORD dwMeshOptions,
+			unsigned int reserveVertices,
+			unsigned int reserveFaces);
 
 		//void CreateMeshFromObjInFile(
 		//	LPCTSTR pFilename,
@@ -438,7 +444,7 @@ namespace my
 		//	bool bComputeTangentFrame = true,
 		//	DWORD dwMeshOptions = D3DXMESH_MANAGED);
 
-		void CreateMeshFromOther(OgreMesh* other, DWORD AttribId, const Matrix4& trans, const Matrix4& uv_trans, unsigned int vertex_capacity, unsigned int face_capacity);
+		void CreateMeshFromOther(OgreMesh* other, DWORD AttribId, const Matrix4& trans, const Matrix4& uv_trans, unsigned int reserveVertices, unsigned int reserveFaces);
 
 		void AppendMesh(OgreMesh* other, DWORD AttribId, const Matrix4& trans, const Matrix4& uv_trans);
 

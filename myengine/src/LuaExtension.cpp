@@ -2240,6 +2240,8 @@ void LuaContext::Init(void)
 			.def("CombineMesh", &my::OgreMesh::CombineMesh)
 			.def("AppendProgressiveMesh", &my::OgreMesh::AppendProgressiveMesh)
 			.def("SaveOgreMesh", &my::OgreMesh::SaveOgreMesh)
+			.def("SaveOgreMesh", luabind::tag_function<void(my::OgreMesh*, const char*)>(
+				boost::bind(&my::OgreMesh::SaveOgreMesh, boost::placeholders::_1, boost::placeholders::_2, true)))
 			.enum_("D3DXMESHOPT")
 			[
 				value("D3DXMESH_MANAGED", D3DXMESH_MANAGED),
