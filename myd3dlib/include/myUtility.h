@@ -298,6 +298,8 @@ namespace my
 	public:
 		OgreMesh* m_Mesh;
 
+		const DWORD m_NumAttribs;
+
 		struct PMTriangle
 		{
 			int vi[3];
@@ -319,7 +321,7 @@ namespace my
 		std::vector<PMVertex> m_Verts;
 
 	public:
-		ProgressiveMesh(OgreMesh* Mesh);
+		ProgressiveMesh(OgreMesh* Mesh, DWORD NumAttribs);
 
 		void UpdateNeighbors(std::vector<PMVertex>::iterator vert_iter);
 

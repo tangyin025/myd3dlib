@@ -287,6 +287,8 @@ namespace my
 
 		void GetAttributeTable(D3DXATTRIBUTERANGE * pAttribTable, DWORD * pAttribTableSize);
 
+		DWORD GetNumAttributes(void);
+
 		void GetDeclaration(D3DVERTEXELEMENT9 Declaration[MAX_FVF_DECL_SIZE]);
 
 		CComPtr<IDirect3DDevice9> GetDevice(void);

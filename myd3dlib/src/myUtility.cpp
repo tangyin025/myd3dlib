@@ -534,8 +534,9 @@ LRESULT FirstPersonCamera::MsgProc(
 	return 0;
 }
 
-ProgressiveMesh::ProgressiveMesh(OgreMesh* Mesh)
+ProgressiveMesh::ProgressiveMesh(OgreMesh* Mesh, DWORD NumAttribs)
 	: m_Mesh(Mesh)
+	, m_NumAttribs(Min(Mesh->GetNumAttributes(), NumAttribs))
 	, m_Verts(Mesh->GetNumVertices())
 {
 	VOID* pIndices = m_Mesh->LockIndexBuffer(D3DLOCK_READONLY);
@@ -549,7 +550,7 @@ ProgressiveMesh::ProgressiveMesh(OgreMesh* Mesh)
 	}
 	m_Mesh->UnlockIndexBuffer();
 
-	for (int i = 0; i < m_Mesh->m_AttribTable.size(); i++)
+	for (int i = 0; i < m_NumAttribs; i++)
 	{
 		const D3DXATTRIBUTERANGE& rang = m_Mesh->m_AttribTable[i];
 		for (int j = rang.FaceStart; j < rang.FaceStart + rang.FaceCount; j++)

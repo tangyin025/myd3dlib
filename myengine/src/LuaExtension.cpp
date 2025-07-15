@@ -141,11 +141,6 @@ static void cubetexture_load_cube_map_surface_from_file(my::CubeTexture* self, D
 	V(D3DXLoadSurfaceFromFile(surf, NULL, pDestRect, u8tots(u8_path).c_str(), pSourceRect, Filter, 0, NULL));
 }
 
-static int ogremesh_get_attribute_num(const my::OgreMesh* self)
-{
-	return (int)self->m_AttribTable.size();
-}
-
 static unsigned int ogreskeletonanimation_get_bone_num(my::OgreSkeletonAnimation* self)
 {
 	return (unsigned int)self->m_boneBindPose.size();
@@ -2085,7 +2080,7 @@ void LuaContext::Init(void)
 			.def_readwrite("LocalVel", &my::FirstPersonCamera::m_LocalVel)
 
 		, class_<my::ProgressiveMesh>("ProgressiveMesh")
-			.def(constructor<my::OgreMesh*>())
+			.def(constructor<my::OgreMesh*, DWORD>())
 			.def("Collapse", &my::ProgressiveMesh::Collapse)
 			.property("NumFaces", &my::ProgressiveMesh::GetNumFaces)
 
@@ -2235,6 +2230,7 @@ void LuaContext::Init(void)
 		, class_<my::Mesh, my::DeviceResourceBase, boost::shared_ptr<my::DeviceResourceBase> >("Mesh")
 			.property("NumFaces", &my::Mesh::GetNumFaces)
 			.property("NumVertices", &my::Mesh::GetNumVertices)
+			.property("NumAttributes", &my::Mesh::GetNumAttributes)
 
 		, class_<my::OgreMesh, my::Mesh, boost::shared_ptr<my::DeviceResourceBase> >("OgreMesh")
 			.def(constructor<>())
@@ -2265,7 +2261,6 @@ void LuaContext::Init(void)
 			.def("SimplifyMesh", &my::OgreMesh::SimplifyMesh)
 			.def("SaveObj", &my::OgreMesh::SaveObj)
 			.def("Transform", &my::OgreMesh::Transform)
-			.property("NumAttributes", &ogremesh_get_attribute_num)
 			.def("CalculateAABB", &my::OgreMesh::CalculateAABB)
 
 		, class_<my::BoneHierarchyNode>("BoneHierarchyNode")

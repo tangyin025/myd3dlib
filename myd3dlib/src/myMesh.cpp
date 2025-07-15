@@ -567,6 +567,13 @@ void Mesh::GetAttributeTable(D3DXATTRIBUTERANGE * pAttribTable, DWORD * pAttribT
 	V(m_ptr->GetAttributeTable(pAttribTable, pAttribTableSize));
 }
 
+DWORD Mesh::GetNumAttributes(void)
+{
+	DWORD AttribTableSize;
+	GetAttributeTable(NULL, &AttribTableSize);
+	return AttribTableSize;
+}
+
 void Mesh::GetDeclaration(D3DVERTEXELEMENT9 Declaration[MAX_FVF_DECL_SIZE])
 {
 	V(m_ptr->GetDeclaration(Declaration));
@@ -1637,13 +1644,10 @@ const D3DXATTRIBUTERANGE& OgreMesh::AppendToAttrib(const D3DXATTRIBUTERANGE& ran
 
 void OgreMesh::AppendProgressiveMesh(ProgressiveMesh* pmesh)
 {
-	_ASSERT(this != pmesh->m_Mesh
-		&& m_AttribTable.size() >= pmesh->m_Mesh->m_AttribTable.size()); // ! avoid m_AttribTable reentered
-
 	_ASSERT(GetNumBytesPerVertex() == pmesh->m_Mesh->GetNumBytesPerVertex());
 
 	DWORD FaceStart = 0;
-	for (int i = 0; i < pmesh->m_Mesh->m_AttribTable.size(); i++)
+	for (int i = 0; i < pmesh->m_NumAttribs; i++)
 	{
 		const D3DXATTRIBUTERANGE & rang = m_AttribTable[i];
 		if (rang.FaceStart + rang.FaceCount > FaceStart)
@@ -1657,7 +1661,7 @@ void OgreMesh::AppendProgressiveMesh(ProgressiveMesh* pmesh)
 	VOID* pIndices = LockIndexBuffer();
 	DWORD* pAttrBuffer = LockAttributeBuffer();
 	int face_i = FaceStart;
-	for (int i = 0; i < pmesh->m_Mesh->m_AttribTable.size(); i++, FaceStart = face_i)
+	for (int i = 0; i < pmesh->m_NumAttribs; i++, FaceStart = face_i)
 	{
 		D3DXATTRIBUTERANGE rang = m_AttribTable[i];
 		std::vector<ProgressiveMesh::PMTriangle>::iterator tri_iter = pmesh->m_Tris.begin();
