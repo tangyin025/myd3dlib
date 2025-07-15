@@ -5,6 +5,7 @@
 #include "myCollision.h"
 #include "myResource.h"
 #include "myDxutApp.h"
+#include "myUtility.h"
 #include "libc.h"
 #include "rapidxml.hpp"
 #include <fstream>
@@ -14,6 +15,7 @@
 #include <boost/fusion/tuple.hpp>
 #include <boost/fusion/include/hash.hpp>
 #include <boost/range/algorithm/find_if.hpp>
+#include <boost/multi_array.hpp>
 
 using namespace my;
 
@@ -1631,6 +1633,64 @@ const D3DXATTRIBUTERANGE& OgreMesh::AppendToAttrib(const D3DXATTRIBUTERANGE& ran
 	UnlockIndexBuffer();
 	UnlockAttributeBuffer();
 	return rang;
+}
+
+void OgreMesh::AppendProgressiveMesh(ProgressiveMesh* pmesh)
+{
+	_ASSERT(this != pmesh->m_Mesh
+		&& m_AttribTable.size() >= pmesh->m_Mesh->m_AttribTable.size()); // ! avoid m_AttribTable reentered
+
+	_ASSERT(GetNumBytesPerVertex() == pmesh->m_Mesh->GetNumBytesPerVertex());
+
+	DWORD FaceStart = 0;
+	for (int i = 0; i < pmesh->m_Mesh->m_AttribTable.size(); i++)
+	{
+		const D3DXATTRIBUTERANGE & rang = m_AttribTable[i];
+		if (rang.FaceStart + rang.FaceCount > FaceStart)
+		{
+			FaceStart = rang.FaceStart + rang.FaceCount;
+		}
+	}
+
+	DWORD NumFaces = pmesh->GetNumFaces();
+
+	VOID* pIndices = LockIndexBuffer();
+	DWORD* pAttrBuffer = LockAttributeBuffer();
+	int face_i = FaceStart;
+	for (int i = 0; i < pmesh->m_Mesh->m_AttribTable.size(); i++, FaceStart = face_i)
+	{
+		D3DXATTRIBUTERANGE rang = m_AttribTable[i];
+		std::vector<ProgressiveMesh::PMTriangle>::iterator tri_iter = pmesh->m_Tris.begin();
+		for (; tri_iter != pmesh->m_Tris.end(); tri_iter++)
+		{
+			if (tri_iter->AttribId == i)
+			{
+				if (GetOptions() & D3DXMESH_32BIT)
+				{
+					boost::multi_array_ref<DWORD, 1> idx((DWORD*)pIndices, boost::extents[(FaceStart + NumFaces) * 3]);
+					idx[face_i * 3 + 0] = tri_iter->vi[0];
+					idx[face_i * 3 + 1] = tri_iter->vi[1];
+					idx[face_i * 3 + 2] = tri_iter->vi[2];
+				}
+				else
+				{
+					boost::multi_array_ref<WORD, 1> idx((WORD*)pIndices, boost::extents[(FaceStart + NumFaces) * 3]);
+					idx[face_i * 3 + 0] = tri_iter->vi[0];
+					idx[face_i * 3 + 1] = tri_iter->vi[1];
+					idx[face_i * 3 + 2] = tri_iter->vi[2];
+				}
+				pAttrBuffer[face_i++] = i;
+			}
+		}
+		rang.FaceStart = FaceStart;
+		rang.FaceCount = face_i - FaceStart;
+		m_AttribTable.push_back(rang);
+	}
+	_ASSERT(face_i - FaceStart == NumFaces);
+	UnlockIndexBuffer();
+	UnlockAttributeBuffer();
+
+	SetAttributeTable(&m_AttribTable[0], m_AttribTable.size());
 }
 
 void OgreMesh::SaveOgreMesh(const char * path, bool useSharedGeom)

@@ -327,6 +327,6 @@ namespace my
 
 		void Collapse(int numCollapses);
 
-		boost::shared_ptr<OgreMesh> BuildMesh(void);
+		DWORD GetNumFaces(void);
 	};
 }

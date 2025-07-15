@@ -388,6 +388,8 @@ namespace my
 
 	typedef boost::shared_ptr<Mesh> MeshPtr;
 
+	class ProgressiveMesh;
+
 	class OgreMesh : public Mesh
 	{
 	public:
@@ -441,6 +443,8 @@ namespace my
 		void CombineMesh(OgreMesh* other, DWORD AttribId, const Matrix4& trans, const Matrix4& uv_trans);
 
 		const D3DXATTRIBUTERANGE& AppendToAttrib(const D3DXATTRIBUTERANGE& rang, OgreMesh* other, DWORD AttribId, const Matrix4& trans, const Matrix4& uv_trans);
+
+		void AppendProgressiveMesh(ProgressiveMesh* pmesh);
 
 		void SaveOgreMesh(const char * path, bool useSharedGeom);
 

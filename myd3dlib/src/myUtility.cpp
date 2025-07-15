@@ -7,7 +7,6 @@
 #include "myMesh.h"
 #include <boost/lambda/lambda.hpp>
 #include <boost/lambda/bind.hpp>
-#include <boost/multi_array.hpp>
 #include <boost/tuple/tuple_comparison.hpp>
 
 using namespace my;
@@ -746,69 +745,7 @@ void ProgressiveMesh::Collapse(int numCollapses)
 	}
 }
 
-boost::shared_ptr<OgreMesh> ProgressiveMesh::BuildMesh(void)
+DWORD ProgressiveMesh::GetNumFaces(void)
 {
-	DWORD NumFaces = std::count_if(m_Tris.begin(), m_Tris.end(), boost::lambda::bind(&PMTriangle::AttribId, boost::lambda::_1) >= 0);
-
-	OgreMeshPtr mesh(new OgreMesh());
-	mesh->m_VertexElems = m_Mesh->m_VertexElems;
-
-	HRESULT hr;
-	std::vector<D3DVERTEXELEMENT9> velist = mesh->m_VertexElems.BuildVertexElementList(0);
-	D3DVERTEXELEMENT9 ve_end = D3DDECL_END();
-	velist.push_back(ve_end);
-	if (FAILED(hr = my::D3DContext::getSingleton().m_d3dDevice->CreateVertexDeclaration(velist.data(), &mesh->m_Decl)))
-	{
-		THROW_D3DEXCEPTION(hr);
-	}
-
-	mesh->CreateMesh(NumFaces, m_Mesh->GetNumVertices(), velist.data(), m_Mesh->GetOptions());
-	DWORD VertexStride = mesh->GetNumBytesPerVertex();
-	_ASSERT(m_Mesh->GetNumBytesPerVertex() == VertexStride);
-	VOID* pVertices = mesh->LockVertexBuffer();
-	VOID* pOtherVertices = m_Mesh->LockVertexBuffer();
-	memcpy(pVertices, pOtherVertices, m_Mesh->GetNumVertices() * VertexStride);
-	mesh->UnlockVertexBuffer();
-	m_Mesh->UnlockVertexBuffer();
-
-	VOID* pIndices = mesh->LockIndexBuffer();
-	DWORD* pAttrBuffer = mesh->LockAttributeBuffer();
-	int face_start = 0, face_i = 0;
-	for (int i = 0; i < m_Mesh->m_AttribTable.size(); i++)
-	{
-		D3DXATTRIBUTERANGE rang = m_Mesh->m_AttribTable[i];
-		std::vector<PMTriangle>::iterator tri_iter = m_Tris.begin();
-		for (; tri_iter != m_Tris.end(); tri_iter++)
-		{
-			if (tri_iter->AttribId == i)
-			{
-				if (mesh->GetOptions() & D3DXMESH_32BIT)
-				{
-					boost::multi_array_ref<DWORD, 1> idx((DWORD*)pIndices, boost::extents[NumFaces * 3]);
-					idx[face_i * 3 + 0] = tri_iter->vi[0];
-					idx[face_i * 3 + 1] = tri_iter->vi[1];
-					idx[face_i * 3 + 2] = tri_iter->vi[2];
-				}
-				else
-				{
-					boost::multi_array_ref<WORD, 1> idx((WORD*)pIndices, boost::extents[NumFaces * 3]);
-					idx[face_i * 3 + 0] = tri_iter->vi[0];
-					idx[face_i * 3 + 1] = tri_iter->vi[1];
-					idx[face_i * 3 + 2] = tri_iter->vi[2];
-				}
-				pAttrBuffer[face_i++] = i;
-			}
-		}
-		rang.FaceStart = face_start;
-		rang.FaceCount = face_i - face_start;
-		mesh->m_AttribTable.push_back(rang);
-		face_start = face_i;
-	}
-	_ASSERT(face_i == NumFaces);
-	mesh->UnlockIndexBuffer();
-	mesh->UnlockAttributeBuffer();
-
-	mesh->SetAttributeTable(&mesh->m_AttribTable[0], mesh->m_AttribTable.size());
-
-	return mesh;
+	return std::count_if(m_Tris.begin(), m_Tris.end(), boost::lambda::bind(&PMTriangle::AttribId, boost::lambda::_1) >= 0);
 }
