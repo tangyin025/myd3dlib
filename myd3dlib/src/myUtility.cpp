@@ -592,6 +592,8 @@ ProgressiveMesh::ProgressiveMesh(OgreMesh* Mesh)
 	}
 	m_Mesh->UnlockVertexBuffer();
 
+	ppmap.clear(); // ! release plane.use_count
+
 	for (vert_iter = m_Verts.begin(); vert_iter != m_Verts.end(); vert_iter++)
 	{
 		UpdateNeighbors(vert_iter);
@@ -635,8 +637,9 @@ void ProgressiveMesh::UpdateCollapseCost(std::vector<PMVertex>::iterator vert_it
 	for (; nei_iter != vert_iter->neighbors.end(); nei_iter++)
 	{
 		PMVertex& neivert = m_Verts[nei_iter->first];
-		_ASSERT(neivert.collapsecost < FLT_MAX);
-		if (!vert_iter->isBorder || neivert.isBorder)
+		// https://github.com/OGRECave/ogre/blob/v1-8-1/OgreMain/src/OgreProgressiveMesh.cpp#L1083
+		// merged border only collapse to higher merged border
+		if (!vert_iter->isBorder || neivert.isBorder && vert_iter->planes.use_count() <= neivert.planes.use_count() && nei_iter->second <= 1)
 		{
 			const Vector3& pos = m_Mesh->m_VertexElems.GetPosition((unsigned char*)pVertices + nei_iter->first * m_Mesh->GetNumBytesPerVertex());
 			float cost = 0;
