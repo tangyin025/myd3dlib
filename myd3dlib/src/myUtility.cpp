@@ -596,16 +596,11 @@ ProgressiveMesh::ProgressiveMesh(OgreMesh* Mesh, DWORD NumAttribs)
 
 	for (vert_iter = m_Verts.begin(); vert_iter != m_Verts.end(); vert_iter++)
 	{
-		UpdateNeighbors(vert_iter);
-	}
-
-	for (vert_iter = m_Verts.begin(); vert_iter != m_Verts.end(); vert_iter++)
-	{
 		UpdateCollapseCost(vert_iter);
 	}
 }
 
-void ProgressiveMesh::UpdateNeighbors(std::vector<PMVertex>::iterator vert_iter)
+void ProgressiveMesh::UpdateCollapseCost(std::vector<PMVertex>::iterator vert_iter)
 {
 	vert_iter->neighbors.clear();
 	std::vector<int>::iterator tri_iter = vert_iter->tris.begin();
@@ -624,12 +619,9 @@ void ProgressiveMesh::UpdateNeighbors(std::vector<PMVertex>::iterator vert_iter)
 			}
 		}
 	}
+
 	vert_iter->isBorder = vert_iter->neighbors.end() != std::find_if(vert_iter->neighbors.begin(),
 		vert_iter->neighbors.end(), boost::lambda::bind(&std::map<int, int>::value_type::second, boost::lambda::_1) <= 1);
-}
-
-void ProgressiveMesh::UpdateCollapseCost(std::vector<PMVertex>::iterator vert_iter)
-{
 	vert_iter->collapsecost = FLT_MAX;
 	vert_iter->collapseto = -1;
 	VOID* pVertices = m_Mesh->LockVertexBuffer();
@@ -639,7 +631,7 @@ void ProgressiveMesh::UpdateCollapseCost(std::vector<PMVertex>::iterator vert_it
 		PMVertex& neivert = m_Verts[nei_iter->first];
 		// https://github.com/OGRECave/ogre/blob/v1-8-1/OgreMain/src/OgreProgressiveMesh.cpp#L1083
 		// merged border only collapse to higher merged border
-		if (!vert_iter->isBorder || neivert.isBorder && vert_iter->planes.use_count() <= neivert.planes.use_count() && nei_iter->second <= 1)
+		if (!vert_iter->isBorder || nei_iter->second <= 1 && vert_iter->planes.use_count() <= neivert.planes.use_count())
 		{
 			const Vector3& pos = m_Mesh->m_VertexElems.GetPosition((unsigned char*)pVertices + nei_iter->first * m_Mesh->GetNumBytesPerVertex());
 			float cost = 0;
@@ -733,12 +725,6 @@ void ProgressiveMesh::Collapse(int numCollapses)
 
 		std::map<int, int>::iterator nei_iter = collapsevert.neighbors.begin();
 		for (; nei_iter != collapsevert.neighbors.end(); nei_iter++)
-		{
-			std::vector<PMVertex>::iterator nei_vert_iter = m_Verts.begin() + nei_iter->first;
-			UpdateNeighbors(nei_vert_iter);
-		}
-
-		for (nei_iter = collapsevert.neighbors.begin(); nei_iter != collapsevert.neighbors.end(); nei_iter++)
 		{
 			std::vector<PMVertex>::iterator nei_vert_iter = m_Verts.begin() + nei_iter->first;
 			UpdateCollapseCost(nei_vert_iter);
