@@ -171,7 +171,7 @@ void MaterialParameterTexture::ReleaseResource(void)
 void MaterialParameterTexture::Set(my::Effect * shader, LPARAM lparam, RenderPipeline::IRenderContext * pRC)
 {
 	_ASSERT(m_Handle);
-	shader->SetTexture(m_Handle, m_Texture.get());
+	shader->SetTexture(m_Handle, m_Texture ? m_Texture.get() : my::D3DContext::getSingleton().OnTextureFallback(m_TexturePath));
 }
 
 void MaterialParameterInvWorldView::Set(my::Effect * shader, LPARAM lparam, RenderPipeline::IRenderContext * pRC)

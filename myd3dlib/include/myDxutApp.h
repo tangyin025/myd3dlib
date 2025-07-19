@@ -64,6 +64,8 @@ namespace my
 
 	class Wav;
 
+	class BaseTexture;
+
 	class D3DContext
 		: public SingletonInstance<D3DContext>
 		, public Clock
@@ -150,6 +152,11 @@ namespace my
 
 		virtual void OnNamedObjectDestroy(NamedObject* obj)
 		{
+		}
+
+		virtual BaseTexture* OnTextureFallback(const std::string& path)
+		{
+			return NULL;
 		}
 
 		virtual void OnControlSound(boost::shared_ptr<Wav> wav)
