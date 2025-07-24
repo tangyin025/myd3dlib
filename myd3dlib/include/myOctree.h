@@ -40,7 +40,7 @@ namespace my
 			virtual bool OnQueryEntity(my::OctEntity * oct_entity, const my::AABB & aabb, my::IntersectionTests::IntersectionType) = 0;
 		};
 
-		OctNode * m_Parent;
+		OctNode * const m_Parent;
 
 		Vector3 m_Half;
 
@@ -57,15 +57,6 @@ namespace my
 #endif
 
 	public:
-		OctNode(void)
-			: m_Parent(NULL)
-			, m_Half(0, 0, 0)
-#ifdef _DEBUG
-			, m_QueryEntityMuted(false)
-#endif
-		{
-		}
-
 		OctNode(OctNode * Parent, float minv, float maxv)
 			: AABB(minv, maxv)
 			, m_Parent(Parent)
@@ -141,6 +132,7 @@ namespace my
 	{
 	protected:
 		OctRoot(void)
+			: OctNode(NULL, FLT_MAX, -FLT_MAX)
 		{
 		}
 
