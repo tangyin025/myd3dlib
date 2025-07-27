@@ -162,11 +162,11 @@ class Actor
 	, public boost::intrusive::list_base_hook<boost::intrusive::tag<ViewedActorTag> >
 {
 public:
-	static const float MinBlock;
-
-	static const float Threshold;
-
 	static const int MaxLod;
+
+	static float MinBlock;
+
+	static float Threshold;
 
 	my::AABB m_aabb;
 

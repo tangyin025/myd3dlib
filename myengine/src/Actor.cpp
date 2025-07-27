@@ -33,11 +33,11 @@ ActorSerializationContext::ActorSerializationContext(void)
 {
 }
 
-const float Actor::MinBlock = 1.0f;
-
-const float Actor::Threshold = 0.1f;
-
 const int Actor::MaxLod = 3;
+
+float Actor::MinBlock = 1.0f;
+
+float Actor::Threshold = 0.1f;
 
 Actor::~Actor(void)
 {
