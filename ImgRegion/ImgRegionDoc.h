@@ -333,10 +333,6 @@ public:
 
 	CString m_strLuaPath;
 
-	typedef boost::unordered_map<std::basic_string<TCHAR>, CString> Dictionary;
-
-	Dictionary m_Dict;
-
 public:
 	DECLARE_DYNCREATE(CImgRegionDoc)
 
@@ -412,6 +408,4 @@ public:
 	afx_msg void OnUpdateEditRedo(CCmdUI *pCmdUI);
 
 	afx_msg void OnExportLua();
-
-	afx_msg void OnImportDictionary();
 };

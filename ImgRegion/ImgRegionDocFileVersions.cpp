@@ -10,7 +10,7 @@ static void CImgRegionDocFileVersions_Loading355(CImgRegionDoc * pDoc, CArchive 
 {
 	if(version < 355)
 	{
-		AfxMessageBox(str_printf(_T("��֧�ֵİ汾: %d"), version).c_str());
+		AfxMessageBox(str_printf(_T("不再支持的版本：%d"), version).c_str());
 		AfxThrowUserException();
 	}
 
@@ -36,16 +36,6 @@ static void CImgRegionDocFileVersions_Loading498(CImgRegionDoc * pDoc, CArchive 
 	ar >> pDoc->m_strProjectDir;
 	ar >> pDoc->m_strLuaPath;
 
-	pDoc->m_Dict.clear();
-	size_t dict_count;
-	ar >> dict_count;
-	for (size_t i = 0; i < dict_count; i++)
-	{
-		CString key, value;
-		ar >> key >> value;
-		pDoc->m_Dict.insert(CImgRegionDoc::Dictionary::value_type((LPCTSTR)key, value));
-	}
-
 	pDoc->SerializeSubTreeNode(ar, version);
 }
 
@@ -63,14 +53,6 @@ void CImgRegionDocFileVersions::Serialize(CImgRegionDoc * pDoc, CArchive & ar, i
 	ar << pDoc->m_strProjectDir;
 	ar << pDoc->m_strLuaPath;
 
-	ar << pDoc->m_Dict.size();
-	CImgRegionDoc::Dictionary::iterator dict_iter = pDoc->m_Dict.begin();
-	for (; dict_iter != pDoc->m_Dict.end(); dict_iter++)
-	{
-		ar << CString(dict_iter->first.c_str());
-		ar << dict_iter->second;
-	}
-
 	pDoc->SerializeSubTreeNode(ar, CImgRegionDocFileVersions::FILE_VERSION);
 }
 
@@ -78,7 +60,7 @@ static void CImgRegionDocFileVersions_LoadingSubTreeNode355(CImgRegionDoc * pDoc
 {
 	if(version < 355)
 	{
-		AfxMessageBox(str_printf(_T("��֧�ֵİ汾: %d"), version).c_str());
+		AfxMessageBox(str_printf(_T("不再支持的版本：%d"), version).c_str());
 		AfxThrowUserException();
 	}
 
@@ -136,7 +118,7 @@ static void CImgRegionDocFileVersions_LoadingImgRegion355(CImgRegion * pReg, CAr
 {
 	if(version < 355)
 	{
-		AfxMessageBox(str_printf(_T("��֧�ֵİ汾: %d"), version).c_str());
+		AfxMessageBox(str_printf(_T("不再支持的版本：%d"), version).c_str());
 		AfxThrowUserException();
 	}
 

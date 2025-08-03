@@ -285,15 +285,7 @@ void CImgRegion::Draw(Gdiplus::Graphics & grap)
 		ASSERT(pDoc);
 
 		CString strInfo;
-		CImgRegionDoc::Dictionary::iterator dict_iter = pDoc->m_Dict.find((LPCTSTR)m_Text);
-		if (dict_iter != pDoc->m_Dict.end())
-		{
-			strInfo = dict_iter->second;
-		}
-		else
-		{
-			strInfo.Format(m_Text, m_Rect.X, m_Rect.Y, m_Rect.Width, m_Rect.Height);
-		}
+		strInfo.Format(m_Text, m_Rect.X, m_Rect.Y, m_Rect.Width, m_Rect.Height);
 		Gdiplus::SolidBrush brush(m_FontColor);
 		grap.DrawString(strInfo, strInfo.GetLength(), m_Font.get(), rectF, &format, &brush);
 
@@ -569,7 +561,6 @@ BEGIN_MESSAGE_MAP(CImgRegionDoc, CDocument)
 	ON_COMMAND(ID_EDIT_REDO, &CImgRegionDoc::OnEditRedo)
 	ON_UPDATE_COMMAND_UI(ID_EDIT_REDO, &CImgRegionDoc::OnUpdateEditRedo)
 	ON_COMMAND(ID_EXPORT_LUA, &CImgRegionDoc::OnExportLua)
-	ON_COMMAND(ID_IMPORT_DICTIONARY, &CImgRegionDoc::OnImportDictionary)
 END_MESSAGE_MAP()
 
 CImgRegionDoc::CImgRegionDoc(void)
@@ -1158,42 +1149,4 @@ void CImgRegionDoc::OnExportLua()
 
 		SetModifiedFlag();
 	}
-}
-
-void CImgRegionDoc::OnImportDictionary()
-{
-	// TODO: Add your command handler code here
-	CFileDialog dlg(TRUE, NULL, NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, 0);
-	if (dlg.DoModal() != IDOK)
-	{
-		return;
-	}
-
-	std::ifstream ifs(dlg.GetPathName());
-	std::istreambuf_iterator<char> ifs_start(ifs);
-	std::istreambuf_iterator<char> ifs_end;
-	std::string buff(ifs_start, ifs_end);
-	boost::regex table_decl("\\w+={");
-	boost::match_results<std::string::iterator> what;
-	if (!boost::regex_search(buff.begin(), buff.end(), what, table_decl, boost::match_default))
-	{
-		return;
-	}
-
-	m_Dict.clear();
-	std::string::iterator start = what[0].second;
-	boost::regex vari_decl("(\\w+)=\\\"([^\"]+)\\\"");
-	while (boost::regex_search(start, buff.end(), what, vari_decl, boost::match_default))
-	{
-		std::string key(what[1].first, what[1].second);
-		std::string value(what[2].first, what[2].second);
-		m_Dict.insert(Dictionary::value_type(u8tots(key.c_str()), u8tots(value.c_str()).c_str()));
-		start = what[0].second;
-	}
-
-	SetModifiedFlag();
-
-	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
-	ASSERT(pFrame);
-	pFrame->MessageBox(str_printf(_T("成功导入词汇 %u"), m_Dict.size()).c_str());
 }
