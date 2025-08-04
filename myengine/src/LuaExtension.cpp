@@ -2231,6 +2231,7 @@ void LuaContext::Init(void)
 			.property("NumFaces", &my::Mesh::GetNumFaces)
 			.property("NumVertices", &my::Mesh::GetNumVertices)
 			.property("NumAttributes", &my::Mesh::GetNumAttributes)
+			.def("GetAttributeIdFromInternalFaceIndex", &my::Mesh::GetAttributeIdFromInternalFaceIndex)
 
 		, class_<my::OgreMesh, my::Mesh, boost::shared_ptr<my::DeviceResourceBase> >("OgreMesh")
 			.def(constructor<>())

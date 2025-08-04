@@ -701,6 +701,14 @@ void Mesh::UnlockAttributeBuffer(void)
 	V(m_ptr->UnlockAttributeBuffer());
 }
 
+DWORD Mesh::GetAttributeIdFromInternalFaceIndex(unsigned int face_i)
+{
+	boost::multi_array_ref<DWORD, 1> attribids(LockAttributeBuffer(D3DLOCK_READONLY), boost::extents[GetNumFaces()]);
+	unsigned int ret = attribids[face_i];
+	UnlockAttributeBuffer();
+	return ret;
+}
+
 void Mesh::ComputeDualQuaternionSkinnedVertices(
 	void * pDstVertices,
 	DWORD NumVerts,

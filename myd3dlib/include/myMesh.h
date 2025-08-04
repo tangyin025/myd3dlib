@@ -336,6 +336,8 @@ namespace my
 
 		void UnlockAttributeBuffer(void);
 
+		DWORD GetAttributeIdFromInternalFaceIndex(unsigned int face_i);
+
 		static void ComputeDualQuaternionSkinnedVertices(
 			void * pDstVertices,
 			DWORD NumVerts,
