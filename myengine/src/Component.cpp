@@ -863,7 +863,7 @@ void MeshComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline * 
 					{
 						macros[j++].Name = "INSTANCE";
 					}
-					if (animator && !animator->m_DualQuats.empty())
+					else if (animator && !animator->m_DualQuats.empty())
 					{
 						macros[j++].Name = "SKELETON";
 					}

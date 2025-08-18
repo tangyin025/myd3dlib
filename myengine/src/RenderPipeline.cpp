@@ -1445,10 +1445,10 @@ void RenderPipeline::PushMeshBatch(unsigned int PassID, my::OgreMesh * mesh, DWO
 	}
 	else
 	{
-		//_ASSERT(res.first->second.shader == shader);
-		//_ASSERT(boost::hash_value(*res.first->second.mtl) == boost::hash_value(*mtl));
-		//_ASSERT(res.first->second.lparam == lparam);
-		//_ASSERT(res.first->second.cmps.front()->m_Actor->m_World == mesh_cmp->m_Actor->m_World);
+		_ASSERT(res.first->second.shader == shader);
+		_ASSERT(boost::hash_value(*res.first->second.mtl) == boost::hash_value(*mtl));
+		_ASSERT(res.first->second.lparam == lparam);
+		//_ASSERT(res.first->second.cmps.front().get<0>()->m_Actor->m_World == cmp->m_Actor->m_World);
 		res.first->second.cmps.push_back(boost::make_tuple(cmp, AttribId));
 	}
 }
