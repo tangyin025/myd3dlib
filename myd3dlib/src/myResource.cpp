@@ -1055,6 +1055,10 @@ void TextureIORequest::LoadResource(void)
 				fmt = D3DFMT_A16B16G16R16F;
 				break;
 
+			case 116:
+				fmt = D3DFMT_A32B32G32R32F;
+				break;
+
 			case 0:
 				if (ddsd.ddpfPixelFormat_.dwRGBBitCount_ == 32)
 				{
@@ -1144,6 +1148,13 @@ void TextureIORequest::LoadResource(void)
 						unsigned blocksWide = Max(ddsd.dwWidth_ >> level, 1U);
 						unsigned blocksHeight = Max(ddsd.dwHeight_ >> level, 1U);
 						dataSize = (64 / 8) * blocksWide * blocksHeight * Max(ddsd.dwDepth_ >> level, 1U);
+						ifs->read(lrc.pBits, dataSize);
+					}
+					else if (fmt == D3DFMT_A32B32G32R32F)
+					{
+						unsigned blocksWide = Max(ddsd.dwWidth_ >> level, 1U);
+						unsigned blocksHeight = Max(ddsd.dwHeight_ >> level, 1U);
+						dataSize = (128 / 8) * blocksWide * blocksHeight * Max(ddsd.dwDepth_ >> level, 1U);
 						ifs->read(lrc.pBits, dataSize);
 					}
 					else if (fmt == D3DFMT_A8R8G8B8 || fmt == D3DFMT_L8)
