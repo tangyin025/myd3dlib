@@ -26,6 +26,10 @@
 // oC#			Output Color Register		See Multiple-element Textures (Direct3D 9)
 // oDepth		Output Depth Register		1
 
+#define PI 3.1415926535
+#define TWO_PI 6.283185307
+#define CASCADE_LAYER_NUM 3
+
 shared float g_Time;
 shared float2 g_ScreenDim;
 shared float g_ShadowMapSize;
@@ -36,7 +40,6 @@ shared float3 g_Eye;
 shared float4x4 g_View;
 shared float4x4 g_ViewProj;
 shared float3 g_SkyLightDir;
-#define CASCADE_LAYER_NUM 3
 shared float4x4 g_SkyLightViewProj[CASCADE_LAYER_NUM];
 shared float4 g_SkyLightColor;
 shared float4 g_AmbientColor;
@@ -269,4 +272,12 @@ float ScreenDoorTransparency(float Alpha, float2 SPos)
 float SplineInterpolate(float t)
 {
 	return t + t * (1 - t) * ((t - 1) + t);
+}
+
+float2 SphericalMappingRH(float3 dir)
+{
+	// ! ​​UV跳变引发Mipmap降级、低层级纹理边缘混合、产生边界裂缝
+    float u = 0.5 + atan2(dir.x, -dir.z) / (2.0 * PI); // 经度 → U
+    float v = 0.5 - asin(dir.y) / PI;  
+	return float2(u, v);
 }
