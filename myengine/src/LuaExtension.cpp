@@ -3218,6 +3218,7 @@ void LuaContext::Init(void)
 			.def("SetParameter", &Material::SetParameter<my::Vector4>)
 			.def("SetParameter", &Material::SetParameter<std::string>)
 
+		// ! used by Material::GetParameter
 		, class_<MaterialParameter>("MaterialParameter")
 			.def_readonly("Owner", &MaterialParameter::m_Owner)
 			.def_readonly("Name", &MaterialParameter::m_Name)
