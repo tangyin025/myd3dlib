@@ -4,6 +4,8 @@ texture g_NormalTexture : MaterialParameter < string path = "texture/WaterNormal
 > ;
 texture g_ReflectTexture : MaterialParameter < string path = "texture/galileo_cross.dds";
 > ;
+float scroll : MaterialParameter = 0.01;
+float scale : MaterialParameter = 2.0;
 float fresnelBias : MaterialParameter = -0.1;
 float fresnelScale : MaterialParameter = 1.8;
 float fresnelPower : MaterialParameter = 8;
@@ -44,9 +46,9 @@ TRANSPARENT_VS_OUTPUT TransparentVS(VS_INPUT In)
     float4 PosWS = TransformPosWS(In);
     Output.Pos = mul(PosWS, g_ViewProj);
     float2 Tex0 = TransformUV(In);
-    Output.texCoord0 = Tex0 + g_Time * 0.05;
-    Output.texCoord1 = Tex0 * 2.0 + g_Time * -0.05;
-    Output.texCoord2 = Tex0 / 2.0 + g_Time * 0.05;
+    Output.texCoord0 = (Tex0 + g_Time * scroll) * scale;
+    Output.texCoord1 = (Tex0 * 2.0 - g_Time * scroll) * scale;
+    Output.texCoord2 = (Tex0 / 2.0 + g_Time * scroll) * scale;
     Output.ViewWS = PosWS.xyz - g_Eye;
 	float3 ViewVS = mul(Output.ViewWS, (float3x3)g_View); // ! dont normalize here
 	Output.fogFactor = GetFogFactor(length(ViewVS));
