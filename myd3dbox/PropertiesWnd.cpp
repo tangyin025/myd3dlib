@@ -87,6 +87,16 @@ static const LPCTSTR g_BlendModeDesc[] =
 	_T("Additive")
 };
 
+static const LPCTSTR g_VirtualParticleLevel[] =
+{
+	_T("None"),
+	_T("1: e0, t1, q1"),
+	_T("2: e1, t0, q0"),
+	_T("3: e1, t1, q1"),
+	_T("4: e0, t3, q4"),
+	_T("5: e1, t3, q4")
+};
+
 static const boost::regex g_rcolor("color|colour", boost::regex::icase);
 
 static const CPropertiesWnd::PassMaskDesc g_LodMaskDesc[] =
@@ -1752,7 +1762,7 @@ void CPropertiesWnd::CreatePropertiesCloth(CMFCPropertyGridProperty * pComponent
 	CComboProp* pVirtualParticleLevel = new CComboProp(_T("VirtualParticleLevel"), _T(""), NULL, PropertyClothVirtualParticleLevel);
 	for (unsigned int i = 0; i < 6; i++)
 	{
-		pVirtualParticleLevel->AddOption(boost::lexical_cast<std::basic_string<TCHAR> >(i).c_str(), TRUE);
+		pVirtualParticleLevel->AddOption(g_VirtualParticleLevel[i], TRUE);
 	}
 	pComponent->AddSubItem(pVirtualParticleLevel);
 	pProp = new CSimpleProp(_T("VirtualParticleNum"), (_variant_t)cloth_cmp->m_Cloth->getNbVirtualParticles(), NULL, PropertyClothVirtualParticleNum);
