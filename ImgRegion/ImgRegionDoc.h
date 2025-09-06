@@ -95,8 +95,6 @@ public:
 	virtual void UpdateProperties(CPropertiesWnd * pPropertiesWnd, LPCTSTR szName);
 
 	virtual void Draw(Gdiplus::Graphics & grap);
-
-	virtual void Serialize(CArchive& archive, int version);
 };
 
 typedef boost::shared_ptr<CImgRegion> CImgRegionPtr;
@@ -372,8 +370,6 @@ public:
 	void DeleteTreeItem(HTREEITEM hItem);
 
 	HTREEITEM MoveTreeItem(HTREEITEM hParent, HTREEITEM hInsertAfter, HTREEITEM hOtherItem);
-
-	void SerializeSubTreeNode(CArchive & ar, int version, HTREEITEM hParent = TVI_ROOT, BOOL bOverideName = FALSE);
 
 	void UpdateImageSizeTable(const CSize & sizeRoot);
 

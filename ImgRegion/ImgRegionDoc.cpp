@@ -303,11 +303,6 @@ void CImgRegion::Draw(Gdiplus::Graphics & grap)
 	}
 }
 
-void CImgRegion::Serialize(CArchive& ar, int version)
-{
-	CImgRegionDocFileVersions::SerializeImgRegion(this, ar, version);
-}
-
 void HistoryChangeItemLocation::Do(void)
 {
 	ASSERT(m_pDoc->m_ItemMap.find(m_itemID) != m_pDoc->m_ItemMap.end());
@@ -418,8 +413,8 @@ void HistoryAddRegion::Do(void)
 		ASSERT(m_NodeCache.GetLength() > 0);
 		m_NodeCache.SeekToBegin();
 		CArchive ar(&m_NodeCache, CArchive::load);
-		pReg->Serialize(ar, CImgRegionDocFileVersions::FILE_VERSION);
-		m_pDoc->SerializeSubTreeNode(ar, CImgRegionDocFileVersions::FILE_VERSION, hItem, TRUE);
+		CImgRegionDocFileVersions::SerializeImgRegion(pReg.get(), ar, CImgRegionDocFileVersions::FILE_VERSION);
+		CImgRegionDocFileVersions::SerializeSubTreeNode(m_pDoc, ar, CImgRegionDocFileVersions::FILE_VERSION, hItem, TRUE);
 		ar.Close();
 	}
 	m_pDoc->m_NextRegId = max(oldRegId, m_pDoc->m_NextRegId);
@@ -457,8 +452,8 @@ void HistoryDelRegion::Do(void)
 
 	m_NodeCache.SetLength(0);
 	CArchive ar(&m_NodeCache, CArchive::store);
-	pReg->Serialize(ar, CImgRegionDocFileVersions::FILE_VERSION);
-	m_pDoc->SerializeSubTreeNode(ar, CImgRegionDocFileVersions::FILE_VERSION, hItem);
+	CImgRegionDocFileVersions::SerializeImgRegion(pReg.get(), ar, CImgRegionDocFileVersions::FILE_VERSION);
+	CImgRegionDocFileVersions::SerializeSubTreeNode(m_pDoc, ar, CImgRegionDocFileVersions::FILE_VERSION, hItem, FALSE);
 	ar.Close();
 
 	HTREEITEM hParent = m_pDoc->m_TreeCtrl.GetParentItem(hItem);
@@ -481,8 +476,8 @@ void HistoryDelRegion::Undo(void)
 	ASSERT(m_NodeCache.GetLength() > 0);
 	m_NodeCache.SeekToBegin();
 	CArchive ar(&m_NodeCache, CArchive::load);
-	pReg->Serialize(ar, CImgRegionDocFileVersions::FILE_VERSION);
-	m_pDoc->SerializeSubTreeNode(ar, CImgRegionDocFileVersions::FILE_VERSION, hItem);
+	CImgRegionDocFileVersions::SerializeImgRegion(pReg.get(), ar, CImgRegionDocFileVersions::FILE_VERSION);
+	CImgRegionDocFileVersions::SerializeLoadSubTreeNode(m_pDoc, ar, CImgRegionDocFileVersions::FILE_VERSION, hItem, FALSE);
 	ar.Close();
 
 	if(pReg->m_Locked)
@@ -834,11 +829,6 @@ HTREEITEM CImgRegionDoc::MoveTreeItem(HTREEITEM hParent, HTREEITEM hInsertAfter,
 	return hItem;
 }
 
-void CImgRegionDoc::SerializeSubTreeNode(CArchive & ar, int version, HTREEITEM hParent, BOOL bOverideName)
-{
-	CImgRegionDocFileVersions::SerializeSubTreeNode(this, ar, version, hParent, bOverideName);
-}
-
 void CImgRegionDoc::UpdateImageSizeTable(const CSize & sizeRoot)
 {
 	POSITION pos = GetFirstViewPosition();
@@ -877,7 +867,7 @@ void CImgRegionDoc::OnAddRegion()
 	reg.m_Font = theApp.GetFont(_T("Î¢ÈíÑÅºÚ"), 16);
 	reg.m_FontColor = Gdiplus::Color(255,my::Random<int>(0,255),my::Random<int>(0,255),my::Random<int>(0,255));
 	CArchive ar(&hist->m_NodeCache, CArchive::store);
-	reg.Serialize(ar, CImgRegionDocFileVersions::FILE_VERSION);
+	CImgRegionDocFileVersions::SerializeImgRegion(&reg, ar, CImgRegionDocFileVersions::FILE_VERSION);
 	ar << 0;
 	ar.Close();
 
@@ -1031,8 +1021,8 @@ void CImgRegionDoc::OnEditCopy()
 
 		theApp.m_ClipboardFile.SetLength(0);
 		CArchive ar(&theApp.m_ClipboardFile, CArchive::store);
-		pReg->Serialize(ar, CImgRegionDocFileVersions::FILE_VERSION);
-		SerializeSubTreeNode(ar, CImgRegionDocFileVersions::FILE_VERSION, hSelected);
+		CImgRegionDocFileVersions::SerializeImgRegion(pReg.get(), ar, CImgRegionDocFileVersions::FILE_VERSION);
+		CImgRegionDocFileVersions::SerializeSubTreeNode(this, ar, CImgRegionDocFileVersions::FILE_VERSION, hSelected, FALSE);
 		ar.Close();
 	}
 }

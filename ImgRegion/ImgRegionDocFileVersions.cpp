@@ -21,7 +21,7 @@ void CImgRegionDocFileVersions::SerializeLoad(CImgRegionDoc * pDoc, CArchive & a
 	ar >> pDoc->m_strProjectDir;
 	ar >> pDoc->m_strLuaPath;
 
-	pDoc->SerializeSubTreeNode(ar, version);
+	SerializeSubTreeNode(pDoc, ar, version, TVI_ROOT, FALSE);
 }
 
 void CImgRegionDocFileVersions::Serialize(CImgRegionDoc * pDoc, CArchive & ar, int version)
@@ -38,7 +38,7 @@ void CImgRegionDocFileVersions::Serialize(CImgRegionDoc * pDoc, CArchive & ar, i
 	ar << pDoc->m_strProjectDir;
 	ar << pDoc->m_strLuaPath;
 
-	pDoc->SerializeSubTreeNode(ar, CImgRegionDocFileVersions::FILE_VERSION);
+	SerializeSubTreeNode(pDoc, ar, CImgRegionDocFileVersions::FILE_VERSION, TVI_ROOT, FALSE);
 }
 
 void CImgRegionDocFileVersions::SerializeLoadSubTreeNode(CImgRegionDoc * pDoc, CArchive & ar, int version, HTREEITEM hParent, BOOL bOverideName)
@@ -67,7 +67,7 @@ void CImgRegionDocFileVersions::SerializeLoadSubTreeNode(CImgRegionDoc * pDoc, C
 		CImgRegionPtr pReg(new CImgRegion);
 		HTREEITEM hItem = pDoc->InsertItem(id, (LPCTSTR)szName, pReg, hParent, TVI_LAST);
 
-		pReg->Serialize(ar, version);
+		SerializeImgRegion(pReg.get(), ar, version);
 		SerializeLoadSubTreeNode(pDoc, ar, version, hItem, bOverideName);
 
 		if(pReg->m_Locked)
@@ -94,7 +94,7 @@ void CImgRegionDocFileVersions::SerializeSubTreeNode(CImgRegionDoc * pDoc, CArch
 
 		CImgRegionPtr pReg = pDoc->GetItemNode(hItem);
 		ASSERT(pReg);
-		pReg->Serialize(ar, version);
+		SerializeImgRegion(pReg.get(), ar, version);
 		SerializeSubTreeNode(pDoc, ar, version, hItem, bOverideName);
 	}
 }
