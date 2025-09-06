@@ -190,26 +190,26 @@ namespace boost {
 
 void CImgRegionDocFileVersions::SerializeLoad(CImgRegionDoc* pDoc, boost::archive::polymorphic_iarchive& ar)
 {
-	ar >> boost::serialization::make_nvp("m_NextRegId", pDoc->m_NextRegId);
-	ar >> boost::serialization::make_nvp("m_Size.cx", pDoc->m_Size.cx);
-	ar >> boost::serialization::make_nvp("m_Size.cy", pDoc->m_Size.cy);
+	ar >> boost::serialization::make_nvp("NextRegId", pDoc->m_NextRegId);
+	ar >> boost::serialization::make_nvp("Size.cx", pDoc->m_Size.cx);
+	ar >> boost::serialization::make_nvp("Size.cy", pDoc->m_Size.cy);
 	DWORD argb; ar >> BOOST_SERIALIZATION_NVP(argb); pDoc->m_Color.SetValue(argb);
-	ar >> boost::serialization::make_nvp("m_ImageStr", pDoc->m_ImageStr); pDoc->m_Image = theApp.GetImage(pDoc->m_ImageStr);
-	ar >> boost::serialization::make_nvp("m_strProjectDir", pDoc->m_strProjectDir);
-	ar >> boost::serialization::make_nvp("m_strLuaPath", pDoc->m_strLuaPath);
+	ar >> boost::serialization::make_nvp("ImageStr", pDoc->m_ImageStr); pDoc->m_Image = theApp.GetImage(pDoc->m_ImageStr);
+	ar >> boost::serialization::make_nvp("strProjectDir", pDoc->m_strProjectDir);
+	ar >> boost::serialization::make_nvp("strLuaPath", pDoc->m_strLuaPath);
 
 	SerializeLoadSubTreeNode(pDoc, ar, TVI_ROOT, FALSE);
 }
 
 void CImgRegionDocFileVersions::Serialize(CImgRegionDoc* pDoc, boost::archive::polymorphic_oarchive& ar)
 {
-	ar << boost::serialization::make_nvp("m_NextRegId", pDoc->m_NextRegId);
-	ar << boost::serialization::make_nvp("m_Size.cx", pDoc->m_Size.cx);
-	ar << boost::serialization::make_nvp("m_Size.cy", pDoc->m_Size.cy);
+	ar << boost::serialization::make_nvp("NextRegId", pDoc->m_NextRegId);
+	ar << boost::serialization::make_nvp("Size.cx", pDoc->m_Size.cx);
+	ar << boost::serialization::make_nvp("Size.cy", pDoc->m_Size.cy);
 	DWORD argb = pDoc->m_Color.GetValue(); ar << BOOST_SERIALIZATION_NVP(argb);
-	ar << boost::serialization::make_nvp("m_ImageStr", pDoc->m_ImageStr);
-	ar << boost::serialization::make_nvp("m_strProjectDir", pDoc->m_strProjectDir);
-	ar << boost::serialization::make_nvp("m_strLuaPath", pDoc->m_strLuaPath);
+	ar << boost::serialization::make_nvp("ImageStr", pDoc->m_ImageStr);
+	ar << boost::serialization::make_nvp("strProjectDir", pDoc->m_strProjectDir);
+	ar << boost::serialization::make_nvp("strLuaPath", pDoc->m_strLuaPath);
 
 	SerializeSubTreeNode(pDoc, ar, TVI_ROOT);
 }
@@ -268,70 +268,98 @@ void CImgRegionDocFileVersions::SerializeSubTreeNode(CImgRegionDoc* pDoc, boost:
 	}
 }
 
+struct CImgRegionWrapper
+{
+	CImgRegion* pReg;
+	CImgRegionDoc* pDoc;
+	HTREEITEM hItem;
+	BOOL bOverideName;
+
+	template<class Archive>
+	void save(Archive& ar, const unsigned int version) const
+	{
+		ar << boost::serialization::make_nvp("Class", pReg->m_Class);
+		ar << boost::serialization::make_nvp("Locked", pReg->m_Locked);
+		ar << boost::serialization::make_nvp("x.scale", pReg->m_x.scale);
+		ar << boost::serialization::make_nvp("x.offset", pReg->m_x.offset);
+		ar << boost::serialization::make_nvp("y.scale", pReg->m_y.scale);
+		ar << boost::serialization::make_nvp("y.offset", pReg->m_y.offset);
+		ar << boost::serialization::make_nvp("Width.scale", pReg->m_Width.scale);
+		ar << boost::serialization::make_nvp("Width.offset", pReg->m_Width.offset);
+		ar << boost::serialization::make_nvp("Height.scale", pReg->m_Height.scale);
+		ar << boost::serialization::make_nvp("Height.offset", pReg->m_Height.offset);
+		DWORD argb = pReg->m_Color.GetValue(); ar << BOOST_SERIALIZATION_NVP(argb);
+		ar << boost::serialization::make_nvp("ImageStr", pReg->m_ImageStr);
+		ar << boost::serialization::make_nvp("ImageRect.X", pReg->m_ImageRect.X);
+		ar << boost::serialization::make_nvp("ImageRect.Y", pReg->m_ImageRect.Y);
+		ar << boost::serialization::make_nvp("ImageRect.Width", pReg->m_ImageRect.Width);
+		ar << boost::serialization::make_nvp("ImageRect.Height", pReg->m_ImageRect.Height);
+		ar << boost::serialization::make_nvp("ImageBorder.x", pReg->m_ImageBorder.x);
+		ar << boost::serialization::make_nvp("ImageBorder.y", pReg->m_ImageBorder.y);
+		ar << boost::serialization::make_nvp("ImageBorder.z", pReg->m_ImageBorder.z);
+		ar << boost::serialization::make_nvp("ImageBorder.w", pReg->m_ImageBorder.w);
+		Gdiplus::FontFamily family; pReg->m_Font->GetFamily(&family); CString strFamily; family.GetFamilyName(strFamily.GetBufferSetLength(LF_FACESIZE)); strFamily.ReleaseBuffer(); ar << BOOST_SERIALIZATION_NVP(strFamily);
+		float fSize = pReg->m_Font->GetSize(); ar << BOOST_SERIALIZATION_NVP(fSize);
+		argb = pReg->m_FontColor.GetValue(); ar << BOOST_SERIALIZATION_NVP(argb);
+		ar << boost::serialization::make_nvp("Text", pReg->m_Text);
+		ar << boost::serialization::make_nvp("TextAlign", pReg->m_TextAlign);
+		ar << boost::serialization::make_nvp("TextWrap", pReg->m_TextWrap);
+		ar << boost::serialization::make_nvp("TextOff.x", pReg->m_TextOff.x);
+		ar << boost::serialization::make_nvp("TextOff.y", pReg->m_TextOff.y);
+
+		CImgRegionDocFileVersions::SerializeSubTreeNode(pDoc, ar, hItem);
+	}
+
+	template<class Archive>
+	void load(Archive& ar, const unsigned int version)
+	{
+		ar >> boost::serialization::make_nvp("Class", pReg->m_Class);
+		ar >> boost::serialization::make_nvp("Locked", pReg->m_Locked);
+		ar >> boost::serialization::make_nvp("x.scale", pReg->m_x.scale);
+		ar >> boost::serialization::make_nvp("x.offset", pReg->m_x.offset);
+		ar >> boost::serialization::make_nvp("y.scale", pReg->m_y.scale);
+		ar >> boost::serialization::make_nvp("y.offset", pReg->m_y.offset);
+		ar >> boost::serialization::make_nvp("Width.scale", pReg->m_Width.scale);
+		ar >> boost::serialization::make_nvp("Width.offset", pReg->m_Width.offset);
+		ar >> boost::serialization::make_nvp("Height.scale", pReg->m_Height.scale);
+		ar >> boost::serialization::make_nvp("Height.offset", pReg->m_Height.offset);
+		DWORD argb; ar >> BOOST_SERIALIZATION_NVP(argb); pReg->m_Color.SetValue(argb);
+		ar >> boost::serialization::make_nvp("ImageStr", pReg->m_ImageStr); pReg->m_Image = theApp.GetImage(pReg->m_ImageStr);
+		ar >> boost::serialization::make_nvp("ImageRect.X", pReg->m_ImageRect.X);
+		ar >> boost::serialization::make_nvp("ImageRect.Y", pReg->m_ImageRect.Y);
+		ar >> boost::serialization::make_nvp("ImageRect.Width", pReg->m_ImageRect.Width);
+		ar >> boost::serialization::make_nvp("ImageRect.Height", pReg->m_ImageRect.Height);
+		ar >> boost::serialization::make_nvp("ImageBorder.x", pReg->m_ImageBorder.x);
+		ar >> boost::serialization::make_nvp("ImageBorder.y", pReg->m_ImageBorder.y);
+		ar >> boost::serialization::make_nvp("ImageBorder.z", pReg->m_ImageBorder.z);
+		ar >> boost::serialization::make_nvp("ImageBorder.w", pReg->m_ImageBorder.w);
+		CString strFamily; float fSize; ar >> BOOST_SERIALIZATION_NVP(strFamily);
+		ar >> BOOST_SERIALIZATION_NVP(fSize); pReg->m_Font = theApp.GetFont(strFamily, fSize);
+		ar >> BOOST_SERIALIZATION_NVP(argb); pReg->m_FontColor.SetValue(argb);
+		ar >> boost::serialization::make_nvp("Text", pReg->m_Text);
+		ar >> boost::serialization::make_nvp("TextAlign", pReg->m_TextAlign);
+		ar >> boost::serialization::make_nvp("TextWrap", pReg->m_TextWrap);
+		ar >> boost::serialization::make_nvp("TextOff.x", pReg->m_TextOff.x);
+		ar >> boost::serialization::make_nvp("TextOff.y", pReg->m_TextOff.y);
+
+		CImgRegionDocFileVersions::SerializeLoadSubTreeNode(pDoc, ar, hItem, bOverideName);
+	}
+
+	template<class Archive>
+	void serialize(Archive& ar, const unsigned int version)
+	{
+		boost::serialization::split_member(ar, *this, version);
+	}
+};
+
 void CImgRegionDocFileVersions::SerializeLoadImgRegion(CImgRegion* pReg, boost::archive::polymorphic_iarchive& ar, CImgRegionDoc* pDoc, HTREEITEM hItem, BOOL bOverideName)
 {
-	ar >> boost::serialization::make_nvp("m_Class", pReg->m_Class);
-	ar >> boost::serialization::make_nvp("m_Locked", pReg->m_Locked);
-	ar >> boost::serialization::make_nvp("m_x.scale", pReg->m_x.scale);
-	ar >> boost::serialization::make_nvp("m_x.offset", pReg->m_x.offset);
-	ar >> boost::serialization::make_nvp("m_y.scale", pReg->m_y.scale);
-	ar >> boost::serialization::make_nvp("m_y.offset", pReg->m_y.offset);
-	ar >> boost::serialization::make_nvp("m_Width.scale", pReg->m_Width.scale);
-	ar >> boost::serialization::make_nvp("m_Width.offset", pReg->m_Width.offset);
-	ar >> boost::serialization::make_nvp("m_Height.scale", pReg->m_Height.scale);
-	ar >> boost::serialization::make_nvp("m_Height.offset", pReg->m_Height.offset);
-	DWORD argb; ar >> BOOST_SERIALIZATION_NVP(argb); pReg->m_Color.SetValue(argb);
-	ar >> boost::serialization::make_nvp("m_ImageStr", pReg->m_ImageStr); pReg->m_Image = theApp.GetImage(pReg->m_ImageStr);
-	ar >> boost::serialization::make_nvp("m_ImageRect.X", pReg->m_ImageRect.X);
-	ar >> boost::serialization::make_nvp("m_ImageRect.Y", pReg->m_ImageRect.Y);
-	ar >> boost::serialization::make_nvp("m_ImageRect.Width", pReg->m_ImageRect.Width);
-	ar >> boost::serialization::make_nvp("m_ImageRect.Height", pReg->m_ImageRect.Height);
-	ar >> boost::serialization::make_nvp("m_ImageBorder.x", pReg->m_ImageBorder.x);
-	ar >> boost::serialization::make_nvp("m_ImageBorder.y", pReg->m_ImageBorder.y);
-	ar >> boost::serialization::make_nvp("m_ImageBorder.z", pReg->m_ImageBorder.z);
-	ar >> boost::serialization::make_nvp("m_ImageBorder.w", pReg->m_ImageBorder.w);
-	CString strFamily; float fSize; ar >> BOOST_SERIALIZATION_NVP(strFamily);
-	ar >> BOOST_SERIALIZATION_NVP(fSize); pReg->m_Font = theApp.GetFont(strFamily, fSize);
-	ar >> BOOST_SERIALIZATION_NVP(argb); pReg->m_FontColor.SetValue(argb);
-	ar >> boost::serialization::make_nvp("m_Text", pReg->m_Text);
-	ar >> boost::serialization::make_nvp("m_TextAlign", pReg->m_TextAlign);
-	ar >> boost::serialization::make_nvp("m_TextWrap", pReg->m_TextWrap);
-	ar >> boost::serialization::make_nvp("m_TextOff.x", pReg->m_TextOff.x);
-	ar >> boost::serialization::make_nvp("m_TextOff.y", pReg->m_TextOff.y);
-
-	SerializeLoadSubTreeNode(pDoc, ar, hItem, bOverideName);
+	CImgRegionWrapper ImgRegion = { pReg, pDoc, hItem, bOverideName };
+	ar >> BOOST_SERIALIZATION_NVP(ImgRegion);
 }
 
 void CImgRegionDocFileVersions::SerializeImgRegion(CImgRegion* pReg, boost::archive::polymorphic_oarchive& ar, CImgRegionDoc* pDoc, HTREEITEM hItem)
 {
-	ar << boost::serialization::make_nvp("m_Class", pReg->m_Class);
-	ar << boost::serialization::make_nvp("m_Locked", pReg->m_Locked);
-	ar << boost::serialization::make_nvp("m_x.scale", pReg->m_x.scale);
-	ar << boost::serialization::make_nvp("m_x.offset", pReg->m_x.offset);
-	ar << boost::serialization::make_nvp("m_y.scale", pReg->m_y.scale);
-	ar << boost::serialization::make_nvp("m_y.offset", pReg->m_y.offset);
-	ar << boost::serialization::make_nvp("m_Width.scale", pReg->m_Width.scale);
-	ar << boost::serialization::make_nvp("m_Width.offset", pReg->m_Width.offset);
-	ar << boost::serialization::make_nvp("m_Height.scale", pReg->m_Height.scale);
-	ar << boost::serialization::make_nvp("m_Height.offset", pReg->m_Height.offset);
-	DWORD argb = pReg->m_Color.GetValue(); ar << BOOST_SERIALIZATION_NVP(argb);
-	ar << boost::serialization::make_nvp("m_ImageStr", pReg->m_ImageStr);
-	ar << boost::serialization::make_nvp("m_ImageRect.X", pReg->m_ImageRect.X);
-	ar << boost::serialization::make_nvp("m_ImageRect.Y", pReg->m_ImageRect.Y);
-	ar << boost::serialization::make_nvp("m_ImageRect.Width", pReg->m_ImageRect.Width);
-	ar << boost::serialization::make_nvp("m_ImageRect.Height", pReg->m_ImageRect.Height);
-	ar << boost::serialization::make_nvp("m_ImageBorder.x", pReg->m_ImageBorder.x);
-	ar << boost::serialization::make_nvp("m_ImageBorder.y", pReg->m_ImageBorder.y);
-	ar << boost::serialization::make_nvp("m_ImageBorder.z", pReg->m_ImageBorder.z);
-	ar << boost::serialization::make_nvp("m_ImageBorder.w", pReg->m_ImageBorder.w);
-	Gdiplus::FontFamily family; pReg->m_Font->GetFamily(&family); CString strFamily; family.GetFamilyName(strFamily.GetBufferSetLength(LF_FACESIZE)); strFamily.ReleaseBuffer(); ar << BOOST_SERIALIZATION_NVP(strFamily);
-	float fSize = pReg->m_Font->GetSize(); ar << BOOST_SERIALIZATION_NVP(fSize);
-	argb = pReg->m_FontColor.GetValue(); ar << BOOST_SERIALIZATION_NVP(argb);
-	ar << boost::serialization::make_nvp("m_Text", pReg->m_Text);
-	ar << boost::serialization::make_nvp("m_TextAlign", pReg->m_TextAlign);
-	ar << boost::serialization::make_nvp("m_TextWrap", pReg->m_TextWrap);
-	ar << boost::serialization::make_nvp("m_TextOff.x", pReg->m_TextOff.x);
-	ar << boost::serialization::make_nvp("m_TextOff.y", pReg->m_TextOff.y);
-
-	SerializeSubTreeNode(pDoc, ar, hItem);
+	CImgRegionWrapper ImgRegion = { pReg, pDoc, hItem, FALSE };
+	ar << BOOST_SERIALIZATION_NVP(ImgRegion);
 }

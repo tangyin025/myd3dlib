@@ -1,881 +1,937 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <!DOCTYPE boost_serialization>
 <boost_serialization signature="serialization::archive" version="18">
-<m_NextRegId>35</m_NextRegId>
-<m_Size.cx>800</m_Size.cx>
-<m_Size.cy>600</m_Size.cy>
+<NextRegId>35</NextRegId>
+<Size.cx>800</Size.cx>
+<Size.cy>600</Size.cy>
 <argb>4294967295</argb>
-<m_ImageStr class_id="0" tracking_level="0" version="0">D:\Works\myd3dlib\demo2_3\Media\texture\1316532925.jpg</m_ImageStr>
-<m_strProjectDir>D:\Works\myd3dlib\demo2_3\Media</m_strProjectDir>
-<m_strLuaPath>D:\Works\myd3dlib\demo2_3\Media\bbb.lua</m_strLuaPath>
+<ImageStr class_id="0" tracking_level="0" version="0">D:\Works\myd3dlib\demo2_3\Media\texture\1316532925.jpg</ImageStr>
+<strProjectDir>D:\Works\myd3dlib\demo2_3\Media</strProjectDir>
+<strLuaPath>D:\Works\myd3dlib\demo2_3\Media\bbb.lua</strLuaPath>
 <nChilds>1</nChilds>
 <id>1</id>
 <szName>dlg_settings</szName>
-<m_Class>Control</m_Class>
-<m_Locked>1</m_Locked>
-<m_x.scale>5.000000000e-01</m_x.scale>
-<m_x.offset>-3.200000000e+02</m_x.offset>
-<m_y.scale>5.000000000e-01</m_y.scale>
-<m_y.offset>-2.400000000e+02</m_y.offset>
-<m_Width.scale>0.000000000e+00</m_Width.scale>
-<m_Width.offset>6.410000000e+02</m_Width.offset>
-<m_Height.scale>0.000000000e+00</m_Height.scale>
-<m_Height.offset>4.800000000e+02</m_Height.offset>
-<argb>2533359616</argb>
-<m_ImageStr>D:\Works\myd3dlib\demo2_3\Media\texture\CommonUI.png</m_ImageStr>
-<m_ImageRect.X>157</m_ImageRect.X>
-<m_ImageRect.Y>42</m_ImageRect.Y>
-<m_ImageRect.Width>4</m_ImageRect.Width>
-<m_ImageRect.Height>4</m_ImageRect.Height>
-<m_ImageBorder.x>0</m_ImageBorder.x>
-<m_ImageBorder.y>0</m_ImageBorder.y>
-<m_ImageBorder.z>0</m_ImageBorder.z>
-<m_ImageBorder.w>0</m_ImageBorder.w>
-<strFamily>微软雅黑</strFamily>
-<fSize>1.300000000e+01</fSize>
-<argb>4289277163</argb>
-<m_Text></m_Text>
-<m_TextAlign>0</m_TextAlign>
-<m_TextWrap>0</m_TextWrap>
-<m_TextOff.x>0</m_TextOff.x>
-<m_TextOff.y>0</m_TextOff.y>
-<nChilds>16</nChilds>
-<id>2</id>
-<szName>editor_control_2</szName>
-<m_Class>Control</m_Class>
-<m_Locked>-859045887</m_Locked>
-<m_x.scale>0.000000000e+00</m_x.scale>
-<m_x.offset>1.700000000e+01</m_x.offset>
-<m_y.scale>0.000000000e+00</m_y.scale>
-<m_y.offset>1.300000000e+01</m_y.offset>
-<m_Width.scale>0.000000000e+00</m_Width.scale>
-<m_Width.offset>2.560000000e+02</m_Width.offset>
-<m_Height.scale>0.000000000e+00</m_Height.scale>
-<m_Height.offset>4.200000000e+01</m_Height.offset>
-<argb>4294967295</argb>
-<m_ImageStr>D:\Works\myd3dlib\demo2_3\Media\texture\CommonUI.png</m_ImageStr>
-<m_ImageRect.X>0</m_ImageRect.X>
-<m_ImageRect.Y>0</m_ImageRect.Y>
-<m_ImageRect.Width>256</m_ImageRect.Width>
-<m_ImageRect.Height>42</m_ImageRect.Height>
-<m_ImageBorder.x>0</m_ImageBorder.x>
-<m_ImageBorder.y>0</m_ImageBorder.y>
-<m_ImageBorder.z>0</m_ImageBorder.z>
-<m_ImageBorder.w>0</m_ImageBorder.w>
-<strFamily>微软雅黑</strFamily>
-<fSize>1.300000000e+01</fSize>
-<argb>4284440559</argb>
-<m_Text></m_Text>
-<m_TextAlign>0</m_TextAlign>
-<m_TextWrap>0</m_TextWrap>
-<m_TextOff.x>0</m_TextOff.x>
-<m_TextOff.y>0</m_TextOff.y>
-<nChilds>0</nChilds>
-<id>3</id>
-<szName>btn_ok</szName>
-<m_Class>Button</m_Class>
-<m_Locked>1</m_Locked>
-<m_x.scale>0.000000000e+00</m_x.scale>
-<m_x.offset>2.300000000e+02</m_x.offset>
-<m_y.scale>0.000000000e+00</m_y.scale>
-<m_y.offset>4.390000000e+02</m_y.offset>
-<m_Width.scale>0.000000000e+00</m_Width.scale>
-<m_Width.offset>8.000000000e+01</m_Width.offset>
-<m_Height.scale>0.000000000e+00</m_Height.scale>
-<m_Height.offset>3.200000000e+01</m_Height.offset>
-<argb>4294967295</argb>
-<m_ImageStr>D:\Works\myd3dlib\demo2_3\Media\texture\CommonUI.png</m_ImageStr>
-<m_ImageRect.X>52</m_ImageRect.X>
-<m_ImageRect.Y>43</m_ImageRect.Y>
-<m_ImageRect.Width>16</m_ImageRect.Width>
-<m_ImageRect.Height>16</m_ImageRect.Height>
-<m_ImageBorder.x>7</m_ImageBorder.x>
-<m_ImageBorder.y>7</m_ImageBorder.y>
-<m_ImageBorder.z>7</m_ImageBorder.z>
-<m_ImageBorder.w>7</m_ImageBorder.w>
-<strFamily>微软雅黑</strFamily>
-<fSize>1.300000000e+01</fSize>
-<argb>4294967295</argb>
-<m_Text>OK</m_Text>
-<m_TextAlign>4</m_TextAlign>
-<m_TextWrap>0</m_TextWrap>
-<m_TextOff.x>0</m_TextOff.x>
-<m_TextOff.y>0</m_TextOff.y>
-<nChilds>0</nChilds>
-<id>4</id>
-<szName>btn_cancel</szName>
-<m_Class>Button</m_Class>
-<m_Locked>1</m_Locked>
-<m_x.scale>0.000000000e+00</m_x.scale>
-<m_x.offset>3.150000000e+02</m_x.offset>
-<m_y.scale>0.000000000e+00</m_y.scale>
-<m_y.offset>4.390000000e+02</m_y.offset>
-<m_Width.scale>0.000000000e+00</m_Width.scale>
-<m_Width.offset>8.000000000e+01</m_Width.offset>
-<m_Height.scale>0.000000000e+00</m_Height.scale>
-<m_Height.offset>3.200000000e+01</m_Height.offset>
-<argb>4294967295</argb>
-<m_ImageStr>D:\Works\myd3dlib\demo2_3\Media\texture\CommonUI.png</m_ImageStr>
-<m_ImageRect.X>52</m_ImageRect.X>
-<m_ImageRect.Y>43</m_ImageRect.Y>
-<m_ImageRect.Width>16</m_ImageRect.Width>
-<m_ImageRect.Height>16</m_ImageRect.Height>
-<m_ImageBorder.x>7</m_ImageBorder.x>
-<m_ImageBorder.y>7</m_ImageBorder.y>
-<m_ImageBorder.z>7</m_ImageBorder.z>
-<m_ImageBorder.w>7</m_ImageBorder.w>
-<strFamily>微软雅黑</strFamily>
-<fSize>1.300000000e+01</fSize>
-<argb>4294967295</argb>
-<m_Text>Cancel</m_Text>
-<m_TextAlign>4</m_TextAlign>
-<m_TextWrap>0</m_TextWrap>
-<m_TextOff.x>0</m_TextOff.x>
-<m_TextOff.y>0</m_TextOff.y>
-<nChilds>0</nChilds>
-<id>6</id>
-<szName>cbx_vertical_sync</szName>
-<m_Class>ComboBox</m_Class>
-<m_Locked>1</m_Locked>
-<m_x.scale>0.000000000e+00</m_x.scale>
-<m_x.offset>2.010000000e+02</m_x.offset>
-<m_y.scale>0.000000000e+00</m_y.scale>
-<m_y.offset>3.900000000e+02</m_y.offset>
-<m_Width.scale>0.000000000e+00</m_Width.scale>
-<m_Width.offset>3.040000000e+02</m_Width.offset>
-<m_Height.scale>0.000000000e+00</m_Height.scale>
-<m_Height.offset>2.200000000e+01</m_Height.offset>
-<argb>4294967295</argb>
-<m_ImageStr>D:\Works\myd3dlib\demo2_3\Media\texture\CommonUI.png</m_ImageStr>
-<m_ImageRect.X>52</m_ImageRect.X>
-<m_ImageRect.Y>43</m_ImageRect.Y>
-<m_ImageRect.Width>16</m_ImageRect.Width>
-<m_ImageRect.Height>16</m_ImageRect.Height>
-<m_ImageBorder.x>7</m_ImageBorder.x>
-<m_ImageBorder.y>7</m_ImageBorder.y>
-<m_ImageBorder.z>7</m_ImageBorder.z>
-<m_ImageBorder.w>7</m_ImageBorder.w>
-<strFamily>微软雅黑</strFamily>
-<fSize>1.300000000e+01</fSize>
-<argb>4294967295</argb>
-<m_Text>x:%d y:%d w:%d h:%d</m_Text>
-<m_TextAlign>4</m_TextAlign>
-<m_TextWrap>0</m_TextWrap>
-<m_TextOff.x>0</m_TextOff.x>
-<m_TextOff.y>0</m_TextOff.y>
-<nChilds>1</nChilds>
-<id>7</id>
-<szName>editor_control_7</szName>
-<m_Class>Static</m_Class>
-<m_Locked>1</m_Locked>
-<m_x.scale>0.000000000e+00</m_x.scale>
-<m_x.offset>-2.010000000e+02</m_x.offset>
-<m_y.scale>0.000000000e+00</m_y.scale>
-<m_y.offset>0.000000000e+00</m_y.offset>
-<m_Width.scale>0.000000000e+00</m_Width.scale>
-<m_Width.offset>1.900000000e+02</m_Width.offset>
-<m_Height.scale>0.000000000e+00</m_Height.scale>
-<m_Height.offset>2.200000000e+01</m_Height.offset>
-<argb>14052137</argb>
-<m_ImageStr></m_ImageStr>
-<m_ImageRect.X>0</m_ImageRect.X>
-<m_ImageRect.Y>0</m_ImageRect.Y>
-<m_ImageRect.Width>0</m_ImageRect.Width>
-<m_ImageRect.Height>0</m_ImageRect.Height>
-<m_ImageBorder.x>0</m_ImageBorder.x>
-<m_ImageBorder.y>0</m_ImageBorder.y>
-<m_ImageBorder.z>0</m_ImageBorder.z>
-<m_ImageBorder.w>0</m_ImageBorder.w>
-<strFamily>微软雅黑</strFamily>
-<fSize>1.300000000e+01</fSize>
-<argb>4294967295</argb>
-<m_Text>Vertical Sync</m_Text>
-<m_TextAlign>5</m_TextAlign>
-<m_TextWrap>0</m_TextWrap>
-<m_TextOff.x>0</m_TextOff.x>
-<m_TextOff.y>0</m_TextOff.y>
-<nChilds>0</nChilds>
-<id>8</id>
-<szName>cbx_vertex_processing</szName>
-<m_Class>ComboBox</m_Class>
-<m_Locked>1</m_Locked>
-<m_x.scale>0.000000000e+00</m_x.scale>
-<m_x.offset>2.010000000e+02</m_x.offset>
-<m_y.scale>0.000000000e+00</m_y.scale>
-<m_y.offset>3.600000000e+02</m_y.offset>
-<m_Width.scale>0.000000000e+00</m_Width.scale>
-<m_Width.offset>3.040000000e+02</m_Width.offset>
-<m_Height.scale>0.000000000e+00</m_Height.scale>
-<m_Height.offset>2.200000000e+01</m_Height.offset>
-<argb>4294967295</argb>
-<m_ImageStr>D:\Works\myd3dlib\demo2_3\Media\texture\CommonUI.png</m_ImageStr>
-<m_ImageRect.X>52</m_ImageRect.X>
-<m_ImageRect.Y>43</m_ImageRect.Y>
-<m_ImageRect.Width>16</m_ImageRect.Width>
-<m_ImageRect.Height>16</m_ImageRect.Height>
-<m_ImageBorder.x>7</m_ImageBorder.x>
-<m_ImageBorder.y>7</m_ImageBorder.y>
-<m_ImageBorder.z>7</m_ImageBorder.z>
-<m_ImageBorder.w>7</m_ImageBorder.w>
-<strFamily>微软雅黑</strFamily>
-<fSize>1.300000000e+01</fSize>
-<argb>4294967295</argb>
-<m_Text>x:%d y:%d w:%d h:%d</m_Text>
-<m_TextAlign>4</m_TextAlign>
-<m_TextWrap>0</m_TextWrap>
-<m_TextOff.x>0</m_TextOff.x>
-<m_TextOff.y>0</m_TextOff.y>
-<nChilds>1</nChilds>
-<id>9</id>
-<szName>editor_control_9</szName>
-<m_Class>Static</m_Class>
-<m_Locked>1</m_Locked>
-<m_x.scale>0.000000000e+00</m_x.scale>
-<m_x.offset>-2.010000000e+02</m_x.offset>
-<m_y.scale>0.000000000e+00</m_y.scale>
-<m_y.offset>0.000000000e+00</m_y.offset>
-<m_Width.scale>0.000000000e+00</m_Width.scale>
-<m_Width.offset>1.900000000e+02</m_Width.offset>
-<m_Height.scale>0.000000000e+00</m_Height.scale>
-<m_Height.offset>2.200000000e+01</m_Height.offset>
-<argb>14052137</argb>
-<m_ImageStr></m_ImageStr>
-<m_ImageRect.X>0</m_ImageRect.X>
-<m_ImageRect.Y>0</m_ImageRect.Y>
-<m_ImageRect.Width>0</m_ImageRect.Width>
-<m_ImageRect.Height>0</m_ImageRect.Height>
-<m_ImageBorder.x>0</m_ImageBorder.x>
-<m_ImageBorder.y>0</m_ImageBorder.y>
-<m_ImageBorder.z>0</m_ImageBorder.z>
-<m_ImageBorder.w>0</m_ImageBorder.w>
-<strFamily>微软雅黑</strFamily>
-<fSize>1.300000000e+01</fSize>
-<argb>4294967295</argb>
-<m_Text>Vertex Processing</m_Text>
-<m_TextAlign>5</m_TextAlign>
-<m_TextWrap>0</m_TextWrap>
-<m_TextOff.x>0</m_TextOff.x>
-<m_TextOff.y>0</m_TextOff.y>
-<nChilds>0</nChilds>
-<id>16</id>
-<szName>cbx_multisample_quality</szName>
-<m_Class>ComboBox</m_Class>
-<m_Locked>1</m_Locked>
-<m_x.scale>0.000000000e+00</m_x.scale>
-<m_x.offset>2.010000000e+02</m_x.offset>
-<m_y.scale>0.000000000e+00</m_y.scale>
-<m_y.offset>3.300000000e+02</m_y.offset>
-<m_Width.scale>0.000000000e+00</m_Width.scale>
-<m_Width.offset>3.040000000e+02</m_Width.offset>
-<m_Height.scale>0.000000000e+00</m_Height.scale>
-<m_Height.offset>2.200000000e+01</m_Height.offset>
-<argb>4294967295</argb>
-<m_ImageStr>D:\Works\myd3dlib\demo2_3\Media\texture\CommonUI.png</m_ImageStr>
-<m_ImageRect.X>52</m_ImageRect.X>
-<m_ImageRect.Y>43</m_ImageRect.Y>
-<m_ImageRect.Width>16</m_ImageRect.Width>
-<m_ImageRect.Height>16</m_ImageRect.Height>
-<m_ImageBorder.x>7</m_ImageBorder.x>
-<m_ImageBorder.y>7</m_ImageBorder.y>
-<m_ImageBorder.z>7</m_ImageBorder.z>
-<m_ImageBorder.w>7</m_ImageBorder.w>
-<strFamily>微软雅黑</strFamily>
-<fSize>1.300000000e+01</fSize>
-<argb>4294967295</argb>
-<m_Text>x:%d y:%d w:%d h:%d</m_Text>
-<m_TextAlign>4</m_TextAlign>
-<m_TextWrap>0</m_TextWrap>
-<m_TextOff.x>0</m_TextOff.x>
-<m_TextOff.y>0</m_TextOff.y>
-<nChilds>1</nChilds>
-<id>17</id>
-<szName>editor_control_17</szName>
-<m_Class>Static</m_Class>
-<m_Locked>1</m_Locked>
-<m_x.scale>0.000000000e+00</m_x.scale>
-<m_x.offset>-2.010000000e+02</m_x.offset>
-<m_y.scale>0.000000000e+00</m_y.scale>
-<m_y.offset>0.000000000e+00</m_y.offset>
-<m_Width.scale>0.000000000e+00</m_Width.scale>
-<m_Width.offset>1.900000000e+02</m_Width.offset>
-<m_Height.scale>0.000000000e+00</m_Height.scale>
-<m_Height.offset>2.200000000e+01</m_Height.offset>
-<argb>14052137</argb>
-<m_ImageStr></m_ImageStr>
-<m_ImageRect.X>0</m_ImageRect.X>
-<m_ImageRect.Y>0</m_ImageRect.Y>
-<m_ImageRect.Width>0</m_ImageRect.Width>
-<m_ImageRect.Height>0</m_ImageRect.Height>
-<m_ImageBorder.x>0</m_ImageBorder.x>
-<m_ImageBorder.y>0</m_ImageBorder.y>
-<m_ImageBorder.z>0</m_ImageBorder.z>
-<m_ImageBorder.w>0</m_ImageBorder.w>
-<strFamily>微软雅黑</strFamily>
-<fSize>1.300000000e+01</fSize>
-<argb>4294967295</argb>
-<m_Text>Multisample Quality</m_Text>
-<m_TextAlign>5</m_TextAlign>
-<m_TextWrap>0</m_TextWrap>
-<m_TextOff.x>0</m_TextOff.x>
-<m_TextOff.y>0</m_TextOff.y>
-<nChilds>0</nChilds>
-<id>18</id>
-<szName>lbl_multisample_type</szName>
-<m_Class>ComboBox</m_Class>
-<m_Locked>1</m_Locked>
-<m_x.scale>0.000000000e+00</m_x.scale>
-<m_x.offset>2.010000000e+02</m_x.offset>
-<m_y.scale>0.000000000e+00</m_y.scale>
-<m_y.offset>3.000000000e+02</m_y.offset>
-<m_Width.scale>0.000000000e+00</m_Width.scale>
-<m_Width.offset>3.040000000e+02</m_Width.offset>
-<m_Height.scale>0.000000000e+00</m_Height.scale>
-<m_Height.offset>2.200000000e+01</m_Height.offset>
-<argb>4294967295</argb>
-<m_ImageStr>D:\Works\myd3dlib\demo2_3\Media\texture\CommonUI.png</m_ImageStr>
-<m_ImageRect.X>52</m_ImageRect.X>
-<m_ImageRect.Y>43</m_ImageRect.Y>
-<m_ImageRect.Width>16</m_ImageRect.Width>
-<m_ImageRect.Height>16</m_ImageRect.Height>
-<m_ImageBorder.x>7</m_ImageBorder.x>
-<m_ImageBorder.y>7</m_ImageBorder.y>
-<m_ImageBorder.z>7</m_ImageBorder.z>
-<m_ImageBorder.w>7</m_ImageBorder.w>
-<strFamily>微软雅黑</strFamily>
-<fSize>1.300000000e+01</fSize>
-<argb>4294967295</argb>
-<m_Text>x:%d y:%d w:%d h:%d</m_Text>
-<m_TextAlign>4</m_TextAlign>
-<m_TextWrap>0</m_TextWrap>
-<m_TextOff.x>0</m_TextOff.x>
-<m_TextOff.y>0</m_TextOff.y>
-<nChilds>1</nChilds>
-<id>19</id>
-<szName>editor_control_19</szName>
-<m_Class>Static</m_Class>
-<m_Locked>1</m_Locked>
-<m_x.scale>0.000000000e+00</m_x.scale>
-<m_x.offset>-2.010000000e+02</m_x.offset>
-<m_y.scale>0.000000000e+00</m_y.scale>
-<m_y.offset>0.000000000e+00</m_y.offset>
-<m_Width.scale>0.000000000e+00</m_Width.scale>
-<m_Width.offset>1.900000000e+02</m_Width.offset>
-<m_Height.scale>0.000000000e+00</m_Height.scale>
-<m_Height.offset>2.200000000e+01</m_Height.offset>
-<argb>14052137</argb>
-<m_ImageStr></m_ImageStr>
-<m_ImageRect.X>0</m_ImageRect.X>
-<m_ImageRect.Y>0</m_ImageRect.Y>
-<m_ImageRect.Width>0</m_ImageRect.Width>
-<m_ImageRect.Height>0</m_ImageRect.Height>
-<m_ImageBorder.x>0</m_ImageBorder.x>
-<m_ImageBorder.y>0</m_ImageBorder.y>
-<m_ImageBorder.z>0</m_ImageBorder.z>
-<m_ImageBorder.w>0</m_ImageBorder.w>
-<strFamily>微软雅黑</strFamily>
-<fSize>1.300000000e+01</fSize>
-<argb>4294967295</argb>
-<m_Text>Multisample Type</m_Text>
-<m_TextAlign>5</m_TextAlign>
-<m_TextWrap>0</m_TextWrap>
-<m_TextOff.x>0</m_TextOff.x>
-<m_TextOff.y>0</m_TextOff.y>
-<nChilds>0</nChilds>
-<id>20</id>
-<szName>cbx_depth_stencil_format</szName>
-<m_Class>ComboBox</m_Class>
-<m_Locked>1</m_Locked>
-<m_x.scale>0.000000000e+00</m_x.scale>
-<m_x.offset>2.010000000e+02</m_x.offset>
-<m_y.scale>0.000000000e+00</m_y.scale>
-<m_y.offset>2.700000000e+02</m_y.offset>
-<m_Width.scale>0.000000000e+00</m_Width.scale>
-<m_Width.offset>3.040000000e+02</m_Width.offset>
-<m_Height.scale>0.000000000e+00</m_Height.scale>
-<m_Height.offset>2.200000000e+01</m_Height.offset>
-<argb>4294967295</argb>
-<m_ImageStr>D:\Works\myd3dlib\demo2_3\Media\texture\CommonUI.png</m_ImageStr>
-<m_ImageRect.X>52</m_ImageRect.X>
-<m_ImageRect.Y>43</m_ImageRect.Y>
-<m_ImageRect.Width>16</m_ImageRect.Width>
-<m_ImageRect.Height>16</m_ImageRect.Height>
-<m_ImageBorder.x>7</m_ImageBorder.x>
-<m_ImageBorder.y>7</m_ImageBorder.y>
-<m_ImageBorder.z>7</m_ImageBorder.z>
-<m_ImageBorder.w>7</m_ImageBorder.w>
-<strFamily>微软雅黑</strFamily>
-<fSize>1.300000000e+01</fSize>
-<argb>4294967295</argb>
-<m_Text>x:%d y:%d w:%d h:%d</m_Text>
-<m_TextAlign>4</m_TextAlign>
-<m_TextWrap>0</m_TextWrap>
-<m_TextOff.x>0</m_TextOff.x>
-<m_TextOff.y>0</m_TextOff.y>
-<nChilds>1</nChilds>
-<id>21</id>
-<szName>editor_control_21</szName>
-<m_Class>Static</m_Class>
-<m_Locked>1</m_Locked>
-<m_x.scale>0.000000000e+00</m_x.scale>
-<m_x.offset>-2.010000000e+02</m_x.offset>
-<m_y.scale>0.000000000e+00</m_y.scale>
-<m_y.offset>0.000000000e+00</m_y.offset>
-<m_Width.scale>0.000000000e+00</m_Width.scale>
-<m_Width.offset>1.900000000e+02</m_Width.offset>
-<m_Height.scale>0.000000000e+00</m_Height.scale>
-<m_Height.offset>2.200000000e+01</m_Height.offset>
-<argb>14052137</argb>
-<m_ImageStr></m_ImageStr>
-<m_ImageRect.X>0</m_ImageRect.X>
-<m_ImageRect.Y>0</m_ImageRect.Y>
-<m_ImageRect.Width>0</m_ImageRect.Width>
-<m_ImageRect.Height>0</m_ImageRect.Height>
-<m_ImageBorder.x>0</m_ImageBorder.x>
-<m_ImageBorder.y>0</m_ImageBorder.y>
-<m_ImageBorder.z>0</m_ImageBorder.z>
-<m_ImageBorder.w>0</m_ImageBorder.w>
-<strFamily>微软雅黑</strFamily>
-<fSize>1.300000000e+01</fSize>
-<argb>4294967295</argb>
-<m_Text>Depth/Stencil Format</m_Text>
-<m_TextAlign>5</m_TextAlign>
-<m_TextWrap>0</m_TextWrap>
-<m_TextOff.x>0</m_TextOff.x>
-<m_TextOff.y>0</m_TextOff.y>
-<nChilds>0</nChilds>
-<id>22</id>
-<szName>cbx_back_buffer_format</szName>
-<m_Class>ComboBox</m_Class>
-<m_Locked>1</m_Locked>
-<m_x.scale>0.000000000e+00</m_x.scale>
-<m_x.offset>2.010000000e+02</m_x.offset>
-<m_y.scale>0.000000000e+00</m_y.scale>
-<m_y.offset>2.400000000e+02</m_y.offset>
-<m_Width.scale>0.000000000e+00</m_Width.scale>
-<m_Width.offset>3.040000000e+02</m_Width.offset>
-<m_Height.scale>0.000000000e+00</m_Height.scale>
-<m_Height.offset>2.200000000e+01</m_Height.offset>
-<argb>4294967295</argb>
-<m_ImageStr>D:\Works\myd3dlib\demo2_3\Media\texture\CommonUI.png</m_ImageStr>
-<m_ImageRect.X>52</m_ImageRect.X>
-<m_ImageRect.Y>43</m_ImageRect.Y>
-<m_ImageRect.Width>16</m_ImageRect.Width>
-<m_ImageRect.Height>16</m_ImageRect.Height>
-<m_ImageBorder.x>7</m_ImageBorder.x>
-<m_ImageBorder.y>7</m_ImageBorder.y>
-<m_ImageBorder.z>7</m_ImageBorder.z>
-<m_ImageBorder.w>7</m_ImageBorder.w>
-<strFamily>微软雅黑</strFamily>
-<fSize>1.300000000e+01</fSize>
-<argb>4294967295</argb>
-<m_Text>x:%d y:%d w:%d h:%d</m_Text>
-<m_TextAlign>4</m_TextAlign>
-<m_TextWrap>0</m_TextWrap>
-<m_TextOff.x>0</m_TextOff.x>
-<m_TextOff.y>0</m_TextOff.y>
-<nChilds>1</nChilds>
-<id>23</id>
-<szName>editor_control_23</szName>
-<m_Class>Static</m_Class>
-<m_Locked>1</m_Locked>
-<m_x.scale>0.000000000e+00</m_x.scale>
-<m_x.offset>-2.010000000e+02</m_x.offset>
-<m_y.scale>0.000000000e+00</m_y.scale>
-<m_y.offset>0.000000000e+00</m_y.offset>
-<m_Width.scale>0.000000000e+00</m_Width.scale>
-<m_Width.offset>1.900000000e+02</m_Width.offset>
-<m_Height.scale>0.000000000e+00</m_Height.scale>
-<m_Height.offset>2.200000000e+01</m_Height.offset>
-<argb>14052137</argb>
-<m_ImageStr></m_ImageStr>
-<m_ImageRect.X>0</m_ImageRect.X>
-<m_ImageRect.Y>0</m_ImageRect.Y>
-<m_ImageRect.Width>0</m_ImageRect.Width>
-<m_ImageRect.Height>0</m_ImageRect.Height>
-<m_ImageBorder.x>0</m_ImageBorder.x>
-<m_ImageBorder.y>0</m_ImageBorder.y>
-<m_ImageBorder.z>0</m_ImageBorder.z>
-<m_ImageBorder.w>0</m_ImageBorder.w>
-<strFamily>微软雅黑</strFamily>
-<fSize>1.300000000e+01</fSize>
-<argb>4294967295</argb>
-<m_Text>Back Buffer Format</m_Text>
-<m_TextAlign>5</m_TextAlign>
-<m_TextWrap>0</m_TextWrap>
-<m_TextOff.x>0</m_TextOff.x>
-<m_TextOff.y>0</m_TextOff.y>
-<nChilds>0</nChilds>
-<id>24</id>
-<szName>cbx_refresh_rate</szName>
-<m_Class>ComboBox</m_Class>
-<m_Locked>1</m_Locked>
-<m_x.scale>0.000000000e+00</m_x.scale>
-<m_x.offset>2.010000000e+02</m_x.offset>
-<m_y.scale>0.000000000e+00</m_y.scale>
-<m_y.offset>2.100000000e+02</m_y.offset>
-<m_Width.scale>0.000000000e+00</m_Width.scale>
-<m_Width.offset>3.040000000e+02</m_Width.offset>
-<m_Height.scale>0.000000000e+00</m_Height.scale>
-<m_Height.offset>2.200000000e+01</m_Height.offset>
-<argb>4294967295</argb>
-<m_ImageStr>D:\Works\myd3dlib\demo2_3\Media\texture\CommonUI.png</m_ImageStr>
-<m_ImageRect.X>52</m_ImageRect.X>
-<m_ImageRect.Y>43</m_ImageRect.Y>
-<m_ImageRect.Width>16</m_ImageRect.Width>
-<m_ImageRect.Height>16</m_ImageRect.Height>
-<m_ImageBorder.x>7</m_ImageBorder.x>
-<m_ImageBorder.y>7</m_ImageBorder.y>
-<m_ImageBorder.z>7</m_ImageBorder.z>
-<m_ImageBorder.w>7</m_ImageBorder.w>
-<strFamily>微软雅黑</strFamily>
-<fSize>1.300000000e+01</fSize>
-<argb>4294967295</argb>
-<m_Text>x:%d y:%d w:%d h:%d</m_Text>
-<m_TextAlign>4</m_TextAlign>
-<m_TextWrap>0</m_TextWrap>
-<m_TextOff.x>0</m_TextOff.x>
-<m_TextOff.y>0</m_TextOff.y>
-<nChilds>1</nChilds>
-<id>25</id>
-<szName>editor_control_25</szName>
-<m_Class>Static</m_Class>
-<m_Locked>1</m_Locked>
-<m_x.scale>0.000000000e+00</m_x.scale>
-<m_x.offset>-2.010000000e+02</m_x.offset>
-<m_y.scale>0.000000000e+00</m_y.scale>
-<m_y.offset>0.000000000e+00</m_y.offset>
-<m_Width.scale>0.000000000e+00</m_Width.scale>
-<m_Width.offset>1.900000000e+02</m_Width.offset>
-<m_Height.scale>0.000000000e+00</m_Height.scale>
-<m_Height.offset>2.200000000e+01</m_Height.offset>
-<argb>14052137</argb>
-<m_ImageStr></m_ImageStr>
-<m_ImageRect.X>0</m_ImageRect.X>
-<m_ImageRect.Y>0</m_ImageRect.Y>
-<m_ImageRect.Width>0</m_ImageRect.Width>
-<m_ImageRect.Height>0</m_ImageRect.Height>
-<m_ImageBorder.x>0</m_ImageBorder.x>
-<m_ImageBorder.y>0</m_ImageBorder.y>
-<m_ImageBorder.z>0</m_ImageBorder.z>
-<m_ImageBorder.w>0</m_ImageBorder.w>
-<strFamily>微软雅黑</strFamily>
-<fSize>1.300000000e+01</fSize>
-<argb>4294967295</argb>
-<m_Text>Refresh Rate</m_Text>
-<m_TextAlign>5</m_TextAlign>
-<m_TextWrap>0</m_TextWrap>
-<m_TextOff.x>0</m_TextOff.x>
-<m_TextOff.y>0</m_TextOff.y>
-<nChilds>0</nChilds>
-<id>26</id>
-<szName>cbx_resolution</szName>
-<m_Class>ComboBox</m_Class>
-<m_Locked>1</m_Locked>
-<m_x.scale>0.000000000e+00</m_x.scale>
-<m_x.offset>2.010000000e+02</m_x.offset>
-<m_y.scale>0.000000000e+00</m_y.scale>
-<m_y.offset>1.800000000e+02</m_y.offset>
-<m_Width.scale>0.000000000e+00</m_Width.scale>
-<m_Width.offset>3.040000000e+02</m_Width.offset>
-<m_Height.scale>0.000000000e+00</m_Height.scale>
-<m_Height.offset>2.200000000e+01</m_Height.offset>
-<argb>4294967295</argb>
-<m_ImageStr>D:\Works\myd3dlib\demo2_3\Media\texture\CommonUI.png</m_ImageStr>
-<m_ImageRect.X>52</m_ImageRect.X>
-<m_ImageRect.Y>43</m_ImageRect.Y>
-<m_ImageRect.Width>16</m_ImageRect.Width>
-<m_ImageRect.Height>16</m_ImageRect.Height>
-<m_ImageBorder.x>7</m_ImageBorder.x>
-<m_ImageBorder.y>7</m_ImageBorder.y>
-<m_ImageBorder.z>7</m_ImageBorder.z>
-<m_ImageBorder.w>7</m_ImageBorder.w>
-<strFamily>微软雅黑</strFamily>
-<fSize>1.300000000e+01</fSize>
-<argb>4294967295</argb>
-<m_Text>x:%d y:%d w:%d h:%d</m_Text>
-<m_TextAlign>4</m_TextAlign>
-<m_TextWrap>0</m_TextWrap>
-<m_TextOff.x>0</m_TextOff.x>
-<m_TextOff.y>0</m_TextOff.y>
-<nChilds>1</nChilds>
-<id>27</id>
-<szName>editor_control_27</szName>
-<m_Class>Static</m_Class>
-<m_Locked>1</m_Locked>
-<m_x.scale>0.000000000e+00</m_x.scale>
-<m_x.offset>-2.010000000e+02</m_x.offset>
-<m_y.scale>0.000000000e+00</m_y.scale>
-<m_y.offset>0.000000000e+00</m_y.offset>
-<m_Width.scale>0.000000000e+00</m_Width.scale>
-<m_Width.offset>1.900000000e+02</m_Width.offset>
-<m_Height.scale>0.000000000e+00</m_Height.scale>
-<m_Height.offset>2.200000000e+01</m_Height.offset>
-<argb>14052137</argb>
-<m_ImageStr></m_ImageStr>
-<m_ImageRect.X>0</m_ImageRect.X>
-<m_ImageRect.Y>0</m_ImageRect.Y>
-<m_ImageRect.Width>0</m_ImageRect.Width>
-<m_ImageRect.Height>0</m_ImageRect.Height>
-<m_ImageBorder.x>0</m_ImageBorder.x>
-<m_ImageBorder.y>0</m_ImageBorder.y>
-<m_ImageBorder.z>0</m_ImageBorder.z>
-<m_ImageBorder.w>0</m_ImageBorder.w>
-<strFamily>微软雅黑</strFamily>
-<fSize>1.300000000e+01</fSize>
-<argb>4294967295</argb>
-<m_Text>Resolution</m_Text>
-<m_TextAlign>5</m_TextAlign>
-<m_TextWrap>0</m_TextWrap>
-<m_TextOff.x>0</m_TextOff.x>
-<m_TextOff.y>0</m_TextOff.y>
-<nChilds>0</nChilds>
-<id>28</id>
-<szName>cbx_adapter_format</szName>
-<m_Class>ComboBox</m_Class>
-<m_Locked>1</m_Locked>
-<m_x.scale>0.000000000e+00</m_x.scale>
-<m_x.offset>2.010000000e+02</m_x.offset>
-<m_y.scale>0.000000000e+00</m_y.scale>
-<m_y.offset>1.500000000e+02</m_y.offset>
-<m_Width.scale>0.000000000e+00</m_Width.scale>
-<m_Width.offset>3.040000000e+02</m_Width.offset>
-<m_Height.scale>0.000000000e+00</m_Height.scale>
-<m_Height.offset>2.200000000e+01</m_Height.offset>
-<argb>4294967295</argb>
-<m_ImageStr>D:\Works\myd3dlib\demo2_3\Media\texture\CommonUI.png</m_ImageStr>
-<m_ImageRect.X>52</m_ImageRect.X>
-<m_ImageRect.Y>43</m_ImageRect.Y>
-<m_ImageRect.Width>16</m_ImageRect.Width>
-<m_ImageRect.Height>16</m_ImageRect.Height>
-<m_ImageBorder.x>7</m_ImageBorder.x>
-<m_ImageBorder.y>7</m_ImageBorder.y>
-<m_ImageBorder.z>7</m_ImageBorder.z>
-<m_ImageBorder.w>7</m_ImageBorder.w>
-<strFamily>微软雅黑</strFamily>
-<fSize>1.300000000e+01</fSize>
-<argb>4294967295</argb>
-<m_Text>x:%d y:%d w:%d h:%d</m_Text>
-<m_TextAlign>4</m_TextAlign>
-<m_TextWrap>0</m_TextWrap>
-<m_TextOff.x>0</m_TextOff.x>
-<m_TextOff.y>0</m_TextOff.y>
-<nChilds>1</nChilds>
-<id>29</id>
-<szName>editor_control_29</szName>
-<m_Class>Static</m_Class>
-<m_Locked>1</m_Locked>
-<m_x.scale>0.000000000e+00</m_x.scale>
-<m_x.offset>-2.010000000e+02</m_x.offset>
-<m_y.scale>0.000000000e+00</m_y.scale>
-<m_y.offset>0.000000000e+00</m_y.offset>
-<m_Width.scale>0.000000000e+00</m_Width.scale>
-<m_Width.offset>1.900000000e+02</m_Width.offset>
-<m_Height.scale>0.000000000e+00</m_Height.scale>
-<m_Height.offset>2.200000000e+01</m_Height.offset>
-<argb>14052137</argb>
-<m_ImageStr></m_ImageStr>
-<m_ImageRect.X>0</m_ImageRect.X>
-<m_ImageRect.Y>0</m_ImageRect.Y>
-<m_ImageRect.Width>0</m_ImageRect.Width>
-<m_ImageRect.Height>0</m_ImageRect.Height>
-<m_ImageBorder.x>0</m_ImageBorder.x>
-<m_ImageBorder.y>0</m_ImageBorder.y>
-<m_ImageBorder.z>0</m_ImageBorder.z>
-<m_ImageBorder.w>0</m_ImageBorder.w>
-<strFamily>微软雅黑</strFamily>
-<fSize>1.300000000e+01</fSize>
-<argb>4294967295</argb>
-<m_Text>Adapter Format</m_Text>
-<m_TextAlign>5</m_TextAlign>
-<m_TextWrap>0</m_TextWrap>
-<m_TextOff.x>0</m_TextOff.x>
-<m_TextOff.y>0</m_TextOff.y>
-<nChilds>0</nChilds>
-<id>30</id>
-<szName>chx_windowed</szName>
-<m_Class>CheckBox</m_Class>
-<m_Locked>1</m_Locked>
-<m_x.scale>0.000000000e+00</m_x.scale>
-<m_x.offset>2.390000000e+02</m_x.offset>
-<m_y.scale>0.000000000e+00</m_y.scale>
-<m_y.offset>1.200000000e+02</m_y.offset>
-<m_Width.scale>0.000000000e+00</m_Width.scale>
-<m_Width.offset>2.200000000e+01</m_Width.offset>
-<m_Height.scale>0.000000000e+00</m_Height.scale>
-<m_Height.offset>2.200000000e+01</m_Height.offset>
-<argb>4294967295</argb>
-<m_ImageStr>D:\Works\myd3dlib\demo2_3\Media\texture\CommonUI.png</m_ImageStr>
-<m_ImageRect.X>135</m_ImageRect.X>
-<m_ImageRect.Y>43</m_ImageRect.Y>
-<m_ImageRect.Width>20</m_ImageRect.Width>
-<m_ImageRect.Height>20</m_ImageRect.Height>
-<m_ImageBorder.x>0</m_ImageBorder.x>
-<m_ImageBorder.y>0</m_ImageBorder.y>
-<m_ImageBorder.z>0</m_ImageBorder.z>
-<m_ImageBorder.w>0</m_ImageBorder.w>
-<strFamily>微软雅黑</strFamily>
-<fSize>1.300000000e+01</fSize>
-<argb>4294967295</argb>
-<m_Text>        Windowed</m_Text>
-<m_TextAlign>3</m_TextAlign>
-<m_TextWrap>0</m_TextWrap>
-<m_TextOff.x>0</m_TextOff.x>
-<m_TextOff.y>0</m_TextOff.y>
-<nChilds>0</nChilds>
-<id>31</id>
-<szName>chx_full_screen</szName>
-<m_Class>CheckBox</m_Class>
-<m_Locked>1</m_Locked>
-<m_x.scale>0.000000000e+00</m_x.scale>
-<m_x.offset>3.570000000e+02</m_x.offset>
-<m_y.scale>0.000000000e+00</m_y.scale>
-<m_y.offset>1.200000000e+02</m_y.offset>
-<m_Width.scale>0.000000000e+00</m_Width.scale>
-<m_Width.offset>2.200000000e+01</m_Width.offset>
-<m_Height.scale>0.000000000e+00</m_Height.scale>
-<m_Height.offset>2.200000000e+01</m_Height.offset>
-<argb>4294967295</argb>
-<m_ImageStr>D:\Works\myd3dlib\demo2_3\Media\texture\CommonUI.png</m_ImageStr>
-<m_ImageRect.X>135</m_ImageRect.X>
-<m_ImageRect.Y>43</m_ImageRect.Y>
-<m_ImageRect.Width>20</m_ImageRect.Width>
-<m_ImageRect.Height>20</m_ImageRect.Height>
-<m_ImageBorder.x>0</m_ImageBorder.x>
-<m_ImageBorder.y>0</m_ImageBorder.y>
-<m_ImageBorder.z>0</m_ImageBorder.z>
-<m_ImageBorder.w>0</m_ImageBorder.w>
-<strFamily>微软雅黑</strFamily>
-<fSize>1.300000000e+01</fSize>
-<argb>4294967295</argb>
-<m_Text>        Full Screen</m_Text>
-<m_TextAlign>3</m_TextAlign>
-<m_TextWrap>0</m_TextWrap>
-<m_TextOff.x>0</m_TextOff.x>
-<m_TextOff.y>0</m_TextOff.y>
-<nChilds>0</nChilds>
-<id>32</id>
-<szName>cbx_render_device</szName>
-<m_Class>ComboBox</m_Class>
-<m_Locked>1</m_Locked>
-<m_x.scale>0.000000000e+00</m_x.scale>
-<m_x.offset>2.010000000e+02</m_x.offset>
-<m_y.scale>0.000000000e+00</m_y.scale>
-<m_y.offset>9.000000000e+01</m_y.offset>
-<m_Width.scale>0.000000000e+00</m_Width.scale>
-<m_Width.offset>3.040000000e+02</m_Width.offset>
-<m_Height.scale>0.000000000e+00</m_Height.scale>
-<m_Height.offset>2.200000000e+01</m_Height.offset>
-<argb>4294967295</argb>
-<m_ImageStr>D:\Works\myd3dlib\demo2_3\Media\texture\CommonUI.png</m_ImageStr>
-<m_ImageRect.X>52</m_ImageRect.X>
-<m_ImageRect.Y>43</m_ImageRect.Y>
-<m_ImageRect.Width>16</m_ImageRect.Width>
-<m_ImageRect.Height>16</m_ImageRect.Height>
-<m_ImageBorder.x>7</m_ImageBorder.x>
-<m_ImageBorder.y>7</m_ImageBorder.y>
-<m_ImageBorder.z>7</m_ImageBorder.z>
-<m_ImageBorder.w>7</m_ImageBorder.w>
-<strFamily>微软雅黑</strFamily>
-<fSize>1.300000000e+01</fSize>
-<argb>4294967295</argb>
-<m_Text>x:%d y:%d w:%d h:%d</m_Text>
-<m_TextAlign>4</m_TextAlign>
-<m_TextWrap>0</m_TextWrap>
-<m_TextOff.x>0</m_TextOff.x>
-<m_TextOff.y>0</m_TextOff.y>
-<nChilds>1</nChilds>
-<id>33</id>
-<szName>editor_control_33</szName>
-<m_Class>Static</m_Class>
-<m_Locked>1</m_Locked>
-<m_x.scale>0.000000000e+00</m_x.scale>
-<m_x.offset>-2.010000000e+02</m_x.offset>
-<m_y.scale>0.000000000e+00</m_y.scale>
-<m_y.offset>0.000000000e+00</m_y.offset>
-<m_Width.scale>0.000000000e+00</m_Width.scale>
-<m_Width.offset>1.900000000e+02</m_Width.offset>
-<m_Height.scale>0.000000000e+00</m_Height.scale>
-<m_Height.offset>2.200000000e+01</m_Height.offset>
-<argb>14052137</argb>
-<m_ImageStr></m_ImageStr>
-<m_ImageRect.X>0</m_ImageRect.X>
-<m_ImageRect.Y>0</m_ImageRect.Y>
-<m_ImageRect.Width>0</m_ImageRect.Width>
-<m_ImageRect.Height>0</m_ImageRect.Height>
-<m_ImageBorder.x>0</m_ImageBorder.x>
-<m_ImageBorder.y>0</m_ImageBorder.y>
-<m_ImageBorder.z>0</m_ImageBorder.z>
-<m_ImageBorder.w>0</m_ImageBorder.w>
-<strFamily>微软雅黑</strFamily>
-<fSize>1.300000000e+01</fSize>
-<argb>4294967295</argb>
-<m_Text>Render Device</m_Text>
-<m_TextAlign>5</m_TextAlign>
-<m_TextWrap>0</m_TextWrap>
-<m_TextOff.x>0</m_TextOff.x>
-<m_TextOff.y>0</m_TextOff.y>
-<nChilds>0</nChilds>
-<id>34</id>
-<szName>cbx_display_adapter</szName>
-<m_Class>ComboBox</m_Class>
-<m_Locked>1</m_Locked>
-<m_x.scale>0.000000000e+00</m_x.scale>
-<m_x.offset>2.010000000e+02</m_x.offset>
-<m_y.scale>0.000000000e+00</m_y.scale>
-<m_y.offset>6.000000000e+01</m_y.offset>
-<m_Width.scale>0.000000000e+00</m_Width.scale>
-<m_Width.offset>3.040000000e+02</m_Width.offset>
-<m_Height.scale>0.000000000e+00</m_Height.scale>
-<m_Height.offset>2.200000000e+01</m_Height.offset>
-<argb>4294967295</argb>
-<m_ImageStr>D:\Works\myd3dlib\demo2_3\Media\texture\CommonUI.png</m_ImageStr>
-<m_ImageRect.X>52</m_ImageRect.X>
-<m_ImageRect.Y>43</m_ImageRect.Y>
-<m_ImageRect.Width>16</m_ImageRect.Width>
-<m_ImageRect.Height>16</m_ImageRect.Height>
-<m_ImageBorder.x>7</m_ImageBorder.x>
-<m_ImageBorder.y>7</m_ImageBorder.y>
-<m_ImageBorder.z>7</m_ImageBorder.z>
-<m_ImageBorder.w>7</m_ImageBorder.w>
-<strFamily>微软雅黑</strFamily>
-<fSize>1.300000000e+01</fSize>
-<argb>4294967295</argb>
-<m_Text>x:%d y:%d w:%d h:%d</m_Text>
-<m_TextAlign>4</m_TextAlign>
-<m_TextWrap>0</m_TextWrap>
-<m_TextOff.x>0</m_TextOff.x>
-<m_TextOff.y>0</m_TextOff.y>
-<nChilds>1</nChilds>
-<id>35</id>
-<szName>editor_control_35</szName>
-<m_Class>Static</m_Class>
-<m_Locked>1</m_Locked>
-<m_x.scale>0.000000000e+00</m_x.scale>
-<m_x.offset>-2.010000000e+02</m_x.offset>
-<m_y.scale>0.000000000e+00</m_y.scale>
-<m_y.offset>0.000000000e+00</m_y.offset>
-<m_Width.scale>0.000000000e+00</m_Width.scale>
-<m_Width.offset>1.900000000e+02</m_Width.offset>
-<m_Height.scale>0.000000000e+00</m_Height.scale>
-<m_Height.offset>2.200000000e+01</m_Height.offset>
-<argb>14052137</argb>
-<m_ImageStr></m_ImageStr>
-<m_ImageRect.X>0</m_ImageRect.X>
-<m_ImageRect.Y>0</m_ImageRect.Y>
-<m_ImageRect.Width>0</m_ImageRect.Width>
-<m_ImageRect.Height>0</m_ImageRect.Height>
-<m_ImageBorder.x>0</m_ImageBorder.x>
-<m_ImageBorder.y>0</m_ImageBorder.y>
-<m_ImageBorder.z>0</m_ImageBorder.z>
-<m_ImageBorder.w>0</m_ImageBorder.w>
-<strFamily>微软雅黑</strFamily>
-<fSize>1.300000000e+01</fSize>
-<argb>4294967295</argb>
-<m_Text>Display Adapter</m_Text>
-<m_TextAlign>5</m_TextAlign>
-<m_TextWrap>0</m_TextWrap>
-<m_TextOff.x>0</m_TextOff.x>
-<m_TextOff.y>0</m_TextOff.y>
-<nChilds>0</nChilds>
+<ImgRegion class_id="1" tracking_level="0" version="0">
+	<Class>Control</Class>
+	<Locked>1</Locked>
+	<x.scale>5.000000000e-01</x.scale>
+	<x.offset>-3.200000000e+02</x.offset>
+	<y.scale>5.000000000e-01</y.scale>
+	<y.offset>-2.400000000e+02</y.offset>
+	<Width.scale>0.000000000e+00</Width.scale>
+	<Width.offset>6.410000000e+02</Width.offset>
+	<Height.scale>0.000000000e+00</Height.scale>
+	<Height.offset>4.800000000e+02</Height.offset>
+	<argb>2533359616</argb>
+	<ImageStr>D:\Works\myd3dlib\demo2_3\Media\texture\CommonUI.png</ImageStr>
+	<ImageRect.X>157</ImageRect.X>
+	<ImageRect.Y>42</ImageRect.Y>
+	<ImageRect.Width>4</ImageRect.Width>
+	<ImageRect.Height>4</ImageRect.Height>
+	<ImageBorder.x>0</ImageBorder.x>
+	<ImageBorder.y>0</ImageBorder.y>
+	<ImageBorder.z>0</ImageBorder.z>
+	<ImageBorder.w>0</ImageBorder.w>
+	<strFamily>微软雅黑</strFamily>
+	<fSize>1.300000000e+01</fSize>
+	<argb>4289277163</argb>
+	<Text></Text>
+	<TextAlign>0</TextAlign>
+	<TextWrap>0</TextWrap>
+	<TextOff.x>0</TextOff.x>
+	<TextOff.y>0</TextOff.y>
+	<nChilds>16</nChilds>
+	<id>2</id>
+	<szName>editor_control_2</szName>
+	<ImgRegion>
+		<Class>Control</Class>
+		<Locked>-859045887</Locked>
+		<x.scale>0.000000000e+00</x.scale>
+		<x.offset>1.700000000e+01</x.offset>
+		<y.scale>0.000000000e+00</y.scale>
+		<y.offset>1.300000000e+01</y.offset>
+		<Width.scale>0.000000000e+00</Width.scale>
+		<Width.offset>2.560000000e+02</Width.offset>
+		<Height.scale>0.000000000e+00</Height.scale>
+		<Height.offset>4.200000000e+01</Height.offset>
+		<argb>4294967295</argb>
+		<ImageStr>D:\Works\myd3dlib\demo2_3\Media\texture\CommonUI.png</ImageStr>
+		<ImageRect.X>0</ImageRect.X>
+		<ImageRect.Y>0</ImageRect.Y>
+		<ImageRect.Width>256</ImageRect.Width>
+		<ImageRect.Height>42</ImageRect.Height>
+		<ImageBorder.x>0</ImageBorder.x>
+		<ImageBorder.y>0</ImageBorder.y>
+		<ImageBorder.z>0</ImageBorder.z>
+		<ImageBorder.w>0</ImageBorder.w>
+		<strFamily>微软雅黑</strFamily>
+		<fSize>1.300000000e+01</fSize>
+		<argb>4284440559</argb>
+		<Text></Text>
+		<TextAlign>0</TextAlign>
+		<TextWrap>0</TextWrap>
+		<TextOff.x>0</TextOff.x>
+		<TextOff.y>0</TextOff.y>
+		<nChilds>0</nChilds>
+	</ImgRegion>
+	<id>3</id>
+	<szName>btn_ok</szName>
+	<ImgRegion>
+		<Class>Button</Class>
+		<Locked>1</Locked>
+		<x.scale>0.000000000e+00</x.scale>
+		<x.offset>2.300000000e+02</x.offset>
+		<y.scale>0.000000000e+00</y.scale>
+		<y.offset>4.390000000e+02</y.offset>
+		<Width.scale>0.000000000e+00</Width.scale>
+		<Width.offset>8.000000000e+01</Width.offset>
+		<Height.scale>0.000000000e+00</Height.scale>
+		<Height.offset>3.200000000e+01</Height.offset>
+		<argb>4294967295</argb>
+		<ImageStr>D:\Works\myd3dlib\demo2_3\Media\texture\CommonUI.png</ImageStr>
+		<ImageRect.X>52</ImageRect.X>
+		<ImageRect.Y>43</ImageRect.Y>
+		<ImageRect.Width>16</ImageRect.Width>
+		<ImageRect.Height>16</ImageRect.Height>
+		<ImageBorder.x>7</ImageBorder.x>
+		<ImageBorder.y>7</ImageBorder.y>
+		<ImageBorder.z>7</ImageBorder.z>
+		<ImageBorder.w>7</ImageBorder.w>
+		<strFamily>微软雅黑</strFamily>
+		<fSize>1.300000000e+01</fSize>
+		<argb>4294967295</argb>
+		<Text>OK</Text>
+		<TextAlign>4</TextAlign>
+		<TextWrap>0</TextWrap>
+		<TextOff.x>0</TextOff.x>
+		<TextOff.y>0</TextOff.y>
+		<nChilds>0</nChilds>
+	</ImgRegion>
+	<id>4</id>
+	<szName>btn_cancel</szName>
+	<ImgRegion>
+		<Class>Button</Class>
+		<Locked>1</Locked>
+		<x.scale>0.000000000e+00</x.scale>
+		<x.offset>3.150000000e+02</x.offset>
+		<y.scale>0.000000000e+00</y.scale>
+		<y.offset>4.390000000e+02</y.offset>
+		<Width.scale>0.000000000e+00</Width.scale>
+		<Width.offset>8.000000000e+01</Width.offset>
+		<Height.scale>0.000000000e+00</Height.scale>
+		<Height.offset>3.200000000e+01</Height.offset>
+		<argb>4294967295</argb>
+		<ImageStr>D:\Works\myd3dlib\demo2_3\Media\texture\CommonUI.png</ImageStr>
+		<ImageRect.X>52</ImageRect.X>
+		<ImageRect.Y>43</ImageRect.Y>
+		<ImageRect.Width>16</ImageRect.Width>
+		<ImageRect.Height>16</ImageRect.Height>
+		<ImageBorder.x>7</ImageBorder.x>
+		<ImageBorder.y>7</ImageBorder.y>
+		<ImageBorder.z>7</ImageBorder.z>
+		<ImageBorder.w>7</ImageBorder.w>
+		<strFamily>微软雅黑</strFamily>
+		<fSize>1.300000000e+01</fSize>
+		<argb>4294967295</argb>
+		<Text>Cancel</Text>
+		<TextAlign>4</TextAlign>
+		<TextWrap>0</TextWrap>
+		<TextOff.x>0</TextOff.x>
+		<TextOff.y>0</TextOff.y>
+		<nChilds>0</nChilds>
+	</ImgRegion>
+	<id>6</id>
+	<szName>cbx_vertical_sync</szName>
+	<ImgRegion>
+		<Class>ComboBox</Class>
+		<Locked>1</Locked>
+		<x.scale>0.000000000e+00</x.scale>
+		<x.offset>2.010000000e+02</x.offset>
+		<y.scale>0.000000000e+00</y.scale>
+		<y.offset>3.900000000e+02</y.offset>
+		<Width.scale>0.000000000e+00</Width.scale>
+		<Width.offset>3.040000000e+02</Width.offset>
+		<Height.scale>0.000000000e+00</Height.scale>
+		<Height.offset>2.200000000e+01</Height.offset>
+		<argb>4294967295</argb>
+		<ImageStr>D:\Works\myd3dlib\demo2_3\Media\texture\CommonUI.png</ImageStr>
+		<ImageRect.X>52</ImageRect.X>
+		<ImageRect.Y>43</ImageRect.Y>
+		<ImageRect.Width>16</ImageRect.Width>
+		<ImageRect.Height>16</ImageRect.Height>
+		<ImageBorder.x>7</ImageBorder.x>
+		<ImageBorder.y>7</ImageBorder.y>
+		<ImageBorder.z>7</ImageBorder.z>
+		<ImageBorder.w>7</ImageBorder.w>
+		<strFamily>微软雅黑</strFamily>
+		<fSize>1.300000000e+01</fSize>
+		<argb>4294967295</argb>
+		<Text>x:%d y:%d w:%d h:%d</Text>
+		<TextAlign>4</TextAlign>
+		<TextWrap>0</TextWrap>
+		<TextOff.x>0</TextOff.x>
+		<TextOff.y>0</TextOff.y>
+		<nChilds>1</nChilds>
+		<id>7</id>
+		<szName>editor_control_7</szName>
+		<ImgRegion>
+			<Class>Static</Class>
+			<Locked>1</Locked>
+			<x.scale>0.000000000e+00</x.scale>
+			<x.offset>-2.010000000e+02</x.offset>
+			<y.scale>0.000000000e+00</y.scale>
+			<y.offset>0.000000000e+00</y.offset>
+			<Width.scale>0.000000000e+00</Width.scale>
+			<Width.offset>1.900000000e+02</Width.offset>
+			<Height.scale>0.000000000e+00</Height.scale>
+			<Height.offset>2.200000000e+01</Height.offset>
+			<argb>14052137</argb>
+			<ImageStr></ImageStr>
+			<ImageRect.X>0</ImageRect.X>
+			<ImageRect.Y>0</ImageRect.Y>
+			<ImageRect.Width>0</ImageRect.Width>
+			<ImageRect.Height>0</ImageRect.Height>
+			<ImageBorder.x>0</ImageBorder.x>
+			<ImageBorder.y>0</ImageBorder.y>
+			<ImageBorder.z>0</ImageBorder.z>
+			<ImageBorder.w>0</ImageBorder.w>
+			<strFamily>微软雅黑</strFamily>
+			<fSize>1.300000000e+01</fSize>
+			<argb>4294967295</argb>
+			<Text>Vertical Sync</Text>
+			<TextAlign>5</TextAlign>
+			<TextWrap>0</TextWrap>
+			<TextOff.x>0</TextOff.x>
+			<TextOff.y>0</TextOff.y>
+			<nChilds>0</nChilds>
+		</ImgRegion>
+	</ImgRegion>
+	<id>8</id>
+	<szName>cbx_vertex_processing</szName>
+	<ImgRegion>
+		<Class>ComboBox</Class>
+		<Locked>1</Locked>
+		<x.scale>0.000000000e+00</x.scale>
+		<x.offset>2.010000000e+02</x.offset>
+		<y.scale>0.000000000e+00</y.scale>
+		<y.offset>3.600000000e+02</y.offset>
+		<Width.scale>0.000000000e+00</Width.scale>
+		<Width.offset>3.040000000e+02</Width.offset>
+		<Height.scale>0.000000000e+00</Height.scale>
+		<Height.offset>2.200000000e+01</Height.offset>
+		<argb>4294967295</argb>
+		<ImageStr>D:\Works\myd3dlib\demo2_3\Media\texture\CommonUI.png</ImageStr>
+		<ImageRect.X>52</ImageRect.X>
+		<ImageRect.Y>43</ImageRect.Y>
+		<ImageRect.Width>16</ImageRect.Width>
+		<ImageRect.Height>16</ImageRect.Height>
+		<ImageBorder.x>7</ImageBorder.x>
+		<ImageBorder.y>7</ImageBorder.y>
+		<ImageBorder.z>7</ImageBorder.z>
+		<ImageBorder.w>7</ImageBorder.w>
+		<strFamily>微软雅黑</strFamily>
+		<fSize>1.300000000e+01</fSize>
+		<argb>4294967295</argb>
+		<Text>x:%d y:%d w:%d h:%d</Text>
+		<TextAlign>4</TextAlign>
+		<TextWrap>0</TextWrap>
+		<TextOff.x>0</TextOff.x>
+		<TextOff.y>0</TextOff.y>
+		<nChilds>1</nChilds>
+		<id>9</id>
+		<szName>editor_control_9</szName>
+		<ImgRegion>
+			<Class>Static</Class>
+			<Locked>1</Locked>
+			<x.scale>0.000000000e+00</x.scale>
+			<x.offset>-2.010000000e+02</x.offset>
+			<y.scale>0.000000000e+00</y.scale>
+			<y.offset>0.000000000e+00</y.offset>
+			<Width.scale>0.000000000e+00</Width.scale>
+			<Width.offset>1.900000000e+02</Width.offset>
+			<Height.scale>0.000000000e+00</Height.scale>
+			<Height.offset>2.200000000e+01</Height.offset>
+			<argb>14052137</argb>
+			<ImageStr></ImageStr>
+			<ImageRect.X>0</ImageRect.X>
+			<ImageRect.Y>0</ImageRect.Y>
+			<ImageRect.Width>0</ImageRect.Width>
+			<ImageRect.Height>0</ImageRect.Height>
+			<ImageBorder.x>0</ImageBorder.x>
+			<ImageBorder.y>0</ImageBorder.y>
+			<ImageBorder.z>0</ImageBorder.z>
+			<ImageBorder.w>0</ImageBorder.w>
+			<strFamily>微软雅黑</strFamily>
+			<fSize>1.300000000e+01</fSize>
+			<argb>4294967295</argb>
+			<Text>Vertex Processing</Text>
+			<TextAlign>5</TextAlign>
+			<TextWrap>0</TextWrap>
+			<TextOff.x>0</TextOff.x>
+			<TextOff.y>0</TextOff.y>
+			<nChilds>0</nChilds>
+		</ImgRegion>
+	</ImgRegion>
+	<id>16</id>
+	<szName>cbx_multisample_quality</szName>
+	<ImgRegion>
+		<Class>ComboBox</Class>
+		<Locked>1</Locked>
+		<x.scale>0.000000000e+00</x.scale>
+		<x.offset>2.010000000e+02</x.offset>
+		<y.scale>0.000000000e+00</y.scale>
+		<y.offset>3.300000000e+02</y.offset>
+		<Width.scale>0.000000000e+00</Width.scale>
+		<Width.offset>3.040000000e+02</Width.offset>
+		<Height.scale>0.000000000e+00</Height.scale>
+		<Height.offset>2.200000000e+01</Height.offset>
+		<argb>4294967295</argb>
+		<ImageStr>D:\Works\myd3dlib\demo2_3\Media\texture\CommonUI.png</ImageStr>
+		<ImageRect.X>52</ImageRect.X>
+		<ImageRect.Y>43</ImageRect.Y>
+		<ImageRect.Width>16</ImageRect.Width>
+		<ImageRect.Height>16</ImageRect.Height>
+		<ImageBorder.x>7</ImageBorder.x>
+		<ImageBorder.y>7</ImageBorder.y>
+		<ImageBorder.z>7</ImageBorder.z>
+		<ImageBorder.w>7</ImageBorder.w>
+		<strFamily>微软雅黑</strFamily>
+		<fSize>1.300000000e+01</fSize>
+		<argb>4294967295</argb>
+		<Text>x:%d y:%d w:%d h:%d</Text>
+		<TextAlign>4</TextAlign>
+		<TextWrap>0</TextWrap>
+		<TextOff.x>0</TextOff.x>
+		<TextOff.y>0</TextOff.y>
+		<nChilds>1</nChilds>
+		<id>17</id>
+		<szName>editor_control_17</szName>
+		<ImgRegion>
+			<Class>Static</Class>
+			<Locked>1</Locked>
+			<x.scale>0.000000000e+00</x.scale>
+			<x.offset>-2.010000000e+02</x.offset>
+			<y.scale>0.000000000e+00</y.scale>
+			<y.offset>0.000000000e+00</y.offset>
+			<Width.scale>0.000000000e+00</Width.scale>
+			<Width.offset>1.900000000e+02</Width.offset>
+			<Height.scale>0.000000000e+00</Height.scale>
+			<Height.offset>2.200000000e+01</Height.offset>
+			<argb>14052137</argb>
+			<ImageStr></ImageStr>
+			<ImageRect.X>0</ImageRect.X>
+			<ImageRect.Y>0</ImageRect.Y>
+			<ImageRect.Width>0</ImageRect.Width>
+			<ImageRect.Height>0</ImageRect.Height>
+			<ImageBorder.x>0</ImageBorder.x>
+			<ImageBorder.y>0</ImageBorder.y>
+			<ImageBorder.z>0</ImageBorder.z>
+			<ImageBorder.w>0</ImageBorder.w>
+			<strFamily>微软雅黑</strFamily>
+			<fSize>1.300000000e+01</fSize>
+			<argb>4294967295</argb>
+			<Text>Multisample Quality</Text>
+			<TextAlign>5</TextAlign>
+			<TextWrap>0</TextWrap>
+			<TextOff.x>0</TextOff.x>
+			<TextOff.y>0</TextOff.y>
+			<nChilds>0</nChilds>
+		</ImgRegion>
+	</ImgRegion>
+	<id>18</id>
+	<szName>lbl_multisample_type</szName>
+	<ImgRegion>
+		<Class>ComboBox</Class>
+		<Locked>1</Locked>
+		<x.scale>0.000000000e+00</x.scale>
+		<x.offset>2.010000000e+02</x.offset>
+		<y.scale>0.000000000e+00</y.scale>
+		<y.offset>3.000000000e+02</y.offset>
+		<Width.scale>0.000000000e+00</Width.scale>
+		<Width.offset>3.040000000e+02</Width.offset>
+		<Height.scale>0.000000000e+00</Height.scale>
+		<Height.offset>2.200000000e+01</Height.offset>
+		<argb>4294967295</argb>
+		<ImageStr>D:\Works\myd3dlib\demo2_3\Media\texture\CommonUI.png</ImageStr>
+		<ImageRect.X>52</ImageRect.X>
+		<ImageRect.Y>43</ImageRect.Y>
+		<ImageRect.Width>16</ImageRect.Width>
+		<ImageRect.Height>16</ImageRect.Height>
+		<ImageBorder.x>7</ImageBorder.x>
+		<ImageBorder.y>7</ImageBorder.y>
+		<ImageBorder.z>7</ImageBorder.z>
+		<ImageBorder.w>7</ImageBorder.w>
+		<strFamily>微软雅黑</strFamily>
+		<fSize>1.300000000e+01</fSize>
+		<argb>4294967295</argb>
+		<Text>x:%d y:%d w:%d h:%d</Text>
+		<TextAlign>4</TextAlign>
+		<TextWrap>0</TextWrap>
+		<TextOff.x>0</TextOff.x>
+		<TextOff.y>0</TextOff.y>
+		<nChilds>1</nChilds>
+		<id>19</id>
+		<szName>editor_control_19</szName>
+		<ImgRegion>
+			<Class>Static</Class>
+			<Locked>1</Locked>
+			<x.scale>0.000000000e+00</x.scale>
+			<x.offset>-2.010000000e+02</x.offset>
+			<y.scale>0.000000000e+00</y.scale>
+			<y.offset>0.000000000e+00</y.offset>
+			<Width.scale>0.000000000e+00</Width.scale>
+			<Width.offset>1.900000000e+02</Width.offset>
+			<Height.scale>0.000000000e+00</Height.scale>
+			<Height.offset>2.200000000e+01</Height.offset>
+			<argb>14052137</argb>
+			<ImageStr></ImageStr>
+			<ImageRect.X>0</ImageRect.X>
+			<ImageRect.Y>0</ImageRect.Y>
+			<ImageRect.Width>0</ImageRect.Width>
+			<ImageRect.Height>0</ImageRect.Height>
+			<ImageBorder.x>0</ImageBorder.x>
+			<ImageBorder.y>0</ImageBorder.y>
+			<ImageBorder.z>0</ImageBorder.z>
+			<ImageBorder.w>0</ImageBorder.w>
+			<strFamily>微软雅黑</strFamily>
+			<fSize>1.300000000e+01</fSize>
+			<argb>4294967295</argb>
+			<Text>Multisample Type</Text>
+			<TextAlign>5</TextAlign>
+			<TextWrap>0</TextWrap>
+			<TextOff.x>0</TextOff.x>
+			<TextOff.y>0</TextOff.y>
+			<nChilds>0</nChilds>
+		</ImgRegion>
+	</ImgRegion>
+	<id>20</id>
+	<szName>cbx_depth_stencil_format</szName>
+	<ImgRegion>
+		<Class>ComboBox</Class>
+		<Locked>1</Locked>
+		<x.scale>0.000000000e+00</x.scale>
+		<x.offset>2.010000000e+02</x.offset>
+		<y.scale>0.000000000e+00</y.scale>
+		<y.offset>2.700000000e+02</y.offset>
+		<Width.scale>0.000000000e+00</Width.scale>
+		<Width.offset>3.040000000e+02</Width.offset>
+		<Height.scale>0.000000000e+00</Height.scale>
+		<Height.offset>2.200000000e+01</Height.offset>
+		<argb>4294967295</argb>
+		<ImageStr>D:\Works\myd3dlib\demo2_3\Media\texture\CommonUI.png</ImageStr>
+		<ImageRect.X>52</ImageRect.X>
+		<ImageRect.Y>43</ImageRect.Y>
+		<ImageRect.Width>16</ImageRect.Width>
+		<ImageRect.Height>16</ImageRect.Height>
+		<ImageBorder.x>7</ImageBorder.x>
+		<ImageBorder.y>7</ImageBorder.y>
+		<ImageBorder.z>7</ImageBorder.z>
+		<ImageBorder.w>7</ImageBorder.w>
+		<strFamily>微软雅黑</strFamily>
+		<fSize>1.300000000e+01</fSize>
+		<argb>4294967295</argb>
+		<Text>x:%d y:%d w:%d h:%d</Text>
+		<TextAlign>4</TextAlign>
+		<TextWrap>0</TextWrap>
+		<TextOff.x>0</TextOff.x>
+		<TextOff.y>0</TextOff.y>
+		<nChilds>1</nChilds>
+		<id>21</id>
+		<szName>editor_control_21</szName>
+		<ImgRegion>
+			<Class>Static</Class>
+			<Locked>1</Locked>
+			<x.scale>0.000000000e+00</x.scale>
+			<x.offset>-2.010000000e+02</x.offset>
+			<y.scale>0.000000000e+00</y.scale>
+			<y.offset>0.000000000e+00</y.offset>
+			<Width.scale>0.000000000e+00</Width.scale>
+			<Width.offset>1.900000000e+02</Width.offset>
+			<Height.scale>0.000000000e+00</Height.scale>
+			<Height.offset>2.200000000e+01</Height.offset>
+			<argb>14052137</argb>
+			<ImageStr></ImageStr>
+			<ImageRect.X>0</ImageRect.X>
+			<ImageRect.Y>0</ImageRect.Y>
+			<ImageRect.Width>0</ImageRect.Width>
+			<ImageRect.Height>0</ImageRect.Height>
+			<ImageBorder.x>0</ImageBorder.x>
+			<ImageBorder.y>0</ImageBorder.y>
+			<ImageBorder.z>0</ImageBorder.z>
+			<ImageBorder.w>0</ImageBorder.w>
+			<strFamily>微软雅黑</strFamily>
+			<fSize>1.300000000e+01</fSize>
+			<argb>4294967295</argb>
+			<Text>Depth/Stencil Format</Text>
+			<TextAlign>5</TextAlign>
+			<TextWrap>0</TextWrap>
+			<TextOff.x>0</TextOff.x>
+			<TextOff.y>0</TextOff.y>
+			<nChilds>0</nChilds>
+		</ImgRegion>
+	</ImgRegion>
+	<id>22</id>
+	<szName>cbx_back_buffer_format</szName>
+	<ImgRegion>
+		<Class>ComboBox</Class>
+		<Locked>1</Locked>
+		<x.scale>0.000000000e+00</x.scale>
+		<x.offset>2.010000000e+02</x.offset>
+		<y.scale>0.000000000e+00</y.scale>
+		<y.offset>2.400000000e+02</y.offset>
+		<Width.scale>0.000000000e+00</Width.scale>
+		<Width.offset>3.040000000e+02</Width.offset>
+		<Height.scale>0.000000000e+00</Height.scale>
+		<Height.offset>2.200000000e+01</Height.offset>
+		<argb>4294967295</argb>
+		<ImageStr>D:\Works\myd3dlib\demo2_3\Media\texture\CommonUI.png</ImageStr>
+		<ImageRect.X>52</ImageRect.X>
+		<ImageRect.Y>43</ImageRect.Y>
+		<ImageRect.Width>16</ImageRect.Width>
+		<ImageRect.Height>16</ImageRect.Height>
+		<ImageBorder.x>7</ImageBorder.x>
+		<ImageBorder.y>7</ImageBorder.y>
+		<ImageBorder.z>7</ImageBorder.z>
+		<ImageBorder.w>7</ImageBorder.w>
+		<strFamily>微软雅黑</strFamily>
+		<fSize>1.300000000e+01</fSize>
+		<argb>4294967295</argb>
+		<Text>x:%d y:%d w:%d h:%d</Text>
+		<TextAlign>4</TextAlign>
+		<TextWrap>0</TextWrap>
+		<TextOff.x>0</TextOff.x>
+		<TextOff.y>0</TextOff.y>
+		<nChilds>1</nChilds>
+		<id>23</id>
+		<szName>editor_control_23</szName>
+		<ImgRegion>
+			<Class>Static</Class>
+			<Locked>1</Locked>
+			<x.scale>0.000000000e+00</x.scale>
+			<x.offset>-2.010000000e+02</x.offset>
+			<y.scale>0.000000000e+00</y.scale>
+			<y.offset>0.000000000e+00</y.offset>
+			<Width.scale>0.000000000e+00</Width.scale>
+			<Width.offset>1.900000000e+02</Width.offset>
+			<Height.scale>0.000000000e+00</Height.scale>
+			<Height.offset>2.200000000e+01</Height.offset>
+			<argb>14052137</argb>
+			<ImageStr></ImageStr>
+			<ImageRect.X>0</ImageRect.X>
+			<ImageRect.Y>0</ImageRect.Y>
+			<ImageRect.Width>0</ImageRect.Width>
+			<ImageRect.Height>0</ImageRect.Height>
+			<ImageBorder.x>0</ImageBorder.x>
+			<ImageBorder.y>0</ImageBorder.y>
+			<ImageBorder.z>0</ImageBorder.z>
+			<ImageBorder.w>0</ImageBorder.w>
+			<strFamily>微软雅黑</strFamily>
+			<fSize>1.300000000e+01</fSize>
+			<argb>4294967295</argb>
+			<Text>Back Buffer Format</Text>
+			<TextAlign>5</TextAlign>
+			<TextWrap>0</TextWrap>
+			<TextOff.x>0</TextOff.x>
+			<TextOff.y>0</TextOff.y>
+			<nChilds>0</nChilds>
+		</ImgRegion>
+	</ImgRegion>
+	<id>24</id>
+	<szName>cbx_refresh_rate</szName>
+	<ImgRegion>
+		<Class>ComboBox</Class>
+		<Locked>1</Locked>
+		<x.scale>0.000000000e+00</x.scale>
+		<x.offset>2.010000000e+02</x.offset>
+		<y.scale>0.000000000e+00</y.scale>
+		<y.offset>2.100000000e+02</y.offset>
+		<Width.scale>0.000000000e+00</Width.scale>
+		<Width.offset>3.040000000e+02</Width.offset>
+		<Height.scale>0.000000000e+00</Height.scale>
+		<Height.offset>2.200000000e+01</Height.offset>
+		<argb>4294967295</argb>
+		<ImageStr>D:\Works\myd3dlib\demo2_3\Media\texture\CommonUI.png</ImageStr>
+		<ImageRect.X>52</ImageRect.X>
+		<ImageRect.Y>43</ImageRect.Y>
+		<ImageRect.Width>16</ImageRect.Width>
+		<ImageRect.Height>16</ImageRect.Height>
+		<ImageBorder.x>7</ImageBorder.x>
+		<ImageBorder.y>7</ImageBorder.y>
+		<ImageBorder.z>7</ImageBorder.z>
+		<ImageBorder.w>7</ImageBorder.w>
+		<strFamily>微软雅黑</strFamily>
+		<fSize>1.300000000e+01</fSize>
+		<argb>4294967295</argb>
+		<Text>x:%d y:%d w:%d h:%d</Text>
+		<TextAlign>4</TextAlign>
+		<TextWrap>0</TextWrap>
+		<TextOff.x>0</TextOff.x>
+		<TextOff.y>0</TextOff.y>
+		<nChilds>1</nChilds>
+		<id>25</id>
+		<szName>editor_control_25</szName>
+		<ImgRegion>
+			<Class>Static</Class>
+			<Locked>1</Locked>
+			<x.scale>0.000000000e+00</x.scale>
+			<x.offset>-2.010000000e+02</x.offset>
+			<y.scale>0.000000000e+00</y.scale>
+			<y.offset>0.000000000e+00</y.offset>
+			<Width.scale>0.000000000e+00</Width.scale>
+			<Width.offset>1.900000000e+02</Width.offset>
+			<Height.scale>0.000000000e+00</Height.scale>
+			<Height.offset>2.200000000e+01</Height.offset>
+			<argb>14052137</argb>
+			<ImageStr></ImageStr>
+			<ImageRect.X>0</ImageRect.X>
+			<ImageRect.Y>0</ImageRect.Y>
+			<ImageRect.Width>0</ImageRect.Width>
+			<ImageRect.Height>0</ImageRect.Height>
+			<ImageBorder.x>0</ImageBorder.x>
+			<ImageBorder.y>0</ImageBorder.y>
+			<ImageBorder.z>0</ImageBorder.z>
+			<ImageBorder.w>0</ImageBorder.w>
+			<strFamily>微软雅黑</strFamily>
+			<fSize>1.300000000e+01</fSize>
+			<argb>4294967295</argb>
+			<Text>Refresh Rate</Text>
+			<TextAlign>5</TextAlign>
+			<TextWrap>0</TextWrap>
+			<TextOff.x>0</TextOff.x>
+			<TextOff.y>0</TextOff.y>
+			<nChilds>0</nChilds>
+		</ImgRegion>
+	</ImgRegion>
+	<id>26</id>
+	<szName>cbx_resolution</szName>
+	<ImgRegion>
+		<Class>ComboBox</Class>
+		<Locked>1</Locked>
+		<x.scale>0.000000000e+00</x.scale>
+		<x.offset>2.010000000e+02</x.offset>
+		<y.scale>0.000000000e+00</y.scale>
+		<y.offset>1.800000000e+02</y.offset>
+		<Width.scale>0.000000000e+00</Width.scale>
+		<Width.offset>3.040000000e+02</Width.offset>
+		<Height.scale>0.000000000e+00</Height.scale>
+		<Height.offset>2.200000000e+01</Height.offset>
+		<argb>4294967295</argb>
+		<ImageStr>D:\Works\myd3dlib\demo2_3\Media\texture\CommonUI.png</ImageStr>
+		<ImageRect.X>52</ImageRect.X>
+		<ImageRect.Y>43</ImageRect.Y>
+		<ImageRect.Width>16</ImageRect.Width>
+		<ImageRect.Height>16</ImageRect.Height>
+		<ImageBorder.x>7</ImageBorder.x>
+		<ImageBorder.y>7</ImageBorder.y>
+		<ImageBorder.z>7</ImageBorder.z>
+		<ImageBorder.w>7</ImageBorder.w>
+		<strFamily>微软雅黑</strFamily>
+		<fSize>1.300000000e+01</fSize>
+		<argb>4294967295</argb>
+		<Text>x:%d y:%d w:%d h:%d</Text>
+		<TextAlign>4</TextAlign>
+		<TextWrap>0</TextWrap>
+		<TextOff.x>0</TextOff.x>
+		<TextOff.y>0</TextOff.y>
+		<nChilds>1</nChilds>
+		<id>27</id>
+		<szName>editor_control_27</szName>
+		<ImgRegion>
+			<Class>Static</Class>
+			<Locked>1</Locked>
+			<x.scale>0.000000000e+00</x.scale>
+			<x.offset>-2.010000000e+02</x.offset>
+			<y.scale>0.000000000e+00</y.scale>
+			<y.offset>0.000000000e+00</y.offset>
+			<Width.scale>0.000000000e+00</Width.scale>
+			<Width.offset>1.900000000e+02</Width.offset>
+			<Height.scale>0.000000000e+00</Height.scale>
+			<Height.offset>2.200000000e+01</Height.offset>
+			<argb>14052137</argb>
+			<ImageStr></ImageStr>
+			<ImageRect.X>0</ImageRect.X>
+			<ImageRect.Y>0</ImageRect.Y>
+			<ImageRect.Width>0</ImageRect.Width>
+			<ImageRect.Height>0</ImageRect.Height>
+			<ImageBorder.x>0</ImageBorder.x>
+			<ImageBorder.y>0</ImageBorder.y>
+			<ImageBorder.z>0</ImageBorder.z>
+			<ImageBorder.w>0</ImageBorder.w>
+			<strFamily>微软雅黑</strFamily>
+			<fSize>1.300000000e+01</fSize>
+			<argb>4294967295</argb>
+			<Text>Resolution</Text>
+			<TextAlign>5</TextAlign>
+			<TextWrap>0</TextWrap>
+			<TextOff.x>0</TextOff.x>
+			<TextOff.y>0</TextOff.y>
+			<nChilds>0</nChilds>
+		</ImgRegion>
+	</ImgRegion>
+	<id>28</id>
+	<szName>cbx_adapter_format</szName>
+	<ImgRegion>
+		<Class>ComboBox</Class>
+		<Locked>1</Locked>
+		<x.scale>0.000000000e+00</x.scale>
+		<x.offset>2.010000000e+02</x.offset>
+		<y.scale>0.000000000e+00</y.scale>
+		<y.offset>1.500000000e+02</y.offset>
+		<Width.scale>0.000000000e+00</Width.scale>
+		<Width.offset>3.040000000e+02</Width.offset>
+		<Height.scale>0.000000000e+00</Height.scale>
+		<Height.offset>2.200000000e+01</Height.offset>
+		<argb>4294967295</argb>
+		<ImageStr>D:\Works\myd3dlib\demo2_3\Media\texture\CommonUI.png</ImageStr>
+		<ImageRect.X>52</ImageRect.X>
+		<ImageRect.Y>43</ImageRect.Y>
+		<ImageRect.Width>16</ImageRect.Width>
+		<ImageRect.Height>16</ImageRect.Height>
+		<ImageBorder.x>7</ImageBorder.x>
+		<ImageBorder.y>7</ImageBorder.y>
+		<ImageBorder.z>7</ImageBorder.z>
+		<ImageBorder.w>7</ImageBorder.w>
+		<strFamily>微软雅黑</strFamily>
+		<fSize>1.300000000e+01</fSize>
+		<argb>4294967295</argb>
+		<Text>x:%d y:%d w:%d h:%d</Text>
+		<TextAlign>4</TextAlign>
+		<TextWrap>0</TextWrap>
+		<TextOff.x>0</TextOff.x>
+		<TextOff.y>0</TextOff.y>
+		<nChilds>1</nChilds>
+		<id>29</id>
+		<szName>editor_control_29</szName>
+		<ImgRegion>
+			<Class>Static</Class>
+			<Locked>1</Locked>
+			<x.scale>0.000000000e+00</x.scale>
+			<x.offset>-2.010000000e+02</x.offset>
+			<y.scale>0.000000000e+00</y.scale>
+			<y.offset>0.000000000e+00</y.offset>
+			<Width.scale>0.000000000e+00</Width.scale>
+			<Width.offset>1.900000000e+02</Width.offset>
+			<Height.scale>0.000000000e+00</Height.scale>
+			<Height.offset>2.200000000e+01</Height.offset>
+			<argb>14052137</argb>
+			<ImageStr></ImageStr>
+			<ImageRect.X>0</ImageRect.X>
+			<ImageRect.Y>0</ImageRect.Y>
+			<ImageRect.Width>0</ImageRect.Width>
+			<ImageRect.Height>0</ImageRect.Height>
+			<ImageBorder.x>0</ImageBorder.x>
+			<ImageBorder.y>0</ImageBorder.y>
+			<ImageBorder.z>0</ImageBorder.z>
+			<ImageBorder.w>0</ImageBorder.w>
+			<strFamily>微软雅黑</strFamily>
+			<fSize>1.300000000e+01</fSize>
+			<argb>4294967295</argb>
+			<Text>Adapter Format</Text>
+			<TextAlign>5</TextAlign>
+			<TextWrap>0</TextWrap>
+			<TextOff.x>0</TextOff.x>
+			<TextOff.y>0</TextOff.y>
+			<nChilds>0</nChilds>
+		</ImgRegion>
+	</ImgRegion>
+	<id>30</id>
+	<szName>chx_windowed</szName>
+	<ImgRegion>
+		<Class>CheckBox</Class>
+		<Locked>1</Locked>
+		<x.scale>0.000000000e+00</x.scale>
+		<x.offset>2.390000000e+02</x.offset>
+		<y.scale>0.000000000e+00</y.scale>
+		<y.offset>1.200000000e+02</y.offset>
+		<Width.scale>0.000000000e+00</Width.scale>
+		<Width.offset>2.200000000e+01</Width.offset>
+		<Height.scale>0.000000000e+00</Height.scale>
+		<Height.offset>2.200000000e+01</Height.offset>
+		<argb>4294967295</argb>
+		<ImageStr>D:\Works\myd3dlib\demo2_3\Media\texture\CommonUI.png</ImageStr>
+		<ImageRect.X>135</ImageRect.X>
+		<ImageRect.Y>43</ImageRect.Y>
+		<ImageRect.Width>20</ImageRect.Width>
+		<ImageRect.Height>20</ImageRect.Height>
+		<ImageBorder.x>0</ImageBorder.x>
+		<ImageBorder.y>0</ImageBorder.y>
+		<ImageBorder.z>0</ImageBorder.z>
+		<ImageBorder.w>0</ImageBorder.w>
+		<strFamily>微软雅黑</strFamily>
+		<fSize>1.300000000e+01</fSize>
+		<argb>4294967295</argb>
+		<Text>        Windowed</Text>
+		<TextAlign>3</TextAlign>
+		<TextWrap>0</TextWrap>
+		<TextOff.x>0</TextOff.x>
+		<TextOff.y>0</TextOff.y>
+		<nChilds>0</nChilds>
+	</ImgRegion>
+	<id>31</id>
+	<szName>chx_full_screen</szName>
+	<ImgRegion>
+		<Class>CheckBox</Class>
+		<Locked>1</Locked>
+		<x.scale>0.000000000e+00</x.scale>
+		<x.offset>3.570000000e+02</x.offset>
+		<y.scale>0.000000000e+00</y.scale>
+		<y.offset>1.200000000e+02</y.offset>
+		<Width.scale>0.000000000e+00</Width.scale>
+		<Width.offset>2.200000000e+01</Width.offset>
+		<Height.scale>0.000000000e+00</Height.scale>
+		<Height.offset>2.200000000e+01</Height.offset>
+		<argb>4294967295</argb>
+		<ImageStr>D:\Works\myd3dlib\demo2_3\Media\texture\CommonUI.png</ImageStr>
+		<ImageRect.X>135</ImageRect.X>
+		<ImageRect.Y>43</ImageRect.Y>
+		<ImageRect.Width>20</ImageRect.Width>
+		<ImageRect.Height>20</ImageRect.Height>
+		<ImageBorder.x>0</ImageBorder.x>
+		<ImageBorder.y>0</ImageBorder.y>
+		<ImageBorder.z>0</ImageBorder.z>
+		<ImageBorder.w>0</ImageBorder.w>
+		<strFamily>微软雅黑</strFamily>
+		<fSize>1.300000000e+01</fSize>
+		<argb>4294967295</argb>
+		<Text>        Full Screen</Text>
+		<TextAlign>3</TextAlign>
+		<TextWrap>0</TextWrap>
+		<TextOff.x>0</TextOff.x>
+		<TextOff.y>0</TextOff.y>
+		<nChilds>0</nChilds>
+	</ImgRegion>
+	<id>32</id>
+	<szName>cbx_render_device</szName>
+	<ImgRegion>
+		<Class>ComboBox</Class>
+		<Locked>1</Locked>
+		<x.scale>0.000000000e+00</x.scale>
+		<x.offset>2.010000000e+02</x.offset>
+		<y.scale>0.000000000e+00</y.scale>
+		<y.offset>9.000000000e+01</y.offset>
+		<Width.scale>0.000000000e+00</Width.scale>
+		<Width.offset>3.040000000e+02</Width.offset>
+		<Height.scale>0.000000000e+00</Height.scale>
+		<Height.offset>2.200000000e+01</Height.offset>
+		<argb>4294967295</argb>
+		<ImageStr>D:\Works\myd3dlib\demo2_3\Media\texture\CommonUI.png</ImageStr>
+		<ImageRect.X>52</ImageRect.X>
+		<ImageRect.Y>43</ImageRect.Y>
+		<ImageRect.Width>16</ImageRect.Width>
+		<ImageRect.Height>16</ImageRect.Height>
+		<ImageBorder.x>7</ImageBorder.x>
+		<ImageBorder.y>7</ImageBorder.y>
+		<ImageBorder.z>7</ImageBorder.z>
+		<ImageBorder.w>7</ImageBorder.w>
+		<strFamily>微软雅黑</strFamily>
+		<fSize>1.300000000e+01</fSize>
+		<argb>4294967295</argb>
+		<Text>x:%d y:%d w:%d h:%d</Text>
+		<TextAlign>4</TextAlign>
+		<TextWrap>0</TextWrap>
+		<TextOff.x>0</TextOff.x>
+		<TextOff.y>0</TextOff.y>
+		<nChilds>1</nChilds>
+		<id>33</id>
+		<szName>editor_control_33</szName>
+		<ImgRegion>
+			<Class>Static</Class>
+			<Locked>1</Locked>
+			<x.scale>0.000000000e+00</x.scale>
+			<x.offset>-2.010000000e+02</x.offset>
+			<y.scale>0.000000000e+00</y.scale>
+			<y.offset>0.000000000e+00</y.offset>
+			<Width.scale>0.000000000e+00</Width.scale>
+			<Width.offset>1.900000000e+02</Width.offset>
+			<Height.scale>0.000000000e+00</Height.scale>
+			<Height.offset>2.200000000e+01</Height.offset>
+			<argb>14052137</argb>
+			<ImageStr></ImageStr>
+			<ImageRect.X>0</ImageRect.X>
+			<ImageRect.Y>0</ImageRect.Y>
+			<ImageRect.Width>0</ImageRect.Width>
+			<ImageRect.Height>0</ImageRect.Height>
+			<ImageBorder.x>0</ImageBorder.x>
+			<ImageBorder.y>0</ImageBorder.y>
+			<ImageBorder.z>0</ImageBorder.z>
+			<ImageBorder.w>0</ImageBorder.w>
+			<strFamily>微软雅黑</strFamily>
+			<fSize>1.300000000e+01</fSize>
+			<argb>4294967295</argb>
+			<Text>Render Device</Text>
+			<TextAlign>5</TextAlign>
+			<TextWrap>0</TextWrap>
+			<TextOff.x>0</TextOff.x>
+			<TextOff.y>0</TextOff.y>
+			<nChilds>0</nChilds>
+		</ImgRegion>
+	</ImgRegion>
+	<id>34</id>
+	<szName>cbx_display_adapter</szName>
+	<ImgRegion>
+		<Class>ComboBox</Class>
+		<Locked>1</Locked>
+		<x.scale>0.000000000e+00</x.scale>
+		<x.offset>2.010000000e+02</x.offset>
+		<y.scale>0.000000000e+00</y.scale>
+		<y.offset>6.000000000e+01</y.offset>
+		<Width.scale>0.000000000e+00</Width.scale>
+		<Width.offset>3.040000000e+02</Width.offset>
+		<Height.scale>0.000000000e+00</Height.scale>
+		<Height.offset>2.200000000e+01</Height.offset>
+		<argb>4294967295</argb>
+		<ImageStr>D:\Works\myd3dlib\demo2_3\Media\texture\CommonUI.png</ImageStr>
+		<ImageRect.X>52</ImageRect.X>
+		<ImageRect.Y>43</ImageRect.Y>
+		<ImageRect.Width>16</ImageRect.Width>
+		<ImageRect.Height>16</ImageRect.Height>
+		<ImageBorder.x>7</ImageBorder.x>
+		<ImageBorder.y>7</ImageBorder.y>
+		<ImageBorder.z>7</ImageBorder.z>
+		<ImageBorder.w>7</ImageBorder.w>
+		<strFamily>微软雅黑</strFamily>
+		<fSize>1.300000000e+01</fSize>
+		<argb>4294967295</argb>
+		<Text>x:%d y:%d w:%d h:%d</Text>
+		<TextAlign>4</TextAlign>
+		<TextWrap>0</TextWrap>
+		<TextOff.x>0</TextOff.x>
+		<TextOff.y>0</TextOff.y>
+		<nChilds>1</nChilds>
+		<id>35</id>
+		<szName>editor_control_35</szName>
+		<ImgRegion>
+			<Class>Static</Class>
+			<Locked>1</Locked>
+			<x.scale>0.000000000e+00</x.scale>
+			<x.offset>-2.010000000e+02</x.offset>
+			<y.scale>0.000000000e+00</y.scale>
+			<y.offset>0.000000000e+00</y.offset>
+			<Width.scale>0.000000000e+00</Width.scale>
+			<Width.offset>1.900000000e+02</Width.offset>
+			<Height.scale>0.000000000e+00</Height.scale>
+			<Height.offset>2.200000000e+01</Height.offset>
+			<argb>14052137</argb>
+			<ImageStr></ImageStr>
+			<ImageRect.X>0</ImageRect.X>
+			<ImageRect.Y>0</ImageRect.Y>
+			<ImageRect.Width>0</ImageRect.Width>
+			<ImageRect.Height>0</ImageRect.Height>
+			<ImageBorder.x>0</ImageBorder.x>
+			<ImageBorder.y>0</ImageBorder.y>
+			<ImageBorder.z>0</ImageBorder.z>
+			<ImageBorder.w>0</ImageBorder.w>
+			<strFamily>微软雅黑</strFamily>
+			<fSize>1.300000000e+01</fSize>
+			<argb>4294967295</argb>
+			<Text>Display Adapter</Text>
+			<TextAlign>5</TextAlign>
+			<TextWrap>0</TextWrap>
+			<TextOff.x>0</TextOff.x>
+			<TextOff.y>0</TextOff.y>
+			<nChilds>0</nChilds>
+		</ImgRegion>
+	</ImgRegion>
+</ImgRegion>
 </boost_serialization>
 
