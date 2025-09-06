@@ -6,27 +6,12 @@ const int CImgRegionDocFileVersions::FILE_VERSION = 498;
 
 const CString CImgRegionDocFileVersions::DEFAULT_CONTROL_NAME(_T("editor_control_%d"));
 
-static void CImgRegionDocFileVersions_Loading355(CImgRegionDoc * pDoc, CArchive & ar, int version)
-{
-	if(version < 355)
-	{
-		AfxMessageBox(str_printf(_T("不再支持的版本：%d"), version).c_str());
-		AfxThrowUserException();
-	}
-
-	ar >> pDoc->m_NextRegId;
-	ar >> pDoc->m_Size;
-	DWORD argb; ar >> argb; pDoc->m_Color.SetValue(argb);
-	ar >> pDoc->m_ImageStr; pDoc->m_Image = theApp.GetImage(pDoc->m_ImageStr);
-
-	pDoc->SerializeSubTreeNode(ar, version);
-}
-
-static void CImgRegionDocFileVersions_Loading498(CImgRegionDoc * pDoc, CArchive & ar, int version)
+void CImgRegionDocFileVersions::SerializeLoad(CImgRegionDoc * pDoc, CArchive & ar, int version)
 {
 	if(version < 498)
 	{
-		CImgRegionDocFileVersions_Loading355(pDoc, ar, version); return;
+		AfxMessageBox(str_printf(_T("不再支持的版本：%d"), version).c_str());
+		AfxThrowUserException();
 	}
 
 	ar >> pDoc->m_NextRegId;
@@ -43,7 +28,7 @@ void CImgRegionDocFileVersions::Serialize(CImgRegionDoc * pDoc, CArchive & ar, i
 {
 	if (ar.IsLoading())
 	{
-		CImgRegionDocFileVersions_Loading498(pDoc, ar, version); return;
+		SerializeLoad(pDoc, ar, version); return;
 	}
 
 	ar << pDoc->m_NextRegId;
@@ -56,7 +41,7 @@ void CImgRegionDocFileVersions::Serialize(CImgRegionDoc * pDoc, CArchive & ar, i
 	pDoc->SerializeSubTreeNode(ar, CImgRegionDocFileVersions::FILE_VERSION);
 }
 
-static void CImgRegionDocFileVersions_LoadingSubTreeNode355(CImgRegionDoc * pDoc, CArchive & ar, int version, HTREEITEM hParent, BOOL bOverideName)
+void CImgRegionDocFileVersions::SerializeLoadSubTreeNode(CImgRegionDoc * pDoc, CArchive & ar, int version, HTREEITEM hParent, BOOL bOverideName)
 {
 	if(version < 355)
 	{
@@ -83,7 +68,7 @@ static void CImgRegionDocFileVersions_LoadingSubTreeNode355(CImgRegionDoc * pDoc
 		HTREEITEM hItem = pDoc->InsertItem(id, (LPCTSTR)szName, pReg, hParent, TVI_LAST);
 
 		pReg->Serialize(ar, version);
-		CImgRegionDocFileVersions_LoadingSubTreeNode355(pDoc, ar, version, hItem, bOverideName);
+		SerializeLoadSubTreeNode(pDoc, ar, version, hItem, bOverideName);
 
 		if(pReg->m_Locked)
 			pDoc->m_TreeCtrl.SetItemImage(hItem, 1, 1);
@@ -95,7 +80,7 @@ void CImgRegionDocFileVersions::SerializeSubTreeNode(CImgRegionDoc * pDoc, CArch
 {
 	if (ar.IsLoading())
 	{
-		CImgRegionDocFileVersions_LoadingSubTreeNode355(pDoc, ar, version, hParent, bOverideName); return;
+		SerializeLoadSubTreeNode(pDoc, ar, version, hParent, bOverideName); return;
 	}
 
 	int nChilds = pDoc->m_TreeCtrl.CalcChildCount(hParent); ar << nChilds;
@@ -114,7 +99,7 @@ void CImgRegionDocFileVersions::SerializeSubTreeNode(CImgRegionDoc * pDoc, CArch
 	}
 }
 
-static void CImgRegionDocFileVersions_LoadingImgRegion355(CImgRegion * pReg, CArchive & ar, int version)
+void CImgRegionDocFileVersions::SerializeLoadImgRegion(CImgRegion * pReg, CArchive & ar, int version)
 {
 	if(version < 355)
 	{
@@ -149,7 +134,7 @@ void CImgRegionDocFileVersions::SerializeImgRegion(CImgRegion * pReg, CArchive &
 {
 	if (ar.IsLoading())
 	{
-		CImgRegionDocFileVersions_LoadingImgRegion355(pReg, ar, version); return;
+		SerializeLoadImgRegion(pReg, ar, version); return;
 	}
 
 	ar << pReg->m_Class;
