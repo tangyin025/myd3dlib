@@ -164,20 +164,6 @@ void CImgRegionDocFileVersions::SerializeImgRegion(CImgRegion * pReg, CArchive &
 namespace boost {
 	namespace serialization {
 		template<class Archive>
-		inline void serialize(Archive& ar, CSize & t, const unsigned int file_version)
-		{
-			ar& BOOST_SERIALIZATION_NVP(t.cx);
-			ar& BOOST_SERIALIZATION_NVP(t.cy);
-		}
-
-		template<class Archive>
-		inline void serialize(Archive& ar, CPoint& t, const unsigned int file_version)
-		{
-			ar& BOOST_SERIALIZATION_NVP(t.x);
-			ar& BOOST_SERIALIZATION_NVP(t.y);
-		}
-
-		template<class Archive>
 		void save(Archive& ar, const CString& str, const unsigned int version) {
 			// 将 CString 转换为 std::string (UTF-8)
 			CStringA utf8 = CW2A(str, CP_UTF8);
@@ -205,7 +191,8 @@ namespace boost {
 void CImgRegionDocFileVersions::SerializeLoad(CImgRegionDoc* pDoc, boost::archive::polymorphic_iarchive& ar)
 {
 	ar >> boost::serialization::make_nvp("m_NextRegId", pDoc->m_NextRegId);
-	ar >> boost::serialization::make_nvp("m_Size", pDoc->m_Size);
+	ar >> boost::serialization::make_nvp("m_Size.cx", pDoc->m_Size.cx);
+	ar >> boost::serialization::make_nvp("m_Size.cy", pDoc->m_Size.cy);
 	DWORD argb; ar >> BOOST_SERIALIZATION_NVP(argb); pDoc->m_Color.SetValue(argb);
 	ar >> boost::serialization::make_nvp("m_ImageStr", pDoc->m_ImageStr); pDoc->m_Image = theApp.GetImage(pDoc->m_ImageStr);
 	ar >> boost::serialization::make_nvp("m_strProjectDir", pDoc->m_strProjectDir);
@@ -217,13 +204,14 @@ void CImgRegionDocFileVersions::SerializeLoad(CImgRegionDoc* pDoc, boost::archiv
 void CImgRegionDocFileVersions::Serialize(CImgRegionDoc* pDoc, boost::archive::polymorphic_oarchive& ar)
 {
 	ar << boost::serialization::make_nvp("m_NextRegId", pDoc->m_NextRegId);
-	ar << boost::serialization::make_nvp("m_Size", pDoc->m_Size);
+	ar << boost::serialization::make_nvp("m_Size.cx", pDoc->m_Size.cx);
+	ar << boost::serialization::make_nvp("m_Size.cy", pDoc->m_Size.cy);
 	DWORD argb = pDoc->m_Color.GetValue(); ar << BOOST_SERIALIZATION_NVP(argb);
 	ar << boost::serialization::make_nvp("m_ImageStr", pDoc->m_ImageStr);
 	ar << boost::serialization::make_nvp("m_strProjectDir", pDoc->m_strProjectDir);
 	ar << boost::serialization::make_nvp("m_strLuaPath", pDoc->m_strLuaPath);
 
-	SerializeSubTreeNode(pDoc, ar, TVI_ROOT, FALSE);
+	SerializeSubTreeNode(pDoc, ar, TVI_ROOT);
 }
 
 void CImgRegionDocFileVersions::SerializeLoadSubTreeNode(CImgRegionDoc* pDoc, boost::archive::polymorphic_iarchive& ar, HTREEITEM hParent, BOOL bOverideName)
@@ -246,8 +234,7 @@ void CImgRegionDocFileVersions::SerializeLoadSubTreeNode(CImgRegionDoc* pDoc, bo
 		CImgRegionPtr pReg(new CImgRegion);
 		HTREEITEM hItem = pDoc->InsertItem(id, (LPCTSTR)szName, pReg, hParent, TVI_LAST);
 
-		SerializeLoadImgRegion(pReg.get(), ar);
-		SerializeLoadSubTreeNode(pDoc, ar, hItem, bOverideName);
+		SerializeLoadImgRegion(pReg.get(), ar, pDoc, hItem, bOverideName);
 
 		if (pReg->m_Locked)
 			pDoc->m_TreeCtrl.SetItemImage(hItem, 1, 1);
@@ -255,8 +242,15 @@ void CImgRegionDocFileVersions::SerializeLoadSubTreeNode(CImgRegionDoc* pDoc, bo
 	}
 }
 
-void CImgRegionDocFileVersions::SerializeSubTreeNode(CImgRegionDoc* pDoc, boost::archive::polymorphic_oarchive& ar, HTREEITEM hParent, BOOL bOverideName)
+void CImgRegionDocFileVersions::SerializeSubTreeNode(CImgRegionDoc* pDoc, boost::archive::polymorphic_oarchive& ar, HTREEITEM hParent)
 {
+	if (!hParent)
+	{
+		int nChilds = 0;
+		ar << BOOST_SERIALIZATION_NVP(nChilds);
+		return;
+	}
+
 	int nChilds = pDoc->m_TreeCtrl.CalcChildCount(hParent); ar << BOOST_SERIALIZATION_NVP(nChilds);
 
 	HTREEITEM hItem = pDoc->m_TreeCtrl.GetChildItem(hParent);
@@ -270,12 +264,11 @@ void CImgRegionDocFileVersions::SerializeSubTreeNode(CImgRegionDoc* pDoc, boost:
 
 		CImgRegionPtr pReg = pDoc->GetItemNode(hItem);
 		ASSERT(pReg);
-		SerializeImgRegion(pReg.get(), ar);
-		SerializeSubTreeNode(pDoc, ar, hItem, bOverideName);
+		SerializeImgRegion(pReg.get(), ar, pDoc, hItem);
 	}
 }
 
-void CImgRegionDocFileVersions::SerializeLoadImgRegion(CImgRegion* pReg, boost::archive::polymorphic_iarchive& ar)
+void CImgRegionDocFileVersions::SerializeLoadImgRegion(CImgRegion* pReg, boost::archive::polymorphic_iarchive& ar, CImgRegionDoc* pDoc, HTREEITEM hItem, BOOL bOverideName)
 {
 	ar >> boost::serialization::make_nvp("m_Class", pReg->m_Class);
 	ar >> boost::serialization::make_nvp("m_Locked", pReg->m_Locked);
@@ -303,10 +296,13 @@ void CImgRegionDocFileVersions::SerializeLoadImgRegion(CImgRegion* pReg, boost::
 	ar >> boost::serialization::make_nvp("m_Text", pReg->m_Text);
 	ar >> boost::serialization::make_nvp("m_TextAlign", pReg->m_TextAlign);
 	ar >> boost::serialization::make_nvp("m_TextWrap", pReg->m_TextWrap);
-	ar >> boost::serialization::make_nvp("m_TextOff", pReg->m_TextOff);
+	ar >> boost::serialization::make_nvp("m_TextOff.x", pReg->m_TextOff.x);
+	ar >> boost::serialization::make_nvp("m_TextOff.y", pReg->m_TextOff.y);
+
+	SerializeLoadSubTreeNode(pDoc, ar, hItem, bOverideName);
 }
 
-void CImgRegionDocFileVersions::SerializeImgRegion(CImgRegion* pReg, boost::archive::polymorphic_oarchive& ar)
+void CImgRegionDocFileVersions::SerializeImgRegion(CImgRegion* pReg, boost::archive::polymorphic_oarchive& ar, CImgRegionDoc* pDoc, HTREEITEM hItem)
 {
 	ar << boost::serialization::make_nvp("m_Class", pReg->m_Class);
 	ar << boost::serialization::make_nvp("m_Locked", pReg->m_Locked);
@@ -334,5 +330,8 @@ void CImgRegionDocFileVersions::SerializeImgRegion(CImgRegion* pReg, boost::arch
 	ar << boost::serialization::make_nvp("m_Text", pReg->m_Text);
 	ar << boost::serialization::make_nvp("m_TextAlign", pReg->m_TextAlign);
 	ar << boost::serialization::make_nvp("m_TextWrap", pReg->m_TextWrap);
-	ar << boost::serialization::make_nvp("m_TextOff", pReg->m_TextOff);
+	ar << boost::serialization::make_nvp("m_TextOff.x", pReg->m_TextOff.x);
+	ar << boost::serialization::make_nvp("m_TextOff.y", pReg->m_TextOff.y);
+
+	SerializeSubTreeNode(pDoc, ar, hItem);
 }

@@ -29,9 +29,9 @@ public:
 
 	static void SerializeLoadSubTreeNode(CImgRegionDoc* pDoc, boost::archive::polymorphic_iarchive& ar, HTREEITEM hParent, BOOL bOverideName);
 
-	static void SerializeSubTreeNode(CImgRegionDoc* pDoc, boost::archive::polymorphic_oarchive& ar, HTREEITEM hParent, BOOL bOverideName);
+	static void SerializeSubTreeNode(CImgRegionDoc* pDoc, boost::archive::polymorphic_oarchive& ar, HTREEITEM hParent);
 
-	static void SerializeLoadImgRegion(CImgRegion* pReg, boost::archive::polymorphic_iarchive& ar);
+	static void SerializeLoadImgRegion(CImgRegion* pReg, boost::archive::polymorphic_iarchive& ar, CImgRegionDoc* pDoc, HTREEITEM hItem, BOOL bOverideName);
 
-	static void SerializeImgRegion(CImgRegion* pReg, boost::archive::polymorphic_oarchive& ar);
+	static void SerializeImgRegion(CImgRegion* pReg, boost::archive::polymorphic_oarchive& ar, CImgRegionDoc* pDoc, HTREEITEM hItem);
 };

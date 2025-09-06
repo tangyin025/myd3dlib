@@ -2,12 +2,10 @@
 <!DOCTYPE boost_serialization>
 <boost_serialization signature="serialization::archive" version="18">
 <m_NextRegId>35</m_NextRegId>
-<m_Size class_id="0" tracking_level="0" version="0">
-	<t.cx>800</t.cx>
-	<t.cy>600</t.cy>
-</m_Size>
+<m_Size.cx>800</m_Size.cx>
+<m_Size.cy>600</m_Size.cy>
 <argb>4294967295</argb>
-<m_ImageStr class_id="1" tracking_level="0" version="0">D:\Works\myd3dlib\demo2_3\Media\texture\1316532925.jpg</m_ImageStr>
+<m_ImageStr class_id="0" tracking_level="0" version="0">D:\Works\myd3dlib\demo2_3\Media\texture\1316532925.jpg</m_ImageStr>
 <m_strProjectDir>D:\Works\myd3dlib\demo2_3\Media</m_strProjectDir>
 <m_strLuaPath>D:\Works\myd3dlib\demo2_3\Media\bbb.lua</m_strLuaPath>
 <nChilds>1</nChilds>
@@ -39,10 +37,8 @@
 <m_Text></m_Text>
 <m_TextAlign>0</m_TextAlign>
 <m_TextWrap>0</m_TextWrap>
-<m_TextOff class_id="2" tracking_level="0" version="0">
-	<t.x>0</t.x>
-	<t.y>0</t.y>
-</m_TextOff>
+<m_TextOff.x>0</m_TextOff.x>
+<m_TextOff.y>0</m_TextOff.y>
 <nChilds>16</nChilds>
 <id>2</id>
 <szName>editor_control_2</szName>
@@ -72,10 +68,8 @@
 <m_Text></m_Text>
 <m_TextAlign>0</m_TextAlign>
 <m_TextWrap>0</m_TextWrap>
-<m_TextOff>
-	<t.x>0</t.x>
-	<t.y>0</t.y>
-</m_TextOff>
+<m_TextOff.x>0</m_TextOff.x>
+<m_TextOff.y>0</m_TextOff.y>
 <nChilds>0</nChilds>
 <id>3</id>
 <szName>btn_ok</szName>
@@ -105,10 +99,8 @@
 <m_Text>OK</m_Text>
 <m_TextAlign>4</m_TextAlign>
 <m_TextWrap>0</m_TextWrap>
-<m_TextOff>
-	<t.x>0</t.x>
-	<t.y>0</t.y>
-</m_TextOff>
+<m_TextOff.x>0</m_TextOff.x>
+<m_TextOff.y>0</m_TextOff.y>
 <nChilds>0</nChilds>
 <id>4</id>
 <szName>btn_cancel</szName>
@@ -138,10 +130,8 @@
 <m_Text>Cancel</m_Text>
 <m_TextAlign>4</m_TextAlign>
 <m_TextWrap>0</m_TextWrap>
-<m_TextOff>
-	<t.x>0</t.x>
-	<t.y>0</t.y>
-</m_TextOff>
+<m_TextOff.x>0</m_TextOff.x>
+<m_TextOff.y>0</m_TextOff.y>
 <nChilds>0</nChilds>
 <id>6</id>
 <szName>cbx_vertical_sync</szName>
@@ -171,10 +161,8 @@
 <m_Text>x:%d y:%d w:%d h:%d</m_Text>
 <m_TextAlign>4</m_TextAlign>
 <m_TextWrap>0</m_TextWrap>
-<m_TextOff>
-	<t.x>0</t.x>
-	<t.y>0</t.y>
-</m_TextOff>
+<m_TextOff.x>0</m_TextOff.x>
+<m_TextOff.y>0</m_TextOff.y>
 <nChilds>1</nChilds>
 <id>7</id>
 <szName>editor_control_7</szName>
@@ -204,10 +192,8 @@
 <m_Text>Vertical Sync</m_Text>
 <m_TextAlign>5</m_TextAlign>
 <m_TextWrap>0</m_TextWrap>
-<m_TextOff>
-	<t.x>0</t.x>
-	<t.y>0</t.y>
-</m_TextOff>
+<m_TextOff.x>0</m_TextOff.x>
+<m_TextOff.y>0</m_TextOff.y>
 <nChilds>0</nChilds>
 <id>8</id>
 <szName>cbx_vertex_processing</szName>
@@ -237,10 +223,8 @@
 <m_Text>x:%d y:%d w:%d h:%d</m_Text>
 <m_TextAlign>4</m_TextAlign>
 <m_TextWrap>0</m_TextWrap>
-<m_TextOff>
-	<t.x>0</t.x>
-	<t.y>0</t.y>
-</m_TextOff>
+<m_TextOff.x>0</m_TextOff.x>
+<m_TextOff.y>0</m_TextOff.y>
 <nChilds>1</nChilds>
 <id>9</id>
 <szName>editor_control_9</szName>
@@ -270,10 +254,8 @@
 <m_Text>Vertex Processing</m_Text>
 <m_TextAlign>5</m_TextAlign>
 <m_TextWrap>0</m_TextWrap>
-<m_TextOff>
-	<t.x>0</t.x>
-	<t.y>0</t.y>
-</m_TextOff>
+<m_TextOff.x>0</m_TextOff.x>
+<m_TextOff.y>0</m_TextOff.y>
 <nChilds>0</nChilds>
 <id>16</id>
 <szName>cbx_multisample_quality</szName>
@@ -303,10 +285,8 @@
 <m_Text>x:%d y:%d w:%d h:%d</m_Text>
 <m_TextAlign>4</m_TextAlign>
 <m_TextWrap>0</m_TextWrap>
-<m_TextOff>
-	<t.x>0</t.x>
-	<t.y>0</t.y>
-</m_TextOff>
+<m_TextOff.x>0</m_TextOff.x>
+<m_TextOff.y>0</m_TextOff.y>
 <nChilds>1</nChilds>
 <id>17</id>
 <szName>editor_control_17</szName>
@@ -336,10 +316,8 @@
 <m_Text>Multisample Quality</m_Text>
 <m_TextAlign>5</m_TextAlign>
 <m_TextWrap>0</m_TextWrap>
-<m_TextOff>
-	<t.x>0</t.x>
-	<t.y>0</t.y>
-</m_TextOff>
+<m_TextOff.x>0</m_TextOff.x>
+<m_TextOff.y>0</m_TextOff.y>
 <nChilds>0</nChilds>
 <id>18</id>
 <szName>lbl_multisample_type</szName>
@@ -369,10 +347,8 @@
 <m_Text>x:%d y:%d w:%d h:%d</m_Text>
 <m_TextAlign>4</m_TextAlign>
 <m_TextWrap>0</m_TextWrap>
-<m_TextOff>
-	<t.x>0</t.x>
-	<t.y>0</t.y>
-</m_TextOff>
+<m_TextOff.x>0</m_TextOff.x>
+<m_TextOff.y>0</m_TextOff.y>
 <nChilds>1</nChilds>
 <id>19</id>
 <szName>editor_control_19</szName>
@@ -402,10 +378,8 @@
 <m_Text>Multisample Type</m_Text>
 <m_TextAlign>5</m_TextAlign>
 <m_TextWrap>0</m_TextWrap>
-<m_TextOff>
-	<t.x>0</t.x>
-	<t.y>0</t.y>
-</m_TextOff>
+<m_TextOff.x>0</m_TextOff.x>
+<m_TextOff.y>0</m_TextOff.y>
 <nChilds>0</nChilds>
 <id>20</id>
 <szName>cbx_depth_stencil_format</szName>
@@ -435,10 +409,8 @@
 <m_Text>x:%d y:%d w:%d h:%d</m_Text>
 <m_TextAlign>4</m_TextAlign>
 <m_TextWrap>0</m_TextWrap>
-<m_TextOff>
-	<t.x>0</t.x>
-	<t.y>0</t.y>
-</m_TextOff>
+<m_TextOff.x>0</m_TextOff.x>
+<m_TextOff.y>0</m_TextOff.y>
 <nChilds>1</nChilds>
 <id>21</id>
 <szName>editor_control_21</szName>
@@ -468,10 +440,8 @@
 <m_Text>Depth/Stencil Format</m_Text>
 <m_TextAlign>5</m_TextAlign>
 <m_TextWrap>0</m_TextWrap>
-<m_TextOff>
-	<t.x>0</t.x>
-	<t.y>0</t.y>
-</m_TextOff>
+<m_TextOff.x>0</m_TextOff.x>
+<m_TextOff.y>0</m_TextOff.y>
 <nChilds>0</nChilds>
 <id>22</id>
 <szName>cbx_back_buffer_format</szName>
@@ -501,10 +471,8 @@
 <m_Text>x:%d y:%d w:%d h:%d</m_Text>
 <m_TextAlign>4</m_TextAlign>
 <m_TextWrap>0</m_TextWrap>
-<m_TextOff>
-	<t.x>0</t.x>
-	<t.y>0</t.y>
-</m_TextOff>
+<m_TextOff.x>0</m_TextOff.x>
+<m_TextOff.y>0</m_TextOff.y>
 <nChilds>1</nChilds>
 <id>23</id>
 <szName>editor_control_23</szName>
@@ -534,10 +502,8 @@
 <m_Text>Back Buffer Format</m_Text>
 <m_TextAlign>5</m_TextAlign>
 <m_TextWrap>0</m_TextWrap>
-<m_TextOff>
-	<t.x>0</t.x>
-	<t.y>0</t.y>
-</m_TextOff>
+<m_TextOff.x>0</m_TextOff.x>
+<m_TextOff.y>0</m_TextOff.y>
 <nChilds>0</nChilds>
 <id>24</id>
 <szName>cbx_refresh_rate</szName>
@@ -567,10 +533,8 @@
 <m_Text>x:%d y:%d w:%d h:%d</m_Text>
 <m_TextAlign>4</m_TextAlign>
 <m_TextWrap>0</m_TextWrap>
-<m_TextOff>
-	<t.x>0</t.x>
-	<t.y>0</t.y>
-</m_TextOff>
+<m_TextOff.x>0</m_TextOff.x>
+<m_TextOff.y>0</m_TextOff.y>
 <nChilds>1</nChilds>
 <id>25</id>
 <szName>editor_control_25</szName>
@@ -600,10 +564,8 @@
 <m_Text>Refresh Rate</m_Text>
 <m_TextAlign>5</m_TextAlign>
 <m_TextWrap>0</m_TextWrap>
-<m_TextOff>
-	<t.x>0</t.x>
-	<t.y>0</t.y>
-</m_TextOff>
+<m_TextOff.x>0</m_TextOff.x>
+<m_TextOff.y>0</m_TextOff.y>
 <nChilds>0</nChilds>
 <id>26</id>
 <szName>cbx_resolution</szName>
@@ -633,10 +595,8 @@
 <m_Text>x:%d y:%d w:%d h:%d</m_Text>
 <m_TextAlign>4</m_TextAlign>
 <m_TextWrap>0</m_TextWrap>
-<m_TextOff>
-	<t.x>0</t.x>
-	<t.y>0</t.y>
-</m_TextOff>
+<m_TextOff.x>0</m_TextOff.x>
+<m_TextOff.y>0</m_TextOff.y>
 <nChilds>1</nChilds>
 <id>27</id>
 <szName>editor_control_27</szName>
@@ -666,10 +626,8 @@
 <m_Text>Resolution</m_Text>
 <m_TextAlign>5</m_TextAlign>
 <m_TextWrap>0</m_TextWrap>
-<m_TextOff>
-	<t.x>0</t.x>
-	<t.y>0</t.y>
-</m_TextOff>
+<m_TextOff.x>0</m_TextOff.x>
+<m_TextOff.y>0</m_TextOff.y>
 <nChilds>0</nChilds>
 <id>28</id>
 <szName>cbx_adapter_format</szName>
@@ -699,10 +657,8 @@
 <m_Text>x:%d y:%d w:%d h:%d</m_Text>
 <m_TextAlign>4</m_TextAlign>
 <m_TextWrap>0</m_TextWrap>
-<m_TextOff>
-	<t.x>0</t.x>
-	<t.y>0</t.y>
-</m_TextOff>
+<m_TextOff.x>0</m_TextOff.x>
+<m_TextOff.y>0</m_TextOff.y>
 <nChilds>1</nChilds>
 <id>29</id>
 <szName>editor_control_29</szName>
@@ -732,10 +688,8 @@
 <m_Text>Adapter Format</m_Text>
 <m_TextAlign>5</m_TextAlign>
 <m_TextWrap>0</m_TextWrap>
-<m_TextOff>
-	<t.x>0</t.x>
-	<t.y>0</t.y>
-</m_TextOff>
+<m_TextOff.x>0</m_TextOff.x>
+<m_TextOff.y>0</m_TextOff.y>
 <nChilds>0</nChilds>
 <id>30</id>
 <szName>chx_windowed</szName>
@@ -765,10 +719,8 @@
 <m_Text>        Windowed</m_Text>
 <m_TextAlign>3</m_TextAlign>
 <m_TextWrap>0</m_TextWrap>
-<m_TextOff>
-	<t.x>0</t.x>
-	<t.y>0</t.y>
-</m_TextOff>
+<m_TextOff.x>0</m_TextOff.x>
+<m_TextOff.y>0</m_TextOff.y>
 <nChilds>0</nChilds>
 <id>31</id>
 <szName>chx_full_screen</szName>
@@ -798,10 +750,8 @@
 <m_Text>        Full Screen</m_Text>
 <m_TextAlign>3</m_TextAlign>
 <m_TextWrap>0</m_TextWrap>
-<m_TextOff>
-	<t.x>0</t.x>
-	<t.y>0</t.y>
-</m_TextOff>
+<m_TextOff.x>0</m_TextOff.x>
+<m_TextOff.y>0</m_TextOff.y>
 <nChilds>0</nChilds>
 <id>32</id>
 <szName>cbx_render_device</szName>
@@ -831,10 +781,8 @@
 <m_Text>x:%d y:%d w:%d h:%d</m_Text>
 <m_TextAlign>4</m_TextAlign>
 <m_TextWrap>0</m_TextWrap>
-<m_TextOff>
-	<t.x>0</t.x>
-	<t.y>0</t.y>
-</m_TextOff>
+<m_TextOff.x>0</m_TextOff.x>
+<m_TextOff.y>0</m_TextOff.y>
 <nChilds>1</nChilds>
 <id>33</id>
 <szName>editor_control_33</szName>
@@ -864,10 +812,8 @@
 <m_Text>Render Device</m_Text>
 <m_TextAlign>5</m_TextAlign>
 <m_TextWrap>0</m_TextWrap>
-<m_TextOff>
-	<t.x>0</t.x>
-	<t.y>0</t.y>
-</m_TextOff>
+<m_TextOff.x>0</m_TextOff.x>
+<m_TextOff.y>0</m_TextOff.y>
 <nChilds>0</nChilds>
 <id>34</id>
 <szName>cbx_display_adapter</szName>
@@ -897,10 +843,8 @@
 <m_Text>x:%d y:%d w:%d h:%d</m_Text>
 <m_TextAlign>4</m_TextAlign>
 <m_TextWrap>0</m_TextWrap>
-<m_TextOff>
-	<t.x>0</t.x>
-	<t.y>0</t.y>
-</m_TextOff>
+<m_TextOff.x>0</m_TextOff.x>
+<m_TextOff.y>0</m_TextOff.y>
 <nChilds>1</nChilds>
 <id>35</id>
 <szName>editor_control_35</szName>
@@ -930,10 +874,8 @@
 <m_Text>Display Adapter</m_Text>
 <m_TextAlign>5</m_TextAlign>
 <m_TextWrap>0</m_TextWrap>
-<m_TextOff>
-	<t.x>0</t.x>
-	<t.y>0</t.y>
-</m_TextOff>
+<m_TextOff.x>0</m_TextOff.x>
+<m_TextOff.y>0</m_TextOff.y>
 <nChilds>0</nChilds>
 </boost_serialization>
 
