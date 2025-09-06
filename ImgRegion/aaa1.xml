@@ -13,7 +13,7 @@
 <szName>dlg_settings</szName>
 <ImgRegion class_id="1" tracking_level="0" version="0">
 	<Class>Control</Class>
-	<Locked>1</Locked>
+	<Locked>0</Locked>
 	<x.scale>5.000000000e-01</x.scale>
 	<x.offset>-3.200000000e+02</x.offset>
 	<y.scale>5.000000000e-01</y.scale>
@@ -45,7 +45,7 @@
 	<szName>editor_control_2</szName>
 	<ImgRegion>
 		<Class>Control</Class>
-		<Locked>-859045887</Locked>
+		<Locked>0</Locked>
 		<x.scale>0.000000000e+00</x.scale>
 		<x.offset>1.700000000e+01</x.offset>
 		<y.scale>0.000000000e+00</y.scale>
@@ -78,7 +78,7 @@
 	<szName>btn_ok</szName>
 	<ImgRegion>
 		<Class>Button</Class>
-		<Locked>1</Locked>
+		<Locked>0</Locked>
 		<x.scale>0.000000000e+00</x.scale>
 		<x.offset>2.300000000e+02</x.offset>
 		<y.scale>0.000000000e+00</y.scale>
@@ -111,7 +111,7 @@
 	<szName>btn_cancel</szName>
 	<ImgRegion>
 		<Class>Button</Class>
-		<Locked>1</Locked>
+		<Locked>0</Locked>
 		<x.scale>0.000000000e+00</x.scale>
 		<x.offset>3.150000000e+02</x.offset>
 		<y.scale>0.000000000e+00</y.scale>
@@ -144,7 +144,7 @@
 	<szName>cbx_vertical_sync</szName>
 	<ImgRegion>
 		<Class>ComboBox</Class>
-		<Locked>1</Locked>
+		<Locked>0</Locked>
 		<x.scale>0.000000000e+00</x.scale>
 		<x.offset>2.010000000e+02</x.offset>
 		<y.scale>0.000000000e+00</y.scale>
@@ -176,7 +176,7 @@
 		<szName>editor_control_7</szName>
 		<ImgRegion>
 			<Class>Static</Class>
-			<Locked>1</Locked>
+			<Locked>0</Locked>
 			<x.scale>0.000000000e+00</x.scale>
 			<x.offset>-2.010000000e+02</x.offset>
 			<y.scale>0.000000000e+00</y.scale>
@@ -210,7 +210,7 @@
 	<szName>cbx_vertex_processing</szName>
 	<ImgRegion>
 		<Class>ComboBox</Class>
-		<Locked>1</Locked>
+		<Locked>0</Locked>
 		<x.scale>0.000000000e+00</x.scale>
 		<x.offset>2.010000000e+02</x.offset>
 		<y.scale>0.000000000e+00</y.scale>
@@ -242,7 +242,7 @@
 		<szName>editor_control_9</szName>
 		<ImgRegion>
 			<Class>Static</Class>
-			<Locked>1</Locked>
+			<Locked>0</Locked>
 			<x.scale>0.000000000e+00</x.scale>
 			<x.offset>-2.010000000e+02</x.offset>
 			<y.scale>0.000000000e+00</y.scale>
@@ -276,7 +276,7 @@
 	<szName>cbx_multisample_quality</szName>
 	<ImgRegion>
 		<Class>ComboBox</Class>
-		<Locked>1</Locked>
+		<Locked>0</Locked>
 		<x.scale>0.000000000e+00</x.scale>
 		<x.offset>2.010000000e+02</x.offset>
 		<y.scale>0.000000000e+00</y.scale>
@@ -308,7 +308,7 @@
 		<szName>editor_control_17</szName>
 		<ImgRegion>
 			<Class>Static</Class>
-			<Locked>1</Locked>
+			<Locked>0</Locked>
 			<x.scale>0.000000000e+00</x.scale>
 			<x.offset>-2.010000000e+02</x.offset>
 			<y.scale>0.000000000e+00</y.scale>
@@ -342,7 +342,7 @@
 	<szName>lbl_multisample_type</szName>
 	<ImgRegion>
 		<Class>ComboBox</Class>
-		<Locked>1</Locked>
+		<Locked>0</Locked>
 		<x.scale>0.000000000e+00</x.scale>
 		<x.offset>2.010000000e+02</x.offset>
 		<y.scale>0.000000000e+00</y.scale>
@@ -374,7 +374,7 @@
 		<szName>editor_control_19</szName>
 		<ImgRegion>
 			<Class>Static</Class>
-			<Locked>1</Locked>
+			<Locked>0</Locked>
 			<x.scale>0.000000000e+00</x.scale>
 			<x.offset>-2.010000000e+02</x.offset>
 			<y.scale>0.000000000e+00</y.scale>
@@ -408,7 +408,7 @@
 	<szName>cbx_depth_stencil_format</szName>
 	<ImgRegion>
 		<Class>ComboBox</Class>
-		<Locked>1</Locked>
+		<Locked>0</Locked>
 		<x.scale>0.000000000e+00</x.scale>
 		<x.offset>2.010000000e+02</x.offset>
 		<y.scale>0.000000000e+00</y.scale>
@@ -440,7 +440,7 @@
 		<szName>editor_control_21</szName>
 		<ImgRegion>
 			<Class>Static</Class>
-			<Locked>1</Locked>
+			<Locked>0</Locked>
 			<x.scale>0.000000000e+00</x.scale>
 			<x.offset>-2.010000000e+02</x.offset>
 			<y.scale>0.000000000e+00</y.scale>
@@ -474,7 +474,7 @@
 	<szName>cbx_back_buffer_format</szName>
 	<ImgRegion>
 		<Class>ComboBox</Class>
-		<Locked>1</Locked>
+		<Locked>0</Locked>
 		<x.scale>0.000000000e+00</x.scale>
 		<x.offset>2.010000000e+02</x.offset>
 		<y.scale>0.000000000e+00</y.scale>
@@ -506,7 +506,7 @@
 		<szName>editor_control_23</szName>
 		<ImgRegion>
 			<Class>Static</Class>
-			<Locked>1</Locked>
+			<Locked>0</Locked>
 			<x.scale>0.000000000e+00</x.scale>
 			<x.offset>-2.010000000e+02</x.offset>
 			<y.scale>0.000000000e+00</y.scale>
@@ -540,7 +540,7 @@
 	<szName>cbx_refresh_rate</szName>
 	<ImgRegion>
 		<Class>ComboBox</Class>
-		<Locked>1</Locked>
+		<Locked>0</Locked>
 		<x.scale>0.000000000e+00</x.scale>
 		<x.offset>2.010000000e+02</x.offset>
 		<y.scale>0.000000000e+00</y.scale>
@@ -572,7 +572,7 @@
 		<szName>editor_control_25</szName>
 		<ImgRegion>
 			<Class>Static</Class>
-			<Locked>1</Locked>
+			<Locked>0</Locked>
 			<x.scale>0.000000000e+00</x.scale>
 			<x.offset>-2.010000000e+02</x.offset>
 			<y.scale>0.000000000e+00</y.scale>
@@ -606,7 +606,7 @@
 	<szName>cbx_resolution</szName>
 	<ImgRegion>
 		<Class>ComboBox</Class>
-		<Locked>1</Locked>
+		<Locked>0</Locked>
 		<x.scale>0.000000000e+00</x.scale>
 		<x.offset>2.010000000e+02</x.offset>
 		<y.scale>0.000000000e+00</y.scale>
@@ -638,7 +638,7 @@
 		<szName>editor_control_27</szName>
 		<ImgRegion>
 			<Class>Static</Class>
-			<Locked>1</Locked>
+			<Locked>0</Locked>
 			<x.scale>0.000000000e+00</x.scale>
 			<x.offset>-2.010000000e+02</x.offset>
 			<y.scale>0.000000000e+00</y.scale>
@@ -672,7 +672,7 @@
 	<szName>cbx_adapter_format</szName>
 	<ImgRegion>
 		<Class>ComboBox</Class>
-		<Locked>1</Locked>
+		<Locked>0</Locked>
 		<x.scale>0.000000000e+00</x.scale>
 		<x.offset>2.010000000e+02</x.offset>
 		<y.scale>0.000000000e+00</y.scale>
@@ -704,7 +704,7 @@
 		<szName>editor_control_29</szName>
 		<ImgRegion>
 			<Class>Static</Class>
-			<Locked>1</Locked>
+			<Locked>0</Locked>
 			<x.scale>0.000000000e+00</x.scale>
 			<x.offset>-2.010000000e+02</x.offset>
 			<y.scale>0.000000000e+00</y.scale>
@@ -738,7 +738,7 @@
 	<szName>chx_windowed</szName>
 	<ImgRegion>
 		<Class>CheckBox</Class>
-		<Locked>1</Locked>
+		<Locked>0</Locked>
 		<x.scale>0.000000000e+00</x.scale>
 		<x.offset>2.390000000e+02</x.offset>
 		<y.scale>0.000000000e+00</y.scale>
@@ -771,7 +771,7 @@
 	<szName>chx_full_screen</szName>
 	<ImgRegion>
 		<Class>CheckBox</Class>
-		<Locked>1</Locked>
+		<Locked>0</Locked>
 		<x.scale>0.000000000e+00</x.scale>
 		<x.offset>3.570000000e+02</x.offset>
 		<y.scale>0.000000000e+00</y.scale>
@@ -804,7 +804,7 @@
 	<szName>cbx_render_device</szName>
 	<ImgRegion>
 		<Class>ComboBox</Class>
-		<Locked>1</Locked>
+		<Locked>0</Locked>
 		<x.scale>0.000000000e+00</x.scale>
 		<x.offset>2.010000000e+02</x.offset>
 		<y.scale>0.000000000e+00</y.scale>
@@ -836,7 +836,7 @@
 		<szName>editor_control_33</szName>
 		<ImgRegion>
 			<Class>Static</Class>
-			<Locked>1</Locked>
+			<Locked>0</Locked>
 			<x.scale>0.000000000e+00</x.scale>
 			<x.offset>-2.010000000e+02</x.offset>
 			<y.scale>0.000000000e+00</y.scale>
@@ -870,7 +870,7 @@
 	<szName>cbx_display_adapter</szName>
 	<ImgRegion>
 		<Class>ComboBox</Class>
-		<Locked>1</Locked>
+		<Locked>0</Locked>
 		<x.scale>0.000000000e+00</x.scale>
 		<x.offset>2.010000000e+02</x.offset>
 		<y.scale>0.000000000e+00</y.scale>
@@ -902,7 +902,7 @@
 		<szName>editor_control_35</szName>
 		<ImgRegion>
 			<Class>Static</Class>
-			<Locked>1</Locked>
+			<Locked>0</Locked>
 			<x.scale>0.000000000e+00</x.scale>
 			<x.offset>-2.010000000e+02</x.offset>
 			<y.scale>0.000000000e+00</y.scale>

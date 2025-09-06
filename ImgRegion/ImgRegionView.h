@@ -76,7 +76,7 @@ public:
 
 	static void DrawRegionDocNode(Gdiplus::Graphics & grap, Gdiplus::Rect & rect, CImgRegionDoc * pDoc, HTREEITEM hItem);
 
-	static void DrawRegionDocImage(Gdiplus::Graphics & grap, Gdiplus::Image * img, const Gdiplus::Rect & dstRect, const Gdiplus::Rect & srcRect, const Vector4i & border, const Gdiplus::Color & color);
+	static void DrawRegionDocImage(Gdiplus::Graphics & grap, Gdiplus::Image * img, const Gdiplus::Rect & Rect, const Gdiplus::Rect & srcRect, const Vector4i & border, const Gdiplus::Color & color);
 
 	static void DrawControlHandle(Gdiplus::Graphics & grap, const CPoint & ptHandle, const Gdiplus::Color & clrHandle, BOOL bSelected);
 
