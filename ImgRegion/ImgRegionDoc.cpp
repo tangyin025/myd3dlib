@@ -496,8 +496,13 @@ void HistoryMovRegion::Do(void)
 	HTREEITEM hParent = m_pDoc->m_TreeCtrl.GetParentItem(hItem);
 	HTREEITEM hBefore = m_pDoc->m_TreeCtrl.GetPrevSiblingItem(hItem);
 
+	CImgRegionPtr pReg = m_pDoc->GetItemNode(hItem);
+	ASSERT(pReg);
+
 	m_oldParentID = hParent ? m_pDoc->GetItemId(hParent) : 0;
 	m_oldBeforeID = hBefore ? m_pDoc->GetItemId(hBefore) : 0;
+	m_oldLocX = pReg->m_x;
+	m_oldLocY = pReg->m_y;
 
 	HTREEITEM hNewParent = !m_newParentID ? TVI_ROOT : m_pDoc->m_ItemMap[m_newParentID];
 	HTREEITEM hNewBefore = !m_newBeforeID ? TVI_LAST : m_pDoc->m_ItemMap[m_newBeforeID];
@@ -507,6 +512,16 @@ void HistoryMovRegion::Do(void)
 	{
 		m_pDoc->m_TreeCtrl.SelectItem(hNewItem);
 	}
+
+	Gdiplus::Rect rect(0, 0, m_pDoc->m_Size.cx, m_pDoc->m_Size.cy);
+	if (m_newParentID)
+	{
+		CImgRegionPtr pParentReg = m_pDoc->GetItemNode(hNewParent);
+		ASSERT(pParentReg);
+		rect = pParentReg->m_Rect;
+	}
+	pReg->m_x.offset = pReg->m_Rect.X - rect.X - pReg->m_x.scale * rect.Width;
+	pReg->m_y.offset = pReg->m_Rect.Y - rect.Y - pReg->m_y.scale * rect.Height;
 }
 
 void HistoryMovRegion::Undo(void)
@@ -516,11 +531,17 @@ void HistoryMovRegion::Undo(void)
 	HTREEITEM hOldParent = !m_oldParentID ? TVI_ROOT : m_pDoc->m_ItemMap[m_oldParentID];
 	HTREEITEM hOldBefore = !m_oldBeforeID ? TVI_FIRST : m_pDoc->m_ItemMap[m_oldBeforeID];
 
+	CImgRegionPtr pReg = m_pDoc->GetItemNode(hItem);
+	ASSERT(pReg);
+
 	HTREEITEM hOldItem = m_pDoc->MoveTreeItem(hOldParent, hOldBefore, hItem);
 	if(hOldItem != hItem)
 	{
 		m_pDoc->m_TreeCtrl.SelectItem(hOldItem);
 	}
+
+	pReg->m_x = m_oldLocX;
+	pReg->m_y = m_oldLocY;
 }
 
 void HistoryModifyRegion::Do(void)
@@ -882,12 +903,12 @@ void CImgRegionDoc::OnAddRegion()
 	HTREEITEM hSelected = m_TreeCtrl.GetSelectedItem();
 	if (hSelected)
 	{
-		CImgRegionPtr pParentReg = GetItemNode(hSelected);
-		ASSERT(pParentReg);
-		x = pParentReg->m_x;
-		y = pParentReg->m_y;
+		CImgRegionPtr pSelectedReg = GetItemNode(hSelected);
+		ASSERT(pSelectedReg);
+		x = pSelectedReg->m_x;
+		y = pSelectedReg->m_y;
 
-		HTREEITEM hParent = m_TreeCtrl.GetParentItem(hSelected);
+		hParent = m_TreeCtrl.GetParentItem(hSelected);
 	}
 
 	m_NextRegId++;
@@ -1080,7 +1101,7 @@ void CImgRegionDoc::OnEditPaste()
 		HTREEITEM hSelected = m_TreeCtrl.GetSelectedItem();
 		if (hSelected)
 		{
-			HTREEITEM hParent = m_TreeCtrl.GetParentItem(hSelected);
+			hParent = m_TreeCtrl.GetParentItem(hSelected);
 		}
 
 		m_NextRegId++;

@@ -267,6 +267,10 @@ public:
 
 	UINT m_oldBeforeID;
 
+	my::UDim m_oldLocX;
+
+	my::UDim m_oldLocY;
+
 	UINT m_newParentID;
 
 	UINT m_newBeforeID;
