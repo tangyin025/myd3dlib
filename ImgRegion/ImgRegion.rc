@@ -336,7 +336,7 @@ END
 STRINGTABLE
 BEGIN
     IDR_MAINFRAME           "ImgRegion"
-    IDR_ImgRegionTYPE       "\naaa\naaa\n\n\naaa.Document\naaa.Document"
+    IDR_ImgRegionTYPE       "\naaa\naaa\naaa Files (*.xml)\n.xml\naaa.Document\naaa.Document"
 END
 
 STRINGTABLE

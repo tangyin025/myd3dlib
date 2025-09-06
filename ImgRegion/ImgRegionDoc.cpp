@@ -425,9 +425,9 @@ void HistoryAddRegion::Do(void)
 
 	pReg->m_Locked = FALSE;
 
-	pReg->m_x = my::UDim(0, 10);
+	pReg->m_x.offset += 10;
 
-	pReg->m_y = my::UDim(0, 10);
+	pReg->m_y.offset += 10;
 
 	m_pDoc->m_TreeCtrl.Expand(hItem, TVE_EXPAND);
 
@@ -875,7 +875,21 @@ void CImgRegionDoc::AddNewHistory(HistoryPtr hist)
 
 void CImgRegionDoc::OnAddRegion()
 {
-	HTREEITEM hParent = m_TreeCtrl.GetSelectedItem();
+	HTREEITEM hParent = NULL;
+	my::UDim x(0, 0);
+	my::UDim y(0, 0);
+
+	HTREEITEM hSelected = m_TreeCtrl.GetSelectedItem();
+	if (hSelected)
+	{
+		CImgRegionPtr pParentReg = GetItemNode(hSelected);
+		ASSERT(pParentReg);
+		x = pParentReg->m_x;
+		y = pParentReg->m_y;
+
+		HTREEITEM hParent = m_TreeCtrl.GetParentItem(hSelected);
+	}
+
 	m_NextRegId++;
 	CString szName;
 	szName.Format(CImgRegionDocFileVersions::DEFAULT_CONTROL_NAME, m_NextRegId);
@@ -883,8 +897,8 @@ void CImgRegionDoc::OnAddRegion()
 		this, m_NextRegId, (LPCTSTR)szName, hParent ? GetItemId(hParent) : 0, 0));
 
 	CImgRegion reg;
-	reg.m_x = my::UDim(0, 10);
-	reg.m_y = my::UDim(0, 10);
+	reg.m_x = x;
+	reg.m_y = y;
 	reg.m_Width = my::UDim(0, 100);
 	reg.m_Height = my::UDim(0, 100);
 	reg.m_Color = Gdiplus::Color(255,my::Random<int>(0,255),my::Random<int>(0,255),my::Random<int>(0,255));
@@ -1061,7 +1075,14 @@ void CImgRegionDoc::OnEditPaste()
 	std::string cache = theApp.m_ClipboardFile.str();
 	if(!cache.empty())
 	{
-		HTREEITEM hParent = m_TreeCtrl.GetSelectedItem();
+		HTREEITEM hParent = NULL;
+
+		HTREEITEM hSelected = m_TreeCtrl.GetSelectedItem();
+		if (hSelected)
+		{
+			HTREEITEM hParent = m_TreeCtrl.GetParentItem(hSelected);
+		}
+
 		m_NextRegId++;
 		CString szName;
 		szName.Format(CImgRegionDocFileVersions::DEFAULT_CONTROL_NAME, m_NextRegId);
