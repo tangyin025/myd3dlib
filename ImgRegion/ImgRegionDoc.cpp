@@ -419,8 +419,8 @@ void HistoryAddRegion::Do(void)
 		m_NodeCache.clear(); // Ö»ÊÇÖØÖÃeof×´Ì¬£¬²¢²»Çå¿Õ»º´æ
 		m_NodeCache.seekg(0);
 		boost::archive::polymorphic_text_iarchive ia(m_NodeCache);
-		CImgRegionDocFileVersions::SerializeLoadImgRegion(pReg.get(), ia, CImgRegionDocFileVersions::FILE_VERSION);
-		CImgRegionDocFileVersions::SerializeLoadSubTreeNode(m_pDoc, ia, CImgRegionDocFileVersions::FILE_VERSION, hItem, TRUE);
+		CImgRegionDocFileVersions::SerializeLoadImgRegion(pReg.get(), ia);
+		CImgRegionDocFileVersions::SerializeLoadSubTreeNode(m_pDoc, ia, hItem, TRUE);
 	}
 	m_pDoc->m_NextRegId = max(oldRegId, m_pDoc->m_NextRegId);
 
@@ -459,8 +459,8 @@ void HistoryDelRegion::Do(void)
 	m_NodeCache.clear();
 	m_NodeCache.seekp(0);
 	boost::archive::polymorphic_text_oarchive oa(m_NodeCache);
-	CImgRegionDocFileVersions::SerializeImgRegion(pReg.get(), oa, CImgRegionDocFileVersions::FILE_VERSION);
-	CImgRegionDocFileVersions::SerializeSubTreeNode(m_pDoc, oa, CImgRegionDocFileVersions::FILE_VERSION, hItem, FALSE);
+	CImgRegionDocFileVersions::SerializeImgRegion(pReg.get(), oa);
+	CImgRegionDocFileVersions::SerializeSubTreeNode(m_pDoc, oa, hItem, FALSE);
 
 	HTREEITEM hParent = m_pDoc->m_TreeCtrl.GetParentItem(hItem);
 	m_parentID = hParent ? m_pDoc->GetItemId(hParent) : 0;
@@ -483,8 +483,8 @@ void HistoryDelRegion::Undo(void)
 	m_NodeCache.clear();
 	m_NodeCache.seekg(0);
 	boost::archive::polymorphic_text_iarchive ia(m_NodeCache);
-	CImgRegionDocFileVersions::SerializeLoadImgRegion(pReg.get(), ia, CImgRegionDocFileVersions::FILE_VERSION);
-	CImgRegionDocFileVersions::SerializeLoadSubTreeNode(m_pDoc, ia, CImgRegionDocFileVersions::FILE_VERSION, hItem, FALSE);
+	CImgRegionDocFileVersions::SerializeLoadImgRegion(pReg.get(), ia);
+	CImgRegionDocFileVersions::SerializeLoadSubTreeNode(m_pDoc, ia, hItem, FALSE);
 
 	if(pReg->m_Locked)
 		m_pDoc->m_TreeCtrl.SetItemImage(hItem, 1, 1);
@@ -715,7 +715,7 @@ BOOL CImgRegionDoc::OnSaveDocument(LPCTSTR lpszPathName)
 
 	std::ofstream ofs(lpszPathName, std::ios::out, _SH_DENYRW);
 	boost::archive::polymorphic_xml_oarchive oa(ofs);
-	CImgRegionDocFileVersions::Serialize(this, oa, CImgRegionDocFileVersions::FILE_VERSION);
+	CImgRegionDocFileVersions::Serialize(this, oa);
 
 	return TRUE;
 }
@@ -878,7 +878,7 @@ void CImgRegionDoc::OnAddRegion()
 	reg.m_Font = theApp.GetFont(_T("Î¢ÈíÑÅºÚ"), 16);
 	reg.m_FontColor = Gdiplus::Color(255,my::Random<int>(0,255),my::Random<int>(0,255),my::Random<int>(0,255));
 	boost::archive::polymorphic_text_oarchive oa(hist->m_NodeCache);
-	CImgRegionDocFileVersions::SerializeImgRegion(&reg, oa, CImgRegionDocFileVersions::FILE_VERSION);
+	CImgRegionDocFileVersions::SerializeImgRegion(&reg, oa);
 	int nChilds = 0;
 	oa << BOOST_SERIALIZATION_NVP(nChilds);
 
@@ -1034,8 +1034,8 @@ void CImgRegionDoc::OnEditCopy()
 		theApp.m_ClipboardFile.clear();
 		theApp.m_ClipboardFile.seekp(0);
 		boost::archive::polymorphic_text_oarchive oa(theApp.m_ClipboardFile);
-		CImgRegionDocFileVersions::SerializeImgRegion(pReg.get(), oa, CImgRegionDocFileVersions::FILE_VERSION);
-		CImgRegionDocFileVersions::SerializeSubTreeNode(this, oa, CImgRegionDocFileVersions::FILE_VERSION, hSelected, FALSE);
+		CImgRegionDocFileVersions::SerializeImgRegion(pReg.get(), oa);
+		CImgRegionDocFileVersions::SerializeSubTreeNode(this, oa, hSelected, FALSE);
 	}
 }
 
