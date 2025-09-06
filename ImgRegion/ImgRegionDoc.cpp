@@ -696,8 +696,21 @@ BOOL CImgRegionDoc::OnOpenDocument(LPCTSTR lpszPathName)
 	if (!CImgRegionDoc::CreateTreeCtrl())
 		return FALSE;
 
-	if (!CDocument::OnOpenDocument(lpszPathName))
-		return FALSE;
+	//if (!CDocument::OnOpenDocument(lpszPathName))
+	//	return FALSE;
+
+	DeleteContents();
+	SetModifiedFlag();  // dirty during de-serialize
+
+	std::ifstream ifs(lpszPathName, std::ios::in, _SH_DENYRW);
+
+	if (ifs.is_open())
+	{
+		boost::archive::polymorphic_xml_iarchive ia(ifs);
+		CImgRegionDocFileVersions::SerializeLoad(this, ia);     // load me
+	}
+
+	SetModifiedFlag(FALSE);     // back to unmodified
 
 	UpdateImageSizeTable(m_Size);
 
@@ -709,10 +722,13 @@ BOOL CImgRegionDoc::OnSaveDocument(LPCTSTR lpszPathName)
 	//if(!CDocument::OnSaveDocument(lpszPathName))
 	//	return FALSE;
 
-
 	std::ofstream ofs(lpszPathName, std::ios::out, _SH_DENYRW);
 	boost::archive::polymorphic_xml_oarchive oa(ofs);
-	CImgRegionDocFileVersions::Serialize(this, oa);
+
+	CWaitCursor wait;
+	CImgRegionDocFileVersions::Serialize(this, oa);     // save me
+
+	SetModifiedFlag(FALSE);     // back to unmodified
 
 	return TRUE;
 }
