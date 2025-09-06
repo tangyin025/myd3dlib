@@ -1,6 +1,7 @@
 #pragma once
 
 #include "resource.h"
+#include <sstream>
 
 class CMainApp : public CWinAppEx
 {
@@ -37,7 +38,7 @@ public:
 
 	FontPtr2 GetFont(const CString & strFamily, float fSize);
 
-	CMemFile m_ClipboardFile;
+	std::stringstream m_ClipboardFile;
 
 	DECLARE_MESSAGE_MAP()
 

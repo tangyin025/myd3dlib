@@ -9,6 +9,11 @@
 #include "ExportLuaDlg.h"
 #include "ImgRegionDocFileVersions.h"
 #include <boost/regex.hpp>
+#include <boost/archive/polymorphic_xml_iarchive.hpp>
+#include <boost/archive/polymorphic_xml_oarchive.hpp>
+#include <boost/archive/polymorphic_text_iarchive.hpp>
+#include <boost/archive/polymorphic_text_oarchive.hpp>
+#include <boost/serialization/nvp.hpp>
 #include <iterator>
 
 //#pragma comment(lib, "UxTheme.lib")
@@ -410,12 +415,12 @@ void HistoryAddRegion::Do(void)
 	DWORD oldRegId = m_pDoc->m_NextRegId;
 	{
 		m_pDoc->m_NextRegId = m_OverideRegId;
-		ASSERT(m_NodeCache.GetLength() > 0);
-		m_NodeCache.SeekToBegin();
-		CArchive ar(&m_NodeCache, CArchive::load);
-		CImgRegionDocFileVersions::SerializeImgRegion(pReg.get(), ar, CImgRegionDocFileVersions::FILE_VERSION);
-		CImgRegionDocFileVersions::SerializeSubTreeNode(m_pDoc, ar, CImgRegionDocFileVersions::FILE_VERSION, hItem, TRUE);
-		ar.Close();
+		ASSERT(!m_NodeCache.str().empty());
+		m_NodeCache.clear(); // Ö»ÊÇÖØÖÃeof×´Ì¬£¬²¢²»Çå¿Õ»º´æ
+		m_NodeCache.seekg(0);
+		boost::archive::polymorphic_text_iarchive ia(m_NodeCache);
+		CImgRegionDocFileVersions::SerializeLoadImgRegion(pReg.get(), ia, CImgRegionDocFileVersions::FILE_VERSION);
+		CImgRegionDocFileVersions::SerializeLoadSubTreeNode(m_pDoc, ia, CImgRegionDocFileVersions::FILE_VERSION, hItem, TRUE);
 	}
 	m_pDoc->m_NextRegId = max(oldRegId, m_pDoc->m_NextRegId);
 
@@ -450,11 +455,12 @@ void HistoryDelRegion::Do(void)
 	CImgRegionPtr pReg = m_pDoc->GetItemNode(hItem);
 	ASSERT(pReg);
 
-	m_NodeCache.SetLength(0);
-	CArchive ar(&m_NodeCache, CArchive::store);
-	CImgRegionDocFileVersions::SerializeImgRegion(pReg.get(), ar, CImgRegionDocFileVersions::FILE_VERSION);
-	CImgRegionDocFileVersions::SerializeSubTreeNode(m_pDoc, ar, CImgRegionDocFileVersions::FILE_VERSION, hItem, FALSE);
-	ar.Close();
+	m_NodeCache.str("");
+	m_NodeCache.clear();
+	m_NodeCache.seekp(0);
+	boost::archive::polymorphic_text_oarchive oa(m_NodeCache);
+	CImgRegionDocFileVersions::SerializeImgRegion(pReg.get(), oa, CImgRegionDocFileVersions::FILE_VERSION);
+	CImgRegionDocFileVersions::SerializeSubTreeNode(m_pDoc, oa, CImgRegionDocFileVersions::FILE_VERSION, hItem, FALSE);
 
 	HTREEITEM hParent = m_pDoc->m_TreeCtrl.GetParentItem(hItem);
 	m_parentID = hParent ? m_pDoc->GetItemId(hParent) : 0;
@@ -473,12 +479,12 @@ void HistoryDelRegion::Undo(void)
 	CImgRegionPtr pReg(new CImgRegion);
 	HTREEITEM hItem = m_pDoc->InsertItem(m_itemID, m_strItem, pReg, hParent, hBefore);
 
-	ASSERT(m_NodeCache.GetLength() > 0);
-	m_NodeCache.SeekToBegin();
-	CArchive ar(&m_NodeCache, CArchive::load);
-	CImgRegionDocFileVersions::SerializeImgRegion(pReg.get(), ar, CImgRegionDocFileVersions::FILE_VERSION);
-	CImgRegionDocFileVersions::SerializeLoadSubTreeNode(m_pDoc, ar, CImgRegionDocFileVersions::FILE_VERSION, hItem, FALSE);
-	ar.Close();
+	ASSERT(!m_NodeCache.str().empty());
+	m_NodeCache.clear();
+	m_NodeCache.seekg(0);
+	boost::archive::polymorphic_text_iarchive ia(m_NodeCache);
+	CImgRegionDocFileVersions::SerializeLoadImgRegion(pReg.get(), ia, CImgRegionDocFileVersions::FILE_VERSION);
+	CImgRegionDocFileVersions::SerializeLoadSubTreeNode(m_pDoc, ia, CImgRegionDocFileVersions::FILE_VERSION, hItem, FALSE);
 
 	if(pReg->m_Locked)
 		m_pDoc->m_TreeCtrl.SetItemImage(hItem, 1, 1);
@@ -703,8 +709,13 @@ BOOL CImgRegionDoc::OnOpenDocument(LPCTSTR lpszPathName)
 
 BOOL CImgRegionDoc::OnSaveDocument(LPCTSTR lpszPathName)
 {
-	if(!CDocument::OnSaveDocument(lpszPathName))
-		return FALSE;
+	//if(!CDocument::OnSaveDocument(lpszPathName))
+	//	return FALSE;
+
+
+	std::ofstream ofs(lpszPathName, std::ios::out, _SH_DENYRW);
+	boost::archive::polymorphic_xml_oarchive oa(ofs);
+	CImgRegionDocFileVersions::Serialize(this, oa, CImgRegionDocFileVersions::FILE_VERSION);
 
 	return TRUE;
 }
@@ -866,10 +877,10 @@ void CImgRegionDoc::OnAddRegion()
 	reg.m_Color = Gdiplus::Color(255,my::Random<int>(0,255),my::Random<int>(0,255),my::Random<int>(0,255));
 	reg.m_Font = theApp.GetFont(_T("Î¢ÈíÑÅºÚ"), 16);
 	reg.m_FontColor = Gdiplus::Color(255,my::Random<int>(0,255),my::Random<int>(0,255),my::Random<int>(0,255));
-	CArchive ar(&hist->m_NodeCache, CArchive::store);
-	CImgRegionDocFileVersions::SerializeImgRegion(&reg, ar, CImgRegionDocFileVersions::FILE_VERSION);
-	ar << 0;
-	ar.Close();
+	boost::archive::polymorphic_text_oarchive oa(hist->m_NodeCache);
+	CImgRegionDocFileVersions::SerializeImgRegion(&reg, oa, CImgRegionDocFileVersions::FILE_VERSION);
+	int nChilds = 0;
+	oa << BOOST_SERIALIZATION_NVP(nChilds);
 
 	AddNewHistory(hist);
 	hist->Do();
@@ -1019,11 +1030,12 @@ void CImgRegionDoc::OnEditCopy()
 		CImgRegionPtr pReg = GetItemNode(hSelected);
 		ASSERT(pReg);
 
-		theApp.m_ClipboardFile.SetLength(0);
-		CArchive ar(&theApp.m_ClipboardFile, CArchive::store);
-		CImgRegionDocFileVersions::SerializeImgRegion(pReg.get(), ar, CImgRegionDocFileVersions::FILE_VERSION);
-		CImgRegionDocFileVersions::SerializeSubTreeNode(this, ar, CImgRegionDocFileVersions::FILE_VERSION, hSelected, FALSE);
-		ar.Close();
+		theApp.m_ClipboardFile.str("");
+		theApp.m_ClipboardFile.clear();
+		theApp.m_ClipboardFile.seekp(0);
+		boost::archive::polymorphic_text_oarchive oa(theApp.m_ClipboardFile);
+		CImgRegionDocFileVersions::SerializeImgRegion(pReg.get(), oa, CImgRegionDocFileVersions::FILE_VERSION);
+		CImgRegionDocFileVersions::SerializeSubTreeNode(this, oa, CImgRegionDocFileVersions::FILE_VERSION, hSelected, FALSE);
 	}
 }
 
@@ -1036,7 +1048,8 @@ void CImgRegionDoc::OnUpdateEditCopy(CCmdUI *pCmdUI)
 
 void CImgRegionDoc::OnEditPaste()
 {
-	if(theApp.m_ClipboardFile.GetLength() > 0)
+	std::string cache = theApp.m_ClipboardFile.str();
+	if(!cache.empty())
 	{
 		HTREEITEM hParent = m_TreeCtrl.GetSelectedItem();
 		m_NextRegId++;
@@ -1045,12 +1058,8 @@ void CImgRegionDoc::OnEditPaste()
 		HistoryAddRegionPtr hist(new HistoryAddRegion(
 			this, m_NextRegId, (LPCTSTR)szName, hParent ? GetItemId(hParent) : 0, 0));
 
-		void * pBuffer;
-		void * pBufferMax;
-		theApp.m_ClipboardFile.SeekToBegin();
-		UINT len = theApp.m_ClipboardFile.GetBufferPtr(CFile::bufferRead, -1, &pBuffer, &pBufferMax);
-		hist->m_NodeCache.Write(pBuffer, len);
-		hist->m_NodeCache.Flush();
+		hist->m_NodeCache.str(cache);
+		hist->m_NodeCache.seekp(0, std::ios::end);
 
 		AddNewHistory(hist);
 		hist->Do();
@@ -1077,7 +1086,7 @@ void CImgRegionDoc::OnEditPaste()
 
 void CImgRegionDoc::OnUpdateEditPaste(CCmdUI *pCmdUI)
 {
-	pCmdUI->Enable(theApp.m_ClipboardFile.GetLength() > 0);
+	pCmdUI->Enable(theApp.m_ClipboardFile.tellp() != 0);
 }
 
 void CImgRegionDoc::OnEditUndo()

@@ -2,6 +2,7 @@
 
 #include "../myd3dbox/DragableTreeCtrl.h"
 #include "PropertiesWnd.h"
+#include <sstream>
 
 class Vector4i
 {
@@ -214,7 +215,7 @@ public:
 
 	UINT m_beforeID;
 
-	CMemFile m_NodeCache;
+	std::stringstream m_NodeCache;
 
 	DWORD m_OverideRegId;
 
@@ -241,7 +242,7 @@ public:
 
 	UINT m_beforeID;
 
-	CMemFile m_NodeCache;
+	std::stringstream m_NodeCache;
 
 	HistoryDelRegion(CImgRegionDoc * pDoc, UINT itemID)
 		: m_pDoc(pDoc)
