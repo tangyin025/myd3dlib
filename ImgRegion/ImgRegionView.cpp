@@ -262,7 +262,8 @@ void CImgRegionView::DrawRegionDocImage(Gdiplus::Graphics & grap, Gdiplus::Image
 					dstRect.Width -= border.x;
 					imgRect.Width -= border.x;
 				}
-				else if (j >= tile.cx - 1)
+
+				if (j >= tile.cx - 1)
 				{
 					dstRect.Width -= border.x;
 					imgRect.Width -= border.x;
@@ -275,7 +276,8 @@ void CImgRegionView::DrawRegionDocImage(Gdiplus::Graphics & grap, Gdiplus::Image
 					dstRect.Height -= border.y;
 					imgRect.Height -= border.y;
 				}
-				else if (i >= tile.cy - 1)
+
+				if (i >= tile.cy - 1)
 				{
 					dstRect.Height -= border.y;
 					imgRect.Height -= border.y;
