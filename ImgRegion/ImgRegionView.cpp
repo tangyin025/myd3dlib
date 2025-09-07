@@ -233,8 +233,56 @@ void CImgRegionView::DrawRegionDocImage(Gdiplus::Graphics & grap, Gdiplus::Image
 	}
 	else
 	{
-		grap.DrawImage(img, Rect,
-			srcRect.X, srcRect.Y, srcRect.Width, srcRect.Height, Gdiplus::UnitPixel, &imageAtt);
+		const CSize tile(max(1, border.z), max(1, border.w));
+
+		for (int i = 0; i < max(1, tile.cy); i++)
+		{
+			for (int j = 0; j < max(1, tile.cx); j++)
+			{
+				CSize chunk(Rect.Width / tile.cx, Rect.Height / tile.cy);
+
+				Gdiplus::Rect dstRect(
+					Rect.X + j * chunk.cx,
+					Rect.Y + i * chunk.cy,
+					chunk.cx,
+					chunk.cy);
+
+				Gdiplus::Rect imgRect(
+					srcRect.X + (j > 0 && j >= tile.cx - 1 ? 2 : min(1, j)) * srcRect.Width,
+					srcRect.Y + (i > 0 && i >= tile.cy - 1 ? 2 : min(1, i)) * srcRect.Height,
+					srcRect.Width,
+					srcRect.Height);
+
+				if (j < 1)
+				{
+					dstRect.X += border.x;
+					imgRect.X += border.x;
+					dstRect.Width -= border.x;
+					imgRect.Width -= border.x;
+				}
+				else if (j >= tile.cx - 1)
+				{
+					dstRect.Width -= border.x;
+					imgRect.Width -= border.x;
+				}
+
+				if (i < 1)
+				{
+					dstRect.Y += border.y;
+					imgRect.Y += border.y;
+					dstRect.Height -= border.y;
+					imgRect.Height -= border.y;
+				}
+				else if (i >= tile.cy - 1)
+				{
+					dstRect.Height -= border.y;
+					imgRect.Height -= border.y;
+				}
+
+				grap.DrawImage(img, dstRect,
+					imgRect.X, imgRect.Y, imgRect.Width, imgRect.Height, Gdiplus::UnitPixel, &imageAtt);
+			}
+		}
 	}
 
 	grap.SetInterpolationMode(oldInterpolationMode);
