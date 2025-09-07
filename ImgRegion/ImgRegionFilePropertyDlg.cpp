@@ -1,3 +1,5 @@
+// Copyright (c) 2011-2024 tangyin025
+// License: MIT
 
 #include "stdafx.h"
 #include "ImgRegionFilePropertyDlg.h"
@@ -45,7 +47,7 @@ void CImgRegionFilePropertyDlg::OnBnClickedOpenImage()
 		_T("Í¼Æ¬ÎÄ¼þ(*.bmp; *.jpg; *.png; *.tga)|*.bmp;*.jpg;*.png;*.tga|All Files(*.*)|*.*||"), this);
 	if(dlg.DoModal() == IDOK)
 	{
-		m_ImageStr = dlg.GetPathName();
+		m_ImageStr = theApp.GetRelativePath(dlg.GetPathName());
 		SetDlgItemText(IDC_EDIT3, m_ImageStr);
 
 		m_Image = theApp.GetImage(m_ImageStr);

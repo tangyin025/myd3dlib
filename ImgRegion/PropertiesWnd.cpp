@@ -1,3 +1,5 @@
+// Copyright (c) 2011-2024 tangyin025
+// License: MIT
 
 #include "stdafx.h"
 #include "PropertiesWnd.h"
@@ -232,7 +234,7 @@ LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 					break;
 
 				case PropertyItemImage:
-					pReg->m_ImageStr = ((CMFCPropertyGridFileProperty *)m_pProp[PropertyItemImage])->GetValue().bstrVal;
+					pReg->m_ImageStr = theApp.GetRelativePath(((CMFCPropertyGridFileProperty *)m_pProp[PropertyItemImage])->GetValue().bstrVal);
 					pReg->m_Image = theApp.GetImage(pReg->m_ImageStr);
 					pReg->m_ImageRect = Gdiplus::Rect(0, 0, pReg->m_Image->GetWidth(), pReg->m_Image->GetHeight());
 					break;

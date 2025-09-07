@@ -1,3 +1,5 @@
+// Copyright (c) 2011-2024 tangyin025
+// License: MIT
 #pragma once
 
 #include "resource.h"
@@ -47,6 +49,8 @@ public:
 	virtual BOOL OnIdle(LONG lCount);
 
 	afx_msg void OnAppAbout();
+public:
+	CString GetRelativePath(LPCTSTR lpszAbsPath);
 };
 
 extern CMainApp theApp;

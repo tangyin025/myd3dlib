@@ -1,3 +1,5 @@
+// Copyright (c) 2011-2024 tangyin025
+// License: MIT
 #include "stdafx.h"
 #include "MainApp.h"
 #include "MainFrm.h"
@@ -243,4 +245,44 @@ void CMainApp::OnAppAbout()
 {
 	CAboutDlg dlg;
 	dlg.DoModal();
+}
+
+
+CString CMainApp::GetRelativePath(LPCTSTR lpszAbsPath)
+{
+	// TODO: Add your implementation code here.
+	// 获取程序当前目录
+	TCHAR szCurrentDir[MAX_PATH] = { 0 };
+	GetCurrentDirectory(MAX_PATH, szCurrentDir);
+
+	// 确保目录以反斜杠结尾
+	size_t nLen = _tcslen(szCurrentDir);
+	if (nLen > 0 && szCurrentDir[nLen - 1] != _T('\\')) {
+		_tcscat_s(szCurrentDir, _T("\\"));
+	}
+
+	// 准备输出缓冲区
+	TCHAR szRelativePath[MAX_PATH] = { 0 };
+
+	// 转换路径
+	BOOL bSuccess = ::PathRelativePathTo(
+		szRelativePath,                   // 输出缓冲区
+		szCurrentDir,                     // 基础目录（当前目录）
+		FILE_ATTRIBUTE_DIRECTORY,         // 基础是目录
+		lpszAbsPath,                      // 目标绝对路径
+		::PathIsDirectory(lpszAbsPath) ?  // 判断目标类型
+		FILE_ATTRIBUTE_DIRECTORY : 0  // 设置目标属性
+	);
+
+	// 处理结果
+	if (!bSuccess) {
+		return lpszAbsPath;  // 失败时返回原路径
+	}
+
+	// 处理".\\"开头的路径
+	if (szRelativePath[0] == _T('.') && szRelativePath[1] == _T('\\')) {
+		return &szRelativePath[2];  // 跳过".\\"
+	}
+
+	return szRelativePath;
 }
