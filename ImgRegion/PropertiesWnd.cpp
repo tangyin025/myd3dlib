@@ -236,7 +236,8 @@ LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 				case PropertyItemImage:
 					pReg->m_ImageStr = theApp.GetRelativePath(((CMFCPropertyGridFileProperty *)m_pProp[PropertyItemImage])->GetValue().bstrVal);
 					pReg->m_Image = theApp.GetImage(pReg->m_ImageStr);
-					pReg->m_ImageRect = Gdiplus::Rect(0, 0, pReg->m_Image->GetWidth(), pReg->m_Image->GetHeight());
+					if (pReg->m_ImageRect.IsEmptyArea())
+						pReg->m_ImageRect = Gdiplus::Rect(0, 0, pReg->m_Image->GetWidth(), pReg->m_Image->GetHeight());
 					break;
 
 				case PropertyItemRect:

@@ -281,8 +281,16 @@ CString CMainApp::GetRelativePath(LPCTSTR lpszAbsPath)
 
 	// 处理".\\"开头的路径
 	if (szRelativePath[0] == _T('.') && szRelativePath[1] == _T('\\')) {
-		return &szRelativePath[2];  // 跳过".\\"
+		_tcscpy_s(szRelativePath, &szRelativePath[2]);  // 跳过".\\"
 	}
 
-	return szRelativePath;
+	// 将反斜杠转换为正斜杠（跨平台兼容）
+	CString strResult = szRelativePath;
+	for (int i = 0; i < strResult.GetLength(); i++) {
+		if (strResult[i] == _T('\\')) {
+			strResult.SetAt(i, _T('/'));
+		}
+	}
+
+	return strResult;
 }
