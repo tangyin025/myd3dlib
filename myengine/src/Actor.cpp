@@ -1046,37 +1046,6 @@ void Actor::StopAllActionInst(void)
 	}
 }
 
-bool Actor::TickActionAndGetDisplacement(float dtime, my::Vector3 & disp)
-{
-	_ASSERT(PhysxSdk::getSingleton().m_RenderTickMuted);
-
-	//bool havedisp = false;
-	//ActionInstPtrList::iterator action_inst_iter = m_ActionInstList.begin();
-	//for (; action_inst_iter != m_ActionInstList.end(); action_inst_iter++)
-	//{
-	//	const float LastTime = (*action_inst_iter)->m_Time;
-
-	//	(*action_inst_iter)->m_Time += dtime;
-
-	//	// ! only one disp will be returned
-	//	if (!havedisp && (*action_inst_iter)->m_Time < (*action_inst_iter)->m_Template->m_Length)
-	//	{
-	//		ActionInst::ActionTrackInstPtrList::iterator track_inst_iter = (*action_inst_iter)->m_TrackInstList.begin();
-	//		for (; track_inst_iter != (*action_inst_iter)->m_TrackInstList.end(); track_inst_iter++)
-	//		{
-	//			if ((*track_inst_iter)->GetDisplacement(LastTime, dtime, disp))
-	//			{
-	//				havedisp = true;
-	//				continue;
-	//			}
-	//		}
-	//	}
-	//}
-	//return havedisp;
-
-	return false;
-}
-
 Component * Actor::GetFirstComponent(DWORD Type, unsigned int startid)
 {
 	for (unsigned int i = startid; i < m_Cmps.size(); i++)

@@ -365,44 +365,6 @@ void ActionTrackEmitterInst::Stop(void)
 	m_KeyInsts.clear();
 }
 
-ActionTrackInstPtr ActionTrackVelocity::CreateInstance(Actor * _Actor) const
-{
-	return ActionTrackInstPtr(new ActionTrackVelocityInst(_Actor, boost::static_pointer_cast<const ActionTrackVelocity>(shared_from_this())));
-}
-
-void ActionTrackVelocity::AddKeyFrame(float Time, float Length)
-{
-	KeyFrameMap::iterator key_iter = m_Keys.insert(std::make_pair(Time, KeyFrame()));
-	_ASSERT(key_iter != m_Keys.end());
-	key_iter->second.Length = Length;
-}
-
-ActionTrackVelocityInst::ActionTrackVelocityInst(Actor * _Actor, boost::shared_ptr<const ActionTrackVelocity> Template)
-	: ActionTrackInst(_Actor)
-	, m_Template(Template)
-	, m_Velocity(Template->m_ParamVelocity)
-{
-}
-
-void ActionTrackVelocityInst::UpdateTime(float LastTime, float Time)
-{
-}
-
-void ActionTrackVelocityInst::Stop(void)
-{
-}
-
-bool ActionTrackVelocityInst::GetDisplacement(float LastTime, float dtime, my::Vector3 & disp)
-{
-	ActionTrackVelocity::KeyFrameMap::const_iterator key_iter = m_Template->m_Keys.upper_bound(LastTime);
-	if (key_iter != m_Template->m_Keys.begin() && LastTime < (--key_iter)->first + key_iter->second.Length)
-	{
-		disp = m_Velocity * dtime;
-		return true;
-	}
-	return false;
-}
-
 ActionTrackInstPtr ActionTrackPose::CreateInstance(Actor * _Actor) const
 {
 	return ActionTrackInstPtr(new ActionTrackPoseInst(_Actor, boost::static_pointer_cast<const ActionTrackPose>(shared_from_this())));
@@ -455,14 +417,4 @@ void ActionTrackPoseInst::UpdateTime(float LastTime, float Time)
 
 void ActionTrackPoseInst::Stop(void)
 {
-}
-
-bool ActionTrackPoseInst::GetDisplacement(float LastTime, float dtime, my::Vector3 & disp)
-{
-	if (!m_KeyInsts.empty())
-	{
-		disp = Vector3(0, 0, 0);
-		return true;
-	}
-	return false;
 }

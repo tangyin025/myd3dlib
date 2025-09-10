@@ -20,9 +20,9 @@ ActionTbl::ActionTbl(void)
 	: Jump(new Action(0.5f))
 	, Climb(new Action(0.6f))
 {
-	boost::shared_ptr<ActionTrackVelocity> JumpVel(new ActionTrackVelocity);
-	JumpVel->AddKeyFrame(0.0f, 0.1f);
-	Jump->AddTrack(JumpVel);
+	//boost::shared_ptr<ActionTrackVelocity> JumpVel(new ActionTrackVelocity);
+	//JumpVel->AddKeyFrame(0.0f, 0.1f);
+	//Jump->AddTrack(JumpVel);
 
 	boost::shared_ptr<ActionTrackPose> ClimbPos(new ActionTrackPose);
 	ClimbPos->AddKeyFrame(0.0f, 0.5f);
@@ -192,8 +192,8 @@ void PlayerBehavior::Update(float fElapsedTime)
 		{
 			HorizontalVel = Vector3(m_Steering->m_Forward.xz(), 0).normalize(Vector3(0, 0, 0)) * m_Steering->m_Speed;
 		}
-		boost::dynamic_pointer_cast<ActionTrackVelocity>(ActionTbl::getSingleton().Jump->m_TrackList[0])->m_ParamVelocity =
-			HorizontalVel + Vector3(0, sqrt(-1.0f * 2.0f * theApp.default_physx_scene_gravity.y), 0);
+		m_JumpVel = HorizontalVel + Vector3(0, sqrt(-1.0f * 2.0f * theApp.default_physx_scene_gravity.y), 0);
+		m_Jumping = 0.1f;
 		m_Actor->PlayAction(ActionTbl::getSingleton().Jump.get());
 		m_Suspending = 0.0f;
 	}
@@ -239,11 +239,12 @@ void PlayerBehavior::OnPxThreadSubstep(float dtime)
 	}
 
 	Vector3 disp;
-	if (m_Actor->TickActionAndGetDisplacement(dtime, disp))
+	if (m_Jumping > 0)
 	{
-		Vector3 vel = disp / dtime;
-		m_VerticalSpeed = vel.dot(m_Controller->GetUpDirection());
-		m_Steering->SetVelocity(vel.slide(m_Controller->GetUpDirection()));
+		m_Jumping -= dtime;
+		disp = m_JumpVel * dtime;
+		m_VerticalSpeed = m_JumpVel.dot(m_Controller->GetUpDirection());
+		m_Steering->SetVelocity(m_JumpVel.slide(m_Controller->GetUpDirection()));
 	}
 	else if (m_Suspending <= 0.0f)
 	{

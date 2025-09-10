@@ -110,8 +110,6 @@ public:
 	virtual void UpdateTime(float LastTime, float Time) = 0;
 
 	virtual void Stop(void) = 0;
-
-	virtual bool GetDisplacement(float LastTime, float dtime, my::Vector3 & disp) { return false; }
 };
 
 class ActionTrackAnimation : public ActionTrack
@@ -288,48 +286,6 @@ public:
 	virtual void Stop(void);
 };
 
-class ActionTrackVelocity : public ActionTrack
-{
-public:
-	struct KeyFrame
-	{
-		float Length;
-	};
-
-	typedef std::multimap<float, KeyFrame> KeyFrameMap;
-
-	KeyFrameMap m_Keys;
-
-	my::Vector3 m_ParamVelocity;
-
-public:
-	ActionTrackVelocity(void)
-		: m_ParamVelocity(0,0,0)
-	{
-	}
-
-	virtual ActionTrackInstPtr CreateInstance(Actor * _Actor) const;
-
-	void AddKeyFrame(float Time, float Length);
-};
-
-class ActionTrackVelocityInst : public ActionTrackInst
-{
-protected:
-	boost::shared_ptr<const ActionTrackVelocity> m_Template;
-
-	my::Vector3 m_Velocity;
-
-public:
-	ActionTrackVelocityInst(Actor * _Actor, boost::shared_ptr<const ActionTrackVelocity> Template);
-
-	virtual void UpdateTime(float LastTime, float Time);
-
-	virtual void Stop(void);
-
-	virtual bool GetDisplacement(float LastTime, float dtime, my::Vector3 & disp);
-};
-
 class ActionTrackPose : public ActionTrack
 {
 public:
@@ -392,6 +348,4 @@ public:
 	virtual void UpdateTime(float LastTime, float Time);
 
 	virtual void Stop(void);
-
-	virtual bool GetDisplacement(float LastTime, float dtime, my::Vector3 & disp);
 };

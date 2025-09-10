@@ -883,9 +883,6 @@ struct ScriptComponent : Component, luabind::wrap_base
 	static void default_OnPxThreadSubstep(Component* ptr, float dtime)
 	{
 		//ptr->Component::OnPxThreadSubstep(dtime);
-
-		my::Vector3 disp;
-		ptr->m_Actor->TickActionAndGetDisplacement(dtime, disp);
 	}
 
 	virtual void OnTrigger(my::EventArg* arg)
@@ -1131,24 +1128,6 @@ public:
 	static void default_Stop(ScriptActionTrackInst* ptr)
 	{
 		//ptr->ActionTrackInst::Stop();
-	}
-
-	virtual bool GetDisplacement(float LastTime, float dtime, my::Vector3 & disp)
-	{
-		try
-		{
-			return luabind::wrap_base::call<bool>("GetDisplacement", LastTime, dtime, disp);
-		}
-		catch (const luabind::error& e)
-		{
-			my::D3DContext::getSingleton().m_EventLog(lua_tostring(e.state(), -1));
-		}
-		return false;
-	}
-
-	static bool default_GetDisplacement(ScriptActionTrackInst* ptr, float LastTime, float dtime, my::Vector3 & disp)
-	{
-		return ptr->ActionTrackInst::GetDisplacement(LastTime, dtime, disp);
 	}
 };
 
@@ -3698,7 +3677,6 @@ void LuaContext::Init(void)
 			.def("PlayAction", &Actor::PlayAction)
 			.def("StopActionInst", &Actor::StopActionInst)
 			.def("StopAllActionInst", &Actor::StopAllActionInst)
-			.def("TickActionAndGetDisplacement", &Actor::TickActionAndGetDisplacement, pure_out_value(boost::placeholders::_3))
 			.def("GetFirstComponent", (Component * (Actor::*)(DWORD, unsigned int))&Actor::GetFirstComponent)
 			.def("GetFirstComponent", luabind::tag_function<Component* (Actor*, DWORD)>(
 				boost::bind<Component*>((Component* (Actor::*)(DWORD, unsigned int))&Actor::GetFirstComponent, boost::placeholders::_1, boost::placeholders::_2, 0)))
@@ -3798,11 +3776,6 @@ void LuaContext::Init(void)
 			.def(constructor<>())
 			.def("AddKeyFrame", &ActionTrackEmitter::AddKeyFrame)
 
-		, class_<ActionTrackVelocity, ActionTrack, boost::shared_ptr<ActionTrack> >("ActionTrackVelocity")
-			.def(constructor<>())
-			.def_readwrite("ParamVelocity", &ActionTrackVelocity::m_ParamVelocity)
-			.def("AddKeyFrame", &ActionTrackVelocity::AddKeyFrame)
-
 		, class_<ActionTrackPose, ActionTrack, boost::shared_ptr<ActionTrack> >("ActionTrackPose")
 			.def(constructor<>())
 			.def_readwrite("ParamPose", &ActionTrackPose::m_ParamPose)
@@ -3817,7 +3790,6 @@ void LuaContext::Init(void)
 			.def_readonly("Actor", &ActionTrackInst::m_Actor)
 			.def("UpdateTime", &ActionTrackInst::UpdateTime, &ScriptActionTrackInst::default_UpdateTime)
 			.def("Stop", &ActionTrackInst::Stop, &ScriptActionTrackInst::default_Stop)
-			.def("GetDisplacement", &ActionTrackInst::GetDisplacement, &ScriptActionTrackInst::default_GetDisplacement)
 
 		, class_<RenderPipeline>("RenderPipeline")
 			//.enum_("MeshType")

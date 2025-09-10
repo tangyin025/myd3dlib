@@ -400,8 +400,6 @@ public:
 
 	void StopAllActionInst(void);
 
-	bool TickActionAndGetDisplacement(float dtime, my::Vector3 & disp);
-
 	Component * GetFirstComponent(DWORD Type, unsigned int startid);
 
 	const Component * GetFirstComponent(DWORD Type, unsigned int startid) const;
