@@ -63,8 +63,6 @@ public:
 
 	float m_LastTime;
 
-	float m_Time;
-
 	typedef std::vector<ActionTrackInstPtr> ActionTrackInstPtrList;
 
 	ActionTrackInstPtrList m_TrackInstList;

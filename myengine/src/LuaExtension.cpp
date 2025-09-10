@@ -3779,7 +3779,6 @@ void LuaContext::Init(void)
 		, class_<ActionInst, boost::shared_ptr<ActionInst> >("ActionInst")
 			.def_readonly("Template", &ActionInst::m_Template)
 			.def_readonly("LastTime", &ActionInst::m_LastTime)
-			.def_readonly("Time", &ActionInst::m_Time)
 			.property("Actor", luabind::tag_function<Actor*(ActionInst*)>(
 				boost::bind(&ActionTrackInst::m_Actor, boost::bind(&ActionTrackInstPtr::get,
 					boost::bind((ActionTrackInstPtr&(ActionInst::ActionTrackInstPtrList::*)())&ActionInst::ActionTrackInstPtrList::front,

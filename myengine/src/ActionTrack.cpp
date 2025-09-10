@@ -35,7 +35,6 @@ ActionInstPtr Action::CreateInstance(Actor * _Actor)
 ActionInst::ActionInst(Actor * _Actor, boost::shared_ptr<const Action> Template)
 	: m_Template(Template)
 	, m_LastTime(0.0f)
-	, m_Time(0.0f)
 {
 	Action::ActionTrackPtrList::const_iterator track_iter = m_Template->m_TrackList.begin();
 	for (; track_iter != m_Template->m_TrackList.end(); track_iter++)
@@ -46,16 +45,14 @@ ActionInst::ActionInst(Actor * _Actor, boost::shared_ptr<const Action> Template)
 
 void ActionInst::Update(float fElapsedTime)
 {
+	const float Time = m_LastTime + fElapsedTime;
 	ActionTrackInstPtrList::iterator track_inst_iter = m_TrackInstList.begin();
 	for (; track_inst_iter != m_TrackInstList.end(); track_inst_iter++)
 	{
-		(*track_inst_iter)->UpdateTime(m_LastTime, m_Time);
+		(*track_inst_iter)->UpdateTime(m_LastTime, Time);
 	}
 
-	if (m_Time > m_LastTime)
-	{
-		m_LastTime = m_Time;
-	}
+	m_LastTime = Time;
 }
 
 void ActionInst::StopAllTrack(void)

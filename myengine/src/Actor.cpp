@@ -353,10 +353,11 @@ void Actor::Update(float fElapsedTime)
 	ActionInstPtrList::iterator action_inst_iter = m_ActionInstList.begin();
 	for (; action_inst_iter != m_ActionInstList.end(); )
 	{
-		(*action_inst_iter)->Update(fElapsedTime);
-
+		// ! ActionTrack length needs to exceed 1/60th of a second to prevent the loss of physics frames
 		if ((*action_inst_iter)->m_LastTime < (*action_inst_iter)->m_Template->m_Length)
 		{
+			(*action_inst_iter)->Update(fElapsedTime);
+
 			action_inst_iter++;
 		}
 		else
@@ -1049,29 +1050,31 @@ bool Actor::TickActionAndGetDisplacement(float dtime, my::Vector3 & disp)
 {
 	_ASSERT(PhysxSdk::getSingleton().m_RenderTickMuted);
 
-	bool havedisp = false;
-	ActionInstPtrList::iterator action_inst_iter = m_ActionInstList.begin();
-	for (; action_inst_iter != m_ActionInstList.end(); action_inst_iter++)
-	{
-		const float LastTime = (*action_inst_iter)->m_Time;
+	//bool havedisp = false;
+	//ActionInstPtrList::iterator action_inst_iter = m_ActionInstList.begin();
+	//for (; action_inst_iter != m_ActionInstList.end(); action_inst_iter++)
+	//{
+	//	const float LastTime = (*action_inst_iter)->m_Time;
 
-		(*action_inst_iter)->m_Time += dtime;
+	//	(*action_inst_iter)->m_Time += dtime;
 
-		// ! only one disp will be returned
-		if (!havedisp && (*action_inst_iter)->m_Time < (*action_inst_iter)->m_Template->m_Length)
-		{
-			ActionInst::ActionTrackInstPtrList::iterator track_inst_iter = (*action_inst_iter)->m_TrackInstList.begin();
-			for (; track_inst_iter != (*action_inst_iter)->m_TrackInstList.end(); track_inst_iter++)
-			{
-				if ((*track_inst_iter)->GetDisplacement(LastTime, dtime, disp))
-				{
-					havedisp = true;
-					continue;
-				}
-			}
-		}
-	}
-	return havedisp;
+	//	// ! only one disp will be returned
+	//	if (!havedisp && (*action_inst_iter)->m_Time < (*action_inst_iter)->m_Template->m_Length)
+	//	{
+	//		ActionInst::ActionTrackInstPtrList::iterator track_inst_iter = (*action_inst_iter)->m_TrackInstList.begin();
+	//		for (; track_inst_iter != (*action_inst_iter)->m_TrackInstList.end(); track_inst_iter++)
+	//		{
+	//			if ((*track_inst_iter)->GetDisplacement(LastTime, dtime, disp))
+	//			{
+	//				havedisp = true;
+	//				continue;
+	//			}
+	//		}
+	//	}
+	//}
+	//return havedisp;
+
+	return false;
 }
 
 Component * Actor::GetFirstComponent(DWORD Type, unsigned int startid)
