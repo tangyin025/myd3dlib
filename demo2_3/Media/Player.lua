@@ -141,18 +141,12 @@ function PlayerBehavior:Update(elapsedTime)
 	client.listener:CommitDeferredSettings()
 end
 function PlayerBehavior:OnPxThreadSubstep(dtime)
-	local ret,disp=self.Actor:TickActionAndGetDisplacement(dtime)
-	if not ret then
-		disp=self.velocity*dtime
-	end
+	local disp=self.velocity*dtime
 	local moveFlag=controller_cmp:Move(disp,0.001,dtime,1)
 	if ret or bit.band(moveFlag,Controller.eCOLLISION_DOWN) ~= 0 then
 		self.velocity.y=0
 	end
 end
--- function PlayerBehavior:OnTrigger(arg)
-	-- print("enter trigger: "..arg.other.Name, arg.events)
--- end
 function PlayerBehavior:OnPxThreadShapeHit(arg)
 	-- print("shape hit: "..arg.other.Name.."pos("..arg.worldPos.x..","..arg.worldPos.y..","..arg.worldPos.z..") nol("..arg.worldNormal.x..","..arg.worldNormal.y..","..arg.worldNormal.z..") dir("..arg.dir.x..","..arg.dir.y..","..arg.dir.z..")")
 end

@@ -57,9 +57,3 @@ for t=3,100,6 do
 end
 act_pose_track1.ParamPose=Bone(Vector3(-3,1,-3-5))
 act_pose:AddTrack(act_pose_track1)
-
-act_moving=Action(3)
-act_moving_track=ActionTrackVelocity()
-act_moving_track:AddKeyFrame(0,3)
-act_moving_track.ParamVelocity=Vector3(1,1,1)
-act_moving:AddTrack(act_moving_track)

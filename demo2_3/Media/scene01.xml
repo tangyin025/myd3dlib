@@ -35,7 +35,7 @@
 	<x>5.000000000e+00</x>
 	<y>1.500000000e+01</y>
 	<z>2.500000000e+01</z>
-	<w>1.000000000e+00</w>
+	<w>0.000000000e+00</w>
 </DofParams>
 <LuminanceThreshold>5.000000000e-01</LuminanceThreshold>
 <BloomColor>
@@ -586,7 +586,7 @@ AAAAAAAAgEIAAAAAAACAPwAAAAAAAAD/
 <Actor1>
 	<px class_id_reference="3" object_id="_70">
 		<NamedObject object_id="_71">
-			<Name>actor5</Name>
+			<Name>actor1</Name>
 		</NamedObject>
 		<m_aabb>
 			<m_min>
@@ -628,7 +628,7 @@ AAAAAAAAgEIAAAAAAACAPwAAAAAAAAD/
 				<px class_id_reference="22" object_id="_72">
 					<Component object_id="_73">
 						<NamedObject object_id="_74">
-							<Name>actor5_mesh0</Name>
+							<Name>actor1_mesh0</Name>
 						</NamedObject>
 						<m_LodMask>7</m_LodMask>
 						<m_Material>

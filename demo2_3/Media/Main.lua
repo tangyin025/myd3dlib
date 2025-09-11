@@ -81,9 +81,24 @@ client:LoadSceneAsync("scene01.xml", "scene01_", function(res)
 	for act in scene01.ActorList do
 		client:AddEntity(act)
 	end
+	
+	-- 之前Settings.dlg.Visible=false，导致hud被focused
+	Control.SetFocusControl(nil)
 
 	SPlayer.player:SetPose(Vector3(0,3,0),Quaternion.Identity())
 	client:AddEntity(SPlayer.player)
+
+	local actor1 = client:GetNamedObject("scene01_actor1")
+	class 'actor1Behavior'(Component)
+	function actor1Behavior:__init(name)
+		Component.__init(self,name)
+	end
+	function actor1Behavior:RequestResource()
+		Component.RequestResource(self)
+		self.Actor:PlayAction(SAction.act_pose)
+	end
+	local actor1_behavior=actor1Behavior(NamedObject.MakeUniqueName('actor_behavior'))
+	actor1:InsertComponentAdopt(actor1_behavior)
 
 	actor3:SetRigidBodyFlag(Actor.eKINEMATIC,true)
 	for cmp in actor3.Cmps do
@@ -108,23 +123,19 @@ client:LoadSceneAsync("scene01.xml", "scene01_", function(res)
 	actor2:SetPose(Vector3(0,1,-5),Quaternion.Identity())
 	client:AddEntity(actor2)
 
+	class 'actor5Behavior'(Component)
+	function actor5Behavior:__init(name)
+		Component.__init(self,name)
+	end
+	function actor5Behavior:OnTrigger(arg)
+		print("enter trigger: "..arg.other.Name, arg.events)
+	end
+	local actor5_behavior=actor5Behavior(NamedObject.MakeUniqueName('actor_behavior'))
+	actor5:InsertComponentAdopt(actor5_behavior)
 	actor5:UpdateWorld()
 	client:AddEntity(actor5)
 
-	local actor6 = client:GetNamedObject("scene01_actor5")
-	class 'Actor6Behavior'(Component)
-	function Actor6Behavior:__init(name)
-		Component.__init(self,name)
-	end
-	function Actor6Behavior:RequestResource()
-		Component.RequestResource(self)
-		self.Actor:PlayAction(SAction.act_pose)
-	end
-	local actor6_behavior=Actor6Behavior(NamedObject.MakeUniqueName('actor_behavior'))
-	actor6:InsertComponentAdopt(actor6_behavior)	
-
 	-- SPlayer.player:Detach(actor3);actor3:SetRigidBodyFlag(Actor.eKINEMATIC,false);for cmp in actor3.Cmps do cmp.SimulationFilterWord0=1;cmp.QueryFilterWord0=1 end;SPlayer.player:Detach(actor4);actor4:SetRigidBodyFlag(Actor.eKINEMATIC,false);for cmp in actor4.Cmps do cmp.SimulationFilterWord0=1;cmp.QueryFilterWord0=1 end
-	-- SPlayer.player:PlayAction(SAction.act_moving)
 
 end, 0)
 	
