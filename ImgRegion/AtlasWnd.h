@@ -11,15 +11,15 @@ public:
 	virtual BOOL AllowShowOnList() const { return FALSE; }
 };
 
-// CAtlasView
+// CAtlasWnd
 
-class CAtlasView : public CDockablePane
+class CAtlasWnd : public CDockablePane
 {
-	DECLARE_DYNAMIC(CAtlasView)
+	DECLARE_DYNAMIC(CAtlasWnd)
 
 public:
-	CAtlasView();
-	virtual ~CAtlasView();
+	CAtlasWnd();
+	virtual ~CAtlasWnd();
 
 protected:
 	DECLARE_MESSAGE_MAP()

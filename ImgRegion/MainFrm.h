@@ -4,7 +4,7 @@
 
 #include "FileView.h"
 #include "PropertiesWnd.h"
-#include "AtlasView.h"
+#include "AtlasWnd.h"
 
 class CMainFrame : public CMDIFrameWndEx
 {
@@ -40,5 +40,5 @@ public:
 
 	afx_msg LRESULT OnToolbarReset(WPARAM wp,LPARAM lp);
 
-	CAtlasView m_wndAtlas;
+	CAtlasWnd m_wndAtlas;
 };

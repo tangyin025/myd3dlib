@@ -170,7 +170,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="AtlasView.cpp" />
+    <ClCompile Include="AtlasWnd.cpp" />
     <ClCompile Include="ChildFrm.cpp" />
     <ClCompile Include="..\myd3dbox\CtrlProps.cpp" />
     <ClCompile Include="..\myd3dbox\DragableTreeCtrl.cpp" />
@@ -206,7 +206,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\myd3dlib\include\myMath.h" />
-    <ClInclude Include="AtlasView.h" />
+    <ClInclude Include="AtlasWnd.h" />
     <ClInclude Include="ChildFrm.h" />
     <ClInclude Include="..\myd3dbox\CtrlProps.h" />
     <ClInclude Include="..\myd3dbox\DragableTreeCtrl.h" />

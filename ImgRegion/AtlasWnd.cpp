@@ -1,42 +1,42 @@
-// CAtlasView.cpp : implementation file
+// CAtlasWnd.cpp : implementation file
 //
 
 #include "stdafx.h"
-#include "AtlasView.h"
+#include "AtlasWnd.h"
 #include "MainApp.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
 
-// CAtlasView
+// CAtlasWnd
 
-IMPLEMENT_DYNAMIC(CAtlasView, CDockablePane)
+IMPLEMENT_DYNAMIC(CAtlasWnd, CDockablePane)
 
-CAtlasView::CAtlasView()
+CAtlasWnd::CAtlasWnd()
 {
 
 }
 
-CAtlasView::~CAtlasView()
+CAtlasWnd::~CAtlasWnd()
 {
 }
 
 
-BEGIN_MESSAGE_MAP(CAtlasView, CDockablePane)
+BEGIN_MESSAGE_MAP(CAtlasWnd, CDockablePane)
 	ON_WM_CREATE()
 	ON_WM_SIZE()
-	ON_COMMAND(ID_LOAD_ATLAS, &CAtlasView::OnLoadAtlas)
+	ON_COMMAND(ID_LOAD_ATLAS, &CAtlasWnd::OnLoadAtlas)
 END_MESSAGE_MAP()
 
 
 
-// CAtlasView message handlers
+// CAtlasWnd message handlers
 
 
 
 
-int CAtlasView::OnCreate(LPCREATESTRUCT lpCreateStruct)
+int CAtlasWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
 {
 	if (CDockablePane::OnCreate(lpCreateStruct) == -1)
 		return -1;
@@ -64,7 +64,7 @@ int CAtlasView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 }
 
 
-void CAtlasView::AdjustLayout()
+void CAtlasWnd::AdjustLayout()
 {
 	// TODO: Add your implementation code here.
 	if (GetSafeHwnd() == NULL)
@@ -82,7 +82,7 @@ void CAtlasView::AdjustLayout()
 }
 
 
-void CAtlasView::OnSize(UINT nType, int cx, int cy)
+void CAtlasWnd::OnSize(UINT nType, int cx, int cy)
 {
 	CDockablePane::OnSize(nType, cx, cy);
 
@@ -91,7 +91,7 @@ void CAtlasView::OnSize(UINT nType, int cx, int cy)
 }
 
 
-void CAtlasView::OnLoadAtlas()
+void CAtlasWnd::OnLoadAtlas()
 {
 	// TODO: Add your command handler code here
 }
