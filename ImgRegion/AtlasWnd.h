@@ -1,3 +1,6 @@
+// Copyright (c) 2011-2024 tangyin025
+// License: MIT
+
 #pragma once
 
 class CPropertiesToolBar : public CMFCToolBar
@@ -9,6 +12,16 @@ public:
 	}
 
 	virtual BOOL AllowShowOnList() const { return FALSE; }
+};
+
+class CAtlasView : public CWnd
+{
+public:
+	DECLARE_DYNCREATE(CAtlasView)
+
+	CAtlasView(void);
+	DECLARE_MESSAGE_MAP()
+	afx_msg void OnPaint();
 };
 
 // CAtlasWnd
@@ -24,6 +37,7 @@ public:
 protected:
 	DECLARE_MESSAGE_MAP()
 	CPropertiesToolBar m_wndToolBar;
+	CAtlasView m_viewAtlas;
 public:
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 	void AdjustLayout();

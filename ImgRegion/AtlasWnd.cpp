@@ -1,5 +1,5 @@
-// CAtlasWnd.cpp : implementation file
-//
+// Copyright (c) 2011-2024 tangyin025
+// License: MIT
 
 #include "stdafx.h"
 #include "AtlasWnd.h"
@@ -8,6 +8,33 @@
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
+
+IMPLEMENT_DYNCREATE(CAtlasView, CWnd)
+
+CAtlasView::CAtlasView(void)
+{
+
+}
+
+BEGIN_MESSAGE_MAP(CAtlasView, CWnd)
+	ON_WM_PAINT()
+END_MESSAGE_MAP()
+
+
+void CAtlasView::OnPaint()
+{
+	CPaintDC dc(this); // device context for painting
+					   // TODO: Add your message handler code here
+					   // Do not call CWnd::OnPaint() for painting messages
+
+	CRect rectClient;
+	GetClientRect(&rectClient);
+
+	Gdiplus::Graphics grap(dc.GetSafeHdc());
+
+	Gdiplus::SolidBrush bkBrush(Gdiplus::Color(255, 192, 192, 192));
+	grap.FillRectangle(&bkBrush, Gdiplus::Rect(rectClient.left, rectClient.top, rectClient.Width(), rectClient.Height()));
+}
 
 // CAtlasWnd
 
@@ -59,6 +86,8 @@ int CAtlasWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 	// All commands will be routed via this control , not via the parent frame:
 	m_wndToolBar.SetRouteCommandsViaFrame(FALSE);
+
+	m_viewAtlas.Create(NULL, NULL, WS_VISIBLE | WS_CHILD | WS_BORDER | WS_HSCROLL | WS_VSCROLL, rectDummy, this, 3);
 	AdjustLayout();
 	return 0;
 }
@@ -79,6 +108,8 @@ void CAtlasWnd::AdjustLayout()
 	int cyTlb = m_wndToolBar.CalcFixedLayout(FALSE, TRUE).cy;
 
 	m_wndToolBar.SetWindowPos(NULL, rectClient.left, rectClient.top + cyCmb, rectClient.Width(), cyTlb, SWP_NOACTIVATE | SWP_NOZORDER);
+
+	m_viewAtlas.SetWindowPos(&m_wndToolBar, rectClient.left, rectClient.top + cyCmb + cyTlb, rectClient.Width(), rectClient.Height() - cyCmb - cyTlb, SWP_NOACTIVATE | SWP_NOZORDER);
 }
 
 
