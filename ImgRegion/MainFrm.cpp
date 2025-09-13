@@ -109,6 +109,15 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	DockPane(&m_wndProperties);
 	//m_wndProperties.DockToWindow(&m_wndFileView, CBRS_ALIGN_BOTTOM);
 
+	if (!m_wndAtlas.Create(_T("图集"), this, CRect(0, 0, 200, 200), TRUE, ID_VIEW_ATLASWND, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBRS_RIGHT | CBRS_FLOAT_MULTI))
+	{
+		TRACE0("未能创建“图集”窗口\n");
+		return FALSE;
+	}
+	m_wndAtlas.EnableDocking(CBRS_ALIGN_ANY);
+	DockPane(&m_wndAtlas);
+	m_wndAtlas.DockToWindow(&m_wndProperties, CBRS_ALIGN_BOTTOM);
+
 	return 0;
 }
 

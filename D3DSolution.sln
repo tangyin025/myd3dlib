@@ -89,6 +89,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libogg", "libogg\libogg.vcx
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libvorbis", "libvorbis\libvorbis.vcxproj", "{64B2A537-802C-423B-B867-9D77EA929B60}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ImgRegion", "ImgRegion\ImgRegion.vcxproj", "{1A350FC9-BBE6-454A-9D01-EE69ADB76F7C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -289,6 +291,14 @@ Global
 		{64B2A537-802C-423B-B867-9D77EA929B60}.Release|Win32.Build.0 = Release|Win32
 		{64B2A537-802C-423B-B867-9D77EA929B60}.Release|x64.ActiveCfg = Release|x64
 		{64B2A537-802C-423B-B867-9D77EA929B60}.Release|x64.Build.0 = Release|x64
+		{1A350FC9-BBE6-454A-9D01-EE69ADB76F7C}.Debug|Win32.ActiveCfg = Debug|Win32
+		{1A350FC9-BBE6-454A-9D01-EE69ADB76F7C}.Debug|Win32.Build.0 = Debug|Win32
+		{1A350FC9-BBE6-454A-9D01-EE69ADB76F7C}.Debug|x64.ActiveCfg = Debug|x64
+		{1A350FC9-BBE6-454A-9D01-EE69ADB76F7C}.Debug|x64.Build.0 = Debug|x64
+		{1A350FC9-BBE6-454A-9D01-EE69ADB76F7C}.Release|Win32.ActiveCfg = Release|Win32
+		{1A350FC9-BBE6-454A-9D01-EE69ADB76F7C}.Release|Win32.Build.0 = Release|Win32
+		{1A350FC9-BBE6-454A-9D01-EE69ADB76F7C}.Release|x64.ActiveCfg = Release|x64
+		{1A350FC9-BBE6-454A-9D01-EE69ADB76F7C}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
