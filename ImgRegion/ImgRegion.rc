@@ -207,6 +207,11 @@ BEGIN
     BUTTON      ID_APP_ABOUT
 END
 
+IDR_TOOLBAR1 TOOLBAR 16, 15
+BEGIN
+    BUTTON      ID_LOAD_ATLAS
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -218,6 +223,8 @@ IDR_MAINFRAME           BITMAP                  "Toolbar256.bmp"
 IDB_BITMAP1             BITMAP                  "jyiczlza.bmp"
 
 IDB_BITMAP2             BITMAP                  "fileview_hc.bmp"
+
+IDR_TOOLBAR1            BITMAP                  "toolbar1.bmp"
 
 
 /////////////////////////////////////////////////////////////////////////////

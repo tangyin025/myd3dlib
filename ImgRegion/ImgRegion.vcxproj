@@ -233,6 +233,7 @@
     <Image Include="ImgRegion.ico" />
     <Image Include="ImgRegionDoc.ico" />
     <Image Include="jyiczlza.bmp" />
+    <Image Include="toolbar1.bmp" />
     <Image Include="Toolbar256.bmp" />
   </ItemGroup>
   <ItemGroup>
