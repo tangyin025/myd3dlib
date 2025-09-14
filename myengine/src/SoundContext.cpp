@@ -3,8 +3,9 @@
 #include "SoundContext.h"
 #include "myResource.h"
 #include "myDxutApp.h"
-//#define MINIMP3_IMPLEMENTATION 
-//#include "minimp3.h"
+#define MINIMP3_IMPLEMENTATION
+#define MINIMP3_ONLY_MP3
+#include "../../minimp3/minimp3.h"
 #include <vorbis/codec.h>
 #include <libc.h>
 
@@ -179,149 +180,152 @@ bool Mp3::PlayOnceByThread(void)
 	// set the default block which to begin playing
 	BOOST_VERIFY(::SetEvent(m_dsnp[_countof(m_dsnp) - 1].hEventNotify));
 
-	//CachePtr cache = my::ResourceMgr::getSingleton().OpenIStream(m_Mp3Path.c_str())->GetWholeCache();
+	if (_stricmp(PathFindExtensionA(m_Mp3Path.c_str()), ".mp3") == 0)
+	{
+		CachePtr cache = my::ResourceMgr::getSingleton().OpenIStream(m_Mp3Path.c_str())->GetWholeCache();
 
-	//bool ret = false;
-	//mp3dec_t mp3d;
-	//mp3dec_init(&mp3d);
-	//mp3dec_frame_info_t info;
-	//short pcm[MINIMP3_MAX_SAMPLES_PER_FRAME];
-	//std::vector<unsigned char> sbuffer;
-	//for (int inLen = 0; true; inLen += info.frame_bytes)
-	//{
-	//	// decode audio frame
-	//	int samples = mp3dec_decode_frame(&mp3d, cache->data() + inLen, cache->size() - inLen, pcm, &info);
-	//	if (samples <= 0)
-	//	{
-	//		if (NULL != m_dsbuffer)
-	//		{
-	//			// wait for dsound buffer block playing
-	//			_ASSERT(sizeof(m_events) == sizeof(HANDLE) * _countof(m_events));
-	//			if (WAIT_OBJECT_0 != ::WaitForMultipleObjects(_countof(m_events), reinterpret_cast<HANDLE*>(m_events), FALSE, INFINITE))
-	//			{
-	//				// normal play end, need to continue if looped
-	//				ret = true;
-	//			}
-	//			my::CriticalSectionLock lock(m_buffersec);
-	//			m_dsbuffer->Stop();
-	//		}
-	//		break;
-	//	}
+		bool ret = false;
+		mp3dec_t mp3d;
+		mp3dec_init(&mp3d);
+		mp3dec_frame_info_t info;
+		short pcm[MINIMP3_MAX_SAMPLES_PER_FRAME];
+		std::vector<unsigned char> sbuffer;
+		for (int inLen = 0; true; inLen += info.frame_bytes)
+		{
+			// decode audio frame
+			int samples = mp3dec_decode_frame(&mp3d, cache->data() + inLen, cache->size() - inLen, pcm, &info);
+			if (samples <= 0)
+			{
+				if (NULL != m_dsbuffer)
+				{
+					// wait for dsound buffer block playing
+					_ASSERT(sizeof(m_events) == sizeof(HANDLE) * _countof(m_events));
+					if (WAIT_OBJECT_0 != ::WaitForMultipleObjects(_countof(m_events), reinterpret_cast<HANDLE*>(m_events), FALSE, INFINITE))
+					{
+						// normal play end, need to continue if looped
+						ret = true;
+					}
+					my::CriticalSectionLock lock(m_buffersec);
+					m_dsbuffer->Stop();
+				}
+				break;
+			}
 
-	//	// parse dither linear pcm data to compatible format
-	//	if (2 == info.channels)
-	//	{
-	//		for (int i = 0; i < samples; i++)
-	//		{
-	//			sbuffer.push_back(pcm[i * 2 + 0] >> 0);
-	//			sbuffer.push_back(pcm[i * 2 + 0] >> 8);
-	//			sbuffer.push_back(pcm[i * 2 + 1] >> 0);
-	//			sbuffer.push_back(pcm[i * 2 + 1] >> 8);
-	//		}
-	//	}
-	//	else
-	//	{
-	//		for (int i = 0; i < samples; i++)
-	//		{
-	//			sbuffer.push_back(pcm[i] >> 0);
-	//			sbuffer.push_back(pcm[i] >> 8);
-	//		}
-	//	}
+			// parse dither linear pcm data to compatible format
+			if (2 == info.channels)
+			{
+				for (int i = 0; i < samples; i++)
+				{
+					sbuffer.push_back(pcm[i * 2 + 0] >> 0);
+					sbuffer.push_back(pcm[i * 2 + 0] >> 8);
+					sbuffer.push_back(pcm[i * 2 + 1] >> 0);
+					sbuffer.push_back(pcm[i * 2 + 1] >> 8);
+				}
+			}
+			else
+			{
+				for (int i = 0; i < samples; i++)
+				{
+					sbuffer.push_back(pcm[i] >> 0);
+					sbuffer.push_back(pcm[i] >> 8);
+				}
+			}
 
-	//	// create platform sound devices if needed
-	//	if (m_wavfmt.nChannels != info.channels || m_wavfmt.nSamplesPerSec != info.hz)
-	//	{
-	//		// dsound buffer should only be create once
-	//		_ASSERT(NULL == m_dsnotify);
-	//		_ASSERT(NULL == m_dsbuffer);
+			// create platform sound devices if needed
+			if (m_wavfmt.nChannels != info.channels || m_wavfmt.nSamplesPerSec != info.hz)
+			{
+				// dsound buffer should only be create once
+				_ASSERT(NULL == m_dsnotify);
+				_ASSERT(NULL == m_dsbuffer);
 
-	//		_ASSERT(WAVE_FORMAT_PCM == m_wavfmt.wFormatTag);
-	//		m_wavfmt.nChannels = info.channels;
-	//		m_wavfmt.nSamplesPerSec = info.hz;
-	//		m_wavfmt.wBitsPerSample = 16;
-	//		m_wavfmt.nBlockAlign = m_wavfmt.nChannels * m_wavfmt.wBitsPerSample / 8;
-	//		m_wavfmt.nAvgBytesPerSec = m_wavfmt.nSamplesPerSec * m_wavfmt.nBlockAlign;
-	//		m_wavfmt.cbSize = 0;
+				_ASSERT(WAVE_FORMAT_PCM == m_wavfmt.wFormatTag);
+				m_wavfmt.nChannels = info.channels;
+				m_wavfmt.nSamplesPerSec = info.hz;
+				m_wavfmt.wBitsPerSample = 16;
+				m_wavfmt.nBlockAlign = m_wavfmt.nChannels * m_wavfmt.wBitsPerSample / 8;
+				m_wavfmt.nAvgBytesPerSec = m_wavfmt.nSamplesPerSec * m_wavfmt.nBlockAlign;
+				m_wavfmt.cbSize = 0;
 
-	//		DSBUFFERDESC dsbd;
-	//		dsbd.dwSize = sizeof(dsbd);
-	//		dsbd.dwFlags = DSBCAPS_CTRLVOLUME | DSBCAPS_CTRLPOSITIONNOTIFY | DSBCAPS_LOCSOFTWARE | DSBCAPS_GLOBALFOCUS;
-	//		dsbd.dwBufferBytes = m_wavfmt.nAvgBytesPerSec * BLOCK_COUNT;
-	//		dsbd.dwReserved = 0;
-	//		dsbd.lpwfxFormat = &m_wavfmt;
-	//		dsbd.guid3DAlgorithm = DS3DALG_DEFAULT;
+				DSBUFFERDESC dsbd;
+				dsbd.dwSize = sizeof(dsbd);
+				dsbd.dwFlags = DSBCAPS_CTRLVOLUME | DSBCAPS_CTRLPOSITIONNOTIFY | DSBCAPS_LOCSOFTWARE | DSBCAPS_GLOBALFOCUS;
+				dsbd.dwBufferBytes = m_wavfmt.nAvgBytesPerSec * BLOCK_COUNT;
+				dsbd.dwReserved = 0;
+				dsbd.lpwfxFormat = &m_wavfmt;
+				dsbd.guid3DAlgorithm = DS3DALG_DEFAULT;
 
-	//		// recalculate notify position for each block
-	//		for (int i = 0; i < _countof(m_dsnp); i++)
-	//		{
-	//			m_dsnp[i].dwOffset = i * m_wavfmt.nAvgBytesPerSec;
-	//		}
+				// recalculate notify position for each block
+				for (int i = 0; i < _countof(m_dsnp); i++)
+				{
+					m_dsnp[i].dwOffset = i * m_wavfmt.nAvgBytesPerSec;
+				}
 
-	//		// create dsound buffer & notify
-	//		my::CriticalSectionLock lock(SoundContext::getSingleton().m_soundsec);
-	//		my::CriticalSectionLock lock2(m_buffersec);
-	//		m_dsbuffer = SoundContext::getSingleton().m_sound.CreateSoundBuffer(&dsbd);
-	//		lock.Unlock();
-	//		m_dsnotify = m_dsbuffer->GetNotify();
-	//		m_dsnotify->setNotificationPositions(_countof(m_dsnp), m_dsnp);
-	//	}
+				// create dsound buffer & notify
+				my::CriticalSectionLock lock(SoundContext::getSingleton().m_soundsec);
+				my::CriticalSectionLock lock2(m_buffersec);
+				m_dsbuffer = SoundContext::getSingleton().m_sound.CreateSoundBuffer(&dsbd);
+				lock.Unlock();
+				m_dsnotify = m_dsbuffer->GetNotify();
+				m_dsnotify->setNotificationPositions(_countof(m_dsnp), m_dsnp);
+			}
 
-	//	// fill pcm data to dsbuffer
-	//	_ASSERT(NULL != m_dsbuffer);
-	//	if (sbuffer.size() > m_wavfmt.nAvgBytesPerSec)
-	//	{
-	//		// wait for notify event even with stop event
-	//		_ASSERT(sizeof(m_events) == sizeof(HANDLE) * _countof(m_events));
-	//		DWORD wait_res = ::WaitForMultipleObjects(_countof(m_events), reinterpret_cast<HANDLE*>(m_events), FALSE, INFINITE);
-	//		_ASSERT(WAIT_TIMEOUT != wait_res);
-	//		if (wait_res == WAIT_OBJECT_0)
-	//		{
-	//			// out if stop event occured
-	//			my::CriticalSectionLock lock(m_buffersec);
-	//			m_dsbuffer->Stop();
-	//			break;
-	//		}
+			// fill pcm data to dsbuffer
+			_ASSERT(NULL != m_dsbuffer);
+			if (sbuffer.size() > m_wavfmt.nAvgBytesPerSec)
+			{
+				// wait for notify event even with stop event
+				_ASSERT(sizeof(m_events) == sizeof(HANDLE) * _countof(m_events));
+				DWORD wait_res = ::WaitForMultipleObjects(_countof(m_events), reinterpret_cast<HANDLE*>(m_events), FALSE, INFINITE);
+				_ASSERT(WAIT_TIMEOUT != wait_res);
+				if (wait_res == WAIT_OBJECT_0)
+				{
+					// out if stop event occured
+					my::CriticalSectionLock lock(m_buffersec);
+					m_dsbuffer->Stop();
+					break;
+				}
 
-	//		// calculate current block
-	//		DWORD curr_block = wait_res - WAIT_OBJECT_0 - 1;
-	//		_ASSERT(curr_block < _countof(m_dsnp));
+				// calculate current block
+				DWORD curr_block = wait_res - WAIT_OBJECT_0 - 1;
+				_ASSERT(curr_block < _countof(m_dsnp));
 
-	//		// calculate next block which need to be update
-	//		DWORD next_block = (curr_block + 1) % _countof(m_dsnp);
+				// calculate next block which need to be update
+				DWORD next_block = (curr_block + 1) % _countof(m_dsnp);
 
-	//		// decoded sound buffer copying
-	//		unsigned char* audioPtr1, * audioPtr2;
-	//		DWORD audioBytes1, audioBytes2;
-	//		my::CriticalSectionLock lock(m_buffersec);
-	//		m_dsbuffer->Lock(m_dsnp[next_block].dwOffset, m_wavfmt.nAvgBytesPerSec, (LPVOID*)&audioPtr1, &audioBytes1, (LPVOID*)&audioPtr2, &audioBytes2, 0);
-	//		_ASSERT(audioBytes1 + audioBytes2 <= m_wavfmt.nAvgBytesPerSec);
-	//		if (audioPtr1 != NULL)
-	//		{
-	//			memcpy(audioPtr1, &sbuffer[0], audioBytes1);
-	//		}
-	//		if (audioPtr2 != NULL)
-	//		{
-	//			memcpy(audioPtr2, &sbuffer[0 + audioBytes1], audioBytes2);
-	//		}
-	//		m_dsbuffer->Unlock(audioPtr1, audioBytes1, audioPtr2, audioBytes2);
+				// decoded sound buffer copying
+				unsigned char* audioPtr1, * audioPtr2;
+				DWORD audioBytes1, audioBytes2;
+				my::CriticalSectionLock lock(m_buffersec);
+				m_dsbuffer->Lock(m_dsnp[next_block].dwOffset, m_wavfmt.nAvgBytesPerSec, (LPVOID*)&audioPtr1, &audioBytes1, (LPVOID*)&audioPtr2, &audioBytes2, 0);
+				_ASSERT(audioBytes1 + audioBytes2 <= m_wavfmt.nAvgBytesPerSec);
+				if (audioPtr1 != NULL)
+				{
+					memcpy(audioPtr1, &sbuffer[0], audioBytes1);
+				}
+				if (audioPtr2 != NULL)
+				{
+					memcpy(audioPtr2, &sbuffer[0 + audioBytes1], audioBytes2);
+				}
+				m_dsbuffer->Unlock(audioPtr1, audioBytes1, audioPtr2, audioBytes2);
 
-	//		// begin play
-	//		if (!(m_dsbuffer->GetStatus() & DSBSTATUS_PLAYING))
-	//		{
-	//			// reset play position
-	//			m_dsbuffer->SetCurrentPosition(m_dsnp[next_block].dwOffset);
-	//			m_dsbuffer->Play(0, DSBPLAY_LOOPING);
-	//		}
-	//		lock.Unlock();
+				// begin play
+				if (!(m_dsbuffer->GetStatus() & DSBSTATUS_PLAYING))
+				{
+					// reset play position
+					m_dsbuffer->SetCurrentPosition(m_dsnp[next_block].dwOffset);
+					m_dsbuffer->Play(0, DSBPLAY_LOOPING);
+				}
+				lock.Unlock();
 
-	//		// move remain buffer which havent been pushed into dsound buffer to header
-	//		size_t remain = sbuffer.size() - m_wavfmt.nAvgBytesPerSec;
-	//		memmove(&sbuffer[0], &sbuffer[m_wavfmt.nAvgBytesPerSec], remain);
-	//		sbuffer.resize(remain);
-	//	}
-	//}
-	//return ret;
-
+				// move remain buffer which havent been pushed into dsound buffer to header
+				size_t remain = sbuffer.size() - m_wavfmt.nAvgBytesPerSec;
+				memmove(&sbuffer[0], &sbuffer[m_wavfmt.nAvgBytesPerSec], remain);
+				sbuffer.resize(remain);
+			}
+		}
+		return ret;
+	}
+// https://gitlab.xiph.org/xiph/vorbis/-/blob/main/examples/decoder_example.c
 std::vector<unsigned char> convbuffer; /* take 8k out of the data segment, not the stack */
 int convsize = 4096;
 
