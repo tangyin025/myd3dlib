@@ -182,18 +182,28 @@ bool Mp3::PlayOnceByThread(void)
 
 	if (_stricmp(PathFindExtensionA(m_Mp3Path.c_str()), ".mp3") == 0)
 	{
-		CachePtr cache = my::ResourceMgr::getSingleton().OpenIStream(m_Mp3Path.c_str())->GetWholeCache();
+		// buffer which can hold minimum 10 consecutive mp3 frames (~16KB) worst case
+		my::IStreamPtr ifs = my::ResourceMgr::getSingleton().OpenIStream(m_Mp3Path.c_str());
+		unsigned char buff[16 * 1024];
+		size_t read = 0;
 
 		bool ret = false;
 		mp3dec_t mp3d;
 		mp3dec_init(&mp3d);
-		mp3dec_frame_info_t info;
+		mp3dec_frame_info_t info = { _countof(buff) };
 		short pcm[MINIMP3_MAX_SAMPLES_PER_FRAME];
 		std::vector<unsigned char> sbuffer;
 		for (int inLen = 0; true; inLen += info.frame_bytes)
 		{
+			if (read < ifs->GetSize())
+			{
+				size_t remain = _countof(buff) - info.frame_bytes;
+				memmove(&buff[0], &buff[info.frame_bytes], remain);
+				read += ifs->read(&buff[remain], info.frame_bytes);
+			}
+
 			// decode audio frame
-			int samples = mp3dec_decode_frame(&mp3d, cache->data() + inLen, cache->size() - inLen, pcm, &info);
+			int samples = mp3dec_decode_frame(&mp3d, buff, read - inLen, pcm, &info);
 			if (samples <= 0)
 			{
 				if (NULL != m_dsbuffer)
