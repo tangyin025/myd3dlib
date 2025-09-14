@@ -60,13 +60,14 @@ protected:
 	CPropertiesToolBar m_wndToolBar;
 	CAtlasView m_viewAtlas;
 	boost::shared_ptr<Gdiplus::Image> m_bgimage;
+	CSize m_bgsize;
 	boost::ptr_vector<CImgRegion> m_regs;
 public:
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 	void AdjustLayout();
 	afx_msg void OnSize(UINT nType, int cx, int cy);
 	afx_msg void OnLoadAtlas();
-	void LoadImgRegion(rapidxml::xml_node<char>* node, const Gdiplus::Rect* rect);
+	void LoadImgRegion(rapidxml::xml_node<char>* node, const Gdiplus::Rect& rect);
 };
 
 

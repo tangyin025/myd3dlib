@@ -116,7 +116,8 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	}
 	m_wndAtlas.EnableDocking(CBRS_ALIGN_ANY);
 	DockPane(&m_wndAtlas);
-	m_wndAtlas.DockToWindow(&m_wndProperties, CBRS_ALIGN_BOTTOM);
+	CDockablePane* pTabbedBar = NULL;
+	m_wndAtlas.AttachToTabWnd(&m_wndProperties, DM_SHOW, FALSE, &pTabbedBar);
 
 	return 0;
 }

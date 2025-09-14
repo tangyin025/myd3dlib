@@ -5,6 +5,7 @@
 #include "AtlasWnd.h"
 #include "MainApp.h"
 #include "ImgRegionDoc.h"
+#include "MainFrm.h"
 #include "../rapidxml/include/rapidxml.hpp"
 //
 //#ifdef _DEBUG
@@ -180,11 +181,7 @@ void CAtlasView::OnSize(UINT nType, int cx, int cy)
 	// TODO: Add your message handler code here
 	CAtlasWnd* pParent = DYNAMIC_DOWNCAST(CAtlasWnd, GetParent());
 	ASSERT(pParent);
-	if (pParent->m_bgimage)
-	{
-		CSize ImageSize(pParent->m_bgimage->GetWidth(), pParent->m_bgimage->GetHeight());
-		SetScrollSizes(ImageSize, TRUE, CPoint(GetScrollPos(SB_HORZ), GetScrollPos(SB_VERT)));
-	}
+	SetScrollSizes(pParent->m_bgsize, TRUE, CPoint(GetScrollPos(SB_HORZ), GetScrollPos(SB_VERT)));
 }
 
 void CAtlasView::OnPaint()
@@ -205,13 +202,11 @@ void CAtlasView::OnPaint()
 	ASSERT(pParent);
 	if (pParent->m_bgimage)
 	{
-		CSize ImageSize(pParent->m_bgimage->GetWidth(), pParent->m_bgimage->GetHeight());
-
 		Gdiplus::Matrix world;
 		world.Translate(-(float)GetScrollPos(SB_HORZ), -(float)GetScrollPos(SB_VERT));
 		grap.SetTransform(&world);
 
-		grap.DrawImage(pParent->m_bgimage.get(), Gdiplus::Rect(0, 0, ImageSize.cx, ImageSize.cy));
+		grap.DrawImage(pParent->m_bgimage.get(), Gdiplus::Rect(0, 0, pParent->m_bgsize.cx, pParent->m_bgsize.cy));
 
 		boost::ptr_vector<CImgRegion>::iterator reg_iter = pParent->m_regs.begin();
 		for (; reg_iter != pParent->m_regs.end(); reg_iter++)
@@ -229,14 +224,36 @@ void CAtlasView::OnLButtonDown(UINT nFlags, CPoint point)
 	CAtlasWnd* pParent = DYNAMIC_DOWNCAST(CAtlasWnd, GetParent());
 	ASSERT(pParent);
 
-	CPoint localPt(point.x + GetScrollPos(SB_HORZ), point.y + GetScrollPos(SB_VERT));
+	CMainFrame* pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
+	ASSERT(pFrame);
 
-	boost::ptr_vector<CImgRegion>::reverse_iterator reg_iter = pParent->m_regs.rbegin();
-	for (; reg_iter != pParent->m_regs.rend(); reg_iter++)
+	CMDIChildWnd* pChild = pFrame->MDIGetActive();
+	if (pChild)
 	{
-		if (reg_iter->m_Rect.Contains(localPt.x, localPt.y))
+		CImgRegionDoc* pDoc = (CImgRegionDoc*)pChild->GetActiveDocument();
+		if (pDoc)
 		{
-			break;
+			HTREEITEM hSelected = pDoc->m_TreeCtrl.GetSelectedItem();
+			if (hSelected)
+			{
+				CImgRegionPtr pReg = pDoc->GetItemNode(hSelected);
+				ASSERT(pReg);
+
+				CPoint localPt(point.x + GetScrollPos(SB_HORZ), point.y + GetScrollPos(SB_VERT));
+
+				boost::ptr_vector<CImgRegion>::reverse_iterator reg_iter = pParent->m_regs.rbegin();
+				for (; reg_iter != pParent->m_regs.rend(); reg_iter++)
+				{
+					if (reg_iter->m_Rect.Contains(localPt.x, localPt.y))
+					{
+						pReg->m_ImageRect = reg_iter->m_Rect;
+						pReg->m_ImageBorder = reg_iter->m_ImageBorder;
+						pDoc->UpdateAllViews(NULL);
+						pDoc->SetModifiedFlag();
+						break;
+					}
+				}
+			}
 		}
 	}
 
@@ -248,6 +265,7 @@ void CAtlasView::OnLButtonDown(UINT nFlags, CPoint point)
 IMPLEMENT_DYNAMIC(CAtlasWnd, CDockablePane)
 
 CAtlasWnd::CAtlasWnd()
+	: m_bgsize(0, 0)
 {
 
 }
@@ -294,7 +312,7 @@ int CAtlasWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	// All commands will be routed via this control , not via the parent frame:
 	m_wndToolBar.SetRouteCommandsViaFrame(FALSE);
 
-	m_viewAtlas.Create(NULL, NULL, WS_VISIBLE | WS_CHILD | WS_BORDER | WS_HSCROLL | WS_VSCROLL, rectDummy, this, 3);
+	m_viewAtlas.Create(NULL, NULL, WS_VISIBLE | WS_CHILD | WS_HSCROLL | WS_VSCROLL, rectDummy, this, 3);
 	AdjustLayout();
 	return 0;
 }
@@ -354,21 +372,22 @@ void CAtlasWnd::OnLoadAtlas()
 	rapidxml::xml_node<char>* ImageStr = boost_serialization->first_node("ImageStr");
 	m_bgimage.reset(new Gdiplus::Image(CA2W(ImageStr->value(), CP_UTF8)));
 
-	Gdiplus::Rect rect(
-		0, 0,
+	m_bgsize.SetSize(
 		atoi(boost_serialization->first_node("Size.cx")->value()),
 		atoi(boost_serialization->first_node("Size.cy")->value())
 	);
 
 	m_regs.clear();
 
-	LoadImgRegion(boost_serialization->first_node("ImgRegion"), &rect);
+	LoadImgRegion(boost_serialization->first_node("ImgRegion"), Gdiplus::Rect(0, 0, m_bgsize.cx, m_bgsize.cy));
+
+	m_viewAtlas.SetScrollSizes(m_bgsize, TRUE, CPoint(m_viewAtlas.GetScrollPos(SB_HORZ), m_viewAtlas.GetScrollPos(SB_VERT)));
 
 	m_viewAtlas.Invalidate();
 }
 
 
-void CAtlasWnd::LoadImgRegion(rapidxml::xml_node<char>* node, const Gdiplus::Rect* rect)
+void CAtlasWnd::LoadImgRegion(rapidxml::xml_node<char>* node, const Gdiplus::Rect& rect)
 {
 	// TODO: Add your implementation code here.
 	for (; node; node = node->next_sibling("ImgRegion"))
@@ -383,13 +402,13 @@ void CAtlasWnd::LoadImgRegion(rapidxml::xml_node<char>* node, const Gdiplus::Rec
 		reg->m_Height.scale = (float)atof(node->first_node("Height.scale")->value());
 		reg->m_Height.offset = (float)atof(node->first_node("Height.offset")->value());
 
-		reg->m_Rect.X = rect->X + reg->m_x.scale * rect->Width + reg->m_x.offset;
-		reg->m_Rect.Y = rect->Y + reg->m_y.scale * rect->Height + reg->m_y.offset;
-		reg->m_Rect.Width = reg->m_Width.scale * rect->Width + reg->m_Width.offset;
-		reg->m_Rect.Height = reg->m_Height.scale * rect->Height + reg->m_Height.offset;
+		reg->m_Rect.X = rect.X + reg->m_x.scale * rect.Width + reg->m_x.offset;
+		reg->m_Rect.Y = rect.Y + reg->m_y.scale * rect.Height + reg->m_y.offset;
+		reg->m_Rect.Width = reg->m_Width.scale * rect.Width + reg->m_Width.offset;
+		reg->m_Rect.Height = reg->m_Height.scale * rect.Height + reg->m_Height.offset;
 
 		m_regs.push_back(reg);
 
-		LoadImgRegion(node->first_node("ImgRegion"), &reg->m_Rect);
+		LoadImgRegion(node->first_node("ImgRegion"), reg->m_Rect);
 	}
 }
