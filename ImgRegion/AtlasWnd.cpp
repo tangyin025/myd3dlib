@@ -23,6 +23,7 @@ BEGIN_MESSAGE_MAP(CAtlasView, CWnd)
 	ON_WM_VSCROLL()
 	ON_WM_SIZE()
 	ON_WM_PAINT()
+	ON_WM_LBUTTONDOWN()
 END_MESSAGE_MAP()
 
 
@@ -211,7 +212,35 @@ void CAtlasView::OnPaint()
 		grap.SetTransform(&world);
 
 		grap.DrawImage(pParent->m_bgimage.get(), Gdiplus::Rect(0, 0, ImageSize.cx, ImageSize.cy));
+
+		boost::ptr_vector<CImgRegion>::iterator reg_iter = pParent->m_regs.begin();
+		for (; reg_iter != pParent->m_regs.end(); reg_iter++)
+		{
+			Gdiplus::Pen pen(Gdiplus::Color(255, 255, 255, 0));
+			grap.DrawRectangle(&pen, reg_iter->m_Rect);
+		}
 	}
+}
+
+
+void CAtlasView::OnLButtonDown(UINT nFlags, CPoint point)
+{
+	// TODO: Add your message handler code here and/or call default
+	CAtlasWnd* pParent = DYNAMIC_DOWNCAST(CAtlasWnd, GetParent());
+	ASSERT(pParent);
+
+	CPoint localPt(point.x + GetScrollPos(SB_HORZ), point.y + GetScrollPos(SB_VERT));
+
+	boost::ptr_vector<CImgRegion>::reverse_iterator reg_iter = pParent->m_regs.rbegin();
+	for (; reg_iter != pParent->m_regs.rend(); reg_iter++)
+	{
+		if (reg_iter->m_Rect.Contains(localPt.x, localPt.y))
+		{
+			break;
+		}
+	}
+
+	CWnd::OnLButtonDown(nFlags, point);
 }
 
 // CAtlasWnd
@@ -330,6 +359,8 @@ void CAtlasWnd::OnLoadAtlas()
 		atoi(boost_serialization->first_node("Size.cx")->value()),
 		atoi(boost_serialization->first_node("Size.cy")->value())
 	);
+
+	m_regs.clear();
 
 	LoadImgRegion(boost_serialization->first_node("ImgRegion"), &rect);
 
