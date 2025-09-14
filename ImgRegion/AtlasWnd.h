@@ -21,9 +21,18 @@ class CAtlasView : public CWnd
 public:
 	DECLARE_DYNCREATE(CAtlasView)
 
+	afx_msg void OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar);
+
+	afx_msg void OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar);
+
+	void SetScrollSizes(const CSize& sizeTotal, BOOL bRedraw = TRUE, const CPoint& scrollPos = CPoint(0, 0));
+
+	void ScrollToPos(const CPoint& scrollPos, BOOL bRedraw = TRUE);
+
 	CAtlasView(void);
 	DECLARE_MESSAGE_MAP()
 	afx_msg void OnPaint();
+	afx_msg void OnSize(UINT nType, int cx, int cy);
 };
 
 // CAtlasWnd
@@ -37,6 +46,8 @@ class CImgRegion;
 
 class CAtlasWnd : public CDockablePane
 {
+	friend CAtlasView;
+
 	DECLARE_DYNAMIC(CAtlasWnd)
 
 public:

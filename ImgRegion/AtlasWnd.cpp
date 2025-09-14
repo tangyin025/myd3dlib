@@ -19,9 +19,172 @@ CAtlasView::CAtlasView(void)
 }
 
 BEGIN_MESSAGE_MAP(CAtlasView, CWnd)
+	ON_WM_HSCROLL()
+	ON_WM_VSCROLL()
+	ON_WM_SIZE()
 	ON_WM_PAINT()
 END_MESSAGE_MAP()
 
+
+void CAtlasView::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
+{
+	int nBar = HIWORD(nSBCode);
+
+	// Get the minimum and maximum scroll-bar positions.
+	int minpos;
+	int maxpos;
+	GetScrollRange(nBar, &minpos, &maxpos);
+	maxpos = GetScrollLimit(nBar);
+
+	// Get the current position of scroll box.
+	int curpos = GetScrollPos(nBar);
+
+	// Determine the new position of scroll box.
+	switch (LOWORD(nSBCode))
+	{
+	case SB_LEFT:      // Scroll to far left.
+		curpos = minpos;
+		break;
+
+	case SB_RIGHT:      // Scroll to far right.
+		curpos = maxpos;
+		break;
+
+	case SB_ENDSCROLL:   // End scroll.
+		break;
+
+	case SB_LINELEFT:      // Scroll left.
+		if (curpos > minpos)
+			curpos--;
+		break;
+
+	case SB_LINERIGHT:   // Scroll right.
+		if (curpos < maxpos)
+			curpos++;
+		break;
+
+	case SB_PAGELEFT:    // Scroll one page left.
+	{
+		// Get the page size. 
+		SCROLLINFO   info;
+		GetScrollInfo(nBar, &info, SIF_ALL);
+
+		if (curpos > minpos)
+			curpos = max(minpos, curpos - (int)info.nPage);
+	}
+	break;
+
+	case SB_PAGERIGHT:      // Scroll one page right.
+	{
+		// Get the page size. 
+		SCROLLINFO   info;
+		GetScrollInfo(nBar, &info, SIF_ALL);
+
+		if (curpos < maxpos)
+			curpos = min(maxpos, curpos + (int)info.nPage);
+	}
+	break;
+
+	case SB_THUMBPOSITION: // Scroll to absolute position. nPos is the position
+		curpos = nPos;      // of the scroll box at the end of the drag operation.
+		break;
+
+	case SB_THUMBTRACK:   // Drag scroll box to specified position. nPos is the
+		curpos = nPos;     // position that the scroll box has been dragged to.
+		break;
+	}
+
+	// Set the new position of the thumb (scroll box).
+	switch (nBar)
+	{
+	case SB_HORZ:
+		ScrollToPos(CPoint(curpos, GetScrollPos(SB_VERT)), TRUE);
+		break;
+
+	case SB_VERT:
+		ScrollToPos(CPoint(GetScrollPos(SB_HORZ), curpos), TRUE);
+		break;
+	}
+}
+
+void CAtlasView::OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
+{
+	OnHScroll(MAKELONG(nSBCode, SB_VERT), nPos, pScrollBar);
+}
+
+void CAtlasView::SetScrollSizes(const CSize& sizeTotal, BOOL bRedraw, const CPoint& scrollPos)
+{
+	CRect rectClient;
+	GetClientRect(&rectClient);
+
+	CRect rectCanvas;
+	if (rectClient.Width() > sizeTotal.cx)
+	{
+		rectCanvas.left = sizeTotal.cx / 2 - rectClient.Width() / 2;
+		rectCanvas.right = rectCanvas.left + rectClient.Width();
+		EnableScrollBar(SB_HORZ, ESB_DISABLE_BOTH);
+	}
+	else
+	{
+		rectCanvas.left = 0;
+		rectCanvas.right = sizeTotal.cx;
+		EnableScrollBar(SB_HORZ, ESB_ENABLE_BOTH);
+	}
+	if (rectClient.Height() > sizeTotal.cy)
+	{
+		rectCanvas.top = sizeTotal.cy / 2 - rectClient.Height() / 2;
+		rectCanvas.bottom = rectCanvas.top + rectClient.Height();
+		EnableScrollBar(SB_VERT, ESB_DISABLE_BOTH);
+	}
+	else
+	{
+		rectCanvas.top = 0;
+		rectCanvas.bottom = sizeTotal.cy;
+		EnableScrollBar(SB_VERT, ESB_ENABLE_BOTH);
+	}
+
+	SCROLLINFO info;
+	info.cbSize = sizeof(info);
+	info.fMask = SIF_RANGE | SIF_PAGE | SIF_POS;
+	info.nMin = rectCanvas.left;
+	info.nMax = rectCanvas.right;
+	info.nPage = rectClient.Width();
+	info.nPos = scrollPos.x;
+	SetScrollInfo(SB_HORZ, &info, bRedraw);
+
+	info.nMin = rectCanvas.top;
+	info.nMax = rectCanvas.bottom;
+	info.nPage = rectClient.Height();
+	info.nPos = scrollPos.y;
+	SetScrollInfo(SB_VERT, &info, bRedraw);
+}
+
+void CAtlasView::ScrollToPos(const CPoint& scrollPos, BOOL bRedraw)
+{
+	CPoint ptOrg(GetScrollPos(SB_HORZ), GetScrollPos(SB_VERT));
+
+	SetScrollPos(SB_HORZ, scrollPos.x, bRedraw);
+
+	SetScrollPos(SB_VERT, scrollPos.y, bRedraw);
+
+	if (bRedraw)
+		ScrollWindow(ptOrg.x - GetScrollPos(SB_HORZ), ptOrg.y - GetScrollPos(SB_VERT));
+}
+
+
+void CAtlasView::OnSize(UINT nType, int cx, int cy)
+{
+	CWnd::OnSize(nType, cx, cy);
+
+	// TODO: Add your message handler code here
+	CAtlasWnd* pParent = DYNAMIC_DOWNCAST(CAtlasWnd, GetParent());
+	ASSERT(pParent);
+	if (pParent->m_bgimage)
+	{
+		CSize ImageSize(pParent->m_bgimage->GetWidth(), pParent->m_bgimage->GetHeight());
+		SetScrollSizes(ImageSize, TRUE, CPoint(GetScrollPos(SB_HORZ), GetScrollPos(SB_VERT)));
+	}
+}
 
 void CAtlasView::OnPaint()
 {
@@ -36,6 +199,19 @@ void CAtlasView::OnPaint()
 
 	Gdiplus::SolidBrush bkBrush(Gdiplus::Color(255, 192, 192, 192));
 	grap.FillRectangle(&bkBrush, Gdiplus::Rect(rectClient.left, rectClient.top, rectClient.Width(), rectClient.Height()));
+
+	CAtlasWnd* pParent = DYNAMIC_DOWNCAST(CAtlasWnd, GetParent());
+	ASSERT(pParent);
+	if (pParent->m_bgimage)
+	{
+		CSize ImageSize(pParent->m_bgimage->GetWidth(), pParent->m_bgimage->GetHeight());
+
+		Gdiplus::Matrix world;
+		world.Translate(-(float)GetScrollPos(SB_HORZ), -(float)GetScrollPos(SB_VERT));
+		grap.SetTransform(&world);
+
+		grap.DrawImage(pParent->m_bgimage.get(), Gdiplus::Rect(0, 0, ImageSize.cx, ImageSize.cy));
+	}
 }
 
 // CAtlasWnd
@@ -147,7 +323,7 @@ void CAtlasWnd::OnLoadAtlas()
 	doc.parse<0>(&xml_contents[0]);
 	rapidxml::xml_node<char>* boost_serialization = doc.first_node("boost_serialization");
 	rapidxml::xml_node<char>* ImageStr = boost_serialization->first_node("ImageStr");
-	m_bgimage.reset(new Gdiplus::Image(CA2W(ImageStr->value())));
+	m_bgimage.reset(new Gdiplus::Image(CA2W(ImageStr->value(), CP_UTF8)));
 
 	Gdiplus::Rect rect(
 		0, 0,
@@ -156,6 +332,8 @@ void CAtlasWnd::OnLoadAtlas()
 	);
 
 	LoadImgRegion(boost_serialization->first_node("ImgRegion"), &rect);
+
+	m_viewAtlas.Invalidate();
 }
 
 
