@@ -93,11 +93,11 @@ public:
 	{
 	}
 
-	virtual void CreateProperties(CPropertiesWnd * pPropertiesWnd, LPCTSTR szName);
+	void CreateProperties(CPropertiesWnd * pPropertiesWnd, LPCTSTR szName);
 
-	virtual void UpdateProperties(CPropertiesWnd * pPropertiesWnd, LPCTSTR szName);
+	void UpdateProperties(CPropertiesWnd * pPropertiesWnd, LPCTSTR szName);
 
-	virtual void Draw(Gdiplus::Graphics & grap);
+	void Draw(Gdiplus::Graphics & grap);
 };
 
 typedef boost::shared_ptr<CImgRegion> CImgRegionPtr;

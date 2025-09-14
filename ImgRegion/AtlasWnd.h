@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <boost/ptr_container/ptr_vector.hpp>
+
 class CPropertiesToolBar : public CMFCToolBar
 {
 public:
@@ -26,6 +28,13 @@ public:
 
 // CAtlasWnd
 
+namespace rapidxml {
+	template <class Ch>
+	class xml_node;
+}
+
+class CImgRegion;
+
 class CAtlasWnd : public CDockablePane
 {
 	DECLARE_DYNAMIC(CAtlasWnd)
@@ -38,11 +47,14 @@ protected:
 	DECLARE_MESSAGE_MAP()
 	CPropertiesToolBar m_wndToolBar;
 	CAtlasView m_viewAtlas;
+	boost::shared_ptr<Gdiplus::Image> m_bgimage;
+	boost::ptr_vector<CImgRegion> m_regs;
 public:
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 	void AdjustLayout();
 	afx_msg void OnSize(UINT nType, int cx, int cy);
 	afx_msg void OnLoadAtlas();
+	void LoadImgRegion(rapidxml::xml_node<char>* node, const Gdiplus::Rect* rect);
 };
 
 

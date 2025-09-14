@@ -4,10 +4,12 @@
 #include "stdafx.h"
 #include "AtlasWnd.h"
 #include "MainApp.h"
-
-#ifdef _DEBUG
-#define new DEBUG_NEW
-#endif
+#include "ImgRegionDoc.h"
+#include "../rapidxml/include/rapidxml.hpp"
+//
+//#ifdef _DEBUG
+//#define new DEBUG_NEW
+//#endif
 
 IMPLEMENT_DYNCREATE(CAtlasView, CWnd)
 
@@ -125,4 +127,60 @@ void CAtlasWnd::OnSize(UINT nType, int cx, int cy)
 void CAtlasWnd::OnLoadAtlas()
 {
 	// TODO: Add your command handler code here
+	CFileDialog dlgFile(TRUE, NULL, NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, 0);
+	if (IDOK != dlgFile.DoModal())
+	{
+		return;
+	}
+
+	std::ifstream file(dlgFile.GetPathName());
+	if (!file)
+	{
+		return;
+	}
+
+	// 读取XML文件内容到内存
+	std::string xml_contents((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+	file.close();
+
+	rapidxml::xml_document<char> doc;
+	doc.parse<0>(&xml_contents[0]);
+	rapidxml::xml_node<char>* boost_serialization = doc.first_node("boost_serialization");
+	rapidxml::xml_node<char>* ImageStr = boost_serialization->first_node("ImageStr");
+	m_bgimage.reset(new Gdiplus::Image(CA2W(ImageStr->value())));
+
+	Gdiplus::Rect rect(
+		0, 0,
+		atoi(boost_serialization->first_node("Size.cx")->value()),
+		atoi(boost_serialization->first_node("Size.cy")->value())
+	);
+
+	LoadImgRegion(boost_serialization->first_node("ImgRegion"), &rect);
+}
+
+
+void CAtlasWnd::LoadImgRegion(rapidxml::xml_node<char>* node, const Gdiplus::Rect* rect)
+{
+	// TODO: Add your implementation code here.
+	for (; node; node = node->next_sibling("ImgRegion"))
+	{
+		CImgRegion* reg = new CImgRegion();
+		reg->m_x.scale = (float)atof(node->first_node("x.scale")->value());
+		reg->m_x.offset = (float)atof(node->first_node("x.offset")->value());
+		reg->m_y.scale = (float)atof(node->first_node("y.scale")->value());
+		reg->m_y.offset = (float)atof(node->first_node("y.offset")->value());
+		reg->m_Width.scale = (float)atof(node->first_node("Width.scale")->value());
+		reg->m_Width.offset = (float)atof(node->first_node("Width.offset")->value());
+		reg->m_Height.scale = (float)atof(node->first_node("Height.scale")->value());
+		reg->m_Height.offset = (float)atof(node->first_node("Height.offset")->value());
+
+		reg->m_Rect.X = rect->X + reg->m_x.scale * rect->Width + reg->m_x.offset;
+		reg->m_Rect.Y = rect->Y + reg->m_y.scale * rect->Height + reg->m_y.offset;
+		reg->m_Rect.Width = reg->m_Width.scale * rect->Width + reg->m_Width.offset;
+		reg->m_Rect.Height = reg->m_Height.scale * rect->Height + reg->m_Height.offset;
+
+		m_regs.push_back(reg);
+
+		LoadImgRegion(node->first_node("ImgRegion"), &reg->m_Rect);
+	}
 }
