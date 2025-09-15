@@ -427,10 +427,6 @@ void HistoryAddRegion::Do(void)
 
 	pReg->m_Locked = FALSE;
 
-	pReg->m_x.offset += 10;
-
-	pReg->m_y.offset += 10;
-
 	m_pDoc->m_TreeCtrl.Expand(hItem, TVE_EXPAND);
 
 	m_pDoc->m_TreeCtrl.SelectItem(hItem);
@@ -899,16 +895,16 @@ void CImgRegionDoc::AddNewHistory(HistoryPtr hist)
 void CImgRegionDoc::OnAddRegion()
 {
 	HTREEITEM hParent = NULL;
-	my::UDim x(0, 0);
-	my::UDim y(0, 0);
+	my::UDim x(0, 10);
+	my::UDim y(0, 10);
 
 	HTREEITEM hSelected = m_TreeCtrl.GetSelectedItem();
 	if (hSelected)
 	{
 		CImgRegionPtr pSelectedReg = GetItemNode(hSelected);
 		ASSERT(pSelectedReg);
-		x = pSelectedReg->m_x;
-		y = pSelectedReg->m_y;
+		x = my::UDim(pSelectedReg->m_x.scale, pSelectedReg->m_x.offset + 10);
+		y = my::UDim(pSelectedReg->m_y.scale, pSelectedReg->m_y.offset + 10);
 
 		hParent = m_TreeCtrl.GetParentItem(hSelected);
 	}
@@ -1099,10 +1095,17 @@ void CImgRegionDoc::OnEditPaste()
 	if(!cache.empty())
 	{
 		HTREEITEM hParent = NULL;
+		my::UDim x(0, 10);
+		my::UDim y(0, 10);
 
 		HTREEITEM hSelected = m_TreeCtrl.GetSelectedItem();
 		if (hSelected)
 		{
+			CImgRegionPtr pSelectedReg = GetItemNode(hSelected);
+			ASSERT(pSelectedReg);
+			x = my::UDim(pSelectedReg->m_x.scale, pSelectedReg->m_x.offset + 10);
+			y = my::UDim(pSelectedReg->m_y.scale, pSelectedReg->m_y.offset + 10);
+
 			hParent = m_TreeCtrl.GetParentItem(hSelected);
 		}
 
@@ -1112,8 +1115,16 @@ void CImgRegionDoc::OnEditPaste()
 		HistoryAddRegionPtr hist(new HistoryAddRegion(
 			this, m_NextRegId, (LPCTSTR)szName, hParent ? GetItemId(hParent) : 0, 0));
 
-		hist->m_NodeCache.str(cache);
-		hist->m_NodeCache.seekp(0, std::ios::end);
+		CImgRegion reg;
+		theApp.m_ClipboardFile.clear();
+		theApp.m_ClipboardFile.seekg(0);
+		boost::archive::polymorphic_text_iarchive ia(theApp.m_ClipboardFile);
+		CImgRegionDocFileVersions::SerializeLoadImgRegion(&reg, ia, this, 0, FALSE);
+
+		reg.m_x = x;
+		reg.m_y = y;
+		boost::archive::polymorphic_text_oarchive oa(hist->m_NodeCache);
+		CImgRegionDocFileVersions::SerializeImgRegion(&reg, oa, this, 0);
 
 		AddNewHistory(hist);
 		hist->Do();
