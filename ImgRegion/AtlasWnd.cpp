@@ -246,6 +246,11 @@ void CAtlasView::OnLButtonDown(UINT nFlags, CPoint point)
 				{
 					if (reg_iter->m_Rect.Contains(localPt.x, localPt.y))
 					{
+						if (pReg->m_ImageStr != pParent->m_bgimagestr)
+						{
+							pReg->m_ImageStr = pParent->m_bgimagestr;
+							pReg->m_Image = theApp.GetImage(pReg->m_ImageStr);
+						}
 						pReg->m_ImageRect = reg_iter->m_Rect;
 						pReg->m_ImageBorder = reg_iter->m_ImageBorder;
 						pDoc->UpdateAllViews(NULL);
@@ -350,7 +355,7 @@ void CAtlasWnd::OnSize(UINT nType, int cx, int cy)
 void CAtlasWnd::OnLoadAtlas()
 {
 	// TODO: Add your command handler code here
-	CFileDialog dlgFile(TRUE, NULL, NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, 0);
+	CFileDialog dlgFile(TRUE, _T("xml"), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, _T("xml|*.xml|All Files|*.*||"), NULL, 0);
 	if (IDOK != dlgFile.DoModal())
 	{
 		return;
@@ -370,7 +375,8 @@ void CAtlasWnd::OnLoadAtlas()
 	doc.parse<0>(&xml_contents[0]);
 	rapidxml::xml_node<char>* boost_serialization = doc.first_node("boost_serialization");
 	rapidxml::xml_node<char>* ImageStr = boost_serialization->first_node("ImageStr");
-	m_bgimage.reset(new Gdiplus::Image(CA2W(ImageStr->value(), CP_UTF8)));
+	m_bgimagestr = CA2T(ImageStr->value(), CP_UTF8);
+	m_bgimage = theApp.GetImage(m_bgimagestr);
 
 	m_bgsize.SetSize(
 		atoi(boost_serialization->first_node("Size.cx")->value()),

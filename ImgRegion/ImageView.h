@@ -34,9 +34,9 @@ public:
 
 	void ScrollToPos(const CPoint & scrollPos, BOOL bRedraw = TRUE);
 
-	void PrepareDC(CDC * pDC, const CRect & rectImageLog, const CRect & rectImageDev);
+	//void PrepareDC(CDC * pDC, const CRect & rectImageLog, const CRect & rectImageDev);
 
-	void RestoreDC(CDC * pDC);
+	//void RestoreDC(CDC * pDC);
 
 	static my::Vector2 MapPoint(const my::Vector2 & point, const CRect & rectImageSrc, const CRect & rectImageDst);
 };

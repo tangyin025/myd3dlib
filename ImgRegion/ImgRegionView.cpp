@@ -113,13 +113,10 @@ void CImgRegionView::Draw(Gdiplus::Graphics & grap)
 		CPoint ptTextOrg(rect.TopLeft() + CPoint(10,10));
 		CPoint ptText(ptTextOrg + pReg->m_TextOff);
 
-		CWindowDC dc(this);
-		PrepareDC(&dc, CRect(CPoint(0,0), pDoc->m_Size),
-			CRect(CPoint(-GetScrollPos(SB_HORZ), -GetScrollPos(SB_VERT)), m_ImageSize));
-		dc.LPtoDP(&rect.TopLeft());
-		dc.LPtoDP(&rect.BottomRight());
-		dc.LPtoDP(&ptTextOrg);
-		dc.LPtoDP(&ptText);
+		ASSERT(sizeof(rect) == sizeof(Gdiplus::Point) * 2);
+		world.TransformPoints((Gdiplus::Point *)&rect, 2);
+		world.TransformPoints((Gdiplus::Point*)&ptTextOrg, 1);
+		world.TransformPoints((Gdiplus::Point*)&ptText, 1);
 
 		const Gdiplus::Color clrHandle = pReg->m_Locked ? Gdiplus::Color::Gray : Gdiplus::Color::Blue;
 
@@ -615,17 +612,18 @@ void CImgRegionView::OnLButtonDown(UINT nFlags, CPoint point)
 				CImgRegionPtr pReg = pDoc->GetItemNode(hSelected);
 				ASSERT(pReg);
 
+				Gdiplus::Matrix world;
+				world.Translate(-(float)GetScrollPos(SB_HORZ), -(float)GetScrollPos(SB_VERT));
+				world.Scale((float)m_ImageSize.cx / pDoc->m_Size.cx, (float)m_ImageSize.cy / pDoc->m_Size.cy);
+
 				CRect rect(CPoint(pReg->m_Rect.X, pReg->m_Rect.Y), CSize(pReg->m_Rect.Width, pReg->m_Rect.Height));
 				CPoint ptTextOrg(rect.TopLeft() + CPoint(10,10));
 				CPoint ptText(ptTextOrg + pReg->m_TextOff);
 
-				CWindowDC dc(this);
-				PrepareDC(&dc, CRect(CPoint(0,0), pDoc->m_Size),
-					CRect(CPoint(-GetScrollPos(SB_HORZ), -GetScrollPos(SB_VERT)), m_ImageSize));
-				dc.LPtoDP(&rect.TopLeft());
-				dc.LPtoDP(&rect.BottomRight());
-				dc.LPtoDP(&ptTextOrg);
-				dc.LPtoDP(&ptText);
+				ASSERT(sizeof(rect) == sizeof(Gdiplus::Point) * 2);
+				world.TransformPoints((Gdiplus::Point*)&rect, 2);
+				world.TransformPoints((Gdiplus::Point*)&ptTextOrg, 1);
+				world.TransformPoints((Gdiplus::Point*)&ptText, 1);
 
 				// 检测的顺序应当和绘制的顺序反向
 				CPoint ptCenter = rect.CenterPoint();

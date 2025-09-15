@@ -59,6 +59,7 @@ protected:
 	DECLARE_MESSAGE_MAP()
 	CPropertiesToolBar m_wndToolBar;
 	CAtlasView m_viewAtlas;
+	CString m_bgimagestr;
 	boost::shared_ptr<Gdiplus::Image> m_bgimage;
 	CSize m_bgsize;
 	boost::ptr_vector<CImgRegion> m_regs;
