@@ -246,6 +246,7 @@ void CAtlasView::OnLButtonDown(UINT nFlags, CPoint point)
 				{
 					if (reg_iter->m_Rect.Contains(localPt.x, localPt.y))
 					{
+						pReg->m_Color.SetValue(Gdiplus::Color::White);
 						if (pReg->m_ImageStr != pParent->m_bgimagestr)
 						{
 							pReg->m_ImageStr = pParent->m_bgimagestr;
