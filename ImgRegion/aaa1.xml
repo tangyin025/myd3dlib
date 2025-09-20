@@ -34,7 +34,7 @@
 	<ImageBorder.w>0</ImageBorder.w>
 	<strFamily>微软雅黑</strFamily>
 	<fSize>1.300000000e+01</fSize>
-	<argb>4289277163</argb>
+	<TextARGB>4289277163</TextARGB>
 	<Text></Text>
 	<TextAlign>0</TextAlign>
 	<TextWrap>0</TextWrap>
@@ -66,7 +66,7 @@
 		<ImageBorder.w>0</ImageBorder.w>
 		<strFamily>微软雅黑</strFamily>
 		<fSize>1.300000000e+01</fSize>
-		<argb>4284440559</argb>
+		<TextARGB>4284440559</TextARGB>
 		<Text></Text>
 		<TextAlign>0</TextAlign>
 		<TextWrap>0</TextWrap>
@@ -99,7 +99,7 @@
 		<ImageBorder.w>7</ImageBorder.w>
 		<strFamily>微软雅黑</strFamily>
 		<fSize>1.300000000e+01</fSize>
-		<argb>4294967295</argb>
+		<TextARGB>4294967295</TextARGB>
 		<Text>OK</Text>
 		<TextAlign>4</TextAlign>
 		<TextWrap>0</TextWrap>
@@ -132,7 +132,7 @@
 		<ImageBorder.w>7</ImageBorder.w>
 		<strFamily>微软雅黑</strFamily>
 		<fSize>1.300000000e+01</fSize>
-		<argb>4294967295</argb>
+		<TextARGB>4294967295</TextARGB>
 		<Text>Cancel</Text>
 		<TextAlign>4</TextAlign>
 		<TextWrap>0</TextWrap>
@@ -165,7 +165,7 @@
 		<ImageBorder.w>7</ImageBorder.w>
 		<strFamily>微软雅黑</strFamily>
 		<fSize>1.300000000e+01</fSize>
-		<argb>4294967295</argb>
+		<TextARGB>4294967295</TextARGB>
 		<Text>x:%d y:%d w:%d h:%d</Text>
 		<TextAlign>4</TextAlign>
 		<TextWrap>0</TextWrap>
@@ -197,7 +197,7 @@
 			<ImageBorder.w>0</ImageBorder.w>
 			<strFamily>微软雅黑</strFamily>
 			<fSize>1.300000000e+01</fSize>
-			<argb>4294967295</argb>
+			<TextARGB>4294967295</TextARGB>
 			<Text>Vertical Sync</Text>
 			<TextAlign>5</TextAlign>
 			<TextWrap>0</TextWrap>
@@ -231,7 +231,7 @@
 		<ImageBorder.w>7</ImageBorder.w>
 		<strFamily>微软雅黑</strFamily>
 		<fSize>1.300000000e+01</fSize>
-		<argb>4294967295</argb>
+		<TextARGB>4294967295</TextARGB>
 		<Text>x:%d y:%d w:%d h:%d</Text>
 		<TextAlign>4</TextAlign>
 		<TextWrap>0</TextWrap>
@@ -263,7 +263,7 @@
 			<ImageBorder.w>0</ImageBorder.w>
 			<strFamily>微软雅黑</strFamily>
 			<fSize>1.300000000e+01</fSize>
-			<argb>4294967295</argb>
+			<TextARGB>4294967295</TextARGB>
 			<Text>Vertex Processing</Text>
 			<TextAlign>5</TextAlign>
 			<TextWrap>0</TextWrap>
@@ -297,7 +297,7 @@
 		<ImageBorder.w>7</ImageBorder.w>
 		<strFamily>微软雅黑</strFamily>
 		<fSize>1.300000000e+01</fSize>
-		<argb>4294967295</argb>
+		<TextARGB>4294967295</TextARGB>
 		<Text>x:%d y:%d w:%d h:%d</Text>
 		<TextAlign>4</TextAlign>
 		<TextWrap>0</TextWrap>
@@ -329,7 +329,7 @@
 			<ImageBorder.w>0</ImageBorder.w>
 			<strFamily>微软雅黑</strFamily>
 			<fSize>1.300000000e+01</fSize>
-			<argb>4294967295</argb>
+			<TextARGB>4294967295</TextARGB>
 			<Text>Multisample Quality</Text>
 			<TextAlign>5</TextAlign>
 			<TextWrap>0</TextWrap>
@@ -363,7 +363,7 @@
 		<ImageBorder.w>7</ImageBorder.w>
 		<strFamily>微软雅黑</strFamily>
 		<fSize>1.300000000e+01</fSize>
-		<argb>4294967295</argb>
+		<TextARGB>4294967295</TextARGB>
 		<Text>x:%d y:%d w:%d h:%d</Text>
 		<TextAlign>4</TextAlign>
 		<TextWrap>0</TextWrap>
@@ -395,7 +395,7 @@
 			<ImageBorder.w>0</ImageBorder.w>
 			<strFamily>微软雅黑</strFamily>
 			<fSize>1.300000000e+01</fSize>
-			<argb>4294967295</argb>
+			<TextARGB>4294967295</TextARGB>
 			<Text>Multisample Type</Text>
 			<TextAlign>5</TextAlign>
 			<TextWrap>0</TextWrap>
@@ -429,7 +429,7 @@
 		<ImageBorder.w>7</ImageBorder.w>
 		<strFamily>微软雅黑</strFamily>
 		<fSize>1.300000000e+01</fSize>
-		<argb>4294967295</argb>
+		<TextARGB>4294967295</TextARGB>
 		<Text>x:%d y:%d w:%d h:%d</Text>
 		<TextAlign>4</TextAlign>
 		<TextWrap>0</TextWrap>
@@ -461,7 +461,7 @@
 			<ImageBorder.w>0</ImageBorder.w>
 			<strFamily>微软雅黑</strFamily>
 			<fSize>1.300000000e+01</fSize>
-			<argb>4294967295</argb>
+			<TextARGB>4294967295</TextARGB>
 			<Text>Depth/Stencil Format</Text>
 			<TextAlign>5</TextAlign>
 			<TextWrap>0</TextWrap>
@@ -495,7 +495,7 @@
 		<ImageBorder.w>7</ImageBorder.w>
 		<strFamily>微软雅黑</strFamily>
 		<fSize>1.300000000e+01</fSize>
-		<argb>4294967295</argb>
+		<TextARGB>4294967295</TextARGB>
 		<Text>x:%d y:%d w:%d h:%d</Text>
 		<TextAlign>4</TextAlign>
 		<TextWrap>0</TextWrap>
@@ -527,7 +527,7 @@
 			<ImageBorder.w>0</ImageBorder.w>
 			<strFamily>微软雅黑</strFamily>
 			<fSize>1.300000000e+01</fSize>
-			<argb>4294967295</argb>
+			<TextARGB>4294967295</TextARGB>
 			<Text>Back Buffer Format</Text>
 			<TextAlign>5</TextAlign>
 			<TextWrap>0</TextWrap>
@@ -561,7 +561,7 @@
 		<ImageBorder.w>7</ImageBorder.w>
 		<strFamily>微软雅黑</strFamily>
 		<fSize>1.300000000e+01</fSize>
-		<argb>4294967295</argb>
+		<TextARGB>4294967295</TextARGB>
 		<Text>x:%d y:%d w:%d h:%d</Text>
 		<TextAlign>4</TextAlign>
 		<TextWrap>0</TextWrap>
@@ -593,7 +593,7 @@
 			<ImageBorder.w>0</ImageBorder.w>
 			<strFamily>微软雅黑</strFamily>
 			<fSize>1.300000000e+01</fSize>
-			<argb>4294967295</argb>
+			<TextARGB>4294967295</TextARGB>
 			<Text>Refresh Rate</Text>
 			<TextAlign>5</TextAlign>
 			<TextWrap>0</TextWrap>
@@ -627,7 +627,7 @@
 		<ImageBorder.w>7</ImageBorder.w>
 		<strFamily>微软雅黑</strFamily>
 		<fSize>1.300000000e+01</fSize>
-		<argb>4294967295</argb>
+		<TextARGB>4294967295</TextARGB>
 		<Text>x:%d y:%d w:%d h:%d</Text>
 		<TextAlign>4</TextAlign>
 		<TextWrap>0</TextWrap>
@@ -659,7 +659,7 @@
 			<ImageBorder.w>0</ImageBorder.w>
 			<strFamily>微软雅黑</strFamily>
 			<fSize>1.300000000e+01</fSize>
-			<argb>4294967295</argb>
+			<TextARGB>4294967295</TextARGB>
 			<Text>Resolution</Text>
 			<TextAlign>5</TextAlign>
 			<TextWrap>0</TextWrap>
@@ -693,7 +693,7 @@
 		<ImageBorder.w>7</ImageBorder.w>
 		<strFamily>微软雅黑</strFamily>
 		<fSize>1.300000000e+01</fSize>
-		<argb>4294967295</argb>
+		<TextARGB>4294967295</TextARGB>
 		<Text>x:%d y:%d w:%d h:%d</Text>
 		<TextAlign>4</TextAlign>
 		<TextWrap>0</TextWrap>
@@ -725,7 +725,7 @@
 			<ImageBorder.w>0</ImageBorder.w>
 			<strFamily>微软雅黑</strFamily>
 			<fSize>1.300000000e+01</fSize>
-			<argb>4294967295</argb>
+			<TextARGB>4294967295</TextARGB>
 			<Text>Adapter Format</Text>
 			<TextAlign>5</TextAlign>
 			<TextWrap>0</TextWrap>
@@ -759,7 +759,7 @@
 		<ImageBorder.w>0</ImageBorder.w>
 		<strFamily>微软雅黑</strFamily>
 		<fSize>1.300000000e+01</fSize>
-		<argb>4294967295</argb>
+		<TextARGB>4294967295</TextARGB>
 		<Text>        Windowed</Text>
 		<TextAlign>3</TextAlign>
 		<TextWrap>0</TextWrap>
@@ -792,7 +792,7 @@
 		<ImageBorder.w>0</ImageBorder.w>
 		<strFamily>微软雅黑</strFamily>
 		<fSize>1.300000000e+01</fSize>
-		<argb>4294967295</argb>
+		<TextARGB>4294967295</TextARGB>
 		<Text>        Full Screen</Text>
 		<TextAlign>3</TextAlign>
 		<TextWrap>0</TextWrap>
@@ -825,7 +825,7 @@
 		<ImageBorder.w>7</ImageBorder.w>
 		<strFamily>微软雅黑</strFamily>
 		<fSize>1.300000000e+01</fSize>
-		<argb>4294967295</argb>
+		<TextARGB>4294967295</TextARGB>
 		<Text>x:%d y:%d w:%d h:%d</Text>
 		<TextAlign>4</TextAlign>
 		<TextWrap>0</TextWrap>
@@ -857,7 +857,7 @@
 			<ImageBorder.w>0</ImageBorder.w>
 			<strFamily>微软雅黑</strFamily>
 			<fSize>1.300000000e+01</fSize>
-			<argb>4294967295</argb>
+			<TextARGB>4294967295</TextARGB>
 			<Text>Render Device</Text>
 			<TextAlign>5</TextAlign>
 			<TextWrap>0</TextWrap>
@@ -891,7 +891,7 @@
 		<ImageBorder.w>7</ImageBorder.w>
 		<strFamily>微软雅黑</strFamily>
 		<fSize>1.300000000e+01</fSize>
-		<argb>4294967295</argb>
+		<TextARGB>4294967295</TextARGB>
 		<Text>x:%d y:%d w:%d h:%d</Text>
 		<TextAlign>4</TextAlign>
 		<TextWrap>0</TextWrap>
@@ -923,7 +923,7 @@
 			<ImageBorder.w>0</ImageBorder.w>
 			<strFamily>微软雅黑</strFamily>
 			<fSize>1.300000000e+01</fSize>
-			<argb>4294967295</argb>
+			<TextARGB>4294967295</TextARGB>
 			<Text>Display Adapter</Text>
 			<TextAlign>5</TextAlign>
 			<TextWrap>0</TextWrap>

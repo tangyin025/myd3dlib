@@ -302,7 +302,7 @@ struct CImgRegionWrapper
 		ar << boost::serialization::make_nvp("ImageBorder.w", pReg->m_ImageBorder.w);
 		Gdiplus::FontFamily family; pReg->m_Font->GetFamily(&family); CString strFamily; family.GetFamilyName(strFamily.GetBufferSetLength(LF_FACESIZE)); strFamily.ReleaseBuffer(); ar << BOOST_SERIALIZATION_NVP(strFamily);
 		float fSize = pReg->m_Font->GetSize(); ar << BOOST_SERIALIZATION_NVP(fSize);
-		argb = pReg->m_FontColor.GetValue(); ar << BOOST_SERIALIZATION_NVP(argb);
+		argb = pReg->m_FontColor.GetValue(); ar << boost::serialization::make_nvp("TextARGB", argb);
 		ar << boost::serialization::make_nvp("Text", pReg->m_Text);
 		ar << boost::serialization::make_nvp("TextAlign", pReg->m_TextAlign);
 		ar << boost::serialization::make_nvp("TextWrap", pReg->m_TextWrap);
@@ -337,7 +337,7 @@ struct CImgRegionWrapper
 		ar >> boost::serialization::make_nvp("ImageBorder.w", pReg->m_ImageBorder.w);
 		CString strFamily; float fSize; ar >> BOOST_SERIALIZATION_NVP(strFamily);
 		ar >> BOOST_SERIALIZATION_NVP(fSize); pReg->m_Font = theApp.GetFont(strFamily, fSize);
-		ar >> BOOST_SERIALIZATION_NVP(argb); pReg->m_FontColor.SetValue(argb);
+		ar >> boost::serialization::make_nvp("TextARGB", argb); pReg->m_FontColor.SetValue(argb);
 		ar >> boost::serialization::make_nvp("Text", pReg->m_Text);
 		ar >> boost::serialization::make_nvp("TextAlign", pReg->m_TextAlign);
 		ar >> boost::serialization::make_nvp("TextWrap", pReg->m_TextWrap);
