@@ -409,6 +409,11 @@ void CAtlasWnd::LoadImgRegion(rapidxml::xml_node<char>* node, const Gdiplus::Rec
 		reg->m_Height.scale = (float)atof(node->first_node("Height.scale")->value());
 		reg->m_Height.offset = (float)atof(node->first_node("Height.offset")->value());
 
+		reg->m_ImageBorder.x = atoi(node->first_node("ImageBorder.x")->value());
+		reg->m_ImageBorder.y = atoi(node->first_node("ImageBorder.y")->value());
+		reg->m_ImageBorder.z = atoi(node->first_node("ImageBorder.z")->value());
+		reg->m_ImageBorder.w = atoi(node->first_node("ImageBorder.w")->value());
+
 		reg->m_Rect.X = rect.X + reg->m_x.scale * rect.Width + reg->m_x.offset;
 		reg->m_Rect.Y = rect.Y + reg->m_y.scale * rect.Height + reg->m_y.offset;
 		reg->m_Rect.Width = reg->m_Width.scale * rect.Width + reg->m_Width.offset;
