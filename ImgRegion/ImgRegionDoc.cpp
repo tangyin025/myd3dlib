@@ -16,6 +16,7 @@
 #include <boost/archive/polymorphic_text_iarchive.hpp>
 #include <boost/archive/polymorphic_text_oarchive.hpp>
 #include <boost/serialization/nvp.hpp>
+#include <boost/lexical_cast.hpp>
 #include <iterator>
 
 //#pragma comment(lib, "UxTheme.lib")
@@ -1115,16 +1116,19 @@ void CImgRegionDoc::OnEditPaste()
 		HistoryAddRegionPtr hist(new HistoryAddRegion(
 			this, m_NextRegId, (LPCTSTR)szName, hParent ? GetItemId(hParent) : 0, 0));
 
-		CImgRegion reg;
-		theApp.m_ClipboardFile.clear();
-		theApp.m_ClipboardFile.seekg(0);
-		boost::archive::polymorphic_text_iarchive ia(theApp.m_ClipboardFile);
-		CImgRegionDocFileVersions::SerializeLoadImgRegion(&reg, ia, this, 0, FALSE);
+		static boost::regex pattern("^\\d+\\sserialization::archive\\s\\d+\\s\\d\\s\\d\\s\\d\\s\\d\\s\\d\\s\\w+\\s\\d\\s([-+]?\\d+\\.\\d+[eE][-+]?\\d+)\\s([-+]?\\d+\\.\\d+[eE][-+]?\\d+)\\s([-+]?\\d+\\.\\d+[eE][-+]?\\d+)\\s([-+]?\\d+\\.\\d+[eE][-+]?\\d+)");
+		boost::smatch match;
+		if (boost::regex_search(cache, match, pattern))
+		{
+			char* end;
+			cache.replace(match[4].begin(), match[4].end(), boost::lexical_cast<std::string>(y.offset));
+			cache.replace(match[3].begin(), match[3].end(), boost::lexical_cast<std::string>(y.scale));
+			cache.replace(match[2].begin(), match[2].end(), boost::lexical_cast<std::string>(x.offset));
+			cache.replace(match[1].begin(), match[1].end(), boost::lexical_cast<std::string>(x.scale));
+		}
 
-		reg.m_x = x;
-		reg.m_y = y;
-		boost::archive::polymorphic_text_oarchive oa(hist->m_NodeCache);
-		CImgRegionDocFileVersions::SerializeImgRegion(&reg, oa, this, 0);
+		hist->m_NodeCache.str(cache);
+		hist->m_NodeCache.seekp(0, std::ios::end);
 
 		AddNewHistory(hist);
 		hist->Do();
