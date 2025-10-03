@@ -209,5 +209,10 @@ LRESULT CMainFrame::OnToolbarReset(WPARAM wp,LPARAM lp)
 	CImgRegionView::UpdateComboButtonZoomList(&ComboButton);
 	ComboButton.SelectItem(0); 
 	m_wndToolBar.ReplaceButton(ID_ZOOM_CUSTOM, ComboButton);
+
+	CMFCToolBarEditBoxButton EditButton(
+		ID_GRID_SIZE, GetCmdMgr()->GetCmdImage(ID_GRID_SIZE, FALSE), ES_AUTOHSCROLL | ES_NUMBER, 30);
+	EditButton.EnableWindow(true);
+	m_wndToolBar.ReplaceButton(ID_GRID_SIZE, EditButton);
 	return 0;
 }

@@ -42,13 +42,14 @@
 #define ID_EXPORT_LUA                   40016
 #define ID_FILE_PROPERTY                40017
 #define ID_LOAD_ATLAS                   40018
+#define ID_GRID_SIZE                    40019
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        117
-#define _APS_NEXT_COMMAND_VALUE         40019
+#define _APS_NEXT_COMMAND_VALUE         40020
 #define _APS_NEXT_CONTROL_VALUE         1006
 #define _APS_NEXT_SYMED_VALUE           101
 #endif

@@ -579,11 +579,14 @@ BEGIN_MESSAGE_MAP(CImgRegionDoc, CDocument)
 	ON_COMMAND(ID_EDIT_REDO, &CImgRegionDoc::OnEditRedo)
 	ON_UPDATE_COMMAND_UI(ID_EDIT_REDO, &CImgRegionDoc::OnUpdateEditRedo)
 	ON_COMMAND(ID_EXPORT_LUA, &CImgRegionDoc::OnExportLua)
+	ON_COMMAND(ID_GRID_SIZE, &CImgRegionDoc::OnGrsize)
+	ON_EN_CHANGE(ID_GRID_SIZE, &CImgRegionDoc::OnEnChangeGridSize)
 END_MESSAGE_MAP()
 
 CImgRegionDoc::CImgRegionDoc(void)
 	: m_HistoryStep(0)
 	, m_NextRegId(0)
+	, m_GridSize(1, 1)
 {
 }
 
@@ -1216,5 +1219,31 @@ void CImgRegionDoc::OnExportLua()
 		m_strLuaPath = dlg.m_strLuaPath;
 
 		SetModifiedFlag();
+	}
+}
+
+void CImgRegionDoc::OnGrsize()
+{
+
+}
+
+void CImgRegionDoc::OnEnChangeGridSize()
+{
+	// 1. 获取编辑框按钮指针
+	CMainFrame* pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
+	ASSERT(pFrame);
+	CMFCToolBarEditBoxButton* pEditBtn = DYNAMIC_DOWNCAST(
+		CMFCToolBarEditBoxButton, pFrame->m_wndToolBar.GetButton(pFrame->m_wndToolBar.CommandToIndex(ID_GRID_SIZE)));
+	if (pEditBtn != nullptr) {
+		// 2. 获取编辑框控件指针
+		CEdit* pEdit = pEditBtn->GetEditBox();
+		if (pEdit != nullptr) {
+			// 3. 获取当前文本
+			CString strText;
+			pEdit->GetWindowText(strText);
+			// 5. 转换为整数
+			int nValue = _ttoi(strText);
+			m_GridSize.SetSize(nValue, nValue);
+		}
 	}
 }

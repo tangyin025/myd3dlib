@@ -338,6 +338,8 @@ public:
 
 	CString m_strLuaPath;
 
+	CSize m_GridSize;
+
 public:
 	DECLARE_DYNCREATE(CImgRegionDoc)
 
@@ -411,4 +413,8 @@ public:
 	afx_msg void OnUpdateEditRedo(CCmdUI *pCmdUI);
 
 	afx_msg void OnExportLua();
+
+	afx_msg void OnGrsize();
+
+	afx_msg void OnEnChangeGridSize();
 };

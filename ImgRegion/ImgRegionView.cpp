@@ -824,45 +824,46 @@ void CImgRegionView::OnMouseMove(UINT nFlags, CPoint point)
 				switch(m_nSelectedHandle)
 				{
 				case HandleTypeLeftTop:
-					pReg->m_x.offset = m_DragRegLocal.x + sizeDragLog.cx;
-					pReg->m_y.offset = m_DragRegLocal.y + sizeDragLog.cy;
-					pReg->m_Width.offset = m_DragRegSize.cx - sizeDragLog.cx;
-					pReg->m_Height.offset = m_DragRegSize.cy - sizeDragLog.cy;
+					pReg->m_x.offset = my::Terrace(m_DragRegLocal.x + sizeDragLog.cx, pDoc->m_GridSize.cx);
+					pReg->m_y.offset = my::Terrace(m_DragRegLocal.y + sizeDragLog.cy, pDoc->m_GridSize.cy);
+					pReg->m_Width.offset = my::Terrace(m_DragRegSize.cx - sizeDragLog.cx, pDoc->m_GridSize.cx);
+					pReg->m_Height.offset = my::Terrace(m_DragRegSize.cy - sizeDragLog.cy, pDoc->m_GridSize.cy);
 					break;
 				case HandleTypeCenterTop:
-					pReg->m_y.offset = m_DragRegLocal.y + sizeDragLog.cy;
-					pReg->m_Height.offset = m_DragRegSize.cy - sizeDragLog.cy;
+					pReg->m_y.offset = my::Terrace(m_DragRegLocal.y + sizeDragLog.cy, pDoc->m_GridSize.cy);
+					pReg->m_Height.offset = my::Terrace(m_DragRegSize.cy - sizeDragLog.cy, pDoc->m_GridSize.cy);
 					break;
 				case HandleTypeRightTop:
-					pReg->m_y.offset = m_DragRegLocal.y + sizeDragLog.cy;
-					pReg->m_Width.offset = m_DragRegSize.cx + sizeDragLog.cx;
-					pReg->m_Height.offset = m_DragRegSize.cy - sizeDragLog.cy;
+					pReg->m_y.offset = my::Terrace(m_DragRegLocal.y + sizeDragLog.cy, pDoc->m_GridSize.cy);
+					pReg->m_Width.offset = my::Terrace(m_DragRegSize.cx + sizeDragLog.cx, pDoc->m_GridSize.cx);
+					pReg->m_Height.offset = my::Terrace(m_DragRegSize.cy - sizeDragLog.cy, pDoc->m_GridSize.cy);
 					break;
 				case HandleTypeLeftMiddle:
-					pReg->m_x.offset = m_DragRegLocal.x + sizeDragLog.cx;
-					pReg->m_Width.offset = m_DragRegSize.cx - sizeDragLog.cx;
+					pReg->m_x.offset = my::Terrace(m_DragRegLocal.x + sizeDragLog.cx, pDoc->m_GridSize.cx);
+					pReg->m_Width.offset = my::Terrace(m_DragRegSize.cx - sizeDragLog.cx, pDoc->m_GridSize.cx);
 					break;
 				case HandleTypeRightMiddle:
-					pReg->m_Width.offset = m_DragRegSize.cx + sizeDragLog.cx;
+					pReg->m_Width.offset = my::Terrace(m_DragRegSize.cx + sizeDragLog.cx, pDoc->m_GridSize.cx);
 					break;
 				case HandleTypeLeftBottom:
-					pReg->m_x.offset = m_DragRegLocal.x + sizeDragLog.cx;
-					pReg->m_Width.offset = m_DragRegSize.cx - sizeDragLog.cx;
-					pReg->m_Height.offset = m_DragRegSize.cy + sizeDragLog.cy;
+					pReg->m_x.offset = my::Terrace(m_DragRegLocal.x + sizeDragLog.cx, pDoc->m_GridSize.cx);
+					pReg->m_Width.offset = my::Terrace(m_DragRegSize.cx - sizeDragLog.cx, pDoc->m_GridSize.cx);
+					pReg->m_Height.offset = my::Terrace(m_DragRegSize.cy + sizeDragLog.cy, pDoc->m_GridSize.cy);
 					break;
 				case HandleTypeCenterBottom:
-					pReg->m_Height.offset = m_DragRegSize.cy + sizeDragLog.cy;
+					pReg->m_Height.offset = my::Terrace(m_DragRegSize.cy + sizeDragLog.cy, pDoc->m_GridSize.cy);
 					break;
 				case HandleTypeRightBottom:
-					pReg->m_Width.offset = m_DragRegSize.cx + sizeDragLog.cx;
-					pReg->m_Height.offset = m_DragRegSize.cy + sizeDragLog.cy;
+					pReg->m_Width.offset = my::Terrace(m_DragRegSize.cx + sizeDragLog.cx, pDoc->m_GridSize.cx);
+					pReg->m_Height.offset = my::Terrace(m_DragRegSize.cy + sizeDragLog.cy, pDoc->m_GridSize.cy);
 					break;
 				case HandleTypeLeftTopText:
-					pReg->m_TextOff = m_DragRegTextOff + sizeDragLog;
+					pReg->m_TextOff.x = my::Terrace(m_DragRegTextOff.x + sizeDragLog.cx, pDoc->m_GridSize.cx);
+					pReg->m_TextOff.y = my::Terrace(m_DragRegTextOff.y + sizeDragLog.cy, pDoc->m_GridSize.cy);
 					break;
 				default:
-					pReg->m_x.offset = m_DragRegLocal.x + sizeDragLog.cx;
-					pReg->m_y.offset = m_DragRegLocal.y + sizeDragLog.cy;
+					pReg->m_x.offset = my::Terrace(m_DragRegLocal.x + sizeDragLog.cx, pDoc->m_GridSize.cx);
+					pReg->m_y.offset = my::Terrace(m_DragRegLocal.y + sizeDragLog.cy, pDoc->m_GridSize.cy);
 					break;
 				}
 
