@@ -199,6 +199,8 @@ void CImgRegionDocFileVersions::SerializeLoad(CImgRegionDoc* pDoc, boost::archiv
 	ar >> boost::serialization::make_nvp("ImageStr", pDoc->m_ImageStr); pDoc->m_Image = theApp.GetImage(pDoc->m_ImageStr);
 	ar >> boost::serialization::make_nvp("strProjectDir", pDoc->m_strProjectDir);
 	ar >> boost::serialization::make_nvp("strLuaPath", pDoc->m_strLuaPath);
+	ar >> boost::serialization::make_nvp("GridSize.cx", pDoc->m_GridSize.cx);
+	ar >> boost::serialization::make_nvp("GridSize.cy", pDoc->m_GridSize.cy);
 
 	SerializeLoadSubTreeNode(pDoc, ar, TVI_ROOT, FALSE);
 }
@@ -212,6 +214,8 @@ void CImgRegionDocFileVersions::Serialize(CImgRegionDoc* pDoc, boost::archive::p
 	ar << boost::serialization::make_nvp("ImageStr", pDoc->m_ImageStr);
 	ar << boost::serialization::make_nvp("strProjectDir", pDoc->m_strProjectDir);
 	ar << boost::serialization::make_nvp("strLuaPath", pDoc->m_strLuaPath);
+	ar << boost::serialization::make_nvp("GridSize.cx", pDoc->m_GridSize.cx);
+	ar << boost::serialization::make_nvp("GridSize.cy", pDoc->m_GridSize.cy);
 
 	SerializeSubTreeNode(pDoc, ar, TVI_ROOT);
 }

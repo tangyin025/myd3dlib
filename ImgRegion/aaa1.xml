@@ -8,6 +8,8 @@
 <ImageStr class_id="0" tracking_level="0" version="0">D:\Works\myd3dlib\demo2_3\Media\texture\1316532925.jpg</ImageStr>
 <strProjectDir>D:\Works\myd3dlib\demo2_3\Media</strProjectDir>
 <strLuaPath>D:\Works\myd3dlib\demo2_3\Media\bbb.lua</strLuaPath>
+<GridSize.cx>1</GridSize.cx>
+<GridSize.cy>1</GridSize.cy>
 <nChilds>1</nChilds>
 <id>1</id>
 <szName>dlg_settings</szName>
