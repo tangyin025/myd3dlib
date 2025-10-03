@@ -44,6 +44,8 @@ public:
 
 	BOOL m_Locked;
 
+	BOOL m_Visible;
+
 	my::UDim m_x;
 
 	my::UDim m_y;
@@ -79,6 +81,7 @@ public:
 	CImgRegion(void)
 		: m_Class("Control")
 		, m_Locked(FALSE)
+		, m_Visible(TRUE)
 		, m_x(0, 10)
 		, m_y(0, 10)
 		, m_Width(0, 100)
@@ -354,6 +357,8 @@ public:
 	void DestroyTreeCtrl(void);
 
 	HTREEITEM GetPointedRegionNode(HTREEITEM hItem, const CPoint & pt);
+
+	BOOL IsRegionNodeVisible(HTREEITEM hItem);
 
 	DECLARE_MESSAGE_MAP()
 

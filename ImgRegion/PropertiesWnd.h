@@ -29,6 +29,7 @@ public:
 		PropertyItemName,
 		PropertyItemClass,
 		PropertyItemLocked,
+		PropertyItemVisible,
 		PropertyItemLocation,
 		PropertyItemLocationX,
 		PropertyItemLocationXScale,

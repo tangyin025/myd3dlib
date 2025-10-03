@@ -50,6 +50,9 @@ void CImgRegion::CreateProperties(CPropertiesWnd * pPropertiesWnd, LPCTSTR szNam
 	pProp = new CCheckBoxProp(_T("锁住"), m_Locked, _T("锁住移动属性"), CPropertiesWnd::PropertyItemLocked);
 	pGroup->AddSubItem(pPropertiesWnd->m_pProp[CPropertiesWnd::PropertyItemLocked] = pProp);
 
+	pProp = new CCheckBoxProp(_T("可见"), m_Visible, _T("可见"), CPropertiesWnd::PropertyItemVisible);
+	pGroup->AddSubItem(pPropertiesWnd->m_pProp[CPropertiesWnd::PropertyItemVisible] = pProp);
+
 	CMFCPropertyGridProperty * pLocal = new CSimpleProp(_T("Local"), CPropertiesWnd::PropertyItemLocation, TRUE);
 	pProp = new CSimpleProp(_T("x"), (_variant_t)m_x.offset, _T("x坐标"), CPropertiesWnd::PropertyItemLocationX);
 	pLocal->AddSubItem(pPropertiesWnd->m_pProp[CPropertiesWnd::PropertyItemLocationX] = pProp);
@@ -183,6 +186,7 @@ void CImgRegion::UpdateProperties(CPropertiesWnd * pPropertiesWnd, LPCTSTR szNam
 	pPropertiesWnd->m_pProp[CPropertiesWnd::PropertyItemName]->SetValue((_variant_t)szName);
 	pPropertiesWnd->m_pProp[CPropertiesWnd::PropertyItemClass]->SetValue((_variant_t)m_Class);
 	pPropertiesWnd->m_pProp[CPropertiesWnd::PropertyItemLocked]->SetValue((_variant_t)(VARIANT_BOOL)m_Locked);
+	pPropertiesWnd->m_pProp[CPropertiesWnd::PropertyItemVisible]->SetValue((_variant_t)(VARIANT_BOOL)m_Visible);
 	pPropertiesWnd->m_pProp[CPropertiesWnd::PropertyItemLocationX]->SetValue((_variant_t)m_x.offset);
 	pPropertiesWnd->m_pProp[CPropertiesWnd::PropertyItemLocationXScale]->SetValue((_variant_t)m_x.scale);
 	pPropertiesWnd->m_pProp[CPropertiesWnd::PropertyItemLocationY]->SetValue((_variant_t)m_y.offset);
@@ -666,16 +670,37 @@ HTREEITEM CImgRegionDoc::GetPointedRegionNode(HTREEITEM hItem, const CPoint & pt
 		CImgRegionPtr pReg = GetItemNode(hItem);
 		ASSERT(pReg);
 
-		if(hRet = GetPointedRegionNode(m_TreeCtrl.GetChildItem(hItem), pt))
-			return hRet;
-
-		if (pt.x >= pReg->m_Rect.X && pt.x < pReg->m_Rect.X + pReg->m_Rect.Width
-			&& pt.y >= pReg->m_Rect.Y && pt.y < pReg->m_Rect.Y + pReg->m_Rect.Height)
+		if (pReg->m_Visible)
 		{
-			return hItem;
+			if (hRet = GetPointedRegionNode(m_TreeCtrl.GetChildItem(hItem), pt))
+				return hRet;
+
+			if (pt.x >= pReg->m_Rect.X && pt.x < pReg->m_Rect.X + pReg->m_Rect.Width
+				&& pt.y >= pReg->m_Rect.Y && pt.y < pReg->m_Rect.Y + pReg->m_Rect.Height)
+			{
+				return hItem;
+			}
 		}
 	}
 	return NULL;
+}
+
+BOOL CImgRegionDoc::IsRegionNodeVisible(HTREEITEM hItem)
+{
+	if (hItem)
+	{
+		CImgRegionPtr pReg = GetItemNode(hItem);
+		ASSERT(pReg);
+
+		if (!pReg->m_Visible)
+		{
+			return FALSE;
+		}
+
+		return IsRegionNodeVisible(m_TreeCtrl.GetParentItem(hItem));
+	}
+
+	return TRUE;
 }
 
 BOOL CImgRegionDoc::OnNewDocument(void)

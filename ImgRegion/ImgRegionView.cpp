@@ -118,7 +118,7 @@ void CImgRegionView::Draw(Gdiplus::Graphics & grap)
 		world.TransformPoints((Gdiplus::Point*)&ptTextOrg, 1);
 		world.TransformPoints((Gdiplus::Point*)&ptText, 1);
 
-		const Gdiplus::Color clrHandle = pReg->m_Locked ? Gdiplus::Color::Gray : Gdiplus::Color::Blue;
+		const Gdiplus::Color clrHandle = pReg->m_Locked || !pDoc->IsRegionNodeVisible(hSelected) ? Gdiplus::Color::Gray : Gdiplus::Color::Blue;
 
 		Gdiplus::Pen pen(clrHandle, 1.0f);
 		pen.SetDashStyle(Gdiplus::DashStyleDash);
@@ -172,9 +172,12 @@ void CImgRegionView::DrawRegionDocNode(Gdiplus::Graphics & grap, Gdiplus::Rect &
 		pReg->m_Rect.Width = pReg->m_Width.scale * rect.Width + pReg->m_Width.offset;
 		pReg->m_Rect.Height = pReg->m_Height.scale * rect.Height + pReg->m_Height.offset;
 
-		pReg->Draw(grap);
+		if (pReg->m_Visible)
+		{
+			pReg->Draw(grap);
 
-		DrawRegionDocNode(grap, pReg->m_Rect, pDoc, pDoc->m_TreeCtrl.GetChildItem(hItem));
+			DrawRegionDocNode(grap, pReg->m_Rect, pDoc, pDoc->m_TreeCtrl.GetChildItem(hItem));
+		}
 
 		DrawRegionDocNode(grap, rect, pDoc, pDoc->m_TreeCtrl.GetNextSiblingItem(hItem));
 	}
@@ -483,7 +486,7 @@ void CImgRegionView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 				CImgRegionPtr pReg = pDoc->GetItemNode(hSelected);
 				ASSERT(pReg);
 
-				if(!pReg->m_Locked)
+				if(!pReg->m_Locked && pDoc->IsRegionNodeVisible(hSelected))
 				{
 					m_DragRegLocal.SetPoint(pReg->m_x.offset, pReg->m_y.offset);
 					m_DragRegSize.SetSize(pReg->m_Width.offset, pReg->m_Width.offset);
@@ -803,7 +806,7 @@ void CImgRegionView::OnMouseMove(UINT nFlags, CPoint point)
 			CImgRegionPtr pReg = pDoc->GetItemNode(hSelected);
 			ASSERT(pReg);
 
-			if(!pReg->m_Locked)
+			if(!pReg->m_Locked && pDoc->IsRegionNodeVisible(hSelected))
 			{
 				CSize sizeDrag = point - m_DragPos;
 

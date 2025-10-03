@@ -194,6 +194,10 @@ LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 						pDoc->m_TreeCtrl.SetItemImage(m_hSelectedNode, 0, 0);
 					break;
 
+				case PropertyItemVisible:
+					pReg->m_Visible = m_pProp[PropertyItemVisible]->GetValue().boolVal;
+					break;
+
 				case PropertyItemLocation:
 				case PropertyItemLocationX:
 				case PropertyItemLocationXScale:
