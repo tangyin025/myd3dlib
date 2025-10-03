@@ -16,6 +16,7 @@
 <ImgRegion class_id="1" tracking_level="0" version="0">
 	<Class>Control</Class>
 	<Locked>0</Locked>
+	<Visible>1</Visible>
 	<x.scale>5.000000000e-01</x.scale>
 	<x.offset>-3.200000000e+02</x.offset>
 	<y.scale>5.000000000e-01</y.scale>
@@ -48,6 +49,7 @@
 	<ImgRegion>
 		<Class>Control</Class>
 		<Locked>0</Locked>
+		<Visible>1</Visible>
 		<x.scale>0.000000000e+00</x.scale>
 		<x.offset>1.700000000e+01</x.offset>
 		<y.scale>0.000000000e+00</y.scale>
@@ -81,6 +83,7 @@
 	<ImgRegion>
 		<Class>Button</Class>
 		<Locked>0</Locked>
+		<Visible>1</Visible>
 		<x.scale>0.000000000e+00</x.scale>
 		<x.offset>2.300000000e+02</x.offset>
 		<y.scale>0.000000000e+00</y.scale>
@@ -114,6 +117,7 @@
 	<ImgRegion>
 		<Class>Button</Class>
 		<Locked>0</Locked>
+		<Visible>1</Visible>
 		<x.scale>0.000000000e+00</x.scale>
 		<x.offset>3.150000000e+02</x.offset>
 		<y.scale>0.000000000e+00</y.scale>
@@ -147,6 +151,7 @@
 	<ImgRegion>
 		<Class>ComboBox</Class>
 		<Locked>0</Locked>
+		<Visible>1</Visible>
 		<x.scale>0.000000000e+00</x.scale>
 		<x.offset>2.010000000e+02</x.offset>
 		<y.scale>0.000000000e+00</y.scale>
@@ -179,6 +184,7 @@
 		<ImgRegion>
 			<Class>Static</Class>
 			<Locked>0</Locked>
+			<Visible>1</Visible>
 			<x.scale>0.000000000e+00</x.scale>
 			<x.offset>-2.010000000e+02</x.offset>
 			<y.scale>0.000000000e+00</y.scale>
@@ -213,6 +219,7 @@
 	<ImgRegion>
 		<Class>ComboBox</Class>
 		<Locked>0</Locked>
+		<Visible>1</Visible>
 		<x.scale>0.000000000e+00</x.scale>
 		<x.offset>2.010000000e+02</x.offset>
 		<y.scale>0.000000000e+00</y.scale>
@@ -245,6 +252,7 @@
 		<ImgRegion>
 			<Class>Static</Class>
 			<Locked>0</Locked>
+			<Visible>1</Visible>
 			<x.scale>0.000000000e+00</x.scale>
 			<x.offset>-2.010000000e+02</x.offset>
 			<y.scale>0.000000000e+00</y.scale>
@@ -279,6 +287,7 @@
 	<ImgRegion>
 		<Class>ComboBox</Class>
 		<Locked>0</Locked>
+		<Visible>1</Visible>
 		<x.scale>0.000000000e+00</x.scale>
 		<x.offset>2.010000000e+02</x.offset>
 		<y.scale>0.000000000e+00</y.scale>
@@ -311,6 +320,7 @@
 		<ImgRegion>
 			<Class>Static</Class>
 			<Locked>0</Locked>
+			<Visible>1</Visible>
 			<x.scale>0.000000000e+00</x.scale>
 			<x.offset>-2.010000000e+02</x.offset>
 			<y.scale>0.000000000e+00</y.scale>
@@ -345,6 +355,7 @@
 	<ImgRegion>
 		<Class>ComboBox</Class>
 		<Locked>0</Locked>
+		<Visible>1</Visible>
 		<x.scale>0.000000000e+00</x.scale>
 		<x.offset>2.010000000e+02</x.offset>
 		<y.scale>0.000000000e+00</y.scale>
@@ -377,6 +388,7 @@
 		<ImgRegion>
 			<Class>Static</Class>
 			<Locked>0</Locked>
+			<Visible>1</Visible>
 			<x.scale>0.000000000e+00</x.scale>
 			<x.offset>-2.010000000e+02</x.offset>
 			<y.scale>0.000000000e+00</y.scale>
@@ -411,6 +423,7 @@
 	<ImgRegion>
 		<Class>ComboBox</Class>
 		<Locked>0</Locked>
+		<Visible>1</Visible>
 		<x.scale>0.000000000e+00</x.scale>
 		<x.offset>2.010000000e+02</x.offset>
 		<y.scale>0.000000000e+00</y.scale>
@@ -443,6 +456,7 @@
 		<ImgRegion>
 			<Class>Static</Class>
 			<Locked>0</Locked>
+			<Visible>1</Visible>
 			<x.scale>0.000000000e+00</x.scale>
 			<x.offset>-2.010000000e+02</x.offset>
 			<y.scale>0.000000000e+00</y.scale>
@@ -477,6 +491,7 @@
 	<ImgRegion>
 		<Class>ComboBox</Class>
 		<Locked>0</Locked>
+		<Visible>1</Visible>
 		<x.scale>0.000000000e+00</x.scale>
 		<x.offset>2.010000000e+02</x.offset>
 		<y.scale>0.000000000e+00</y.scale>
@@ -509,6 +524,7 @@
 		<ImgRegion>
 			<Class>Static</Class>
 			<Locked>0</Locked>
+			<Visible>1</Visible>
 			<x.scale>0.000000000e+00</x.scale>
 			<x.offset>-2.010000000e+02</x.offset>
 			<y.scale>0.000000000e+00</y.scale>
@@ -543,6 +559,7 @@
 	<ImgRegion>
 		<Class>ComboBox</Class>
 		<Locked>0</Locked>
+		<Visible>1</Visible>
 		<x.scale>0.000000000e+00</x.scale>
 		<x.offset>2.010000000e+02</x.offset>
 		<y.scale>0.000000000e+00</y.scale>
@@ -575,6 +592,7 @@
 		<ImgRegion>
 			<Class>Static</Class>
 			<Locked>0</Locked>
+			<Visible>1</Visible>
 			<x.scale>0.000000000e+00</x.scale>
 			<x.offset>-2.010000000e+02</x.offset>
 			<y.scale>0.000000000e+00</y.scale>
@@ -609,6 +627,7 @@
 	<ImgRegion>
 		<Class>ComboBox</Class>
 		<Locked>0</Locked>
+		<Visible>1</Visible>
 		<x.scale>0.000000000e+00</x.scale>
 		<x.offset>2.010000000e+02</x.offset>
 		<y.scale>0.000000000e+00</y.scale>
@@ -641,6 +660,7 @@
 		<ImgRegion>
 			<Class>Static</Class>
 			<Locked>0</Locked>
+			<Visible>1</Visible>
 			<x.scale>0.000000000e+00</x.scale>
 			<x.offset>-2.010000000e+02</x.offset>
 			<y.scale>0.000000000e+00</y.scale>
@@ -675,6 +695,7 @@
 	<ImgRegion>
 		<Class>ComboBox</Class>
 		<Locked>0</Locked>
+		<Visible>1</Visible>
 		<x.scale>0.000000000e+00</x.scale>
 		<x.offset>2.010000000e+02</x.offset>
 		<y.scale>0.000000000e+00</y.scale>
@@ -707,6 +728,7 @@
 		<ImgRegion>
 			<Class>Static</Class>
 			<Locked>0</Locked>
+			<Visible>1</Visible>
 			<x.scale>0.000000000e+00</x.scale>
 			<x.offset>-2.010000000e+02</x.offset>
 			<y.scale>0.000000000e+00</y.scale>
@@ -741,6 +763,7 @@
 	<ImgRegion>
 		<Class>CheckBox</Class>
 		<Locked>0</Locked>
+		<Visible>1</Visible>
 		<x.scale>0.000000000e+00</x.scale>
 		<x.offset>2.390000000e+02</x.offset>
 		<y.scale>0.000000000e+00</y.scale>
@@ -774,6 +797,7 @@
 	<ImgRegion>
 		<Class>CheckBox</Class>
 		<Locked>0</Locked>
+		<Visible>1</Visible>
 		<x.scale>0.000000000e+00</x.scale>
 		<x.offset>3.570000000e+02</x.offset>
 		<y.scale>0.000000000e+00</y.scale>
@@ -807,6 +831,7 @@
 	<ImgRegion>
 		<Class>ComboBox</Class>
 		<Locked>0</Locked>
+		<Visible>1</Visible>
 		<x.scale>0.000000000e+00</x.scale>
 		<x.offset>2.010000000e+02</x.offset>
 		<y.scale>0.000000000e+00</y.scale>
@@ -839,6 +864,7 @@
 		<ImgRegion>
 			<Class>Static</Class>
 			<Locked>0</Locked>
+			<Visible>1</Visible>
 			<x.scale>0.000000000e+00</x.scale>
 			<x.offset>-2.010000000e+02</x.offset>
 			<y.scale>0.000000000e+00</y.scale>
@@ -873,6 +899,7 @@
 	<ImgRegion>
 		<Class>ComboBox</Class>
 		<Locked>0</Locked>
+		<Visible>1</Visible>
 		<x.scale>0.000000000e+00</x.scale>
 		<x.offset>2.010000000e+02</x.offset>
 		<y.scale>0.000000000e+00</y.scale>
@@ -905,6 +932,7 @@
 		<ImgRegion>
 			<Class>Static</Class>
 			<Locked>0</Locked>
+			<Visible>1</Visible>
 			<x.scale>0.000000000e+00</x.scale>
 			<x.offset>-2.010000000e+02</x.offset>
 			<y.scale>0.000000000e+00</y.scale>

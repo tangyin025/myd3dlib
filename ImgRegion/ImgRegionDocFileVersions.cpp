@@ -286,6 +286,7 @@ struct CImgRegionWrapper
 	{
 		ar << boost::serialization::make_nvp("Class", pReg->m_Class);
 		ar << boost::serialization::make_nvp("Locked", pReg->m_Locked);
+		ar << boost::serialization::make_nvp("Visible", pReg->m_Visible);
 		ar << boost::serialization::make_nvp("x.scale", pReg->m_x.scale);
 		ar << boost::serialization::make_nvp("x.offset", pReg->m_x.offset);
 		ar << boost::serialization::make_nvp("y.scale", pReg->m_y.scale);
@@ -321,6 +322,7 @@ struct CImgRegionWrapper
 	{
 		ar >> boost::serialization::make_nvp("Class", pReg->m_Class);
 		ar >> boost::serialization::make_nvp("Locked", pReg->m_Locked);
+		ar >> boost::serialization::make_nvp("Visible", pReg->m_Visible);
 		ar >> boost::serialization::make_nvp("x.scale", pReg->m_x.scale);
 		ar >> boost::serialization::make_nvp("x.offset", pReg->m_x.offset);
 		ar >> boost::serialization::make_nvp("y.scale", pReg->m_y.scale);
