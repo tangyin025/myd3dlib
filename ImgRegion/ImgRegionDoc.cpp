@@ -486,7 +486,7 @@ void HistoryDelRegion::Undo(void)
 	boost::archive::polymorphic_text_iarchive ia(m_NodeCache);
 	CImgRegionDocFileVersions::SerializeLoadImgRegion(pReg.get(), ia, m_pDoc, hItem, FALSE);
 
-	if(pReg->m_Locked)
+	if(pReg->m_Visible)
 		m_pDoc->m_TreeCtrl.SetItemImage(hItem, 1, 1);
 	m_pDoc->m_TreeCtrl.Expand(hItem, TVE_EXPAND);
 }

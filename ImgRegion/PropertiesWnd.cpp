@@ -188,14 +188,14 @@ LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 					break;
 
 				case PropertyItemLocked:
-					if(pReg->m_Locked = m_pProp[PropertyItemLocked]->GetValue().boolVal)
-						pDoc->m_TreeCtrl.SetItemImage(m_hSelectedNode, 1, 1);
-					else
-						pDoc->m_TreeCtrl.SetItemImage(m_hSelectedNode, 0, 0);
+					pReg->m_Locked = m_pProp[PropertyItemLocked]->GetValue().boolVal;
 					break;
 
 				case PropertyItemVisible:
-					pReg->m_Visible = m_pProp[PropertyItemVisible]->GetValue().boolVal;
+					if (pReg->m_Visible = m_pProp[PropertyItemVisible]->GetValue().boolVal)
+						pDoc->m_TreeCtrl.SetItemImage(m_hSelectedNode, 1, 1);
+					else
+						pDoc->m_TreeCtrl.SetItemImage(m_hSelectedNode, 0, 0);
 					break;
 
 				case PropertyItemLocation:

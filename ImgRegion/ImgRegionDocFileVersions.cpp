@@ -73,7 +73,7 @@ void CImgRegionDocFileVersions::SerializeLoadSubTreeNode(CImgRegionDoc * pDoc, C
 		SerializeImgRegion(pReg.get(), ar, version);
 		SerializeLoadSubTreeNode(pDoc, ar, version, hItem, bOverideName);
 
-		if(pReg->m_Locked)
+		if(pReg->m_Visible)
 			pDoc->m_TreeCtrl.SetItemImage(hItem, 1, 1);
 		pDoc->m_TreeCtrl.Expand(hItem, TVE_EXPAND);
 	}
@@ -242,7 +242,7 @@ void CImgRegionDocFileVersions::SerializeLoadSubTreeNode(CImgRegionDoc* pDoc, bo
 
 		SerializeLoadImgRegion(pReg.get(), ar, pDoc, hItem, bOverideName);
 
-		if (pReg->m_Locked)
+		if (pReg->m_Visible)
 			pDoc->m_TreeCtrl.SetItemImage(hItem, 1, 1);
 		pDoc->m_TreeCtrl.Expand(hItem, TVE_EXPAND);
 	}
