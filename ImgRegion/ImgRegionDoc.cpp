@@ -1144,7 +1144,7 @@ void CImgRegionDoc::OnEditPaste()
 		HistoryAddRegionPtr hist(new HistoryAddRegion(
 			this, m_NextRegId, (LPCTSTR)szName, hParent ? GetItemId(hParent) : 0, 0));
 
-		static boost::regex pattern("^\\d+\\sserialization::archive\\s\\d+\\s\\d\\s\\d\\s\\d\\s\\d\\s\\d\\s\\w+\\s\\d\\s([-+]?\\d+\\.\\d+[eE][-+]?\\d+)\\s([-+]?\\d+\\.\\d+[eE][-+]?\\d+)\\s([-+]?\\d+\\.\\d+[eE][-+]?\\d+)\\s([-+]?\\d+\\.\\d+[eE][-+]?\\d+)");
+		static boost::regex pattern("^\\d+\\sserialization::archive\\s\\d+\\s\\d\\s\\d\\s\\d\\s\\d\\s\\d\\s\\w+\\s\\d\\s\\d\\s([-+]?\\d+\\.\\d+[eE][-+]?\\d+)\\s([-+]?\\d+\\.\\d+[eE][-+]?\\d+)\\s([-+]?\\d+\\.\\d+[eE][-+]?\\d+)\\s([-+]?\\d+\\.\\d+[eE][-+]?\\d+)");
 		boost::smatch match;
 		if (boost::regex_search(cache, match, pattern))
 		{
