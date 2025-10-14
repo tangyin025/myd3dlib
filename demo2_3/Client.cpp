@@ -414,10 +414,10 @@ Client::Client(int _DEFAULT_UI_RES_Y)
 		("path", boost::program_options::value(&path_list), "Paths")
 		("shaderinclude", boost::program_options::value(&m_SystemIncludes)->default_value(boost::assign::list_of("shader"), ""), "Shader Include")
 		("loadshadercache", boost::program_options::value(&m_LoadShaderCache)->default_value(true), "Load Shader Cache")
-		("width", boost::program_options::value(&m_WindowBackBufferWidthAtModeChange)->default_value(DEFAULT_UI_RES_Y * 16 / 9), "Width")
-		("height", boost::program_options::value(&m_WindowBackBufferHeightAtModeChange)->default_value(DEFAULT_UI_RES_Y), "Height")
-		("windowed", boost::program_options::value(&m_WindowedModeAtFirstCreate)->default_value(true), "Windowed")
-		("refreshrate", boost::program_options::value(&m_RefreshRateAtFirstCreate)->default_value(59), "Refresh Rate")
+		("width", boost::program_options::value(&m_WindowBackBufferWidthAtModeChange)->default_value(0), "Width")
+		("height", boost::program_options::value(&m_WindowBackBufferHeightAtModeChange)->default_value(0), "Height")
+		("windowed", boost::program_options::value(&m_WindowedModeAtFirstCreate)->default_value(false), "Windowed")
+		("refreshrate", boost::program_options::value(&m_RefreshRateAtFirstCreate)->default_value(0), "Refresh Rate")
 		("verticalsync", boost::program_options::value(&verticalsync)->default_value(false), "Vertical Sync")
 		("bloom", boost::program_options::value(&m_BloomEnable)->default_value(false), "Bloom")
 		("fxaa", boost::program_options::value(&m_FxaaEnable)->default_value(false), "FXAA")
@@ -720,10 +720,10 @@ HRESULT Client::OnResetDevice(
 			pBackBufferSurfaceDesc->Width, pBackBufferSurfaceDesc->Height, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT);
 
 		m_DownFilter4RT.m_RenderTarget[i]->CreateTexture(
-			pBackBufferSurfaceDesc->Width / 4, pBackBufferSurfaceDesc->Height / 4, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT);
+			Max(pBackBufferSurfaceDesc->Width / 4, 1u), Max(pBackBufferSurfaceDesc->Height / 4, 1u), 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT);
 
 		m_DownFilter8RT.m_RenderTarget[i]->CreateTexture(
-			pBackBufferSurfaceDesc->Width / 8, pBackBufferSurfaceDesc->Height / 8, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT);
+			Max(pBackBufferSurfaceDesc->Width / 8, 1u), Max(pBackBufferSurfaceDesc->Height / 8, 1u), 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT);
 	}
 
 	return S_OK;

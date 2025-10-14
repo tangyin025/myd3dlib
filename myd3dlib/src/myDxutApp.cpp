@@ -310,10 +310,7 @@ int DxutApp::Run(void)
 			THROW_CUSEXCEPTION("cannnot create direct3d9");
 		}
 
-		CRect clientRect;
-		m_wnd->GetClientRect(&clientRect);
-
-		CreateDevice(m_WindowedModeAtFirstCreate, clientRect.Width(), clientRect.Height(), m_RefreshRateAtFirstCreate, m_PresentIntervalAtFirstCreate);
+		CreateDevice(m_WindowedModeAtFirstCreate, m_WindowBackBufferWidthAtModeChange, m_WindowBackBufferHeightAtModeChange, m_RefreshRateAtFirstCreate, m_PresentIntervalAtFirstCreate);
 
 		m_wnd->ShowWindow(SW_SHOW);
 		m_wnd->UpdateWindow();
@@ -1707,7 +1704,10 @@ void DxutApp::CreateDevice(bool bWindowed, int nSuggestedWidth, int nSuggestedHe
 	matchOptions.eWindowed = DXUTMT_PRESERVE_INPUT;
 	matchOptions.eAdapterFormat = DXUTMT_IGNORE_INPUT;
 	matchOptions.eVertexProcessing = DXUTMT_IGNORE_INPUT;
-	matchOptions.eResolution = DXUTMT_CLOSEST_TO_INPUT;
+	if (bWindowed || (nSuggestedWidth != 0 && nSuggestedHeight != 0))
+		matchOptions.eResolution = DXUTMT_CLOSEST_TO_INPUT;
+	else
+		matchOptions.eResolution = DXUTMT_IGNORE_INPUT;
 	matchOptions.eBackBufferFormat = DXUTMT_IGNORE_INPUT;
 	matchOptions.eBackBufferCount = DXUTMT_IGNORE_INPUT;
 	matchOptions.eMultiSample = DXUTMT_IGNORE_INPUT;
@@ -1715,7 +1715,10 @@ void DxutApp::CreateDevice(bool bWindowed, int nSuggestedWidth, int nSuggestedHe
 	matchOptions.eDepthFormat = DXUTMT_IGNORE_INPUT;
 	matchOptions.eStencilFormat = DXUTMT_IGNORE_INPUT;
 	matchOptions.ePresentFlags = DXUTMT_IGNORE_INPUT;
-	matchOptions.eRefreshRate = DXUTMT_CLOSEST_TO_INPUT;
+	if (RefreshRate != 0)
+		matchOptions.eRefreshRate = DXUTMT_CLOSEST_TO_INPUT;
+	else
+		matchOptions.eRefreshRate = DXUTMT_IGNORE_INPUT;
 	matchOptions.ePresentInterval = DXUTMT_PRESERVE_INPUT;
 
 	DXUTD3D9DeviceSettings deviceSettings;
