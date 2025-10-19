@@ -33,6 +33,7 @@ extern "C" {
 #include "Actor.h"
 #include "Terrain.h"
 #include "StaticEmitter.h"
+#include "StaticMesh.h"
 #include "Controller.h"
 #include "NavigationSerialization.h"
 #include "SoundContext.h"
@@ -3343,6 +3344,9 @@ void LuaContext::Init(void)
 			.def_readonly("PxMeshPath", &MeshComponent::m_PxMeshPath)
 			.def("CreateTriangleMeshShape", &MeshComponent::CreateTriangleMeshShape)
 			.def("CreateConvexMeshShape", &MeshComponent::CreateConvexMeshShape)
+
+		, class_<StaticMesh, Component, boost::shared_ptr<Component> >("StaticMesh")
+			.def(constructor<const char *, const my::AABB &, float>())
 
 		, class_<ClothComponent, Component, boost::shared_ptr<Component> >("ClothComponent")
 			.def(constructor<const char *>())

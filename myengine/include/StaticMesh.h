@@ -1,29 +1,46 @@
 #pragma once
 
 #include "Component.h"
+#include <boost/intrusive/list.hpp>
 
 struct StaticMeshTag;
 
 class StaticMeshChunk
 	: public my::OctEntity
+	, public boost::intrusive::list_base_hook<boost::intrusive::tag<StaticMeshTag> >
 {
 public:
-	int m_SubMeshId;
-
-	int m_Lod;
+	bool m_Requested;
 
 public:
-	StaticMeshChunk(int SubMeshId);
+	StaticMeshChunk(void);
+
+	friend class boost::serialization::access;
+
+	template<class Archive>
+	void save(Archive& ar, const unsigned int version) const;
+
+	template<class Archive>
+	void load(Archive& ar, const unsigned int version);
 
 	template<class Archive>
 	void serialize(Archive& ar, const unsigned int version)
 	{
-		ar& BOOST_SERIALIZATION_NVP(m_SubMeshId);
+		boost::serialization::split_member(ar, *this, version);
 	}
+
+	bool IsRequested(void) const
+	{
+		return m_Requested;
+	}
+
+	void RequestResource(void);
+
+	void ReleaseResource(void);
 };
 
 class StaticMesh
-	: public MeshComponent
+	: public Component
 	, public my::OctRoot
 {
 public:
@@ -31,13 +48,15 @@ public:
 
 	float m_ChunkWidth;
 
-	static const int LastLod = 3;
+	std::string m_ChunkPath;
 
-	float m_ChunkLodScale;
-
-	typedef std::map<int, StaticMeshChunk> ChunkMap;
+	typedef std::map<std::pair<int, int>, StaticMeshChunk> ChunkMap;
 
 	ChunkMap m_Chunks;
+
+	typedef boost::intrusive::list<StaticMeshChunk, boost::intrusive::base_hook<boost::intrusive::list_base_hook<boost::intrusive::tag<StaticMeshTag> > > > ChunkSet;
+
+	ChunkSet m_ViewedChunks;
 
 protected:
 	StaticMesh(void)
@@ -46,10 +65,9 @@ protected:
 
 public:
 	StaticMesh(const char* Name, const my::AABB& LocalRootAabb, float ChunkWidth)
-		: MeshComponent(Name)
+		: Component(Name)
 		, OctRoot(LocalRootAabb.m_min, LocalRootAabb.m_max)
 		, m_ChunkWidth(ChunkWidth)
-		, m_ChunkLodScale(1.0f)
 	{
 	}
 
@@ -81,11 +99,7 @@ public:
 
 	virtual void Update(float fElapsedTime);
 
-	virtual my::AABB CalculateAABB(void) const;
-
 	virtual void AddToPipeline(const my::Frustum& frustum, RenderPipeline* pipeline, unsigned int PassMask, const my::Vector3& ViewPos, const my::Vector3& TargetPos);
-
-	void AddChunk(int SubMeshId, const my::AABB& aabb);
 };
 
 typedef boost::shared_ptr<StaticMesh> StaticMeshPtr;
