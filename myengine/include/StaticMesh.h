@@ -10,23 +10,33 @@ class StaticMeshChunk
 	, public boost::intrusive::list_base_hook<boost::intrusive::tag<StaticMeshTag> >
 {
 public:
+	int m_Row;
+
+	int m_Col;
+
 	bool m_Requested;
 
+	std::string m_MeshPath;
+
+	my::OgreMeshPtr m_Mesh;
+
 public:
-	StaticMeshChunk(void);
+	StaticMeshChunk(int Row, int Col)
+		: m_Row(Row)
+		, m_Col(Col)
+		, m_Requested(false)
+	{
 
-	friend class boost::serialization::access;
+	}
 
-	template<class Archive>
-	void save(Archive& ar, const unsigned int version) const;
-
-	template<class Archive>
-	void load(Archive& ar, const unsigned int version);
+	virtual ~StaticMeshChunk(void);
 
 	template<class Archive>
 	void serialize(Archive& ar, const unsigned int version)
 	{
-		boost::serialization::split_member(ar, *this, version);
+		ar & BOOST_SERIALIZATION_NVP(m_Row);
+		ar & BOOST_SERIALIZATION_NVP(m_Col);
+		ar & BOOST_SERIALIZATION_NVP(m_MeshPath);
 	}
 
 	bool IsRequested(void) const
@@ -37,6 +47,10 @@ public:
 	void RequestResource(void);
 
 	void ReleaseResource(void);
+
+	static std::string MakeChunkPath(const std::string& ChunkPath, int Row, int Col);
+
+	void OnChunkMeshReady(my::DeviceResourceBasePtr res);
 };
 
 class StaticMesh
@@ -60,10 +74,16 @@ public:
 
 	ChunkSet m_ViewedChunks;
 
+	D3DXHANDLE handle_World;
+
+	D3DXHANDLE handle_MeshColor;
+
 protected:
 	StaticMesh(void)
 		: m_ChunkWidth(1.0f)
 		, m_ChunkLodScale(1.0f)
+		, handle_World(NULL)
+		, handle_MeshColor(NULL)
 	{
 	}
 
@@ -73,6 +93,8 @@ public:
 		, OctRoot(LocalRootAabb.m_min, LocalRootAabb.m_max)
 		, m_ChunkWidth(ChunkWidth)
 		, m_ChunkLodScale(1.0f)
+		, handle_World(NULL)
+		, handle_MeshColor(NULL)
 	{
 	}
 
@@ -99,6 +121,8 @@ public:
 	{
 		return TypeID;
 	}
+
+	virtual void OnResetShader(void);
 
 	virtual void RequestResource(void);
 

@@ -1,7 +1,9 @@
 #include "StaticMesh.h"
 #include "Actor.h"
 #include "myEffect.h"
+#include "myResource.h"
 #include "Material.h"
+#include "libc.h"
 #include <boost/archive/polymorphic_xml_iarchive.hpp>
 #include <boost/archive/polymorphic_xml_oarchive.hpp>
 #include <boost/archive/polymorphic_text_iarchive.hpp>
@@ -21,32 +23,52 @@ BOOST_CLASS_EXPORT(StaticMesh)
 
 using namespace my;
 
-StaticMeshChunk::StaticMeshChunk(void)
-	: m_Requested(false)
+StaticMeshChunk::~StaticMeshChunk(void)
 {
-
-}
-
-template<class Archive>
-void StaticMeshChunk::save(Archive& ar, const unsigned int version) const
-{
-
-}
-
-template<class Archive>
-void StaticMeshChunk::load(Archive& ar, const unsigned int version)
-{
-
+	if (IsRequested())
+	{
+		_ASSERT(false); ReleaseResource();
+	}
 }
 
 void StaticMeshChunk::RequestResource(void)
 {
 	m_Requested = true;
+
+	StaticMesh* mesh_cmp = dynamic_cast<StaticMesh*>(m_Node->GetTopNode());
+	if (!mesh_cmp->m_ChunkPath.empty())
+	{
+		_ASSERT(!m_Mesh);
+
+		std::string path = StaticMeshChunk::MakeChunkPath(mesh_cmp->m_ChunkPath, m_Row, m_Col);
+		my::ResourceMgr::getSingleton().LoadMeshAsync(path.c_str(),
+			boost::bind(&StaticMeshChunk::OnChunkMeshReady, this, boost::placeholders::_1), Component::ResPriorityLod0);
+	}
 }
 
 void StaticMeshChunk::ReleaseResource(void)
 {
+	StaticMesh* mesh_cmp = dynamic_cast<StaticMesh*>(m_Node->GetTopNode());
+	if (!mesh_cmp->m_ChunkPath.empty())
+	{
+		std::string path = StaticMeshChunk::MakeChunkPath(mesh_cmp->m_ChunkPath, m_Row, m_Col);
+		my::ResourceMgr::getSingleton().RemoveIORequestCallback(path.c_str(),
+			boost::bind(&StaticMeshChunk::OnChunkMeshReady, this, boost::placeholders::_1));
+
+		m_Mesh.reset();
+	}
+
 	m_Requested = false;
+}
+
+std::string StaticMeshChunk::MakeChunkPath(const std::string& ChunkPath, int Row, int Col)
+{
+	return str_printf("%s_%d_%d", ChunkPath.c_str(), Row, Col);
+}
+
+void StaticMeshChunk::OnChunkMeshReady(my::DeviceResourceBasePtr res)
+{
+	m_Mesh = boost::dynamic_pointer_cast<OgreMesh>(res);
 }
 
 template<class Archive>
@@ -85,12 +107,17 @@ void StaticMesh::load(Archive& ar, const unsigned int version)
 		int row, col; AABB aabb;
 		ar >> boost::serialization::make_nvp("m_chunk_row", row);
 		ar >> boost::serialization::make_nvp("m_chunk_col", col);
-		std::pair<ChunkMap::iterator, bool> chunk_res = m_Chunks.insert(std::make_pair(std::make_pair(row, col), StaticMeshChunk()));
+		std::pair<ChunkMap::iterator, bool> chunk_res = m_Chunks.insert(std::make_pair(std::make_pair(row, col), StaticMeshChunk(row, col)));
 		_ASSERT(chunk_res.second);
 		ar >> boost::serialization::make_nvp("m_chunk", chunk_res.first->second);
 		ar >> boost::serialization::make_nvp("m_chunk_aabb", aabb);
 		AddEntity(&chunk_res.first->second, aabb, m_ChunkWidth, 0.01f);
 	}
+}
+
+void StaticMesh::OnResetShader(void)
+{
+	handle_World = NULL;
 }
 
 void StaticMesh::RequestResource(void)
@@ -112,7 +139,11 @@ void StaticMesh::ReleaseResource(void)
 
 void StaticMesh::OnSetShader(IDirect3DDevice9* pd3dDevice, my::Effect* shader, LPARAM lparam)
 {
+	_ASSERT(m_Actor);
 
+	shader->SetMatrix(handle_World, m_Actor->m_World);
+
+	shader->SetVector(handle_MeshColor, Vector4(1.0f));
 }
 
 void StaticMesh::Update(float fElapsedTime)
@@ -169,6 +200,30 @@ void StaticMesh::AddToPipeline(const my::Frustum& frustum, RenderPipeline* pipel
 				}
 			}
 
+			if (chunk->m_Mesh)
+			{
+				for (unsigned int PassID = 0; PassID < RenderPipeline::PassTypeNum; PassID++)
+				{
+					if (RenderPipeline::PassTypeToMask(PassID) & (mesh_cmp->m_Material->m_PassMask & PassMask))
+					{
+						D3DXMACRO macros[4] = { { "MESH_TYPE", "0" }, { 0 } };
+						my::Effect* shader = pipeline->QueryShader(mesh_cmp->m_Material->m_Shader.c_str(), macros, PassID);
+						if (shader)
+						{
+							if (!mesh_cmp->handle_World)
+							{
+								BOOST_VERIFY(mesh_cmp->handle_World = shader->GetParameterByName(NULL, "g_World"));
+								BOOST_VERIFY(mesh_cmp->handle_MeshColor = shader->GetParameterByName(NULL, "g_MeshColor"));
+							}
+
+							for (unsigned int subid = 0; subid < chunk->m_Mesh->GetNumAttributes(); subid++)
+							{
+								pipeline->PushMesh(PassID, chunk->m_Mesh.get(), subid, shader, mesh_cmp, mesh_cmp->m_Material.get(), MAKELONG(chunk->m_Row, chunk->m_Col));
+							}
+						}
+					}
+				}
+			}
 			return true;
 		}
 	};
