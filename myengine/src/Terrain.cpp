@@ -732,9 +732,7 @@ void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 					ChunkSet::iterator chunk_iter = terrain->m_ViewedChunks.iterator_to(*chunk);
 					if (chunk_iter != insert_chunk_iter)
 					{
-						terrain->m_ViewedChunks.erase(chunk_iter);
-
-						terrain->m_ViewedChunks.insert(insert_chunk_iter, *chunk);
+						terrain->m_ViewedChunks.splice(insert_chunk_iter, terrain->m_ViewedChunks, chunk_iter);
 					}
 					else
 					{

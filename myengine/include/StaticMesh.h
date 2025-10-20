@@ -50,6 +50,8 @@ public:
 
 	std::string m_ChunkPath;
 
+	float m_ChunkLodScale;
+
 	typedef std::map<std::pair<int, int>, StaticMeshChunk> ChunkMap;
 
 	ChunkMap m_Chunks;
@@ -60,6 +62,8 @@ public:
 
 protected:
 	StaticMesh(void)
+		: m_ChunkWidth(1.0f)
+		, m_ChunkLodScale(1.0f)
 	{
 	}
 
@@ -68,6 +72,7 @@ public:
 		: Component(Name)
 		, OctRoot(LocalRootAabb.m_min, LocalRootAabb.m_max)
 		, m_ChunkWidth(ChunkWidth)
+		, m_ChunkLodScale(1.0f)
 	{
 	}
 
@@ -94,6 +99,10 @@ public:
 	{
 		return TypeID;
 	}
+
+	virtual void RequestResource(void);
+
+	virtual void ReleaseResource(void);
 
 	virtual void OnSetShader(IDirect3DDevice9* pd3dDevice, my::Effect* shader, LPARAM lparam);
 

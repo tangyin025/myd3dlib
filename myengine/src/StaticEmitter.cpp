@@ -238,9 +238,7 @@ void StaticEmitter::AddToPipeline(const my::Frustum& frustum, RenderPipeline* pi
 					ChunkSet::iterator chunk_iter = emit_cmp->m_ViewedChunks.iterator_to(*chunk);
 					if (chunk_iter != insert_chunk_iter)
 					{
-						emit_cmp->m_ViewedChunks.erase(chunk_iter);
-
-						emit_cmp->m_ViewedChunks.insert(insert_chunk_iter, *chunk);
+						emit_cmp->m_ViewedChunks.splice(insert_chunk_iter, emit_cmp->m_ViewedChunks, chunk_iter);
 					}
 					else
 					{

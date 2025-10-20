@@ -56,6 +56,7 @@ void StaticMesh::save(Archive& ar, const unsigned int version) const
 	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(OctRoot);
 	ar << BOOST_SERIALIZATION_NVP(m_ChunkWidth);
 	ar << BOOST_SERIALIZATION_NVP(m_ChunkPath);
+	ar << BOOST_SERIALIZATION_NVP(m_ChunkLodScale);
 	DWORD ChunkSize = m_Chunks.size();
 	ar << BOOST_SERIALIZATION_NVP(ChunkSize);
 	ChunkMap::const_iterator chunk_iter = m_Chunks.begin();
@@ -76,6 +77,7 @@ void StaticMesh::load(Archive& ar, const unsigned int version)
 	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(OctRoot);
 	ar >> BOOST_SERIALIZATION_NVP(m_ChunkWidth);
 	ar >> BOOST_SERIALIZATION_NVP(m_ChunkPath);
+	ar >> BOOST_SERIALIZATION_NVP(m_ChunkLodScale);
 	DWORD ChunkSize;
 	ar >> BOOST_SERIALIZATION_NVP(ChunkSize);
 	for (int i = 0; i < (int)ChunkSize; i++)
@@ -89,6 +91,23 @@ void StaticMesh::load(Archive& ar, const unsigned int version)
 		ar >> boost::serialization::make_nvp("m_chunk_aabb", aabb);
 		AddEntity(&chunk_res.first->second, aabb, m_ChunkWidth, 0.01f);
 	}
+}
+
+void StaticMesh::RequestResource(void)
+{
+	Component::RequestResource();
+}
+
+void StaticMesh::ReleaseResource(void)
+{
+	Component::ReleaseResource();
+
+	ChunkSet::iterator chunk_iter = m_ViewedChunks.begin();
+	for (; chunk_iter != m_ViewedChunks.end(); chunk_iter++)
+	{
+		chunk_iter->ReleaseResource();
+	}
+	m_ViewedChunks.clear();
 }
 
 void StaticMesh::OnSetShader(IDirect3DDevice9* pd3dDevice, my::Effect* shader, LPARAM lparam)
@@ -111,18 +130,44 @@ void StaticMesh::AddToPipeline(const my::Frustum& frustum, RenderPipeline* pipel
 		unsigned int PassMask;
 		const Vector3& LocalViewPos;
 		StaticMesh* mesh_cmp;
-
+		ChunkSet::iterator insert_chunk_iter;
 		Callback(RenderPipeline* _pipeline, unsigned int _PassMask, const Vector3& _LocalViewPos, StaticMesh* _mesh_cmp)
 			: pipeline(_pipeline)
 			, PassMask(_PassMask)
 			, LocalViewPos(_LocalViewPos)
 			, mesh_cmp(_mesh_cmp)
+			, insert_chunk_iter(_mesh_cmp->m_ViewedChunks.begin())
 		{
 		}
-
 		virtual bool OnQueryEntity(my::OctEntity* oct_entity, const my::AABB& aabb, my::IntersectionTests::IntersectionType)
 		{
-			StaticMeshChunk* Chunk = dynamic_cast<StaticMeshChunk*>(oct_entity);
+			StaticMeshChunk* chunk = dynamic_cast<StaticMeshChunk*>(oct_entity);
+
+			if (PassMask & RenderPipeline::PassTypeToMask(RenderPipeline::PassTypeNormal))
+			{
+				if (chunk->is_linked())
+				{
+					ChunkSet::iterator chunk_iter = mesh_cmp->m_ViewedChunks.iterator_to(*chunk);
+					if (chunk_iter != insert_chunk_iter)
+					{
+						mesh_cmp->m_ViewedChunks.splice(insert_chunk_iter, mesh_cmp->m_ViewedChunks, chunk_iter);
+					}
+					else
+					{
+						_ASSERT(insert_chunk_iter != mesh_cmp->m_ViewedChunks.end());
+
+						insert_chunk_iter++;
+					}
+				}
+				else
+				{
+					_ASSERT(!chunk->IsRequested());
+
+					chunk->RequestResource();
+
+					mesh_cmp->m_ViewedChunks.insert(insert_chunk_iter, *chunk);
+				}
+			}
 
 			return true;
 		}
@@ -132,7 +177,30 @@ void StaticMesh::AddToPipeline(const my::Frustum& frustum, RenderPipeline* pipel
 	{
 		Frustum LocalFrustum = frustum.transform(m_Actor->m_World.transpose());
 		Vector3 LocalViewPos = TargetPos.transformCoord(m_Actor->m_World.inverse());
+		const float LocalCullingDist = m_Actor->m_LodDist * powf(m_Actor->m_LodFactor, 1) * m_ChunkLodScale;
+
+		LocalFrustum.Near.normalizeSelf();
+		LocalFrustum.Near.d = Min(LocalFrustum.Near.d, LocalCullingDist - LocalViewPos.dot(LocalFrustum.Near.normal));
+		LocalFrustum.Far.normalizeSelf();
+		LocalFrustum.Far.d = Min(LocalFrustum.Far.d, LocalCullingDist - LocalViewPos.dot(LocalFrustum.Far.normal));
+
 		Callback cb(pipeline, PassMask, LocalViewPos, this);
 		QueryEntity(LocalFrustum, &cb);
+
+		if (PassMask & RenderPipeline::PassTypeToMask(RenderPipeline::PassTypeNormal))
+		{
+			ChunkSet::iterator chunk_iter = cb.insert_chunk_iter;
+			for (; chunk_iter != m_ViewedChunks.end(); chunk_iter++)
+			{
+				if ((chunk_iter->m_OctAabb->Center() - LocalViewPos).magnitudeSq() > LocalCullingDist * LocalCullingDist)
+				{
+					chunk_iter->ReleaseResource();
+
+					chunk_iter = m_ViewedChunks.erase(chunk_iter);
+				}
+				else
+					chunk_iter++;
+			}
+		}
 	}
 }
