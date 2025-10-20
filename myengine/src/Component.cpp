@@ -1922,7 +1922,7 @@ void EmitterComponent::AddParticlePairToPipeline(
 	DWORD VertexStride,
 	UINT StartIndex,
 	UINT PrimitiveCount,
-	unsigned int PassMask, my::Emitter::Particle* particles1, unsigned int particle_num1, my::Emitter::Particle* particles2, unsigned int particle_num2)
+	unsigned int PassMask, my::Emitter::Particle* particles1, unsigned int particle_num1, my::Emitter::Particle* particles2, unsigned int particle_num2, LPARAM lparam)
 {
 	_ASSERT(m_Material && (m_Material->m_PassMask & PassMask));
 
@@ -1955,13 +1955,13 @@ void EmitterComponent::AddParticlePairToPipeline(
 				if (particle_num1 > 0)
 				{
 					pipeline->PushEmitter(PassID, pVB, pIB, pDecl, MinVertexIndex, NumVertices, VertexStride,
-						StartIndex, PrimitiveCount, particles1, particle_num1, shader, this, m_Material.get(), 0);
+						StartIndex, PrimitiveCount, particles1, particle_num1, shader, this, m_Material.get(), lparam);
 				}
 
 				if (particle_num2 > 0)
 				{
 					pipeline->PushEmitter(PassID, pVB, pIB, pDecl, MinVertexIndex, NumVertices, VertexStride,
-						StartIndex, PrimitiveCount, particles2, particle_num2, shader, this, m_Material.get(), 0);
+						StartIndex, PrimitiveCount, particles2, particle_num2, shader, this, m_Material.get(), lparam);
 				}
 			}
 		}
@@ -2013,7 +2013,7 @@ void CircularEmitter::AddToPipeline(const my::Frustum & frustum, RenderPipeline 
 				pipeline->m_ParticleVertStride,
 				RenderPipeline::m_ParticlePrimitiveInfo[RenderPipeline::ParticlePrimitiveQuad][RenderPipeline::ParticlePrimitiveStartIndex],
 				RenderPipeline::m_ParticlePrimitiveInfo[RenderPipeline::ParticlePrimitiveQuad][RenderPipeline::ParticlePrimitivePrimitiveCount],
-				PassMask, array_one.first, array_one.second, array_two.first, array_two.second);
+				PassMask, array_one.first, array_one.second, array_two.first, array_two.second, 0);
 			break;
 		}
 		case PrimitiveTypeMesh:
@@ -2040,7 +2040,7 @@ void CircularEmitter::AddToPipeline(const my::Frustum & frustum, RenderPipeline 
 					m_Mesh->GetNumBytesPerVertex(),
 					m_Mesh->m_AttribTable[m_MeshSubMeshId].FaceStart * 3,
 					m_Mesh->m_AttribTable[m_MeshSubMeshId].FaceCount,
-					PassMask, array_one.first, array_one.second, array_two.first, array_two.second);
+					PassMask, array_one.first, array_one.second, array_two.first, array_two.second, 0);
 			}
 			break;
 		}

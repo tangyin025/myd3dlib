@@ -271,7 +271,7 @@ void StaticEmitter::AddToPipeline(const my::Frustum& frustum, RenderPipeline* pi
 						pipeline->m_ParticleVertStride,
 						RenderPipeline::m_ParticlePrimitiveInfo[emit_cmp->m_ParticlePrimitiveType][RenderPipeline::ParticlePrimitiveStartIndex],
 						RenderPipeline::m_ParticlePrimitiveInfo[emit_cmp->m_ParticlePrimitiveType][RenderPipeline::ParticlePrimitivePrimitiveCount],
-						PassMask, chunk->m_buff->data(), chunk->m_buff->size() >> chunk->m_Lod, NULL, 0);
+						PassMask, chunk->m_buff->data(), chunk->m_buff->size() >> chunk->m_Lod, NULL, 0, MAKELONG(chunk->m_Row, chunk->m_Col));
 					break;
 				}
 				case PrimitiveTypeMesh:
@@ -298,7 +298,7 @@ void StaticEmitter::AddToPipeline(const my::Frustum& frustum, RenderPipeline* pi
 							emit_cmp->m_Mesh->GetNumBytesPerVertex(),
 							emit_cmp->m_Mesh->m_AttribTable[emit_cmp->m_MeshSubMeshId].FaceStart * 3,
 							emit_cmp->m_Mesh->m_AttribTable[emit_cmp->m_MeshSubMeshId].FaceCount,
-							PassMask, chunk->m_buff->data(), chunk->m_buff->size() >> chunk->m_Lod, NULL, 0);
+							PassMask, chunk->m_buff->data(), chunk->m_buff->size() >> chunk->m_Lod, NULL, 0, MAKELONG(chunk->m_Row, chunk->m_Col));
 					}
 					break;
 				}

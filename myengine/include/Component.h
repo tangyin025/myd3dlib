@@ -645,7 +645,7 @@ public:
 		DWORD VertexStride,
 		UINT StartIndex,
 		UINT PrimitiveCount,
-		unsigned int PassMask, my::Emitter::Particle* particles1, unsigned int particle_num1, my::Emitter::Particle* particles2, unsigned int particle_num2);
+		unsigned int PassMask, my::Emitter::Particle* particles1, unsigned int particle_num1, my::Emitter::Particle* particles2, unsigned int particle_num2, LPARAM lparam);
 };
 
 typedef boost::shared_ptr<EmitterComponent> EmitterComponentPtr;
