@@ -2,6 +2,7 @@
 #include "Actor.h"
 #include "myEffect.h"
 #include "myResource.h"
+#include "myDxutApp.h"
 #include "Material.h"
 #include "libc.h"
 #include <boost/archive/polymorphic_xml_iarchive.hpp>
@@ -18,6 +19,7 @@
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/binary_object.hpp>
 #include <boost/serialization/export.hpp>
+#include <fstream>
 
 BOOST_CLASS_EXPORT(StaticMesh)
 
@@ -258,4 +260,104 @@ void StaticMesh::AddToPipeline(const my::Frustum& frustum, RenderPipeline* pipel
 			}
 		}
 	}
+}
+
+void StaticMeshStream::Flush(void)
+{
+	std::map<std::pair<int, int>, bool>::iterator dirty_iter = m_dirty.begin();
+	for (; dirty_iter != m_dirty.end(); dirty_iter++)
+	{
+		if (dirty_iter->second)
+		{
+			OgreMesh* mesh = GetMesh(dirty_iter->first.first, dirty_iter->first.second);
+			_ASSERT(mesh);
+
+			StaticMesh::ChunkMap::iterator chunk_iter = m_mesh->m_Chunks.find(dirty_iter->first);
+			_ASSERT(chunk_iter != m_mesh->m_Chunks.end());
+			_ASSERT(chunk_iter->second.m_OctAabb);
+
+			std::string path = StaticMeshChunk::MakeChunkPath(m_mesh->m_ChunkPath, dirty_iter->first.first, dirty_iter->first.second);
+			std::basic_string<TCHAR> FullPath = my::ResourceMgr::getSingleton().GetFullPath(path.c_str());
+			if (mesh->GetNumFaces() <= 0)
+			{
+				//OgreMeshPtr dummy = chunk_iter->second.m_Mesh;
+				//_ASSERT(dummy.get() == mesh);
+				if (chunk_iter->second.is_linked())
+				{
+					StaticMesh::ChunkSet::iterator viewed_chunk_iter = m_mesh->m_ViewedChunks.iterator_to(chunk_iter->second);
+					_ASSERT(viewed_chunk_iter != m_mesh->m_ViewedChunks.end());
+					viewed_chunk_iter->ReleaseResource();
+					m_mesh->m_ViewedChunks.erase(viewed_chunk_iter);
+				}
+
+				BOOST_VERIFY(!my::ResourceMgr::getSingleton().CheckPath(path.c_str()) || 0 == _tunlink(FullPath.c_str()));
+				m_mesh->RemoveEntity(&chunk_iter->second);
+				m_meshes.erase(chunk_iter->first);
+				m_mesh->m_Chunks.erase(chunk_iter);
+
+				//_ASSERT(dummy.use_count() == 2);
+				dirty_iter->second = false;
+				continue;
+			}
+
+			my::AABB chunk_box = *chunk_iter->second.m_OctAabb;
+			mesh->SaveOgreMesh(FullPath.c_str(), true);
+			m_mesh->RemoveEntity(&chunk_iter->second);
+			m_mesh->AddEntity(&chunk_iter->second, chunk_box, m_mesh->m_ChunkWidth, 0.1f);
+			m_meshes.erase(chunk_iter->first);
+
+			dirty_iter->second = false;
+		}
+	}
+}
+
+OgreMesh * StaticMeshStream::GetMesh(int i, int j)
+{
+	MeshMap::const_iterator mesh_iter = m_meshes.find(std::make_pair(i, j));
+	if (mesh_iter != m_meshes.end())
+	{
+		return mesh_iter->second.get();
+	}
+
+	StaticMesh::ChunkMap::const_iterator chunk_iter = m_mesh->m_Chunks.find(std::make_pair(i, j));
+	if (chunk_iter == m_mesh->m_Chunks.end())
+	{
+		return NULL;
+	}
+
+	if (chunk_iter->second.m_Mesh)
+	{
+		std::pair<MeshMap::iterator, bool> buff_res = m_meshes.insert(std::make_pair(std::make_pair(i, j), chunk_iter->second.m_Mesh));
+		_ASSERT(buff_res.second);
+		return buff_res.first->second.get();
+	}
+
+	std::string path = StaticMeshChunk::MakeChunkPath(m_mesh->m_ChunkPath, i, j);
+	IORequestPtr request(new my::MeshIORequest(path.c_str(), INT_MAX));
+	//request->LoadResource();
+	//request->CreateResource(NULL);
+	//m_buffs[std::make_pair(i, j)] = boost::dynamic_pointer_cast<StaticEmitterChunkBuffer>(request->m_res);
+
+	struct Tmp
+	{
+		static void Set(MeshMap* buffs, int i, int j, my::DeviceResourceBasePtr res)
+		{
+			(*buffs)[std::make_pair(i, j)] = boost::dynamic_pointer_cast<OgreMesh>(res);
+		}
+	};
+	my::ResourceMgr::getSingleton().LoadIORequestAndWait(path, request, boost::bind(&Tmp::Set, &m_meshes, i, j, boost::placeholders::_1));
+
+	mesh_iter = m_meshes.find(std::make_pair(i, j));
+	_ASSERT(mesh_iter != m_meshes.end());
+	return mesh_iter->second.get();
+}
+
+void StaticMeshStream::SpawnBuffer(const my::Vector3 & Pos, const my::Quaternion & Rot, const my::Vector3 & Scale, my::OgreMesh * mesh)
+{
+
+}
+
+void StaticMeshStream::Spawn(const my::Vector3 & Pos, const my::Quaternion & Rot, const my::Vector3 & Scale, my::OgreMesh * mesh)
+{
+
 }

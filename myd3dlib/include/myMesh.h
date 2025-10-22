@@ -456,7 +456,7 @@ namespace my
 
 		void AppendProgressiveMesh(ProgressiveMesh* pmesh);
 
-		void SaveOgreMesh(const char * path, bool useSharedGeom);
+		void SaveOgreMesh(LPCTSTR path, bool useSharedGeom);
 
 		boost::shared_ptr<OgreMesh> Optimize(DWORD Flags);
 

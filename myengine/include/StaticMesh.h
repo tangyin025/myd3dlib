@@ -137,3 +137,32 @@ public:
 
 typedef boost::shared_ptr<StaticMesh> StaticMeshPtr;
 
+class StaticMeshStream
+{
+public:
+	StaticMesh * m_mesh;
+
+	typedef std::map<std::pair<int, int>, my::OgreMeshPtr> MeshMap;
+
+	MeshMap m_meshes;
+
+	std::map<std::pair<int, int>, bool> m_dirty;
+
+	void Flush(void);
+
+	my::OgreMesh * GetMesh(int i, int j);
+
+	void SpawnBuffer(const my::Vector3 & Pos, const my::Quaternion & Rot, const my::Vector3 & Scale, my::OgreMesh * mesh);
+
+	void Spawn(const my::Vector3 & Pos, const my::Quaternion & Rot, const my::Vector3 & Scale, my::OgreMesh * mesh);
+
+	StaticMeshStream(StaticMesh * mesh)
+		: m_mesh(mesh)
+	{
+	}
+
+	~StaticMeshStream(void)
+	{
+		Flush();
+	}
+};

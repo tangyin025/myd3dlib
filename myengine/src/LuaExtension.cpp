@@ -142,6 +142,11 @@ static void cubetexture_load_cube_map_surface_from_file(my::CubeTexture* self, D
 	V(D3DXLoadSurfaceFromFile(surf, NULL, pDestRect, u8tots(u8_path).c_str(), pSourceRect, Filter, 0, NULL));
 }
 
+static void ogremesh_save_ogre_mesh(my::OgreMesh* self, const char* u8_path, bool useSharedGeom)
+{
+	self->SaveOgreMesh(u8tots(u8_path).c_str(), useSharedGeom);
+}
+
 static unsigned int ogreskeletonanimation_get_bone_num(my::OgreSkeletonAnimation* self)
 {
 	return (unsigned int)self->m_boneBindPose.size();
@@ -2220,9 +2225,9 @@ void LuaContext::Init(void)
 			.def("AppendMesh", &my::OgreMesh::AppendMesh)
 			.def("CombineMesh", &my::OgreMesh::CombineMesh)
 			.def("AppendProgressiveMesh", &my::OgreMesh::AppendProgressiveMesh)
-			.def("SaveOgreMesh", &my::OgreMesh::SaveOgreMesh)
+			.def("SaveOgreMesh", &ogremesh_save_ogre_mesh)
 			.def("SaveOgreMesh", luabind::tag_function<void(my::OgreMesh*, const char*)>(
-				boost::bind(&my::OgreMesh::SaveOgreMesh, boost::placeholders::_1, boost::placeholders::_2, true)))
+				boost::bind(&ogremesh_save_ogre_mesh, boost::placeholders::_1, boost::placeholders::_2, true)))
 			.enum_("D3DXMESHOPT")
 			[
 				value("D3DXMESH_MANAGED", D3DXMESH_MANAGED),

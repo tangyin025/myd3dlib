@@ -1717,7 +1717,7 @@ void OgreMesh::AppendProgressiveMesh(ProgressiveMesh* pmesh)
 	SetAttributeTable(&m_AttribTable[0], m_AttribTable.size());
 }
 
-void OgreMesh::SaveOgreMesh(const char * path, bool useSharedGeom)
+void OgreMesh::SaveOgreMesh(LPCTSTR path, bool useSharedGeom)
 {
 	std::ofstream ofs(path);
 	_ASSERT(ofs.is_open());
