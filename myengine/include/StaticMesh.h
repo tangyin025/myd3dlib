@@ -16,8 +16,6 @@ public:
 
 	bool m_Requested;
 
-	std::string m_MeshPath;
-
 	my::OgreMeshPtr m_Mesh;
 
 public:
@@ -36,7 +34,6 @@ public:
 	{
 		ar & BOOST_SERIALIZATION_NVP(m_Row);
 		ar & BOOST_SERIALIZATION_NVP(m_Col);
-		ar & BOOST_SERIALIZATION_NVP(m_MeshPath);
 	}
 
 	bool IsRequested(void) const
@@ -152,9 +149,9 @@ public:
 
 	my::OgreMesh * GetMesh(int i, int j);
 
-	void SpawnBuffer(const my::Vector3 & Pos, const my::Quaternion & Rot, const my::Vector3 & Scale, my::OgreMesh * mesh);
+	void SpawnBuffer(const my::Vector3 & Pos, const my::Quaternion & Rot, const my::Vector3 & Scale, my::OgreMesh * other);
 
-	void Spawn(const my::Vector3 & Pos, const my::Quaternion & Rot, const my::Vector3 & Scale, my::OgreMesh * mesh);
+	void Spawn(const my::Vector3 & Pos, const my::Quaternion & Rot, const my::Vector3 & Scale, my::OgreMesh * other);
 
 	StaticMeshStream(StaticMesh * mesh)
 		: m_mesh(mesh)

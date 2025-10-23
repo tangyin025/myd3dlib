@@ -247,7 +247,7 @@ void StaticMesh::AddToPipeline(const my::Frustum& frustum, RenderPipeline* pipel
 		if (PassMask & RenderPipeline::PassTypeToMask(RenderPipeline::PassTypeNormal))
 		{
 			ChunkSet::iterator chunk_iter = cb.insert_chunk_iter;
-			for (; chunk_iter != m_ViewedChunks.end(); chunk_iter++)
+			for (; chunk_iter != m_ViewedChunks.end(); )
 			{
 				if ((chunk_iter->m_OctAabb->Center() - LocalViewPos).magnitudeSq() > LocalCullingDist * LocalCullingDist)
 				{
@@ -352,12 +352,58 @@ OgreMesh * StaticMeshStream::GetMesh(int i, int j)
 	return mesh_iter->second.get();
 }
 
-void StaticMeshStream::SpawnBuffer(const my::Vector3 & Pos, const my::Quaternion & Rot, const my::Vector3 & Scale, my::OgreMesh * mesh)
+void StaticMeshStream::SpawnBuffer(const my::Vector3 & Pos, const my::Quaternion & Rot, const my::Vector3 & Scale, my::OgreMesh * other)
 {
+	int i = floor(Pos.z / m_mesh->m_ChunkWidth), j = floor(Pos.x / m_mesh->m_ChunkWidth);
 
+	OgreMesh * mesh = GetMesh(i, j);
+	_ASSERT(mesh);
+
+	Matrix4 World = Matrix4::Compose(Scale, Rot, Pos);
+	for (unsigned int subid = 0; subid < other->GetNumAttributes(); subid++)
+	{
+		mesh->AppendMesh(other, subid, World, Matrix4::identity);
+	}
+
+	m_dirty[std::make_pair(i, j)] = true;
 }
 
-void StaticMeshStream::Spawn(const my::Vector3 & Pos, const my::Quaternion & Rot, const my::Vector3 & Scale, my::OgreMesh * mesh)
+void StaticMeshStream::Spawn(const my::Vector3 & Pos, const my::Quaternion & Rot, const my::Vector3 & Scale, my::OgreMesh * other)
 {
+	int i = floor(Pos.z / m_mesh->m_ChunkWidth), j = floor(Pos.x / m_mesh->m_ChunkWidth);
 
+	MeshMap::const_iterator mesh_iter = m_meshes.find(std::make_pair(i, j));
+	if (mesh_iter != m_meshes.end())
+	{
+		SpawnBuffer(Pos, Rot, Scale, other);
+		return;
+	}
+
+	StaticMesh::ChunkMap::const_iterator chunk_iter = m_mesh->m_Chunks.find(std::make_pair(i, j));
+	if (chunk_iter == m_mesh->m_Chunks.end())
+	{
+		std::pair<StaticMesh::ChunkMap::iterator, bool> chunk_res = m_mesh->m_Chunks.insert(std::make_pair(std::make_pair(i, j), StaticMeshChunk(i, j)));
+		_ASSERT(chunk_res.second);
+
+		m_mesh->AddEntity(&chunk_res.first->second, my::AABB(
+			(j + 0) * m_mesh->m_ChunkWidth, Pos.y - 0.5f, (i + 0) * m_mesh->m_ChunkWidth,
+			(j + 1) * m_mesh->m_ChunkWidth, Pos.y + 0.5f, (i + 1) * m_mesh->m_ChunkWidth), m_mesh->m_ChunkWidth, 0.1f);
+
+		Matrix4 World = Matrix4::Compose(Scale, Rot, Pos);
+		OgreMeshPtr mesh(new OgreMesh());
+		mesh->CreateMeshFromOther(other, 0, World, Matrix4::identity, 65536, 65536);
+		for (unsigned int subid = 1; subid < other->GetNumAttributes(); subid++)
+		{
+			mesh->AppendMesh(other, subid, World, Matrix4::identity);
+		}
+
+		std::pair<MeshMap::iterator, bool> res = m_meshes.insert(std::make_pair(std::make_pair(i, j), mesh));
+		_ASSERT(res.second);
+		my::ResourceMgr::getSingleton().AddResource(StaticMeshChunk::MakeChunkPath(m_mesh->m_ChunkPath, i, j), res.first->second);
+
+		m_dirty[std::make_pair(i, j)] = true;
+		return;
+	}
+
+	SpawnBuffer(Pos, Rot, Scale, other);
 }

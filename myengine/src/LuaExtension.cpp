@@ -3352,6 +3352,14 @@ void LuaContext::Init(void)
 
 		, class_<StaticMesh, Component, boost::shared_ptr<Component> >("StaticMesh")
 			.def(constructor<const char *, const my::AABB &, float>())
+			.def_readonly("ChunkWidth", &StaticMesh::m_ChunkWidth)
+			.def_readwrite("ChunkPath", &StaticMesh::m_ChunkPath)
+			.def_readwrite("ChunkLodScale", &StaticMesh::m_ChunkLodScale)
+
+		, class_<StaticMeshStream>("StaticMeshStream")
+			.def(constructor<StaticMesh *>())
+			.def("Flush", &StaticMeshStream::Flush)
+			.def("Spawn", &StaticMeshStream::Spawn)
 
 		, class_<ClothComponent, Component, boost::shared_ptr<Component> >("ClothComponent")
 			.def(constructor<const char *>())

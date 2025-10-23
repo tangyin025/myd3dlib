@@ -1552,6 +1552,9 @@ void OgreMesh::CreateMeshFromOther(OgreMesh* other, DWORD AttribId, const Matrix
 
 	CreateMesh(Max<DWORD>(reserveFaces, other->GetNumFaces()), Max<DWORD>(reserveVertices, other->GetNumVertices()), velist.data(), dwMeshOptions);
 
+	m_Vb.Create(GetVertexBuffer().Detach());
+	m_Ib.Create(GetIndexBuffer().Detach());
+
 	AppendMesh(other, AttribId, trans, uv_trans);
 }
 
