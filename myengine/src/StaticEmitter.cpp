@@ -226,7 +226,7 @@ void StaticEmitter::AddToPipeline(const my::Frustum& frustum, RenderPipeline* pi
 				chunk->m_Lod = emit_cmp->m_Actor->CalculateLod((chunk->m_OctAabb->Center() - LocalViewPos).magnitude() / emit_cmp->m_ChunkLodScale);
 			}
 
-			if (chunk->m_Lod >= LastLod)
+			if (chunk->m_Lod >= StaticEmitter::LastLod)
 			{
 				return true;
 			}
@@ -311,7 +311,7 @@ void StaticEmitter::AddToPipeline(const my::Frustum& frustum, RenderPipeline* pi
 	{
 		Frustum LocalFrustum = frustum.transform(m_Actor->m_World.transpose());
 		Vector3 LocalViewPos = TargetPos.transformCoord(m_Actor->m_World.inverse());
-		const float LocalCullingDist = m_Actor->m_LodDist * powf(m_Actor->m_LodFactor, LastLod) * m_ChunkLodScale;
+		const float LocalCullingDist = m_Actor->m_LodDist * powf(m_Actor->m_LodFactor, StaticEmitter::LastLod) * m_ChunkLodScale;
 
 		LocalFrustum.Near.normalizeSelf();
 		LocalFrustum.Near.d = Min(LocalFrustum.Near.d, LocalCullingDist - LocalViewPos.dot(LocalFrustum.Near.normal));

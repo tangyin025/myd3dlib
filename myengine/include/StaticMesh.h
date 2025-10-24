@@ -16,6 +16,8 @@ public:
 
 	bool m_Requested;
 
+	int m_Lod;
+
 	my::OgreMeshPtr m_Mesh;
 
 public:
@@ -23,8 +25,8 @@ public:
 		: m_Row(Row)
 		, m_Col(Col)
 		, m_Requested(false)
+		, m_Lod(INT_MAX)
 	{
-
 	}
 
 	virtual ~StaticMeshChunk(void);
@@ -60,6 +62,8 @@ public:
 	float m_ChunkWidth;
 
 	std::string m_ChunkPath;
+
+	static const int LastLod = 1;
 
 	float m_ChunkLodScale;
 

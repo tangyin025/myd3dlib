@@ -1178,7 +1178,7 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, const 
 				virtual bool OnQueryEntity(my::OctEntity* oct_entity, const my::AABB& aabb, my::IntersectionTests::IntersectionType)
 				{
 					StaticMeshChunk* chunk = dynamic_cast<StaticMeshChunk*>(oct_entity);
-					if (chunk->m_Mesh)
+					if (chunk->m_Mesh && chunk->m_Lod >= 0 && chunk->m_Lod < StaticMesh::LastLod)
 					{
 						for (int subid = 0; subid < chunk->m_Mesh->GetNumAttributes(); subid++)
 						{

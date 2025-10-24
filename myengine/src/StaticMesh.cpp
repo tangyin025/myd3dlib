@@ -43,8 +43,10 @@ void StaticMeshChunk::RequestResource(void)
 		_ASSERT(!m_Mesh);
 
 		std::string path = StaticMeshChunk::MakeChunkPath(mesh_cmp->m_ChunkPath, m_Row, m_Col);
-		my::ResourceMgr::getSingleton().LoadMeshAsync(path.c_str(),
-			boost::bind(&StaticMeshChunk::OnChunkMeshReady, this, boost::placeholders::_1), Component::ResPriorityLod0);
+		IORequestPtr request(new MeshIORequest(path.c_str(),
+			m_Lod <= 0 ? Component::ResPriorityLod0 : m_Lod <= 1 ? Component::ResPriorityLod1 : Component::ResPriorityLod2));
+		my::ResourceMgr::getSingleton().LoadIORequestAsync(
+			path, request, boost::bind(&StaticMeshChunk::OnChunkMeshReady, this, boost::placeholders::_1));
 	}
 }
 
@@ -175,6 +177,15 @@ void StaticMesh::AddToPipeline(const my::Frustum& frustum, RenderPipeline* pipel
 		virtual bool OnQueryEntity(my::OctEntity* oct_entity, const my::AABB& aabb, my::IntersectionTests::IntersectionType)
 		{
 			StaticMeshChunk* chunk = dynamic_cast<StaticMeshChunk*>(oct_entity);
+			if (PassMask & RenderPipeline::PassTypeToMask(RenderPipeline::PassTypeNormal))
+			{
+				chunk->m_Lod = mesh_cmp->m_Actor->CalculateLod((chunk->m_OctAabb->Center() - LocalViewPos).magnitude() / mesh_cmp->m_ChunkLodScale);
+			}
+
+			if (chunk->m_Lod >= StaticMesh::LastLod)
+			{
+				return true;
+			}
 
 			if (PassMask & RenderPipeline::PassTypeToMask(RenderPipeline::PassTypeNormal))
 			{
@@ -202,7 +213,7 @@ void StaticMesh::AddToPipeline(const my::Frustum& frustum, RenderPipeline* pipel
 				}
 			}
 
-			if (chunk->m_Mesh)
+			if (chunk->m_Lod >= 0 && chunk->m_Mesh)
 			{
 				for (unsigned int PassID = 0; PassID < RenderPipeline::PassTypeNum; PassID++)
 				{
@@ -234,7 +245,7 @@ void StaticMesh::AddToPipeline(const my::Frustum& frustum, RenderPipeline* pipel
 	{
 		Frustum LocalFrustum = frustum.transform(m_Actor->m_World.transpose());
 		Vector3 LocalViewPos = TargetPos.transformCoord(m_Actor->m_World.inverse());
-		const float LocalCullingDist = m_Actor->m_LodDist * powf(m_Actor->m_LodFactor, 1) * m_ChunkLodScale;
+		const float LocalCullingDist = m_Actor->m_LodDist * powf(m_Actor->m_LodFactor, StaticMesh::LastLod) * m_ChunkLodScale;
 
 		LocalFrustum.Near.normalizeSelf();
 		LocalFrustum.Near.d = Min(LocalFrustum.Near.d, LocalCullingDist - LocalViewPos.dot(LocalFrustum.Near.normal));
