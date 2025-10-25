@@ -755,7 +755,6 @@ void Actor::InsertComponent(unsigned int i, ComponentPtr cmp)
 	switch (cmp->GetComponentType())
 	{
 	//case Component::ComponentTypeComponent:
-	//case Component::ComponentTypeActor:
 	//case Component::ComponentTypeController:
 	//case Component::ComponentTypeMesh:
 	case Component::ComponentTypeCloth:

@@ -337,7 +337,7 @@ void CPropertiesWnd::UpdatePropertiesActor(Actor * actor)
 		CreatePropertiesActor(actor);
 		return;
 	}
-	pActor->SetName(GetComponentTypeName(Component::ComponentTypeActor), FALSE);
+	pActor->SetName(_T("Actor"), FALSE);
 	pActor->SetValue((_variant_t)(DWORD_PTR)actor);
 
 	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
@@ -363,7 +363,7 @@ void CPropertiesWnd::UpdatePropertiesActor(Actor * actor)
 	pActor->GetSubItem(6)->SetValue((_variant_t)actor->m_LodFactor);
 	pActor->GetSubItem(7)->SetValue((_variant_t)actor->m_CullingDistSq);
 	UpdatePropertiesRigidActor(pActor->GetSubItem(8), actor);
-	unsigned int PropId = GetComponentPropCount(Component::ComponentTypeActor);
+	unsigned int PropId = 9;
 	Actor::ComponentPtrList::iterator cmp_iter = actor->m_Cmps.begin();
 	for (unsigned int i = 0; cmp_iter != actor->m_Cmps.end(); cmp_iter++, i++)
 	{
@@ -374,7 +374,7 @@ void CPropertiesWnd::UpdatePropertiesActor(Actor * actor)
 		}
 		UpdateProperties(pActor->GetSubItem(PropId + i), i, cmp_iter->get());
 	}
-	RemovePropertiesFrom(pActor, GetComponentPropCount(Component::ComponentTypeActor) + (int)actor->m_Cmps.size());
+	RemovePropertiesFrom(pActor, PropId + (int)actor->m_Cmps.size());
 	//m_wndPropList.AdjustLayout();
 }
 
@@ -1380,7 +1380,7 @@ void CPropertiesWnd::UpdatePropertiesDialog(CMFCPropertyGridProperty * pControl,
 
 void CPropertiesWnd::CreatePropertiesActor(Actor * actor)
 {
-	CMFCPropertyGridProperty * pActor = new CSimpleProp(GetComponentTypeName(Component::ComponentTypeActor), PropertyActor, FALSE);
+	CMFCPropertyGridProperty * pActor = new CSimpleProp(_T("Actor"), PropertyActor, FALSE);
 	m_wndPropList.AddProperty(pActor, FALSE, FALSE);
 	pActor->SetValue((_variant_t)(DWORD_PTR)actor); // ! only worked on 32bit system
 
@@ -2961,8 +2961,6 @@ unsigned int CPropertiesWnd::GetComponentPropCount(DWORD type)
 {
 	switch (type)
 	{
-	case Component::ComponentTypeActor:
-		return 9;
 	case Component::ComponentTypeController:
 		return GetComponentPropCount(Component::ComponentTypeComponent);
 	case Component::ComponentTypeMesh:
@@ -2993,8 +2991,6 @@ LPCTSTR CPropertiesWnd::GetComponentTypeName(DWORD type)
 {
 	switch (type)
 	{
-	case Component::ComponentTypeActor:
-		return _T("Actor");
 	case Component::ComponentTypeController:
 		return _T("Controller");
 	case Component::ComponentTypeMesh:

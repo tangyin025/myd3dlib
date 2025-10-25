@@ -3245,7 +3245,6 @@ void LuaContext::Init(void)
 			.enum_("ComponentType")
 			[
 				value("ComponentTypeComponent", Component::ComponentTypeComponent),
-				value("ComponentTypeActor", Component::ComponentTypeActor),
 				value("ComponentTypeController", Component::ComponentTypeController),
 				value("ComponentTypeMesh", Component::ComponentTypeMesh),
 				value("ComponentTypeCloth", Component::ComponentTypeCloth),

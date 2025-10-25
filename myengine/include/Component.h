@@ -42,7 +42,6 @@ public:
 	enum ComponentType
 	{
 		ComponentTypeComponent,
-		ComponentTypeActor,
 		ComponentTypeController,
 		ComponentTypeMesh,
 		ComponentTypeStaticMesh,
