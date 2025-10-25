@@ -13,6 +13,8 @@ class Component;
 
 class MeshComponent;
 
+class StaticMesh;
+
 class ClothComponent;
 
 class EmitterComponent;
@@ -156,6 +158,10 @@ public:
 		PropertyMaterialParameterFloatValueW,
 		PropertyMaterialParameterColor,
 		PropertyMaterialParameterTexture,
+		PropertyStaticMesh,
+		PropertyStaticMeshChunkWidth,
+		PropertyStaticMeshChunkPath,
+		PropertyStaticMeshChunkLodScale,
 		PropertyCloth,
 		PropertyClothColor,
 		PropertyClothAlpha,
@@ -179,7 +185,6 @@ public:
 		PropertyClothExternalAccelerationX,
 		PropertyClothExternalAccelerationY,
 		PropertyClothExternalAccelerationZ,
-		PropertyStaticEmitter,
 		PropertyEmitterFaceType,
 		PropertyEmitterSpaceType,
 		PropertyEmitterTiles,
@@ -206,6 +211,7 @@ public:
 		PropertyEmitterParticleSizeX,
 		PropertyEmitterParticleSizeY,
 		PropertyEmitterParticleAngle,
+		PropertyStaticEmitter,
 		PropertyStaticEmitterChunkWidth,
 		PropertyStaticEmitterChunkPath,
 		PropertyStaticEmitterChunkLodScale,
@@ -561,6 +567,7 @@ public:
 	void UpdatePropertiesMesh(CMFCPropertyGridProperty * pComponent, MeshComponent * mesh_cmp);
 	static void UpdatePropertiesMaterial(CMFCPropertyGridProperty * pMaterial, Material * mtl);
 	static void UpdatePropertiesMaterialParameter(CMFCPropertyGridProperty * pParentCtrl, int NodeId, MaterialParameter * mtl_param);
+	void UpdatePropertiesStaticMesh(CMFCPropertyGridProperty * pComponent, StaticMesh * static_mesh_cmp);
 	void UpdatePropertiesCloth(CMFCPropertyGridProperty * pComponent, ClothComponent * cloth_cmp);
 	void UpdatePropertiesEmitter(CMFCPropertyGridProperty * pComponent, EmitterComponent * emit_cmp);
 	void UpdatePropertiesStaticEmitter(CMFCPropertyGridProperty * pComponent, StaticEmitter * emit_cmp);
@@ -591,6 +598,7 @@ public:
 	void CreatePropertiesMesh(CMFCPropertyGridProperty * pComponent, MeshComponent * mesh_cmp);
 	static void CreatePropertiesMaterial(CMFCPropertyGridProperty * pParentCtrl, LPCTSTR lpszName, Material * mtl);
 	static void CreatePropertiesMaterialParameter(CMFCPropertyGridProperty * pParentCtrl, int NodeId, MaterialParameter * mtl_param);
+	void CreatePropertiesStaticMesh(CMFCPropertyGridProperty * pComponent, StaticMesh * static_mesh_cmp);
 	void CreatePropertiesCloth(CMFCPropertyGridProperty * pComponent, ClothComponent * cloth_cmp);
 	void CreatePropertiesEmitter(CMFCPropertyGridProperty * pComponent, EmitterComponent * emit_cmp);
 	void CreatePropertiesStaticEmitter(CMFCPropertyGridProperty * pComponent, StaticEmitter * emit_cmp);

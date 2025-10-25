@@ -12,6 +12,7 @@
 #include "Material.h"
 #include "Terrain.h"
 #include "StaticEmitter.h"
+#include "StaticMesh.h"
 #include "Animator.h"
 #include "NavigationSerialization.h"
 #include <boost/scope_exit.hpp>
@@ -417,6 +418,9 @@ void CPropertiesWnd::UpdateProperties(CMFCPropertyGridProperty * pComponent, int
 	case Component::ComponentTypeMesh:
 		UpdatePropertiesMesh(pComponent, dynamic_cast<MeshComponent *>(cmp));
 		break;
+	case Component::ComponentTypeStaticMesh:
+		UpdatePropertiesStaticMesh(pComponent, dynamic_cast<StaticMesh *>(cmp));
+		break;
 	case Component::ComponentTypeCloth:
 		UpdatePropertiesCloth(pComponent, dynamic_cast<ClothComponent *>(cmp));
 		break;
@@ -583,6 +587,23 @@ void CPropertiesWnd::UpdatePropertiesMaterialParameter(CMFCPropertyGridProperty 
 			theApp.GetFullPath(dynamic_cast<MaterialParameterTexture *>(mtl_param)->m_TexturePath.c_str()).c_str());
 		break;
 	}
+}
+
+void CPropertiesWnd::UpdatePropertiesStaticMesh(CMFCPropertyGridProperty * pComponent, StaticMesh * static_mesh_cmp)
+{
+	unsigned int PropId = GetComponentPropCount(Component::ComponentTypeComponent);
+	CMFCPropertyGridProperty* pProp = pComponent->GetSubItem(PropId);
+	CMFCPropertyGridProperty* pChunkWidth = pComponent->GetSubItem(PropId);
+	if (!pChunkWidth || pChunkWidth->GetData() != PropertyStaticEmitterChunkWidth)
+	{
+		RemovePropertiesFrom(pComponent, PropId);
+		CreatePropertiesStaticMesh(pComponent, static_mesh_cmp);
+		return;
+	}
+	pComponent->GetSubItem(PropId + 0)->SetValue((_variant_t)static_mesh_cmp->m_ChunkWidth);
+	pComponent->GetSubItem(PropId + 1)->SetValue((_variant_t)ms2ts(static_mesh_cmp->m_ChunkPath.c_str()).c_str());
+	pComponent->GetSubItem(PropId + 2)->SetValue((_variant_t)static_mesh_cmp->m_ChunkLodScale);
+	UpdatePropertiesMaterial(pComponent->GetSubItem(PropId + 3), static_mesh_cmp->m_Material.get());
 }
 
 void CPropertiesWnd::UpdatePropertiesCloth(CMFCPropertyGridProperty * pComponent, ClothComponent * cloth_cmp)
@@ -1484,6 +1505,9 @@ void CPropertiesWnd::CreateProperties(CMFCPropertyGridProperty * pParentCtrl, Co
 	case Component::ComponentTypeMesh:
 		CreatePropertiesMesh(pComponent, dynamic_cast<MeshComponent *>(cmp));
 		break;
+	case Component::ComponentTypeStaticMesh:
+		CreatePropertiesStaticMesh(pComponent, dynamic_cast<StaticMesh *>(cmp));
+		break;
 	case Component::ComponentTypeCloth:
 		CreatePropertiesCloth(pComponent, dynamic_cast<ClothComponent *>(cmp));
 		break;
@@ -1726,6 +1750,21 @@ void CPropertiesWnd::CreatePropertiesMaterialParameter(CMFCPropertyGridProperty 
 		pParentCtrl->AddSubItem(pProp);
 		break;
 	}
+}
+
+void CPropertiesWnd::CreatePropertiesStaticMesh(CMFCPropertyGridProperty* pComponent, StaticMesh* static_mesh_cmp)
+{
+	ASSERT(pComponent->GetSubItemsCount() == GetComponentPropCount(Component::ComponentTypeComponent));
+
+	CMFCPropertyGridProperty* pChunkWidth = new CSimpleProp(_T("ChunkWidth"), (_variant_t)static_mesh_cmp->m_ChunkWidth, NULL, PropertyStaticMeshChunkWidth);
+	pChunkWidth->Enable(FALSE);
+	pComponent->AddSubItem(pChunkWidth);
+	CMFCPropertyGridProperty* pChunkPath = new CSimpleProp(_T("ChunkPath"), (_variant_t)ms2ts(static_mesh_cmp->m_ChunkPath.c_str()).c_str(), NULL, PropertyStaticMeshChunkPath);
+	pChunkPath->Enable(FALSE);
+	pComponent->AddSubItem(pChunkPath);
+	CMFCPropertyGridProperty* pChunkLodScale = new CSimpleProp(_T("ChunkLodScale"), (_variant_t)static_mesh_cmp->m_ChunkLodScale, NULL, PropertyStaticMeshChunkLodScale);
+	pComponent->AddSubItem(pChunkLodScale);
+	CreatePropertiesMaterial(pComponent, _T("Material"), static_mesh_cmp->m_Material.get());
 }
 
 void CPropertiesWnd::CreatePropertiesCloth(CMFCPropertyGridProperty * pComponent, ClothComponent * cloth_cmp)
@@ -2928,6 +2967,8 @@ CPropertiesWnd::Property CPropertiesWnd::GetComponentProp(DWORD type)
 		return PropertyCharacter;
 	case Component::ComponentTypeMesh:
 		return PropertyMesh;
+	case Component::ComponentTypeStaticMesh:
+		return PropertyStaticMesh;
 	case Component::ComponentTypeCloth:
 		return PropertyCloth;
 	case Component::ComponentTypeStaticEmitter:
@@ -2954,6 +2995,8 @@ unsigned int CPropertiesWnd::GetComponentPropCount(DWORD type)
 		return GetComponentPropCount(Component::ComponentTypeComponent);
 	case Component::ComponentTypeMesh:
 		return GetComponentPropCount(Component::ComponentTypeComponent) + 8;
+	case Component::ComponentTypeStaticMesh:
+		return GetComponentPropCount(Component::ComponentTypeComponent) + 4;
 	case Component::ComponentTypeCloth:
 		return GetComponentPropCount(Component::ComponentTypeComponent) + 14;
 	case Component::ComponentTypeEmitter:
@@ -2984,6 +3027,8 @@ LPCTSTR CPropertiesWnd::GetComponentTypeName(DWORD type)
 		return _T("Controller");
 	case Component::ComponentTypeMesh:
 		return _T("Mesh");
+	case Component::ComponentTypeStaticMesh:
+		return _T("StaticMesh");
 	case Component::ComponentTypeCloth:
 		return _T("Cloth");
 	case Component::ComponentTypeStaticEmitter:
@@ -4011,6 +4056,17 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		mtl->m_ParameterList[i]->ReleaseResource();
 		boost::dynamic_pointer_cast<MaterialParameterTexture>(mtl->m_ParameterList[i])->m_TexturePath = path;
 		mtl->m_ParameterList[i]->RequestResource();
+		my::EventArg arg;
+		pFrame->m_EventAttributeChanged(&arg);
+		break;
+	}
+	case PropertyStaticMeshChunkWidth:
+	case PropertyStaticMeshChunkPath:
+		break;
+	case PropertyStaticMeshChunkLodScale:
+	{
+		StaticMesh* static_mesh_cmp = (StaticMesh*)pProp->GetParent()->GetValue().pulVal;
+		static_mesh_cmp->m_ChunkLodScale = pProp->GetValue().fltVal;
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
