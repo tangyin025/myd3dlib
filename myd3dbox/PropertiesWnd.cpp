@@ -1479,7 +1479,7 @@ void CPropertiesWnd::CreateProperties(CMFCPropertyGridProperty * pParentCtrl, Co
 {
 	CString strTitle;
 	strTitle.Format(_T("%s: %S"), GetComponentTypeName(cmp->GetComponentType()), cmp->GetName());
-	CMFCPropertyGridProperty * pComponent = new CSimpleProp(strTitle, GetComponentProp(cmp->GetComponentType()), FALSE);
+	CMFCPropertyGridProperty * pComponent = new CSimpleProp(strTitle, PropertyComponent, FALSE);
 	pParentCtrl->AddSubItem(pComponent);
 	pComponent->SetValue((_variant_t)(DWORD_PTR)cmp); // ! only worked on 32bit system
 
@@ -2957,34 +2957,6 @@ void CPropertiesWnd::CreatePropertiesDialog(CMFCPropertyGridProperty * pControl,
 	pScale->AddSubItem(pProp);
 }
 
-CPropertiesWnd::Property CPropertiesWnd::GetComponentProp(DWORD type)
-{
-	switch (type)
-	{
-	case Component::ComponentTypeActor:
-		return PropertyActor;
-	case Component::ComponentTypeController:
-		return PropertyCharacter;
-	case Component::ComponentTypeMesh:
-		return PropertyMesh;
-	case Component::ComponentTypeStaticMesh:
-		return PropertyStaticMesh;
-	case Component::ComponentTypeCloth:
-		return PropertyCloth;
-	case Component::ComponentTypeStaticEmitter:
-		return PropertyStaticEmitter;
-	case Component::ComponentTypeSphericalEmitter:
-		return PropertySphericalEmitter;
-	case Component::ComponentTypeTerrain:
-		return PropertyTerrain;
-	case Component::ComponentTypeAnimator:
-		return PropertyAnimator;
-	case Component::ComponentTypeNavigation:
-		return PropertyNavigation;
-	}
-	return PropertyUnknown;
-}
-
 unsigned int CPropertiesWnd::GetComponentPropCount(DWORD type)
 {
 	switch (type)
@@ -3851,19 +3823,19 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		pFrame->m_EventAttributeChanged(&arg);
 
 		// ! reset shader handlers of mesh or terrain
-		switch (pProp->GetParent()->GetParent()->GetData())
-		{
-		case PropertyMesh:
-		case PropertyCloth:
-		case PropertyStaticEmitter:
-		case PropertySphericalEmitter:
-		case PropertyTerrain:
-		{
+		//switch (pProp->GetParent()->GetParent()->GetData())
+		//{
+		//case PropertyMesh:
+		//case PropertyCloth:
+		//case PropertyStaticEmitter:
+		//case PropertySphericalEmitter:
+		//case PropertyTerrain:
+		//{
 			Component* cmp = (Component*)pProp->GetParent()->GetParent()->GetValue().pulVal;
 			cmp->OnResetShader();
-			break;
-		}
-		}
+		//	break;
+		//}
+		//}
 		break;
 	}
 	case PropertyMaterialPassMask:

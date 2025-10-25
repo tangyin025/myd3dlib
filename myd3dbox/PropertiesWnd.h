@@ -105,6 +105,7 @@ public:
 		PropertyActorRigidActor,
 		PropertyActorRigidActorType,
 		PropertyActorRigidActorKinematic,
+		PropertyComponent,
 		PropertyComponentName,
 		PropertyComponentLODMask,
 		PropertyComponentSiblingId,
@@ -124,8 +125,6 @@ public:
 		PropertyShapeSceneQuery,
 		PropertyShapeTrigger,
 		PropertyShapeVisualization,
-		PropertyCharacter,
-		PropertyMesh,
 		PropertyMeshPath,
 		PropertyMeshColor,
 		PropertyMeshAlpha,
@@ -158,11 +157,9 @@ public:
 		PropertyMaterialParameterFloatValueW,
 		PropertyMaterialParameterColor,
 		PropertyMaterialParameterTexture,
-		PropertyStaticMesh,
 		PropertyStaticMeshChunkWidth,
 		PropertyStaticMeshChunkPath,
 		PropertyStaticMeshChunkLodScale,
-		PropertyCloth,
 		PropertyClothColor,
 		PropertyClothAlpha,
 		PropertyClothSweptContact,
@@ -211,11 +208,9 @@ public:
 		PropertyEmitterParticleSizeX,
 		PropertyEmitterParticleSizeY,
 		PropertyEmitterParticleAngle,
-		PropertyStaticEmitter,
 		PropertyStaticEmitterChunkWidth,
 		PropertyStaticEmitterChunkPath,
 		PropertyStaticEmitterChunkLodScale,
-		PropertySphericalEmitter,
 		PropertySphericalEmitterParticleCapacity,
 		PropertySphericalEmitterSpawnInterval,
 		PropertySphericalEmitterSpawnCount,
@@ -257,7 +252,6 @@ public:
 		PropertySplineNodeY,
 		PropertySplineNodeK0,
 		PropertySplineNodeK,
-		PropertyTerrain,
 		PropertyTerrainRowChunks,
 		PropertyTerrainColChunks,
 		PropertyTerrainChunkSize,
@@ -266,13 +260,11 @@ public:
 		PropertyTerrainHeightMap,
 		PropertyTerrainSplatMap,
 		PropertyTerrainChunkMaterial,
-		PropertyAnimator,
 		PropertyAnimatorSkeletonPath,
 		PropertyAnimationNode,
 		PropertyAnimationNodeType,
 		PropertyAnimationNodeSequenceName,
 		PropertyAnimationNodeSequenceRate,
-		PropertyNavigation,
 		PropertyNavigationNavMeshPath,
 		PropertyNavigationOrigin,
 		PropertyNavigationOriginX,
@@ -622,7 +614,6 @@ public:
 	void CreatePropertiesListBox(CMFCPropertyGridProperty * pControl, my::ListBox * listbox);
 	void CreatePropertiesDialog(CMFCPropertyGridProperty * pControl, my::Dialog * dialog);
 
-	static Property GetComponentProp(DWORD type);
 	static unsigned int GetComponentPropCount(DWORD type);
 	static LPCTSTR GetComponentTypeName(DWORD type);
 	static TerrainChunk * GetTerrainChunkSafe(Terrain * terrain, const CPoint & chunkid);
