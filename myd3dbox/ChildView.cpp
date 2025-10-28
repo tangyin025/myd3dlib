@@ -359,7 +359,7 @@ void CChildView::QueryRenderComponent(const my::Frustum & frustum, RenderPipelin
 
 				remaining_actor_count++;
 
-				actor->UpdateLod(ViewPos, TargetPos);
+				actor->SetLod(my::Min(actor->CalculateLod((actor->m_OctAabb->Center() - ViewPos).magnitude()), Actor::MaxLod - 1));
 			}
 
 			if (actor->IsRequested())

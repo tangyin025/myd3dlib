@@ -897,7 +897,7 @@ void Client::OnFrameTick(
 	{
 		_ASSERT(OctNode::HaveNode(actor_iter->m_Node));
 
-		actor_iter->UpdateLod(m_ViewedCenter, m_ViewedCenter);
+		actor_iter->SetLod(my::Min(actor_iter->CalculateLod((actor_iter->m_OctAabb->Center() - m_ViewedCenter).magnitude()), Actor::MaxLod - 1));
 
 		actor_iter->Update(fElapsedTime);
 	}

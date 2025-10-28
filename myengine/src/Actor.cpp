@@ -507,11 +507,10 @@ int Actor::CalculateLod(float dist) const
 	return dist > 0 ? Max((int)(logf(dist / m_LodDist) / logf(m_LodFactor)), 0) : 0;
 }
 
-void Actor::UpdateLod(const my::Vector3 & ViewPos, const my::Vector3 & TargetPos)
+void Actor::SetLod(int Lod)
 {
 	_ASSERT(IsRequested());
 
-	int Lod = Min(CalculateLod((m_OctAabb->Center() - ViewPos).magnitude()), MaxLod - 1);
 	if (m_Lod != Lod)
 	{
 		m_Lod = Lod;
