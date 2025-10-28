@@ -2064,11 +2064,6 @@ void LuaContext::Init(void)
 			.def(constructor<float, float, float, float>())
 			.def_readwrite("LocalVel", &my::FirstPersonCamera::m_LocalVel)
 
-		, class_<my::ProgressiveMesh>("ProgressiveMesh")
-			.def(constructor<my::OgreMesh*, DWORD>())
-			.def("Collapse", &my::ProgressiveMesh::Collapse)
-			.property("NumFaces", &my::ProgressiveMesh::GetNumFaces)
-
 		, class_<my::OctEntity>("OctEntity")
 			.def_readonly("OctAabb", &my::OctEntity::m_OctAabb)
 	];
@@ -2250,6 +2245,11 @@ void LuaContext::Init(void)
 			.def("SaveObj", &my::OgreMesh::SaveObj)
 			.def("Transform", &my::OgreMesh::Transform)
 			.def("CalculateAABB", &my::OgreMesh::CalculateAABB)
+				
+		, class_<my::ProgressiveMesh>("ProgressiveMesh")
+			.def(constructor<my::OgreMesh*, DWORD>())
+			.def("Collapse", &my::ProgressiveMesh::Collapse)
+			.property("NumFaces", &my::ProgressiveMesh::GetNumFaces)
 
 		, class_<my::BoneHierarchyNode>("BoneHierarchyNode")
 			.def_readonly("sibling", &my::BoneHierarchyNode::m_sibling)
