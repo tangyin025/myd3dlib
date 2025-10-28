@@ -134,36 +134,8 @@ public:
 	virtual void Update(float fElapsedTime);
 
 	virtual void AddToPipeline(const my::Frustum& frustum, RenderPipeline* pipeline, unsigned int PassMask, const my::Vector3& ViewPos, const my::Vector3& TargetPos);
+
+	StaticMeshChunk * GetChunk(int i, int j);
 };
 
 typedef boost::shared_ptr<StaticMesh> StaticMeshPtr;
-
-class StaticMeshStream
-{
-public:
-	StaticMesh * m_mesh;
-
-	typedef std::map<std::pair<int, int>, my::OgreMeshPtr> MeshMap;
-
-	MeshMap m_meshes;
-
-	std::map<std::pair<int, int>, bool> m_dirty;
-
-	void Flush(void);
-
-	my::OgreMesh * GetMesh(int i, int j);
-
-	void SpawnBuffer(const my::Vector3 & Pos, const my::Quaternion & Rot, const my::Vector3 & Scale, my::OgreMesh * other);
-
-	void Spawn(const my::Vector3 & Pos, const my::Quaternion & Rot, const my::Vector3 & Scale, my::OgreMesh * other);
-
-	StaticMeshStream(StaticMesh * mesh)
-		: m_mesh(mesh)
-	{
-	}
-
-	~StaticMeshStream(void)
-	{
-		Flush();
-	}
-};

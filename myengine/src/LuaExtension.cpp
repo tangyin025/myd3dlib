@@ -3349,16 +3349,22 @@ void LuaContext::Init(void)
 			.def("CreateTriangleMeshShape", &MeshComponent::CreateTriangleMeshShape)
 			.def("CreateConvexMeshShape", &MeshComponent::CreateConvexMeshShape)
 
+		, class_<StaticMeshChunk, my::OctEntity>("StaticMeshChunk")
+			.def_readonly("Row", &StaticMeshChunk::m_Row)
+			.def_readonly("Col", &StaticMeshChunk::m_Col)
+			.def_readonly("Lod", &StaticMeshChunk::m_Lod)
+			.def_readonly("Mesh", &StaticMeshChunk::m_Mesh)
+			.scope
+			[
+				def("MakeChunkPath", &StaticMeshChunk::MakeChunkPath)
+			]
+
 		, class_<StaticMesh, Component, boost::shared_ptr<Component> >("StaticMesh")
 			.def(constructor<const char *, const my::AABB &, float>())
 			.def_readonly("ChunkWidth", &StaticMesh::m_ChunkWidth)
 			.def_readwrite("ChunkPath", &StaticMesh::m_ChunkPath)
 			.def_readwrite("ChunkLodScale", &StaticMesh::m_ChunkLodScale)
-
-		, class_<StaticMeshStream>("StaticMeshStream")
-			.def(constructor<StaticMesh *>())
-			.def("Flush", &StaticMeshStream::Flush)
-			.def("Spawn", &StaticMeshStream::Spawn)
+			.def("GetChunk", &StaticMesh::GetChunk)
 
 		, class_<ClothComponent, Component, boost::shared_ptr<Component> >("ClothComponent")
 			.def(constructor<const char *>())
