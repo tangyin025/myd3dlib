@@ -73,8 +73,6 @@ public:
 
 	float m_TargetWeight;
 
-	float m_LastElapsedTime;
-
 	float m_Rate;
 
 	bool m_Loop;
@@ -91,7 +89,6 @@ protected:
 	AnimationNodeSequence(void)
 		: m_Time(0)
 		, m_TargetWeight(1.0f)
-		, m_LastElapsedTime(0)
 		, m_Rate(1.0f)
 		, m_Loop(true)
 		, m_GroupOwner(NULL)
@@ -103,7 +100,6 @@ public:
 		: AnimationNode(Name, 0)
 		, m_Time(0)
 		, m_TargetWeight(1.0f)
-		, m_LastElapsedTime(0)
 		, m_Rate(Rate)
 		, m_Loop(Loop)
 		, m_Group(Group)
@@ -438,7 +434,7 @@ public:
 
 	void ReloadSequenceGroupWalker(AnimationNode * node);
 
-	void UpdateSequenceGroup(void);
+	void UpdateSequenceGroup(float fElapsedTime);
 
 	void SyncSequenceGroupTime(SequenceGroupMap::iterator begin, SequenceGroupMap::iterator end, const AnimationNodeSequence * master);
 
