@@ -53,8 +53,6 @@ public:
 
 	void SetChild(int i, AnimationNodePtr node);
 
-	void RemoveChild(int i);
-
 	const AnimationNode * GetTopNode(void) const;
 
 	AnimationNode * GetTopNode(void);

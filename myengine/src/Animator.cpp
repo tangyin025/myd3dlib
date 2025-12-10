@@ -42,7 +42,7 @@ AnimationNode::~AnimationNode(void)
 
 	for (unsigned int i = 0; i < m_Childs.size(); i++)
 	{
-		RemoveChild(i);
+		SetChild(i, AnimationNodePtr());
 	}
 }
 
@@ -71,24 +71,20 @@ void AnimationNode::SetChild(int i, AnimationNodePtr node)
 	{
 		if (m_Childs[i])
 		{
-			RemoveChild(i);
+			_ASSERT(m_Childs[i]->m_Parent == this);
+			m_Childs[i]->m_Parent = NULL;
+			m_Childs[i].reset();
 		}
 
-		m_Childs[i] = node;
-		node->m_Parent = this;
+		if (node)
+		{
+			_ASSERT(!node->m_Parent);
+			m_Childs[i] = node;
+			node->m_Parent = this;
+		}
 		return;
 	}
 	THROW_CUSEXCEPTION("index overflow ");
-}
-
-void AnimationNode::RemoveChild(int i)
-{
-	if (m_Childs[i])
-	{
-		_ASSERT(m_Childs[i]->m_Parent == this);
-		m_Childs[i]->m_Parent = NULL;
-		m_Childs[i].reset();
-	}
 }
 
 const AnimationNode * AnimationNode::GetTopNode(void) const

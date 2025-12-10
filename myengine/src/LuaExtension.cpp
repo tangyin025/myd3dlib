@@ -3705,7 +3705,6 @@ void LuaContext::Init(void)
 			.def("SetChild", &AnimationNode::SetChild)
 			.def("SetChildAdopt", &animation_node_set_child_adopt, adopt(boost::placeholders::_3))
 			.property("ChildNum", &animation_node_get_child_num)
-			.def("RemoveChild", &AnimationNode::RemoveChild)
 			.property("TopNode", (AnimationNode* (AnimationNode::*)(void))& AnimationNode::GetTopNode)
 			.def("FindSubNode", (AnimationNode* (AnimationNode::*)(const std::string&))& AnimationNode::FindSubNode)
 
