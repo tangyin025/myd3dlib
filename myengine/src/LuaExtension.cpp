@@ -429,16 +429,9 @@ static Actor* actor_get_attacher(const Actor* self, unsigned int i)
 
 struct ScriptAnimationNodeBlendList;
 
-template <unsigned int i>
-static AnimationNodePtr animation_node_get_child(const AnimationNode* self)
+static AnimationNode* animation_node_get_child(AnimationNode* self, unsigned int i)
 {
-	return self->GetChild(i);
-}
-
-template <unsigned int i>
-static void animation_node_set_child(AnimationNode* self, AnimationNodePtr node)
-{
-	return self->SetChild(i, node);
+	return i < self->m_Childs.size() ? self->m_Childs[i].get() : NULL;
 }
 
 static void animation_node_set_child_adopt(AnimationNode* self, int i, ScriptAnimationNodeBlendList* node)
@@ -3708,12 +3701,8 @@ void LuaContext::Init(void)
 		, class_<AnimationNode, boost::shared_ptr<AnimationNode> >("AnimationNode")
 			.def_readonly("Parent", &AnimationNode::m_Parent)
 			.def_readonly("Name", &AnimationNode::m_Name)
-			.property("Child0", &animation_node_get_child<0>, &animation_node_set_child<0>)
-			.property("Child1", &animation_node_get_child<1>, &animation_node_set_child<1>)
-			.property("Child2", &animation_node_get_child<2>, &animation_node_set_child<2>)
-			.property("Child3", &animation_node_get_child<3>, &animation_node_set_child<3>)
-			.property("Child4", &animation_node_get_child<4>, &animation_node_set_child<4>)
-			.property("Child5", &animation_node_get_child<5>, &animation_node_set_child<5>)
+			.def("GetChild", &animation_node_get_child)
+			.def("SetChild", &AnimationNode::SetChild)
 			.def("SetChildAdopt", &animation_node_set_child_adopt, adopt(boost::placeholders::_3))
 			.property("ChildNum", &animation_node_get_child_num)
 			.def("RemoveChild", &AnimationNode::RemoveChild)

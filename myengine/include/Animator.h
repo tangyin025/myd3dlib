@@ -51,8 +51,6 @@ public:
 		boost::serialization::split_member(ar, *this, version);
 	}
 
-	AnimationNodePtr GetChild(int i) const;
-
 	void SetChild(int i, AnimationNodePtr node);
 
 	void RemoveChild(int i);

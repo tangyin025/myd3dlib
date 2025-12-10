@@ -65,15 +65,6 @@ void AnimationNode::load(Archive & ar, const unsigned int version)
 	}
 }
 
-AnimationNodePtr AnimationNode::GetChild(int i) const
-{
-	if (i >= 0 && i < m_Childs.size())
-	{
-		return m_Childs[i];
-	}
-	return AnimationNodePtr();
-}
-
 void AnimationNode::SetChild(int i, AnimationNodePtr node)
 {
 	if (i >= 0 && i < m_Childs.size())
