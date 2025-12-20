@@ -2,6 +2,7 @@
 // License: MIT
 #include "myInput.h"
 #include "myException.h"
+#include <dinputd.h>
 
 using namespace my;
 
@@ -798,6 +799,22 @@ bool Joystick::Capture(void)
 	return true;
 }
 
+struct DI_ENUM_CONTEXT
+{
+	DIJOYCONFIG* pPreferredJoyCfg;
+	bool bPreferredJoyCfgValid;
+	LPDIRECTINPUT8 input;
+	HWND hwnd;
+	LONG min_x;
+	LONG max_x;
+	LONG min_y;
+	LONG max_y;
+	LONG min_z;
+	LONG max_z;
+	DWORD dead_zone;
+	JoystickPtr joystick;
+};
+
 void InputMgr::Create(HINSTANCE hinst, HWND hwnd)
 {
 	m_input.reset(new Input);
@@ -811,20 +828,36 @@ void InputMgr::Create(HINSTANCE hinst, HWND hwnd)
 	m_mouse->CreateMouse(m_input->m_ptr, hwnd);
 	m_mouse->SetCooperativeLevel(hwnd, DISCL_FOREGROUND | DISCL_NONEXCLUSIVE);
 
-	JoystickEnumDesc desc;
-	desc.input = m_input->m_ptr;
-	desc.hwnd = hwnd;
-	desc.min_x = -255;
-	desc.max_x =  255;
-	desc.min_y = -255;
-	desc.max_y =  255;
-	desc.min_z = -255;
-	desc.max_z =  255;
-	desc.dead_zone = m_JoystickAxisDeadZone;
-	m_input->EnumDevices(DI8DEVCLASS_GAMECTRL, JoystickFinderCallback, &desc, DIEDFL_ATTACHEDONLY);
-	if (desc.joystick)
+	DIJOYCONFIG PreferredJoyCfg = { 0 };
+	DI_ENUM_CONTEXT enumContext;
+	enumContext.pPreferredJoyCfg = &PreferredJoyCfg;
+	enumContext.bPreferredJoyCfgValid = false;
+
+	HRESULT hr;
+	CComPtr<IDirectInputJoyConfig8> pJoyConfig;
+	if (FAILED(hr = m_input->m_ptr->QueryInterface(IID_IDirectInputJoyConfig8, (void**)&pJoyConfig)))
 	{
-		m_joystick = desc.joystick;
+		THROW_DINPUTEXCEPTION(hr);
+	}
+
+	PreferredJoyCfg.dwSize = sizeof(PreferredJoyCfg);
+	if (SUCCEEDED(pJoyConfig->GetConfig(0, &PreferredJoyCfg, DIJC_GUIDINSTANCE))) // This function is expected to fail if no Joystick is attached
+		enumContext.bPreferredJoyCfgValid = true;
+	pJoyConfig.Release();
+
+	enumContext.input = m_input->m_ptr;
+	enumContext.hwnd = hwnd;
+	enumContext.min_x = -255;
+	enumContext.max_x =  255;
+	enumContext.min_y = -255;
+	enumContext.max_y =  255;
+	enumContext.min_z = -255;
+	enumContext.max_z =  255;
+	enumContext.dead_zone = m_JoystickAxisDeadZone;
+	m_input->EnumDevices(DI8DEVCLASS_GAMECTRL, JoystickFinderCallback, &enumContext, DIEDFL_ATTACHEDONLY);
+	if (enumContext.joystick)
+	{
+		m_joystick = enumContext.joystick;
 		m_joystick->SetCooperativeLevel(hwnd, DISCL_BACKGROUND | DISCL_NONEXCLUSIVE);
 	}
 
@@ -970,20 +1003,25 @@ bool InputMgr::Capture(double fTime, float fElapsedTime)
 
 BOOL CALLBACK InputMgr::JoystickFinderCallback(LPCDIDEVICEINSTANCE lpddi, LPVOID pvRef)
 {
-	_ASSERT(lpddi && pvRef);
+	DI_ENUM_CONTEXT* pEnumContext = static_cast<DI_ENUM_CONTEXT*>(pvRef);
+	_ASSERT(pEnumContext);
 
-	if(lpddi->dwDevType & DI8DEVTYPE_JOYSTICK)
-	{
-		JoystickEnumDesc * desc = static_cast<JoystickEnumDesc *>(pvRef);
-		JoystickPtr joystick(new Joystick);
-		joystick->CreateJoystick(
-			desc->input, desc->hwnd, lpddi->guidInstance, desc->min_x, desc->max_x, desc->min_y, desc->max_y, desc->min_z, desc->max_z, desc->dead_zone);
-		_ASSERT(!desc->joystick);
-		desc->joystick = joystick;
-		return DIENUM_STOP;
-	}
+	// Skip anything other than the perferred Joystick device as defined by the control panel.  
+	// Instead you could store all the enumerated Joysticks and let the user pick.
+	if (pEnumContext->bPreferredJoyCfgValid &&
+		!IsEqualGUID(lpddi->guidInstance, pEnumContext->pPreferredJoyCfg->guidInstance))
+		return DIENUM_CONTINUE;
 
-	return DIENUM_CONTINUE;
+	// Obtain an interface to the enumerated Joystick.
+	JoystickPtr joystick(new Joystick);
+	joystick->CreateJoystick(
+		pEnumContext->input, pEnumContext->hwnd, lpddi->guidInstance, pEnumContext->min_x, pEnumContext->max_x, pEnumContext->min_y, pEnumContext->max_y, pEnumContext->min_z, pEnumContext->max_z, pEnumContext->dead_zone);
+
+	// Stop enumeration. Note: we're just taking the first Joystick we get. You
+	// could store all the enumerated Joysticks and let the user pick.
+	_ASSERT(!pEnumContext->joystick);
+	pEnumContext->joystick = joystick;
+	return DIENUM_STOP;
 }
 
 void InputMgr::BindKey(DWORD Key, KeyType type, int id)

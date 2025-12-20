@@ -33,18 +33,18 @@ end
 -- 构建动画树
 local rate_walk=AnimationNodeSequence("clip_run",1.0,true,"move")
 local node_walk=AnimationNodeBlendList("node_walk",2)
-node_walk.Child0=AnimationNodeSequence("clip_stand")
-node_walk.Child1=rate_walk
+node_walk:SetChild(0,AnimationNodeSequence("clip_stand"))
+node_walk:SetChild(1,rate_walk)
 local rate_run=AnimationNodeSequence("clip_run",1.0,true,"move")
 local node_run=AnimationNodeBlendList("node_run",2)
 node_run:SetChildAdopt(0,node_walk)
-node_run.Child1=rate_run
+node_run:SetChild(1,rate_run)
 local node_run_slot=AnimationNodeSlot("node_run_slot")
 node_run_slot:SetChildAdopt(0,node_run)
 
 -- 加载动画资源
 local animator_cmp=Animator(NamedObject.MakeUniqueName("anim_cmp"))
-animator_cmp.Child0=node_run_slot
+animator_cmp:SetChild(0,node_run_slot)
 animator_cmp:ReloadSequenceGroup()
 animator_cmp.SkeletonPath="character/jack.skeleton.xml"
 animator_cmp:AddIK(SAction.skel:GetBoneIndex("joint1"), 0.1, 1)
@@ -156,8 +156,18 @@ end
 function PlayerBehavior:OnPxThreadObstacleHit(arg)
 	print("obscale hit:..")
 end
-function PlayerBehavior:OnGUI(ui_render,elapsedTime,viewport)
+function PlayerBehavior:OnGUI(ui_render,elapsedTime,dim)
 	-- print("BehaviorComponent:OnGUI",viewport.x,viewport.y)
+	if client.joystick then
+		ui_render:PushString(Rectangle.LeftTop(10,10,10,10),
+			string.format("joystick0:\nX: %d\nY: %d\nZ: %d\nRX: %d\nRY: %d\nRZ: %d",
+			client.joystick.X,
+			client.joystick.Y,
+			client.joystick.Z,
+			client.joystick.Rx,
+			client.joystick.Ry,
+			client.joystick.Rz),0xffffffff,Font.AlignLeftTop,0xff000000,1,client.Font)
+	end
 end
 local player_behavior=PlayerBehavior(NamedObject.MakeUniqueName('player_behavior'))
 player:InsertComponentAdopt(player_behavior)
