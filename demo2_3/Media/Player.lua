@@ -160,13 +160,24 @@ function PlayerBehavior:OnGUI(ui_render,elapsedTime,dim)
 	-- print("BehaviorComponent:OnGUI",viewport.x,viewport.y)
 	if client.joystick then
 		ui_render:PushString(Rectangle.LeftTop(10,10,10,10),
-			string.format("joystick0:\nX: %d\nY: %d\nZ: %d\nRX: %d\nRY: %d\nRZ: %d",
+			string.format("joystick0:\nX: %d\nY: %d\nZ: %d\nRX: %d\nRY: %d\nRZ: %d\nPov: %d\nBtn: ",
 			client.joystick.X,
 			client.joystick.Y,
 			client.joystick.Z,
 			client.joystick.Rx,
 			client.joystick.Ry,
-			client.joystick.Rz),0xffffffff,Font.AlignLeftTop,0xff000000,1,client.Font)
+			client.joystick.Rz,
+			bit.tobit(client.joystick:GetPov(0)))..table.concat(
+				(function()
+					local t={}
+					for i=0,31 do
+						if client.joystick:IsButtonDown(i) then
+							t[#t+1]=tostring(i)
+						end
+					end
+					return t
+				end)(), ", "
+			),0xffffffff,Font.AlignLeftTop,0xff000000,1,client.Font)
 	end
 end
 local player_behavior=PlayerBehavior(NamedObject.MakeUniqueName('player_behavior'))

@@ -700,33 +700,33 @@ void Joystick::CreateJoystick(
 	//dipr.lMax = max_z;
 	//SetProperty(DIPROP_RANGE, &dipr.diph);
 
-	_ASSERT(dead_zone >= 0 && dead_zone <= 10000);
+	//_ASSERT(dead_zone >= 0 && dead_zone <= 10000);
 
-	DIPROPDWORD dipd  = {sizeof(dipd), sizeof(dipd.diph)};
-	dipd.diph.dwObj = DIJOFS_X;
-	dipd.diph.dwHow = DIPH_BYOFFSET;
-	dipd.dwData = dead_zone;
-	SetProperty(DIPROP_DEADZONE, &dipd.diph);
+	//DIPROPDWORD dipd  = {sizeof(dipd), sizeof(dipd.diph)};
+	//dipd.diph.dwObj = DIJOFS_X;
+	//dipd.diph.dwHow = DIPH_BYOFFSET;
+	//dipd.dwData = dead_zone;
+	//SetProperty(DIPROP_DEADZONE, &dipd.diph);
 
-	dipd.diph.dwObj = DIJOFS_Y;
-	dipd.diph.dwHow = DIPH_BYOFFSET;
-	dipd.dwData = dead_zone;
-	SetProperty(DIPROP_DEADZONE, &dipd.diph);
+	//dipd.diph.dwObj = DIJOFS_Y;
+	//dipd.diph.dwHow = DIPH_BYOFFSET;
+	//dipd.dwData = dead_zone;
+	//SetProperty(DIPROP_DEADZONE, &dipd.diph);
 
-	dipd.diph.dwObj = DIJOFS_Z;
-	dipd.diph.dwHow = DIPH_BYOFFSET;
-	dipd.dwData = dead_zone;
-	SetProperty(DIPROP_DEADZONE, &dipd.diph);
+	//dipd.diph.dwObj = DIJOFS_Z;
+	//dipd.diph.dwHow = DIPH_BYOFFSET;
+	//dipd.dwData = dead_zone;
+	//SetProperty(DIPROP_DEADZONE, &dipd.diph);
 
-	dipd.diph.dwObj = DIJOFS_RX;
-	dipd.diph.dwHow = DIPH_BYOFFSET;
-	dipd.dwData = dead_zone;
-	SetProperty(DIPROP_DEADZONE, &dipd.diph);
+	//dipd.diph.dwObj = DIJOFS_RX;
+	//dipd.diph.dwHow = DIPH_BYOFFSET;
+	//dipd.dwData = dead_zone;
+	//SetProperty(DIPROP_DEADZONE, &dipd.diph);
 
-	dipd.diph.dwObj = DIJOFS_RY;
-	dipd.diph.dwHow = DIPH_BYOFFSET;
-	dipd.dwData = dead_zone;
-	SetProperty(DIPROP_DEADZONE, &dipd.diph);
+	//dipd.diph.dwObj = DIJOFS_RY;
+	//dipd.diph.dwHow = DIPH_BYOFFSET;
+	//dipd.dwData = dead_zone;
+	//SetProperty(DIPROP_DEADZONE, &dipd.diph);
 
 	//dipd.diph.dwObj = DIJOFS_RZ;
 	//dipd.diph.dwHow = DIPH_BYOFFSET;
@@ -854,11 +854,19 @@ void InputMgr::Create(HINSTANCE hinst, HWND hwnd)
 	enumContext.min_z = -255;
 	enumContext.max_z =  255;
 	enumContext.dead_zone = m_JoystickAxisDeadZone;
-	m_input->EnumDevices(DI8DEVCLASS_GAMECTRL, JoystickFinderCallback, &enumContext, DIEDFL_ATTACHEDONLY);
+	_ASSERT(m_JoystickAxisDeadZone >= 0 && m_JoystickAxisDeadZone <= 10000);
+	m_input->EnumDevices(DI8DEVCLASS_GAMECTRL, EnumJoysticksCallback, &enumContext, DIEDFL_ATTACHEDONLY);
 	if (enumContext.joystick)
 	{
 		m_joystick = enumContext.joystick;
 		m_joystick->SetCooperativeLevel(hwnd, DISCL_BACKGROUND | DISCL_NONEXCLUSIVE);
+
+		// Enumerate the Joystick objects. The callback function enabled user
+		// interface elements for objects that are found, and sets the min/max
+		// values property for discovered axes.
+		if (FAILED(hr = m_joystick->m_ptr->EnumObjects(EnumObjectsCallback,
+			&enumContext, DIDFT_ALL)))
+			THROW_DINPUTEXCEPTION(hr);
 	}
 
 	//::GetCursorPos(&m_MousePos);
@@ -1001,27 +1009,49 @@ bool InputMgr::Capture(double fTime, float fElapsedTime)
 //	return false;
 //}
 
-BOOL CALLBACK InputMgr::JoystickFinderCallback(LPCDIDEVICEINSTANCE lpddi, LPVOID pvRef)
+BOOL CALLBACK InputMgr::EnumJoysticksCallback(const DIDEVICEINSTANCE* pdidInstance, VOID* pContext)
 {
-	DI_ENUM_CONTEXT* pEnumContext = static_cast<DI_ENUM_CONTEXT*>(pvRef);
+	DI_ENUM_CONTEXT* pEnumContext = static_cast<DI_ENUM_CONTEXT*>(pContext);
 	_ASSERT(pEnumContext);
 
 	// Skip anything other than the perferred Joystick device as defined by the control panel.  
 	// Instead you could store all the enumerated Joysticks and let the user pick.
 	if (pEnumContext->bPreferredJoyCfgValid &&
-		!IsEqualGUID(lpddi->guidInstance, pEnumContext->pPreferredJoyCfg->guidInstance))
+		!IsEqualGUID(pdidInstance->guidInstance, pEnumContext->pPreferredJoyCfg->guidInstance))
 		return DIENUM_CONTINUE;
 
 	// Obtain an interface to the enumerated Joystick.
 	JoystickPtr joystick(new Joystick);
 	joystick->CreateJoystick(
-		pEnumContext->input, pEnumContext->hwnd, lpddi->guidInstance, pEnumContext->min_x, pEnumContext->max_x, pEnumContext->min_y, pEnumContext->max_y, pEnumContext->min_z, pEnumContext->max_z, pEnumContext->dead_zone);
+		pEnumContext->input, pEnumContext->hwnd, pdidInstance->guidInstance, pEnumContext->min_x, pEnumContext->max_x, pEnumContext->min_y, pEnumContext->max_y, pEnumContext->min_z, pEnumContext->max_z, pEnumContext->dead_zone);
 
 	// Stop enumeration. Note: we're just taking the first Joystick we get. You
 	// could store all the enumerated Joysticks and let the user pick.
 	_ASSERT(!pEnumContext->joystick);
 	pEnumContext->joystick = joystick;
 	return DIENUM_STOP;
+}
+
+BOOL CALLBACK InputMgr::EnumObjectsCallback(const DIDEVICEOBJECTINSTANCE* pdidoi, VOID* pContext)
+{
+	DI_ENUM_CONTEXT* pEnumContext = static_cast<DI_ENUM_CONTEXT*>(pContext);
+	_ASSERT(pEnumContext);
+
+	// For axes that are returned, set the DIPROP_RANGE property for the
+	// enumerated axis in order to scale min/max values.
+	if (pdidoi->dwType & DIDFT_AXIS)
+	{
+		DIPROPDWORD diprg;
+		diprg.diph.dwSize = sizeof(DIPROPDWORD);
+		diprg.diph.dwHeaderSize = sizeof(diprg.diph);
+		diprg.diph.dwHow = DIPH_BYID;
+		diprg.diph.dwObj = pdidoi->dwType; // Specify the enumerated axis
+		diprg.dwData = pEnumContext->dead_zone;
+
+		// Set the range for the axis
+		pEnumContext->joystick->SetProperty(DIPROP_DEADZONE, &diprg.diph);
+	}
+	return DIENUM_CONTINUE;
 }
 
 void InputMgr::BindKey(DWORD Key, KeyType type, int id)
