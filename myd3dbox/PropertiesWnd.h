@@ -259,7 +259,6 @@ public:
 		PropertyTerrainChunkLodScale,
 		PropertyTerrainHeightMap,
 		PropertyTerrainSplatMap,
-		PropertyTerrainChunkMaterial,
 		PropertyAnimatorSkeletonPath,
 		PropertyAnimationNode,
 		PropertyAnimationNodeType,

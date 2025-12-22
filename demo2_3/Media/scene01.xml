@@ -286,9 +286,6 @@ AAAAAAAAgEIAAAAAAACAPwAAAAAAAAD/
 					<m_Chunk_0_0 class_id="21" tracking_level="0" version="0">
 						<m_Row>0</m_Row>
 						<m_Col>0</m_Col>
-						<m_Material>
-							<px class_id="-1"></px>
-						</m_Material>
 					</m_Chunk_0_0>
 					<m_Chunk_0_0_aabb>
 						<m_min>

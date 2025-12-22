@@ -112,11 +112,6 @@ void TerrainChunk::RequestResource(void)
 		my::ResourceMgr::getSingleton().LoadIORequestAsync(
 			path, request, boost::bind(&TerrainChunk::OnVertexBufferReady, this, boost::placeholders::_1));
 	}
-
-	if (m_Material)
-	{
-		m_Material->RequestResource();
-	}
 }
 
 void TerrainChunk::ReleaseResource(void)
@@ -130,11 +125,6 @@ void TerrainChunk::ReleaseResource(void)
 			path, boost::bind(&TerrainChunk::OnVertexBufferReady, this, boost::placeholders::_1));
 
 		m_Vb.reset();
-	}
-
-	if (m_Material)
-	{
-		m_Material->ReleaseResource();
 	}
 
 	m_Requested = false;
@@ -778,27 +768,23 @@ void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 			}
 
 			const Fragment & frag = terrain->GetFragment(chunk->m_Lod[0], chunk->m_Lod[1], chunk->m_Lod[2], chunk->m_Lod[3], chunk->m_Lod[4]);
-			Material* mtl = chunk->m_Material ? chunk->m_Material.get() : terrain->m_Material.get();
-			if (mtl && (mtl->m_PassMask & PassMask))
+			for (unsigned int PassID = 0; PassID < RenderPipeline::PassTypeNum; PassID++)
 			{
-				for (unsigned int PassID = 0; PassID < RenderPipeline::PassTypeNum; PassID++)
+				if (RenderPipeline::PassTypeToMask(PassID) & (terrain->m_Material->m_PassMask & PassMask))
 				{
-					if (RenderPipeline::PassTypeToMask(PassID) & (mtl->m_PassMask & PassMask))
+					D3DXMACRO macros[2] = { { "MESH_TYPE", "2" }, { 0 } };
+					Effect* shader = pipeline->QueryShader(terrain->m_Material->m_Shader.c_str(), macros, PassID);
+					if (shader)
 					{
-						D3DXMACRO macros[2] = { { "MESH_TYPE", "2" }, { 0 } };
-						Effect* shader = pipeline->QueryShader(mtl->m_Shader.c_str(), macros, PassID);
-						if (shader)
+						if (!terrain->handle_World)
 						{
-							if (!terrain->handle_World)
-							{
-								BOOST_VERIFY(terrain->handle_World = shader->GetParameterByName(NULL, "g_World"));
+							BOOST_VERIFY(terrain->handle_World = shader->GetParameterByName(NULL, "g_World"));
 
-								BOOST_VERIFY(terrain->handle_TerrainSize = shader->GetParameterByName(NULL, "g_TerrainSize"));
-							}
-
-							pipeline->PushIndexedPrimitive(PassID, terrain->m_Decl, chunk->m_Vb->m_ptr, frag.ib.m_ptr, D3DPT_TRIANGLELIST,
-								0, 0, frag.VertNum, terrain->m_VertexStride, 0, frag.PrimitiveCount, shader, terrain, mtl, MAKELONG(chunk->m_Row, chunk->m_Col));
+							BOOST_VERIFY(terrain->handle_TerrainSize = shader->GetParameterByName(NULL, "g_TerrainSize"));
 						}
+
+						pipeline->PushIndexedPrimitive(PassID, terrain->m_Decl, chunk->m_Vb->m_ptr, frag.ib.m_ptr, D3DPT_TRIANGLELIST,
+							0, 0, frag.VertNum, terrain->m_VertexStride, 0, frag.PrimitiveCount, shader, terrain, terrain->m_Material.get(), MAKELONG(chunk->m_Row, chunk->m_Col));
 					}
 				}
 			}
@@ -806,7 +792,7 @@ void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 		}
 	};
 
-	if (m_Decl)
+	if (m_Material && (m_Material->m_PassMask & PassMask))
 	{
 		// ! do not use m_World for level offset
 		Frustum LocalFrustum = frustum.transform(m_Actor->m_World.transpose());
@@ -835,26 +821,23 @@ void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 
 		if (cb.RootPrimitiveCount > 0)
 		{
-			if (m_Material && (m_Material->m_PassMask & PassMask))
+			for (unsigned int PassID = 0; PassID < RenderPipeline::PassTypeNum; PassID++)
 			{
-				for (unsigned int PassID = 0; PassID < RenderPipeline::PassTypeNum; PassID++)
+				if (RenderPipeline::PassTypeToMask(PassID) & (m_Material->m_PassMask & PassMask))
 				{
-					if (RenderPipeline::PassTypeToMask(PassID) & (m_Material->m_PassMask & PassMask))
+					D3DXMACRO macros[2] = { { "MESH_TYPE", "2" }, { 0 } };
+					Effect* shader = pipeline->QueryShader(m_Material->m_Shader.c_str(), macros, PassID);
+					if (shader)
 					{
-						D3DXMACRO macros[2] = { { "MESH_TYPE", "2" }, { 0 } };
-						Effect* shader = pipeline->QueryShader(m_Material->m_Shader.c_str(), macros, PassID);
-						if (shader)
+						if (!handle_World)
 						{
-							if (!handle_World)
-							{
-								BOOST_VERIFY(handle_World = shader->GetParameterByName(NULL, "g_World"));
+							BOOST_VERIFY(handle_World = shader->GetParameterByName(NULL, "g_World"));
 
-								BOOST_VERIFY(handle_TerrainSize = shader->GetParameterByName(NULL, "g_TerrainSize"));
-							}
-
-							pipeline->PushIndexedPrimitive(PassID, m_Decl, m_rootVb.m_ptr, m_rootIb.m_ptr, D3DPT_TRIANGLELIST,
-								0, 0, (m_RowChunks * m_MinChunkLodSize + 1) * (m_ColChunks* m_MinChunkLodSize + 1), m_VertexStride, 0, cb.RootPrimitiveCount, shader, this, m_Material.get(), MAKELONG(-1, -1));
+							BOOST_VERIFY(handle_TerrainSize = shader->GetParameterByName(NULL, "g_TerrainSize"));
 						}
+
+						pipeline->PushIndexedPrimitive(PassID, m_Decl, m_rootVb.m_ptr, m_rootIb.m_ptr, D3DPT_TRIANGLELIST,
+							0, 0, (m_RowChunks * m_MinChunkLodSize + 1) * (m_ColChunks* m_MinChunkLodSize + 1), m_VertexStride, 0, cb.RootPrimitiveCount, shader, this, m_Material.get(), MAKELONG(-1, -1));
 					}
 				}
 			}

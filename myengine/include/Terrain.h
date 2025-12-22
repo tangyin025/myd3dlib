@@ -28,8 +28,6 @@ public:
 
 	my::VertexBufferPtr m_Vb;
 
-	MaterialPtr m_Material;
-
 public:
 	TerrainChunk(void)
 		: m_Row(0)
@@ -46,7 +44,6 @@ public:
 	{
 		ar & BOOST_SERIALIZATION_NVP(m_Row);
 		ar & BOOST_SERIALIZATION_NVP(m_Col);
-		ar & BOOST_SERIALIZATION_NVP(m_Material);
 	}
 
 	bool IsRequested(void) const
