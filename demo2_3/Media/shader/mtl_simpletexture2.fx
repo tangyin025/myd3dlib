@@ -12,25 +12,26 @@ sampler DiffuseTextureSampler = sampler_state
     ADDRESSV = CLAMP;
 };
 
-struct SKYBOX_VS_OUTPUT
+struct TRANSPARENT_VS_OUTPUT
 {
-	float4 Pos				: SV_Position;
-	float4 Color			: COLOR0;
+	float4 Pos				: POSITION;
 	float2 Tex0				: TEXCOORD0;
+    float4 Color : COLOR0;
 };
 
-SKYBOX_VS_OUTPUT SkyboxVS( VS_INPUT In )
+TRANSPARENT_VS_OUTPUT VS( VS_INPUT In )
 {
-    SKYBOX_VS_OUTPUT Output;
-	Output.Pos = mul(float4(In.Pos.xyz + g_Eye,1), g_ViewProj);
-	Output.Color = TransformColor(In);
+    TRANSPARENT_VS_OUTPUT Output;
+	Output.Pos = TransformPos(In);
 	Output.Tex0 = TransformUV(In);
-    return Output;
+    Output.Color = TransformColor(In);
+    return Output;    
 }
 
-float4 SkyboxPS( SKYBOX_VS_OUTPUT In ) : COLOR0
+float4 PS( TRANSPARENT_VS_OUTPUT In ) : COLOR0
 { 
-	return tex2D(DiffuseTextureSampler, In.Tex0) * In.Color;
+	float4 Diffuse = tex2D(DiffuseTextureSampler, In.Tex0) * In.Color;
+	return Diffuse;
 }
 
 technique RenderScene
@@ -46,8 +47,8 @@ technique RenderScene
     }
 	pass PassTypeBackground
 	{
-        VertexShader = compile vs_3_0 SkyboxVS();
-        PixelShader  = compile ps_3_0 SkyboxPS(); 
+		VertexShader = compile vs_3_0 VS();
+		PixelShader  = compile ps_3_0 PS();
 	}
     pass PassTypeOpaque
     {          
