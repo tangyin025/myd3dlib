@@ -1,15 +1,15 @@
 #include "CommonVert.hlsl"
 
-texture g_DiffuseTexture0:MaterialParameter<string path="texture/Red.dds";>;
+texture g_DiffuseTexture0:MaterialParameter<string path="texture/Checker.bmp";>;
 texture g_NormalTexture0:MaterialParameter<string path="texture/Normal.dds";>;
 texture g_SpecularTexture0:MaterialParameter<string path="texture/Gray.dds";>;
-texture g_DiffuseTexture1:MaterialParameter<string path="texture/Green.dds";>;
+texture g_DiffuseTexture1:MaterialParameter<string path="texture/Red.dds";>;
 texture g_NormalTexture1:MaterialParameter<string path="texture/Normal.dds";>;
 texture g_SpecularTexture1:MaterialParameter<string path="texture/Gray.dds";>;
-texture g_DiffuseTexture2:MaterialParameter<string path="texture/Blue.dds";>;
+texture g_DiffuseTexture2:MaterialParameter<string path="texture/Green.dds";>;
 texture g_NormalTexture2:MaterialParameter<string path="texture/Normal.dds";>;
 texture g_SpecularTexture2:MaterialParameter<string path="texture/Gray.dds";>;
-texture g_DiffuseTexture3:MaterialParameter<string path="texture/Checker.bmp";>;
+texture g_DiffuseTexture3:MaterialParameter<string path="texture/Blue.dds";>;
 texture g_NormalTexture3:MaterialParameter<string path="texture/Normal.dds";>;
 texture g_SpecularTexture3:MaterialParameter<string path="texture/Gray.dds";>;
 float4 g_NormalStrength:MaterialParameter = float4(1.0, 1.0, 1.0, 1.0);
@@ -187,27 +187,27 @@ void NormalPS( 	NORMAL_VS_OUTPUT In,
 	float3x3 m = float3x3(normalize(In.Tangent), normalize(In.Binormal), normalize(In.Normal));
     float3 NormalTS = float3(0, 0, 0);
     float3 Specular = float3(0, 0, 0);
+    if (In.Color.a >= 0.004)
+    {
+        NormalTS += (tex2D(NormalTextureSampler0, In.Tex0).rgb * 2 - 1) * float3(g_NormalStrength.x, g_NormalStrength.x, 1) * In.Color.a;
+        Specular += tex2D(SpecularTextureSampler0, In.Tex0).xyz * In.Color.a;
+    }
     if (In.Color.r >= 0.004)
     {
-        NormalTS += normalize((tex2D(NormalTextureSampler0, In.Tex0).rgb * 2 - 1) * float3(g_NormalStrength.x, g_NormalStrength.x, 1)) * In.Color.r;
-        Specular += tex2D(SpecularTextureSampler0, In.Tex0).xyz * In.Color.r;
+        NormalTS += (tex2D(NormalTextureSampler1, In.Tex0).rgb * 2 - 1) * float3(g_NormalStrength.y, g_NormalStrength.y, 1) * In.Color.r;
+        Specular += tex2D(SpecularTextureSampler1, In.Tex0).xyz * In.Color.r;
     }
     if (In.Color.g >= 0.004)
     {
-        NormalTS += normalize((tex2D(NormalTextureSampler1, In.Tex0).rgb * 2 - 1) * float3(g_NormalStrength.y, g_NormalStrength.y, 1)) * In.Color.g;
-        Specular += tex2D(SpecularTextureSampler1, In.Tex0).xyz * In.Color.g;
+        NormalTS += (tex2D(NormalTextureSampler2, In.Tex0).rgb * 2 - 1) * float3(g_NormalStrength.z, g_NormalStrength.z, 1) * In.Color.g;
+        Specular += tex2D(SpecularTextureSampler2, In.Tex0).xyz * In.Color.g;
     }
     if (In.Color.b >= 0.004)
     {
-        NormalTS += normalize((tex2D(NormalTextureSampler2, In.Tex0).rgb * 2 - 1) * float3(g_NormalStrength.z, g_NormalStrength.z, 1)) * In.Color.b;
-        Specular += tex2D(SpecularTextureSampler2, In.Tex0).xyz * In.Color.b;
+        NormalTS += (tex2D(NormalTextureSampler3, In.Tex0).rgb * 2 - 1) * float3(g_NormalStrength.w, g_NormalStrength.w, 1) * In.Color.b;
+        Specular += tex2D(SpecularTextureSampler3, In.Tex0).xyz * In.Color.b;
     }
-    if (In.Color.a >= 0.004)
-    {
-        NormalTS += normalize((tex2D(NormalTextureSampler3, In.Tex0).rgb * 2 - 1) * float3(g_NormalStrength.w, g_NormalStrength.w, 1)) * In.Color.a;
-        Specular += tex2D(SpecularTextureSampler3, In.Tex0).xyz * In.Color.a;
-    }
-    oNormal = float4(mul(NormalTS, m), 1);
+    oNormal = float4(mul(normalize(NormalTS), m), 1);
 	oSpecular = float4(Specular, 1);
 	oPos = In.PosVS;
 }
@@ -246,14 +246,14 @@ float4 OpaquePS( OPAQUE_VS_OUTPUT In ) : COLOR0
     float3 SpecularVS = tex2D(SpecularRTSampler, (In.Pos.xy + 0.5f) / g_ScreenDim).xyz;
     float SkySpecular = DistributionGGX(SkyLightDirVS, Ref, SpecularVS.r) * g_SkyLightColor.w * SpecularVS.g * SkyLightAmount;
     float4 Diffuse = float4(0,0,0,0);
-	if (In.Color.r >= 0.004)
-		Diffuse += tex2D(DiffuseTextureSampler0, In.Tex0) * In.Color.r;
-	if (In.Color.g >= 0.004)
-		Diffuse += tex2D(DiffuseTextureSampler1, In.Tex0) * In.Color.g;
-	if (In.Color.b >= 0.004)
-		Diffuse += tex2D(DiffuseTextureSampler2, In.Tex0) * In.Color.b;
 	if (In.Color.a >= 0.004)
-        Diffuse += tex2D(DiffuseTextureSampler3, In.Tex0) * In.Color.a;
+        Diffuse += tex2D(DiffuseTextureSampler0, In.Tex0) * In.Color.a;
+	if (In.Color.r >= 0.004)
+		Diffuse += tex2D(DiffuseTextureSampler1, In.Tex0) * In.Color.r;
+	if (In.Color.g >= 0.004)
+		Diffuse += tex2D(DiffuseTextureSampler2, In.Tex0) * In.Color.g;
+	if (In.Color.b >= 0.004)
+		Diffuse += tex2D(DiffuseTextureSampler3, In.Tex0) * In.Color.b;
 	float4 ScreenLight = tex2D(LightRTSampler, (In.Pos.xy + 0.5f) / g_ScreenDim);
     float3 fres = g_AmbientColor.xyz * Fresnel(NormalVS, normalize(In.ViewVS), 5, SpecularVS.g);
 	float3 Final = Diffuse.xyz * (ScreenLight.xyz + SkyDiffuse) + ScreenLight.w + SkySpecular + fres;
