@@ -116,7 +116,7 @@
 											<MaterialParameter class_id="15" tracking_level="1" version="0" object_id="_7">
 												<m_Name>g_DiffuseTexture0</m_Name>
 											</MaterialParameter>
-											<m_TexturePath>texture/Red.dds</m_TexturePath>
+											<m_TexturePath>texture/Checker.bmp</m_TexturePath>
 										</px>
 									</item>
 									<item>
@@ -140,7 +140,7 @@
 											<MaterialParameter object_id="_13">
 												<m_Name>g_DiffuseTexture1</m_Name>
 											</MaterialParameter>
-											<m_TexturePath>texture/Green.dds</m_TexturePath>
+											<m_TexturePath>texture/Red.dds</m_TexturePath>
 										</px>
 									</item>
 									<item>
@@ -164,7 +164,7 @@
 											<MaterialParameter object_id="_19">
 												<m_Name>g_DiffuseTexture2</m_Name>
 											</MaterialParameter>
-											<m_TexturePath>texture/Blue.dds</m_TexturePath>
+											<m_TexturePath>texture/Green.dds</m_TexturePath>
 										</px>
 									</item>
 									<item>
@@ -188,7 +188,7 @@
 											<MaterialParameter object_id="_25">
 												<m_Name>g_DiffuseTexture3</m_Name>
 											</MaterialParameter>
-											<m_TexturePath>texture/Checker.bmp</m_TexturePath>
+											<m_TexturePath>texture/Blue.dds</m_TexturePath>
 										</px>
 									</item>
 									<item>
