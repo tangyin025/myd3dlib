@@ -6,9 +6,8 @@
 #include "libc.h"
 #include "myOctree.h"
 #include "myResource.h"
-#include "Material.h"
+#include "myCollision.h"
 #include "PhysxContext.h"
-#include "Controller.h"
 #include "myDxutApp.h"
 
 using namespace my;

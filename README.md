@@ -1,21 +1,20 @@
 myd3dlib
 ====
-A fast and lightweight direct3d based game engine, including client and editor
+A fast and lightweight Direct3D9 based game engine.
 
-features
+Features
 ----
-direct3d9 renderer<br>
-deferred lighting<br>
-delay loading resource manager<br>
-octtree scene<br>
-terrain lod<br>
-fast collision test<br>
-lua script for both ui and scene objects<br>
+Direct3D9 renderer<br>
+Deferred lighting<br>
+Asynchronous resource loading<br>
+Octree scene management<br>
+Terrain LOD<br>
+Lua scripted UI and game logic<br>
 MFC scene editor<br>
 
-3rd party dependencies
+Dependencies
 ----
-NVIDIA® PhysX® SDK 3.4.2<br>
+NVIDIA PhysX SDK 3.4.2<br>
 boost 1.75.0<br>
 rapidxml 1.13<br>
 Recast Navigation 1.5.1<br>
@@ -31,6 +30,6 @@ libvorbis 1.3.7<br>
 stb_image 2.27<br>
 HdriToCubemap<br>
 
-screenshots
+Screenshots
 ----
 ![](微信截图_20240508192607.png)
