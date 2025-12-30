@@ -233,7 +233,7 @@ void Navigation::DebugDraw(struct duDebugDraw * dd, const my::Frustum & frustum,
 			, query(_query)
 		{
 		}
-		virtual bool OnQueryEntity(my::OctEntity* oct_entity, const my::AABB& aabb, my::IntersectionTests::IntersectionType)
+		virtual bool OnQueryEntity(my::OctEntity* oct_entity, const my::AABB& aabb)
 		{
 			NavigationTileChunk* chunk = dynamic_cast<NavigationTileChunk*>(oct_entity);
 			const dtMeshTile* tile = mesh->getTile(chunk->m_tileId);

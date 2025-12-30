@@ -321,7 +321,7 @@ void CChildView::QueryRenderComponent(const my::Frustum & frustum, RenderPipelin
 		{
 		}
 
-		virtual bool OnQueryEntity(my::OctEntity * oct_entity, const my::AABB & aabb, my::IntersectionTests::IntersectionType)
+		virtual bool OnQueryEntity(my::OctEntity * oct_entity, const my::AABB & aabb)
 		{
 			ASSERT(dynamic_cast<Actor *>(oct_entity));
 
@@ -898,7 +898,7 @@ bool CChildView::OverlapTestFrustumAndComponent(const my::Frustum & frustum, con
 		//			, ret(false)
 		//		{
 		//		}
-		//		virtual bool OnQueryEntity(my::OctEntity * oct_entity, const my::AABB & aabb, my::IntersectionTests::IntersectionType)
+		//		virtual bool OnQueryEntity(my::OctEntity * oct_entity, const my::AABB & aabb)
 		//		{
 		//			StaticEmitterChunk* chunk = dynamic_cast<StaticEmitterChunk*>(oct_entity);
 		//			if (chunk->m_buff && chunk->m_Lod >= 0 && chunk->m_Lod < StaticEmitter::LastLod)
@@ -1175,7 +1175,7 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, const 
 					, rayinstid(0)
 				{
 				}
-				virtual bool OnQueryEntity(my::OctEntity* oct_entity, const my::AABB& aabb, my::IntersectionTests::IntersectionType)
+				virtual bool OnQueryEntity(my::OctEntity* oct_entity, const my::AABB& aabb)
 				{
 					StaticMeshChunk* chunk = dynamic_cast<StaticMeshChunk*>(oct_entity);
 					if (chunk->m_Mesh && chunk->m_Lod >= 0 && chunk->m_Lod < StaticMesh::LastLod)
@@ -1237,7 +1237,7 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, const 
 					, rayinstid(0)
 				{
 				}
-				virtual bool OnQueryEntity(my::OctEntity * oct_entity, const my::AABB & aabb, my::IntersectionTests::IntersectionType)
+				virtual bool OnQueryEntity(my::OctEntity * oct_entity, const my::AABB & aabb)
 				{
 					StaticEmitterChunk* chunk = dynamic_cast<StaticEmitterChunk*>(oct_entity);
 					if (chunk->m_buff && chunk->m_Lod >= 0 && chunk->m_Lod < StaticEmitter::LastLod)
@@ -1588,7 +1588,7 @@ void CChildView::OnPaint()
 						: dd(_dd)
 					{
 					}
-					virtual bool OnQueryEntity(my::OctEntity* oct_entity, const my::AABB& aabb, my::IntersectionTests::IntersectionType)
+					virtual bool OnQueryEntity(my::OctEntity* oct_entity, const my::AABB& aabb)
 					{
 						unsigned int conColor = duRGBA(192, 0, 128, 192);
 						unsigned int baseColor = duRGBA(0, 0, 0, 64);
@@ -2153,7 +2153,7 @@ ctrl_handle_end:
 				, pView(_pView)
 			{
 			}
-			virtual bool OnQueryEntity(my::OctEntity* oct_entity, const my::AABB& aabb, my::IntersectionTests::IntersectionType)
+			virtual bool OnQueryEntity(my::OctEntity* oct_entity, const my::AABB& aabb)
 			{
 				Actor* actor = dynamic_cast<Actor*>(oct_entity);
 				ASSERT(actor);
@@ -2254,7 +2254,7 @@ ctrl_handle_end:
 				, selinstid(0)
 			{
 			}
-			virtual bool OnQueryEntity(my::OctEntity * oct_entity, const my::AABB & aabb, my::IntersectionTests::IntersectionType)
+			virtual bool OnQueryEntity(my::OctEntity * oct_entity, const my::AABB & aabb)
 			{
 				Actor * actor = dynamic_cast<Actor *>(oct_entity);
 				ASSERT(actor);
