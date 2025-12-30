@@ -1951,6 +1951,11 @@ void LuaContext::Init(void)
 			.def("transform", &my::Ray::transform)
 			.def("transformSelf", &my::Ray::transformSelf, return_reference_to(boost::placeholders::_1))
 
+		, class_<my::RayResult>("RayResult")
+			.def(constructor<bool, float>())
+			.def_readwrite("first", &my::RayResult::first)
+			.def_readwrite("second", &my::RayResult::second)
+
 		, class_<my::Frustum>("Frustum")
 			.def(constructor<const my::Plane&, const my::Plane&, const my::Plane&, const my::Plane&, const my::Plane&, const my::Plane&>())
 			.def_readonly("Up", &my::Frustum::Up)
@@ -4031,48 +4036,6 @@ void LuaContext::Init(void)
 			.def("SetPixel", &my::IndexedBitmap::SetPixel)
 			.def("LoadFromFile", &my::IndexedBitmap::LoadFromFile)
 			.def("SaveIndexedBitmap", &indexedbitmap_save_indexed_bitmap)
-
-		, class_<my::RayResult>("RayResult")
-			.def(constructor<bool, float>())
-			.def_readwrite("first", &my::RayResult::first)
-			.def_readwrite("second", &my::RayResult::second)
-
-		, class_<my::CollisionPrimitive>("CollisionPrimitive")
-			.property("Offset", &my::CollisionPrimitive::getOffset, &my::CollisionPrimitive::setOffset)
-			.property("Friction", &my::CollisionPrimitive::getFriction, &my::CollisionPrimitive::setFriction)
-			.property("Restitution", &my::CollisionPrimitive::getRestitution, &my::CollisionPrimitive::setRestitution)
-			.property("Transform", &my::CollisionPrimitive::getTransform, &my::CollisionPrimitive::setTransform)
-			.enum_("PrimitiveType")
-			[
-				value("PrimitiveTypeShere", my::CollisionPrimitive::PrimitiveTypeShere),
-				value("PrimitiveTypeBox", my::CollisionPrimitive::PrimitiveTypeBox)
-			]
-			.property("PrimitiveType", &my::CollisionPrimitive::getPrimitiveType)
-
-		, class_<my::CollisionSphere, my::CollisionPrimitive>("CollisionSphere")
-			.def(constructor<float, const my::Matrix4&, float, float>())
-			.property("Radius", &my::CollisionSphere::getRadius, &my::CollisionSphere::setRadius)
-
-		, class_<my::CollisionBox, my::CollisionPrimitive>("CollisionBox")
-			.def(constructor<const my::Vector3&, const my::Matrix4&, float, float>())
-			.property("HalfSize", &my::CollisionBox::getHalfSize, &my::CollisionBox::setHalfSize)
-
-		, class_<my::IntersectionTests>("IntersectionTests")
-			.scope
-			[
-				def("sphereAndHalfSpace", &my::IntersectionTests::sphereAndHalfSpace),
-				def("sphereAndSphere", &my::IntersectionTests::sphereAndSphere),
-				def("boxAndHalfSpace", &my::IntersectionTests::boxAndHalfSpace),
-				def("boxAndBox", &my::IntersectionTests::boxAndBox),
-				def("rayAndParallelPlane", &my::IntersectionTests::rayAndParallelPlane),
-				def("rayAndAABB", &my::IntersectionTests::rayAndAABB),
-				def("rayAndHalfSpace", &my::IntersectionTests::rayAndHalfSpace),
-				def("rayAndSphere", &my::IntersectionTests::rayAndSphere),
-				def("rayAndCylinder", &my::IntersectionTests::rayAndCylinder),
-				def("rayAndTriangle", &my::IntersectionTests::rayAndTriangle),
-				def("rayAndBox", &my::IntersectionTests::rayAndBox),
-				def("IntersectSegments2D", &my::IntersectionTests::IntersectSegments2D, pure_out_value(boost::placeholders::_5))
-			]
 
 		, class_<PhysxSpatialIndex>("PhysxSpatialIndex")
 			.def(constructor<>())

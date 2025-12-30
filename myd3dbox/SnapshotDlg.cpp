@@ -298,7 +298,7 @@ void CSnapshotDlg::DoSnapshot()
 				{
 				}
 
-				virtual bool OnQueryEntity(my::OctEntity* oct_entity, const my::AABB& aabb, my::IntersectionTests::IntersectionType)
+				virtual bool OnQueryEntity(my::OctEntity* oct_entity, const my::AABB& aabb)
 				{
 					ASSERT(dynamic_cast<Actor*>(oct_entity));
 

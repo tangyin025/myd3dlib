@@ -351,7 +351,7 @@ static boost::iterator_range<shared_actor_list_iter> client_query_entity(Client*
 		{
 		}
 
-		virtual bool OnQueryEntity(my::OctEntity* oct_entity, const my::AABB& aabb, my::IntersectionTests::IntersectionType)
+		virtual bool OnQueryEntity(my::OctEntity* oct_entity, const my::AABB& aabb)
 		{
 			acts->push_back(dynamic_cast<Actor*>(oct_entity));
 			return true;
@@ -834,7 +834,7 @@ void Client::OnFrameTick(
 		{
 		}
 
-		virtual bool OnQueryEntity(my::OctEntity* oct_entity, const my::AABB& aabb, my::IntersectionTests::IntersectionType)
+		virtual bool OnQueryEntity(my::OctEntity* oct_entity, const my::AABB& aabb)
 		{
 			Actor* actor = dynamic_cast<Actor*>(oct_entity);
 
@@ -1197,7 +1197,7 @@ void Client::QueryRenderComponent(const my::Frustum & frustum, RenderPipeline * 
 			return duDebugDraw::areaToCol(area);
 		}
 
-		virtual bool OnQueryEntity(my::OctEntity * oct_entity, const my::AABB & aabb, my::IntersectionTests::IntersectionType)
+		virtual bool OnQueryEntity(my::OctEntity * oct_entity, const my::AABB & aabb)
 		{
 			_ASSERT(dynamic_cast<Actor *>(oct_entity));
 

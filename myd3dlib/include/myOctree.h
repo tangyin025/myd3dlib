@@ -2,7 +2,7 @@
 // License: MIT
 #pragma once
 
-#include "myCollision.h"
+#include "myMath.h"
 #include <boost/shared_ptr.hpp>
 #include <boost/function.hpp>
 #include <list>
@@ -37,7 +37,7 @@ namespace my
 		struct QueryCallback
 		{
 		public:
-			virtual bool OnQueryEntity(my::OctEntity * oct_entity, const my::AABB & aabb, my::IntersectionTests::IntersectionType) = 0;
+			virtual bool OnQueryEntity(my::OctEntity * oct_entity, const my::AABB & aabb) = 0;
 		};
 
 		OctNode * const m_Parent;
