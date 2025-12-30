@@ -8,6 +8,7 @@
 #include "myDxutApp.h"
 #include "myEffect.h"
 #include "myResource.h"
+#include "myCollision.h"
 #include "libc.h"
 #include <boost/archive/polymorphic_xml_iarchive.hpp>
 #include <boost/archive/polymorphic_xml_oarchive.hpp>
@@ -689,7 +690,7 @@ void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 			, insert_chunk_iter(_terrain->m_ViewedChunks.begin())
 		{
 		}
-		virtual bool OnQueryEntity(my::OctEntity * oct_entity, const my::AABB & aabb, my::IntersectionTests::IntersectionType)
+		virtual bool OnQueryEntity(my::OctEntity * oct_entity, const my::AABB & aabb)
 		{
 			TerrainChunk * chunk = dynamic_cast<TerrainChunk *>(oct_entity);
 			if (PassMask & RenderPipeline::PassTypeToMask(RenderPipeline::PassTypeNormal))
@@ -933,7 +934,7 @@ my::RayResult Terrain::RayTest(const my::Ray& local_ray, const my::Vector3& Loca
 			, ret(false, FLT_MAX)
 		{
 		}
-		virtual bool OnQueryEntity(my::OctEntity* oct_entity, const my::AABB& aabb, my::IntersectionTests::IntersectionType)
+		virtual bool OnQueryEntity(my::OctEntity* oct_entity, const my::AABB& aabb)
 		{
 			TerrainChunk* chunk = dynamic_cast<TerrainChunk*>(oct_entity);
 			my::RayResult result;
@@ -1460,7 +1461,7 @@ void TerrainStream::UpdateNormal(void)
 //			, ret(false, FLT_MAX)
 //		{
 //		}
-//		virtual bool OnQueryEntity(my::OctEntity* oct_entity, const my::AABB& aabb, my::IntersectionTests::IntersectionType)
+//		virtual bool OnQueryEntity(my::OctEntity* oct_entity, const my::AABB& aabb)
 //		{
 //			my::RayResult result;
 //			TerrainChunk* chunk = dynamic_cast<TerrainChunk*>(oct_entity);

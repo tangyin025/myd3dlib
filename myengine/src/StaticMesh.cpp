@@ -174,7 +174,7 @@ void StaticMesh::AddToPipeline(const my::Frustum& frustum, RenderPipeline* pipel
 			, insert_chunk_iter(_mesh_cmp->m_ViewedChunks.begin())
 		{
 		}
-		virtual bool OnQueryEntity(my::OctEntity* oct_entity, const my::AABB& aabb, my::IntersectionTests::IntersectionType)
+		virtual bool OnQueryEntity(my::OctEntity* oct_entity, const my::AABB& aabb)
 		{
 			StaticMeshChunk* chunk = dynamic_cast<StaticMeshChunk*>(oct_entity);
 			if (PassMask & RenderPipeline::PassTypeToMask(RenderPipeline::PassTypeNormal))
