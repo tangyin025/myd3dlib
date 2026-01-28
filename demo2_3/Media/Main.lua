@@ -95,7 +95,10 @@ client:LoadSceneAsync("scene01.xml", "scene01_", function(res)
 	end
 	function actor1Behavior:RequestResource()
 		Component.RequestResource(self)
-		self.Actor:PlayAction(SAction.act_pose)
+		-- self.Actor:PlayAction(SAction.act_pose)
+	end
+	function actor1Behavior:OnPxThreadSubstep(dtime)
+		self.Actor:SetPxPoseOrbyPxThread(Vector3(-3,1,math.sin(client.TotalTime)*3-5),Quaternion.Identity(),nil)
 	end
 	local actor1_behavior=actor1Behavior(NamedObject.MakeUniqueName('actor_behavior'))
 	actor1:InsertComponentAdopt(actor1_behavior)
