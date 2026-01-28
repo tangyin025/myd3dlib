@@ -190,8 +190,8 @@ unsigned int Controller::Move(const my::Vector3 & disp, float minDist, float ela
 
 		moveFlags = m_PxController->move((physx::PxVec3&)disp, minDist, elapsedTime, physx::PxControllerFilters(&physx::PxFilterData(filterWord0, 0, 0, 0), NULL, &scene->m_ControllerFilter), NULL);
 
-		// ! recursively call other Component::SetPxPoseOrbyPxThread
-		m_Actor->SetPxPoseOrbyPxThread(GetFootPosition(), m_Actor->m_Rotation, this);
+		//// ! recursively call other Component::SetPxPoseOrbyPxThread
+		//m_Actor->SetPxPoseOrbyPxThread(GetFootPosition(), m_Actor->m_Rotation, this);
 	}
 
 	return moveFlags;

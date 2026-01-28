@@ -146,6 +146,7 @@ function PlayerBehavior:OnPxThreadSubstep(dtime)
 	if ret or bit.band(moveFlag,Controller.eCOLLISION_DOWN) ~= 0 then
 		self.velocity.y=0
 	end
+	self.Actor:SetPxPoseOrbyPxThread(controller_cmp.FootPosition,self.Actor.Rotation,controller_cmp)
 end
 function PlayerBehavior:OnPxThreadShapeHit(arg)
 	-- print("shape hit: "..arg.other.Name.."pos("..arg.worldPos.x..","..arg.worldPos.y..","..arg.worldPos.z..") nol("..arg.worldNormal.x..","..arg.worldNormal.y..","..arg.worldNormal.z..") dir("..arg.dir.x..","..arg.dir.y..","..arg.dir.z..")")
