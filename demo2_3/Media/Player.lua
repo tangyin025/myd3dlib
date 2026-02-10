@@ -131,6 +131,7 @@ function PlayerBehavior:Update(elapsedTime)
 	-- 更新相机
 	local LookMatrix=Matrix4.RotationYawPitchRoll(client.Camera.Euler.y,client.Camera.Euler.x,client.Camera.Euler.z)
 	client.Camera.Eye=self.Actor.Position+Vector3(0,controller_cmp.Height,0)+LookMatrix.row2.xyz*self.LookDist
+	client.Camera:UpdateViewProj()
 	client.SkyLightCam.Eye=self.Actor.Position
 	client.ViewedCenter=self.Actor.Position
 

@@ -614,6 +614,8 @@ HRESULT Client::OnCreateDevice(
 			.def_readonly("FrameInterval", &Client::m_FrameInterval)
 			.property("Volume", &Client::GetVolume, &Client::SetVolume)
 			.def_readonly("DEFAULT_UI_RES_Y", &Client::DEFAULT_UI_RES_Y)
+			.property("UIRender", luabind::tag_function<my::UIRender*(Client*)>(
+				boost::bind(&my::UIRenderPtr::get, boost::bind(&Client::m_UIRender, boost::placeholders::_1))))
 			.def_readonly("Font", &Client::m_Font)
 			.def_readonly("Console", &Client::m_Console)
 			.def_readwrite("ViewedCenter", &Client::m_ViewedCenter)
@@ -914,7 +916,7 @@ void Client::OnFrameTick(
 			actor_iter++;
 	}
 
-	m_Camera->UpdateViewProj();
+	//m_Camera->UpdateViewProj(); // ! update camera in actor->Update
 
 	m_ControllerMgr->computeInteractions(fElapsedTime, &m_ControllerFilter);
 
