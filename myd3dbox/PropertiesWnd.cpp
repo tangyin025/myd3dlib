@@ -497,7 +497,7 @@ void CPropertiesWnd::UpdatePropertiesMesh(CMFCPropertyGridProperty * pComponent,
 	pComponent->GetSubItem(PropId + 2)->SetValue((_variant_t)(long)(mesh_cmp->m_MeshColor.w * 255));
 	pComponent->GetSubItem(PropId + 3)->SetValue((_variant_t)mesh_cmp->m_MeshSubMeshId);
 	pComponent->GetSubItem(PropId + 4)->SetValue((_variant_t)(mesh_cmp->m_Mesh ? mesh_cmp->m_Mesh->m_AttribTable[mesh_cmp->m_MeshSubMeshId].VertexCount : 0));
-	pComponent->GetSubItem(PropId + 5)->SetValue((_variant_t)(mesh_cmp->m_Mesh ? mesh_cmp->m_Mesh->m_AttribTable[mesh_cmp->m_MeshSubMeshId].VertexCount : 0));
+	pComponent->GetSubItem(PropId + 5)->SetValue((_variant_t)(mesh_cmp->m_Mesh ? mesh_cmp->m_Mesh->m_AttribTable[mesh_cmp->m_MeshSubMeshId].FaceCount : 0));
 	pComponent->GetSubItem(PropId + 6)->SetValue((_variant_t)g_InstanceTypeDesc[mesh_cmp->m_InstanceType]);
 	UpdatePropertiesMaterial(pComponent->GetSubItem(PropId + 7), mesh_cmp->m_Material.get());
 }
@@ -659,7 +659,7 @@ void CPropertiesWnd::UpdatePropertiesEmitter(CMFCPropertyGridProperty * pCompone
 	pComponent->GetSubItem(PropId + 4)->SetValue((_variant_t)ms2ts(emit_cmp->m_MeshPath.c_str()).c_str());
 	pComponent->GetSubItem(PropId + 5)->SetValue((_variant_t)emit_cmp->m_MeshSubMeshId);
 	pComponent->GetSubItem(PropId + 6)->SetValue((_variant_t)(emit_cmp->m_Mesh ? emit_cmp->m_Mesh->m_AttribTable[emit_cmp->m_MeshSubMeshId].VertexCount : 0));
-	pComponent->GetSubItem(PropId + 7)->SetValue((_variant_t)(emit_cmp->m_Mesh ? emit_cmp->m_Mesh->m_AttribTable[emit_cmp->m_MeshSubMeshId].VertexCount : 0));
+	pComponent->GetSubItem(PropId + 7)->SetValue((_variant_t)(emit_cmp->m_Mesh ? emit_cmp->m_Mesh->m_AttribTable[emit_cmp->m_MeshSubMeshId].FaceCount : 0));
 
 	switch (emit_cmp->GetComponentType())
 	{
@@ -833,8 +833,14 @@ void CPropertiesWnd::UpdatePropertiesAnimator(CMFCPropertyGridProperty* pCompone
 		return;
 	}
 	pComponent->GetSubItem(PropId + 0)->SetValue((_variant_t)theApp.GetFullPath(animator->m_SkeletonPath.c_str()).c_str());
-
-	UpdatePropertiesAnimationNode(pComponent->GetSubItem(PropId + 1), animator->m_Childs[0].get());
+	pComponent->GetSubItem(PropId + 1)->GetSubItem(0)->SetValue((_variant_t)animator->m_RootBone.m_position.x);
+	pComponent->GetSubItem(PropId + 1)->GetSubItem(1)->SetValue((_variant_t)animator->m_RootBone.m_position.y);
+	pComponent->GetSubItem(PropId + 1)->GetSubItem(2)->SetValue((_variant_t)animator->m_RootBone.m_position.z);
+	my::Vector3 angle = animator->m_RootBone.m_rotation.toEulerAngles();
+	pComponent->GetSubItem(PropId + 2)->GetSubItem(0)->SetValue((_variant_t)D3DXToDegree(angle.x));
+	pComponent->GetSubItem(PropId + 2)->GetSubItem(1)->SetValue((_variant_t)D3DXToDegree(angle.y));
+	pComponent->GetSubItem(PropId + 2)->GetSubItem(2)->SetValue((_variant_t)D3DXToDegree(angle.z));
+	UpdatePropertiesAnimationNode(pComponent->GetSubItem(PropId + 3), animator->m_Childs[0].get());
 }
 
 void CPropertiesWnd::UpdatePropertiesAnimationNode(CMFCPropertyGridProperty* pAnimationNode, AnimationNode* node)
@@ -2065,7 +2071,23 @@ void CPropertiesWnd::CreatePropertiesAnimator(CMFCPropertyGridProperty* pCompone
 	CMFCPropertyGridProperty * pProp = new CFileProp(_T("SkeletonPath"), TRUE, (_variant_t)theApp.GetFullPath(animator->m_SkeletonPath.c_str()).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyAnimatorSkeletonPath);
 	pProp->Enable(FALSE);
 	pComponent->AddSubItem(pProp);
-
+	CMFCPropertyGridProperty* pRootPosition = new CSimpleProp(_T("RootPosition"), PropertyAnimatorRootPosition, TRUE);
+	pComponent->AddSubItem(pRootPosition);
+	pProp = new CSimpleProp(_T("x"), (_variant_t)animator->m_RootBone.m_position.x, NULL, PropertyAnimatorRootPositionX);
+	pRootPosition->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("y"), (_variant_t)animator->m_RootBone.m_position.y, NULL, PropertyAnimatorRootPositionY);
+	pRootPosition->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("z"), (_variant_t)animator->m_RootBone.m_position.z, NULL, PropertyAnimatorRootPositionZ);
+	pRootPosition->AddSubItem(pProp);
+	my::Vector3 angle = animator->m_RootBone.m_rotation.toEulerAngles();
+	CMFCPropertyGridProperty* pRootRotation = new CSimpleProp(_T("RootRotation"), PropertyAnimatorRootRotation, TRUE);
+	pComponent->AddSubItem(pRootRotation);
+	pProp = new CSimpleProp(_T("x"), (_variant_t)D3DXToDegree(angle.x), NULL, PropertyAnimatorRootRotationX);
+	pRootRotation->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("y"), (_variant_t)D3DXToDegree(angle.y), NULL, PropertyAnimatorRootRotationY);
+	pRootRotation->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("z"), (_variant_t)D3DXToDegree(angle.z), NULL, PropertyAnimatorRootRotationZ);
+	pRootRotation->AddSubItem(pProp);
 	CreatePropertiesAnimationNode(pComponent, animator->m_Childs[0].get());
 }
 
@@ -2923,7 +2945,7 @@ unsigned int CPropertiesWnd::GetComponentPropCount(DWORD type)
 	case Component::ComponentTypeTerrain:
 		return GetComponentPropCount(Component::ComponentTypeComponent) + 8;
 	case Component::ComponentTypeAnimator:
-		return GetComponentPropCount(Component::ComponentTypeComponent) + 2;
+		return GetComponentPropCount(Component::ComponentTypeComponent) + 4;
 	case Component::ComponentTypeNavigation:
 		return GetComponentPropCount(Component::ComponentTypeComponent) + 6;
 	}
@@ -4542,6 +4564,43 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	}
 	case PropertyAnimatorSkeletonPath:
 	{
+		break;
+	}
+	case PropertyAnimatorRootPosition:
+	case PropertyAnimatorRootPositionX:
+	case PropertyAnimatorRootPositionY:
+	case PropertyAnimatorRootPositionZ:
+	case PropertyAnimatorRootRotation:
+	case PropertyAnimatorRootRotationX:
+	case PropertyAnimatorRootRotationY:
+	case PropertyAnimatorRootRotationZ:
+	{
+		CMFCPropertyGridProperty* pComponent = NULL;
+		switch (PropertyId)
+		{
+		case PropertyAnimatorRootPositionX:
+		case PropertyAnimatorRootPositionY:
+		case PropertyAnimatorRootPositionZ:
+		case PropertyAnimatorRootRotationX:
+		case PropertyAnimatorRootRotationY:
+		case PropertyAnimatorRootRotationZ:
+			pComponent = pProp->GetParent()->GetParent();
+			break;
+		default:
+			pComponent = pProp->GetParent();
+			break;
+		}
+		Animator* animator = (Animator*)pComponent->GetValue().pulVal;
+		unsigned int PropId = GetComponentPropCount(Component::ComponentTypeComponent);
+		animator->m_RootBone.m_position.x = pComponent->GetSubItem(PropId + 1)->GetSubItem(0)->GetValue().fltVal;
+		animator->m_RootBone.m_position.y = pComponent->GetSubItem(PropId + 1)->GetSubItem(1)->GetValue().fltVal;
+		animator->m_RootBone.m_position.z = pComponent->GetSubItem(PropId + 1)->GetSubItem(2)->GetValue().fltVal;
+		animator->m_RootBone.m_rotation = my::Quaternion::RotationEulerAngles(
+			D3DXToRadian(pComponent->GetSubItem(PropId + 2)->GetSubItem(0)->GetValue().fltVal),
+			D3DXToRadian(pComponent->GetSubItem(PropId + 2)->GetSubItem(1)->GetValue().fltVal),
+			D3DXToRadian(pComponent->GetSubItem(PropId + 2)->GetSubItem(2)->GetValue().fltVal));
+		my::EventArg arg;
+		pFrame->m_EventAttributeChanged(&arg);
 		break;
 	}
 	case PropertyAnimationNodeSequenceName:

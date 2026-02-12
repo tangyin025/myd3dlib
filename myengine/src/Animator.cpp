@@ -626,6 +626,7 @@ void Animator::save(Archive & ar, const unsigned int version) const
 	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(Component);
 	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(AnimationNode);
 	ar << BOOST_SERIALIZATION_NVP(m_SkeletonPath);
+	ar << BOOST_SERIALIZATION_NVP(m_RootBone);
 	ar << BOOST_SERIALIZATION_NVP(m_DynamicBones);
 }
 
@@ -635,6 +636,7 @@ void Animator::load(Archive & ar, const unsigned int version)
 	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(Component);
 	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(AnimationNode);
 	ar >> BOOST_SERIALIZATION_NVP(m_SkeletonPath);
+	ar >> BOOST_SERIALIZATION_NVP(m_RootBone);
 	ar >> BOOST_SERIALIZATION_NVP(m_DynamicBones);
 	ReloadSequenceGroup();
 }
@@ -658,17 +660,14 @@ void Animator::OnSkeletonReady(my::DeviceResourceBasePtr res)
 	m_Skeleton = boost::dynamic_pointer_cast<my::OgreSkeletonAnimation>(res);
 
 	bind_pose.resize(m_Skeleton->m_boneBindPose.size());
-	anim_pose.resize(m_Skeleton->m_boneBindPose.size());
 	my::BoneIndexSet::const_iterator root_iter = m_Skeleton->m_boneRootSet.begin();
 	for (; root_iter != m_Skeleton->m_boneRootSet.end(); root_iter++)
 	{
 		m_Skeleton->m_boneBindPose.FlatHierarchyBoneList(
 			bind_pose, m_Skeleton->m_boneHierarchy, *root_iter, Bone(Vector3(0, 0, 0)));
-
-		m_Skeleton->m_boneBindPose.FlatHierarchyBoneList(
-			anim_pose, m_Skeleton->m_boneHierarchy, *root_iter, Bone(Vector3(0, 0, 0)));
 	}
 	anim_pose_hier.resize(m_Skeleton->m_boneBindPose.size(), Bone(Vector3(0, 0, 0)));
+	anim_pose.resize(m_Skeleton->m_boneBindPose.size(), Bone(Vector3(0, 0, 0)));
 	final_pose.resize(m_Skeleton->m_boneBindPose.size(), Bone(Vector3(0, 0, 0)));
 }
 
@@ -718,7 +717,7 @@ void Animator::Tick(float fElapsedTime, float fTotalWeight)
 			{
 				GetPose(anim_pose_hier, *root_iter, m_Skeleton->m_boneHierarchy);
 
-				UpdateHierarchyBoneList(*root_iter, Bone(Vector3(0, 0, 0)));
+				UpdateHierarchyBoneList(*root_iter, m_RootBone);
 			}
 
 			DynamicBoneContextMap::iterator db_iter = m_DynamicBones.begin();

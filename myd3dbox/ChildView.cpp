@@ -952,51 +952,18 @@ bool CChildView::OverlapTestFrustumAndComponent(const my::Frustum & frustum, con
 			{
 				return false;
 			}
-			Animator* animator = cloth_cmp->m_VertexElems.elems[D3DDECLUSAGE_BLENDINDICES][0].Type == D3DDECLTYPE_UBYTE4 ? cloth_cmp->m_Actor->GetFirstComponent<Animator>() : NULL;
-			if (animator && !animator->m_DualQuats.empty())
+			bool ret = my::Mesh::FrustumTest(local_ftm,
+				&cloth_cmp->m_VertexData[0],
+				cloth_cmp->m_VertexData.size() / cloth_cmp->m_VertexStride,
+				cloth_cmp->m_VertexStride,
+				&cloth_cmp->m_IndexData[0],
+				true,
+				0,
+				cloth_cmp->m_IndexData.size() / 3,
+				cloth_cmp->m_VertexElems);
+			if (ret)
 			{
-				std::vector<my::Vector3> vertices(cloth_cmp->m_VertexData.size() / cloth_cmp->m_VertexStride);
-				my::D3DVertexElementSet elems;
-				elems.InsertPositionElement(0);
-				my::OgreMesh::ComputeDualQuaternionSkinnedVertices(
-					&vertices[0],
-					vertices.size(),
-					sizeof(vertices[0]),
-					elems,
-					&cloth_cmp->m_VertexData[0],
-					cloth_cmp->m_VertexStride,
-					cloth_cmp->m_VertexElems,
-					animator->m_DualQuats.data(),
-					animator->m_DualQuats.size());
-				bool ret = my::Mesh::FrustumTest(local_ftm,
-					&vertices[0],
-					vertices.size(),
-					sizeof(vertices[0]),
-					&cloth_cmp->m_IndexData[0],
-					true,
-					0,
-					cloth_cmp->m_IndexData.size() / 3,
-					elems);
-				if (ret)
-				{
-					return true;
-				}
-			}
-			else
-			{
-				bool ret = my::Mesh::FrustumTest(local_ftm,
-					&cloth_cmp->m_VertexData[0],
-					cloth_cmp->m_VertexData.size() / cloth_cmp->m_VertexStride,
-					cloth_cmp->m_VertexStride,
-					&cloth_cmp->m_IndexData[0],
-					true,
-					0,
-					cloth_cmp->m_IndexData.size() / 3,
-					cloth_cmp->m_VertexElems);
-				if (ret)
-				{
-					return true;
-				}
+				return true;
 			}
 		}
 		break;
@@ -1310,45 +1277,15 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, const 
 			{
 				return my::RayResult(false, FLT_MAX);
 			}
-			my::RayResult ret;
-			Animator* animator = cloth_cmp->m_VertexElems.elems[D3DDECLUSAGE_BLENDINDICES][0].Type == D3DDECLTYPE_UBYTE4 ? cloth_cmp->m_Actor->GetFirstComponent<Animator>() : NULL;
-			if (animator && !animator->m_DualQuats.empty())
-			{
-				std::vector<my::Vector3> vertices(cloth_cmp->m_VertexData.size() / cloth_cmp->m_VertexStride);
-				my::D3DVertexElementSet elems;
-				elems.InsertPositionElement(0);
-				my::OgreMesh::ComputeDualQuaternionSkinnedVertices(
-					&vertices[0],
-					vertices.size(),
-					sizeof(vertices[0]),
-					elems,
-					&cloth_cmp->m_VertexData[0],
-					cloth_cmp->m_VertexStride,
-					cloth_cmp->m_VertexElems,
-					animator->m_DualQuats.data(),
-					animator->m_DualQuats.size());
-				ret = my::Mesh::RayTest(local_ray,
-					&vertices[0],
-					vertices.size(),
-					sizeof(vertices[0]),
-					&cloth_cmp->m_IndexData[0],
-					true,
-					0,
-					cloth_cmp->m_IndexData.size() / 3,
-					elems);
-			}
-			else
-			{
-				ret = my::Mesh::RayTest(local_ray,
-					&cloth_cmp->m_VertexData[0],
-					cloth_cmp->m_VertexData.size() / cloth_cmp->m_VertexStride,
-					cloth_cmp->m_VertexStride,
-					&cloth_cmp->m_IndexData[0],
-					true,
-					0,
-					cloth_cmp->m_IndexData.size() / 3,
-					cloth_cmp->m_VertexElems);
-			}
+			my::RayResult ret = my::Mesh::RayTest(local_ray,
+				&cloth_cmp->m_VertexData[0],
+				cloth_cmp->m_VertexData.size() / cloth_cmp->m_VertexStride,
+				cloth_cmp->m_VertexStride,
+				&cloth_cmp->m_IndexData[0],
+				true,
+				0,
+				cloth_cmp->m_IndexData.size() / 3,
+				cloth_cmp->m_VertexElems);
 			if (ret.first)
 			{
 				raychunkid.SetPoint(0, 0);
