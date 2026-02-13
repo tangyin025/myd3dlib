@@ -175,31 +175,41 @@ static void _SanitizeEuler(Vector3& euler)
 Vector3 Matrix4::toEulerAngles(void) const
 {
 	// from http://www.geometrictools.com/Documentation/EulerAngles.pdf
-	// YXZ order
+	// XYZ order
 	Vector3 ret;
-	if (_23 < 0.999f) // some fudge for imprecision
+	if (_13 < 0.999f)
 	{
-		if (_23 > -0.999f) // some fudge for imprecision
+		if (_13 > -0.999f)
 		{
-			ret.x = asinf(_23);
-			ret.y = atan2f(-_13, _33);
-			ret.z = atan2f(-_21, _22);
+			//M = [
+			//	[cos¦Â * cos¦Ã,						cos¦Â * sin¦Ã,						-sin¦Â		],
+			//	[sin¦Á * sin¦Â * cos¦Ã - cos¦Á * sin¦Ã,	sin¦Á * sin¦Â * sin¦Ã + cos¦Á * cos¦Ã,	sin¦Á * cos¦Â	],
+			//	[cos¦Á * sin¦Â * cos¦Ã + sin¦Á * sin¦Ã,	cos¦Á * sin¦Â * sin¦Ã - sin¦Á * cos¦Ã,	cos¦Á * cos¦Â	]]
+			ret.x = atan2f(_23, _33);
+			ret.y = asinf(-_13);
+			ret.z = atan2f(_12, _11);
 			_SanitizeEuler(ret);
 		}
 		else
 		{
-			// WARNING.  Not unique.  YA - ZA = atan2(-r01,r00)
-			ret.x = -D3DX_PI * 0.5f;
-			ret.y = atan2f(-_12, _11);
+			//M_¦Â = ¦Ð / 2 = [
+			//	[0,				0,				-1],
+			//	[sin(¦Á - ¦Ã),	cos(¦Á - ¦Ã),		0],
+			//	[cos(¦Á - ¦Ã),	-sin(¦Á - ¦Ã),	0]]
+			ret.x = atan2f(_21, _22);
+			ret.y = D3DX_PI * 0.5f;
 			ret.z = 0.0f;
 			_SanitizeEuler(ret);
 		}
 	}
 	else
 	{
-		// WARNING.  Not unique.  YA + ZA = atan2(r01,r00)
-		ret.x = D3DX_PI * 0.5f;
-		ret.y = atan2f(_12, _11);
+		//M_¦Â = -¦Ð / 2 = [
+		//	[0,				0,				1],
+		//	[-sin(¦Á + ¦Ã),	cos(¦Á + ¦Ã),		0],
+		//	[-cos(¦Á + ¦Ã),	-sin(¦Á + ¦Ã),	0]]
+		ret.x = atan2f(-_21, _22);
+		ret.y = -D3DX_PI * 0.5f;
 		ret.z = 0.0f;
 		_SanitizeEuler(ret);
 	}

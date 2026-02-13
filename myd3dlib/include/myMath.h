@@ -1937,7 +1937,7 @@ namespace my
 			Quaternion qY(0.0f, sY, 0.0f, cY);
 			Quaternion qZ(0.0f, 0.0f, sZ, cZ);
 
-			Quaternion q = (qY * qX) * qZ;
+			Quaternion q = (qX * qY) * qZ;
 			_ASSERT(abs(q.magnitude() - 1.0f) < EPSILON_E6);
 			return q;
 		}
