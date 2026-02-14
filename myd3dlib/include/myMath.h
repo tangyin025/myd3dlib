@@ -764,25 +764,32 @@ namespace my
 		{
 			float determinantSq = magnitudeSq() * rhs.magnitudeSq(); // |v0|*|v1|*Cos(Angle)
 
-			if (determinantSq != 0)
+			if (determinantSq > 0)
 			{
 				return Min(dot(rhs) / sqrtf(determinantSq), 1.0f);
 			}
-			throw std::exception(__FUNCTION__ ": determinantSq == 0");
+			return 0;
 		}
 
-		//float sinTheta(const Vector3 & rhs) const
-		//{
-		//	float determinantSq = magnitudeSq() * rhs.magnitudeSq(); // |v0|*|v1|*Sin(Angle)
+		float cosTheta2D(const Vector3& rhs) const
+		{
+			float determinantSq = magnitudeSq2D() * rhs.magnitudeSq2D();
 
-		//	_ASSERT(determinantSq != 0);
-
-		//	return sqrtf(cross(rhs).magnitudeSq() / determinantSq);
-		//}
+			if (determinantSq > 0)
+			{
+				return Min(dot2D(rhs) / sqrtf(determinantSq), 1.0f);
+			}
+			return 0;
+		}
 
 		float angle(const Vector3 & rhs) const
 		{
 			return acosf(cosTheta(rhs));
+		}
+
+		float angle2D(const Vector3& rhs) const
+		{
+			return acosf(cosTheta2D(rhs));
 		}
 
 		float signedAngle(const Vector3 & rhs, const Vector3 & axis) const
