@@ -113,7 +113,7 @@ function PlayerBehavior:Update(elapsedTime)
 	if lengthsq > 0.000001 then
 		direction=direction*(1/math.sqrt(lengthsq))
 		local angle=math.atan2(direction.x,direction.z)+client.Camera.Euler.y+math.pi
-		local localAngle=self.Actor.Rotation.EulerAngles.y
+		local localAngle=self.Actor.Rotation.Yaw
 		local delta=Wrap(angle-localAngle,-math.pi,math.pi)
 		localAngle=localAngle+delta*(1.0-math.pow(0.8,30*elapsedTime))
 		self.Actor.Rotation=Quaternion.RotationEulerAngles(0,localAngle,0)

@@ -1951,6 +1951,11 @@ namespace my
 
 		Vector3 toEulerAngles(void) const;
 
+		float toYaw(void) const
+		{
+			return atan2f(2.0f * (x * z + w * y), 1.0f - 2.0f * (x * x + y * y));
+		}
+
 	public:
 		static const Quaternion identity;
 	};

@@ -1838,6 +1838,7 @@ void LuaContext::Init(void)
 			.def("squadSelf", &my::Quaternion::squadSelf, return_reference_to(boost::placeholders::_1))
 			.def("toAxisAngle", &my::Quaternion::toAxisAngle, pure_out_value(boost::placeholders::_2) + pure_out_value(boost::placeholders::_3))
 			.property("EulerAngles", &my::Quaternion::toEulerAngles)
+			.property("Yaw", &my::Quaternion::toYaw)
 			.scope
 			[
 				def("Identity", &my::Quaternion::Identity),
