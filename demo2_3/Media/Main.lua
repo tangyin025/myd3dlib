@@ -110,7 +110,7 @@ client:LoadSceneAsync("scene01.xml", "scene01_", function(res)
 	end
 	client:AddEntity(actor3)
 	SPlayer.player:Attach(actor3, SAction.skel:GetBoneIndex("joint13"))
-	actor3.Position=Vector3(0.25,0,0)
+	actor3.Position=Vector3(2.5,0,0)
 	actor3.Rotation=Quaternion.RotationYawPitchRoll(0,0,math.rad(90))
 
 	actor4:SetRigidBodyFlag(Actor.eKINEMATIC,true)
@@ -120,7 +120,7 @@ client:LoadSceneAsync("scene01.xml", "scene01_", function(res)
 	end
 	client:AddEntity(actor4)
 	SPlayer.player:Attach(actor4, SAction.skel:GetBoneIndex("joint59"))
-	actor4.Position=Vector3(0.25,0,0)
+	actor4.Position=Vector3(2.5,0,0)
 	actor4.Rotation=Quaternion.RotationYawPitchRoll(0,0,math.rad(90))
 
 	actor2:SetPose(Vector3(0,1,-5),Quaternion.Identity())

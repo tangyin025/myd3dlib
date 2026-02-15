@@ -437,26 +437,14 @@ void Actor::SetPxPoseOrbyPxThread(const my::Vector3 & Pos, const my::Quaternion 
 	AttachList::iterator attach_iter = m_Attaches.begin();
 	for (; attach_iter != m_Attaches.end(); attach_iter++)
 	{
+		my::Bone pose((*attach_iter)->m_Position, (*attach_iter)->m_Rotation);
+
 		if (animator && (*attach_iter)->m_BaseBoneId >= 0 && (*attach_iter)->m_BaseBoneId < (int)animator->anim_pose.size())
 		{
-			const Bone& bone = animator->anim_pose[(*attach_iter)->m_BaseBoneId];
-
-			Bone parent(bone.m_position.transformCoord(World), bone.m_rotation * Rot);
-
-			Bone attach_pose((*attach_iter)->m_Position, (*attach_iter)->m_Rotation);
-
-			attach_pose.TransformSelf(parent);
-
-			(*attach_iter)->SetPxPoseOrbyPxThread(attach_pose.m_position, attach_pose.m_rotation, Exclusion);
+			pose.TransformSelf(animator->anim_pose[(*attach_iter)->m_BaseBoneId]);
 		}
-		else
-		{
-			Bone attach_pose((*attach_iter)->m_Position, (*attach_iter)->m_Rotation);
 
-			attach_pose.TransformSelf(Pos, Rot);
-
-			(*attach_iter)->SetPxPoseOrbyPxThread(attach_pose.m_position, attach_pose.m_rotation, Exclusion);
-		}
+		(*attach_iter)->SetPxPoseOrbyPxThread(pose.m_position.transformCoord(World), pose.m_rotation * Rot, Exclusion);
 	}
 }
 
@@ -950,18 +938,16 @@ my::Bone Actor::GetAttachPose(int BoneId, const my::Vector3 & LocalPosition, con
 
 	m_World.Decompose(RootScale, RootRotation, RootPosition);
 
+	my::Bone pose(LocalPosition, LocalRotation);
+
 	const Animator* animator = GetFirstComponent<Animator>();
 
 	if (animator && BoneId >= 0 && BoneId < (int)animator->anim_pose.size())
 	{
-		const my::Bone& bone = animator->anim_pose[BoneId];
-
-		my::Bone parent(bone.m_position.transformCoord(m_World), bone.m_rotation * RootRotation);
-
-		return my::Bone(LocalPosition, LocalRotation).Transform(parent);
+		pose.TransformSelf(animator->anim_pose[BoneId]);
 	}
 
-	return my::Bone(LocalPosition, LocalRotation).Transform(RootPosition, RootRotation);
+	return my::Bone(pose.m_position.transformCoord(m_World), pose.m_rotation * RootRotation);
 }
 
 void Actor::ClearAllAttach(void)
