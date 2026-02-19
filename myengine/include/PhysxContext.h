@@ -308,6 +308,13 @@ public:
 		const void* constantBlock,
 		physx::PxU32 constantBlockSize);
 
+	virtual physx::PxFilterFlags onSimulationFilter(
+		physx::PxFilterObjectAttributes attributes0,
+		physx::PxFilterData filterData0,
+		physx::PxFilterObjectAttributes attributes1,
+		physx::PxFilterData filterData1,
+		physx::PxPairFlags& pairFlags);
+
 	virtual void onConstraintBreak(physx::PxConstraintInfo* constraints, physx::PxU32 count);
 
 	virtual void onWake(physx::PxActor** actors, physx::PxU32 count);

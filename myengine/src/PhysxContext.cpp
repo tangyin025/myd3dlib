@@ -159,6 +159,11 @@ const char * PhysxScene::StepperTask::getName(void) const
 	return "Stepper Task";
 }
 
+struct PhysxSceneShaderInfo
+{
+	PhysxScene* scene;
+};
+
 bool PhysxScene::Init(physx::PxPhysics * sdk, physx::PxDefaultCpuDispatcher * dispatcher, const physx::PxSceneFlags & flags, const my::Vector3 & gravity)
 {
 	_ASSERT(flags.isSet(physx::PxSceneFlag::eENABLE_PCM));
@@ -169,6 +174,9 @@ bool PhysxScene::Init(physx::PxPhysics * sdk, physx::PxDefaultCpuDispatcher * di
 	sceneDesc.contactModifyCallback = this;
 	sceneDesc.cpuDispatcher = dispatcher;
 	//sceneDesc.filterShader = physx::PxDefaultSimulationFilterShader;
+	PhysxSceneShaderInfo info = { this };
+	sceneDesc.filterShaderData = &info;
+	sceneDesc.filterShaderDataSize = sizeof(info);
 	sceneDesc.filterShader = PhysxScene::FilterShader;
 	sceneDesc.flags = flags;
 	m_PxScene.reset(sdk->createScene(sceneDesc), PhysxDeleter<physx::PxScene>());
@@ -450,27 +458,24 @@ physx::PxFilterFlags PhysxScene::FilterShader(
 	const void* constantBlock,
 	physx::PxU32 constantBlockSize)
 {
-	// let triggers through
-	if (physx::PxFilterObjectIsTrigger(attributes0) || physx::PxFilterObjectIsTrigger(attributes1))
-	{
-		pairFlags = physx::PxPairFlag::eTRIGGER_DEFAULT;
-		return physx::PxFilterFlag::eDEFAULT;
-	}
+	_ASSERT(constantBlockSize == sizeof(PhysxSceneShaderInfo));
 
-	if (filterData0.word0 && filterData1.word0 && !(filterData0.word0 & filterData1.word0))
-	{
-		return physx::PxFilterFlag::eSUPPRESS;
-	}
+	PhysxSceneShaderInfo* info = (PhysxSceneShaderInfo*)constantBlock;
 
-	// generate contacts for all that were not filtered above
-	pairFlags = physx::PxPairFlag::eSOLVE_CONTACT
-		//| physx::PxPairFlag::eMODIFY_CONTACTS
-		| physx::PxPairFlag::eDETECT_DISCRETE_CONTACT
-		| physx::PxPairFlag::eDETECT_CCD_CONTACT
-		| physx::PxPairFlag::eNOTIFY_TOUCH_FOUND
-		| physx::PxPairFlag::eNOTIFY_CONTACT_POINTS;
+	return info->scene->onSimulationFilter(attributes0, filterData0, attributes1, filterData1, pairFlags);
+}
 
-	return physx::PxFilterFlag::eDEFAULT;
+physx::PxFilterFlags PhysxScene::onSimulationFilter(
+	physx::PxFilterObjectAttributes attributes0,
+	physx::PxFilterData filterData0,
+	physx::PxFilterObjectAttributes attributes1,
+	physx::PxFilterData filterData1,
+	physx::PxPairFlags& pairFlags)
+{
+	// The custom filter shader to use for collision filtering. If you don't want to define your own filter shader you can
+	// use the default shader #PxDefaultSimulationFilterShader which can be found in the PhysX extensions
+	// library.
+	return physx::PxDefaultSimulationFilterShader(attributes0, filterData0, attributes1, filterData1, pairFlags, NULL, 0);
 }
 
 void PhysxScene::onConstraintBreak(physx::PxConstraintInfo* constraints, physx::PxU32 count)
