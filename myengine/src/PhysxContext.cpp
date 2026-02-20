@@ -195,6 +195,8 @@ bool PhysxScene::Init(physx::PxPhysics * sdk, physx::PxDefaultCpuDispatcher * di
 	// ! only enable it if experiencing collision problems
 	m_ControllerMgr->setTessellation(false, 1.0f);
 
+	m_ObstacleContext.reset(m_ControllerMgr->createObstacleContext(), PhysxDeleter<physx::PxObstacleContext>());
+
 	return true;
 }
 
@@ -228,6 +230,7 @@ void PhysxScene::Shutdown(void)
 	//m_EventPxThreadSubstep.disconnect_all_slots();
 	_ASSERT(m_EventPxThreadSubstep.empty());
 	//_ASSERT(!m_PxScene || 0 == m_PxScene->getNbActors(PxActorTypeSelectionFlags(0xff)));
+	m_ObstacleContext.reset();
 	m_ControllerMgr.reset();
 	m_PxScene.reset();
 }

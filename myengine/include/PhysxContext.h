@@ -219,6 +219,8 @@ public:
 
 	boost::shared_ptr<physx::PxControllerManager> m_ControllerMgr;
 
+	boost::shared_ptr<physx::PxObstacleContext> m_ObstacleContext;
+
 	std::vector<physx::PxActiveTransform> mBufferedActiveTransforms;
 
 	std::vector<physx::PxActor *> mDeletedActors;

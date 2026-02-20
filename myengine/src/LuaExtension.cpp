@@ -1513,6 +1513,29 @@ static boost::iterator_range<SweepHitIterator> physxscene_capsule_sweep(PhysxSce
 		SweepHitIterator(buff, buff.get()), SweepHitIterator(buff, buff.get()));
 }
 
+static physx::ObstacleHandle physxscene_add_box_obstacle(PhysxScene* self, const my::Vector3& Position, const my::Quaternion& Rotation, const my::Vector3& HalfBox)
+{
+	physx::PxBoxObstacle box;
+	box.mPos.set(Position.x, Position.y, Position.z);
+	box.mRot = (physx::PxQuat&)Rotation;
+	box.mHalfExtents = (physx::PxVec3&)HalfBox;
+	return self->m_ObstacleContext->addObstacle(box);
+}
+
+static bool physxscene_update_box_obstacle(PhysxScene* self, physx::ObstacleHandle handle, const my::Vector3& Position, const my::Quaternion& Rotation, const my::Vector3& HalfBox)
+{
+	physx::PxBoxObstacle box;
+	box.mPos.set(Position.x, Position.y, Position.z);
+	box.mRot = (physx::PxQuat&)Rotation;
+	box.mHalfExtents = (physx::PxVec3&)HalfBox;
+	return self->m_ObstacleContext->updateObstacle(handle, box);
+}
+
+static bool physxscene_remove_obstacle(PhysxScene* self, physx::ObstacleHandle handle)
+{
+	return self->m_ObstacleContext->removeObstacle(handle);
+}
+
 static void indexedbitmap_save_indexed_bitmap(my::IndexedBitmap * self, const char * path, const luabind::object & get_color)
 {
 	self->SaveIndexedBitmap(path, boost::bind(&luabind::call_function<DWORD, unsigned char>, boost::ref(get_color), boost::placeholders::_1));
@@ -3933,6 +3956,9 @@ void LuaContext::Init(void)
 			.def("BoxSweep", &physxscene_box_sweep, return_stl_iterator)
 			.def("SphereSweep", &physxscene_sphere_sweep, return_stl_iterator)
 			.def("CapsuleSweep", &physxscene_capsule_sweep, return_stl_iterator)
+			.def("AddBoxObstacle", &physxscene_add_box_obstacle)
+			.def("UpdateBoxObstacle", &physxscene_update_box_obstacle)
+			.def("RemoveObstacle", &physxscene_remove_obstacle)
 
 		, class_<SoundEvent, boost::shared_ptr<SoundEvent> >("SoundEvent")
 			.def_readonly("sbuffer", &SoundEvent::m_sbuffer)

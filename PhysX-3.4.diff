@@ -1,0 +1,167 @@
+ .../platform/src/windows/WindowsSamplePlatform.cpp                | 2 +-
+ .../renderer/src/d3d11/D3D11RendererResourceManager.h             | 2 +-
+ .../Source/GeomUtils/src/intersection/GuIntersectionRayBox.cpp    | 8 ++++----
+ PhysX_3.4/Source/compiler/vc15win32/PhysXExtensions.vcxproj       | 8 ++++----
+ PhysX_3.4/Source/compiler/vc15win64/PhysXExtensions.vcxproj       | 8 ++++----
+ PxShared/src/foundation/include/PsAllocator.h                     | 2 +-
+ 6 files changed, 15 insertions(+), 15 deletions(-)
+
+diff --git a/PhysX_3.4/Samples/SampleFramework/platform/src/windows/WindowsSamplePlatform.cpp b/PhysX_3.4/Samples/SampleFramework/platform/src/windows/WindowsSamplePlatform.cpp
+index c5512d8a..218df3cf 100644
+--- a/PhysX_3.4/Samples/SampleFramework/platform/src/windows/WindowsSamplePlatform.cpp
++++ b/PhysX_3.4/Samples/SampleFramework/platform/src/windows/WindowsSamplePlatform.cpp
+@@ -1104,7 +1104,7 @@ physx::PxU32 WindowsPlatform::initializeD3D11Display(void *dxgiSwapChainDesc,
+ 
+ 		D3D11_CREATE_DEVICE_FLAG deviceFlags = (D3D11_CREATE_DEVICE_FLAG)(D3D11_CREATE_DEVICE_SINGLETHREADED | D3D11_CREATE_DEVICE_BGRA_SUPPORT);
+ #if PX_DEBUG
+-		deviceFlags = (D3D11_CREATE_DEVICE_FLAG)(deviceFlags | D3D11_CREATE_DEVICE_DEBUG);
++		deviceFlags = (D3D11_CREATE_DEVICE_FLAG)(deviceFlags /*| D3D11_CREATE_DEVICE_DEBUG*/);
+ #endif
+ 		D3D_FEATURE_LEVEL deviceFeatureLevel = D3D_FEATURE_LEVEL_11_0;
+ 		for (i = 0; i < vAdapters.size(); ++i)
+diff --git a/PhysX_3.4/Samples/SampleFramework/renderer/src/d3d11/D3D11RendererResourceManager.h b/PhysX_3.4/Samples/SampleFramework/renderer/src/d3d11/D3D11RendererResourceManager.h
+index e710082c..36688afc 100644
+--- a/PhysX_3.4/Samples/SampleFramework/renderer/src/d3d11/D3D11RendererResourceManager.h
++++ b/PhysX_3.4/Samples/SampleFramework/renderer/src/d3d11/D3D11RendererResourceManager.h
+@@ -32,7 +32,7 @@
+ #if defined(RENDERER_ENABLE_DIRECT3D11)
+ 
+ #include <algorithm>
+-
++#include <typeinfo>
+ #include "D3D11RendererTraits.h"
+ #include "D3D11RendererMemoryMacros.h"
+ 
+diff --git a/PhysX_3.4/Source/GeomUtils/src/intersection/GuIntersectionRayBox.cpp b/PhysX_3.4/Source/GeomUtils/src/intersection/GuIntersectionRayBox.cpp
+index 66d1073b..a16c9452 100644
+--- a/PhysX_3.4/Source/GeomUtils/src/intersection/GuIntersectionRayBox.cpp
++++ b/PhysX_3.4/Source/GeomUtils/src/intersection/GuIntersectionRayBox.cpp
+@@ -73,7 +73,7 @@ bool Gu::rayAABBIntersect(const PxVec3& minimum, const PxVec3& maximum, const Px
+ 			Inside		= Ps::IntFalse;
+ 
+ 			// Calculate T distances to candidate planes
+-			if(idir[i])
++			if(idir[i] & ~PX_SIGN_BITMASK)
+ //			if(PX_IR(dir[i]))
+ 				MaxT[i] = (minimum[i] - origin[i]) / dir[i];
+ 		}
+@@ -83,7 +83,7 @@ bool Gu::rayAABBIntersect(const PxVec3& minimum, const PxVec3& maximum, const Px
+ 			Inside		= Ps::IntFalse;
+ 
+ 			// Calculate T distances to candidate planes
+-			if(idir[i])
++			if(idir[i] & ~PX_SIGN_BITMASK)
+ //			if(PX_IR(dir[i]))
+ 				MaxT[i] = (maximum[i] - origin[i]) / dir[i];
+ 		}
+@@ -167,7 +167,7 @@ PxU32 Gu::rayAABBIntersect2(const PxVec3& minimum, const PxVec3& maximum, const
+ 			Inside		= Ps::IntFalse;
+ 
+ 			// Calculate T distances to candidate planes
+-			if(idir[i])
++			if(idir[i] & ~PX_SIGN_BITMASK)
+ //			if(PX_IR(dir[i]))
+ 				MaxT[i] = (minimum[i] - origin[i]) / dir[i];
+ 		}
+@@ -177,7 +177,7 @@ PxU32 Gu::rayAABBIntersect2(const PxVec3& minimum, const PxVec3& maximum, const
+ 			Inside		= Ps::IntFalse;
+ 
+ 			// Calculate T distances to candidate planes
+-			if(idir[i])
++			if(idir[i] & ~PX_SIGN_BITMASK)
+ //			if(PX_IR(dir[i]))
+ 				MaxT[i] = (maximum[i] - origin[i]) / dir[i];
+ 		}
+diff --git a/PhysX_3.4/Source/compiler/vc15win32/PhysXExtensions.vcxproj b/PhysX_3.4/Source/compiler/vc15win32/PhysXExtensions.vcxproj
+index 6d5fa23d..0af8190b 100644
+--- a/PhysX_3.4/Source/compiler/vc15win32/PhysXExtensions.vcxproj
++++ b/PhysX_3.4/Source/compiler/vc15win32/PhysXExtensions.vcxproj
+@@ -69,7 +69,7 @@
+ 			<BufferSecurityCheck>false</BufferSecurityCheck>
+ 			<FloatingPointModel>Fast</FloatingPointModel>
+ 			<BasicRuntimeChecks>UninitializedLocalUsageCheck</BasicRuntimeChecks>
+-			<AdditionalOptions>/GR- /GF /arch:SSE2 /MP /Wall /wd4514 /wd4820 /wd4127 /wd4710 /wd4711 /wd4435 /wd4577 /wd4464 /wd4623 /wd4626 /wd5027 /wd4987 /wd5038 /wd5045 /Zi /d2Zi+</AdditionalOptions>
++			<AdditionalOptions>/GF /arch:SSE2 /MP /Wall /wd4514 /wd4820 /wd4127 /wd4710 /wd4711 /wd4435 /wd4577 /wd4464 /wd4623 /wd4626 /wd5027 /wd4987 /wd5038 /wd5045 /Zi /d2Zi+</AdditionalOptions>
+ 			<Optimization>Disabled</Optimization>
+ 			<AdditionalIncludeDirectories>./../../Common/include;./../../../../PxShared/include;./../../../../PxShared/src/foundation/include;./../../../../PxShared/src/fastxml/include;./../../../../PxShared/src/pvd/include;./../../../Include/common;./../../../Include/geometry;./../../../Include/GeomUtils;./../../../Include/pvd;./../../../Include/cooking;./../../../Include/extensions;./../../../Include/vehicle;./../../../Include/cloth;./../../../Include;./../../Common/src;./../../GeomUtils/headers;./../../GeomUtils/src;./../../GeomUtils/src/contact;./../../GeomUtils/src/common;./../../GeomUtils/src/convex;./../../GeomUtils/src/distance;./../../GeomUtils/src/gjk;./../../GeomUtils/src/intersection;./../../GeomUtils/src/mesh;./../../GeomUtils/src/hf;./../../GeomUtils/src/pcm;./../../PhysXMetaData/core/include;./../../PhysXMetaData/extensions/include;./../../PhysXExtensions/src;./../../PhysXExtensions/src/serialization/Xml;./../../PhysXExtensions/src/serialization/Binary;./../../PhysXExtensions/src/serialization/File;./../../PvdSDK/src;./../../PhysX/src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+ 			<PreprocessorDefinitions>PX_BUILD_NUMBER=0;WIN32;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_WINSOCK_DEPRECATED_NO_WARNINGS;PX_PHYSX_STATIC_LIB;_DEBUG;PX_DEBUG=1;PX_CHECKED=1;PX_NVTX=1;PX_SUPPORT_PVD=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+@@ -108,7 +108,7 @@
+ 			<TreatWarningAsError>true</TreatWarningAsError>
+ 			<BufferSecurityCheck>false</BufferSecurityCheck>
+ 			<FloatingPointModel>Fast</FloatingPointModel>
+-			<AdditionalOptions>/GR- /GF /arch:SSE2 /MP /Wall /wd4514 /wd4820 /wd4127 /wd4710 /wd4711 /wd4435 /wd4577 /wd4464 /wd4623 /wd4626 /wd5027 /wd4987 /wd5038 /wd5045 /d2Zi+</AdditionalOptions>
++			<AdditionalOptions>/GF /arch:SSE2 /MP /Wall /wd4514 /wd4820 /wd4127 /wd4710 /wd4711 /wd4435 /wd4577 /wd4464 /wd4623 /wd4626 /wd5027 /wd4987 /wd5038 /wd5045 /d2Zi+</AdditionalOptions>
+ 			<Optimization>Full</Optimization>
+ 			<AdditionalIncludeDirectories>./../../Common/include;./../../../../PxShared/include;./../../../../PxShared/src/foundation/include;./../../../../PxShared/src/fastxml/include;./../../../../PxShared/src/pvd/include;./../../../Include/common;./../../../Include/geometry;./../../../Include/GeomUtils;./../../../Include/pvd;./../../../Include/cooking;./../../../Include/extensions;./../../../Include/vehicle;./../../../Include/cloth;./../../../Include;./../../Common/src;./../../GeomUtils/headers;./../../GeomUtils/src;./../../GeomUtils/src/contact;./../../GeomUtils/src/common;./../../GeomUtils/src/convex;./../../GeomUtils/src/distance;./../../GeomUtils/src/gjk;./../../GeomUtils/src/intersection;./../../GeomUtils/src/mesh;./../../GeomUtils/src/hf;./../../GeomUtils/src/pcm;./../../PhysXMetaData/core/include;./../../PhysXMetaData/extensions/include;./../../PhysXExtensions/src;./../../PhysXExtensions/src/serialization/Xml;./../../PhysXExtensions/src/serialization/Binary;./../../PhysXExtensions/src/serialization/File;./../../PvdSDK/src;./../../PhysX/src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+ 			<PreprocessorDefinitions>PX_BUILD_NUMBER=0;WIN32;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_WINSOCK_DEPRECATED_NO_WARNINGS;PX_PHYSX_STATIC_LIB;NDEBUG;PX_CHECKED=1;PX_NVTX=1;PX_SUPPORT_PVD=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+@@ -147,7 +147,7 @@
+ 			<TreatWarningAsError>true</TreatWarningAsError>
+ 			<BufferSecurityCheck>false</BufferSecurityCheck>
+ 			<FloatingPointModel>Fast</FloatingPointModel>
+-			<AdditionalOptions>/GR- /GF /arch:SSE2 /MP /Wall /wd4514 /wd4820 /wd4127 /wd4710 /wd4711 /wd4435 /wd4577 /wd4464 /wd4623 /wd4626 /wd5027 /wd4987 /wd5038 /wd5045 /d2Zi+</AdditionalOptions>
++			<AdditionalOptions>/GF /arch:SSE2 /MP /Wall /wd4514 /wd4820 /wd4127 /wd4710 /wd4711 /wd4435 /wd4577 /wd4464 /wd4623 /wd4626 /wd5027 /wd4987 /wd5038 /wd5045 /d2Zi+</AdditionalOptions>
+ 			<Optimization>Full</Optimization>
+ 			<AdditionalIncludeDirectories>./../../Common/include;./../../../../PxShared/include;./../../../../PxShared/src/foundation/include;./../../../../PxShared/src/fastxml/include;./../../../../PxShared/src/pvd/include;./../../../Include/common;./../../../Include/geometry;./../../../Include/GeomUtils;./../../../Include/pvd;./../../../Include/cooking;./../../../Include/extensions;./../../../Include/vehicle;./../../../Include/cloth;./../../../Include;./../../Common/src;./../../GeomUtils/headers;./../../GeomUtils/src;./../../GeomUtils/src/contact;./../../GeomUtils/src/common;./../../GeomUtils/src/convex;./../../GeomUtils/src/distance;./../../GeomUtils/src/gjk;./../../GeomUtils/src/intersection;./../../GeomUtils/src/mesh;./../../GeomUtils/src/hf;./../../GeomUtils/src/pcm;./../../PhysXMetaData/core/include;./../../PhysXMetaData/extensions/include;./../../PhysXExtensions/src;./../../PhysXExtensions/src/serialization/Xml;./../../PhysXExtensions/src/serialization/Binary;./../../PhysXExtensions/src/serialization/File;./../../PvdSDK/src;./../../PhysX/src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+ 			<PreprocessorDefinitions>PX_BUILD_NUMBER=0;WIN32;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_WINSOCK_DEPRECATED_NO_WARNINGS;PX_PHYSX_STATIC_LIB;NDEBUG;PX_PROFILE=1;PX_NVTX=1;PX_SUPPORT_PVD=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+@@ -187,7 +187,7 @@
+ 			<TreatWarningAsError>true</TreatWarningAsError>
+ 			<BufferSecurityCheck>false</BufferSecurityCheck>
+ 			<FloatingPointModel>Fast</FloatingPointModel>
+-			<AdditionalOptions>/GR- /GF /arch:SSE2 /MP /Wall /wd4514 /wd4820 /wd4127 /wd4710 /wd4711 /wd4435 /wd4577 /wd4464 /wd4623 /wd4626 /wd5027 /wd4987 /wd5038 /wd5045 /d2Zi+</AdditionalOptions>
++			<AdditionalOptions>/GF /arch:SSE2 /MP /Wall /wd4514 /wd4820 /wd4127 /wd4710 /wd4711 /wd4435 /wd4577 /wd4464 /wd4623 /wd4626 /wd5027 /wd4987 /wd5038 /wd5045 /d2Zi+</AdditionalOptions>
+ 			<Optimization>Full</Optimization>
+ 			<AdditionalIncludeDirectories>./../../Common/include;./../../../../PxShared/include;./../../../../PxShared/src/foundation/include;./../../../../PxShared/src/fastxml/include;./../../../../PxShared/src/pvd/include;./../../../Include/common;./../../../Include/geometry;./../../../Include/GeomUtils;./../../../Include/pvd;./../../../Include/cooking;./../../../Include/extensions;./../../../Include/vehicle;./../../../Include/cloth;./../../../Include;./../../Common/src;./../../GeomUtils/headers;./../../GeomUtils/src;./../../GeomUtils/src/contact;./../../GeomUtils/src/common;./../../GeomUtils/src/convex;./../../GeomUtils/src/distance;./../../GeomUtils/src/gjk;./../../GeomUtils/src/intersection;./../../GeomUtils/src/mesh;./../../GeomUtils/src/hf;./../../GeomUtils/src/pcm;./../../PhysXMetaData/core/include;./../../PhysXMetaData/extensions/include;./../../PhysXExtensions/src;./../../PhysXExtensions/src/serialization/Xml;./../../PhysXExtensions/src/serialization/Binary;./../../PhysXExtensions/src/serialization/File;./../../PvdSDK/src;./../../PhysX/src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+ 			<PreprocessorDefinitions>PX_BUILD_NUMBER=0;WIN32;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_WINSOCK_DEPRECATED_NO_WARNINGS;PX_PHYSX_STATIC_LIB;NDEBUG;PX_SUPPORT_PVD=0;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+diff --git a/PhysX_3.4/Source/compiler/vc15win64/PhysXExtensions.vcxproj b/PhysX_3.4/Source/compiler/vc15win64/PhysXExtensions.vcxproj
+index 772ed5db..24aadb77 100644
+--- a/PhysX_3.4/Source/compiler/vc15win64/PhysXExtensions.vcxproj
++++ b/PhysX_3.4/Source/compiler/vc15win64/PhysXExtensions.vcxproj
+@@ -69,7 +69,7 @@
+ 			<BufferSecurityCheck>false</BufferSecurityCheck>
+ 			<FloatingPointModel>Fast</FloatingPointModel>
+ 			<BasicRuntimeChecks>UninitializedLocalUsageCheck</BasicRuntimeChecks>
+-			<AdditionalOptions>/GR- /GF /MP /Wall /wd4514 /wd4820 /wd4127 /wd4710 /wd4711 /wd4435 /wd4577 /wd4464 /wd4623 /wd4626 /wd5027 /wd4987 /wd5038 /wd5045 /Zi /d2Zi+</AdditionalOptions>
++			<AdditionalOptions>/GF /MP /Wall /wd4514 /wd4820 /wd4127 /wd4710 /wd4711 /wd4435 /wd4577 /wd4464 /wd4623 /wd4626 /wd5027 /wd4987 /wd5038 /wd5045 /Zi /d2Zi+</AdditionalOptions>
+ 			<Optimization>Disabled</Optimization>
+ 			<AdditionalIncludeDirectories>./../../Common/include;./../../../../PxShared/include;./../../../../PxShared/src/foundation/include;./../../../../PxShared/src/fastxml/include;./../../../../PxShared/src/pvd/include;./../../../Include/common;./../../../Include/geometry;./../../../Include/GeomUtils;./../../../Include/pvd;./../../../Include/cooking;./../../../Include/extensions;./../../../Include/vehicle;./../../../Include/cloth;./../../../Include;./../../Common/src;./../../GeomUtils/headers;./../../GeomUtils/src;./../../GeomUtils/src/contact;./../../GeomUtils/src/common;./../../GeomUtils/src/convex;./../../GeomUtils/src/distance;./../../GeomUtils/src/gjk;./../../GeomUtils/src/intersection;./../../GeomUtils/src/mesh;./../../GeomUtils/src/hf;./../../GeomUtils/src/pcm;./../../PhysXMetaData/core/include;./../../PhysXMetaData/extensions/include;./../../PhysXExtensions/src;./../../PhysXExtensions/src/serialization/Xml;./../../PhysXExtensions/src/serialization/Binary;./../../PhysXExtensions/src/serialization/File;./../../PvdSDK/src;./../../PhysX/src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+ 			<PreprocessorDefinitions>PX_BUILD_NUMBER=0;WIN32;WIN64;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_WINSOCK_DEPRECATED_NO_WARNINGS;PX_PHYSX_STATIC_LIB;_DEBUG;PX_DEBUG=1;PX_CHECKED=1;PX_NVTX=1;PX_SUPPORT_PVD=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+@@ -108,7 +108,7 @@
+ 			<TreatWarningAsError>true</TreatWarningAsError>
+ 			<BufferSecurityCheck>false</BufferSecurityCheck>
+ 			<FloatingPointModel>Fast</FloatingPointModel>
+-			<AdditionalOptions>/GR- /GF /MP /Wall /wd4514 /wd4820 /wd4127 /wd4710 /wd4711 /wd4435 /wd4577 /wd4464 /wd4623 /wd4626 /wd5027 /wd4987 /wd5038 /wd5045 /d2Zi+</AdditionalOptions>
++			<AdditionalOptions>/GF /MP /Wall /wd4514 /wd4820 /wd4127 /wd4710 /wd4711 /wd4435 /wd4577 /wd4464 /wd4623 /wd4626 /wd5027 /wd4987 /wd5038 /wd5045 /d2Zi+</AdditionalOptions>
+ 			<Optimization>Full</Optimization>
+ 			<AdditionalIncludeDirectories>./../../Common/include;./../../../../PxShared/include;./../../../../PxShared/src/foundation/include;./../../../../PxShared/src/fastxml/include;./../../../../PxShared/src/pvd/include;./../../../Include/common;./../../../Include/geometry;./../../../Include/GeomUtils;./../../../Include/pvd;./../../../Include/cooking;./../../../Include/extensions;./../../../Include/vehicle;./../../../Include/cloth;./../../../Include;./../../Common/src;./../../GeomUtils/headers;./../../GeomUtils/src;./../../GeomUtils/src/contact;./../../GeomUtils/src/common;./../../GeomUtils/src/convex;./../../GeomUtils/src/distance;./../../GeomUtils/src/gjk;./../../GeomUtils/src/intersection;./../../GeomUtils/src/mesh;./../../GeomUtils/src/hf;./../../GeomUtils/src/pcm;./../../PhysXMetaData/core/include;./../../PhysXMetaData/extensions/include;./../../PhysXExtensions/src;./../../PhysXExtensions/src/serialization/Xml;./../../PhysXExtensions/src/serialization/Binary;./../../PhysXExtensions/src/serialization/File;./../../PvdSDK/src;./../../PhysX/src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+ 			<PreprocessorDefinitions>PX_BUILD_NUMBER=0;WIN32;WIN64;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_WINSOCK_DEPRECATED_NO_WARNINGS;PX_PHYSX_STATIC_LIB;NDEBUG;PX_CHECKED=1;PX_NVTX=1;PX_SUPPORT_PVD=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+@@ -147,7 +147,7 @@
+ 			<TreatWarningAsError>true</TreatWarningAsError>
+ 			<BufferSecurityCheck>false</BufferSecurityCheck>
+ 			<FloatingPointModel>Fast</FloatingPointModel>
+-			<AdditionalOptions>/GR- /GF /MP /Wall /wd4514 /wd4820 /wd4127 /wd4710 /wd4711 /wd4435 /wd4577 /wd4464 /wd4623 /wd4626 /wd5027 /wd4987 /wd5038 /wd5045 /d2Zi+</AdditionalOptions>
++			<AdditionalOptions>/GF /MP /Wall /wd4514 /wd4820 /wd4127 /wd4710 /wd4711 /wd4435 /wd4577 /wd4464 /wd4623 /wd4626 /wd5027 /wd4987 /wd5038 /wd5045 /d2Zi+</AdditionalOptions>
+ 			<Optimization>Full</Optimization>
+ 			<AdditionalIncludeDirectories>./../../Common/include;./../../../../PxShared/include;./../../../../PxShared/src/foundation/include;./../../../../PxShared/src/fastxml/include;./../../../../PxShared/src/pvd/include;./../../../Include/common;./../../../Include/geometry;./../../../Include/GeomUtils;./../../../Include/pvd;./../../../Include/cooking;./../../../Include/extensions;./../../../Include/vehicle;./../../../Include/cloth;./../../../Include;./../../Common/src;./../../GeomUtils/headers;./../../GeomUtils/src;./../../GeomUtils/src/contact;./../../GeomUtils/src/common;./../../GeomUtils/src/convex;./../../GeomUtils/src/distance;./../../GeomUtils/src/gjk;./../../GeomUtils/src/intersection;./../../GeomUtils/src/mesh;./../../GeomUtils/src/hf;./../../GeomUtils/src/pcm;./../../PhysXMetaData/core/include;./../../PhysXMetaData/extensions/include;./../../PhysXExtensions/src;./../../PhysXExtensions/src/serialization/Xml;./../../PhysXExtensions/src/serialization/Binary;./../../PhysXExtensions/src/serialization/File;./../../PvdSDK/src;./../../PhysX/src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+ 			<PreprocessorDefinitions>PX_BUILD_NUMBER=0;WIN32;WIN64;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_WINSOCK_DEPRECATED_NO_WARNINGS;PX_PHYSX_STATIC_LIB;NDEBUG;PX_PROFILE=1;PX_NVTX=1;PX_SUPPORT_PVD=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+@@ -187,7 +187,7 @@
+ 			<TreatWarningAsError>true</TreatWarningAsError>
+ 			<BufferSecurityCheck>false</BufferSecurityCheck>
+ 			<FloatingPointModel>Fast</FloatingPointModel>
+-			<AdditionalOptions>/GR- /GF /MP /Wall /wd4514 /wd4820 /wd4127 /wd4710 /wd4711 /wd4435 /wd4577 /wd4464 /wd4623 /wd4626 /wd5027 /wd4987 /wd5038 /wd5045 /d2Zi+</AdditionalOptions>
++			<AdditionalOptions>/GF /MP /Wall /wd4514 /wd4820 /wd4127 /wd4710 /wd4711 /wd4435 /wd4577 /wd4464 /wd4623 /wd4626 /wd5027 /wd4987 /wd5038 /wd5045 /d2Zi+</AdditionalOptions>
+ 			<Optimization>Full</Optimization>
+ 			<AdditionalIncludeDirectories>./../../Common/include;./../../../../PxShared/include;./../../../../PxShared/src/foundation/include;./../../../../PxShared/src/fastxml/include;./../../../../PxShared/src/pvd/include;./../../../Include/common;./../../../Include/geometry;./../../../Include/GeomUtils;./../../../Include/pvd;./../../../Include/cooking;./../../../Include/extensions;./../../../Include/vehicle;./../../../Include/cloth;./../../../Include;./../../Common/src;./../../GeomUtils/headers;./../../GeomUtils/src;./../../GeomUtils/src/contact;./../../GeomUtils/src/common;./../../GeomUtils/src/convex;./../../GeomUtils/src/distance;./../../GeomUtils/src/gjk;./../../GeomUtils/src/intersection;./../../GeomUtils/src/mesh;./../../GeomUtils/src/hf;./../../GeomUtils/src/pcm;./../../PhysXMetaData/core/include;./../../PhysXMetaData/extensions/include;./../../PhysXExtensions/src;./../../PhysXExtensions/src/serialization/Xml;./../../PhysXExtensions/src/serialization/Binary;./../../PhysXExtensions/src/serialization/File;./../../PvdSDK/src;./../../PhysX/src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+ 			<PreprocessorDefinitions>PX_BUILD_NUMBER=0;WIN32;WIN64;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_WINSOCK_DEPRECATED_NO_WARNINGS;PX_PHYSX_STATIC_LIB;NDEBUG;PX_SUPPORT_PVD=0;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+diff --git a/PxShared/src/foundation/include/PsAllocator.h b/PxShared/src/foundation/include/PsAllocator.h
+index f0dbd1f4..f5068725 100644
+--- a/PxShared/src/foundation/include/PsAllocator.h
++++ b/PxShared/src/foundation/include/PsAllocator.h
+@@ -37,7 +37,7 @@
+ 
+ #if(PX_WINDOWS_FAMILY || PX_XBOXONE)
+ #include <exception>
+-#include <typeinfo.h>
++#include <typeinfo>
+ #endif
+ #if(PX_APPLE_FAMILY)
+ #include <typeinfo>

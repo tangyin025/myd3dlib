@@ -188,7 +188,7 @@ unsigned int Controller::Move(const my::Vector3 & disp, float minDist, float ela
 	{
 		PhysxScene* scene = dynamic_cast<PhysxScene*>(m_Actor->m_Node->GetTopNode());
 
-		moveFlags = m_PxController->move((physx::PxVec3&)disp, minDist, elapsedTime, physx::PxControllerFilters(&physx::PxFilterData(filterWord0, 0, 0, 0), NULL, &scene->m_ControllerFilter), NULL);
+		moveFlags = m_PxController->move((physx::PxVec3&)disp, minDist, elapsedTime, physx::PxControllerFilters(&physx::PxFilterData(filterWord0, 0, 0, 0), NULL, &scene->m_ControllerFilter), scene->m_ObstacleContext.get());
 
 		//// ! recursively call other Component::SetPxPoseOrbyPxThread
 		//m_Actor->SetPxPoseOrbyPxThread(GetFootPosition(), m_Actor->m_Rotation, this);
@@ -323,7 +323,7 @@ const my::Vector3 & Controller::GetUpDirection(void) const
 
 void Controller::SetPosition(const my::Vector3 & Pos)
 {
-	m_desc.position = physx::PxExtendedVec3(Pos.x, Pos.y, Pos.z);
+	m_desc.position.set(Pos.x, Pos.y, Pos.z);
 
 	if (m_PxController)
 	{
@@ -338,7 +338,7 @@ my::Vector3 Controller::GetPosition(void) const
 		return (my::Vector3&)physx::toVec3(m_PxController->getPosition());
 	}
 
-	return (my::Vector3&)m_desc.position;
+	return (my::Vector3&)physx::toVec3(m_desc.position);
 }
 
 my::Vector3 Controller::GetFootOffset(void) const

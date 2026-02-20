@@ -340,8 +340,7 @@ AAAAAAAAgEIAAAAAAACAPwAAAAAAAAD/
 		<m_LodDist>3.300000000e+01</m_LodDist>
 		<m_LodFactor>2.000000000e+00</m_LodFactor>
 		<m_CullingDistSq>6.969600000e+04</m_CullingDistSq>
-		<ActorType>1</ActorType>
-		<RigidBodyFlags>1</RigidBodyFlags>
+		<ActorType>6</ActorType>
 		<m_Cmps>
 			<count>1</count>
 			<item_version>1</item_version>
@@ -402,26 +401,7 @@ AAAAAAAAgEIAAAAAAACAPwAAAAAAAAD/
 								</m_ParameterList>
 							</px>
 						</m_Material>
-						<m_PxGeometryType>3</m_PxGeometryType>
-						<ShapePos>
-							<x>0.000000000e+00</x>
-							<y>0.000000000e+00</y>
-							<z>0.000000000e+00</z>
-						</ShapePos>
-						<ShapeRot>
-							<x>0.000000000e+00</x>
-							<y>0.000000000e+00</y>
-							<z>0.000000000e+00</z>
-							<w>1.000000000e+00</w>
-						</ShapeRot>
-						<BoxHalfExtents>
-							<x>1.000000000e+00</x>
-							<y>1.000000000e+00</y>
-							<z>1.000000000e+00</z>
-						</BoxHalfExtents>
-						<SimulationFilterWord0>1</SimulationFilterWord0>
-						<QueryFilterWord0>1</QueryFilterWord0>
-						<ShapeFlags>11</ShapeFlags>
+						<m_PxGeometryType>-1</m_PxGeometryType>
 					</Component>
 					<m_MeshPath>mesh\Cube.mesh.xml</m_MeshPath>
 					<m_MeshSubMeshId>0</m_MeshSubMeshId>
