@@ -224,7 +224,7 @@ public:
 	{
 		float Length;
 
-		boost::shared_ptr<SphericalEmitter> EmitterTmp;
+		std::string EmitterName;
 	};
 
 	typedef std::multimap<float, KeyFrame> KeyFrameMap;
@@ -236,11 +236,9 @@ public:
 	{
 	}
 
-	virtual ~ActionTrackEmitter(void);
-
 	virtual ActionTrackInstPtr CreateInstance(Actor * _Actor) const;
 
-	void AddKeyFrame(float Time, float Length, SphericalEmitter* EmitterTmp);
+	void AddKeyFrame(float Time, float Length, const char * EmitterName);
 };
 
 class ActionTrackEmitterInst : public ActionTrackInst

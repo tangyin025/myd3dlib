@@ -267,27 +267,17 @@ void ActionTrackSoundInst::Stop(void)
 	}
 }
 
-ActionTrackEmitter::~ActionTrackEmitter(void)
-{
-	ActionTrackEmitter::KeyFrameMap::const_iterator key_iter = m_Keys.begin();
-	for (; key_iter != m_Keys.end(); key_iter++)
-	{
-		key_iter->second.EmitterTmp->ReleaseResource();
-	}
-}
-
 ActionTrackInstPtr ActionTrackEmitter::CreateInstance(Actor * _Actor) const
 {
 	return ActionTrackInstPtr(new ActionTrackEmitterInst(_Actor, boost::static_pointer_cast<const ActionTrackEmitter>(shared_from_this())));
 }
 
-void ActionTrackEmitter::AddKeyFrame(float Time, float Length, SphericalEmitter* EmitterTmp)
+void ActionTrackEmitter::AddKeyFrame(float Time, float Length, const char * EmitterName)
 {
 	KeyFrameMap::iterator key_iter = m_Keys.insert(std::make_pair(Time, KeyFrame()));
-	_ASSERT(key_iter != m_Keys.end() && EmitterTmp);
+	_ASSERT(key_iter != m_Keys.end());
 	key_iter->second.Length = Length;
-	key_iter->second.EmitterTmp = boost::dynamic_pointer_cast<SphericalEmitter>(EmitterTmp->Clone());
-	key_iter->second.EmitterTmp->RequestResource();
+	key_iter->second.EmitterName = EmitterName;
 }
 
 ActionTrackEmitterInst::ActionTrackEmitterInst(Actor * _Actor, boost::shared_ptr<const ActionTrackEmitter> Template)
@@ -307,8 +297,9 @@ void ActionTrackEmitterInst::UpdateTime(float LastTime, float Time)
 	ActionTrackEmitter::KeyFrameMap::const_iterator key_end = m_Template->m_Keys.lower_bound(Time);
 	for (; key_iter != key_end; key_iter++)
 	{
-		KeyFrameInst inst(key_iter->second.Length, key_iter->second.EmitterTmp->m_SpawnInterval, key_iter->second.EmitterTmp->m_SpawnCount);
-		inst.m_EmitterCmp = boost::dynamic_pointer_cast<SphericalEmitter>(key_iter->second.EmitterTmp->Clone());
+		SphericalEmitter* EmitterCmp = dynamic_cast<SphericalEmitter*>(my::D3DContext::getSingleton().GetNamedObject(key_iter->second.EmitterName.c_str()));
+		KeyFrameInst inst(key_iter->second.Length, EmitterCmp->m_SpawnInterval, EmitterCmp->m_SpawnCount);
+		inst.m_EmitterCmp = boost::static_pointer_cast<SphericalEmitter>(EmitterCmp->Clone());
 		inst.m_EmitterCmp->m_SpawnInterval = 0;
 		m_KeyInsts.push_back(inst);
 		m_Actor->InsertComponent(inst.m_EmitterCmp);

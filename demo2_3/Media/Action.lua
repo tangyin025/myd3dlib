@@ -25,23 +25,23 @@ particle1.PassMask=Material.PassMaskTransparent
 particle1.ZWriteEnable=false
 particle1.BlendMode=Material.BlendModeAdditive
 particle1:SetParameter("g_Texture", "texture/flare.dds")
-local sphe_emit_cmp=SphericalEmitter(NamedObject.MakeUniqueName("sphe_emit_cmp"),1024,EmitterComponent.FaceTypeCamera,EmitterComponent.SpaceTypeWorld)
-sphe_emit_cmp.SpawnInterval=0.1
-sphe_emit_cmp.ParticleLifeTime=5
-sphe_emit_cmp.ParticleColorR:AddNode(0,1,0,0)
-sphe_emit_cmp.ParticleColorR:AddNode(3,0,0,0)
-sphe_emit_cmp.ParticleColorG:AddNode(0,1,0,0)
-sphe_emit_cmp.ParticleColorG:AddNode(3,0,0,0)
-sphe_emit_cmp.ParticleColorB:AddNode(0,1,0,0)
-sphe_emit_cmp.ParticleColorB:AddNode(3,0,0,0)
-sphe_emit_cmp.ParticleColorA:AddNode(0,1,0,0)
-sphe_emit_cmp.ParticleColorA:AddNode(3,0,0,0)
-sphe_emit_cmp.ParticleSizeX:AddNode(0,1,0,0)
-sphe_emit_cmp.ParticleSizeY:AddNode(0,1,0,0)
-sphe_emit_cmp.SpawnBoneId=skel:GetBoneIndex("joint6")
-sphe_emit_cmp.Material=particle1
+act_tuowei_emit=SphericalEmitter(NamedObject.MakeUniqueName("act_tuowei_emit"),1024,EmitterComponent.FaceTypeCamera,EmitterComponent.SpaceTypeWorld)
+act_tuowei_emit.SpawnInterval=0.1
+act_tuowei_emit.ParticleLifeTime=5
+act_tuowei_emit.ParticleColorR:AddNode(0,1,0,0)
+act_tuowei_emit.ParticleColorR:AddNode(3,0,0,0)
+act_tuowei_emit.ParticleColorG:AddNode(0,1,0,0)
+act_tuowei_emit.ParticleColorG:AddNode(3,0,0,0)
+act_tuowei_emit.ParticleColorB:AddNode(0,1,0,0)
+act_tuowei_emit.ParticleColorB:AddNode(3,0,0,0)
+act_tuowei_emit.ParticleColorA:AddNode(0,1,0,0)
+act_tuowei_emit.ParticleColorA:AddNode(3,0,0,0)
+act_tuowei_emit.ParticleSizeX:AddNode(0,1,0,0)
+act_tuowei_emit.ParticleSizeY:AddNode(0,1,0,0)
+act_tuowei_emit.SpawnBoneId=skel:GetBoneIndex("joint6")
+act_tuowei_emit.Material=particle1
 local track=ActionTrackEmitter()
-track:AddKeyFrame(0,99999,sphe_emit_cmp)
+track:AddKeyFrame(0,99999,act_tuowei_emit.Name)
 act_tuowei:AddTrack(track)
 
 act_pose=Action(100)
