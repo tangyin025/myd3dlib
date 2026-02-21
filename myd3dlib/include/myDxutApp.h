@@ -144,7 +144,7 @@ namespace my
 
 		bool UnregisterNamedObject(const char * Name, NamedObject * Object);
 
-		NamedObject * GetNamedObject(const char * Name);
+		NamedObject * GetNamedObject(const std::string & Name);
 
 		virtual void OnNamedObjectCreate(NamedObject* obj)
 		{

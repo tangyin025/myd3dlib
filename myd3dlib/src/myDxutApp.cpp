@@ -241,7 +241,7 @@ bool D3DContext::UnregisterNamedObject(const char * Name, NamedObject * Object)
 	return false;
 }
 
-NamedObject * D3DContext::GetNamedObject(const char * Name)
+NamedObject * D3DContext::GetNamedObject(const std::string & Name)
 {
 	CriticalSectionLock lock(m_NamedObjectsSec);
 

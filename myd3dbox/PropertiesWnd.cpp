@@ -3353,7 +3353,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	{
 		Actor * actor = (Actor *)pProp->GetParent()->GetValue().pulVal;
 		std::string Name = ts2ms(pProp->GetValue().bstrVal);
-		if (theApp.GetNamedObject(Name.c_str()))
+		if (theApp.GetNamedObject(Name))
 		{
 			MessageBox(str_printf(_T("%s already existed"), pProp->GetValue().bstrVal).c_str());
 			pProp->SetValue((_variant_t)ms2ts(actor->GetName()).c_str());
@@ -3524,7 +3524,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	{
 		Component * cmp = (Component *)pProp->GetParent()->GetValue().pulVal;
 		std::string Name = ts2ms(pProp->GetValue().bstrVal);
-		if (theApp.GetNamedObject(Name.c_str()))
+		if (theApp.GetNamedObject(Name))
 		{
 			MessageBox(str_printf(_T("%s already existed"), pProp->GetValue().bstrVal).c_str());
 			pProp->SetValue((_variant_t)ms2ts(cmp->GetName()).c_str());
@@ -4669,7 +4669,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	case PropertyPaintEmitterSiblingId:
 	{
 		int i = (DYNAMIC_DOWNCAST(CComboProp, pProp))->m_iSelIndex;
-		StaticEmitter* emit = dynamic_cast<StaticEmitter*>(theApp.GetNamedObject(ts2ms((DYNAMIC_DOWNCAST(CComboProp, pProp))->GetOption(i)).c_str()));
+		StaticEmitter* emit = dynamic_cast<StaticEmitter*>(theApp.GetNamedObject(ts2ms((DYNAMIC_DOWNCAST(CComboProp, pProp))->GetOption(i))));
 		ASSERT(emit);
 		pFrame->m_PaintEmitterSiblingId = emit->GetSiblingId();
 		break;
@@ -4705,7 +4705,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	{
 		my::Control* control = (my::Control*)pProp->GetParent()->GetValue().pulVal;
 		std::string Name = ts2ms(pProp->GetValue().bstrVal);
-		if (theApp.GetNamedObject(Name.c_str()))
+		if (theApp.GetNamedObject(Name))
 		{
 			MessageBox(str_printf(_T("%s already existed"), pProp->GetValue().bstrVal).c_str());
 			pProp->SetValue((_variant_t)ms2ts(control->GetName()).c_str());

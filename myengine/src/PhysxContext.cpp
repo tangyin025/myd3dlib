@@ -24,8 +24,8 @@
 #include <boost/serialization/export.hpp>
 #include <boost/scope_exit.hpp>
 #include "CctCharacterControllerManager.h"
-#include "GuIntersectionTriangleBox.h"
-#include "common/GuBoxConversion.h"
+//#include "GuIntersectionTriangleBox.h"
+//#include "common/GuBoxConversion.h"
 #include "intersection/GuIntersectionRayTriangle.h"
 #include "NpSpatialIndex.h"
 #include "SqAABBPruner.h"

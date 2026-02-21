@@ -297,7 +297,7 @@ void ActionTrackEmitterInst::UpdateTime(float LastTime, float Time)
 	ActionTrackEmitter::KeyFrameMap::const_iterator key_end = m_Template->m_Keys.lower_bound(Time);
 	for (; key_iter != key_end; key_iter++)
 	{
-		SphericalEmitter* EmitterCmp = dynamic_cast<SphericalEmitter*>(my::D3DContext::getSingleton().GetNamedObject(key_iter->second.EmitterName.c_str()));
+		SphericalEmitter* EmitterCmp = dynamic_cast<SphericalEmitter*>(my::D3DContext::getSingleton().GetNamedObject(key_iter->second.EmitterName));
 		KeyFrameInst inst(key_iter->second.Length, EmitterCmp->m_SpawnInterval, EmitterCmp->m_SpawnCount);
 		inst.m_EmitterCmp = boost::static_pointer_cast<SphericalEmitter>(EmitterCmp->Clone());
 		inst.m_EmitterCmp->m_SpawnInterval = 0;

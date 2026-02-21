@@ -93,6 +93,21 @@ NamedObject::~NamedObject(void)
 	SetName(NULL);
 }
 
+// access private member using template trick, https://stackoverflow.com/questions/12993219/access-private-member-using-template-trick
+template<typename Tag, typename Tag::type M>
+struct Rob {
+	friend typename Tag::type get(Tag) {
+		return M;
+	}
+};
+
+struct string_Eos {
+	typedef void (std::string::* type)(size_t);
+	friend type get(string_Eos);
+};
+
+template struct Rob<string_Eos, &std::string::_Eos>;
+
 std::string NamedObject::MakeUniqueName(const char * Prefix)
 {
 	_ASSERT(GetCurrentThreadId() == D3DContext::getSingleton().m_d3dThreadId);
@@ -111,13 +126,14 @@ std::string NamedObject::MakeUniqueName(const char * Prefix)
 		name_without_postfix.assign(Prefix);
 
 	// ! If high-probability numbers are concentrated at the front of the sequence, using sequential guessing.
-	std::string ret(Max((size_t)128, name_without_postfix.length() + 16), '\0');
+	const size_t max_size = Max((size_t)128, name_without_postfix.length() + 16);
+	std::string ret(max_size, '\0');
 	for (; ; postfix_i++)
 	{
-		int nLen = _snprintf(&ret[0], ret.size(), "%s%u", name_without_postfix.c_str(), postfix_i);
-		if (!D3DContext::getSingleton().GetNamedObject(ret.c_str()))
+		// ! Make sure that std::string::resize does not modify the capacity.
+		(ret.*get(string_Eos()))(_snprintf(&ret[0], max_size, "%s%u", name_without_postfix.c_str(), postfix_i));
+		if (!D3DContext::getSingleton().GetNamedObject(ret))
 		{
-			ret.resize(nLen);
 			return ret;
 		}
 	}
