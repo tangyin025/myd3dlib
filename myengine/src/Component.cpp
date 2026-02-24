@@ -427,7 +427,7 @@ unsigned int Component::GetShapeFlags(void) const
 
 physx::PxGeometryType::Enum Component::GetGeometryType(void) const
 {
-	return m_PxShape ? m_PxShape->getGeometryType() : physx::PxGeometryType::Enum::eINVALID;
+	return m_PxShape ? m_PxShape->getGeometryType() : m_PxGeometryType;
 }
 
 void Component::SetShapeLocalPose(const my::Bone & pose)
@@ -446,7 +446,7 @@ void Component::ClearShape(void)
 {
 	if (m_PxShape)
 	{
-		if (m_Actor && m_Actor->IsRequested())
+		if (m_Actor && m_Actor->m_PxActor)
 		{
 			_ASSERT(m_PxShape->getActor() == m_Actor->m_PxActor.get());
 
