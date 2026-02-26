@@ -982,15 +982,10 @@ void CMainFrame::UpdateSelBox(void)
 
 void CMainFrame::UpdatePivotTransform(void)
 {
-	if (m_selactors.size() == 1)
+	if (!m_selactors.empty())
 	{
-		m_Pivot.m_Pos = (*m_selactors.begin())->m_Position;
-		m_Pivot.m_Rot = (m_Pivot.m_Mode == Pivot::PivotModeMove ? my::Quaternion::Identity() : (*m_selactors.begin())->m_Rotation);
-	}
-	else if (!m_selactors.empty())
-	{
-		m_Pivot.m_Pos = m_selbox.Center();
-		m_Pivot.m_Rot = my::Quaternion::Identity();
+		m_Pivot.m_Pos = m_selactors.front()->m_Base ? m_selactors.front()->m_World.getRow<3>().xyz : m_selactors.front()->m_Position;
+		m_Pivot.m_Rot = m_selactors.size() > 1 || m_selactors.front()->m_Base || m_Pivot.m_Mode == Pivot::PivotModeMove ? my::Quaternion::Identity() : m_selactors.front()->m_Rotation;
 	}
 }
 
@@ -1015,15 +1010,6 @@ void CMainFrame::OnFrameTick(float fElapsedTime)
 			if ((*actor_iter)->IsRequested())
 			{
 				(*actor_iter)->Update(fElapsedTime);
-			}
-
-			Actor::AttachList::iterator attach_iter = (*actor_iter)->m_Attaches.begin();
-			for (; attach_iter != (*actor_iter)->m_Attaches.end(); attach_iter++)
-			{
-				if ((*attach_iter)->IsRequested())
-				{
-					(*attach_iter)->Update(fElapsedTime);
-				}
 			}
 		}
 	}

@@ -826,7 +826,7 @@ void Actor::ClearAllComponent(void)
 
 void Actor::Attach(Actor * other, int BoneId)
 {
-	_ASSERT(other->m_Base == NULL);
+	_ASSERT(other != this && other->m_Base == NULL);
 
 	_ASSERT(m_Node && m_Node->GetTopNode()->HaveNode(other->m_Node));
 

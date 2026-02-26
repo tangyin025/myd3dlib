@@ -452,12 +452,6 @@ void CChildView::RenderSelectedActor(IDirect3DDevice9 * pd3dDevice, Actor * acto
 			}
 		}
 	}
-
-	Actor::AttachList::iterator att_iter = actor->m_Attaches.begin();
-	for (; att_iter != actor->m_Attaches.end(); att_iter++)
-	{
-		RenderSelectedActor(pd3dDevice, *att_iter, color);
-	}
 }
 
 void CChildView::RenderSelectedComponent(IDirect3DDevice9 * pd3dDevice, Component * cmp, D3DCOLOR color)
@@ -2483,69 +2477,73 @@ void CChildView::OnMouseMove(UINT nFlags, CPoint point)
 		CMainFrame::ActorList::iterator sel_iter = pFrame->m_selactors.begin();
 		for (; sel_iter != pFrame->m_selactors.end(); sel_iter++)
 		{
-			const my::Bone& pose = selactposes[std::distance(pFrame->m_selactors.begin(), sel_iter)];
-			switch (pFrame->m_Pivot.m_Mode)
+			if (!(*sel_iter)->m_Base)
 			{
-			case Pivot::PivotModeMove:
-				switch (pFrame->m_Pivot.m_DragAxis)
+				const my::Bone& pose = selactposes[std::distance(pFrame->m_selactors.begin(), sel_iter)];
+				switch (pFrame->m_Pivot.m_Mode)
 				{
-				case Pivot::PivotDragAxisX:
-					(*sel_iter)->m_Position.x = pose.m_position.x + pFrame->m_Pivot.m_Pos.x - pFrame->m_Pivot.m_DragRot.x;
-					ALIGN_TO_VALUE((*sel_iter)->m_Position.x, theApp.default_grid_lines_every / theApp.default_grid_subdivisions);
+				case Pivot::PivotModeMove:
+					switch (pFrame->m_Pivot.m_DragAxis)
+					{
+					case Pivot::PivotDragAxisX:
+						(*sel_iter)->m_Position.x = pose.m_position.x + pFrame->m_Pivot.m_Pos.x - pFrame->m_Pivot.m_DragRot.x;
+						ALIGN_TO_VALUE((*sel_iter)->m_Position.x, theApp.default_grid_lines_every / theApp.default_grid_subdivisions);
+						break;
+					case Pivot::PivotDragAxisY:
+						(*sel_iter)->m_Position.y = pose.m_position.y + pFrame->m_Pivot.m_Pos.y - pFrame->m_Pivot.m_DragRot.y;
+						ALIGN_TO_VALUE((*sel_iter)->m_Position.y, theApp.default_grid_lines_every / theApp.default_grid_subdivisions);
+						break;
+					case Pivot::PivotDragAxisZ:
+						(*sel_iter)->m_Position.z = pose.m_position.z + pFrame->m_Pivot.m_Pos.z - pFrame->m_Pivot.m_DragRot.z;
+						ALIGN_TO_VALUE((*sel_iter)->m_Position.z, theApp.default_grid_lines_every / theApp.default_grid_subdivisions);
+						break;
+					case Pivot::PivotDragPlanX:
+						(*sel_iter)->m_Position.y = pose.m_position.y + pFrame->m_Pivot.m_Pos.y - pFrame->m_Pivot.m_DragRot.y;
+						(*sel_iter)->m_Position.z = pose.m_position.z + pFrame->m_Pivot.m_Pos.z - pFrame->m_Pivot.m_DragRot.z;
+						ALIGN_TO_VALUE((*sel_iter)->m_Position.y, theApp.default_grid_lines_every / theApp.default_grid_subdivisions);
+						ALIGN_TO_VALUE((*sel_iter)->m_Position.z, theApp.default_grid_lines_every / theApp.default_grid_subdivisions);
+						break;
+					case Pivot::PivotDragPlanY:
+						(*sel_iter)->m_Position.x = pose.m_position.x + pFrame->m_Pivot.m_Pos.x - pFrame->m_Pivot.m_DragRot.x;
+						(*sel_iter)->m_Position.z = pose.m_position.z + pFrame->m_Pivot.m_Pos.z - pFrame->m_Pivot.m_DragRot.z;
+						ALIGN_TO_VALUE((*sel_iter)->m_Position.x, theApp.default_grid_lines_every / theApp.default_grid_subdivisions);
+						ALIGN_TO_VALUE((*sel_iter)->m_Position.z, theApp.default_grid_lines_every / theApp.default_grid_subdivisions);
+						break;
+					case Pivot::PivotDragPlanZ:
+						(*sel_iter)->m_Position.x = pose.m_position.x + pFrame->m_Pivot.m_Pos.x - pFrame->m_Pivot.m_DragRot.x;
+						(*sel_iter)->m_Position.y = pose.m_position.y + pFrame->m_Pivot.m_Pos.y - pFrame->m_Pivot.m_DragRot.y;
+						ALIGN_TO_VALUE((*sel_iter)->m_Position.x, theApp.default_grid_lines_every / theApp.default_grid_subdivisions);
+						ALIGN_TO_VALUE((*sel_iter)->m_Position.y, theApp.default_grid_lines_every / theApp.default_grid_subdivisions);
+						break;
+					}
+					(*sel_iter)->UpdateWorld();
 					break;
-				case Pivot::PivotDragAxisY:
-					(*sel_iter)->m_Position.y = pose.m_position.y + pFrame->m_Pivot.m_Pos.y - pFrame->m_Pivot.m_DragRot.y;
-					ALIGN_TO_VALUE((*sel_iter)->m_Position.y, theApp.default_grid_lines_every / theApp.default_grid_subdivisions);
-					break;
-				case Pivot::PivotDragAxisZ:
-					(*sel_iter)->m_Position.z = pose.m_position.z + pFrame->m_Pivot.m_Pos.z - pFrame->m_Pivot.m_DragRot.z;
-					ALIGN_TO_VALUE((*sel_iter)->m_Position.z, theApp.default_grid_lines_every / theApp.default_grid_subdivisions);
-					break;
-				case Pivot::PivotDragPlanX:
-					(*sel_iter)->m_Position.y = pose.m_position.y + pFrame->m_Pivot.m_Pos.y - pFrame->m_Pivot.m_DragRot.y;
-					(*sel_iter)->m_Position.z = pose.m_position.z + pFrame->m_Pivot.m_Pos.z - pFrame->m_Pivot.m_DragRot.z;
-					ALIGN_TO_VALUE((*sel_iter)->m_Position.y, theApp.default_grid_lines_every / theApp.default_grid_subdivisions);
-					ALIGN_TO_VALUE((*sel_iter)->m_Position.z, theApp.default_grid_lines_every / theApp.default_grid_subdivisions);
-					break;
-				case Pivot::PivotDragPlanY:
-					(*sel_iter)->m_Position.x = pose.m_position.x + pFrame->m_Pivot.m_Pos.x - pFrame->m_Pivot.m_DragRot.x;
-					(*sel_iter)->m_Position.z = pose.m_position.z + pFrame->m_Pivot.m_Pos.z - pFrame->m_Pivot.m_DragRot.z;
-					ALIGN_TO_VALUE((*sel_iter)->m_Position.x, theApp.default_grid_lines_every / theApp.default_grid_subdivisions);
-					ALIGN_TO_VALUE((*sel_iter)->m_Position.z, theApp.default_grid_lines_every / theApp.default_grid_subdivisions);
-					break;
-				case Pivot::PivotDragPlanZ:
-					(*sel_iter)->m_Position.x = pose.m_position.x + pFrame->m_Pivot.m_Pos.x - pFrame->m_Pivot.m_DragRot.x;
-					(*sel_iter)->m_Position.y = pose.m_position.y + pFrame->m_Pivot.m_Pos.y - pFrame->m_Pivot.m_DragRot.y;
-					ALIGN_TO_VALUE((*sel_iter)->m_Position.x, theApp.default_grid_lines_every / theApp.default_grid_subdivisions);
-					ALIGN_TO_VALUE((*sel_iter)->m_Position.y, theApp.default_grid_lines_every / theApp.default_grid_subdivisions);
-					break;
-				}
-				(*sel_iter)->UpdateWorld();
-				break;
-			case Pivot::PivotModeRot:
-			{
-				my::Vector3 delta_eular = pFrame->m_Pivot.m_DragDeltaRot;
-				switch (pFrame->m_Pivot.m_DragAxis)
-				{
-				case Pivot::PivotDragAxisX:
-					ALIGN_TO_VALUE(delta_eular.x, D3DXToRadian(10));
-					break;
-				case Pivot::PivotDragAxisY:
-					ALIGN_TO_VALUE(delta_eular.y, D3DXToRadian(10));
-					break;
-				case Pivot::PivotDragAxisZ:
-					ALIGN_TO_VALUE(delta_eular.z, D3DXToRadian(10));
-					break;
-				}
-				my::Quaternion rot = pFrame->m_Pivot.m_DragRot.inverse() * my::Quaternion::RotationEulerAngles(delta_eular.x, delta_eular.y, delta_eular.z) * pFrame->m_Pivot.m_DragRot;
-				(*sel_iter)->m_Position = pose.m_position.transformCoord(my::Matrix4::AffineTransformation(1, pFrame->m_Pivot.m_Pos, rot, my::Vector3(0, 0, 0)));
-				(*sel_iter)->m_Rotation = pose.m_rotation * rot;
-				(*sel_iter)->UpdateWorld();
-				break;
-			}
-			}
 
-			(*sel_iter)->SetPxPoseOrbyPxThread((*sel_iter)->m_Position, (*sel_iter)->m_Rotation, NULL);
+				case Pivot::PivotModeRot:
+				{
+					my::Vector3 delta_eular = pFrame->m_Pivot.m_DragDeltaRot;
+					switch (pFrame->m_Pivot.m_DragAxis)
+					{
+					case Pivot::PivotDragAxisX:
+						ALIGN_TO_VALUE(delta_eular.x, D3DXToRadian(10));
+						break;
+					case Pivot::PivotDragAxisY:
+						ALIGN_TO_VALUE(delta_eular.y, D3DXToRadian(10));
+						break;
+					case Pivot::PivotDragAxisZ:
+						ALIGN_TO_VALUE(delta_eular.z, D3DXToRadian(10));
+						break;
+					}
+					my::Quaternion rot = pFrame->m_Pivot.m_DragRot.inverse() * my::Quaternion::RotationEulerAngles(delta_eular.x, delta_eular.y, delta_eular.z) * pFrame->m_Pivot.m_DragRot;
+					(*sel_iter)->m_Position = pose.m_position.transformCoord(my::Matrix4::AffineTransformation(1, pFrame->m_Pivot.m_Pos, rot, my::Vector3(0, 0, 0)));
+					(*sel_iter)->m_Rotation = pose.m_rotation * rot;
+					(*sel_iter)->UpdateWorld();
+					break;
+				}
+				}
+
+				(*sel_iter)->SetPxPoseOrbyPxThread((*sel_iter)->m_Position, (*sel_iter)->m_Rotation, NULL);
+			}
 		}
 		Invalidate();
 		UpdateWindow();
