@@ -4068,29 +4068,6 @@ void LuaContext::Init(void)
 			.def("LoadFromFile", &my::IndexedBitmap::LoadFromFile)
 			.def("SaveIndexedBitmap", &indexedbitmap_save_indexed_bitmap)
 
-		, class_<PhysxSpatialIndex>("PhysxSpatialIndex")
-			.def(constructor<>())
-			.def("AddTriangle", &PhysxSpatialIndex::AddTriangle)
-			.def("AddMesh", &PhysxSpatialIndex::AddMesh)
-			.def("AddBox", luabind::tag_function<void(PhysxSpatialIndex*, float, float, float, const my::Vector3&, const my::Quaternion&)>(
-				boost::bind(&PhysxSpatialIndex::AddGeometry, boost::placeholders::_1, boost::bind(boost::value_factory<physx::PxBoxGeometry>(), boost::placeholders::_2, boost::placeholders::_3, boost::placeholders::_4), boost::placeholders::_5, boost::placeholders::_6)))
-			.def("AddSphere", luabind::tag_function<void(PhysxSpatialIndex*, float, const my::Vector3&, const my::Quaternion&)>(
-				boost::bind(&PhysxSpatialIndex::AddGeometry, boost::placeholders::_1, boost::bind(boost::value_factory<physx::PxSphereGeometry>(), boost::placeholders::_2), boost::placeholders::_3, boost::placeholders::_4)))
-			.property("TriangleNum", &PhysxSpatialIndex::GetTriangleNum)
-			.property("GeometryNum", &PhysxSpatialIndex::GetGeometryNum)
-			.def("GetTriangle", &PhysxSpatialIndex::GetTriangle, pure_out_value(boost::placeholders::_3) + pure_out_value(boost::placeholders::_4) + pure_out_value(boost::placeholders::_5))
-			.def("GetGeometryType", &PhysxSpatialIndex::GetGeometryType)
-			.def("GetBox", &PhysxSpatialIndex::GetBox, pure_out_value(boost::placeholders::_3) + pure_out_value(boost::placeholders::_4) + pure_out_value(boost::placeholders::_5) + pure_out_value(boost::placeholders::_6) + pure_out_value(boost::placeholders::_7))
-			.def("GetGeometryWorldBox", &PhysxSpatialIndex::GetGeometryWorldBox)
-			.def("Raycast", &PhysxSpatialIndex::Raycast, pure_out_value(boost::placeholders::_5))
-			.def("BoxOverlap", luabind::tag_function<bool(PhysxSpatialIndex*, float, float, float, const my::Vector3&, const my::Quaternion&)>(
-				boost::bind(&PhysxSpatialIndex::Overlap, boost::placeholders::_1, boost::bind(boost::value_factory<physx::PxBoxGeometry>(), boost::placeholders::_2, boost::placeholders::_3, boost::placeholders::_4), boost::placeholders::_5, boost::placeholders::_6)))
-			.def("CapsuleOverlap", luabind::tag_function<bool(PhysxSpatialIndex*, float, float, const my::Vector3&, const my::Quaternion&)>(
-				boost::bind(&PhysxSpatialIndex::Overlap, boost::placeholders::_1, boost::bind(boost::value_factory<physx::PxCapsuleGeometry>(), boost::placeholders::_2, boost::placeholders::_3), boost::placeholders::_4, boost::placeholders::_5)))
-			.def("BoxSweep", luabind::tag_function<bool(PhysxSpatialIndex*, float, float, float, const my::Vector3&, const my::Quaternion&, const my::Vector3&, float, float&)>(
-				boost::bind(&PhysxSpatialIndex::Sweep, boost::placeholders::_1, boost::bind(boost::value_factory<physx::PxBoxGeometry>(), boost::placeholders::_2, boost::placeholders::_3, boost::placeholders::_4), boost::placeholders::_5, boost::placeholders::_6, boost::placeholders::_7, boost::placeholders::_8, boost::placeholders::_9)), pure_out_value(boost::placeholders::_9))
-			.def("CalculateAABB", &PhysxSpatialIndex::CalculateAABB)
-
 		, class_<boost::regex>("regex")
 			.def(constructor<const char *>())
 			.def("search", &regex_search, pure_out_value(boost::placeholders::_3) /*+ dependency(boost::placeholders::_3, boost::placeholders::_2)*/) // ! dependency not worked

@@ -36,6 +36,7 @@
 #include <boost/range/iterator_range.hpp>
 #include <boost/shared_container_iterator.hpp>
 #include <boost/algorithm/string.hpp>
+#include <boost/functional/value_factory.hpp>
 #include "DeleteCmpsDlg.h"
 #include "SnapshotDlg.h"
 #include "PlayerBehavior.h"
@@ -1166,6 +1167,29 @@ void CMainFrame::InitFileContext()
 			.def("AssignRect", &my::RectAssignmentNode::AssignRect, luabind::pure_out_value(boost::placeholders::_3))
 			.def("LoadFromFile", &RectAssignmentNodeLoadFromFile)
 			.def("Save", &RectAssignmentNodeSave)
+		
+		, luabind::class_<PhysxSpatialIndex>("PhysxSpatialIndex")
+			.def(luabind::constructor<>())
+			.def("AddTriangle", &PhysxSpatialIndex::AddTriangle)
+			.def("AddMesh", &PhysxSpatialIndex::AddMesh)
+			.def("AddBox", luabind::tag_function<void(PhysxSpatialIndex*, float, float, float, const my::Vector3&, const my::Quaternion&)>(
+				boost::bind(&PhysxSpatialIndex::AddGeometry, boost::placeholders::_1, boost::bind(boost::value_factory<physx::PxBoxGeometry>(), boost::placeholders::_2, boost::placeholders::_3, boost::placeholders::_4), boost::placeholders::_5, boost::placeholders::_6)))
+			.def("AddSphere", luabind::tag_function<void(PhysxSpatialIndex*, float, const my::Vector3&, const my::Quaternion&)>(
+				boost::bind(&PhysxSpatialIndex::AddGeometry, boost::placeholders::_1, boost::bind(boost::value_factory<physx::PxSphereGeometry>(), boost::placeholders::_2), boost::placeholders::_3, boost::placeholders::_4)))
+			.property("TriangleNum", &PhysxSpatialIndex::GetTriangleNum)
+			.property("GeometryNum", &PhysxSpatialIndex::GetGeometryNum)
+			.def("GetTriangle", &PhysxSpatialIndex::GetTriangle, luabind::pure_out_value(boost::placeholders::_3) + luabind::pure_out_value(boost::placeholders::_4) + luabind::pure_out_value(boost::placeholders::_5))
+			.def("GetGeometryType", &PhysxSpatialIndex::GetGeometryType)
+			.def("GetBox", &PhysxSpatialIndex::GetBox, luabind::pure_out_value(boost::placeholders::_3) + luabind::pure_out_value(boost::placeholders::_4) + luabind::pure_out_value(boost::placeholders::_5) + luabind::pure_out_value(boost::placeholders::_6) + luabind::pure_out_value(boost::placeholders::_7))
+			.def("GetGeometryWorldBox", &PhysxSpatialIndex::GetGeometryWorldBox)
+			.def("Raycast", &PhysxSpatialIndex::Raycast, luabind::pure_out_value(boost::placeholders::_5))
+			.def("BoxOverlap", luabind::tag_function<bool(PhysxSpatialIndex*, float, float, float, const my::Vector3&, const my::Quaternion&)>(
+				boost::bind(&PhysxSpatialIndex::Overlap, boost::placeholders::_1, boost::bind(boost::value_factory<physx::PxBoxGeometry>(), boost::placeholders::_2, boost::placeholders::_3, boost::placeholders::_4), boost::placeholders::_5, boost::placeholders::_6)))
+			.def("CapsuleOverlap", luabind::tag_function<bool(PhysxSpatialIndex*, float, float, const my::Vector3&, const my::Quaternion&)>(
+				boost::bind(&PhysxSpatialIndex::Overlap, boost::placeholders::_1, boost::bind(boost::value_factory<physx::PxCapsuleGeometry>(), boost::placeholders::_2, boost::placeholders::_3), boost::placeholders::_4, boost::placeholders::_5)))
+			.def("BoxSweep", luabind::tag_function<bool(PhysxSpatialIndex*, float, float, float, const my::Vector3&, const my::Quaternion&, const my::Vector3&, float, float&)>(
+				boost::bind(&PhysxSpatialIndex::Sweep, boost::placeholders::_1, boost::bind(boost::value_factory<physx::PxBoxGeometry>(), boost::placeholders::_2, boost::placeholders::_3, boost::placeholders::_4), boost::placeholders::_5, boost::placeholders::_6, boost::placeholders::_7, boost::placeholders::_8, boost::placeholders::_9)), luabind::pure_out_value(boost::placeholders::_9))
+			.def("CalculateAABB", &PhysxSpatialIndex::CalculateAABB)
 
 		, luabind::class_<CSnapshotDlg>("SnapshotDlg")
 			.def(luabind::constructor<CWnd*>())
