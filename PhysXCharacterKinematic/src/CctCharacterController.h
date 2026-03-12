@@ -377,8 +377,8 @@ namespace Cct
 #else
 					PxVec3				mContactNormalDownPass;
 					PxVec3				mContactNormalSidePass;
-					float				mTouchedTriMin;
-					float				mTouchedTriMax;
+					//float				mTouchedTriMin;
+					//float				mTouchedTriMax;
 					//PxTriangle		mTouchedTriangle;
 #endif
 					//

@@ -39,6 +39,7 @@ extern "C" {
 #include "SoundContext.h"
 #include "ActionTrack.h"
 #include "Steering.h"
+#include "CctCharacterController.h"
 #include "SceneContext.h"
 #include "rapidxml_print.hpp"
 #include <boost/scope_exit.hpp>
@@ -3529,7 +3530,8 @@ void LuaContext::Init(void)
 			[
 				value("eCOLLISION_SIDES", physx::PxControllerCollisionFlag::eCOLLISION_SIDES),
 				value("eCOLLISION_UP", physx::PxControllerCollisionFlag::eCOLLISION_UP),
-				value("eCOLLISION_DOWN", physx::PxControllerCollisionFlag::eCOLLISION_DOWN)
+				value("eCOLLISION_DOWN", physx::PxControllerCollisionFlag::eCOLLISION_DOWN),
+				value("STF_HIT_NON_WALKABLE", physx::Cct::SweepTestFlag::STF_HIT_NON_WALKABLE)
 			]
 			.def("Move", &Controller::Move)
 			.property("Height", &Controller::GetHeight, &Controller::SetHeight)
@@ -3547,6 +3549,7 @@ void LuaContext::Init(void)
 			.property("TouchedComponent", &Controller::GetTouchedComponent)
 			.property("TouchedPosWorld", &Controller::GetTouchedPosWorld)
 			.property("TouchedPosLocal", &Controller::GetTouchedPosLocal)
+			.property("TouchedFlags", &Controller::GetTouchedFlags)
 
 		, class_<Navigation, Component, boost::shared_ptr<Component> >("Navigation")
 			.enum_("SamplePolyAreas")

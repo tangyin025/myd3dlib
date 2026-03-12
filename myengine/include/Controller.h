@@ -39,7 +39,7 @@ protected:
 	{
 		m_desc.reportCallback = this;
 		m_desc.behaviorCallback = this;
-		m_desc.nonWalkableMode = physx::PxControllerNonWalkableMode::ePREVENT_CLIMBING;
+		m_desc.nonWalkableMode = physx::PxControllerNonWalkableMode::ePREVENT_CLIMBING_AND_FORCE_SLIDING;
 		m_desc.userData = this;
 	}
 
@@ -60,7 +60,7 @@ public:
 		m_desc.stepOffset = StepOffset;
 		m_desc.reportCallback = this;
 		m_desc.behaviorCallback = this;
-		m_desc.nonWalkableMode = physx::PxControllerNonWalkableMode::ePREVENT_CLIMBING;
+		m_desc.nonWalkableMode = physx::PxControllerNonWalkableMode::ePREVENT_CLIMBING_AND_FORCE_SLIDING;
 		m_desc.userData = this;
 	}
 
@@ -152,6 +152,8 @@ public:
 	my::Vector3 & GetTouchedPosWorld(void) const;
 
 	my::Vector3 & GetTouchedPosLocal(void) const;
+
+	unsigned int GetTouchedFlags(void) const;
 
 	virtual void onShapeHit(const physx::PxControllerShapeHit & hit);
 

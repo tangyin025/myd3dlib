@@ -428,6 +428,11 @@ my::Vector3 & Controller::GetTouchedPosLocal(void) const
 	return (my::Vector3&)static_cast<physx::Cct::CapsuleController*>(m_PxController.get())->mCctModule.mTouchedPosShape_Local;
 }
 
+unsigned int Controller::GetTouchedFlags(void) const
+{
+	return static_cast<physx::Cct::CapsuleController*>(m_PxController.get())->mCctModule.mFlags;
+}
+
 static unsigned int _get_collision_flag(unsigned int flags)
 {
 	// ! SweepTest::moveCharacter, SweepTest::doSweepTest, first side next down

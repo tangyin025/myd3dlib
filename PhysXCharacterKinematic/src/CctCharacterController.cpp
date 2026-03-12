@@ -939,8 +939,8 @@ SweepTest::SweepTest(bool registerDeletionListener) :
 
 	mContactNormalDownPass = PxVec3(0.0f);
 	mContactNormalSidePass = PxVec3(0.0f);
-	mTouchedTriMin = 0.0f;
-	mTouchedTriMax = 0.0f;
+	//mTouchedTriMin = 0.0f;
+	//mTouchedTriMax = 0.0f;
 }
 
 
@@ -1536,9 +1536,9 @@ bool SweepTest::doSweepTest(const InternalCBData_FindTouchedGeom* userData,
 
 					PxExtendedVec3 cacheCenter;
 					getCenter(mCacheBounds, cacheCenter);
-					const float offset = upDirection.dot(toVec3(cacheCenter));
-					mTouchedTriMin = dpmin + offset;
-					mTouchedTriMax = dpmax + offset;
+					//const float offset = upDirection.dot(toVec3(cacheCenter));
+					//mTouchedTriMin = dpmin + offset;
+					//mTouchedTriMax = dpmax + offset;
 
 					touchedTri.normal(mContactNormalDownPass);
 				}
@@ -1839,7 +1839,7 @@ PxControllerCollisionFlags SweepTest::moveCharacter(
 		NbCollisions=0;
 
 //		if(!SideVector.isZero())	// We disabled that before so we don't have to undo it in that case
-		if(!sideVectorIsZero)		// We disabled that before so we don't have to undo it in that case
+		if(!sideVectorIsZero && !(mFlags & STF_WALK_EXPERIMENT))		// We disabled that before so we don't have to undo it in that case
 //			DownVector[upDirection] -= stepOffset;	// Undo our artificial up motion
 			DownVector -= upDirection*stepOffset;	// Undo our artificial up motion
 
@@ -1900,7 +1900,7 @@ PxControllerCollisionFlags SweepTest::moveCharacter(
 			Normal = mContactNormalDownPass;
 		#endif
 
-            const float touchedTriHeight = float(PxExtended(mTouchedTriMax) - originalBottomPoint);
+            //const float touchedTriHeight = float(PxExtended(mTouchedTriMax) - originalBottomPoint);
 
 /*			if(touchedTriHeight>mUserParams.mStepOffset)
 			{
@@ -1912,7 +1912,7 @@ PxControllerCollisionFlags SweepTest::moveCharacter(
 				}
 			}*/
 
-			if(touchedTriHeight>mUserParams.mStepOffset && testSlope(Normal, upDirection, mUserParams.mSlopeLimit))
+			if(/*touchedTriHeight>mUserParams.mStepOffset &&*/ testSlope(Normal, upDirection, mUserParams.mSlopeLimit))
 			{
 				mFlags |= STF_HIT_NON_WALKABLE;
 				// Early exit if we're going to run this again anyway...
@@ -2477,12 +2477,13 @@ PxControllerCollisionFlags Controller::move(SweptVolume& volume, const PxVec3& o
 		volume.mCenter = Backup;
 
 		PxVec3 xpDisp;
-		if(mUserParams.mNonWalkableMode==PxControllerNonWalkableMode::ePREVENT_CLIMBING_AND_FORCE_SLIDING)
-		{
-			PxVec3 tangent_compo;
-			Ps::decomposeVector(xpDisp, tangent_compo, disp, upDirection);
-		}
-		else xpDisp = disp;
+		//if(mUserParams.mNonWalkableMode==PxControllerNonWalkableMode::ePREVENT_CLIMBING_AND_FORCE_SLIDING)
+		//{
+		//	PxVec3 tangent_compo;
+		//	Ps::decomposeVector(xpDisp, tangent_compo, disp, upDirection);
+		//}
+		//else
+			xpDisp = disp;
 
 		collisionFlags = mCctModule.moveCharacter(&findGeomData, &userHitData, volume, xpDisp, userObstacles, minDist, filters, constrainedClimbingMode, standingOnMoving, touchedActor, touchedShape, getContextId());
 
