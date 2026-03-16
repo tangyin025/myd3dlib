@@ -503,7 +503,7 @@ my::BoneList & AnimationNodeSubTree::GetPose(my::BoneList & pose, int root_i, co
 AnimationNodeBlendList::AnimationNodeBlendList(const char * Name, unsigned int ChildNum)
 	: AnimationNode(Name, ChildNum)
 	, m_BlendTime(0)
-	, m_Weight(ChildNum, 0.0f)
+	, m_Weight(boost::assign::list_of(1.0f).repeat(ChildNum - 1, 0.0f))
 	, m_TargetWeight(boost::assign::list_of(1.0f).repeat(ChildNum - 1, 0.0f))
 {
 }
