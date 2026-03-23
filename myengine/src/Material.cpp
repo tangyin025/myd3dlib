@@ -42,8 +42,6 @@ BOOST_CLASS_EXPORT(MaterialParameterFloat4)
 
 BOOST_CLASS_EXPORT(MaterialParameterTexture)
 
-BOOST_CLASS_EXPORT(MaterialParameterInvWorldView)
-
 BOOST_CLASS_EXPORT(MaterialParameterFarZ)
 
 BOOST_CLASS_EXPORT(Material)
@@ -172,14 +170,6 @@ void MaterialParameterTexture::Set(my::Effect * shader, LPARAM lparam, RenderPip
 {
 	_ASSERT(m_Handle);
 	shader->SetTexture(m_Handle, m_Texture ? m_Texture.get() : my::D3DContext::getSingleton().OnTextureFallback(m_TexturePath));
-}
-
-void MaterialParameterInvWorldView::Set(my::Effect * shader, LPARAM lparam, RenderPipeline::IRenderContext * pRC)
-{
-	// ! RenderPipeline::RenderAllObjects, mesh_bat_iter->second.mtl->OnSetShader(..
-	_ASSERT(m_Handle && m_Owner && m_Owner->m_Cmp);
-	Matrix4 InvWorldView = (m_Owner->m_Cmp->m_Actor->m_World * pRC->m_Camera->m_View).inverse();
-	shader->SetMatrix(m_Handle, InvWorldView);
 }
 
 void MaterialParameterFarZ::Set(my::Effect* shader, LPARAM lparam, RenderPipeline::IRenderContext* pRC)
@@ -371,13 +361,8 @@ void Material::ParseShaderParameters(void)
 		MaterialParameterPtrList::const_iterator dummy_param_iter = boost::find_if(dummy_params,
 			boost::bind(std::equal_to<std::string>(), boost::bind(&MaterialParameter::m_Name, boost::bind(&MaterialParameterPtr::get, boost::placeholders::_1)), Name));
 
-		boost::regex reg_value("bool\\s+UseInvWorldView\\s*=\\s*true");
 		boost::match_results<std::string::const_iterator> what2;
-		if (boost::regex_search(Annotations, what2, reg_value, boost::match_default))
-		{
-			m_ParameterList.push_back(MaterialParameterPtr(new MaterialParameterInvWorldView(this, Name)));
-		}
-		else if (boost::regex_search(Annotations, what2, boost::regex("bool\\sUseFarZ\\s*=\\s*true"), boost::match_default))
+		if (boost::regex_search(Annotations, what2, boost::regex("bool\\s+UseFarZ\\s*=\\s*true"), boost::match_default))
 		{
 			m_ParameterList.push_back(MaterialParameterPtr(new MaterialParameterFarZ(this, Name)));
 		}

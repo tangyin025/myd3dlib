@@ -410,18 +410,18 @@ void RenderPipeline::OnDestroyDevice(void)
 
 	ClearShaderCache();
 
-	ClearAllObjects();
+	unsigned int PassID = 0;
+	for (; PassID < m_Pass.size(); PassID++)
+	{
+		ClearAllObjects(PassID);
 
-	//unsigned int PassID = 0;
-	//for (; PassID < m_Pass.size(); PassID++)
-	//{
-	//	//MeshInstanceAtomMap::iterator mesh_inst_iter = m_MeshInstanceMap.begin();
-	//	//for (; mesh_inst_iter != m_MeshInstanceMap.end(); mesh_inst_iter++)
-	//	//{
-	//	//	mesh_inst_iter->second.m_Decl.Release();
-	//	//}
-	//	m_Pass[PassID].m_MeshInstanceMap.clear();
-	//}
+		//MeshInstanceAtomMap::iterator mesh_inst_iter = m_Pass[PassID].m_MeshInstanceMap.begin();
+		//for (; mesh_inst_iter != m_Pass[PassID].m_MeshInstanceMap.end(); mesh_inst_iter++)
+		//{
+		//	mesh_inst_iter->second.m_Decl.Release();
+		//}
+		//m_Pass[PassID].m_MeshInstanceMap.clear();
+	}
 }
 
 static void _UpdateQuad(RenderPipeline::QuadVertex* quad, const my::Vector2& Dim, const my::Vector2& Off, const my::Vector2& Extent, const my::Vector2& Scale)
@@ -522,6 +522,8 @@ void RenderPipeline::OnRender(
 		V(pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, 0, 0.0f, 0));
 		RenderAllObjects(pd3dDevice, PassTypeShadow, pRC, fTime, fElapsedTime);
 		ShadowSurf.Release();
+
+		ClearAllObjects(PassTypeShadow);
 	}
 
 	pRC->QueryRenderComponent(Frustum::ExtractMatrix(pRC->m_Camera->m_ViewProj), this, PassTypeToMask(PassTypeNormal) | PassTypeToMask(PassTypeLight) | PassTypeToMask(PassTypeBackground) | PassTypeToMask(PassTypeOpaque) | PassTypeToMask(PassTypeTransparent));
@@ -860,7 +862,11 @@ void RenderPipeline::OnRender(
 		break;
 	}
 
-	ClearAllObjects();
+	unsigned int PassID = 0;
+	for (; PassID < m_Pass.size(); PassID++)
+	{
+		ClearAllObjects(PassID);
+	}
 }
 
 void RenderPipeline::RenderAllObjects(
@@ -1128,24 +1134,22 @@ void RenderPipeline::RenderAllObjects(
 	}
 }
 
-void RenderPipeline::ClearAllObjects(void)
+void RenderPipeline::ClearAllObjects(unsigned int PassID)
 {
-	unsigned int PassID = 0;
-	for (; PassID < m_Pass.size(); PassID++)
-	{
-		m_Pass[PassID].m_IndexedPrimitiveList.clear();
-		m_Pass[PassID].m_IndexedPrimitiveInstanceList.clear();
-		m_Pass[PassID].m_IndexedPrimitiveUPList.clear();
-		m_Pass[PassID].m_MeshList.clear();
-		//MeshInstanceAtomMap::iterator mesh_inst_iter = m_Pass[PassID].m_MeshInstanceMap.begin();
-		//for (; mesh_inst_iter != m_Pass[PassID].m_MeshInstanceMap.end(); mesh_inst_iter++)
-		//{
-		//	mesh_inst_iter->second.cmps.clear(); // ! key material ptr will be invalid
-		//}
-		m_Pass[PassID].m_MeshInstanceMap.clear();
-		m_Pass[PassID].m_MeshBatchMap.clear();
-		m_Pass[PassID].m_EmitterInstanceMap.clear();
-	}
+	_ASSERT(PassID < m_Pass.size());
+
+	m_Pass[PassID].m_IndexedPrimitiveList.clear();
+	m_Pass[PassID].m_IndexedPrimitiveInstanceList.clear();
+	m_Pass[PassID].m_IndexedPrimitiveUPList.clear();
+	m_Pass[PassID].m_MeshList.clear();
+	//MeshInstanceAtomMap::iterator mesh_inst_iter = m_Pass[PassID].m_MeshInstanceMap.begin();
+	//for (; mesh_inst_iter != m_Pass[PassID].m_MeshInstanceMap.end(); mesh_inst_iter++)
+	//{
+	//	mesh_inst_iter->second.cmps.clear(); // ! key material ptr will be invalid
+	//}
+	m_Pass[PassID].m_MeshInstanceMap.clear();
+	m_Pass[PassID].m_MeshBatchMap.clear();
+	m_Pass[PassID].m_EmitterInstanceMap.clear();
 }
 
 void RenderPipeline::ClearShaderCache(void)

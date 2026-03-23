@@ -512,7 +512,7 @@ public:
 		double fTime,
 		float fElapsedTime);
 
-	void ClearAllObjects(void);
+	void ClearAllObjects(unsigned int PassID);
 
 	void ClearShaderCache(void);
 

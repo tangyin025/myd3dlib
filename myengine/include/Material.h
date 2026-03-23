@@ -340,37 +340,6 @@ public:
 	virtual void Set(my::Effect * shader, LPARAM lparam, RenderPipeline::IRenderContext * pRC);
 };
 
-class MaterialParameterInvWorldView : public MaterialParameter
-{
-protected:
-	friend class Material;
-
-	MaterialParameterInvWorldView(void)
-	{
-	}
-
-	MaterialParameterInvWorldView(Material * Owner, const std::string & Name)
-		: MaterialParameter(Owner, Name)
-	{
-	}
-
-public:
-	friend class boost::serialization::access;
-
-	template <class Archive>
-	void serialize(Archive & ar, const unsigned int version)
-	{
-		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(MaterialParameter);
-	}
-
-	virtual ParameterType GetParameterType(void) const
-	{
-		return ParameterTypeInvWorldView;
-	}
-
-	virtual void Set(my::Effect * shader, LPARAM lparam, RenderPipeline::IRenderContext * pRC);
-};
-
 class MaterialParameterFarZ : public MaterialParameter
 {
 protected:
