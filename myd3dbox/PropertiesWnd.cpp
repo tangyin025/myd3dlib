@@ -583,8 +583,15 @@ void CPropertiesWnd::UpdatePropertiesMaterialParameter(CMFCPropertyGridProperty 
 		break;
 	}
 	case MaterialParameter::ParameterTypeTexture:
-		pParentCtrl->GetSubItem(NodeId)->SetValue((_variant_t)
+		pParentCtrl->GetSubItem(NodeId)->GetSubItem(0)->SetValue((_variant_t)
 			theApp.GetFullPath(dynamic_cast<MaterialParameterTexture *>(mtl_param)->m_TexturePath.c_str()).c_str());
+		my::BaseTexturePtr tex = dynamic_cast<MaterialParameterTexture*>(mtl_param)->m_Texture;
+		DWORD LevelCount = tex ? tex->GetLevelCount() : 0;
+		D3DSURFACE_DESC desc = LevelCount > 0 ? tex->GetLevelDesc(0) : D3DSURFACE_DESC{ D3DFMT_UNKNOWN };
+		pParentCtrl->GetSubItem(NodeId)->GetSubItem(1)->SetValue((_variant_t)LevelCount);
+		pParentCtrl->GetSubItem(NodeId)->GetSubItem(2)->SetValue((_variant_t)ms2ts(my::DxutApp::DXUTD3DFormatToString(desc.Format)).c_str());
+		pParentCtrl->GetSubItem(NodeId)->GetSubItem(3)->SetValue((_variant_t)desc.Width);
+		pParentCtrl->GetSubItem(NodeId)->GetSubItem(4)->SetValue((_variant_t)desc.Height);
 		break;
 	}
 }
@@ -1717,8 +1724,25 @@ void CPropertiesWnd::CreatePropertiesMaterialParameter(CMFCPropertyGridProperty 
 		break;
 	}
 	case MaterialParameter::ParameterTypeTexture:
-		pProp = new CFileProp(name.c_str(), TRUE, (_variant_t)theApp.GetFullPath(dynamic_cast<MaterialParameterTexture *>(mtl_param)->m_TexturePath.c_str()).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyMaterialParameterTexture);
-		pParentCtrl->AddSubItem(pProp);
+		CMFCPropertyGridProperty* pParameter = new CSimpleProp(name.c_str(), PropertyMaterialParameterTexture, TRUE);
+		pParentCtrl->AddSubItem(pParameter);
+		pProp = new CFileProp(name.c_str(), TRUE, (_variant_t)theApp.GetFullPath(dynamic_cast<MaterialParameterTexture *>(mtl_param)->m_TexturePath.c_str()).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyMaterialParameterTexturePath);
+		pParameter->AddSubItem(pProp);
+		my::BaseTexturePtr tex = dynamic_cast<MaterialParameterTexture*>(mtl_param)->m_Texture;
+		DWORD LevelCount = tex ? tex->GetLevelCount() : 0;
+		D3DSURFACE_DESC desc = LevelCount > 0 ? tex->GetLevelDesc(0) : D3DSURFACE_DESC{ D3DFMT_UNKNOWN };
+		pProp = new CSimpleProp(_T("LevelCount"), (_variant_t)LevelCount, NULL, PropertyMaterialParameterTextureLevelCount);
+		pProp->Enable(FALSE);
+		pParameter->AddSubItem(pProp);
+		pProp = new CSimpleProp(_T("Format"), (_variant_t)ms2ts(my::DxutApp::DXUTD3DFormatToString(desc.Format)).c_str(), NULL, PropertyMaterialParameterTextureFormat);
+		pProp->Enable(FALSE);
+		pParameter->AddSubItem(pProp);
+		pProp = new CSimpleProp(_T("Width"), (_variant_t)desc.Width, NULL, PropertyMaterialParameterTextureWidth);
+		pProp->Enable(FALSE);
+		pParameter->AddSubItem(pProp);
+		pProp = new CSimpleProp(_T("Height"), (_variant_t)desc.Height, NULL, PropertyMaterialParameterTextureHeight);
+		pProp->Enable(FALSE);
+		pParameter->AddSubItem(pProp);
 		break;
 	}
 }
@@ -3977,15 +4001,27 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		break;
 	}
 	case PropertyMaterialParameterTexture:
+	case PropertyMaterialParameterTexturePath:
 	{
-		Material * mtl = (Material *)pProp->GetParent()->GetParent()->GetValue().pulVal;
-		INT i = CSimpleProp::GetSubIndexInParent(pProp);
+		CMFCPropertyGridProperty* pParameter = NULL;
+		switch (PropertyId)
+		{
+		case PropertyMaterialParameterTexture:
+			pParameter = pProp;
+			break;
+		case PropertyMaterialParameterTexturePath:
+			pParameter = pProp->GetParent();
+			break;
+		}
+		ASSERT(pParameter);
+		Material * mtl = (Material *)pParameter->GetParent()->GetParent()->GetValue().pulVal;
+		INT i = CSimpleProp::GetSubIndexInParent(pParameter);
 		ASSERT(mtl->m_ParameterList[i]->GetParameterType() == MaterialParameter::ParameterTypeTexture);
-		std::string path = theApp.GetRelativePath(pProp->GetValue().bstrVal);
+		std::string path = theApp.GetRelativePath(pParameter->GetSubItem(0)->GetValue().bstrVal);
 		if (path.empty())
 		{
-			MessageBox(str_printf(_T("cannot relative path: %s"), pProp->GetValue().bstrVal).c_str());
-			UpdatePropertiesMaterialParameter(pProp->GetParent(), i, mtl->m_ParameterList[i].get());
+			MessageBox(str_printf(_T("cannot relative path: %s"), pParameter->GetSubItem(0)->GetValue().bstrVal).c_str());
+			UpdatePropertiesMaterialParameter(pParameter->GetParent(), i, mtl->m_ParameterList[i].get());
 			return 0;
 		}
 		mtl->m_ParameterList[i]->ReleaseResource();
@@ -3995,6 +4031,10 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
 	}
+	case PropertyMaterialParameterTextureLevelCount:
+	case PropertyMaterialParameterTextureFormat:
+	case PropertyMaterialParameterTextureWidth:
+	case PropertyMaterialParameterTextureHeight:
 	case PropertyStaticMeshChunkWidth:
 	case PropertyStaticMeshChunkPath:
 		break;
