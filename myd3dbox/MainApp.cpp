@@ -621,6 +621,12 @@ HRESULT CMainApp::OnCreateDevice(
 
 	InputMgr::Create(m_hInstance, m_pMainWnd->m_hWnd);
 
+	if (!SoundContext::Init(m_pMainWnd->m_hWnd))
+	{
+		TRACE("SoundContext::Init failed");
+		return S_FALSE;
+	}
+
 	if(FAILED(hr = my::ResourceMgr::OnCreateDevice(m_d3dDevice, &m_BackBufferSurfaceDesc)))
 	{
 		TRACE(my::D3DException::Translate(hr));
@@ -699,6 +705,8 @@ void CMainApp::OnDestroyDevice(void)
 	ResourceMgr::OnDestroyDevice();
 
 	RenderPipeline::OnDestroyDevice();
+
+	SoundContext::Shutdown();
 
 	InputMgr::Destroy();
 
@@ -783,6 +791,8 @@ BOOL CMainApp::OnIdle(LONG lCount)
 {
 	// TODO: Add your specialized code here and/or call the base class
 	Clock::UpdateClock();
+
+	SoundContext::ReleaseIdleBuffer(m_fElapsedTime);
 
 	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);

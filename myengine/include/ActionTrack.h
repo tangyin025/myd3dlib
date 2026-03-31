@@ -172,15 +172,15 @@ class ActionTrackSound : public ActionTrack
 public:
 	struct KeyFrame
 	{
-		std::string SoundPath;
-		boost::shared_ptr<my::Wav> Sound;
+		std::string WavPath;
+		boost::shared_ptr<my::Wav> Wav;
 		float StartSec;
 		float EndSec;
 		bool Loop;
 		float MinDistance;
 		float MaxDistance;
 
-		void OnSoundReady(boost::shared_ptr<my::DeviceResourceBase> res);
+		void OnWavReady(boost::shared_ptr<my::DeviceResourceBase> res);
 	};
 
 	typedef std::multimap<float, KeyFrame> KeyFrameMap;
@@ -196,7 +196,7 @@ public:
 
 	virtual ActionTrackInstPtr CreateInstance(Actor * _Actor) const;
 
-	void AddKeyFrame(float Time, const char * SoundPath, float StartSec, float EndSec, bool Loop, float MinDistance, float MaxDistance);
+	void AddKeyFrame(float Time, const char * WavPath, float StartSec, float EndSec, bool Loop, float MinDistance, float MaxDistance);
 };
 
 class ActionTrackSoundInst : public ActionTrackInst

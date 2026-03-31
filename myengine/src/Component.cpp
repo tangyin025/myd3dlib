@@ -2196,6 +2196,8 @@ SoundComponent::~SoundComponent(void)
 void SoundComponent::OnWavReady(my::DeviceResourceBasePtr res)
 {
 	m_Wav = boost::dynamic_pointer_cast<my::Wav>(res);
+
+	m_SoundEvent = SoundContext::getSingleton().Play(m_Wav, 0.0f, 9999.0f, true);
 }
 
 void SoundComponent::RequestResource(void)
@@ -2219,6 +2221,13 @@ void SoundComponent::ReleaseResource(void)
 		my::ResourceMgr::getSingleton().RemoveIORequestCallback(m_WavPath.c_str(), boost::bind(&SoundComponent::OnWavReady, this, boost::placeholders::_1));
 
 		m_Wav.reset();
+
+		if (m_SoundEvent && m_SoundEvent->m_sbuffer)
+		{
+			m_SoundEvent->m_sbuffer->Stop();
+		}
+
+		m_SoundEvent.reset();
 	}
 }
 

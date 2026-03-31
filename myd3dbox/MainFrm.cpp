@@ -10,6 +10,7 @@
 #include "StaticEmitterDlg.h"
 #include "Material.h"
 #include "Controller.h"
+#include "SceneContext.h"
 #include <boost/archive/polymorphic_text_iarchive.hpp>
 #include <boost/archive/polymorphic_text_oarchive.hpp>
 #include <boost/serialization/shared_ptr.hpp>

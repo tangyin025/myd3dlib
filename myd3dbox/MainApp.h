@@ -9,7 +9,7 @@
 #include "resource.h"       // main symbols
 #include "RenderPipeline.h"
 #include "PhysxContext.h"
-#include "SceneContext.h"
+#include "SoundContext.h"
 #include "DictionaryNode.h"
 
 // CMainApp:
@@ -24,6 +24,8 @@ class CMainApp : public CWinAppEx
 	, public my::ParallelTaskManager
 	, public RenderPipeline
 	, public PhysxSdk
+	, public SoundContext
+
 {
 public:
 	CMainApp();

@@ -130,9 +130,9 @@ void ActionTrackAnimationInst::Stop(void)
 	}
 }
 
-void ActionTrackSound::KeyFrame::OnSoundReady(my::DeviceResourceBasePtr res)
+void ActionTrackSound::KeyFrame::OnWavReady(my::DeviceResourceBasePtr res)
 {
-	Sound = boost::dynamic_pointer_cast<my::Wav>(res);
+	Wav = boost::dynamic_pointer_cast<my::Wav>(res);
 }
 
 ActionTrackSound::~ActionTrackSound(void)
@@ -140,11 +140,11 @@ ActionTrackSound::~ActionTrackSound(void)
 	KeyFrameMap::iterator key_iter = m_Keys.begin();
 	for (; key_iter != m_Keys.end(); key_iter++)
 	{
-		if (!key_iter->second.SoundPath.empty())
+		if (!key_iter->second.WavPath.empty())
 		{
-			my::ResourceMgr::getSingleton().RemoveIORequestCallback(key_iter->second.SoundPath, boost::bind(&ActionTrackSound::KeyFrame::OnSoundReady, &key_iter->second, boost::placeholders::_1));
+			my::ResourceMgr::getSingleton().RemoveIORequestCallback(key_iter->second.WavPath, boost::bind(&ActionTrackSound::KeyFrame::OnWavReady, &key_iter->second, boost::placeholders::_1));
 
-			key_iter->second.Sound.reset();
+			key_iter->second.Wav.reset();
 		}
 	}
 }
@@ -154,22 +154,22 @@ ActionTrackInstPtr ActionTrackSound::CreateInstance(Actor * _Actor) const
 	return ActionTrackInstPtr(new ActionTrackSoundInst(_Actor, boost::static_pointer_cast<const ActionTrackSound>(shared_from_this())));
 }
 
-void ActionTrackSound::AddKeyFrame(float Time, const char * SoundPath, float StartSec, float EndSec, bool Loop, float MinDistance, float MaxDistance)
+void ActionTrackSound::AddKeyFrame(float Time, const char * WavPath, float StartSec, float EndSec, bool Loop, float MinDistance, float MaxDistance)
 {
 	KeyFrameMap::iterator key_iter = m_Keys.insert(std::make_pair(Time, KeyFrame()));
 	_ASSERT(key_iter != m_Keys.end());
-	key_iter->second.SoundPath = SoundPath;
+	key_iter->second.WavPath = WavPath;
 	key_iter->second.StartSec = StartSec;
 	key_iter->second.EndSec = EndSec;
 	key_iter->second.Loop = Loop;
 	key_iter->second.MinDistance = MinDistance;
 	key_iter->second.MaxDistance = MaxDistance;
 
-	if (!key_iter->second.SoundPath.empty())
+	if (!key_iter->second.WavPath.empty())
 	{
-		_ASSERT(!key_iter->second.Sound);
+		_ASSERT(!key_iter->second.Wav);
 
-		my::ResourceMgr::getSingleton().LoadWavAsync(SoundPath, boost::bind(&ActionTrackSound::KeyFrame::OnSoundReady, &key_iter->second, boost::placeholders::_1));
+		my::ResourceMgr::getSingleton().LoadWavAsync(WavPath, boost::bind(&ActionTrackSound::KeyFrame::OnWavReady, &key_iter->second, boost::placeholders::_1));
 	}
 }
 
@@ -226,7 +226,7 @@ void ActionTrackSoundInst::UpdateTime(float LastTime, float Time)
 		}
 		std::advance(key_iter, my::Random((int)std::distance(key_iter, next_key_iter)));
 
-		if (key_iter->second.Sound)
+		if (key_iter->second.Wav)
 		{
 			const Vector3& pos = m_Actor->m_World.getRow<3>().xyz;
 
@@ -251,7 +251,7 @@ void ActionTrackSoundInst::UpdateTime(float LastTime, float Time)
 			// Velocity is used only for calculating Doppler effect. It does not change the position of the buffer.
 			// https://learn.microsoft.com/en-us/previous-versions/windows/desktop/ee418001(v=vs.85)
 			m_Events.push_back(SoundContext::getSingleton().Play(
-				key_iter->second.Sound, key_iter->second.StartSec, key_iter->second.EndSec, key_iter->second.Loop, pos, vel, key_iter->second.MinDistance, key_iter->second.MaxDistance));
+				key_iter->second.Wav, key_iter->second.StartSec, key_iter->second.EndSec, key_iter->second.Loop, pos, vel, key_iter->second.MinDistance, key_iter->second.MaxDistance));
 		}
 	}
 }
