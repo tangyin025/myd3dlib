@@ -41,6 +41,8 @@ BOOST_CLASS_EXPORT(CircularEmitter)
 
 BOOST_CLASS_EXPORT(SphericalEmitter)
 
+BOOST_CLASS_EXPORT(SoundComponent)
+
 Component::~Component(void)
 {
 	_ASSERT(!IsRequested());
@@ -2197,7 +2199,7 @@ void SoundComponent::OnWavReady(my::DeviceResourceBasePtr res)
 {
 	m_Wav = boost::dynamic_pointer_cast<my::Wav>(res);
 
-	m_SoundEvent = SoundContext::getSingleton().Play(m_Wav, 0.0f, 9999.0f, true);
+	m_SoundEvent = SoundContext::getSingleton().Play(m_Wav, 0.0f, 9999.0f, true, m_Actor->m_World.getRow<3>().xyz, my::Vector3(0), 1.0f, 5.0f);
 }
 
 void SoundComponent::RequestResource(void)

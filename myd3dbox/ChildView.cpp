@@ -2580,11 +2580,13 @@ BOOL CChildView::PreTranslateMessage(MSG* pMsg)
 		}
 		case WM_MOUSEMOVE:
 		{
+			my::ModelViewerCamera* model_view_camera = dynamic_cast<my::ModelViewerCamera*>(m_Camera.get());
 			m_Camera->UpdateViewProj();
+			theApp.m_listener->SetPosition(model_view_camera->m_LookAt, DS3D_DEFERRED);
+			theApp.m_listener->SetVelocity(my::Vector3(0), DS3D_DEFERRED);
+			theApp.m_listener->SetOrientation(m_Camera->m_View.getColumn<2>().xyz, m_Camera->m_View.getColumn<1>().xyz, DS3D_DEFERRED);
+			theApp.m_listener->CommitDeferredSettings();
 			StartPerformanceCount();
-			//my::ModelViewerCamera * model_view_camera = dynamic_cast<my::ModelViewerCamera *>(m_Camera.get());
-			//pFrame->CheckViewedActor(pFrame,
-			//	my::AABB(model_view_camera->m_LookAt, 1000.0f), my::AABB(model_view_camera->m_LookAt, 1000.0f));
 			Invalidate();
 			break;
 		}
@@ -2718,6 +2720,10 @@ void CChildView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 				model_view_camera->m_Distance = cotf(model_view_camera->m_Fov * 0.5f) * m_CameraDiagonal * 0.5f;
 			}
 			m_Camera->UpdateViewProj();
+			theApp.m_listener->SetPosition(model_view_camera->m_LookAt, DS3D_DEFERRED);
+			theApp.m_listener->SetVelocity(my::Vector3(0), DS3D_DEFERRED);
+			theApp.m_listener->SetOrientation(m_Camera->m_View.getColumn<2>().xyz, m_Camera->m_View.getColumn<1>().xyz, DS3D_DEFERRED);
+			theApp.m_listener->CommitDeferredSettings();
 			StartPerformanceCount();
 			Invalidate();
 			CEnvironmentWnd::CameraPropEventArgs arg(this);

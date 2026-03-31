@@ -177,6 +177,10 @@ void PlayerBehavior::Update(float fElapsedTime)
 		model_view_camera->m_Distance = Lerp(model_view_camera->m_Distance, m_Controller->GetStepOffset() + theApp.default_player_look_distance, 1.0 - pow(0.5f, 30 * fElapsedTime));
 	}
 	model_view_camera->UpdateViewProj();
+	theApp.m_listener->SetPosition(pos, DS3D_DEFERRED);
+	theApp.m_listener->SetVelocity(my::Vector3(0), DS3D_DEFERRED);
+	theApp.m_listener->SetOrientation(pView->m_Camera->m_View.getColumn<2>().xyz, pView->m_Camera->m_View.getColumn<1>().xyz, DS3D_DEFERRED);
+	theApp.m_listener->CommitDeferredSettings();
 
 	if (theApp.m_keyboard->IsKeyPress(KeyCode::KC_SPACE))
 	{

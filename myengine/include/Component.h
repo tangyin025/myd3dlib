@@ -853,7 +853,7 @@ public:
 	void serialize(Archive& ar, const unsigned int version)
 	{
 		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Component);
-		ar & BOOST_SERIALIZATION_NVP(m_SoundPath);
+		ar & BOOST_SERIALIZATION_NVP(m_WavPath);
 	}
 
 	void OnWavReady(my::DeviceResourceBasePtr res);
