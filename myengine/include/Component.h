@@ -5,6 +5,7 @@
 #include <PxPhysicsAPI.h>
 #include "myOctree.h"
 #include "myEmitter.h"
+#include "mySpline.h"
 #include "myMesh.h"
 #include "myTask.h"
 #include <atlbase.h>
@@ -15,6 +16,8 @@ namespace my
 	class Effect;
 
 	class UIRender;
+
+	class Wav;
 };
 
 class Material;
@@ -33,6 +36,8 @@ typedef boost::shared_ptr<Component> ComponentPtr;
 
 class Animator;
 
+class SoundEvent;
+
 class Component
 	: public my::NamedObject
 	, public my::ShaderResourceBase
@@ -50,6 +55,7 @@ public:
 		ComponentTypeStaticEmitter,
 		ComponentTypeCircularEmitter,
 		ComponentTypeSphericalEmitter,
+		ComponentTypeSound,
 		ComponentTypeTerrain,
 		ComponentTypeAnimator,
 		ComponentTypeNavigation,
@@ -815,3 +821,46 @@ public:
 };
 
 typedef boost::shared_ptr<SphericalEmitter> SphericalEmitterPtr;
+
+class SoundComponent
+	: public Component
+{
+public:
+	enum { TypeID = ComponentTypeSound };
+
+	std::string m_WavPath;
+
+	boost::shared_ptr<my::Wav> m_Wav;
+
+	boost::shared_ptr<SoundEvent> m_SoundEvent;
+
+protected:
+	SoundComponent(void)
+	{
+	}
+
+public:
+	SoundComponent(const char* Name)
+		: Component(Name)
+	{
+	}
+
+	virtual ~SoundComponent(void);
+
+	friend class boost::serialization::access;
+
+	template<class Archive>
+	void serialize(Archive& ar, const unsigned int version)
+	{
+		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Component);
+		ar & BOOST_SERIALIZATION_NVP(m_SoundPath);
+	}
+
+	void OnWavReady(my::DeviceResourceBasePtr res);
+
+	virtual void RequestResource(void);
+
+	virtual void ReleaseResource(void);
+
+	virtual void Update(float fElapsedTime);
+};

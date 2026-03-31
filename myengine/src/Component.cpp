@@ -9,6 +9,7 @@
 #include "Material.h"
 #include "PhysxContext.h"
 #include "RenderPipeline.h"
+#include "SoundContext.h"
 #include "libc.h"
 #include <boost/multi_array.hpp>
 #include <boost/archive/polymorphic_xml_iarchive.hpp>
@@ -2182,4 +2183,46 @@ void SphericalEmitter::DoTask(void)
 		particle_iter->m_Angle = m_ParticleAngle.Interpolate(ParticleTime);
 		particle_iter->m_Time = ParticleTime;
 	}
+}
+
+SoundComponent::~SoundComponent(void)
+{
+	if (IsRequested())
+	{
+		_ASSERT(false); ReleaseResource();
+	}
+}
+
+void SoundComponent::OnWavReady(my::DeviceResourceBasePtr res)
+{
+	m_Wav = boost::dynamic_pointer_cast<my::Wav>(res);
+}
+
+void SoundComponent::RequestResource(void)
+{
+	Component::RequestResource();
+
+	if (!m_WavPath.empty())
+	{
+		_ASSERT(!m_Wav);
+
+		my::ResourceMgr::getSingleton().LoadWavAsync(m_WavPath.c_str(), boost::bind(&SoundComponent::OnWavReady, this, boost::placeholders::_1), (m_LodMask & LOD0) ? ResPriorityLod0 : (m_LodMask & LOD1) ? ResPriorityLod1 : ResPriorityLod2);
+	}
+}
+
+void SoundComponent::ReleaseResource(void)
+{
+	Component::ReleaseResource();
+
+	if (!m_WavPath.empty())
+	{
+		my::ResourceMgr::getSingleton().RemoveIORequestCallback(m_WavPath.c_str(), boost::bind(&SoundComponent::OnWavReady, this, boost::placeholders::_1));
+
+		m_Wav.reset();
+	}
+}
+
+void SoundComponent::Update(float fElapsedTime)
+{
+
 }

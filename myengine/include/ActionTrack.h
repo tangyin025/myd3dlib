@@ -9,7 +9,7 @@
 #include <list>
 #include "myMath.h"
 #include "mySpline.h"
-#include "SoundContext.h"
+#include <string>
 
 class ActionTrack;
 
@@ -158,20 +158,29 @@ public:
 	virtual void Stop(void);
 };
 
+namespace my
+{
+	class Wav;
+
+	class DeviceResourceBase;
+}
+
+class SoundEvent;
+
 class ActionTrackSound : public ActionTrack
 {
 public:
 	struct KeyFrame
 	{
 		std::string SoundPath;
-		my::WavPtr Sound;
+		boost::shared_ptr<my::Wav> Sound;
 		float StartSec;
 		float EndSec;
 		bool Loop;
 		float MinDistance;
 		float MaxDistance;
 
-		void OnSoundReady(my::DeviceResourceBasePtr res);
+		void OnSoundReady(boost::shared_ptr<my::DeviceResourceBase> res);
 	};
 
 	typedef std::multimap<float, KeyFrame> KeyFrameMap;
@@ -195,7 +204,7 @@ class ActionTrackSoundInst : public ActionTrackInst
 protected:
 	boost::shared_ptr<const ActionTrackSound> m_Template;
 
-	typedef std::list<SoundEventPtr> SoundEventList;
+	typedef std::list<boost::shared_ptr<SoundEvent> > SoundEventList;
 	
 	SoundEventList m_Events;
 

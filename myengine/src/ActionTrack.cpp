@@ -9,6 +9,7 @@
 #include "myCollision.h"
 #include "PhysxContext.h"
 #include "myDxutApp.h"
+#include "SoundContext.h"
 
 using namespace my;
 

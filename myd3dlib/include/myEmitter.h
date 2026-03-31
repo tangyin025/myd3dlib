@@ -2,9 +2,7 @@
 // License: MIT
 #pragma once
 
-#include "mySingleton.h"
 #include "myMath.h"
-#include "mySpline.h"
 #include <set>
 #include <boost/circular_buffer.hpp>
 #include <boost/serialization/nvp.hpp>
