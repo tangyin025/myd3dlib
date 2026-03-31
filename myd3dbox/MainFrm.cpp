@@ -547,6 +547,8 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_UPDATE_COMMAND_UI(ID_EDIT_COPY, &CMainFrame::OnUpdateEditCopy)
 	ON_COMMAND(ID_EDIT_PASTE, &CMainFrame::OnEditPaste)
 	ON_UPDATE_COMMAND_UI(ID_EDIT_PASTE, &CMainFrame::OnUpdateEditPaste)
+	ON_COMMAND(ID_COMPONENT_SOUND, &CMainFrame::OnComponentSound)
+	ON_UPDATE_COMMAND_UI(ID_COMPONENT_SOUND, &CMainFrame::OnUpdateComponentSound)
 END_MESSAGE_MAP()
 
 static UINT indicators[] =
@@ -3529,4 +3531,42 @@ void CMainFrame::OnUpdateEditPaste(CCmdUI* pCmdUI)
 {
 	// TODO: Add your command update UI handler code here
 	pCmdUI->Enable(IsClipboardFormatAvailable(CF_TEXT));
+}
+
+
+void CMainFrame::OnComponentSound()
+{
+	// TODO: Add your command handler code here
+	ActorList::iterator actor_iter = m_selactors.begin();
+	if (actor_iter == m_selactors.end())
+	{
+		return;
+	}
+
+	CFileDialog dlg(TRUE, NULL, NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, this);
+	if (dlg.DoModal() != IDOK)
+	{
+		return;
+	}
+
+	std::string path = theApp.GetRelativePath((LPCTSTR)dlg.GetPathName());
+	if (path.empty())
+	{
+		MessageBox(str_printf(_T("cannot relative path: %s"), (LPCTSTR)dlg.GetPathName()).c_str());
+		return;
+	}
+
+	SoundComponentPtr sound_cmp(new SoundComponent(my::NamedObject::MakeUniqueName((std::string((*actor_iter)->GetName()) + "_sound0").c_str()).c_str()));
+	sound_cmp->m_WavPath = path;
+	(*actor_iter)->InsertComponent(sound_cmp);
+
+	my::EventArg arg;
+	m_EventAttributeChanged(&arg);
+}
+
+
+void CMainFrame::OnUpdateComponentSound(CCmdUI* pCmdUI)
+{
+	// TODO: Add your command update UI handler code here
+	pCmdUI->Enable(!m_selactors.empty());
 }

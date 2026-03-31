@@ -864,3 +864,5 @@ public:
 
 	virtual void Update(float fElapsedTime);
 };
+
+typedef boost::shared_ptr<SoundComponent> SoundComponentPtr;
