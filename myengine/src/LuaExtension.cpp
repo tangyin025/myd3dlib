@@ -3493,6 +3493,11 @@ void LuaContext::Init(void)
 			.def_readwrite("DelayRemoveTime", &SphericalEmitter::m_DelayRemoveTime)
 			.def("WaitTask", &spherical_emitter_wait_task)
 
+		, class_<SoundComponent, Component>("SoundComponent")
+			.def(constructor<const char *>())
+			.def_readwrite("WavPath", &SoundComponent::m_WavPath)
+			.def_readonly("Wav", &SoundComponent::m_Wav)
+
 		, class_<TerrainChunk, my::OctEntity>("TerrainChunk")
 			.def_readonly("Row", &TerrainChunk::m_Row)
 			.def_readonly("Col", &TerrainChunk::m_Col)

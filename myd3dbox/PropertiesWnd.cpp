@@ -428,6 +428,9 @@ void CPropertiesWnd::UpdateProperties(CMFCPropertyGridProperty * pComponent, int
 	case Component::ComponentTypeSphericalEmitter:
 		UpdatePropertiesEmitter(pComponent, dynamic_cast<EmitterComponent *>(cmp));
 		break;
+	case Component::ComponentTypeSound:
+		UpdatePropertiesSound(pComponent, dynamic_cast<SoundComponent *>(cmp));
+		break;
 	case Component::ComponentTypeTerrain:
 		UpdatePropertiesTerrain(pComponent, dynamic_cast<Terrain *>(cmp));
 		break;
@@ -807,6 +810,19 @@ void CPropertiesWnd::UpdatePropertiesSplineNode(CMFCPropertyGridProperty * pSpli
 	pProp->GetSubItem(PropertySplineNodeY - PropertySplineNodeX)->SetValue((_variant_t)node->y);
 	pProp->GetSubItem(PropertySplineNodeK0 - PropertySplineNodeX)->SetValue((_variant_t)node->k0);
 	pProp->GetSubItem(PropertySplineNodeK - PropertySplineNodeX)->SetValue((_variant_t)node->k);
+}
+
+void CPropertiesWnd::UpdatePropertiesSound(CMFCPropertyGridProperty * pComponent, SoundComponent * sound)
+{
+	unsigned int PropId = GetComponentPropCount(Component::ComponentTypeComponent);
+	CMFCPropertyGridProperty* pProp = pComponent->GetSubItem(PropId);
+	if (!pProp || pProp->GetData() != PropertySoundPath)
+	{
+		RemovePropertiesFrom(pComponent, PropId);
+		CreatePropertiesSound(pComponent, sound);
+		return;
+	}
+	pComponent->GetSubItem(PropId + 0)->SetValue((_variant_t)sound->m_WavPath.c_str());
 }
 
 void CPropertiesWnd::UpdatePropertiesTerrain(CMFCPropertyGridProperty * pComponent, Terrain * terrain)
@@ -1493,6 +1509,9 @@ void CPropertiesWnd::CreateProperties(CMFCPropertyGridProperty * pParentCtrl, Co
 	case Component::ComponentTypeSphericalEmitter:
 		CreatePropertiesEmitter(pComponent, dynamic_cast<EmitterComponent *>(cmp));
 		break;
+	case Component::ComponentTypeSound:
+		CreatePropertiesSound(pComponent, dynamic_cast<SoundComponent *>(cmp));
+		break;
 	case Component::ComponentTypeTerrain:
 		CreatePropertiesTerrain(pComponent, dynamic_cast<Terrain *>(cmp));
 		break;
@@ -2061,6 +2080,15 @@ void CPropertiesWnd::CreatePropertiesSplineNode(CMFCPropertyGridProperty * pSpli
 	pNode->AddSubItem(pProp);
 	pProp = new CSimpleProp(_T("k"), (_variant_t)node->k, NULL, PropertySplineNodeK);
 	pNode->AddSubItem(pProp);
+}
+
+void CPropertiesWnd::CreatePropertiesSound(CMFCPropertyGridProperty * pComponent, SoundComponent* sound)
+{
+	ASSERT(pComponent->GetSubItemsCount() == GetComponentPropCount(Component::ComponentTypeComponent));
+
+	CMFCPropertyGridProperty * pProp = new CSimpleProp(_T("Path"), (_variant_t)sound->m_WavPath.c_str(), NULL, PropertySoundPath);
+	pProp->Enable(FALSE);
+	pComponent->AddSubItem(pProp);
 }
 
 void CPropertiesWnd::CreatePropertiesTerrain(CMFCPropertyGridProperty * pComponent, Terrain * terrain)
@@ -2966,6 +2994,8 @@ unsigned int CPropertiesWnd::GetComponentPropCount(DWORD type)
 		return GetComponentPropCount(Component::ComponentTypeEmitter) + 4;
 	case Component::ComponentTypeSphericalEmitter:
 		return GetComponentPropCount(Component::ComponentTypeEmitter) + 21;
+	case Component::ComponentTypeSound:
+		return GetComponentPropCount(Component::ComponentTypeComponent) + 1;
 	case Component::ComponentTypeTerrain:
 		return GetComponentPropCount(Component::ComponentTypeComponent) + 8;
 	case Component::ComponentTypeAnimator:
@@ -2994,6 +3024,8 @@ LPCTSTR CPropertiesWnd::GetComponentTypeName(DWORD type)
 		return _T("StaticEmitter");
 	case Component::ComponentTypeSphericalEmitter:
 		return _T("SphericalEmitter");
+	case Component::ComponentTypeSound:
+		return _T("Sound");
 	case Component::ComponentTypeTerrain:
 		return _T("Terrain");
 	case Component::ComponentTypeAnimator:
@@ -4506,6 +4538,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
 	}
+	case PropertySoundPath:
 	case PropertyTerrainRowChunks:
 	case PropertyTerrainColChunks:
 	case PropertyTerrainChunkSize:

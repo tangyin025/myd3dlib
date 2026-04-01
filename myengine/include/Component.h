@@ -856,6 +856,11 @@ public:
 		ar & BOOST_SERIALIZATION_NVP(m_WavPath);
 	}
 
+	virtual DWORD GetComponentType(void) const
+	{
+		return TypeID;
+	}
+
 	void OnWavReady(my::DeviceResourceBasePtr res);
 
 	virtual void RequestResource(void);

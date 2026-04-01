@@ -23,6 +23,8 @@ class StaticEmitter;
 
 class SphericalEmitter;
 
+class SoundComponent;
+
 class Terrain;
 
 class TerrainChunk;
@@ -257,6 +259,7 @@ public:
 		PropertySplineNodeY,
 		PropertySplineNodeK0,
 		PropertySplineNodeK,
+		PropertySoundPath,
 		PropertyTerrainRowChunks,
 		PropertyTerrainColChunks,
 		PropertyTerrainChunkSize,
@@ -579,6 +582,7 @@ public:
 	void UpdatePropertiesSphericalEmitter(CMFCPropertyGridProperty * pComponent, SphericalEmitter * sphe_emit_cmp);
 	void UpdatePropertiesSpline(CMFCPropertyGridProperty * pSpline, my::Spline * spline);
 	void UpdatePropertiesSplineNode(CMFCPropertyGridProperty * pSpline, int NodeId, const my::Spline::value_type* node);
+	void UpdatePropertiesSound(CMFCPropertyGridProperty * pComponent, SoundComponent * sound);
 	void UpdatePropertiesTerrain(CMFCPropertyGridProperty * pComponent, Terrain * terrain);
 	void UpdatePropertiesAnimator(CMFCPropertyGridProperty * pComponent, Animator * animator);
 	void UpdatePropertiesAnimationNode(CMFCPropertyGridProperty * pAnimationNode, AnimationNode * node);
@@ -610,6 +614,7 @@ public:
 	void CreatePropertiesSphericalEmitter(CMFCPropertyGridProperty * pComponent, SphericalEmitter * sphe_emit_cmp);
 	void CreatePropertiesSpline(CMFCPropertyGridProperty * pParentProp, LPCTSTR lpszName, Property PropertyId, my::Spline * spline);
 	void CreatePropertiesSplineNode(CMFCPropertyGridProperty * pSpline, int NodeId, my::Spline::value_type * node);
+	void CreatePropertiesSound(CMFCPropertyGridProperty * pSpline, SoundComponent * sound);
 	void CreatePropertiesTerrain(CMFCPropertyGridProperty * pComponent, Terrain * terrain);
 	void CreatePropertiesAnimator(CMFCPropertyGridProperty * pComponent, Animator * animator);
 	void CreatePropertiesAnimationNode(CMFCPropertyGridProperty * pParentCtrl, AnimationNode * node);
