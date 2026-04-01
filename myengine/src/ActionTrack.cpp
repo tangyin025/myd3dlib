@@ -202,9 +202,9 @@ void ActionTrackSoundInst::UpdateTime(float LastTime, float Time)
 
 			const Vector3& pos = m_Actor->m_World.getRow<3>().xyz;
 
-			(*event_iter)->m_3dbuffer->SetPosition(pos);
+			(*event_iter)->m_3dbuffer->SetPosition(pos, DS3D_DEFERRED);
 
-			(*event_iter++)->m_3dbuffer->SetVelocity(m_Actor->GetLinearVelocity());
+			(*event_iter++)->m_3dbuffer->SetVelocity(m_Actor->GetLinearVelocity(), DS3D_DEFERRED);
 		}
 		else
 		{

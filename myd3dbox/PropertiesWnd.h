@@ -260,6 +260,8 @@ public:
 		PropertySplineNodeK0,
 		PropertySplineNodeK,
 		PropertySoundPath,
+		PropertySoundMinDistance,
+		PropertySoundMaxDistance,
 		PropertyTerrainRowChunks,
 		PropertyTerrainColChunks,
 		PropertyTerrainChunkSize,

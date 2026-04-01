@@ -2195,11 +2195,36 @@ SoundComponent::~SoundComponent(void)
 	}
 }
 
+template<class Archive>
+void SoundComponent::save(Archive & ar, const unsigned int version) const
+{
+	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(Component);
+	ar << BOOST_SERIALIZATION_NVP(m_WavPath);
+	float MinDistance = GetMinDistance();
+	ar << BOOST_SERIALIZATION_NVP(MinDistance);
+	float MaxDistance = GetMaxDistance();
+	ar << BOOST_SERIALIZATION_NVP(MaxDistance);
+}
+
+template<class Archive>
+void SoundComponent::load(Archive & ar, const unsigned int version)
+{
+	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(Component);
+	ar >> BOOST_SERIALIZATION_NVP(m_WavPath);
+	float MinDistance;
+	ar >> BOOST_SERIALIZATION_NVP(MinDistance);
+	SetMinDistance(MinDistance);
+	float MaxDistance;
+	ar >> BOOST_SERIALIZATION_NVP(MaxDistance);
+	SetMaxDistance(MaxDistance);
+}
+
 void SoundComponent::OnWavReady(my::DeviceResourceBasePtr res)
 {
 	m_Wav = boost::dynamic_pointer_cast<my::Wav>(res);
 
-	m_SoundEvent = SoundContext::getSingleton().Play(m_Wav, 0.0f, 9999.0f, true, m_Actor->m_World.getRow<3>().xyz, my::Vector3(0), 1.0f, 5.0f);
+	m_SoundEvent = SoundContext::getSingleton().Play(
+		m_Wav, 0.0f, 9999.0f, true, m_Actor->m_World.getRow<3>().xyz, my::Vector3(0), m_DescMinDistance, m_DescMaxDistance);
 }
 
 void SoundComponent::RequestResource(void)
@@ -2236,4 +2261,52 @@ void SoundComponent::ReleaseResource(void)
 void SoundComponent::Update(float fElapsedTime)
 {
 
+}
+
+void SoundComponent::SetMinDistance(float MinDistance)
+{
+	m_DescMinDistance = MinDistance;
+
+	if (m_SoundEvent && m_SoundEvent->m_sbuffer)
+	{
+		_ASSERT(m_SoundEvent->m_3dbuffer);
+
+		m_SoundEvent->m_3dbuffer->SetMinDistance(MinDistance, DS3D_DEFERRED);
+	}
+}
+
+float SoundComponent::GetMinDistance(void) const
+{
+	if (m_SoundEvent && m_SoundEvent->m_sbuffer)
+	{
+		_ASSERT(m_SoundEvent->m_3dbuffer);
+
+		return m_SoundEvent->m_3dbuffer->GetMinDistance();
+	}
+
+	return m_DescMinDistance;
+}
+
+void SoundComponent::SetMaxDistance(float MaxDistance)
+{
+	m_DescMaxDistance = MaxDistance;
+
+	if (m_SoundEvent && m_SoundEvent->m_sbuffer)
+	{
+		_ASSERT(m_SoundEvent->m_3dbuffer);
+
+		m_SoundEvent->m_3dbuffer->SetMaxDistance(MaxDistance, DS3D_DEFERRED);
+	}
+}
+
+float SoundComponent::GetMaxDistance(void) const
+{
+	if (m_SoundEvent && m_SoundEvent->m_sbuffer)
+	{
+		_ASSERT(m_SoundEvent->m_3dbuffer);
+
+		return m_SoundEvent->m_3dbuffer->GetMaxDistance();
+	}
+
+	return m_DescMaxDistance;
 }

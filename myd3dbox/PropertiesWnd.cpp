@@ -823,6 +823,8 @@ void CPropertiesWnd::UpdatePropertiesSound(CMFCPropertyGridProperty * pComponent
 		return;
 	}
 	pComponent->GetSubItem(PropId + 0)->SetValue((_variant_t)sound->m_WavPath.c_str());
+	pComponent->GetSubItem(PropId + 1)->SetValue((_variant_t)sound->GetMinDistance());
+	pComponent->GetSubItem(PropId + 2)->SetValue((_variant_t)sound->GetMaxDistance());
 }
 
 void CPropertiesWnd::UpdatePropertiesTerrain(CMFCPropertyGridProperty * pComponent, Terrain * terrain)
@@ -2089,6 +2091,10 @@ void CPropertiesWnd::CreatePropertiesSound(CMFCPropertyGridProperty * pComponent
 	CMFCPropertyGridProperty * pProp = new CSimpleProp(_T("Path"), (_variant_t)sound->m_WavPath.c_str(), NULL, PropertySoundPath);
 	pProp->Enable(FALSE);
 	pComponent->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("MinDistance"), (_variant_t)sound->GetMinDistance(), NULL, PropertySoundMinDistance);
+	pComponent->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("MaxDistance"), (_variant_t)sound->GetMaxDistance(), NULL, PropertySoundMaxDistance);
+	pComponent->AddSubItem(pProp);
 }
 
 void CPropertiesWnd::CreatePropertiesTerrain(CMFCPropertyGridProperty * pComponent, Terrain * terrain)
@@ -2995,7 +3001,7 @@ unsigned int CPropertiesWnd::GetComponentPropCount(DWORD type)
 	case Component::ComponentTypeSphericalEmitter:
 		return GetComponentPropCount(Component::ComponentTypeEmitter) + 21;
 	case Component::ComponentTypeSound:
-		return GetComponentPropCount(Component::ComponentTypeComponent) + 1;
+		return GetComponentPropCount(Component::ComponentTypeComponent) + 3;
 	case Component::ComponentTypeTerrain:
 		return GetComponentPropCount(Component::ComponentTypeComponent) + 8;
 	case Component::ComponentTypeAnimator:
@@ -4539,6 +4545,16 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		break;
 	}
 	case PropertySoundPath:
+	case PropertySoundMinDistance:
+	case PropertySoundMaxDistance:
+	{
+		SoundComponent * sound_cmp = (SoundComponent *)pProp->GetParent()->GetValue().pulVal;
+		unsigned int PropId = GetComponentPropCount(Component::ComponentTypeComponent);
+		sound_cmp->SetMinDistance(pProp->GetParent()->GetSubItem(PropId + 1)->GetValue().fltVal);
+		sound_cmp->SetMaxDistance(pProp->GetParent()->GetSubItem(PropId + 2)->GetValue().fltVal);
+		SoundContext::getSingleton().m_listener->CommitDeferredSettings();
+		break;
+	}
 	case PropertyTerrainRowChunks:
 	case PropertyTerrainColChunks:
 	case PropertyTerrainChunkSize:

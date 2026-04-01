@@ -832,16 +832,24 @@ public:
 
 	boost::shared_ptr<my::Wav> m_Wav;
 
+	float m_DescMinDistance;
+
+	float m_DescMaxDistance;
+
 	boost::shared_ptr<SoundEvent> m_SoundEvent;
 
 protected:
 	SoundComponent(void)
+		: m_DescMinDistance(1.0f)
+		, m_DescMaxDistance(5.0f)
 	{
 	}
 
 public:
 	SoundComponent(const char* Name)
 		: Component(Name)
+		, m_DescMinDistance(1.0f)
+		, m_DescMaxDistance(5.0f)
 	{
 	}
 
@@ -850,10 +858,15 @@ public:
 	friend class boost::serialization::access;
 
 	template<class Archive>
+	void save(Archive& ar, const unsigned int version) const;
+
+	template<class Archive>
+	void load(Archive& ar, const unsigned int version);
+
+	template<class Archive>
 	void serialize(Archive& ar, const unsigned int version)
 	{
-		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Component);
-		ar & BOOST_SERIALIZATION_NVP(m_WavPath);
+		boost::serialization::split_member(ar, *this, version);
 	}
 
 	virtual DWORD GetComponentType(void) const
@@ -868,6 +881,14 @@ public:
 	virtual void ReleaseResource(void);
 
 	virtual void Update(float fElapsedTime);
+
+	void SetMinDistance(float MinDistance);
+
+	float GetMinDistance(void) const;
+
+	void SetMaxDistance(float MaxDistance);
+
+	float GetMaxDistance(void) const;
 };
 
 typedef boost::shared_ptr<SoundComponent> SoundComponentPtr;
