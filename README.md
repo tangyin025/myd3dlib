@@ -22,8 +22,8 @@ FreeType 2.9.1<br>
 zlib 1.2.11<br>
 libzip 1.9.2<br>
 Lua 5.1.5<br>
+Lua BitOp 1.0.2<br>
 Luabind 0.9.1<br>
-LuaJIT 2.1<br>
 minimp3<br>
 libogg 1.3.5<br>
 libvorbis 1.3.7<br>

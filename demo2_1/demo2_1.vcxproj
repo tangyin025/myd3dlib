@@ -176,8 +176,20 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ProjectReference Include="..\DebugUtils\DebugUtils.vcxproj">
+      <Project>{1b6cc677-1d1e-4bab-9943-d4f0fc8c8e4f}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\DetourCrowd\DetourCrowd.vcxproj">
+      <Project>{2ca9dcdf-2768-4ede-b9aa-47ba3d150838}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\DetourTileCache\DetourTileCache.vcxproj">
+      <Project>{f3683163-8a98-4464-be2f-8a33e5865115}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\Detour\Detour.vcxproj">
+      <Project>{e7e0b84b-e196-45f1-b017-aeb3121d2052}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\freetype\freetype.vcxproj">
-      <Project>{2393A386-F7FA-3923-A760-848892FC4B10}</Project>
+      <Project>{2393a386-f7fa-3923-a760-848892fc4b10}</Project>
     </ProjectReference>
     <ProjectReference Include="..\libboost_program_options\libboost_program_options.vcxproj">
       <Project>{79940869-b99a-42b6-9e8e-d683614c630a}</Project>
@@ -197,11 +209,11 @@
     <ProjectReference Include="..\libzip\libzip.vcxproj">
       <Project>{91beaa70-570b-440b-81ac-83eb114e83c6}</Project>
     </ProjectReference>
+    <ProjectReference Include="..\lua51\lua51.vcxproj">
+      <Project>{198a862b-2908-48a8-8654-5d6b4583e441}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\luabind\luabind.vcxproj">
       <Project>{8f8c0f3c-baec-48ff-900a-33c045bb395f}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\LuaJIT\LuaJIT.vcxproj">
-      <Project>{a21d63f5-fd44-42f3-88a8-59929d40f4d6}</Project>
     </ProjectReference>
     <ProjectReference Include="..\myd3dlib\myd3dlib.vcxproj">
       <Project>{1f5cf866-21b8-4f4b-b9d1-6159003e468f}</Project>
@@ -209,12 +221,18 @@
     <ProjectReference Include="..\myengine\myengine.vcxproj">
       <Project>{ecbe9ca0-c8a4-4594-ac78-d99d7264e54b}</Project>
     </ProjectReference>
+    <ProjectReference Include="..\PhysXCharacterKinematic\PhysXCharacterKinematic.vcxproj">
+      <Project>{1e04f7a2-c8f8-3d62-46fe-8762d28ca9a4}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\Recast\Recast.vcxproj">
+      <Project>{bce7e203-90f1-41cd-95e4-d616e838986c}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\zlib\zlib.vcxproj">
       <Project>{4b104248-0f92-4516-8d50-e87d5e9bb6b6}</Project>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\LuaJIT\src\luajit.c" />
+    <ClCompile Include="..\lua51\src\luac.c" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

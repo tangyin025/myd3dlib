@@ -105,6 +105,9 @@
     <ClCompile Include="src\lzio.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\print.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\lapi.h">

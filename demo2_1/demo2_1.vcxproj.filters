@@ -15,7 +15,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\LuaJIT\src\luajit.c">
+    <ClCompile Include="..\lua51\src\luac.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

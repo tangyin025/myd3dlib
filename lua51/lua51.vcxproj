@@ -157,6 +157,7 @@
     <ClCompile Include="src\lundump.c" />
     <ClCompile Include="src\lvm.c" />
     <ClCompile Include="src\lzio.c" />
+    <ClCompile Include="src\print.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\lapi.h" />
