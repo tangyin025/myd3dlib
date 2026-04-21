@@ -69,8 +69,6 @@ public:
 
 	ViewedActorSet m_ViewedActors;
 
-	int m_ShowCursorCount;
-
 public:
 	Client(int _DEFAULT_UI_RES_Y);
 

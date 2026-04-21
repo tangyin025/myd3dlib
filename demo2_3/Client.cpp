@@ -401,7 +401,6 @@ Client::Client(int _DEFAULT_UI_RES_Y)
 	, DEFAULT_UI_RES_Y(_DEFAULT_UI_RES_Y)
 	, m_UIRender(new EffectUIRender())
 	, m_ViewedCenter(0, 0, 0)
-	, m_ShowCursorCount(0)
 {
 	char buff[MAX_PATH];
 	GetModuleFileNameA(NULL, buff, _countof(buff));
