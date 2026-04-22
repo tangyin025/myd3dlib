@@ -283,8 +283,10 @@ void Actor::RequestResource(void)
 
 	PhysxScene* scene = dynamic_cast<PhysxScene*>(m_Node->GetTopNode());
 
-	if (!m_Base && m_PxActor)
+	if (m_PxActor && !m_PxActor->getAggregate())
 	{
+		_ASSERT(!m_Base || m_BaseBoneId < 0);
+
 		_ASSERT(!m_PxActor->getScene());
 
 		scene->m_PxScene->addActor(*m_PxActor);
@@ -318,8 +320,10 @@ void Actor::ReleaseResource(void)
 
 	PhysxScene* scene = dynamic_cast<PhysxScene*>(m_Node->GetTopNode());
 
-	if (!m_Base && m_PxActor)
+	if (m_PxActor && !m_PxActor->getAggregate())
 	{
+		_ASSERT(!m_Base || m_BaseBoneId < 0);
+
 		_ASSERT(m_PxActor->getScene() == scene->m_PxScene.get());
 
 		scene->m_PxScene->removeActor(*m_PxActor, false);
@@ -559,20 +563,19 @@ void Actor::ClearRigidActor(void)
 {
 	PhysxScene* scene = dynamic_cast<PhysxScene*>(m_Node->GetTopNode());
 
-	if (!m_Base && m_PxActor && IsRequested())
+	if (m_PxActor && m_Base && m_BaseBoneId >= 0)
+	{
+		_ASSERT(m_PxActor->getAggregate() == m_Base->m_Aggregate.get());
+
+		BOOST_VERIFY(m_Base->m_Aggregate->removeActor(*m_PxActor));
+
+		scene->removeRenderActorsFromPhysicsActor(m_PxActor.get());
+	}
+	else if (m_PxActor && IsRequested())
 	{
 		_ASSERT(m_PxActor->getScene() == scene->m_PxScene.get());
 
 		scene->m_PxScene->removeActor(*m_PxActor, false);
-
-		scene->removeRenderActorsFromPhysicsActor(m_PxActor.get());
-	}
-
-	if (m_Base && m_PxActor)
-	{
-		_ASSERT(m_Base->m_Aggregate);
-
-		BOOST_VERIFY(m_Base->m_Aggregate->removeActor(*m_PxActor));
 
 		scene->removeRenderActorsFromPhysicsActor(m_PxActor.get());
 	}
@@ -606,16 +609,7 @@ void Actor::CreateRigidActor(physx::PxActorType::Enum ActorType)
 		break;
 	}
 
-	if (!m_Base && m_PxActor && IsRequested())
-	{
-		PhysxScene* scene = dynamic_cast<PhysxScene*>(m_Node->GetTopNode());
-
-		_ASSERT(!m_PxActor->getScene());
-
-		scene->m_PxScene->addActor(*m_PxActor);
-	}
-
-	if (m_Base && m_PxActor)
+	if (m_PxActor && m_Base && m_BaseBoneId >= 0)
 	{
 		if (!m_Base->m_Aggregate)
 		{
@@ -623,6 +617,14 @@ void Actor::CreateRigidActor(physx::PxActorType::Enum ActorType)
 		}
 
 		BOOST_VERIFY(m_Base->m_Aggregate->addActor(*m_PxActor));
+	}
+	else if (m_PxActor && IsRequested())
+	{
+		PhysxScene* scene = dynamic_cast<PhysxScene*>(m_Node->GetTopNode());
+
+		_ASSERT(!m_PxActor->getScene());
+
+		scene->m_PxScene->addActor(*m_PxActor);
 	}
 }
 
@@ -836,7 +838,7 @@ void Actor::Attach(Actor * other, int BoneId)
 
 	other->m_BaseBoneId = BoneId;
 
-	if (other->m_PxActor)
+	if (other->m_PxActor && BoneId >= 0)
 	{
 		if (!m_Aggregate)
 		{
@@ -846,6 +848,8 @@ void Actor::Attach(Actor * other, int BoneId)
 		if (other->IsRequested())
 		{
 			PhysxScene* scene = dynamic_cast<PhysxScene*>(m_Node->GetTopNode());
+
+			_ASSERT(other->m_PxActor->getScene() == scene->m_PxScene.get());
 
 			scene->m_PxScene->removeActor(*other->m_PxActor);
 		}
@@ -888,33 +892,40 @@ void Actor::Detach(Actor * other)
 				}
 			}
 
-			_ASSERT(m_Aggregate);
-
-			BOOST_VERIFY(m_Aggregate->removeActor(*other->m_PxActor)); // ! the actor is reinserted in that scene
-
-			PhysxScene* scene = dynamic_cast<PhysxScene*>(m_Node->GetTopNode());
-
-			if (other->IsRequested())
+			if (other->m_PxActor->getAggregate())
 			{
-				if (IsRequested())
+				_ASSERT(other->m_BaseBoneId >= 0);
+
+				_ASSERT(other->m_PxActor->getAggregate() == m_Aggregate.get());
+
+				BOOST_VERIFY(m_Aggregate->removeActor(*other->m_PxActor)); // ! the actor is reinserted in that scene
+
+				PhysxScene* scene = dynamic_cast<PhysxScene*>(m_Node->GetTopNode());
+
+				if (other->IsRequested())
 				{
-					_ASSERT(other->m_PxActor->getScene() == scene->m_PxScene.get());
+					if (IsRequested())
+					{
+						_ASSERT(other->m_PxActor->getScene() == scene->m_PxScene.get());
+					}
+					else
+					{
+						scene->m_PxScene->addActor(*other->m_PxActor);
+					}
 				}
 				else
 				{
-					scene->m_PxScene->addActor(*other->m_PxActor);
-				}
-			}
-			else
-			{
-				if (IsRequested())
-				{
-					_ASSERT(other->m_PxActor->getScene() == scene->m_PxScene.get());
+					if (IsRequested())
+					{
+						_ASSERT(other->m_PxActor->getScene() == scene->m_PxScene.get());
 
-					scene->m_PxScene->removeActor(*other->m_PxActor);
-				}
+						scene->m_PxScene->removeActor(*other->m_PxActor);
 
-				scene->removeRenderActorsFromPhysicsActor(other->m_PxActor.get());
+						scene->removeRenderActorsFromPhysicsActor(other->m_PxActor.get());
+					}
+
+					_ASSERT(!other->m_PxActor->getScene());
+				}
 			}
 		}
 
