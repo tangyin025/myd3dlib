@@ -100,15 +100,14 @@ void ParallelTaskManager::PushTask(ParallelTask * task)
 
 bool ParallelTaskManager::FindTask(ParallelTask * task)
 {
-	bool HaveTask = false;
-	m_TasksMutex.Wait(INFINITE);
+	// ! _ITERATOR_DEBUG_LEVEL==2, _iterator_base12::_Orphan_me_unlocked, invalid _Myproxy
+	MutexLock lock(m_TasksMutex);
 	TaskList::const_iterator task_iter = std::find(m_Tasks.begin(), m_Tasks.end(), task);
 	if (task_iter != m_Tasks.end())
 	{
-		HaveTask = true;
+		return true;
 	}
-	m_TasksMutex.Release();
-	return HaveTask;
+	return false;
 }
 
 void ParallelTaskManager::DoAllParallelTasks(void)
