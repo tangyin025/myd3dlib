@@ -50,9 +50,9 @@ Actor::~Actor(void)
 
 	ClearAllComponent();
 
-	_ASSERT(m_EventOnTrigger.empty());
+	_ASSERT(m_EventPxThreadTrigger.empty());
 
-	_ASSERT(m_EventOnContact.empty());
+	_ASSERT(m_EventPxThreadContact.empty());
 
 	_ASSERT(m_EventPxThreadShapeHit.empty());
 

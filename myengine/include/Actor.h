@@ -218,9 +218,9 @@ public:
 
 	ActionInstPtrList m_ActionInstList;
 
-	my::EventSignal m_EventOnTrigger;
+	my::EventSignal m_EventPxThreadTrigger;
 
-	my::EventSignal m_EventOnContact;
+	my::EventSignal m_EventPxThreadContact;
 
 	my::EventSignal m_EventPxThreadShapeHit;
 

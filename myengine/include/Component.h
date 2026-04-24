@@ -179,11 +179,11 @@ public:
 	{
 	}
 
-	virtual void OnTrigger(my::EventArg * arg)
+	virtual void OnPxThreadTrigger(my::EventArg * arg)
 	{
 	}
 
-	virtual void OnContact(my::EventArg* arg)
+	virtual void OnPxThreadContact(my::EventArg* arg)
 	{
 	}
 

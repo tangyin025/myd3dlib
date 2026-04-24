@@ -149,6 +149,9 @@ function PlayerBehavior:OnPxThreadSubstep(dtime)
 	end
 	self.Actor:SetPxPoseOrbyPxThread(controller_cmp.FootPosition,self.Actor.Rotation,controller_cmp)
 end
+function PlayerBehavior:OnPxThreadTrigger(arg)
+	print("enter trigger: "..arg.other.Name, arg.events)
+end
 function PlayerBehavior:OnPxThreadShapeHit(arg)
 	-- print("shape hit: "..arg.other.Name.."pos("..arg.worldPos.x..","..arg.worldPos.y..","..arg.worldPos.z..") nol("..arg.worldNormal.x..","..arg.worldNormal.y..","..arg.worldNormal.z..") dir("..arg.dir.x..","..arg.dir.y..","..arg.dir.z..")")
 end

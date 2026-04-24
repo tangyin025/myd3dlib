@@ -134,15 +134,6 @@ client:LoadSceneAsync("scene01.xml", "scene01_", function(res)
 	actor2:SetPose(Vector3(0,1,-5),Quaternion.Identity())
 	client:AddEntity(actor2)
 
-	class 'actor5Behavior'(Component)
-	function actor5Behavior:__init(name)
-		Component.__init(self,name)
-	end
-	function actor5Behavior:OnTrigger(arg)
-		print("enter trigger: "..arg.other.Name, arg.events)
-	end
-	local actor5_behavior=actor5Behavior(NamedObject.MakeUniqueName('actor_behavior'))
-	actor5:InsertComponentAdopt(actor5_behavior)
 	actor5:UpdateWorld()
 	client:AddEntity(actor5)
 

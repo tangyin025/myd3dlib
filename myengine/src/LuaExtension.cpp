@@ -782,9 +782,9 @@ struct ScriptComponent : Component, luabind::wrap_base
 
 		scene->m_EventPxThreadSubstep.connect(boost::bind(&Component::OnPxThreadSubstep, ptr, boost::placeholders::_1));
 
-		ptr->m_Actor->m_EventOnTrigger.connect(boost::bind(&Component::OnTrigger, ptr, boost::placeholders::_1));
+		ptr->m_Actor->m_EventPxThreadTrigger.connect(boost::bind(&Component::OnPxThreadTrigger, ptr, boost::placeholders::_1));
 
-		ptr->m_Actor->m_EventOnContact.connect(boost::bind(&Component::OnContact, ptr, boost::placeholders::_1));
+		ptr->m_Actor->m_EventPxThreadContact.connect(boost::bind(&Component::OnPxThreadContact, ptr, boost::placeholders::_1));
 
 		ptr->m_Actor->m_EventPxThreadShapeHit.connect(boost::bind(&Component::OnPxThreadShapeHit, ptr, boost::placeholders::_1));
 
@@ -817,9 +817,9 @@ struct ScriptComponent : Component, luabind::wrap_base
 
 		scene->m_EventPxThreadSubstep.disconnect(boost::bind(&Component::OnPxThreadSubstep, ptr, boost::placeholders::_1));
 
-		ptr->m_Actor->m_EventOnTrigger.disconnect(boost::bind(&Component::OnTrigger, ptr, boost::placeholders::_1));
+		ptr->m_Actor->m_EventPxThreadTrigger.disconnect(boost::bind(&Component::OnPxThreadTrigger, ptr, boost::placeholders::_1));
 
-		ptr->m_Actor->m_EventOnContact.disconnect(boost::bind(&Component::OnContact, ptr, boost::placeholders::_1));
+		ptr->m_Actor->m_EventPxThreadContact.disconnect(boost::bind(&Component::OnPxThreadContact, ptr, boost::placeholders::_1));
 
 		ptr->m_Actor->m_EventPxThreadShapeHit.disconnect(boost::bind(&Component::OnPxThreadShapeHit, ptr, boost::placeholders::_1));
 
@@ -885,13 +885,13 @@ struct ScriptComponent : Component, luabind::wrap_base
 		//ptr->Component::OnPxThreadSubstep(dtime);
 	}
 
-	virtual void OnTrigger(my::EventArg* arg)
+	virtual void OnPxThreadTrigger(my::EventArg* arg)
 	{
 		my::CriticalSectionLock lock(LuaContext::getSingleton().m_StateSec);
 
 		try
 		{
-			luabind::wrap_base::call<void>("OnTrigger", arg);
+			luabind::wrap_base::call<void>("OnPxThreadTrigger", arg);
 		}
 		catch (const luabind::error& e)
 		{
@@ -899,18 +899,18 @@ struct ScriptComponent : Component, luabind::wrap_base
 		}
 	}
 
-	static void default_OnTrigger(Component* ptr, my::EventArg* arg)
+	static void default_OnPxThreadTrigger(Component* ptr, my::EventArg* arg)
 	{
-		//ptr->Component::OnTrigger(arg);
+		//ptr->Component::OnPxThreadTrigger(arg);
 	}
 
-	virtual void OnContact(my::EventArg* arg)
+	virtual void OnPxThreadContact(my::EventArg* arg)
 	{
 		my::CriticalSectionLock lock(LuaContext::getSingleton().m_StateSec);
 
 		try
 		{
-			luabind::wrap_base::call<void>("OnContact", arg);
+			luabind::wrap_base::call<void>("OnPxThreadContact", arg);
 		}
 		catch (const luabind::error& e)
 		{
@@ -918,9 +918,9 @@ struct ScriptComponent : Component, luabind::wrap_base
 		}
 	}
 
-	static void default_OnContact(Component* ptr, my::EventArg* arg)
+	static void default_OnPxThreadContact(Component* ptr, my::EventArg* arg)
 	{
-		//ptr->Component::OnContact(arg);
+		//ptr->Component::OnPxThreadContact(arg);
 	}
 
 	virtual void OnPxThreadShapeHit(my::EventArg* arg)
@@ -3321,8 +3321,8 @@ void LuaContext::Init(void)
 				value("eNOTIFY_TOUCH_FOUND", physx::PxPairFlag::eNOTIFY_TOUCH_FOUND),
 				value("eNOTIFY_TOUCH_LOST", physx::PxPairFlag::eNOTIFY_TOUCH_LOST)
 			]
-			.def("OnTrigger", &Component::OnTrigger, &ScriptComponent::default_OnTrigger)
-			.def("OnContact", &Component::OnContact, &ScriptComponent::default_OnContact)
+			.def("OnPxThreadTrigger", &Component::OnPxThreadTrigger, &ScriptComponent::default_OnPxThreadTrigger)
+			.def("OnPxThreadContact", &Component::OnPxThreadContact, &ScriptComponent::default_OnPxThreadContact)
 			.def("OnPxThreadShapeHit", &Component::OnPxThreadShapeHit, &ScriptComponent::default_OnPxThreadShapeHit)
 			.def("OnPxThreadControllerHit", &Component::OnPxThreadControllerHit, &ScriptComponent::default_OnPxThreadControllerHit)
 			.def("OnPxThreadObstacleHit", &Component::OnPxThreadObstacleHit, &ScriptComponent::default_OnPxThreadObstacleHit)

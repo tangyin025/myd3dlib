@@ -486,7 +486,7 @@ void PhysxScene::onContact(const physx::PxContactPairHeader& pairHeader, const p
 							arg.separation = contactPoints[j].separation;
 							arg.normal = (Vector3&)contactPoints[j].normal;
 							arg.impulse = (Vector3&)contactPoints[j].impulse;
-							self_cmp->m_Actor->m_EventOnContact(&arg);
+							self_cmp->m_Actor->m_EventPxThreadContact(&arg);
 						}
 					}
 				}
@@ -529,7 +529,7 @@ void PhysxScene::onTrigger(physx::PxTriggerPair* pairs, physx::PxU32 count)
 			{
 				Component* other_cmp = (Component*)pairs[i].triggerShape->userData;
 				TriggerEventArg arg(self_cmp->m_Actor, self_cmp, other_cmp->m_Actor, other_cmp, pairs[i].status);
-				self_cmp->m_Actor->m_EventOnTrigger(&arg);
+				self_cmp->m_Actor->m_EventPxThreadTrigger(&arg);
 			}
 		}
 	}
