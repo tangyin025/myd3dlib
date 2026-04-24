@@ -868,9 +868,9 @@ void Client::OnFrameTick(
 
 				m_client->m_d3dDeviceSec.Enter();
 
-				actor->RequestResource();
-
 				m_client->OnActorRequest(actor);
+
+				actor->RequestResource();
 
 				m_client->m_d3dDeviceSec.Leave();
 
