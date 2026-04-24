@@ -239,10 +239,6 @@ void PhysxScene::TickPreRender(float fElapsedTime)
 {
 	m_Sync.ResetEvent();
 
-	mTriggerPairs.clear();
-
-	mContactPairs.clear();
-
 	InterlockedExchange(&PhysxSdk::getSingleton().m_RenderTickMuted, 1);
 
 	m_WaitForResults = Advance(fElapsedTime);
@@ -278,45 +274,6 @@ void PhysxScene::TickPostRender(float fElapsedTime)
 			}
 		}
 		mDeletedActors.clear();
-
-		TriggerPairList::const_iterator trigger_iter = mTriggerPairs.begin();
-		for (; trigger_iter != mTriggerPairs.end(); trigger_iter++)
-		{
-			// ! PxTriggerPair::otherActor may not have userData for Controller objs
-			if (trigger_iter->triggerShape->userData)
-			{
-				Component* self_cmp = (Component*)trigger_iter->triggerShape->userData;
-				if (trigger_iter->otherShape->userData)
-				{
-					Component* other_cmp = (Component*)trigger_iter->otherShape->userData;
-					TriggerEventArg arg(self_cmp->m_Actor, self_cmp, other_cmp->m_Actor, other_cmp, trigger_iter->status);
-					self_cmp->m_Actor->m_EventOnTrigger(&arg);
-				}
-			}
-		}
-
-		ContactPairList::const_iterator contact_iter = mContactPairs.begin();
-		for (; contact_iter != mContactPairs.end(); contact_iter++)
-		{
-			for (unsigned int i = 0; i < _countof(ContactPair::shapes); i++)
-			{
-				if (contact_iter->shapes[i]->userData)
-				{
-					Component* self_cmp = (Component*)contact_iter->shapes[i]->userData;
-					unsigned int other_i = (i + 1) % _countof(ContactPair::shapes);
-					if (contact_iter->shapes[other_i]->userData)
-					{
-						Component* other_cmp = (Component*)contact_iter->shapes[other_i]->userData;
-						ContactEventArg arg(self_cmp->m_Actor, self_cmp, other_cmp->m_Actor, other_cmp, contact_iter->events);
-						arg.position = (Vector3&)contact_iter->position;
-						arg.separation = contact_iter->separation;
-						arg.normal = (Vector3&)contact_iter->normal;
-						arg.impulse = (Vector3&)contact_iter->impulse;
-						self_cmp->m_Actor->m_EventOnContact(&arg);
-					}
-				}
-			}
-		}
 	}
 	else
 	{
@@ -515,19 +472,24 @@ void PhysxScene::onContact(const physx::PxContactPairHeader& pairHeader, const p
 			for (physx::PxU32 j = 0; j < contactCount; j++)
 			{
 				// fetchResults true will block other px thread
-				ContactPairList::iterator pair_iter = mContactPairs.insert(mContactPairs.end(), ContactPair());
-				pair_iter->position = contactPoints[j].position;
-				pair_iter->separation = contactPoints[j].separation;
-				pair_iter->normal = contactPoints[j].normal;
-				pair_iter->internalFaceIndex0 = contactPoints[j].internalFaceIndex0;
-				pair_iter->impulse = contactPoints[j].impulse;
-				pair_iter->internalFaceIndex1 = contactPoints[j].internalFaceIndex1;
-				pair_iter->shapes[0] = pairs[i].shapes[0];
-				pair_iter->shapes[1] = pairs[i].shapes[1];
-				pair_iter->flags = pairs[i].flags;
-				pair_iter->events = pairs[i].events;
-
-				//FModContext::getSingleton().OnControlSound("demo2_3/untitled/15");
+				for (unsigned int k = 0; k < 2; k++)
+				{
+					if (pairs[i].shapes[k]->userData)
+					{
+						Component* self_cmp = (Component*)pairs[i].shapes[k]->userData;
+						unsigned int other_k = (k + 1) % 2;
+						if (pairs[i].shapes[other_k]->userData)
+						{
+							Component* other_cmp = (Component*)pairs[i].shapes[other_k]->userData;
+							ContactEventArg arg(self_cmp->m_Actor, self_cmp, other_cmp->m_Actor, other_cmp, pairs[i].events);
+							arg.position = (Vector3&)contactPoints[j].position;
+							arg.separation = contactPoints[j].separation;
+							arg.normal = (Vector3&)contactPoints[j].normal;
+							arg.impulse = (Vector3&)contactPoints[j].impulse;
+							self_cmp->m_Actor->m_EventOnContact(&arg);
+						}
+					}
+				}
 			}
 		}
 	}
@@ -560,7 +522,16 @@ void PhysxScene::onTrigger(physx::PxTriggerPair* pairs, physx::PxU32 count)
 		}
 
 		// fetchResults true will block other px thread
-		mTriggerPairs.push_back(pairs[i]);
+		if (pairs[i].otherShape->userData)
+		{
+			Component* self_cmp = (Component*)pairs[i].otherShape->userData;
+			if (pairs[i].triggerShape->userData)
+			{
+				Component* other_cmp = (Component*)pairs[i].triggerShape->userData;
+				TriggerEventArg arg(self_cmp->m_Actor, self_cmp, other_cmp->m_Actor, other_cmp, pairs[i].status);
+				self_cmp->m_Actor->m_EventOnTrigger(&arg);
+			}
+		}
 	}
 }
 

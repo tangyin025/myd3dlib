@@ -887,6 +887,8 @@ struct ScriptComponent : Component, luabind::wrap_base
 
 	virtual void OnTrigger(my::EventArg* arg)
 	{
+		my::CriticalSectionLock lock(LuaContext::getSingleton().m_StateSec);
+
 		try
 		{
 			luabind::wrap_base::call<void>("OnTrigger", arg);
@@ -904,6 +906,8 @@ struct ScriptComponent : Component, luabind::wrap_base
 
 	virtual void OnContact(my::EventArg* arg)
 	{
+		my::CriticalSectionLock lock(LuaContext::getSingleton().m_StateSec);
+
 		try
 		{
 			luabind::wrap_base::call<void>("OnContact", arg);

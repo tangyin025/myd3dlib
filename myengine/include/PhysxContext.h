@@ -227,21 +227,6 @@ public:
 
 	physx::PxU32 mActiveTransformCount;
 
-	typedef std::vector<physx::PxTriggerPair> TriggerPairList;
-	
-	TriggerPairList mTriggerPairs;
-
-	struct ContactPair : physx::PxContactPairPoint
-	{
-		physx::PxShape* shapes[2];
-		physx::PxContactPairFlags flags;
-		physx::PxPairFlags events;
-	};
-
-	typedef std::vector<ContactPair> ContactPairList;
-
-	ContactPairList mContactPairs;
-
 	struct ControllerFilterCallback : physx::PxControllerFilterCallback
 	{
 		PhysxScene* scene;

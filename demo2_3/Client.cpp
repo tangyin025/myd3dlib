@@ -959,11 +959,11 @@ void Client::OnFrameTick(
 		V(m_d3dDevice->EndScene());
 	}
 
+	PhysxScene::TickPostRender(fElapsedTime);
+
 	Present(NULL, NULL, NULL, NULL);
 
 	m_d3dDeviceSec.Leave();
-
-	PhysxScene::TickPostRender(fElapsedTime);
 
 	//LuaContext::dogc(LUA_GCRESTART, 0);
 
