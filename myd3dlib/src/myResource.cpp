@@ -721,7 +721,6 @@ void ResourceMgr::OnIORequestReady(const std::string & key, IORequestPtr request
 			{
 				CriticalSectionLock lock(D3DContext::getSingleton().m_d3dDeviceSec);
 				request->m_res->OnResetDevice();
-				lock.Unlock();
 			}
 
 			AddResource(key, request->m_res);
@@ -746,6 +745,7 @@ void ResourceMgr::OnIORequestCallback(IORequestPtr request)
 
 			try
 			{
+				CriticalSectionLock lock(D3DContext::getSingleton().m_d3dDeviceSec);
 				(*callback_iter)(request->m_res);
 			}
 			catch (const Exception& e)
