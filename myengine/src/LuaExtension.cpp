@@ -265,6 +265,101 @@ static boost::iterator_range<NamedObjectFilterIterator> d3dcontext_filter_named_
 		NamedObjectFilterIterator(expr, my::D3DContext::getSingleton().m_NamedObjects.end()));
 }
 
+class RaycastHitIterator : public std::iterator<std::forward_iterator_tag, RaycastHitArg*>
+{
+protected:
+	boost::shared_ptr<physx::PxRaycastHit[]> buff;
+
+	physx::PxRaycastHit* buff_iter;
+
+	RaycastHitArg arg;
+
+public:
+	explicit RaycastHitIterator(boost::shared_ptr<physx::PxRaycastHit[]> _buff, physx::PxRaycastHit* _buff_iter)
+		: buff(_buff)
+		, buff_iter(_buff_iter)
+		, arg(NULL, NULL, 0, my::Vector3(0), my::Vector3(1, 0, 0), 0, 0, 0)
+	{
+	}
+	// Assignment operator
+	RaycastHitIterator& operator=(const RaycastHitIterator& src)
+	{
+		buff = src.buff;
+		buff_iter = src.buff_iter;
+	}
+	// Dereference an iterator
+	RaycastHitArg* operator*()
+	{
+		// When the value is one step more than the last, it's an end iterator
+		//if (buff_iter == buff->end())
+		//{
+		//	throw std::logic_error("Cannot dereference an end iterator.");
+		//}
+		if (buff_iter->shape && buff_iter->shape->userData)
+		{
+			arg.cmp = (Component*)buff_iter->shape->userData;
+			arg.actor = arg.cmp->m_Actor;
+		}
+		arg.faceIndex = buff_iter->faceIndex;
+		arg.position = (my::Vector3&)buff_iter->position;
+		arg.normal = (my::Vector3&)buff_iter->normal;
+		arg.distance = buff_iter->distance;
+		arg.u = buff_iter->u;
+		arg.v = buff_iter->v;
+		return &arg;
+	}
+	// Prefix increment operator
+	RaycastHitIterator& operator++()
+	{
+		// When the value is one step more than the last, it's an end iterator
+		//if (buff_iter == buff->end())
+		//{
+		//	throw std::logic_error("Cannot dereference an end iterator.");
+		//}
+		buff_iter++;
+		return *this;
+	}
+	// Postfix increment operator
+	RaycastHitIterator operator++(int)
+	{
+		RaycastHitIterator temp = *this;
+		temp++;                                      // Increment the value by the range step
+		return temp;                                 // The iterator before it's incremented
+	}
+	// Comparisons
+	bool operator==(const RaycastHitIterator& iter) const
+	{
+		return buff == iter.buff && buff_iter == iter.buff_iter;
+	}
+	bool operator!=(const RaycastHitIterator& iter) const
+	{
+		return buff != iter.buff || buff_iter != iter.buff_iter;
+	}
+};
+
+static boost::iterator_range<RaycastHitIterator> component_raycast(const Component* self,
+	const my::Vector3& origin, const my::Vector3& unitDir, float maxDist, unsigned int MaxNbHits)
+{
+	boost::shared_ptr<physx::PxRaycastHit[]> buff(new physx::PxRaycastHit[my::Max(MaxNbHits, 1u)]);
+	if (self->m_PxShape)
+	{
+		my::Bone localPose = self->GetShapeLocalPose();
+		physx::PxU32 hitCount = physx::PxGeometryQuery::raycast(
+			(physx::PxVec3&)origin,
+			(physx::PxVec3&)unitDir,
+			self->m_PxShape->getGeometry().any(),
+			(physx::PxTransform&)self->m_Actor->GetAttachPose(-1, localPose.m_position, localPose.m_rotation),
+			maxDist,
+			physx::PxHitFlag::ePOSITION | physx::PxHitFlag::eNORMAL | physx::PxHitFlag::eDISTANCE | physx::PxHitFlag::eFACE_INDEX,
+			MaxNbHits,
+			buff.get());
+		return boost::make_iterator_range(
+			RaycastHitIterator(buff, buff.get()), RaycastHitIterator(buff, buff.get() + hitCount));
+	}
+	return boost::make_iterator_range(
+		RaycastHitIterator(buff, buff.get()), RaycastHitIterator(buff, buff.get()));
+}
+
 static void cloth_component_set_stretch(ClothComponent* self, physx::PxClothFabricPhaseType::Enum type, float stiffness, float stiffnessMultiplier, float compressionLimit, float stretchLimit)
 {
 	self->m_Cloth->setStretchConfig(type, physx::PxClothStretchConfig(stiffness, stiffnessMultiplier, compressionLimit, stretchLimit));
@@ -1162,75 +1257,6 @@ static void renderpipeline_query_shader(RenderPipeline* self, const char* path, 
 	BOOST_VERIFY(self->QueryShader(path, macros.data(), PassID));
 }
 
-class RaycastHitIterator : public std::iterator<std::forward_iterator_tag, RaycastHitArg*>
-{
-protected:
-	boost::shared_ptr<physx::PxRaycastHit[]> buff;
-
-	physx::PxRaycastHit* buff_iter;
-
-	RaycastHitArg arg;
-
-public:
-	explicit RaycastHitIterator(boost::shared_ptr<physx::PxRaycastHit[]> _buff, physx::PxRaycastHit* _buff_iter)
-		: buff(_buff)
-		, buff_iter(_buff_iter)
-		, arg(NULL, NULL, 0, my::Vector3(0), my::Vector3(1, 0, 0), 0, 0, 0)
-	{
-	}
-	// Assignment operator
-	RaycastHitIterator& operator=(const RaycastHitIterator& src)
-	{
-		buff = src.buff;
-		buff_iter = src.buff_iter;
-	}
-	// Dereference an iterator
-	RaycastHitArg* operator*()
-	{
-		// When the value is one step more than the last, it's an end iterator
-		if (!buff_iter->shape->userData)
-		{
-			throw std::logic_error("Cannot dereference an end iterator.");
-		}
-		arg.cmp = (Component*)buff_iter->shape->userData;
-		arg.actor = arg.cmp->m_Actor;
-		arg.faceIndex = buff_iter->faceIndex;
-		arg.position = (my::Vector3&)buff_iter->position;
-		arg.normal = (my::Vector3&)buff_iter->normal;
-		arg.distance = buff_iter->distance;
-		arg.u = buff_iter->u;
-		arg.v = buff_iter->v;
-		return &arg;
-	}
-	// Prefix increment operator
-	RaycastHitIterator& operator++()
-	{
-		// When the value is one step more than the last, it's an end iterator
-		//if (buff_iter == buff->end())
-		//{
-		//	throw std::logic_error("Cannot dereference an end iterator.");
-		//}
-		buff_iter++;
-		return *this;
-	}
-	// Postfix increment operator
-	RaycastHitIterator operator++(int)
-	{
-		RaycastHitIterator temp = *this;
-		temp++;                                      // Increment the value by the range step
-		return temp;                                 // The iterator before it's incremented
-	}
-	// Comparisons
-	bool operator==(const RaycastHitIterator& iter) const
-	{
-		return buff == iter.buff && buff_iter == iter.buff_iter;
-	}
-	bool operator!=(const RaycastHitIterator& iter) const
-	{
-		return buff != iter.buff || buff_iter != iter.buff_iter;
-	}
-};
-
 static boost::iterator_range<RaycastHitIterator> physxscene_raycast(PhysxScene* self,
 	const my::Vector3& origin, const my::Vector3& unitDir, float distance, unsigned int filterWord0, unsigned int MaxNbTouches)
 {
@@ -1239,7 +1265,13 @@ static boost::iterator_range<RaycastHitIterator> physxscene_raycast(PhysxScene* 
 	hitbuff.block.distance = FLT_MAX;
 	physx::PxQueryFilterData filterData = physx::PxQueryFilterData(
 		physx::PxFilterData(filterWord0, 0, 0, 0), physx::PxQueryFlag::eDYNAMIC | physx::PxQueryFlag::eSTATIC /*| physx::PxQueryFlag::ePREFILTER | physx::PxQueryFlag::eANY_HIT*/);
-	if (self->m_PxScene->raycast((physx::PxVec3&)origin, (physx::PxVec3&)unitDir, distance, hitbuff, physx::PxHitFlag::eDEFAULT, filterData, NULL, NULL))
+	if (self->m_PxScene->raycast(
+		(physx::PxVec3&)origin,
+		(physx::PxVec3&)unitDir,
+		distance,
+		hitbuff,
+		physx::PxHitFlag::ePOSITION | physx::PxHitFlag::eNORMAL | physx::PxHitFlag::eDISTANCE | physx::PxHitFlag::eFACE_INDEX,
+		filterData, NULL, NULL))
 	{
 		if (hitbuff.hasBlock)
 		{
@@ -1283,12 +1315,15 @@ public:
 	OverlapHitArg* operator*()
 	{
 		// When the value is one step more than the last, it's an end iterator
-		if (!buff_iter->shape->userData)
+		//if (buff_iter == buff->end())
+		//{
+		//	throw std::logic_error("Cannot dereference an end iterator.");
+		//}
+		if (buff_iter->shape && buff_iter->shape->userData)
 		{
-			throw std::logic_error("Cannot dereference an end iterator.");
+			arg.cmp = (Component*)buff_iter->shape->userData;
+			arg.actor = arg.cmp->m_Actor;
 		}
-		arg.cmp = (Component*)buff_iter->shape->userData;
-		arg.actor = arg.cmp->m_Actor;
 		arg.faceIndex = buff_iter->faceIndex;
 		return &arg;
 	}
@@ -1328,8 +1363,11 @@ static boost::iterator_range<OverlapHitIterator> physxscene_box_overlap(PhysxSce
 	physx::PxOverlapBuffer hitbuff(buff.get(), MaxNbTouches);
 	physx::PxQueryFilterData filterData = physx::PxQueryFilterData(
 		physx::PxFilterData(filterWord0, 0, 0, 0), physx::PxQueryFlag::eDYNAMIC | physx::PxQueryFlag::eSTATIC /*| physx::PxQueryFlag::ePREFILTER | physx::PxQueryFlag::eANY_HIT*/);
-	if (self->m_PxScene->overlap(physx::PxBoxGeometry(hx, hy, hz),
-		physx::PxTransform((physx::PxVec3&)Position, (physx::PxQuat&)Rotation), hitbuff, filterData, NULL))
+	if (self->m_PxScene->overlap(
+		physx::PxBoxGeometry(hx, hy, hz),
+		physx::PxTransform((physx::PxVec3&)Position, (physx::PxQuat&)Rotation),
+		hitbuff,
+		filterData, NULL))
 	{
 		if (hitbuff.hasBlock)
 		{
@@ -1354,8 +1392,11 @@ static boost::iterator_range<OverlapHitIterator> physxscene_sphere_overlap(Physx
 	physx::PxOverlapBuffer hitbuff(buff.get(), MaxNbTouches);
 	physx::PxQueryFilterData filterData = physx::PxQueryFilterData(
 		physx::PxFilterData(filterWord0, 0, 0, 0), physx::PxQueryFlag::eDYNAMIC | physx::PxQueryFlag::eSTATIC /*| physx::PxQueryFlag::ePREFILTER | physx::PxQueryFlag::eANY_HIT*/);
-	if (self->m_PxScene->overlap(physx::PxSphereGeometry(radius),
-		physx::PxTransform((physx::PxVec3&)Position, (physx::PxQuat&)my::Quaternion::identity), hitbuff, filterData, NULL))
+	if (self->m_PxScene->overlap(
+		physx::PxSphereGeometry(radius),
+		physx::PxTransform((physx::PxVec3&)Position, (physx::PxQuat&)my::Quaternion::identity),
+		hitbuff,
+		filterData, NULL))
 	{
 		if (hitbuff.hasBlock)
 		{
@@ -1399,12 +1440,15 @@ public:
 	SweepHitArg* operator*()
 	{
 		// When the value is one step more than the last, it's an end iterator
-		if (!buff_iter->shape->userData)
+		//if (buff_iter == buff->end())
+		//{
+		//	throw std::logic_error("Cannot dereference an end iterator.");
+		//}
+		if (buff_iter->shape && buff_iter->shape->userData)
 		{
-			throw std::logic_error("Cannot dereference an end iterator.");
+			arg.cmp = (Component*)buff_iter->shape->userData;
+			arg.actor = arg.cmp->m_Actor;
 		}
-		arg.cmp = (Component*)buff_iter->shape->userData;
-		arg.actor = arg.cmp->m_Actor;
 		arg.faceIndex = buff_iter->faceIndex;
 		arg.position = (my::Vector3&)buff_iter->position;
 		arg.normal = (my::Vector3&)buff_iter->normal;
@@ -1447,8 +1491,14 @@ static boost::iterator_range<SweepHitIterator> physxscene_box_sweep(PhysxScene* 
 	physx::PxSweepBuffer hitbuff(buff.get(), MaxNbTouches);
 	physx::PxQueryFilterData filterData = physx::PxQueryFilterData(
 		physx::PxFilterData(filterWord0, 0, 0, 0), physx::PxQueryFlag::eDYNAMIC | physx::PxQueryFlag::eSTATIC /*| physx::PxQueryFlag::ePREFILTER | physx::PxQueryFlag::eANY_HIT*/);
-	if (self->m_PxScene->sweep(physx::PxBoxGeometry(HalfBox.x, HalfBox.y, HalfBox.z),
-		physx::PxTransform((physx::PxVec3&)Position, (physx::PxQuat&)Rotation), (physx::PxVec3&)unitDir, distance, hitbuff, physx::PxHitFlag::eDEFAULT, filterData, NULL, NULL, 0.0f))
+	if (self->m_PxScene->sweep(
+		physx::PxBoxGeometry(HalfBox.x, HalfBox.y, HalfBox.z),
+		physx::PxTransform((physx::PxVec3&)Position, (physx::PxQuat&)Rotation),
+		(physx::PxVec3&)unitDir,
+		distance,
+		hitbuff,
+		physx::PxHitFlag::ePOSITION | physx::PxHitFlag::eNORMAL | physx::PxHitFlag::eDISTANCE | physx::PxHitFlag::eFACE_INDEX,
+		filterData, NULL, NULL, 0.0f))
 	{
 		if (hitbuff.hasBlock)
 		{
@@ -1473,8 +1523,14 @@ static boost::iterator_range<SweepHitIterator> physxscene_sphere_sweep(PhysxScen
 	physx::PxSweepBuffer hitbuff(buff.get(), MaxNbTouches);
 	physx::PxQueryFilterData filterData = physx::PxQueryFilterData(
 		physx::PxFilterData(filterWord0, 0, 0, 0), physx::PxQueryFlag::eDYNAMIC | physx::PxQueryFlag::eSTATIC /*| physx::PxQueryFlag::ePREFILTER | physx::PxQueryFlag::eANY_HIT*/);
-	if (self->m_PxScene->sweep(physx::PxSphereGeometry(radius),
-		physx::PxTransform((physx::PxVec3&)Position, (physx::PxQuat&)my::Quaternion::identity), (physx::PxVec3&)unitDir, distance, hitbuff, physx::PxHitFlag::eDEFAULT, filterData, NULL, NULL, 0.0f))
+	if (self->m_PxScene->sweep(
+		physx::PxSphereGeometry(radius),
+		physx::PxTransform((physx::PxVec3&)Position, (physx::PxQuat&)my::Quaternion::identity),
+		(physx::PxVec3&)unitDir,
+		distance,
+		hitbuff,
+		physx::PxHitFlag::ePOSITION | physx::PxHitFlag::eNORMAL | physx::PxHitFlag::eDISTANCE | physx::PxHitFlag::eFACE_INDEX,
+		filterData, NULL, NULL, 0.0f))
 	{
 		if (hitbuff.hasBlock)
 		{
@@ -1499,8 +1555,14 @@ static boost::iterator_range<SweepHitIterator> physxscene_capsule_sweep(PhysxSce
 	physx::PxSweepBuffer hitbuff(buff.get(), MaxNbTouches);
 	physx::PxQueryFilterData filterData = physx::PxQueryFilterData(
 		physx::PxFilterData(filterWord0, 0, 0, 0), physx::PxQueryFlag::eDYNAMIC | physx::PxQueryFlag::eSTATIC /*| physx::PxQueryFlag::ePREFILTER | physx::PxQueryFlag::eANY_HIT*/);
-	if (self->m_PxScene->sweep(physx::PxCapsuleGeometry(radius, halfHeight),
-		physx::PxTransform((physx::PxVec3&)Position, (physx::PxQuat&)Rotation), (physx::PxVec3&)unitDir, distance, hitbuff, physx::PxHitFlag::eDEFAULT, filterData, NULL, NULL, 0.0f))
+	if (self->m_PxScene->sweep(
+		physx::PxCapsuleGeometry(radius, halfHeight),
+		physx::PxTransform((physx::PxVec3&)Position, (physx::PxQuat&)Rotation),
+		(physx::PxVec3&)unitDir,
+		distance,
+		hitbuff,
+		physx::PxHitFlag::ePOSITION | physx::PxHitFlag::eNORMAL | physx::PxHitFlag::eDISTANCE | physx::PxHitFlag::eFACE_INDEX,
+		filterData, NULL, NULL, 0.0f))
 	{
 		if (hitbuff.hasBlock)
 		{
@@ -3360,6 +3422,7 @@ void LuaContext::Init(void)
 			.property("GeometryType", &Component::GetGeometryType)
 			.property("ShapeLocalPose", &Component::GetShapeLocalPose, &Component::SetShapeLocalPose)
 			.def("ClearShape", &Component::ClearShape)
+			.def("Raycast", &component_raycast, return_stl_iterator)
 			.property("SiblingId", &Component::GetSiblingId, &Component::SetSiblingId)
 
 		, class_<MeshComponent, Component, boost::shared_ptr<Component> >("MeshComponent")
