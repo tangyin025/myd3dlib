@@ -158,6 +158,11 @@ static const my::Bone & ogreskeletonanimation_get_bind_pose_bone(const my::OgreS
 	return self->m_boneBindPose[i];
 }
 
+static const std::string resourcemgr_get_relative_path(my::ResourceMgr* self, const char* u8_path)
+{
+	return self->GetRelativePath(u8tots(u8_path).c_str());
+}
+
 static DWORD ARGB(int a, int r, int g, int b)
 {
 	return D3DCOLOR_ARGB(a,r,g,b);
@@ -2473,7 +2478,7 @@ void LuaContext::Init(void)
 			.def_readonly("DirList", &my::ResourceMgr::m_DirList, return_stl_iterator)
 			.def("CheckPath", &my::ResourceMgr::CheckPath)
 			.def("GetFullPath", &my::ResourceMgr::GetFullPath)
-			.def("GetRelativePath", &my::ResourceMgr::GetRelativePath)
+			.def("GetRelativePath", &resourcemgr_get_relative_path)
 			.def("OpenIStream", &my::ResourceMgr::OpenIStream)
 			.def("CheckIORequests", &my::ResourceMgr::CheckIORequests)
 			.def("LoadTexture", &my::ResourceMgr::LoadTexture)

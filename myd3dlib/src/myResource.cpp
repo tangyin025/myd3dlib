@@ -241,14 +241,11 @@ std::string FileIStreamDir::GetRelativePath(const TCHAR * path)
 	TCHAR relativePath[MAX_PATH];
 	if (::PathRelativePathTo(relativePath, currentDir, FILE_ATTRIBUTE_DIRECTORY, path, 0))
 	{
-		TCHAR canonicalizedPath[MAX_PATH];
-		if (::PathCanonicalize(canonicalizedPath, relativePath))
+		std::string ret = ts2ms(relativePath);
+		boost::trim_left_if(ret, boost::algorithm::is_any_of(_T(".\\")));
+		if (CheckPath(ret.c_str()))
 		{
-			std::string ret = ts2ms(canonicalizedPath);
-			if (CheckPath(ret.c_str()))
-			{
-				return ret;
-			}
+			return ret;
 		}
 	}
 
@@ -337,7 +334,13 @@ std::basic_string<TCHAR> StreamDirMgr::GetFullPath(const char * path)
 		}
 	}
 	::PathAppend(currentDir, ms2ts(path).c_str());
-	return std::basic_string<TCHAR>(currentDir);
+	std::replace(currentDir, currentDir + _tcslen(currentDir), _T('/'), _T('\\'));
+	TCHAR canonicalizedPath[MAX_PATH];
+	if (::PathCanonicalize(canonicalizedPath, currentDir))
+	{
+		return std::basic_string<TCHAR>(canonicalizedPath);
+	}
+	return std::basic_string<TCHAR>();
 }
 
 std::string StreamDirMgr::GetRelativePath(const TCHAR * path)
@@ -347,28 +350,51 @@ std::string StreamDirMgr::GetRelativePath(const TCHAR * path)
 		return std::string();
 	}
 
+	std::basic_string<TCHAR> fullPath;
 	if (PathIsRelative(path))
 	{
+		fullPath = GetFullPath(ts2ms(path).c_str());
+	}
+	else
+	{
+		fullPath.assign(path);
+		boost::replace_all(fullPath, _T("/"), _T("\\"));
 		TCHAR canonicalizedPath[MAX_PATH];
-		if (::PathCanonicalize(canonicalizedPath, path))
+		if (::PathCanonicalize(canonicalizedPath, fullPath.c_str()))
 		{
-			std::string ret = ts2ms(canonicalizedPath);
-			if (CheckPath(ret.c_str()))
-			{
-				return ret;
-			}
+			fullPath.assign(canonicalizedPath);
 		}
-		return std::string();
 	}
 
 	ResourceDirPtrList::iterator dir_iter = m_DirList.begin();
 	for (; dir_iter != m_DirList.end(); dir_iter++)
 	{
-		std::string ret = (*dir_iter)->GetRelativePath(path);
+		std::string ret = (*dir_iter)->GetRelativePath(fullPath.c_str());
 		if (!ret.empty())
 		{
 			return ret;
 		}
+	}
+
+	// ! return first combined path
+	TCHAR currentDir[MAX_PATH];
+	::GetCurrentDirectory(_countof(currentDir), currentDir);
+	dir_iter = m_DirList.begin();
+	for (; dir_iter != m_DirList.end(); dir_iter++)
+	{
+		FileIStreamDir* dir = dynamic_cast<FileIStreamDir*>(dir_iter->get());
+		if (dir)
+		{
+			::PathAppend(currentDir, ms2ts(dir->m_dir.c_str()).c_str());
+			break;
+		}
+	}
+	TCHAR relativePath[MAX_PATH];
+	if (::PathRelativePathTo(relativePath, currentDir, FILE_ATTRIBUTE_DIRECTORY, fullPath.c_str(), 0))
+	{
+		std::string ret = ts2ms(relativePath);
+		boost::trim_left_if(ret, boost::algorithm::is_any_of(_T(".\\")));
+		return ret;
 	}
 	return std::string();
 }

@@ -16,7 +16,6 @@
 #include "Animator.h"
 #include "NavigationSerialization.h"
 #include <boost/scope_exit.hpp>
-#include <boost/algorithm/string/trim.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
 #include "ImportHeightDlg.h"
