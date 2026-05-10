@@ -1234,12 +1234,12 @@ public:
 		//ptr->ActionTrackInst::Stop();
 	}
 };
-
-typedef std::vector<Component*> cmp_list;
-
-typedef boost::shared_container_iterator<cmp_list> shared_cmp_list_iter;
-
-extern boost::iterator_range<shared_cmp_list_iter> controller_get_geom_stream(const Controller* self);
+//
+//typedef std::vector<Component*> cmp_list;
+//
+//typedef boost::shared_container_iterator<cmp_list> shared_cmp_list_iter;
+//
+//extern boost::iterator_range<shared_cmp_list_iter> controller_get_geom_stream(const Controller* self);
 
 static void renderpipeline_query_shader(RenderPipeline* self, const char* path, std::string macro_desc, unsigned int PassID)
 {
@@ -3608,7 +3608,9 @@ void LuaContext::Init(void)
 				value("eCOLLISION_SIDES", physx::PxControllerCollisionFlag::eCOLLISION_SIDES),
 				value("eCOLLISION_UP", physx::PxControllerCollisionFlag::eCOLLISION_UP),
 				value("eCOLLISION_DOWN", physx::PxControllerCollisionFlag::eCOLLISION_DOWN),
-				value("STF_HIT_NON_WALKABLE", physx::Cct::SweepTestFlag::STF_HIT_NON_WALKABLE)
+				value("STF_HIT_NON_WALKABLE", physx::Cct::SweepTestFlag::STF_HIT_NON_WALKABLE),
+				value("STF_VALIDATE_TRIANGLE_DOWN", physx::Cct::SweepTestFlag::STF_VALIDATE_TRIANGLE_DOWN),
+				value("STF_VALIDATE_TRIANGLE_SIDE", physx::Cct::SweepTestFlag::STF_VALIDATE_TRIANGLE_SIDE)
 			]
 			.def("Move", &Controller::Move)
 			.property("Height", &Controller::GetHeight, &Controller::SetHeight)
@@ -3622,7 +3624,7 @@ void LuaContext::Init(void)
 			.property("FootPosition", &Controller::GetFootPosition, &Controller::SetFootPosition)
 			.property("ContactNormalDownPass", &Controller::GetContactNormalDownPass)
 			.property("ContactNormalSidePass", &Controller::GetContactNormalSidePass)
-			.property("GeomStream", &controller_get_geom_stream, return_stl_iterator)
+			//.property("GeomStream", &controller_get_geom_stream, return_stl_iterator)
 			.property("TouchedComponent", &Controller::GetTouchedComponent)
 			.property("TouchedPosWorld", &Controller::GetTouchedPosWorld)
 			.property("TouchedPosLocal", &Controller::GetTouchedPosLocal)
@@ -3711,7 +3713,7 @@ void LuaContext::Init(void)
 			.def_readonly("worldNormal", &ControllerEventArg::worldNormal)
 			.def_readonly("dir", &ControllerEventArg::dir)
 			.def_readonly("length", &ControllerEventArg::length)
-			.def_readonly("flag", &ControllerEventArg::flag)
+			.def_readonly("flags", &ControllerEventArg::flags)
 
 		, class_<ShapeHitEventArg, ControllerEventArg>("ShapeHitEventArg")
 			.def_readonly("other", &ShapeHitEventArg::other)

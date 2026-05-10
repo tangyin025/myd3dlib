@@ -13,6 +13,7 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
 #include "rapidxml.hpp"
+#include "CctCharacterController.h"
 
 using namespace my;
 
@@ -278,7 +279,7 @@ void PlayerBehavior::OnPxThreadSubstep(float dtime)
 void PlayerBehavior::OnPxThreadShapeHit(my::EventArg* arg)
 {
 	ShapeHitEventArg* hit = static_cast<ShapeHitEventArg*>(arg);
-	if (hit->flag & physx::PxControllerCollisionFlag::eCOLLISION_DOWN)
+	if (hit->flags & physx::Cct::SweepTestFlag::STF_VALIDATE_TRIANGLE_DOWN)
 	{
 	}
 }
