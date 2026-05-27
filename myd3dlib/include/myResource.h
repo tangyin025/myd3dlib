@@ -323,11 +323,11 @@ namespace my
 	public:
 		IStreamBuff(IStreamPtr fptr, size_t buff_sz = 1024, size_t put_back = 1)
 			: fptr_(fptr)
-			, put_back_(max(put_back, size_t(1)))
-			, buffer_(max(buff_sz, put_back_) + put_back_)
+			, put_back_(Max(put_back, size_t(1)))
+			, buffer_(Max(buff_sz, put_back_) + put_back_)
 		{
-			_Elem*end = &buffer_.front() + buffer_.size();
-			setg(end, end, end);
+			_Elem* base = &buffer_.front();
+			setg(base, base, base);
 		}
 
 		virtual int_type underflow(void)
@@ -336,14 +336,11 @@ namespace my
 				return traits_type::to_int_type(*gptr());
 
 			_Elem* base = &buffer_.front();
-			_Elem* start = base;
+			std::size_t put_back = Min(size_t(egptr() - base), put_back_);
+			_Elem* start = base + put_back;
 
-			if (eback() == base) // true when this isn't the first fill
-			{
-				// Make arrangements for putback characters
-				std::memmove(base, egptr() - put_back_, put_back_ * sizeof(_Elem));
-				start += put_back_;
-			}
+			// Make arrangements for putback characters
+			std::memmove(base, egptr() - put_back, put_back * sizeof(_Elem));
 
 			// start is now the start of the buffer, proper.
 			// Read from fptr_ in to the provided buffer
@@ -355,6 +352,78 @@ namespace my
 			setg(base, start, start + n / sizeof(_Elem));
 
 			return traits_type::to_int_type(*gptr());
+		}
+
+		virtual pos_type __CLR_OR_THIS_CALL seekoff(
+			off_type off, std::ios_base::seekdir way, std::ios_base::openmode which = std::ios_base::in | std::ios_base::out) {
+			// change position by offset, according to way and mode
+			if (!(which & std::ios_base::in))
+				return pos_type(off_type(-1));
+
+			 off_type tell = fptr_->tell();
+			 off_type target = 0;
+			 switch (way) {
+			 case std::ios_base::beg:
+				 target = off;
+				 break;
+			 case std::ios_base::cur:
+				 target = tell - (egptr() - gptr()) + off;
+				 break;
+			 case std::ios_base::end:
+				 target = fptr_->GetSize() + off;
+				 break;
+			 default:
+				 return pos_type(off_type(-1));
+			 }
+
+			 _Elem* base = &buffer_.front();
+			 _Elem* new_start = target - tell + egptr();
+			 if (new_start >= base && new_start < egptr())
+			 {
+				 setg(base, new_start, egptr());
+				 return pos_type(target);
+			 }
+
+			if (fptr_->seek(target, SEEK_SET) < 0)
+				return pos_type(off_type(-1));
+
+			// clear buff£¨force next underflow to rewrite£©
+			setg(base, base, base);
+
+			return pos_type(target);
+		}
+
+		virtual pos_type __CLR_OR_THIS_CALL seekpos(pos_type pos, std::ios_base::openmode which = std::ios_base::in | std::ios_base::out) {
+			// change to specified position, according to mode
+			return seekoff(off_type(pos), std::ios_base::beg, which);
+		}
+
+		_Elem operator [] (size_t i)
+		{
+			if (i >= buffer_.size() - put_back_)
+			{
+				_ASSERT(false); return 0;
+			}
+
+			if (gptr() + i < egptr())
+			{
+				return *(gptr() + i);
+			}
+
+			_Elem* base = &buffer_.front();
+			std::size_t put_back = Min(size_t(egptr() - base), put_back_);
+			_Elem* new_end = base + (egptr() - gptr() + put_back);
+			std::memmove(base, gptr() - put_back, egptr() - gptr() + put_back);
+
+			size_t n = fptr_->read(new_end, (buffer_.size() - (new_end - base)) * sizeof(_Elem));
+			if (n < sizeof(_Elem))
+				return 0;
+
+			// Set buffer pointers
+			setg(base, base + put_back, new_end + n / sizeof(_Elem));
+			if (gptr() + i < egptr())
+				return *(gptr() + i);
+			return 0;
 		}
 	};
 

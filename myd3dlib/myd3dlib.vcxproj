@@ -154,6 +154,7 @@
     <ClCompile Include="src\myThread.cpp" />
     <ClCompile Include="src\myUi.cpp" />
     <ClCompile Include="src\myUtility.cpp" />
+    <ClCompile Include="src\myXml.cpp" />
     <ClCompile Include="src\PrintCallStack.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -183,6 +184,7 @@
     <ClInclude Include="include\myThread.h" />
     <ClInclude Include="include\myUi.h" />
     <ClInclude Include="include\myUtility.h" />
+    <ClInclude Include="include\myXml.h" />
     <ClInclude Include="include\PrintCallStack.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

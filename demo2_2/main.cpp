@@ -272,8 +272,12 @@ public:
 		////std::ifstream istr("ui.xml");
 		////boost::archive::polymorphic_xml_iarchive ia(istr);
 		////ia >> boost::serialization::make_nvp("ui", dlg);
-
 		//DialogMgr::InsertDlg(dlg);
+
+		my::Xml<char> xml;
+		my::IStreamBuff<char> buff(my::FileIStream::Open(_T("ui.xml")));
+		std::istream ifs(&buff);
+		xml.parse<rapidxml::parse_declaration_node>(ifs);
 
 		m_Tex.reset(new my::Texture2D());
 		m_Tex->CreateTextureFromFile(_T("four-holes.png"));

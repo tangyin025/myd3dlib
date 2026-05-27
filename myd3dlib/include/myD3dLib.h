@@ -23,3 +23,4 @@
 #include "myUtility.h"
 #include "myPhysics.h"
 #include "myAStar.h"
+#include "myXml.h"
