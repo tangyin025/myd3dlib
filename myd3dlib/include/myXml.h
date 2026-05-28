@@ -13,6 +13,23 @@ namespace my
 
     public:
 
+        // callback interfaces in SAX
+        virtual void on_start_element(const std::basic_string<Ch>& name)
+        {
+        }
+
+        virtual void on_end_element(const std::basic_string<Ch>& name)
+        {
+        }
+
+        virtual void on_attribute(const std::basic_string<Ch>& name, const std::basic_string<Ch>& value)
+        {
+        }
+
+        virtual void on_data(const std::basic_string<Ch>& value)
+        {
+        }
+
         //! Constructs empty XML document
         Xml()
             //: xml_node<Ch>(node_document)
@@ -625,6 +642,7 @@ namespace my
                 //xml_node<Ch>* data = this->allocate_node(node_data);
                 //data->value(value, end - value);
                 //node->append_node(data);
+                on_data(value);
             }
 
             //// Add data to parent node if no data exists yet
@@ -697,6 +715,7 @@ namespace my
             if (name.empty())
                 throw rapidxml::parse_error("expected element name", __FUNCTION__);
             //element->name(name, text - name);
+            on_start_element(name);
 
             // Skip whitespace between element name and attributes or >
             skip<whitespace_pred, Flags>(ifs, ignore_dest_pred());
@@ -723,6 +742,7 @@ namespace my
             //// Place zero terminator after name
             //if (!(Flags & parse_no_string_terminators))
             //    element->name()[element->name_size()] = Ch('\0');
+            on_end_element(name);
 
             //// Return parsed element
             //return element;
@@ -951,6 +971,7 @@ namespace my
                 //// Add terminating zero after value
                 //if (!(Flags & parse_no_string_terminators))
                 //    attribute->value()[attribute->value_size()] = 0;
+                on_attribute(name, value);
 
                 // Skip whitespace after attribute value
                 skip<whitespace_pred, Flags>(ifs, ignore_dest_pred());
