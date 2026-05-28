@@ -46,7 +46,7 @@ namespace my
             while (1)
             {
                 // Skip whitespace before node
-                skip<whitespace_pred, Flags>(ifs);
+                skip<whitespace_pred, Flags>(ifs, ignore_dest_pred());
                 if (ifs.eof())
                     break;
 
@@ -158,84 +158,85 @@ namespace my
             }
         };
 
-        //// Insert coded character, using UTF8 or 8-bit ASCII
-        //template<int Flags>
-        //static void insert_coded_character(Ch*& text, unsigned long code)
-        //{
-        //    if (Flags & parse_no_utf8)
-        //    {
-        //        // Insert 8-bit ASCII character
-        //        // Todo: possibly verify that code is less than 256 and use replacement char otherwise?
-        //        text[0] = static_cast<unsigned char>(code);
-        //        text += 1;
-        //    }
-        //    else
-        //    {
-        //        // Insert UTF8 sequence
-        //        if (code < 0x80)    // 1 byte sequence
-        //        {
-        //            text[0] = static_cast<unsigned char>(code);
-        //            text += 1;
-        //        }
-        //        else if (code < 0x800)  // 2 byte sequence
-        //        {
-        //            text[1] = static_cast<unsigned char>((code | 0x80) & 0xBF); code >>= 6;
-        //            text[0] = static_cast<unsigned char>(code | 0xC0);
-        //            text += 2;
-        //        }
-        //        else if (code < 0x10000)    // 3 byte sequence
-        //        {
-        //            text[2] = static_cast<unsigned char>((code | 0x80) & 0xBF); code >>= 6;
-        //            text[1] = static_cast<unsigned char>((code | 0x80) & 0xBF); code >>= 6;
-        //            text[0] = static_cast<unsigned char>(code | 0xE0);
-        //            text += 3;
-        //        }
-        //        else if (code < 0x110000)   // 4 byte sequence
-        //        {
-        //            text[3] = static_cast<unsigned char>((code | 0x80) & 0xBF); code >>= 6;
-        //            text[2] = static_cast<unsigned char>((code | 0x80) & 0xBF); code >>= 6;
-        //            text[1] = static_cast<unsigned char>((code | 0x80) & 0xBF); code >>= 6;
-        //            text[0] = static_cast<unsigned char>(code | 0xF0);
-        //            text += 4;
-        //        }
-        //        else    // Invalid, only codes up to 0x10FFFF are allowed in Unicode
-        //        {
-        //            throw rapidxml::parse_error("invalid numeric character entity", text);
-        //        }
-        //    }
-        //}
+        // Insert coded character, using UTF8 or 8-bit ASCII
+        template<int Flags, class DestPred>
+        static void insert_coded_character(DestPred& dest, unsigned long code)
+        {
+            if (Flags & rapidxml::parse_no_utf8)
+            {
+                // Insert 8-bit ASCII character
+                // Todo: possibly verify that code is less than 256 and use replacement char otherwise?
+                dest.push_back(static_cast<unsigned char>(code));
+            }
+            else
+            {
+                // Insert UTF8 sequence
+                if (code < 0x80)    // 1 byte sequence
+                {
+                    dest.push_back(static_cast<unsigned char>(code));
+                }
+                else if (code < 0x800)  // 2 byte sequence
+                {
+                    dest.push_back(static_cast<unsigned char>(code >> 6 | 0xC0));
+                    dest.push_back(static_cast<unsigned char>((code | 0x80) & 0xBF));
+                }
+                else if (code < 0x10000)    // 3 byte sequence
+                {
+                    dest.push_back(static_cast<unsigned char>(code >> 12 | 0xE0));
+                    dest.push_back(static_cast<unsigned char>((code >> 6 | 0x80) & 0xBF));
+                    dest.push_back(static_cast<unsigned char>((code | 0x80) & 0xBF));
+                }
+                else if (code < 0x110000)   // 4 byte sequence
+                {
+                    dest.push_back(static_cast<unsigned char>(code >> 18 | 0xF0));
+                    dest.push_back(static_cast<unsigned char>((code >> 12 | 0x80) & 0xBF));
+                    dest.push_back(static_cast<unsigned char>((code >> 6 | 0x80) & 0xBF));
+                    dest.push_back(static_cast<unsigned char>((code | 0x80) & 0xBF));
+                }
+                else    // Invalid, only codes up to 0x10FFFF are allowed in Unicode
+                {
+                    throw rapidxml::parse_error("invalid numeric character entity", __FUNCTION__);
+                }
+            }
+        }
+
+        struct ignore_dest_pred
+        {
+            void push_back(Ch)
+            {
+                ;
+            }
+        };
 
         // Skip characters until predicate evaluates to true
-        template<class StopPred, int Flags>
-        static void skip(std::istream& ifs)
+        template<class StopPred, int Flags, class DestPred>
+        static void skip(std::istream& ifs, DestPred& dest)
         {
             // ! EOF;
             while (StopPred::test(ifs.peek()))
-                ifs.ignore();
+                dest.push_back(ifs.get());
         }
 
         // Skip characters until predicate evaluates to true while doing the following:
         // - replacing XML character entity references with proper characters (&apos; &amp; &quot; &lt; &gt; &#...;)
         // - condensing whitespace sequences to single space character
-        template<class StopPred, class StopPredPure, int Flags>
-        static void skip_and_expand_character_refs(std::istream& ifs)
+        template<class StopPred, class StopPredPure, int Flags, class DestPred>
+        static void skip_and_expand_character_refs(std::istream& ifs, DestPred& dest)
         {
             // If entity translation, whitespace condense and whitespace trimming is disabled, use plain skip
             if (Flags & rapidxml::parse_no_entity_translation &&
                 !(Flags & rapidxml::parse_normalize_whitespace) &&
                 !(Flags & rapidxml::parse_trim_whitespace))
             {
-                skip<StopPred, Flags>(ifs);
+                skip<StopPred, Flags>(ifs, dest);
                 return;
             }
 
             // Use simple skip until first modification is detected
-            skip<StopPredPure, Flags>(ifs);
+            skip<StopPredPure, Flags>(ifs, dest);
 
             // Use translation skip
             my::IStreamBuff<char>& text = static_cast<my::IStreamBuff<char>&>(*ifs.rdbuf());
-            //Ch* src = text;
-            //Ch* dest = src;
             while (StopPred::test(text[0]))
             {
                 // If entity translation is enabled    
@@ -251,15 +252,13 @@ namespace my
                         case Ch('a'):
                             if (text[2] == Ch('m') && text[3] == Ch('p') && text[4] == Ch(';'))
                             {
-                                //*dest = Ch('&');
-                                //++dest;
+                                dest.push_back(Ch('&'));
                                 ifs.ignore(5);
                                 continue;
                             }
                             if (text[2] == Ch('p') && text[3] == Ch('o') && text[4] == Ch('s') && text[5] == Ch(';'))
                             {
-                                //*dest = Ch('\'');
-                                //++dest;
+                                dest.push_back(Ch('\''));
                                 ifs.ignore(6);
                                 continue;
                             }
@@ -269,8 +268,7 @@ namespace my
                         case Ch('q'):
                             if (text[2] == Ch('u') && text[3] == Ch('o') && text[4] == Ch('t') && text[5] == Ch(';'))
                             {
-                                //*dest = Ch('"');
-                                //++dest;
+                                dest.push_back(Ch('"'));
                                 ifs.ignore(6);
                                 continue;
                             }
@@ -280,8 +278,7 @@ namespace my
                         case Ch('g'):
                             if (text[2] == Ch('t') && text[3] == Ch(';'))
                             {
-                                //*dest = Ch('>');
-                                //++dest;
+                                dest.push_back(Ch('>'));
                                 ifs.ignore(4);
                                 continue;
                             }
@@ -291,8 +288,7 @@ namespace my
                         case Ch('l'):
                             if (text[2] == Ch('t') && text[3] == Ch(';'))
                             {
-                                //*dest = Ch('<');
-                                //++dest;
+                                dest.push_back(Ch('<'));
                                 ifs.ignore(4);
                                 continue;
                             }
@@ -312,7 +308,7 @@ namespace my
                                     code = code * 16 + digit;
                                     ifs.ignore();
                                 }
-                                //insert_coded_character<Flags>(dest, code);    // Put character in output
+                                insert_coded_character<Flags>(dest, code);    // Put character in output
                             }
                             else
                             {
@@ -326,7 +322,7 @@ namespace my
                                     code = code * 10 + digit;
                                     ifs.ignore();
                                 }
-                                //insert_coded_character<Flags>(dest, code);    // Put character in output
+                                insert_coded_character<Flags>(dest, code);    // Put character in output
                             }
                             if (text[0] == Ch(';'))
                                 ifs.ignore();
@@ -349,7 +345,7 @@ namespace my
                     // Test if condensing is needed                 
                     if (whitespace_pred::test(text[0]))
                     {
-                        //*dest = Ch(' '); ++dest;    // Put single space in dest
+                        dest.push_back(Ch(' '));    // Put single space in dest
                         ifs.ignore();                      // Skip first whitespace char
                         // Skip remaining whitespace chars
                         while (whitespace_pred::test(text[0]))
@@ -359,8 +355,7 @@ namespace my
                 }
 
                 //// No replacement, only copy character
-                //*dest++ = *src++;
-                ifs.ignore();
+                dest.push_back(ifs.get());
             }
 
             //// Return new end
@@ -409,7 +404,7 @@ namespace my
             //xml_node<Ch>* declaration = this->allocate_node(node_declaration);
 
             // Skip whitespace before attributes or ?>
-            skip<whitespace_pred, Flags>(ifs);
+            skip<whitespace_pred, Flags>(ifs, ignore_dest_pred());
 
             // Parse declaration attributes
             parse_node_attributes<Flags>(ifs);
@@ -542,13 +537,13 @@ namespace my
 
         //        // Extract PI target name
         //        Ch* name = text;
-        //        skip<node_name_pred, Flags>(text);
+        //        skip<node_name_pred, Flags>(text, ignore_dest_pred());
         //        if (text == name)
         //            throw rapidxml::parse_error("expected PI target", text);
         //        pi->name(name, text - name);
 
         //        // Skip whitespace between pi target and pi
-        //        skip<whitespace_pred, Flags>(text);
+        //        skip<whitespace_pred, Flags>(text, ignore_dest_pred());
 
         //        // Remember start of pi
         //        Ch* value = text;
@@ -600,11 +595,11 @@ namespace my
 
             // Skip until end of data
             my::IStreamBuff<char>& text = static_cast<my::IStreamBuff<char>&>(*ifs.rdbuf());
-            //Ch* value = text, * end;
+            std::basic_string<Ch> value;
             if (Flags & rapidxml::parse_normalize_whitespace)
-                skip_and_expand_character_refs<text_pred, text_pure_with_ws_pred, Flags>(ifs);
+                skip_and_expand_character_refs<text_pred, text_pure_with_ws_pred, Flags>(ifs, value);
             else
-                skip_and_expand_character_refs<text_pred, text_pure_no_ws_pred, Flags>(ifs);
+                skip_and_expand_character_refs<text_pred, text_pure_no_ws_pred, Flags>(ifs, value);
 
             //// Trim trailing whitespace if flag is set; leading was already trimmed by whitespace skip after >
             //if (Flags & rapidxml::parse_trim_whitespace)
@@ -632,20 +627,18 @@ namespace my
                 //node->append_node(data);
             }
 
-            // Add data to parent node if no data exists yet
-            if (!(Flags & rapidxml::parse_no_element_values))
-            {
-                //if (*node->value() == Ch('\0'))
-                //    node->value(value, end - value);
-            }
+            //// Add data to parent node if no data exists yet
+            //if (!(Flags & rapidxml::parse_no_element_values))
+            //    if (*node->value() == Ch('\0'))
+            //        node->value(value, end - value);
 
-            // Place zero terminator after value
-            if (!(Flags & rapidxml::parse_no_string_terminators))
-            {
-                //Ch ch = *text;
-                //*end = Ch('\0');
-                //return ch;      // Return character that ends data; this is required because zero terminator overwritten it
-            }
+            //// Place zero terminator after value
+            //if (!(Flags & rapidxml::parse_no_string_terminators))
+            //{
+            //    Ch ch = *text;
+            //    *end = Ch('\0');
+            //    return ch;      // Return character that ends data; this is required because zero terminator overwritten it
+            //}
 
             // Return character that ends data
             return text[0];
@@ -699,15 +692,14 @@ namespace my
             my::IStreamBuff<char>& text = static_cast<my::IStreamBuff<char>&>(*ifs.rdbuf());
 
             //// Extract element name
-            //Ch* name = text;
-            std::streamoff nameoff = ifs.tellg();
-            skip<node_name_pred, Flags>(ifs);
-            if (ifs.tellg() == nameoff)
+            std::basic_string<Ch> name;
+            skip<node_name_pred, Flags>(ifs, name);
+            if (name.empty())
                 throw rapidxml::parse_error("expected element name", __FUNCTION__);
             //element->name(name, text - name);
 
             // Skip whitespace between element name and attributes or >
-            skip<whitespace_pred, Flags>(ifs);
+            skip<whitespace_pred, Flags>(ifs, ignore_dest_pred());
 
             // Parse attributes, if any
             parse_node_attributes<Flags>(ifs);
@@ -839,7 +831,7 @@ namespace my
                 // Skip whitespace between > and node contents
                 //Ch* contents_start = text;      // Store start of node contents before whitespace is skipped
                 std::streamoff contents_off = ifs.tellg();
-                skip<whitespace_pred, Flags>(ifs);
+                skip<whitespace_pred, Flags>(ifs, ignore_dest_pred());
                 Ch next_char = text[0];
 
                 // After data nodes, instead of continuing the loop, control jumps here.
@@ -862,17 +854,17 @@ namespace my
                         {
                             //// Skip and validate closing tag name
                             //Ch* closing_name = text;
-                            skip<node_name_pred, Flags>(ifs);
+                            skip<node_name_pred, Flags>(ifs, ignore_dest_pred());
                             //if (!internal::compare(node->name(), node->name_size(), closing_name, text - closing_name, true))
                             //    throw rapidxml::parse_error("invalid closing tag name", text);
                         }
                         else
                         {
                             // No validation, just skip name
-                            skip<node_name_pred, Flags>(ifs);
+                            skip<node_name_pred, Flags>(ifs, ignore_dest_pred());
                         }
                         // Skip remaining whitespace after node name
-                        skip<whitespace_pred, Flags>(ifs);
+                        skip<whitespace_pred, Flags>(ifs, ignore_dest_pred());
                         if (text[0] != Ch('>'))
                             throw rapidxml::parse_error("expected >", __FUNCTION__);
                         ifs.ignore();     // Skip '>'
@@ -908,11 +900,10 @@ namespace my
             while (attribute_name_pred::test(text[0]))
             {
                 // Extract attribute name
-                //Ch* name = text;
-                std::streamoff nameoff = ifs.tellg();
-                ifs.ignore();     // Skip first character of attribute name
-                skip<attribute_name_pred, Flags>(ifs);
-                if (ifs.tellg() == nameoff)
+                std::basic_string<Ch> name;
+                name.push_back(ifs.get());     // Skip first character of attribute name
+                skip<attribute_name_pred, Flags>(ifs, name);
+                if (name.empty())
                     throw rapidxml::parse_error("expected attribute name", __FUNCTION__);
 
                 //// Create new attribute
@@ -921,7 +912,7 @@ namespace my
                 //node->append_attribute(attribute);
 
                 // Skip whitespace after attribute name
-                skip<whitespace_pred, Flags>(ifs);
+                skip<whitespace_pred, Flags>(ifs, ignore_dest_pred());
 
                 // Skip =
                 if (text[0] != Ch('='))
@@ -933,7 +924,7 @@ namespace my
                 //    attribute->name()[attribute->name_size()] = 0;
 
                 // Skip whitespace after =
-                skip<whitespace_pred, Flags>(ifs);
+                skip<whitespace_pred, Flags>(ifs, ignore_dest_pred());
 
                 // Skip quote and remember if it was ' or "
                 Ch quote = text[0];
@@ -942,12 +933,12 @@ namespace my
                 ifs.ignore();
 
                 // Extract attribute value and expand char refs in it
-                //Ch* value = text, * end;
+                std::basic_string<Ch> value;
                 const int AttFlags = Flags & ~rapidxml::parse_normalize_whitespace;   // No whitespace normalization in attributes
                 if (quote == Ch('\''))
-                    skip_and_expand_character_refs<attribute_value_pred<Ch('\'')>, attribute_value_pure_pred<Ch('\'')>, AttFlags>(ifs);
+                    skip_and_expand_character_refs<attribute_value_pred<Ch('\'')>, attribute_value_pure_pred<Ch('\'')>, AttFlags>(ifs, value);
                 else
-                    skip_and_expand_character_refs<attribute_value_pred<Ch('"')>, attribute_value_pure_pred<Ch('"')>, AttFlags>(ifs);
+                    skip_and_expand_character_refs<attribute_value_pred<Ch('"')>, attribute_value_pure_pred<Ch('"')>, AttFlags>(ifs, value);
 
                 //// Set attribute value
                 //attribute->value(value, end - value);
@@ -962,7 +953,7 @@ namespace my
                 //    attribute->value()[attribute->value_size()] = 0;
 
                 // Skip whitespace after attribute value
-                skip<whitespace_pred, Flags>(ifs);
+                skip<whitespace_pred, Flags>(ifs, ignore_dest_pred());
             }
         }
 
