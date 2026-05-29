@@ -449,11 +449,20 @@ struct ScriptXml : my::Xml<char>, luabind::wrap_base
 	{
 	}
 
-	virtual void on_start_element(const std::string& name)
+	virtual void on_start_element(const std::string& name, const std::vector<std::pair<std::string, std::string> >& attrs)
 	{
 		try
 		{
-			luabind::wrap_base::call<void>("on_start_element", name);
+			CMainFrame* pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
+			ASSERT_VALID(pFrame);
+			luabind::object attr_table = luabind::newtable(pFrame->m_State);
+			std::vector<std::pair<std::string, std::string> >::const_iterator attr_iter = attrs.begin();
+			for (; attr_iter != attrs.end(); attr_iter++)
+			{
+				attr_table[attr_iter->first] = attr_iter->second;
+			}
+
+			luabind::wrap_base::call<void>("on_start_element", name, attr_table);
 		}
 		catch (const luabind::error& e)
 		{
@@ -461,9 +470,10 @@ struct ScriptXml : my::Xml<char>, luabind::wrap_base
 		}
 	}
 
-	static void default_on_start_element(my::Xml<char>* ptr, const std::string& name)
+	static void default_on_start_element(my::Xml<char>* ptr, const std::string& name, const luabind::object& attr_table)
 	{
-		ptr->Xml<char>::on_start_element(name);
+		std::vector<std::pair<std::string, std::string> > attrs;
+		ptr->Xml<char>::on_start_element(name, attrs);
 	}
 
 	virtual void on_end_element(const std::string& name)
@@ -481,23 +491,6 @@ struct ScriptXml : my::Xml<char>, luabind::wrap_base
 	static void default_on_end_element(my::Xml<char>* ptr, const std::string& name)
 	{
 		ptr->Xml<char>::on_end_element(name);
-	}
-
-	virtual void on_attribute(const std::string& name, const std::string& value)
-	{
-		try
-		{
-			luabind::wrap_base::call<void>("on_attribute", name, value);
-		}
-		catch (const luabind::error& e)
-		{
-			my::D3DContext::getSingleton().m_EventLog(lua_tostring(e.state(), -1));
-		}
-	}
-
-	static void default_on_attribute(my::Xml<char>* ptr, const std::string& name, const std::string& value)
-	{
-		ptr->Xml<char>::on_attribute(name, value);
 	}
 
 	virtual void on_data(const std::string& value)
@@ -1442,7 +1435,6 @@ void CMainFrame::InitFileContext()
 			.def(luabind::constructor<>())
 			.def("on_start_element", &my::Xml<char>::on_start_element, &ScriptXml::default_on_start_element)
 			.def("on_end_element", &my::Xml<char>::on_end_element, &ScriptXml::default_on_end_element)
-			.def("on_attribute", &my::Xml<char>::on_attribute, &ScriptXml::default_on_attribute)
 			.def("on_data", &my::Xml<char>::on_data, &ScriptXml::default_on_data)
 			.def("parse", &my_xml_parse)
 	];

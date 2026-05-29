@@ -14,15 +14,11 @@ namespace my
     public:
 
         // callback interfaces in SAX
-        virtual void on_start_element(const std::basic_string<Ch>& name)
+        virtual void on_start_element(const std::basic_string<Ch>& name, const std::vector<std::pair<std::basic_string<Ch>, std::basic_string<Ch> > >& attrs)
         {
         }
 
         virtual void on_end_element(const std::basic_string<Ch>& name)
-        {
-        }
-
-        virtual void on_attribute(const std::basic_string<Ch>& name, const std::basic_string<Ch>& value)
         {
         }
 
@@ -424,7 +420,8 @@ namespace my
             skip<whitespace_pred, Flags>(ifs, ignore_dest_pred());
 
             // Parse declaration attributes
-            parse_node_attributes<Flags>(ifs);
+            std::vector<std::pair<std::basic_string<Ch>, std::basic_string<Ch> > > attrs;
+            parse_node_attributes<Flags>(ifs, attrs);
 
             // Skip ?>
             if (text[0] != Ch('?') || text[1] != Ch('>'))
@@ -715,13 +712,15 @@ namespace my
             if (name.empty())
                 throw rapidxml::parse_error("expected element name", __FUNCTION__);
             //element->name(name, text - name);
-            on_start_element(name);
 
             // Skip whitespace between element name and attributes or >
             skip<whitespace_pred, Flags>(ifs, ignore_dest_pred());
 
             // Parse attributes, if any
-            parse_node_attributes<Flags>(ifs);
+            std::vector<std::pair<std::basic_string<Ch>, std::basic_string<Ch> > > attrs;
+            parse_node_attributes<Flags>(ifs, attrs);
+
+            on_start_element(name, attrs);
 
             // Determine ending type
             if (text[0] == Ch('>'))
@@ -913,17 +912,17 @@ namespace my
 
         // Parse XML attributes of the node
         template<int Flags>
-        void parse_node_attributes(std::istream& ifs)
+        void parse_node_attributes(std::istream& ifs, std::vector<std::pair<std::basic_string<Ch>, std::basic_string<Ch> > > & attrs)
         {
             // For all attributes 
             my::IStreamBuff<char>& text = static_cast<my::IStreamBuff<char>&>(*ifs.rdbuf());
             while (attribute_name_pred::test(text[0]))
             {
                 // Extract attribute name
-                std::basic_string<Ch> name;
-                name.push_back(ifs.get());     // Skip first character of attribute name
-                skip<attribute_name_pred, Flags>(ifs, name);
-                if (name.empty())
+                std::pair<std::basic_string<Ch>, std::basic_string<Ch> > attr;
+                attr.first.push_back(ifs.get());     // Skip first character of attribute name
+                skip<attribute_name_pred, Flags>(ifs, attr.first);
+                if (attr.first.empty())
                     throw rapidxml::parse_error("expected attribute name", __FUNCTION__);
 
                 //// Create new attribute
@@ -953,12 +952,12 @@ namespace my
                 ifs.ignore();
 
                 // Extract attribute value and expand char refs in it
-                std::basic_string<Ch> value;
+                //Ch* value = text, * end;
                 const int AttFlags = Flags & ~rapidxml::parse_normalize_whitespace;   // No whitespace normalization in attributes
                 if (quote == Ch('\''))
-                    skip_and_expand_character_refs<attribute_value_pred<Ch('\'')>, attribute_value_pure_pred<Ch('\'')>, AttFlags>(ifs, value);
+                    skip_and_expand_character_refs<attribute_value_pred<Ch('\'')>, attribute_value_pure_pred<Ch('\'')>, AttFlags>(ifs, attr.second);
                 else
-                    skip_and_expand_character_refs<attribute_value_pred<Ch('"')>, attribute_value_pure_pred<Ch('"')>, AttFlags>(ifs, value);
+                    skip_and_expand_character_refs<attribute_value_pred<Ch('"')>, attribute_value_pure_pred<Ch('"')>, AttFlags>(ifs, attr.second);
 
                 //// Set attribute value
                 //attribute->value(value, end - value);
@@ -971,7 +970,7 @@ namespace my
                 //// Add terminating zero after value
                 //if (!(Flags & parse_no_string_terminators))
                 //    attribute->value()[attribute->value_size()] = 0;
-                on_attribute(name, value);
+                attrs.push_back(std::move(attr));
 
                 // Skip whitespace after attribute value
                 skip<whitespace_pred, Flags>(ifs, ignore_dest_pred());
