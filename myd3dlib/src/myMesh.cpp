@@ -1408,7 +1408,19 @@ void OgreMesh::CreateMeshFromOgreXmlInStream(
 
 		bool has_boneassignments;
 
+		WORD offset;
+
 		VOID* pVertices;
+
+		VOID* pIndices;
+
+		DWORD* pAttrBuffer;
+
+		int vertex_i;
+
+		unsigned char* pVertex;
+
+		int texusage_i;
 
 		SaxHandler(OgreMesh* _mesh, bool _bComputeTangentFrame, DWORD _dwMeshOptions)
 			: mesh(_mesh)
@@ -1417,7 +1429,13 @@ void OgreMesh::CreateMeshFromOgreXmlInStream(
 			, total_vertices(0)
 			, total_faces(0)
 			, has_boneassignments(false)
+			, offset(0)
 			, pVertices(NULL)
+			, pIndices(NULL)
+			, pAttrBuffer(NULL)
+			, vertex_i(0)
+			, pVertex(NULL)
+			, texusage_i(0)
 		{
 		}
 
@@ -1454,6 +1472,12 @@ void OgreMesh::CreateMeshFromOgreXmlInStream(
 				{
 					has_boneassignments = false;
 				}
+
+				if (!(dwMeshOptions & D3DXMESH_32BIT) && (total_vertices >= USHRT_MAX || total_faces >= USHRT_MAX))
+				{
+					D3DContext::getSingleton().m_EventLog("facecount overflow ( >= 65535 )");
+					dwMeshOptions |= D3DXMESH_32BIT;
+				}
 			}
 			else if (name == "sharedgeometry")
 			{
@@ -1461,19 +1485,15 @@ void OgreMesh::CreateMeshFromOgreXmlInStream(
 			}
 			else if (name == "vertexbuffer")
 			{
-				_ASSERT(!pVertices);
-
 				if (mesh->m_ptr)
 				{
-					D3DContext::getSingleton().m_d3dDeviceSec.Enter();
-					pVertices = mesh->LockVertexBuffer();
-					D3DContext::getSingleton().m_d3dDeviceSec.Leave();
 					return;
 				}
 
 				_ASSERT(D3DDECLTYPE_UNUSED == mesh->m_VertexElems.elems[D3DDECLUSAGE_POSITION][0].Type);
 
-				WORD offset = 0;
+				_ASSERT(0 == offset);
+
 				my::Xml<char>::attr_list::const_iterator positions_iter = attrs.find("positions");
 				if (positions_iter != attrs.end() && positions_iter->second == "true")
 				{
@@ -1537,29 +1557,108 @@ void OgreMesh::CreateMeshFromOgreXmlInStream(
 				mesh->CreateMesh(total_faces, total_vertices, velist.data(), dwMeshOptions);
 				D3DContext::getSingleton().m_d3dDeviceSec.Leave();
 
+				_ASSERT(!pVertices);
+
 				D3DContext::getSingleton().m_d3dDeviceSec.Enter();
 				pVertices = mesh->LockVertexBuffer();
 				D3DContext::getSingleton().m_d3dDeviceSec.Leave();
+
+				_ASSERT(!pIndices);
+
+				D3DContext::getSingleton().m_d3dDeviceSec.Enter();
+				pIndices = mesh->LockIndexBuffer();
+				D3DContext::getSingleton().m_d3dDeviceSec.Leave();
+
+				_ASSERT(!pAttrBuffer);
+
+				D3DContext::getSingleton().m_d3dDeviceSec.Enter();
+				pAttrBuffer = mesh->LockAttributeBuffer();
+				D3DContext::getSingleton().m_d3dDeviceSec.Leave();
+
+				_ASSERT(0 == vertex_i);
 			}
 			else if (name == "vertex")
 			{
+				_ASSERT(pVertices);
 
+				pVertex = (unsigned char*)pVertices + vertex_i * offset;
+
+				texusage_i = 0;
 			}
 			else if (name == "position")
 			{
+				Vector3& Position = mesh->m_VertexElems.GetPosition(pVertex);
 
+				my::Xml<char>::attr_list::const_iterator x_iter = attrs.find("x");
+				if (x_iter != attrs.end())
+				{
+					Position.x = (float)atof(x_iter->second.c_str());
+				}
+
+				my::Xml<char>::attr_list::const_iterator y_iter = attrs.find("y");
+				if (y_iter != attrs.end())
+				{
+					Position.y = (float)atof(y_iter->second.c_str());
+				}
+
+				my::Xml<char>::attr_list::const_iterator z_iter = attrs.find("z");
+				if (z_iter != attrs.end())
+				{
+					Position.z = (float)atof(z_iter->second.c_str());
+				}
 			}
 			else if (name == "normal")
 			{
+				Vector3& Normal = mesh->m_VertexElems.GetNormal(pVertex);
 
+				my::Xml<char>::attr_list::const_iterator x_iter = attrs.find("x");
+				if (x_iter != attrs.end())
+				{
+					Normal.x = (float)atof(x_iter->second.c_str());
+				}
+
+				my::Xml<char>::attr_list::const_iterator y_iter = attrs.find("y");
+				if (y_iter != attrs.end())
+				{
+					Normal.y = (float)atof(y_iter->second.c_str());
+				}
+
+				my::Xml<char>::attr_list::const_iterator z_iter = attrs.find("z");
+				if (z_iter != attrs.end())
+				{
+					Normal.z = (float)atof(z_iter->second.c_str());
+				}
 			}
 			else if (name == "colour_diffuse")
 			{
-
+				my::Xml<char>::attr_list::const_iterator value_iter = attrs.find("value");
+				if (value_iter != attrs.end())
+				{
+					std::vector<std::string> color_set;
+					boost::algorithm::split(color_set, value_iter->second, boost::is_any_of(" "), boost::algorithm::token_compress_off);
+					D3DXCOLOR Color(
+						boost::lexical_cast<float>(color_set[0]),
+						boost::lexical_cast<float>(color_set[1]),
+						boost::lexical_cast<float>(color_set[2]),
+						boost::lexical_cast<float>(color_set[3]));
+					mesh->m_VertexElems.SetColor(pVertex, Color);
+				}
 			}
 			else if (name == "texcoord")
 			{
+				Vector2& Texcoord = mesh->m_VertexElems.GetTexcoord(pVertex, texusage_i++);
 
+				my::Xml<char>::attr_list::const_iterator u_iter = attrs.find("u");
+				if (u_iter != attrs.end())
+				{
+					Texcoord.x = (float)atof(u_iter->second.c_str());
+				}
+
+				my::Xml<char>::attr_list::const_iterator v_iter = attrs.find("v");
+				if (v_iter != attrs.end())
+				{
+					Texcoord.y = (float)atof(v_iter->second.c_str());
+				}
 			}
 			else if (name == "submeshes")
 			{
@@ -1595,15 +1694,33 @@ void OgreMesh::CreateMeshFromOgreXmlInStream(
 		{
 			if (name == "mesh")
 			{
-				_ASSERT(!pVertices);
+				if (pVertices)
+				{
+					D3DContext::getSingleton().m_d3dDeviceSec.Enter();
+					mesh->UnlockVertexBuffer();
+					D3DContext::getSingleton().m_d3dDeviceSec.Leave();
+					pVertices = NULL;
+				}
+
+				if (pIndices)
+				{
+					D3DContext::getSingleton().m_d3dDeviceSec.Enter();
+					mesh->UnlockIndexBuffer();
+					D3DContext::getSingleton().m_d3dDeviceSec.Leave();
+					pIndices = NULL;
+				}
+
+				if (pAttrBuffer)
+				{
+					D3DContext::getSingleton().m_d3dDeviceSec.Enter();
+					mesh->UnlockAttributeBuffer();
+					D3DContext::getSingleton().m_d3dDeviceSec.Leave();
+					pAttrBuffer = NULL;
+				}
 			}
-			else if (name == "vertexbuffer")
+			else if (name == "vertex")
 			{
-				_ASSERT(pVertices);
-				D3DContext::getSingleton().m_d3dDeviceSec.Enter();
-				mesh->UnlockVertexBuffer();
-				D3DContext::getSingleton().m_d3dDeviceSec.Leave();
-				pVertices = NULL;
+				vertex_i++;
 			}
 		}
 
