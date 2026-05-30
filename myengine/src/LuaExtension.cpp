@@ -143,6 +143,11 @@ static void cubetexture_load_cube_map_surface_from_file(my::CubeTexture* self, D
 	V(D3DXLoadSurfaceFromFile(surf, NULL, pDestRect, u8tots(u8_path).c_str(), pSourceRect, Filter, 0, NULL));
 }
 
+static void ogremesh_create_mesh_from_ogre_xml_in_file(my::OgreMesh* self, const char* u8_path, bool bComputeTangentFrame, DWORD dwMeshOptions, unsigned int reserveVertices, unsigned int reserveFaces)
+{
+	self->CreateMeshFromOgreXmlInFile(u8tots(u8_path).c_str(), bComputeTangentFrame, dwMeshOptions, reserveVertices, reserveFaces);
+}
+
 static void ogremesh_save_ogre_mesh(my::OgreMesh* self, const char* u8_path, bool useSharedGeom)
 {
 	self->SaveOgreMesh(u8tots(u8_path).c_str(), useSharedGeom);
@@ -2311,6 +2316,7 @@ void LuaContext::Init(void)
 
 		, class_<my::OgreMesh, my::Mesh, boost::shared_ptr<my::DeviceResourceBase> >("OgreMesh")
 			.def(constructor<>())
+			.def("CreateMeshFromOgreXmlInFile", &ogremesh_create_mesh_from_ogre_xml_in_file)
 			.def("CreateMeshFromOgreXml", &my::OgreMesh::CreateMeshFromOgreXml)
 			.def("CreateMeshFromOther", &my::OgreMesh::CreateMeshFromOther)
 			.def("AppendMesh", &my::OgreMesh::AppendMesh)
@@ -2468,8 +2474,8 @@ void LuaContext::Init(void)
 		, class_<my::Cache, boost::shared_ptr<my::Cache> >("Cache")
 			.def("push_back", (void(my::Cache::*)(const unsigned char &))&my::Cache::push_back)
 
-		, class_<my::IStream, boost::shared_ptr<my::IStream> >("IStream")
-			.def("GetWholeCache", &my::IStream::GetWholeCache)
+		//, class_<my::IStream, boost::shared_ptr<my::IStream> >("IStream")
+		//	.def("GetWholeCache", &my::IStream::GetWholeCache)
 
 		, class_<my::StreamDir, boost::shared_ptr<my::StreamDir> >("StreamDir")
 			.def_readonly("dir", &my::StreamDir::m_dir)
@@ -2479,7 +2485,7 @@ void LuaContext::Init(void)
 			.def("CheckPath", &my::ResourceMgr::CheckPath)
 			.def("GetFullPath", &my::ResourceMgr::GetFullPath)
 			.def("GetRelativePath", &resourcemgr_get_relative_path)
-			.def("OpenIStream", &my::ResourceMgr::OpenIStream)
+			//.def("OpenIStream", &my::ResourceMgr::OpenIStream)
 			.def("CheckIORequests", &my::ResourceMgr::CheckIORequests)
 			.def("LoadTexture", &my::ResourceMgr::LoadTexture)
 			.def("LoadTextureAsync", &my::ResourceMgr::LoadTextureAsync<luabind::object>)

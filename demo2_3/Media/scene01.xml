@@ -468,7 +468,7 @@ AAAAAAAAgEIAAAAAAACAPwAAAAAAAAD/
 							<px class_id_reference="12" object_id="_53">
 								<m_Shader>shader/mtl_simpletexture2.fx</m_Shader>
 								<m_PassMask>8</m_PassMask>
-								<m_CullMode>3</m_CullMode>
+								<m_CullMode>2</m_CullMode>
 								<m_ZEnable>0</m_ZEnable>
 								<m_ZWriteEnable>1</m_ZWriteEnable>
 								<m_ZFunc>7</m_ZFunc>
@@ -484,7 +484,7 @@ AAAAAAAAgEIAAAAAAACAPwAAAAAAAAD/
 											<MaterialParameter object_id="_55">
 												<m_Name>g_DiffuseTexture</m_Name>
 											</MaterialParameter>
-											<m_TexturePath>texture/cloudy_noon_FR.jpg</m_TexturePath>
+											<m_TexturePath>texture/cloudy_noon_BK.jpg</m_TexturePath>
 										</px>
 									</item>
 								</m_ParameterList>
@@ -514,7 +514,7 @@ AAAAAAAAgEIAAAAAAACAPwAAAAAAAAD/
 							<px class_id_reference="12" object_id="_59">
 								<m_Shader>shader/mtl_simpletexture2.fx</m_Shader>
 								<m_PassMask>8</m_PassMask>
-								<m_CullMode>3</m_CullMode>
+								<m_CullMode>2</m_CullMode>
 								<m_ZEnable>0</m_ZEnable>
 								<m_ZWriteEnable>1</m_ZWriteEnable>
 								<m_ZFunc>7</m_ZFunc>
@@ -530,7 +530,7 @@ AAAAAAAAgEIAAAAAAACAPwAAAAAAAAD/
 											<MaterialParameter object_id="_61">
 												<m_Name>g_DiffuseTexture</m_Name>
 											</MaterialParameter>
-											<m_TexturePath>texture/cloudy_noon_BK.jpg</m_TexturePath>
+											<m_TexturePath>texture/cloudy_noon_DN.jpg</m_TexturePath>
 										</px>
 									</item>
 								</m_ParameterList>
@@ -560,7 +560,7 @@ AAAAAAAAgEIAAAAAAACAPwAAAAAAAAD/
 							<px class_id_reference="12" object_id="_65">
 								<m_Shader>shader/mtl_simpletexture2.fx</m_Shader>
 								<m_PassMask>8</m_PassMask>
-								<m_CullMode>3</m_CullMode>
+								<m_CullMode>2</m_CullMode>
 								<m_ZEnable>0</m_ZEnable>
 								<m_ZWriteEnable>1</m_ZWriteEnable>
 								<m_ZFunc>7</m_ZFunc>
@@ -576,7 +576,7 @@ AAAAAAAAgEIAAAAAAACAPwAAAAAAAAD/
 											<MaterialParameter object_id="_67">
 												<m_Name>g_DiffuseTexture</m_Name>
 											</MaterialParameter>
-											<m_TexturePath>texture/cloudy_noon_LF.jpg</m_TexturePath>
+											<m_TexturePath>texture/cloudy_noon_FR.jpg</m_TexturePath>
 										</px>
 									</item>
 								</m_ParameterList>
@@ -606,7 +606,7 @@ AAAAAAAAgEIAAAAAAACAPwAAAAAAAAD/
 							<px class_id_reference="12" object_id="_71">
 								<m_Shader>shader/mtl_simpletexture2.fx</m_Shader>
 								<m_PassMask>8</m_PassMask>
-								<m_CullMode>3</m_CullMode>
+								<m_CullMode>2</m_CullMode>
 								<m_ZEnable>0</m_ZEnable>
 								<m_ZWriteEnable>1</m_ZWriteEnable>
 								<m_ZFunc>7</m_ZFunc>
@@ -622,7 +622,7 @@ AAAAAAAAgEIAAAAAAACAPwAAAAAAAAD/
 											<MaterialParameter object_id="_73">
 												<m_Name>g_DiffuseTexture</m_Name>
 											</MaterialParameter>
-											<m_TexturePath>texture/cloudy_noon_RT.jpg</m_TexturePath>
+											<m_TexturePath>texture/cloudy_noon_LF.jpg</m_TexturePath>
 										</px>
 									</item>
 								</m_ParameterList>
@@ -652,7 +652,7 @@ AAAAAAAAgEIAAAAAAACAPwAAAAAAAAD/
 							<px class_id_reference="12" object_id="_77">
 								<m_Shader>shader/mtl_simpletexture2.fx</m_Shader>
 								<m_PassMask>8</m_PassMask>
-								<m_CullMode>3</m_CullMode>
+								<m_CullMode>2</m_CullMode>
 								<m_ZEnable>0</m_ZEnable>
 								<m_ZWriteEnable>1</m_ZWriteEnable>
 								<m_ZFunc>7</m_ZFunc>
@@ -668,7 +668,7 @@ AAAAAAAAgEIAAAAAAACAPwAAAAAAAAD/
 											<MaterialParameter object_id="_79">
 												<m_Name>g_DiffuseTexture</m_Name>
 											</MaterialParameter>
-											<m_TexturePath>texture/cloudy_noon_UP.jpg</m_TexturePath>
+											<m_TexturePath>texture/cloudy_noon_RT.jpg</m_TexturePath>
 										</px>
 									</item>
 								</m_ParameterList>
@@ -698,7 +698,7 @@ AAAAAAAAgEIAAAAAAACAPwAAAAAAAAD/
 							<px class_id_reference="12" object_id="_83">
 								<m_Shader>shader/mtl_simpletexture2.fx</m_Shader>
 								<m_PassMask>8</m_PassMask>
-								<m_CullMode>3</m_CullMode>
+								<m_CullMode>2</m_CullMode>
 								<m_ZEnable>0</m_ZEnable>
 								<m_ZWriteEnable>1</m_ZWriteEnable>
 								<m_ZFunc>7</m_ZFunc>
@@ -714,7 +714,7 @@ AAAAAAAAgEIAAAAAAACAPwAAAAAAAAD/
 											<MaterialParameter object_id="_85">
 												<m_Name>g_DiffuseTexture</m_Name>
 											</MaterialParameter>
-											<m_TexturePath>texture/cloudy_noon_DN.jpg</m_TexturePath>
+											<m_TexturePath>texture/cloudy_noon_UP.jpg</m_TexturePath>
 										</px>
 									</item>
 								</m_ParameterList>

@@ -436,11 +436,6 @@ namespace my
 			unsigned int reserveVertices,
 			unsigned int reserveFaces);
 
-		void CreateMeshFromOgreXmlInStream(
-			std::istream& ifs,
-			bool bComputeTangentFrame,
-			DWORD dwMeshOptions);
-
 		//void CreateMeshFromObjInFile(
 		//	LPCTSTR pFilename,
 		//	bool bComputeTangentFrame = true,

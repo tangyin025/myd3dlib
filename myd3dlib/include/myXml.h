@@ -980,4 +980,72 @@ namespace my
         }
 
     };
+
+    class OgreMesh;
+
+    struct OgreMeshHandler : my::Xml<char>
+    {
+        OgreMesh* mesh;
+
+        bool bComputeTangentFrame;
+
+        DWORD dwMeshOptions;
+
+        unsigned int total_vertices;
+
+        unsigned int total_faces;
+
+        bool has_boneassignments;
+
+        WORD offset;
+
+        VOID* pVertices;
+
+        VOID* pIndices;
+
+        DWORD* pAttrBuffer;
+
+        int vertex_i;
+
+        unsigned char* pVertex;
+
+        int texusage_i;
+
+        int face_i;
+
+        D3DXATTRIBUTERANGE rang;
+
+        int vmin;
+
+        int vmax;
+
+        HRESULT hr;
+
+        OgreMeshHandler(OgreMesh* _mesh, bool _bComputeTangentFrame, DWORD _dwMeshOptions)
+            : mesh(_mesh)
+            , bComputeTangentFrame(_bComputeTangentFrame)
+            , dwMeshOptions(_dwMeshOptions)
+            , total_vertices(0)
+            , total_faces(0)
+            , has_boneassignments(false)
+            , offset(0)
+            , pVertices(NULL)
+            , pIndices(NULL)
+            , pAttrBuffer(NULL)
+            , vertex_i(0)
+            , pVertex(NULL)
+            , texusage_i(0)
+            , face_i(0)
+            , rang({ 0 })
+            , vmin(INT_MAX)
+            , vmax(INT_MIN)
+        {
+        }
+
+        virtual void on_start_element(const std::string& name, const my::Xml<char>::attr_list& attrs);
+
+        virtual void on_end_element(const std::string& name);
+
+        virtual void on_data(const std::string& value);
+    };
 }

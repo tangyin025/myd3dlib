@@ -443,81 +443,6 @@ static bool SnapshotDlgGetComponentType(CSnapshotDlg* dlg, Component::ComponentT
 	return false;
 }
 
-struct ScriptXml : my::Xml<char>, luabind::wrap_base
-{
-	ScriptXml(void)
-	{
-	}
-
-	virtual void on_start_element(const std::string& name, const my::Xml<char>::attr_list& attrs)
-	{
-		try
-		{
-			CMainFrame* pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
-			ASSERT_VALID(pFrame);
-			luabind::object attr_table = luabind::newtable(pFrame->m_State);
-			my::Xml<char>::attr_list::const_iterator attr_iter = attrs.begin();
-			for (; attr_iter != attrs.end(); attr_iter++)
-			{
-				attr_table[attr_iter->first] = attr_iter->second;
-			}
-
-			luabind::wrap_base::call<void>("on_start_element", name, attr_table);
-		}
-		catch (const luabind::error& e)
-		{
-			my::D3DContext::getSingleton().m_EventLog(lua_tostring(e.state(), -1));
-		}
-	}
-
-	static void default_on_start_element(my::Xml<char>* ptr, const std::string& name, const luabind::object& attr_table)
-	{
-		my::Xml<char>::attr_list attrs;
-		ptr->Xml<char>::on_start_element(name, attrs);
-	}
-
-	virtual void on_end_element(const std::string& name)
-	{
-		try
-		{
-			luabind::wrap_base::call<void>("on_end_element", name);
-		}
-		catch (const luabind::error& e)
-		{
-			my::D3DContext::getSingleton().m_EventLog(lua_tostring(e.state(), -1));
-		}
-	}
-
-	static void default_on_end_element(my::Xml<char>* ptr, const std::string& name)
-	{
-		ptr->Xml<char>::on_end_element(name);
-	}
-
-	virtual void on_data(const std::string& value)
-	{
-		try
-		{
-			luabind::wrap_base::call<void>("on_data", value);
-		}
-		catch (const luabind::error& e)
-		{
-			my::D3DContext::getSingleton().m_EventLog(lua_tostring(e.state(), -1));
-		}
-	}
-
-	static void default_on_data(my::Xml<char>* ptr, const std::string& value)
-	{
-		ptr->Xml<char>::on_data(value);
-	}
-};
-
-static void my_xml_parse(my::Xml<char>* self, const char* u8_path)
-{
-	my::IStreamBuff<char> buff(my::FileIStream::Open(u8tots(u8_path).c_str()));
-	std::istream ifs(&buff);
-	self->parse<0>(ifs);
-}
-
 // CMainFrame
 
 IMPLEMENT_DYNCREATE(CMainFrame, CFrameWndEx)
@@ -1430,13 +1355,6 @@ void CMainFrame::InitFileContext()
 			.property("CubemapResolution", &HdriToCubemap<float>::getCubemapResolution)
 			.property("NumChannels", &HdriToCubemap<float>::getNumChannels)
 			.def("writeCubemap", &HdriToCubemap<float>::writeCubemap)
-
-		, luabind::class_<my::Xml<char>, ScriptXml >("Xml")
-			.def(luabind::constructor<>())
-			.def("on_start_element", &my::Xml<char>::on_start_element, &ScriptXml::default_on_start_element)
-			.def("on_end_element", &my::Xml<char>::on_end_element, &ScriptXml::default_on_end_element)
-			.def("on_data", &my::Xml<char>::on_data, &ScriptXml::default_on_data)
-			.def("parse", &my_xml_parse)
 	];
 	luabind::globals(m_State)["theApp"] = &theApp;
 }
