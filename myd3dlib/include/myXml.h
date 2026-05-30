@@ -13,8 +13,10 @@ namespace my
 
     public:
 
+        typedef std::map<std::basic_string<Ch>, std::basic_string<Ch> > attr_list;
+
         // callback interfaces in SAX
-        virtual void on_start_element(const std::basic_string<Ch>& name, const std::vector<std::pair<std::basic_string<Ch>, std::basic_string<Ch> > >& attrs)
+        virtual void on_start_element(const std::basic_string<Ch>& name, const attr_list& attrs)
         {
         }
 
@@ -420,7 +422,7 @@ namespace my
             skip<whitespace_pred, Flags>(ifs, ignore_dest_pred());
 
             // Parse declaration attributes
-            std::vector<std::pair<std::basic_string<Ch>, std::basic_string<Ch> > > attrs;
+            attr_list attrs;
             parse_node_attributes<Flags>(ifs, attrs);
 
             // Skip ?>
@@ -717,7 +719,7 @@ namespace my
             skip<whitespace_pred, Flags>(ifs, ignore_dest_pred());
 
             // Parse attributes, if any
-            std::vector<std::pair<std::basic_string<Ch>, std::basic_string<Ch> > > attrs;
+            attr_list attrs;
             parse_node_attributes<Flags>(ifs, attrs);
 
             on_start_element(name, attrs);
@@ -912,7 +914,7 @@ namespace my
 
         // Parse XML attributes of the node
         template<int Flags>
-        void parse_node_attributes(std::istream& ifs, std::vector<std::pair<std::basic_string<Ch>, std::basic_string<Ch> > > & attrs)
+        void parse_node_attributes(std::istream& ifs, attr_list& attrs)
         {
             // For all attributes 
             my::IStreamBuff<char>& text = static_cast<my::IStreamBuff<char>&>(*ifs.rdbuf());
@@ -970,7 +972,7 @@ namespace my
                 //// Add terminating zero after value
                 //if (!(Flags & parse_no_string_terminators))
                 //    attribute->value()[attribute->value_size()] = 0;
-                attrs.push_back(std::move(attr));
+                attrs.insert(std::move(attr));
 
                 // Skip whitespace after attribute value
                 skip<whitespace_pred, Flags>(ifs, ignore_dest_pred());

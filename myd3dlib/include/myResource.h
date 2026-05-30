@@ -344,7 +344,7 @@ namespace my
 
 			// start is now the start of the buffer, proper.
 			// Read from fptr_ in to the provided buffer
-			size_t n = fptr_->read(start, (buffer_.size() - (start - base)) * sizeof(_Elem));
+			size_t n = fptr_->read(start, (unsigned int)(buffer_.size() - (start - base)) * sizeof(_Elem));
 			if (n < sizeof(_Elem))
 				return traits_type::eof();
 
@@ -384,7 +384,7 @@ namespace my
 				 return pos_type(target);
 			 }
 
-			if (fptr_->seek(target, SEEK_SET) < 0)
+			if (fptr_->seek((long)target, SEEK_SET) < 0)
 				return pos_type(off_type(-1));
 
 			// clear buff£¨force next underflow to rewrite£©
@@ -415,7 +415,7 @@ namespace my
 			_Elem* new_end = base + (egptr() - gptr() + put_back);
 			std::memmove(base, gptr() - put_back, egptr() - gptr() + put_back);
 
-			size_t n = fptr_->read(new_end, (buffer_.size() - (new_end - base)) * sizeof(_Elem));
+			size_t n = fptr_->read(new_end, (unsigned int)(buffer_.size() - (new_end - base)) * sizeof(_Elem));
 			if (n < sizeof(_Elem))
 				return 0;
 

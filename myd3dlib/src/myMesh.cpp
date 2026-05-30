@@ -7,7 +7,7 @@
 #include "myDxutApp.h"
 #include "myUtility.h"
 #include "libc.h"
-#include "rapidxml.hpp"
+#include "myXml.h"
 #include <fstream>
 #include <boost/algorithm/string.hpp>
 #include <boost/regex.hpp>
@@ -1139,7 +1139,6 @@ void OgreMesh::CreateMeshFromOgreXml(
 		offset += sizeof(Vector2);
 	}
 
-	WORD indicesOffset = 0, weightsOffset = 0;
 	if (node_boneassignments != NULL && node_boneassignments->first_node("vertexboneassignment"))
 	{
 		m_VertexElems.InsertBlendIndicesElement(offset);
@@ -1388,6 +1387,233 @@ void OgreMesh::CreateMeshFromOgreXml(
 	//D3DContext::getSingleton().m_d3dDeviceSec.Enter();
 	//OptimizeInplace(D3DXMESHOPT_ATTRSORT | D3DXMESHOPT_VERTEXCACHE, &adjacency[0], &m_Adjacency[0], NULL, NULL);
 	//D3DContext::getSingleton().m_d3dDeviceSec.Leave();
+}
+
+void OgreMesh::CreateMeshFromOgreXmlInStream(
+	std::istream& ifs,
+	bool bComputeTangentFrame,
+	DWORD dwMeshOptions)
+{
+	struct SaxHandler : my::Xml<char>
+	{
+		OgreMesh* mesh;
+
+		bool bComputeTangentFrame;
+
+		DWORD dwMeshOptions;
+
+		unsigned int total_vertices;
+		
+		unsigned int total_faces;
+
+		bool has_boneassignments;
+
+		VOID* pVertices;
+
+		SaxHandler(OgreMesh* _mesh, bool _bComputeTangentFrame, DWORD _dwMeshOptions)
+			: mesh(_mesh)
+			, bComputeTangentFrame(_bComputeTangentFrame)
+			, dwMeshOptions(_dwMeshOptions)
+			, total_vertices(0)
+			, total_faces(0)
+			, has_boneassignments(false)
+			, pVertices(NULL)
+		{
+		}
+
+		virtual void on_start_element(const std::string& name, const my::Xml<char>::attr_list& attrs)
+		{
+			if (name == "mesh")
+			{
+				my::Xml<char>::attr_list::const_iterator totalvertices_iter = attrs.find("totalvertices");
+				if (totalvertices_iter != attrs.end())
+				{
+					total_vertices = atoi(totalvertices_iter->second.c_str());
+				}
+				else
+				{
+					THROW_CUSEXCEPTION("invalid totalvertices");
+				}
+
+				my::Xml<char>::attr_list::const_iterator totalfaces_iter = attrs.find("totalfaces");
+				if (totalfaces_iter != attrs.end())
+				{
+					total_faces = atoi(totalfaces_iter->second.c_str());
+				}
+				else
+				{
+					THROW_CUSEXCEPTION("invalid totalfaces");
+				}
+
+				my::Xml<char>::attr_list::const_iterator hasboneassignments_iter = attrs.find("hasboneassignments");
+				if (hasboneassignments_iter != attrs.end() && hasboneassignments_iter->second == "true")
+				{
+					has_boneassignments = true;
+				}
+				else
+				{
+					has_boneassignments = false;
+				}
+			}
+			else if (name == "sharedgeometry")
+			{
+
+			}
+			else if (name == "vertexbuffer")
+			{
+				_ASSERT(!pVertices);
+
+				if (mesh->m_ptr)
+				{
+					D3DContext::getSingleton().m_d3dDeviceSec.Enter();
+					pVertices = mesh->LockVertexBuffer();
+					D3DContext::getSingleton().m_d3dDeviceSec.Leave();
+					return;
+				}
+
+				_ASSERT(D3DDECLTYPE_UNUSED == mesh->m_VertexElems.elems[D3DDECLUSAGE_POSITION][0].Type);
+
+				WORD offset = 0;
+				my::Xml<char>::attr_list::const_iterator positions_iter = attrs.find("positions");
+				if (positions_iter != attrs.end() && positions_iter->second == "true")
+				{
+					mesh->m_VertexElems.InsertPositionElement(0);
+					offset += sizeof(Vector3);
+				}
+				else
+				{
+					THROW_CUSEXCEPTION("cannot process non-position vertex");
+				}
+
+				my::Xml<char>::attr_list::const_iterator normals_iter = attrs.find("normals");
+				if (bComputeTangentFrame || normals_iter != attrs.end() && normals_iter->second == "true")
+				{
+					mesh->m_VertexElems.InsertNormalElement(offset);
+					offset += sizeof(Vector3);
+				}
+
+				if (bComputeTangentFrame)
+				{
+					mesh->m_VertexElems.InsertTangentElement(offset);
+					offset += sizeof(Vector3);
+				}
+
+				my::Xml<char>::attr_list::const_iterator colours_diffuse_iter = attrs.find("colours_diffuse");
+				if (colours_diffuse_iter != attrs.end() && colours_diffuse_iter->second == "true")
+				{
+					mesh->m_VertexElems.InsertColorElement(offset);
+					offset += sizeof(D3DCOLOR);
+				}
+
+				my::Xml<char>::attr_list::const_iterator texture_coords_iter = attrs.find("texture_coords");
+				int texture_coords = texture_coords_iter != attrs.end() ? Min(D3DVertexElementSet::MAX_USAGE_INDEX, atoi(texture_coords_iter->second.c_str())) : 0;
+				for (int i = 0; i < texture_coords; i++)
+				{
+					mesh->m_VertexElems.InsertTexcoordElement(offset, i);
+					offset += sizeof(Vector2);
+				}
+
+				if (has_boneassignments)
+				{
+					mesh->m_VertexElems.InsertBlendIndicesElement(offset);
+					offset += sizeof(DWORD);
+
+					mesh->m_VertexElems.InsertBlendWeightElement(offset);
+					offset += sizeof(Vector4);
+				}
+
+				std::vector<D3DVERTEXELEMENT9> velist = mesh->m_VertexElems.BuildVertexElementList(0);
+				D3DVERTEXELEMENT9 ve_end = D3DDECL_END();
+				velist.push_back(ve_end);
+
+				D3DContext::getSingleton().m_d3dDeviceSec.Enter();
+				if (FAILED(hr = my::D3DContext::getSingleton().m_d3dDevice->CreateVertexDeclaration(velist.data(), &mesh->m_Decl)))
+				{
+					THROW_D3DEXCEPTION(hr);
+				}
+				D3DContext::getSingleton().m_d3dDeviceSec.Leave();
+
+				D3DContext::getSingleton().m_d3dDeviceSec.Enter();
+				mesh->CreateMesh(total_faces, total_vertices, velist.data(), dwMeshOptions);
+				D3DContext::getSingleton().m_d3dDeviceSec.Leave();
+
+				D3DContext::getSingleton().m_d3dDeviceSec.Enter();
+				pVertices = mesh->LockVertexBuffer();
+				D3DContext::getSingleton().m_d3dDeviceSec.Leave();
+			}
+			else if (name == "vertex")
+			{
+
+			}
+			else if (name == "position")
+			{
+
+			}
+			else if (name == "normal")
+			{
+
+			}
+			else if (name == "colour_diffuse")
+			{
+
+			}
+			else if (name == "texcoord")
+			{
+
+			}
+			else if (name == "submeshes")
+			{
+
+			}
+			else if (name == "submesh")
+			{
+
+			}
+			else if (name == "faces")
+			{
+
+			}
+			else if (name == "face")
+			{
+
+			}
+			else if (name == "geometry")
+			{
+
+			}
+			else if (name == "boneassignments")
+			{
+				
+			}
+			else if (name == "vertexboneassignment")
+			{
+
+			}
+		}
+
+		virtual void on_end_element(const std::string& name)
+		{
+			if (name == "mesh")
+			{
+				_ASSERT(!pVertices);
+			}
+			else if (name == "vertexbuffer")
+			{
+				_ASSERT(pVertices);
+				D3DContext::getSingleton().m_d3dDeviceSec.Enter();
+				mesh->UnlockVertexBuffer();
+				D3DContext::getSingleton().m_d3dDeviceSec.Leave();
+				pVertices = NULL;
+			}
+		}
+
+		virtual void on_data(const std::string& value)
+		{
+		}
+
+	} handler(this, bComputeTangentFrame, dwMeshOptions);
+
+	handler.parse<0>(ifs);
 }
 //
 //void OgreMesh::CreateMeshFromObjInFile(

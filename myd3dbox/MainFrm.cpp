@@ -449,14 +449,14 @@ struct ScriptXml : my::Xml<char>, luabind::wrap_base
 	{
 	}
 
-	virtual void on_start_element(const std::string& name, const std::vector<std::pair<std::string, std::string> >& attrs)
+	virtual void on_start_element(const std::string& name, const my::Xml<char>::attr_list& attrs)
 	{
 		try
 		{
 			CMainFrame* pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 			ASSERT_VALID(pFrame);
 			luabind::object attr_table = luabind::newtable(pFrame->m_State);
-			std::vector<std::pair<std::string, std::string> >::const_iterator attr_iter = attrs.begin();
+			my::Xml<char>::attr_list::const_iterator attr_iter = attrs.begin();
 			for (; attr_iter != attrs.end(); attr_iter++)
 			{
 				attr_table[attr_iter->first] = attr_iter->second;
@@ -472,7 +472,7 @@ struct ScriptXml : my::Xml<char>, luabind::wrap_base
 
 	static void default_on_start_element(my::Xml<char>* ptr, const std::string& name, const luabind::object& attr_table)
 	{
-		std::vector<std::pair<std::string, std::string> > attrs;
+		my::Xml<char>::attr_list attrs;
 		ptr->Xml<char>::on_start_element(name, attrs);
 	}
 
