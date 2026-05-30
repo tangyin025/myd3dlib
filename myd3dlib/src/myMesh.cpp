@@ -1422,6 +1422,14 @@ void OgreMesh::CreateMeshFromOgreXmlInStream(
 
 		int texusage_i;
 
+		int face_i;
+
+		D3DXATTRIBUTERANGE rang;
+
+		int vmin;
+
+		int vmax;
+
 		SaxHandler(OgreMesh* _mesh, bool _bComputeTangentFrame, DWORD _dwMeshOptions)
 			: mesh(_mesh)
 			, bComputeTangentFrame(_bComputeTangentFrame)
@@ -1436,6 +1444,10 @@ void OgreMesh::CreateMeshFromOgreXmlInStream(
 			, vertex_i(0)
 			, pVertex(NULL)
 			, texusage_i(0)
+			, face_i(0)
+			, rang({ 0 })
+			, vmin(INT_MAX)
+			, vmax(INT_MIN)
 		{
 		}
 
@@ -1443,16 +1455,6 @@ void OgreMesh::CreateMeshFromOgreXmlInStream(
 		{
 			if (name == "mesh")
 			{
-				my::Xml<char>::attr_list::const_iterator totalvertices_iter = attrs.find("totalvertices");
-				if (totalvertices_iter != attrs.end())
-				{
-					total_vertices = atoi(totalvertices_iter->second.c_str());
-				}
-				else
-				{
-					THROW_CUSEXCEPTION("invalid totalvertices");
-				}
-
 				my::Xml<char>::attr_list::const_iterator totalfaces_iter = attrs.find("totalfaces");
 				if (totalfaces_iter != attrs.end())
 				{
@@ -1481,7 +1483,15 @@ void OgreMesh::CreateMeshFromOgreXmlInStream(
 			}
 			else if (name == "sharedgeometry")
 			{
-
+				my::Xml<char>::attr_list::const_iterator vertexcount_iter = attrs.find("vertexcount");
+				if (vertexcount_iter != attrs.end())
+				{
+					total_vertices = atoi(vertexcount_iter->second.c_str());
+				}
+				else
+				{
+					THROW_CUSEXCEPTION("invalid total_vertices");
+				}
 			}
 			else if (name == "vertexbuffer")
 			{
@@ -1575,7 +1585,7 @@ void OgreMesh::CreateMeshFromOgreXmlInStream(
 				pAttrBuffer = mesh->LockAttributeBuffer();
 				D3DContext::getSingleton().m_d3dDeviceSec.Leave();
 
-				_ASSERT(0 == vertex_i);
+				_ASSERT(0 == vertex_i && 0 == face_i && 0 == rang.AttribId);
 			}
 			else if (name == "vertex")
 			{
@@ -1670,11 +1680,58 @@ void OgreMesh::CreateMeshFromOgreXmlInStream(
 			}
 			else if (name == "faces")
 			{
+				rang.FaceStart = face_i;
+				
+				my::Xml<char>::attr_list::const_iterator count_iter = attrs.find("count");
+				if (count_iter != attrs.end())
+				{
+					rang.FaceCount = atoi(count_iter->second.c_str());
+				}
 
+				vmin = INT_MAX;
+
+				vmax = INT_MIN;
 			}
 			else if (name == "face")
 			{
+				int v1;
+				my::Xml<char>::attr_list::const_iterator v1_iter = attrs.find("v1");
+				if (v1_iter != attrs.end())
+				{
+					v1 = atoi(v1_iter->second.c_str());
+				}
 
+				int v2;
+				my::Xml<char>::attr_list::const_iterator v2_iter = attrs.find("v2");
+				if (v2_iter != attrs.end())
+				{
+					v2 = atoi(v2_iter->second.c_str());
+				}
+
+				int v3;
+				my::Xml<char>::attr_list::const_iterator v3_iter = attrs.find("v3");
+				if (v3_iter != attrs.end())
+				{
+					v3 = atoi(v3_iter->second.c_str());
+				}
+
+				if (dwMeshOptions & D3DXMESH_32BIT)
+				{
+					*((DWORD*)pIndices + face_i * 3 + 0) = v1;
+					*((DWORD*)pIndices + face_i * 3 + 1) = v2;
+					*((DWORD*)pIndices + face_i * 3 + 2) = v3;
+				}
+				else
+				{
+					*((WORD*)pIndices + face_i * 3 + 0) = v1;
+					*((WORD*)pIndices + face_i * 3 + 1) = v2;
+					*((WORD*)pIndices + face_i * 3 + 2) = v3;
+				}
+				pAttrBuffer[face_i] = rang.AttribId;
+
+				vmin = Min(vmin, Min(v1, Min(v2, v3)));
+
+				vmax = Max(vmax, Max(v1, Max(v2, v3)));
 			}
 			else if (name == "geometry")
 			{
@@ -1696,6 +1753,12 @@ void OgreMesh::CreateMeshFromOgreXmlInStream(
 			{
 				if (pVertices)
 				{
+					if (bComputeTangentFrame)
+					{
+						ComputeTangentFrame(
+							pVertices, total_vertices, offset, pIndices, !(dwMeshOptions & D3DXMESH_32BIT), total_faces, mesh->m_VertexElems);
+					}
+
 					D3DContext::getSingleton().m_d3dDeviceSec.Enter();
 					mesh->UnlockVertexBuffer();
 					D3DContext::getSingleton().m_d3dDeviceSec.Leave();
@@ -1717,10 +1780,28 @@ void OgreMesh::CreateMeshFromOgreXmlInStream(
 					D3DContext::getSingleton().m_d3dDeviceSec.Leave();
 					pAttrBuffer = NULL;
 				}
+
+				D3DContext::getSingleton().m_d3dDeviceSec.Enter();
+				mesh->SetAttributeTable(&mesh->m_AttribTable[0], mesh->m_AttribTable.size());
+				D3DContext::getSingleton().m_d3dDeviceSec.Leave();
+
+				mesh->m_Vb.Create(mesh->GetVertexBuffer().Detach());
+				mesh->m_Ib.Create(mesh->GetIndexBuffer().Detach());
 			}
 			else if (name == "vertex")
 			{
 				vertex_i++;
+			}
+			else if (name == "faces")
+			{
+				rang.VertexStart = vmin;
+				rang.VertexCount = vmax - vmin + 1;
+				mesh->m_AttribTable.push_back(rang);
+				rang.AttribId++;
+			}
+			else if (name == "face")
+			{
+				face_i++;
 			}
 		}
 
