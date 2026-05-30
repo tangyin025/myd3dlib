@@ -1466,7 +1466,7 @@ void OgreMesh::CreateMeshFromOgreXmlInStream(
 				}
 
 				my::Xml<char>::attr_list::const_iterator hasboneassignments_iter = attrs.find("hasboneassignments");
-				if (hasboneassignments_iter != attrs.end() && hasboneassignments_iter->second == "true")
+				if (hasboneassignments_iter != attrs.end() && boost::iequals(hasboneassignments_iter->second, "true"))
 				{
 					has_boneassignments = true;
 				}
@@ -1505,7 +1505,7 @@ void OgreMesh::CreateMeshFromOgreXmlInStream(
 				_ASSERT(0 == offset);
 
 				my::Xml<char>::attr_list::const_iterator positions_iter = attrs.find("positions");
-				if (positions_iter != attrs.end() && positions_iter->second == "true")
+				if (positions_iter != attrs.end() && boost::iequals(positions_iter->second, "true"))
 				{
 					mesh->m_VertexElems.InsertPositionElement(0);
 					offset += sizeof(Vector3);
@@ -1516,7 +1516,7 @@ void OgreMesh::CreateMeshFromOgreXmlInStream(
 				}
 
 				my::Xml<char>::attr_list::const_iterator normals_iter = attrs.find("normals");
-				if (bComputeTangentFrame || normals_iter != attrs.end() && normals_iter->second == "true")
+				if (bComputeTangentFrame || normals_iter != attrs.end() && boost::iequals(normals_iter->second, "true"))
 				{
 					mesh->m_VertexElems.InsertNormalElement(offset);
 					offset += sizeof(Vector3);
@@ -1529,7 +1529,7 @@ void OgreMesh::CreateMeshFromOgreXmlInStream(
 				}
 
 				my::Xml<char>::attr_list::const_iterator colours_diffuse_iter = attrs.find("colours_diffuse");
-				if (colours_diffuse_iter != attrs.end() && colours_diffuse_iter->second == "true")
+				if (colours_diffuse_iter != attrs.end() && boost::iequals(colours_diffuse_iter->second, "true"))
 				{
 					mesh->m_VertexElems.InsertColorElement(offset);
 					offset += sizeof(D3DCOLOR);
@@ -1594,6 +1594,12 @@ void OgreMesh::CreateMeshFromOgreXmlInStream(
 				pVertex = (unsigned char*)pVertices + vertex_i * offset;
 
 				texusage_i = 0;
+
+				if (has_boneassignments)
+				{
+					mesh->m_VertexElems.SetBlendIndices(pVertex, 0);
+					mesh->m_VertexElems.SetBlendWeight(pVertex, Vector4::zero);
+				}
 			}
 			else if (name == "position")
 			{
@@ -1743,7 +1749,52 @@ void OgreMesh::CreateMeshFromOgreXmlInStream(
 			}
 			else if (name == "vertexboneassignment")
 			{
+				int boneindex;
+				my::Xml<char>::attr_list::const_iterator boneindex_iter = attrs.find("boneindex");
+				if (boneindex_iter != attrs.end())
+				{
+					boneindex = atoi(boneindex_iter->second.c_str());
+				}
 
+				int vertexindex;
+				my::Xml<char>::attr_list::const_iterator vertexindex_iter = attrs.find("vertexindex");
+				if (vertexindex_iter != attrs.end())
+				{
+					vertexindex = atoi(vertexindex_iter->second.c_str());
+				}
+
+				float weight;
+				my::Xml<char>::attr_list::const_iterator weight_iter = attrs.find("weight");
+				if (weight_iter != attrs.end())
+				{
+					weight = (float)atof(weight_iter->second.c_str());
+				}
+
+				if (vertexindex >= total_vertices)
+				{
+					THROW_CUSEXCEPTION(str_printf("invalid vertex index: %d", vertexindex));
+				}
+
+				if (boneindex >= 0xff)
+				{
+					THROW_CUSEXCEPTION(str_printf("invalid bone index: %d", boneindex));
+				}
+
+				unsigned char* pVertex = (unsigned char*)pVertices + vertexindex * offset;
+				unsigned char* pIndices = (unsigned char*)&mesh->m_VertexElems.GetBlendIndices(pVertex);
+				float* pWeights = (float*)&mesh->m_VertexElems.GetBlendWeight(pVertex);
+
+				int i = std::distance(pWeights, boost::find_if(boost::make_iterator_range_n(
+					pWeights, D3DVertexElementSet::MAX_BONE_INDICES), boost::bind(std::equal_to<float>(), boost::placeholders::_1, 0.0f)));
+				if (i < D3DVertexElementSet::MAX_BONE_INDICES)
+				{
+					pIndices[i] = boneindex;
+					pWeights[i] = weight;
+				}
+				else
+				{
+					THROW_CUSEXCEPTION("too much bone assignment");
+				}
 			}
 		}
 
