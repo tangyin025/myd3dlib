@@ -588,6 +588,7 @@ CMainFrame::CMainFrame()
 	, m_PaintParticleAngle(0.0f, 0.0f)
 	, m_RenderingView(NULL)
 	, m_IndicatorCoord(0, 0, 0)
+	, m_hLastFocusWnd(NULL)
 {
 	// TODO: add member initialization code here
 	theApp.m_nAppLook = theApp.GetInt(_T("ApplicationLook"), ID_VIEW_APPLOOK_VS_2005);
@@ -1604,6 +1605,11 @@ void CMainFrame::OnActivate(UINT nState, CWnd* pWndOther, BOOL bMinimized)
 	if (nState == WA_ACTIVE || nState == WA_CLICKACTIVE)
 	{
 		m_wndScript.m_editScript.CheckFileChange();
+
+		if (m_hLastFocusWnd && ::IsWindow(m_hLastFocusWnd))
+		{
+			::SetFocus(m_hLastFocusWnd);
+		}
 	}
 	else
 	{
@@ -1615,6 +1621,8 @@ void CMainFrame::OnActivate(UINT nState, CWnd* pWndOther, BOOL bMinimized)
 		{
 			model_view_camera->m_DragMode = my::ModelViewerCamera::DragModeNone;
 		}
+
+		m_hLastFocusWnd = GetFocus()->GetSafeHwnd();
 	}
 }
 

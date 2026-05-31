@@ -136,6 +136,7 @@ public:
 	CChildView* m_RenderingView;
 	my::Vector3 m_IndicatorCoord;
 	ActorPtr m_Player;
+	HWND m_hLastFocusWnd;
 
 // Operations
 public:
