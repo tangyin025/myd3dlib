@@ -353,6 +353,17 @@ void Actor::Update(float fElapsedTime)
 		return;
 	}
 
+	// ! Component::Update may change other cmp's life time
+	ComponentPtrList dummy_cmps(m_Cmps.begin(), m_Cmps.end());
+	ComponentPtrList::iterator cmp_iter = dummy_cmps.begin();
+	for (; cmp_iter != dummy_cmps.end(); cmp_iter++)
+	{
+		if ((*cmp_iter)->m_LodMask & 1 << m_Lod && this == (*cmp_iter)->m_Actor)
+		{
+			(*cmp_iter)->Update(fElapsedTime);
+		}
+	}
+
 	// ! ScriptActionTrackInst::UpdateTime may invalidate action_inst_iter by self:Play, StopAction..
 	ActionInstPtrList::iterator action_inst_iter = m_ActionInstList.begin();
 	for (; action_inst_iter != m_ActionInstList.end(); )
@@ -368,17 +379,6 @@ void Actor::Update(float fElapsedTime)
 		{
 			// ! make sure associated objs were not in parallel tasks, ActionTrackEmitterInst::Stop
 			action_inst_iter = StopActionInstIter(action_inst_iter);
-		}
-	}
-
-	// ! Component::Update may change other cmp's life time
-	ComponentPtrList dummy_cmps(m_Cmps.begin(), m_Cmps.end());
-	ComponentPtrList::iterator cmp_iter = dummy_cmps.begin();
-	for (; cmp_iter != dummy_cmps.end(); cmp_iter++)
-	{
-		if ((*cmp_iter)->m_LodMask & 1 << m_Lod && this == (*cmp_iter)->m_Actor)
-		{
-			(*cmp_iter)->Update(fElapsedTime);
 		}
 	}
 }

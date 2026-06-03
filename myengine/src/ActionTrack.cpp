@@ -301,7 +301,7 @@ void ActionTrackEmitterInst::UpdateTime(float LastTime, float Time)
 		SphericalEmitter* EmitterCmp = dynamic_cast<SphericalEmitter*>(my::D3DContext::getSingleton().GetNamedObject(key_iter->second.EmitterName));
 		KeyFrameInst inst(key_iter->second.Length, EmitterCmp->m_SpawnInterval, EmitterCmp->m_SpawnCount);
 		inst.m_EmitterCmp = boost::static_pointer_cast<SphericalEmitter>(EmitterCmp->Clone());
-		inst.m_EmitterCmp->m_SpawnInterval = 0;
+		_ASSERT(inst.m_EmitterCmp->m_SpawnInterval > 0);
 		m_KeyInsts.push_back(inst);
 		m_Actor->InsertComponent(inst.m_EmitterCmp);
 	}
@@ -311,27 +311,6 @@ void ActionTrackEmitterInst::UpdateTime(float LastTime, float Time)
 	{
 		key_inst_iter->m_Time += my::D3DContext::getSingleton().m_fElapsedTime;
 
-		for (; key_inst_iter->m_SpawnTime <= key_inst_iter->m_Time; key_inst_iter->m_SpawnTime += key_inst_iter->m_SpawnInterval)
-		{
-			const Bone pose = key_inst_iter->m_EmitterCmp->m_EmitterSpaceType == EmitterComponent::SpaceTypeWorld ?
-				m_Actor->GetAttachPose(key_inst_iter->m_EmitterCmp->m_SpawnBoneId, key_inst_iter->m_EmitterCmp->m_SpawnLocalPose.m_position, key_inst_iter->m_EmitterCmp->m_SpawnLocalPose.m_rotation) : key_inst_iter->m_EmitterCmp->m_SpawnLocalPose;
-			for (int i = 0; i < key_inst_iter->m_SpawnCount; i++)
-			{
-				_ASSERT(key_inst_iter->m_EmitterCmp->m_PostTaskEvent.Wait(0));
-
-				key_inst_iter->m_EmitterCmp->Spawn(
-					Vector4(pose.m_rotation * Vector3(
-						Random(-key_inst_iter->m_EmitterCmp->m_HalfSpawnArea.x, key_inst_iter->m_EmitterCmp->m_HalfSpawnArea.x),
-						Random(-key_inst_iter->m_EmitterCmp->m_HalfSpawnArea.y, key_inst_iter->m_EmitterCmp->m_HalfSpawnArea.y),
-						Random(-key_inst_iter->m_EmitterCmp->m_HalfSpawnArea.z, key_inst_iter->m_EmitterCmp->m_HalfSpawnArea.z)) + pose.m_position, 1.0f),
-					Vector4(pose.m_rotation * Vector3::PolarToCartesian(
-						key_inst_iter->m_EmitterCmp->m_SpawnSpeed,
-						Random(key_inst_iter->m_EmitterCmp->m_SpawnInclination.x, key_inst_iter->m_EmitterCmp->m_SpawnInclination.y),
-						Random(key_inst_iter->m_EmitterCmp->m_SpawnAzimuth.x, key_inst_iter->m_EmitterCmp->m_SpawnAzimuth.y)), 0),
-					Vector4(1, 1, 1, 1), Vector2(1, 1), 0, 0);
-			}
-		}
-
 		if (key_inst_iter->m_Time < key_inst_iter->m_Length)
 		{
 			key_inst_iter++;
@@ -339,6 +318,7 @@ void ActionTrackEmitterInst::UpdateTime(float LastTime, float Time)
 		else
 		{
 			_ASSERT(0 == key_inst_iter->m_EmitterCmp->m_DelayRemoveTime && key_inst_iter->m_EmitterCmp->m_ParticleLifeTime > 0);
+			key_inst_iter->m_EmitterCmp->m_SpawnInterval = 0;
 			key_inst_iter->m_EmitterCmp->m_DelayRemoveTime = key_inst_iter->m_EmitterCmp->m_ParticleLifeTime;
 			key_inst_iter = m_KeyInsts.erase(key_inst_iter);
 		}
@@ -352,6 +332,7 @@ void ActionTrackEmitterInst::Stop(void)
 	KeyFrameInstList::iterator key_inst_iter = m_KeyInsts.begin();
 	for (; key_inst_iter != m_KeyInsts.end(); key_inst_iter++)
 	{
+		key_inst_iter->m_EmitterCmp->m_SpawnInterval = 0;
 		key_inst_iter->m_EmitterCmp->m_DelayRemoveTime = key_inst_iter->m_EmitterCmp->m_ParticleLifeTime;
 	}
 	m_KeyInsts.clear();
