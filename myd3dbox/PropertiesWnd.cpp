@@ -387,16 +387,47 @@ void CPropertiesWnd::UpdatePropertiesRigidActor(CMFCPropertyGridProperty * pRigi
 	}
 	pRigidActor->GetSubItem(0)->SetValue((_variant_t)g_ActorTypeDesc[actor->m_PxActor ? actor->m_PxActor->getType() : physx::PxActorType::eACTOR_COUNT]);
 	physx::PxRigidBodyFlags bodyFlags;
+	float Mass = 0;
+	my::Bone CMassLocalPose(my::Vector3(0));
+	my::Vector3 MassSpaceInertiaTensor(0);
+	float LinearDamping = 0, AngularDamping = 0, MaxAngularVelocity = 0;
 	if (actor->m_PxActor)
 	{
-		physx::PxRigidBody * body = actor->m_PxActor->is<physx::PxRigidBody>();
+		physx::PxRigidDynamic * body = actor->m_PxActor->is<physx::PxRigidDynamic>();
 		if (body)
 		{
 			bodyFlags = body->getRigidBodyFlags();
+			Mass = body->getMass();
+			CMassLocalPose = actor->GetCMassLocalPose();
+			MassSpaceInertiaTensor = actor->GetMassSpaceInertiaTensor();
+			LinearDamping = actor->GetLinearDamping();
+			AngularDamping = actor->GetAngularDamping();
+			MaxAngularVelocity = actor->GetMaxAngularVelocity();
 		}
 	}
 	pRigidActor->GetSubItem(1)->SetValue((_variant_t)(VARIANT_BOOL)bodyFlags.isSet(physx::PxRigidBodyFlag::eKINEMATIC));
-	pRigidActor->GetSubItem(1)->Show(actor->m_PxActor && actor->m_PxActor->is<physx::PxRigidBody>(), FALSE);
+	pRigidActor->GetSubItem(1)->Show(actor->m_PxActor && actor->m_PxActor->is<physx::PxRigidDynamic>(), FALSE);
+	pRigidActor->GetSubItem(2)->SetValue((_variant_t)Mass);
+	pRigidActor->GetSubItem(2)->Show(actor->m_PxActor && actor->m_PxActor->is<physx::PxRigidDynamic>(), FALSE);
+	pRigidActor->GetSubItem(3)->GetSubItem(0)->SetValue((_variant_t)CMassLocalPose.m_position.x);
+	pRigidActor->GetSubItem(3)->GetSubItem(1)->SetValue((_variant_t)CMassLocalPose.m_position.y);
+	pRigidActor->GetSubItem(3)->GetSubItem(2)->SetValue((_variant_t)CMassLocalPose.m_position.z);
+	pRigidActor->GetSubItem(3)->Show(actor->m_PxActor && actor->m_PxActor->is<physx::PxRigidDynamic>(), FALSE);
+	my::Vector3 angle = CMassLocalPose.m_rotation.toEulerAngles();
+	pRigidActor->GetSubItem(4)->GetSubItem(0)->SetValue((_variant_t)angle.x);
+	pRigidActor->GetSubItem(4)->GetSubItem(1)->SetValue((_variant_t)angle.y);
+	pRigidActor->GetSubItem(4)->GetSubItem(2)->SetValue((_variant_t)angle.z);
+	pRigidActor->GetSubItem(4)->Show(actor->m_PxActor && actor->m_PxActor->is<physx::PxRigidDynamic>(), FALSE);
+	pRigidActor->GetSubItem(5)->GetSubItem(0)->SetValue((_variant_t)MassSpaceInertiaTensor.x);
+	pRigidActor->GetSubItem(5)->GetSubItem(1)->SetValue((_variant_t)MassSpaceInertiaTensor.y);
+	pRigidActor->GetSubItem(5)->GetSubItem(2)->SetValue((_variant_t)MassSpaceInertiaTensor.z);
+	pRigidActor->GetSubItem(5)->Show(actor->m_PxActor && actor->m_PxActor->is<physx::PxRigidDynamic>(), FALSE);
+	pRigidActor->GetSubItem(6)->SetValue((_variant_t)LinearDamping);
+	pRigidActor->GetSubItem(6)->Show(actor->m_PxActor && actor->m_PxActor->is<physx::PxRigidDynamic>(), FALSE);
+	pRigidActor->GetSubItem(7)->SetValue((_variant_t)AngularDamping);
+	pRigidActor->GetSubItem(7)->Show(actor->m_PxActor && actor->m_PxActor->is<physx::PxRigidDynamic>(), FALSE);
+	pRigidActor->GetSubItem(8)->SetValue((_variant_t)MaxAngularVelocity);
+	pRigidActor->GetSubItem(8)->Show(actor->m_PxActor && actor->m_PxActor->is<physx::PxRigidDynamic>(), FALSE);
 }
 
 void CPropertiesWnd::UpdateProperties(CMFCPropertyGridProperty * pComponent, int i, Component * cmp)
@@ -1455,19 +1486,74 @@ void CPropertiesWnd::CreatePropertiesRigidActor(CMFCPropertyGridProperty * pPare
 		pProp->AddOption(g_ActorTypeDesc[i], TRUE);
 	}
 	pRigidActor->AddSubItem(pProp);
+
 	physx::PxRigidBodyFlags bodyFlags;
+	float Mass = 0;
+	my::Bone CMassLocalPose(my::Vector3(0));
+	my::Vector3 MassSpaceInertiaTensor(0);
+	float LinearDamping = 0, AngularDamping = 0, MaxAngularVelocity = 0;
 	if (actor->m_PxActor)
 	{
-		physx::PxRigidBody * body = actor->m_PxActor->is<physx::PxRigidBody>();
+		physx::PxRigidDynamic * body = actor->m_PxActor->is<physx::PxRigidDynamic>();
 		if (body)
 		{
 			bodyFlags = body->getRigidBodyFlags();
+			Mass = body->getMass();
+			CMassLocalPose = actor->GetCMassLocalPose();
+			MassSpaceInertiaTensor = actor->GetMassSpaceInertiaTensor();
+			LinearDamping = actor->GetLinearDamping();
+			AngularDamping = actor->GetAngularDamping();
+			MaxAngularVelocity = actor->GetMaxAngularVelocity();
 		}
 	}
 	const TCHAR * szDesc = _T("Enables kinematic mode for the actor.\n\nKinematic actors are special dynamic actors that are not influenced by forces(such as gravity), and have no momentum. They are considered to have infinite mass and can be moved around the world using the setKinematicTarget() method. They will push regular dynamic actors out of the way. Kinematics will not collide with static or other kinematic objects.\n\nKinematic actors are great for moving platforms or characters, where direct motion control is desired.\n\nYou can not connect Reduced joints to kinematic actors. Lagrange joints work ok if the platform is moving with a relatively low, uniform velocity.");
 	pProp = new CCheckBoxProp(_T("eKINEMATIC"), bodyFlags.isSet(physx::PxRigidBodyFlag::eKINEMATIC), szDesc, PropertyActorRigidActorKinematic);
 	pRigidActor->AddSubItem(pProp);
-	pRigidActor->GetSubItem(1)->Show(actor->m_PxActor && actor->m_PxActor->is<physx::PxRigidBody>(), FALSE);
+	pProp->Show(actor->m_PxActor && actor->m_PxActor->is<physx::PxRigidDynamic>(), FALSE);
+	pProp = new CSimpleProp(_T("Mass"), (_variant_t)Mass, NULL, PropertyActorRigidActorMass);
+	pRigidActor->AddSubItem(pProp);
+	pProp->Show(actor->m_PxActor && actor->m_PxActor->is<physx::PxRigidDynamic>(), FALSE);
+
+	CMFCPropertyGridProperty* pCMassLocalPos = new CSimpleProp(_T("CMassLocalPos"), PropertyActorRigidActorCMassLocalPos, TRUE);
+	pRigidActor->AddSubItem(pCMassLocalPos);
+	pCMassLocalPos->Show(actor->m_PxActor && actor->m_PxActor->is<physx::PxRigidDynamic>(), FALSE);
+	pProp = new CSimpleProp(_T("x"), (_variant_t)CMassLocalPose.m_position.x, NULL, PropertyActorRigidActorCMassLocalPosX);
+	pCMassLocalPos->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("y"), (_variant_t)CMassLocalPose.m_position.y, NULL, PropertyActorRigidActorCMassLocalPosY);
+	pCMassLocalPos->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("z"), (_variant_t)CMassLocalPose.m_position.z, NULL, PropertyActorRigidActorCMassLocalPosZ);
+	pCMassLocalPos->AddSubItem(pProp);
+
+	my::Vector3 angle = CMassLocalPose.m_rotation.toEulerAngles();
+	CMFCPropertyGridProperty* pCMassLocalRot = new CSimpleProp(_T("CMassLocalRot"), PropertyActorRigidActorCMassLocalRot, TRUE);
+	pRigidActor->AddSubItem(pCMassLocalRot);
+	pCMassLocalRot->Show(actor->m_PxActor && actor->m_PxActor->is<physx::PxRigidDynamic>(), FALSE);
+	pProp = new CSimpleProp(_T("x"), (_variant_t)D3DXToDegree(angle.x), NULL, PropertyActorRigidActorCMassLocalRotX);
+	pCMassLocalRot->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("y"), (_variant_t)D3DXToDegree(angle.y), NULL, PropertyActorRigidActorCMassLocalRotY);
+	pCMassLocalRot->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("z"), (_variant_t)D3DXToDegree(angle.z), NULL, PropertyActorRigidActorCMassLocalRotZ);
+	pCMassLocalRot->AddSubItem(pProp);
+
+	CMFCPropertyGridProperty* pMassSpaceInertiaTensor = new CSimpleProp(_T("MassSpaceInertiaTensor"), PropertyActorRigidActorMassSpaceInertiaTensor, TRUE);
+	pRigidActor->AddSubItem(pMassSpaceInertiaTensor);
+	pMassSpaceInertiaTensor->Show(actor->m_PxActor && actor->m_PxActor->is<physx::PxRigidDynamic>(), FALSE);
+	pProp = new CSimpleProp(_T("x"), (_variant_t)MassSpaceInertiaTensor.x, NULL, PropertyActorRigidActorMassSpaceInertiaTensorX);
+	pMassSpaceInertiaTensor->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("y"), (_variant_t)MassSpaceInertiaTensor.y, NULL, PropertyActorRigidActorMassSpaceInertiaTensorY);
+	pMassSpaceInertiaTensor->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("z"), (_variant_t)MassSpaceInertiaTensor.z, NULL, PropertyActorRigidActorMassSpaceInertiaTensorZ);
+	pMassSpaceInertiaTensor->AddSubItem(pProp);
+
+	pProp = new CSimpleProp(_T("LinearDamping"), (_variant_t)LinearDamping, NULL, PropertyActorRigidActorLinearDamping);
+	pRigidActor->AddSubItem(pProp);
+	pProp->Show(actor->m_PxActor && actor->m_PxActor->is<physx::PxRigidDynamic>(), FALSE);
+	pProp = new CSimpleProp(_T("AngularDamping"), (_variant_t)AngularDamping, NULL, PropertyActorRigidActorAngularDamping);
+	pRigidActor->AddSubItem(pProp);
+	pProp->Show(actor->m_PxActor && actor->m_PxActor->is<physx::PxRigidDynamic>(), FALSE);
+	pProp = new CSimpleProp(_T("MaxAngularVelocity"), (_variant_t)MaxAngularVelocity, NULL, PropertyActorRigidActorMaxAngularVelocity);
+	pRigidActor->AddSubItem(pProp);
+	pProp->Show(actor->m_PxActor && actor->m_PxActor->is<physx::PxRigidDynamic>(), FALSE);
 }
 
 void CPropertiesWnd::CreateProperties(CMFCPropertyGridProperty * pParentCtrl, Component * cmp)
@@ -3560,7 +3646,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		actor->CreateRigidActor((physx::PxActorType::Enum)i);
 		if (actor->m_PxActor)
 		{
-			physx::PxRigidBody* body = actor->m_PxActor->is<physx::PxRigidBody>();
+			physx::PxRigidDynamic* body = actor->m_PxActor->is<physx::PxRigidDynamic>();
 			if (body)
 			{
 				body->setRigidBodyFlag(physx::PxRigidBodyFlag::eKINEMATIC, true);
@@ -3575,8 +3661,96 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	case PropertyActorRigidActorKinematic:
 	{
 		Actor * actor = (Actor *)pProp->GetParent()->GetParent()->GetValue().pulVal;
-		ASSERT(actor->m_PxActor && actor->m_PxActor->is<physx::PxRigidBody>());
-		actor->m_PxActor->is<physx::PxRigidBody>()->setRigidBodyFlag(physx::PxRigidBodyFlag::eKINEMATIC, pProp->GetValue().boolVal != 0);
+		ASSERT(actor->m_PxActor && actor->m_PxActor->is<physx::PxRigidDynamic>());
+		actor->m_PxActor->is<physx::PxRigidDynamic>()->setRigidBodyFlag(physx::PxRigidBodyFlag::eKINEMATIC, pProp->GetValue().boolVal != 0);
+		my::EventArg arg;
+		pFrame->m_EventAttributeChanged(&arg);
+		break;
+	}
+	case PropertyActorRigidActorMass:
+	{
+		Actor* actor = (Actor*)pProp->GetParent()->GetParent()->GetValue().pulVal;
+		ASSERT(actor->m_PxActor&& actor->m_PxActor->is<physx::PxRigidDynamic>());
+		actor->SetMass(pProp->GetValue().fltVal);
+		my::EventArg arg;
+		pFrame->m_EventAttributeChanged(&arg);
+		break;
+	}
+	case PropertyActorRigidActorCMassLocalPos:
+	case PropertyActorRigidActorCMassLocalPosX:
+	case PropertyActorRigidActorCMassLocalPosY:
+	case PropertyActorRigidActorCMassLocalPosZ:
+	case PropertyActorRigidActorCMassLocalRot:
+	case PropertyActorRigidActorCMassLocalRotX:
+	case PropertyActorRigidActorCMassLocalRotY:
+	case PropertyActorRigidActorCMassLocalRotZ:
+	case PropertyActorRigidActorMassSpaceInertiaTensor:
+	case PropertyActorRigidActorMassSpaceInertiaTensorX:
+	case PropertyActorRigidActorMassSpaceInertiaTensorY:
+	case PropertyActorRigidActorMassSpaceInertiaTensorZ:
+	{
+		CMFCPropertyGridProperty* pRigidActor = NULL;
+		switch (PropertyId)
+		{
+		case PropertyActorRigidActorCMassLocalPosX:
+		case PropertyActorRigidActorCMassLocalPosY:
+		case PropertyActorRigidActorCMassLocalPosZ:
+		case PropertyActorRigidActorCMassLocalRotX:
+		case PropertyActorRigidActorCMassLocalRotY:
+		case PropertyActorRigidActorCMassLocalRotZ:
+		case PropertyActorRigidActorMassSpaceInertiaTensorX:
+		case PropertyActorRigidActorMassSpaceInertiaTensorY:
+		case PropertyActorRigidActorMassSpaceInertiaTensorZ:
+			pRigidActor = pProp->GetParent()->GetParent();
+			break;
+		case PropertyActorRigidActorCMassLocalPos:
+		case PropertyActorRigidActorCMassLocalRot:
+		case PropertyActorRigidActorMassSpaceInertiaTensor:
+			pRigidActor = pProp->GetParent();
+			break;
+		}
+		Actor* actor = (Actor*)pRigidActor->GetParent()->GetValue().pulVal;
+		actor->SetCMassLocalPose(my::Bone(
+			my::Vector3(
+				pRigidActor->GetSubItem(3)->GetSubItem(0)->GetValue().fltVal,
+				pRigidActor->GetSubItem(3)->GetSubItem(1)->GetValue().fltVal,
+				pRigidActor->GetSubItem(3)->GetSubItem(2)->GetValue().fltVal),
+			my::Quaternion::RotationEulerAngles(
+				D3DXToRadian(pRigidActor->GetSubItem(4)->GetSubItem(0)->GetValue().fltVal),
+				D3DXToRadian(pRigidActor->GetSubItem(4)->GetSubItem(1)->GetValue().fltVal),
+				D3DXToRadian(pRigidActor->GetSubItem(4)->GetSubItem(2)->GetValue().fltVal))));
+		actor->SetMassSpaceInertiaTensor(
+			my::Vector3(
+				pRigidActor->GetSubItem(5)->GetSubItem(0)->GetValue().fltVal,
+				pRigidActor->GetSubItem(5)->GetSubItem(1)->GetValue().fltVal,
+				pRigidActor->GetSubItem(5)->GetSubItem(2)->GetValue().fltVal));
+		my::EventArg arg;
+		pFrame->m_EventAttributeChanged(&arg);
+		break;
+	}
+	case PropertyActorRigidActorLinearDamping:
+	{
+		Actor* actor = (Actor*)pProp->GetParent()->GetParent()->GetValue().pulVal;
+		ASSERT(actor->m_PxActor && actor->m_PxActor->is<physx::PxRigidDynamic>());
+		actor->SetLinearDamping(pProp->GetValue().fltVal);
+		my::EventArg arg;
+		pFrame->m_EventAttributeChanged(&arg);
+		break;
+	}
+	case PropertyActorRigidActorAngularDamping:
+	{
+		Actor* actor = (Actor*)pProp->GetParent()->GetParent()->GetValue().pulVal;
+		ASSERT(actor->m_PxActor && actor->m_PxActor->is<physx::PxRigidDynamic>());
+		actor->SetAngularDamping(pProp->GetValue().fltVal);
+		my::EventArg arg;
+		pFrame->m_EventAttributeChanged(&arg);
+		break;
+	}
+	case PropertyActorRigidActorMaxAngularVelocity:
+	{
+		Actor* actor = (Actor*)pProp->GetParent()->GetParent()->GetValue().pulVal;
+		ASSERT(actor->m_PxActor && actor->m_PxActor->is<physx::PxRigidDynamic>());
+		actor->SetMaxAngularVelocity(pProp->GetValue().fltVal);
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;

@@ -3784,6 +3784,9 @@ void LuaContext::Init(void)
 			.def("UpdateMassAndInertia", &Actor::UpdateMassAndInertia)
 			.property("LinearVelocity", &Actor::GetLinearVelocity, &Actor::SetLinearVelocity)
 			.property("AngularVelocity", &Actor::GetAngularVelocity, &Actor::SetAngularVelocity)
+			.property("LinearDamping", &Actor::GetLinearDamping, &Actor::SetLinearDamping)
+			.property("AngularDamping", &Actor::GetAngularDamping, &Actor::SetAngularDamping)
+			.property("MaxAngularVelocity", &Actor::GetMaxAngularVelocity, &Actor::SetMaxAngularVelocity)
 			.enum_("ForceMode")
 			[
 				value("eFORCE", physx::PxForceMode::eFORCE),

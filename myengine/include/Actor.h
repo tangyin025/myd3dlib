@@ -353,9 +353,21 @@ public:
 	// ! ref: my::RigidBody::setInertialTensor, getInertialTensor
 	void SetMassSpaceInertiaTensor(const my::Vector3 & m);
 
-	my::Vector3 GetMassSpaceInertiaTensor(void);
+	my::Vector3 GetMassSpaceInertiaTensor(void) const;
 
 	void UpdateMassAndInertia(float density);
+
+	void SetLinearDamping(float linDamp);
+
+	float GetLinearDamping(void) const;
+
+	void SetAngularDamping(float angDamp);
+
+	float GetAngularDamping(void) const;
+
+	void SetMaxAngularVelocity(float maxAngVel);
+
+	float GetMaxAngularVelocity(void) const;
 
 	void SetLinearVelocity(const my::Vector3& LinearVelocity);
 

@@ -94,9 +94,21 @@ void Actor::save(Archive & ar, const unsigned int version) const
 	{
 	case physx::PxActorType::eRIGID_DYNAMIC:
 	{
-		physx::PxRigidBody* body = m_PxActor->is<physx::PxRigidBody>();
+		physx::PxRigidDynamic* body = m_PxActor->is<physx::PxRigidDynamic>();
 		physx::PxRigidBodyFlags::InternalType RigidBodyFlags = (physx::PxRigidBodyFlags::InternalType)body->getRigidBodyFlags();
 		ar << BOOST_SERIALIZATION_NVP(RigidBodyFlags);
+		float Mass = GetMass();
+		ar << BOOST_SERIALIZATION_NVP(Mass);
+		Bone CMassLocalPose = GetCMassLocalPose();
+		ar << BOOST_SERIALIZATION_NVP(CMassLocalPose);
+		Vector3 MassSpaceInertiaTensor = GetMassSpaceInertiaTensor();
+		ar << BOOST_SERIALIZATION_NVP(MassSpaceInertiaTensor);
+		float LinearDamping = GetLinearDamping();
+		ar << BOOST_SERIALIZATION_NVP(LinearDamping);
+		float AngularDamping = GetAngularDamping();
+		ar << BOOST_SERIALIZATION_NVP(AngularDamping);
+		float MaxAngularVelocity = GetMaxAngularVelocity();
+		ar << BOOST_SERIALIZATION_NVP(MaxAngularVelocity);
 		break;
 	}
 	case physx::PxActorType::eRIGID_STATIC:
@@ -130,10 +142,28 @@ void Actor::load(Archive & ar, const unsigned int version)
 	case physx::PxActorType::eRIGID_DYNAMIC:
 	{
 		CreateRigidActor(physx::PxActorType::eRIGID_DYNAMIC);
-		physx::PxRigidBody* body = m_PxActor->is<physx::PxRigidBody>();
+		physx::PxRigidDynamic* body = m_PxActor->is<physx::PxRigidDynamic>();
 		physx::PxRigidBodyFlags::InternalType RigidBodyFlags;
 		ar >> BOOST_SERIALIZATION_NVP(RigidBodyFlags);
 		body->setRigidBodyFlags(physx::PxRigidBodyFlags(RigidBodyFlags));
+		float Mass;
+		ar >> BOOST_SERIALIZATION_NVP(Mass);
+		SetMass(Mass);
+		Bone CMassLocalPose;
+		ar >> BOOST_SERIALIZATION_NVP(CMassLocalPose);
+		SetCMassLocalPose(CMassLocalPose);
+		Vector3 MassSpaceInertiaTensor;
+		ar >> BOOST_SERIALIZATION_NVP(MassSpaceInertiaTensor);
+		SetMassSpaceInertiaTensor(MassSpaceInertiaTensor);
+		float LinearDamping;
+		ar >> BOOST_SERIALIZATION_NVP(LinearDamping);
+		SetLinearDamping(LinearDamping);
+		float AngularDamping;
+		ar >> BOOST_SERIALIZATION_NVP(AngularDamping);
+		SetAngularDamping(AngularDamping);
+		float MaxAngularVelocity;
+		ar >> BOOST_SERIALIZATION_NVP(MaxAngularVelocity);
+		SetMaxAngularVelocity(MaxAngularVelocity);
 		break;
 	}
 	case physx::PxActorType::eRIGID_STATIC:
@@ -636,51 +666,84 @@ physx::PxActorType::Enum Actor::GetRigidActorType(void) const
 void Actor::SetRigidBodyFlag(physx::PxRigidBodyFlag::Enum Flag, bool Value)
 {
 	_ASSERT(m_PxActor);
-	m_PxActor->is<physx::PxRigidBody>()->setRigidBodyFlag(Flag, Value);
+	m_PxActor->is<physx::PxRigidDynamic>()->setRigidBodyFlag(Flag, Value);
 }
 
 bool Actor::GetRigidBodyFlag(physx::PxRigidBodyFlag::Enum Flag) const
 {
-	return m_PxActor ? m_PxActor->is<physx::PxRigidBody>()->getRigidBodyFlags() & Flag : false;
+	return m_PxActor ? m_PxActor->is<physx::PxRigidDynamic>()->getRigidBodyFlags() & Flag : false;
 }
 
 void Actor::SetMass(float mass)
 {
 	_ASSERT(m_PxActor);
-	m_PxActor->is<physx::PxRigidBody>()->setMass(mass);
+	m_PxActor->is<physx::PxRigidDynamic>()->setMass(mass);
 }
 
 float Actor::GetMass(void) const
 {
-	return m_PxActor ? m_PxActor->is<physx::PxRigidBody>()->getMass() : 0.0f;
+	return m_PxActor ? m_PxActor->is<physx::PxRigidDynamic>()->getMass() : 0.0f;
 }
 
 void Actor::SetCMassLocalPose(const my::Bone & pose)
 {
 	_ASSERT(m_PxActor);
-	m_PxActor->is<physx::PxRigidBody>()->setCMassLocalPose((physx::PxTransform&)pose);
+	m_PxActor->is<physx::PxRigidDynamic>()->setCMassLocalPose((physx::PxTransform&)pose);
 }
 
 my::Bone Actor::GetCMassLocalPose(void) const
 {
-	return m_PxActor ? (Bone&)m_PxActor->is<physx::PxRigidBody>()->getCMassLocalPose() : Bone(Vector3(0, 0, 0));
+	return m_PxActor ? (Bone&)m_PxActor->is<physx::PxRigidDynamic>()->getCMassLocalPose() : Bone(Vector3(0, 0, 0));
 }
 
 void Actor::SetMassSpaceInertiaTensor(const my::Vector3 & m)
 {
 	_ASSERT(m_PxActor);
-	m_PxActor->is<physx::PxRigidBody>()->setMassSpaceInertiaTensor((physx::PxVec3&)m);
+	m_PxActor->is<physx::PxRigidDynamic>()->setMassSpaceInertiaTensor((physx::PxVec3&)m);
 }
 
-my::Vector3 Actor::GetMassSpaceInertiaTensor(void)
+my::Vector3 Actor::GetMassSpaceInertiaTensor(void) const
 {
-	return m_PxActor ? (Vector3&)m_PxActor->is<physx::PxRigidBody>()->getCMassLocalPose() : Vector3(0, 0, 0);
+	return m_PxActor ? (Vector3&)m_PxActor->is<physx::PxRigidDynamic>()->getMassSpaceInertiaTensor() : Vector3(0, 0, 0);
 }
 
 void Actor::UpdateMassAndInertia(float density)
 {
 	_ASSERT(m_PxActor);
-	physx::PxRigidBodyExt::updateMassAndInertia(*m_PxActor->is<physx::PxRigidBody>(), density);
+	physx::PxRigidBodyExt::updateMassAndInertia(*m_PxActor->is<physx::PxRigidDynamic>(), density);
+}
+
+void Actor::SetLinearDamping(float linDamp)
+{
+	_ASSERT(m_PxActor);
+	m_PxActor->is<physx::PxRigidDynamic>()->setLinearDamping(linDamp);
+}
+
+float Actor::GetLinearDamping(void) const
+{
+	return m_PxActor ? m_PxActor->is<physx::PxRigidDynamic>()->getLinearDamping() : 0.0f;
+}
+
+void Actor::SetAngularDamping(float angDamp)
+{
+	_ASSERT(m_PxActor);
+	m_PxActor->is<physx::PxRigidDynamic>()->setAngularDamping(angDamp);
+}
+
+float Actor::GetAngularDamping(void) const
+{
+	return m_PxActor ? m_PxActor->is<physx::PxRigidDynamic>()->getAngularDamping() : 0.05f;
+}
+
+void Actor::SetMaxAngularVelocity(float maxAngVel)
+{
+	_ASSERT(m_PxActor);
+	m_PxActor->is<physx::PxRigidDynamic>()->setMaxAngularVelocity(maxAngVel);
+}
+
+float Actor::GetMaxAngularVelocity(void) const
+{
+	return m_PxActor ? m_PxActor->is<physx::PxRigidDynamic>()->getMaxAngularVelocity() : 7.0f;
 }
 
 void Actor::SetLinearVelocity(const my::Vector3& LinearVelocity)
