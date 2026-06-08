@@ -653,7 +653,6 @@ HRESULT Client::OnCreateDevice(
 			.property("AllEntityAABB", luabind::tag_function<AABB(Client*)>(
 				boost::bind(&Client::GetAllEntityAABB, boost::placeholders::_1, AABB::Invalid())))
 			.def("QueryEntity", &client_query_entity, luabind::return_stl_iterator)
-			.def("RemoveViewedActor", &Client::RemoveViewedActor)
 			//.def("OnControlSound", &Client::OnControlSound)
 			.def("Play", (SoundEventPtr(SoundContext::*)(my::WavPtr, float, float, bool)) & Client::Play)
 			.def("Play", (SoundEventPtr(SoundContext::*)(my::WavPtr, float, float, bool, const my::Vector3&, const my::Vector3&, float, float)) & Client::Play)
@@ -822,16 +821,13 @@ void Client::OnFrameTick(
 
 	struct Callback : public OctNode::QueryCallback
 	{
-		Client* m_client;
-
-		Vector3 m_ViewedCenter;
+		Client* client;
 
 		Client::ViewedActorSet::iterator insert_actor_iter;
 
-		Callback(Client* client, const Vector3 & ViewedCenter)
-			: m_client(client)
-			, m_ViewedCenter(ViewedCenter)
-			, insert_actor_iter(m_client->m_ViewedActors.begin())
+		Callback(Client* _client)
+			: client(_client)
+			, insert_actor_iter(_client->m_ViewedActors.begin())
 		{
 		}
 
@@ -839,7 +835,7 @@ void Client::OnFrameTick(
 		{
 			Actor* actor = dynamic_cast<Actor*>(oct_entity);
 
-			if (!actor->m_Base && (actor->m_OctAabb->Center() - m_ViewedCenter).magnitudeSq() < (actor->is_linked() ? actor->m_CullingDistSq + m_client->m_ActorCullingThreshold : actor->m_CullingDistSq))
+			if (!actor->m_Base && (actor->m_OctAabb->Center() - client->m_ViewedCenter).magnitudeSq() < (actor->is_linked() ? actor->m_CullingDistSq + client->m_ActorCullingThreshold : actor->m_CullingDistSq))
 			{
 				InsertViewedActor(actor);
 			}
@@ -850,14 +846,14 @@ void Client::OnFrameTick(
 		{
 			if (actor->is_linked())
 			{
-				ViewedActorSet::iterator actor_iter = m_client->m_ViewedActors.iterator_to(*actor);
+				ViewedActorSet::iterator actor_iter = client->m_ViewedActors.iterator_to(*actor);
 				if (actor_iter != insert_actor_iter)
 				{
-					m_client->m_ViewedActors.splice(insert_actor_iter, m_client->m_ViewedActors, actor_iter);
+					client->m_ViewedActors.splice(insert_actor_iter, client->m_ViewedActors, actor_iter);
 				}
 				else
 				{
-					_ASSERT(insert_actor_iter != m_client->m_ViewedActors.end());
+					_ASSERT(insert_actor_iter != client->m_ViewedActors.end());
 
 					insert_actor_iter++;
 				}
@@ -866,15 +862,15 @@ void Client::OnFrameTick(
 			{
 				_ASSERT(!actor->IsRequested());
 
-				m_client->m_d3dDeviceSec.Enter();
+				client->m_d3dDeviceSec.Enter();
 
-				m_client->OnActorRequest(actor);
+				client->OnActorRequest(actor);
 
 				actor->RequestResource();
 
-				m_client->m_d3dDeviceSec.Leave();
+				client->m_d3dDeviceSec.Leave();
 
-				m_client->m_ViewedActors.insert(insert_actor_iter, *actor);
+				client->m_ViewedActors.insert(insert_actor_iter, *actor);
 			}
 
 			Actor::AttachList::iterator attach_iter = actor->m_Attaches.begin();
@@ -888,7 +884,7 @@ void Client::OnFrameTick(
 	// ! OnActorRequestResource, UpdateLod, Update may change other actor's life time, DoAllParallelTasks also dependent it
 	DelayRemover<ActorPtr>::getSingleton().Enter(boost::bind(&Client::RemoveEntity, this, boost::bind(&boost::shared_ptr<Actor>::get, boost::placeholders::_1)));
 
-	Callback cb(this, m_ViewedCenter);
+	Callback cb(this);
 	QueryEntity(AABB(m_ViewedCenter, m_ViewedDist), &cb);
 
 	m_d3dDeviceSec.Enter();
@@ -1250,7 +1246,11 @@ void Client::RemoveEntity(my::OctEntity * entity)
 	{
 		_ASSERT(actor->is_linked());
 
-		RemoveViewedActor(actor);
+		ViewedActorSet::iterator actor_iter = m_ViewedActors.iterator_to(*actor);
+
+		_ASSERT(actor_iter != m_ViewedActors.end());
+
+		RemoveViewedActorIter(actor_iter);
 	}
 
 	actor->StopAllActionInst();
@@ -1274,15 +1274,6 @@ Client::ViewedActorSet::iterator Client::RemoveViewedActorIter(ViewedActorSet::i
 	OnActorRelease(&*actor_iter);
 
 	return m_ViewedActors.erase(actor_iter);
-}
-
-void Client::RemoveViewedActor(Actor* actor)
-{
-	ViewedActorSet::iterator actor_iter = m_ViewedActors.iterator_to(*actor);
-
-	_ASSERT(actor_iter != m_ViewedActors.end());
-
-	RemoveViewedActorIter(actor_iter);
 }
 
 void Client::OnControlSound(boost::shared_ptr<my::Wav> wav)

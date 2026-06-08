@@ -133,8 +133,6 @@ public:
 
 	ViewedActorSet::iterator RemoveViewedActorIter(ViewedActorSet::iterator actor_iter);
 
-	void RemoveViewedActor(Actor* actor);
-
 	virtual void OnControlSound(boost::shared_ptr<my::Wav> wav);
 
 	virtual void OnPostCapture(double fTime, float fElapsedTime);
