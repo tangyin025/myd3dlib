@@ -34,6 +34,7 @@
 #include <boost/assign/list_of.hpp>
 #include <boost/range/algorithm/find_if.hpp>
 #include <boost/range/algorithm/transform.hpp>
+#include <algorithm>
 #include <boost/range/iterator_range.hpp>
 #include <boost/shared_container_iterator.hpp>
 #include <boost/algorithm/string.hpp>
@@ -1875,6 +1876,10 @@ void CMainFrame::OnComponentMesh()
 		return;
 	}
 
+	std::vector<ComponentPtr>::reverse_iterator prev_mesh_iter = std::find_if((*actor_iter)->m_Cmps.rbegin(), (*actor_iter)->m_Cmps.rend(),
+		boost::bind(std::equal_to<DWORD>(), Component::ComponentTypeMesh, boost::bind(&Component::GetComponentType, boost::bind(&ComponentPtr::get, boost::placeholders::_1))));
+	Component* prev_mesh = prev_mesh_iter != (*actor_iter)->m_Cmps.rend() ? prev_mesh_iter->get() : NULL;
+
 	my::AABB bound = (*actor_iter)->m_Cmps.empty() ? my::AABB::Invalid() : (*actor_iter)->m_aabb;
 
 	const rapidxml::xml_node<char>* node_root = &doc;
@@ -1891,10 +1896,17 @@ void CMainFrame::OnComponentMesh()
 			MeshComponentPtr mesh_cmp(new MeshComponent(my::NamedObject::MakeUniqueName(buff).c_str()));
 			mesh_cmp->m_MeshPath = path;
 			mesh_cmp->m_MeshSubMeshId = submesh_i;
-			MaterialPtr mtl(new Material());
-			mtl->m_Shader = theApp.default_shader;
-			mtl->ParseShaderParameters();
-			mesh_cmp->SetMaterial(mtl);
+			if (prev_mesh)
+			{
+				mesh_cmp->SetMaterial(prev_mesh->m_Material->Clone());
+			}
+			else
+			{
+				MaterialPtr mtl(new Material());
+				mtl->m_Shader = theApp.default_shader;
+				mtl->ParseShaderParameters();
+				mesh_cmp->SetMaterial(mtl);
+			}
 			(*actor_iter)->InsertComponent(mesh_cmp);
 		}
 
@@ -1918,10 +1930,17 @@ void CMainFrame::OnComponentMesh()
 			MeshComponentPtr mesh_cmp(new MeshComponent(my::NamedObject::MakeUniqueName(buff).c_str()));
 			mesh_cmp->m_MeshPath = path;
 			mesh_cmp->m_MeshSubMeshId = submesh_i;
-			MaterialPtr mtl(new Material());
-			mtl->m_Shader = theApp.default_shader;
-			mtl->ParseShaderParameters();
-			mesh_cmp->SetMaterial(mtl);
+			if (prev_mesh)
+			{
+				mesh_cmp->SetMaterial(prev_mesh->m_Material->Clone());
+			}
+			else
+			{
+				MaterialPtr mtl(new Material());
+				mtl->m_Shader = theApp.default_shader;
+				mtl->ParseShaderParameters();
+				mesh_cmp->SetMaterial(mtl);
+			}
 			(*actor_iter)->InsertComponent(mesh_cmp);
 
 			my::AABB aabb(my::AABB::Invalid());
