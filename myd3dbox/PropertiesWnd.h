@@ -334,6 +334,7 @@ public:
 		PropertyControlHeight,
 		PropertyControlHeightScale,
 		PropertyControlHeightOffset,
+		PropertyControlHotkey,
 		PropertyControlEnabled,
 		PropertyControlVisible,
 		PropertyControlFocused,
