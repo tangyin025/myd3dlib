@@ -74,6 +74,8 @@ public:
 	virtual void OnClickButton(CPoint point);
 
 	virtual void SetValue(const COleVariant& varValue);
+
+	virtual void OnDrawDescription(CDC* pDC, CRect rect);
 };
 
 class CSliderProp : public CSimpleProp

@@ -240,6 +240,22 @@ void CFileProp::SetValue(const COleVariant& varValue)
 	}
 }
 
+void CFileProp::OnDrawDescription(CDC* pDC, CRect rect)
+{
+	ASSERT_VALID(this);
+	ASSERT_VALID(pDC);
+	ASSERT_VALID(m_pWndList);
+
+	HFONT hOldFont = (HFONT) ::SelectObject(pDC->GetSafeHdc(), m_pWndList->GetBoldFont().GetSafeHandle());
+	int nHeight = pDC->DrawText(m_strName, rect, DT_SINGLELINE | DT_NOPREFIX);
+
+	::SelectObject(pDC->GetSafeHdc(), hOldFont);
+
+	rect.top += nHeight + 2;
+
+	pDC->DrawText(m_strDescr, rect, DT_WORDBREAK | DT_NOPREFIX | DT_END_ELLIPSIS);
+}
+
 CWnd* CSliderProp::CreateInPlaceEdit(CRect rectEdit, BOOL& bDefaultFormat)
 {
 	CPropSliderCtrl* pWndSlider = new CPropSliderCtrl(this);
