@@ -810,10 +810,7 @@ void Client::OnFrameTick(
 
 	m_d3dDeviceSec.Enter();
 
-	if (InputMgr::Capture(fTime, fElapsedTime))
-	{
-		OnPostCapture(fTime, fElapsedTime);
-	}
+	InputMgr::Capture(fTime, fElapsedTime);
 
 	OnPreUpdate(fTime, fElapsedTime);
 
@@ -1279,11 +1276,6 @@ Client::ViewedActorSet::iterator Client::RemoveViewedActorIter(ViewedActorSet::i
 void Client::OnControlSound(boost::shared_ptr<my::Wav> wav)
 {
 	SoundContext::Play(wav, 0, 60.0f, false);
-}
-
-void Client::OnPostCapture(double fTime, float fElapsedTime)
-{
-
 }
 
 void Client::OnPreUpdate(double fTime, float fElapsedTime)

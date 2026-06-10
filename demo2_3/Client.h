@@ -135,8 +135,6 @@ public:
 
 	virtual void OnControlSound(boost::shared_ptr<my::Wav> wav);
 
-	virtual void OnPostCapture(double fTime, float fElapsedTime);
-
 	virtual void OnPreUpdate(double fTime, float fElapsedTime);
 
 	virtual void OnActorRequest(Actor* actor);
