@@ -12,6 +12,7 @@
 #include <boost/regex.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
+#include <boost/range/algorithm/find_if.hpp>
 #include "rapidxml.hpp"
 #include "CctCharacterController.h"
 
@@ -244,7 +245,15 @@ void PlayerBehavior::OnPxThreadSubstep(float dtime)
 	}
 
 	Vector3 disp;
-	if (m_Jumping > 0)
+	if (m_Actor->m_ActionInstList.end() != boost::find_if(m_Actor->m_ActionInstList,
+		boost::bind(std::equal_to<boost::shared_ptr<const Action> >(), ActionTbl::getSingleton().Climb,
+			boost::bind(&ActionInst::m_Template,
+				boost::bind(&Actor::ActionInstPtrList::value_type::get, boost::placeholders::_1)))))
+	{
+		m_Controller->SetFootPosition(m_Actor->m_Position);
+		return;
+	}
+	else if (m_Jumping > 0)
 	{
 		m_Jumping -= dtime;
 		disp = m_JumpVel * dtime;

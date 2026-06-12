@@ -341,20 +341,20 @@ my::Vector3 Controller::GetPosition(void) const
 	return (my::Vector3&)physx::toVec3(m_desc.position);
 }
 
-my::Vector3 Controller::GetFootOffset(void) const
+float Controller::GetFootOffset(void) const
 {
 	// ! PhysXCharacterKinematic/src/CctSweptCapsule.cpp, SweptCapsule::computeTemporalBox
-	return Vector3(0, 1, 0) * (GetContactOffset() + GetRadius() + GetHeight() * 0.5f);
+	return GetContactOffset() + GetRadius() + GetHeight() * 0.5f;
 }
 
 void Controller::SetFootPosition(const my::Vector3 & Pos)
 {
-	SetPosition(Pos + GetFootOffset());
+	SetPosition(Pos + Vector3(0, GetFootOffset(), 0));
 }
 
 my::Vector3 Controller::GetFootPosition(void) const
 {
-	return GetPosition() - GetFootOffset();
+	return GetPosition() - Vector3(0, GetFootOffset(), 0);
 }
 
 const my::Vector3 & Controller::GetContactNormalDownPass(void) const

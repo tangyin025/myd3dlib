@@ -642,7 +642,6 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	m_Player->InsertComponent(ComponentPtr(new Steering(NULL,
 		theApp.default_player_run_speed,
 		theApp.default_player_breaking_speed, 0.0f, NULL)));
-	m_Player->InsertComponent(ComponentPtr(new PlayerBehavior(NULL)));
 	AnimatorPtr animator(new Animator(NULL));
 	std::vector<std::string> skels;
 	boost::algorithm::split(skels, theApp.default_player_skel, boost::is_any_of(",;"), boost::algorithm::token_compress_off);
@@ -657,6 +656,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	animator->SetChild(0, node_run_blend_list_slot);
 	animator->ReloadSequenceGroup();
 	m_Player->InsertComponent(animator);
+	m_Player->InsertComponent(animator->GetSiblingId(), ComponentPtr(new PlayerBehavior(NULL)));
 
 	BOOL bNameValid;
 	// set the visual manager and style based on persisted value
@@ -3175,11 +3175,11 @@ void CMainFrame::OnToolsPlaying()
 		physx::PxRaycastBuffer hit;
 		physx::PxQueryFilterData filterData = physx::PxQueryFilterData(
 			physx::PxFilterData(0x01, 0, 0, 0), physx::PxQueryFlag::eDYNAMIC | physx::PxQueryFlag::eSTATIC /*| physx::PxQueryFlag::ePREFILTER | physx::PxQueryFlag::eANY_HIT*/);
-		if (m_PxScene->raycast((physx::PxVec3&)(m_Player->m_Position - controller->GetFootOffset() + my::Vector3(0, 1000, 0)),
+		if (m_PxScene->raycast((physx::PxVec3&)(m_Player->m_Position + my::Vector3(0, 1000, 0)),
 			physx::PxVec3(0, -1, 0), 1000, hit, physx::PxHitFlag::eDEFAULT, filterData, NULL, NULL))
 		{
 			boost::dynamic_pointer_cast<ActionTrackPose>(ActionTbl::getSingleton().Climb->m_TrackList[0])->m_ParamPose =
-				my::Bone((my::Vector3&)hit.block.position + controller->GetFootOffset(), m_Player->m_Rotation);
+				my::Bone((my::Vector3&)hit.block.position, m_Player->m_Rotation);
 			m_Player->PlayAction(ActionTbl::getSingleton().Climb.get());
 		}
 	}

@@ -137,7 +137,7 @@ public:
 
 	my::Vector3 GetPosition(void) const;
 
-	my::Vector3 GetFootOffset(void) const;
+	float GetFootOffset(void) const;
 
 	void SetFootPosition(const my::Vector3 & Pos);
 
