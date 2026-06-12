@@ -318,7 +318,7 @@ void Component::CreateBoxShape(const my::Vector3 & pos, const my::Quaternion & r
 	m_PxShape.reset(PhysxSdk::getSingleton().m_sdk->createShape(
 		physx::PxBoxGeometry(hx, hy, hz), *material, true, physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE), PhysxDeleter<physx::PxShape>());
 
-	SetShapeLocalPose(Bone(pos, rot));
+	m_PxShape->setLocalPose(physx::PxTransform((physx::PxVec3&)pos, (physx::PxQuat&)rot));
 
 	m_PxShape->userData = this;
 
@@ -339,7 +339,7 @@ void Component::CreateCapsuleShape(const my::Vector3 & pos, const my::Quaternion
 	m_PxShape.reset(PhysxSdk::getSingleton().m_sdk->createShape(
 		physx::PxCapsuleGeometry(radius, halfHeight), *material, true, physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE), PhysxDeleter<physx::PxShape>());
 
-	SetShapeLocalPose(Bone(pos, rot));
+	m_PxShape->setLocalPose(physx::PxTransform((physx::PxVec3&)pos, (physx::PxQuat&)rot));
 
 	m_PxShape->userData = this;
 
@@ -360,7 +360,7 @@ void Component::CreatePlaneShape(const my::Vector3 & pos, const my::Quaternion &
 	m_PxShape.reset(PhysxSdk::getSingleton().m_sdk->createShape(
 		physx::PxPlaneGeometry(), *material, true, physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE), PhysxDeleter<physx::PxShape>());
 
-	SetShapeLocalPose(Bone(pos, rot));
+	m_PxShape->setLocalPose(physx::PxTransform((physx::PxVec3&)pos, (physx::PxQuat&)rot));
 
 	m_PxShape->userData = this;
 
@@ -381,7 +381,7 @@ void Component::CreateSphereShape(const my::Vector3 & pos, const my::Quaternion 
 	m_PxShape.reset(PhysxSdk::getSingleton().m_sdk->createShape(
 		physx::PxSphereGeometry(radius), *material, true, physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE), PhysxDeleter<physx::PxShape>());
 
-	SetShapeLocalPose(Bone(pos, rot));
+	m_PxShape->setLocalPose(physx::PxTransform((physx::PxVec3&)pos, (physx::PxQuat&)rot));
 
 	m_PxShape->userData = this;
 
@@ -431,18 +431,6 @@ unsigned int Component::GetShapeFlags(void) const
 physx::PxGeometryType::Enum Component::GetGeometryType(void) const
 {
 	return m_PxShape ? m_PxShape->getGeometryType() : m_PxGeometryType;
-}
-
-void Component::SetShapeLocalPose(const my::Bone & pose)
-{
-	_ASSERT(m_PxShape);
-	m_PxShape->setLocalPose((physx::PxTransform&)pose);
-}
-
-my::Bone Component::GetShapeLocalPose(void) const
-{
-	_ASSERT(m_PxShape);
-	return (my::Bone&)m_PxShape->getLocalPose();
 }
 
 void Component::ClearShape(void)

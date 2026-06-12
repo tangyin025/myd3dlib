@@ -353,12 +353,12 @@ static boost::iterator_range<RaycastHitIterator> component_raycast(const Compone
 	boost::shared_ptr<physx::PxRaycastHit[]> buff(new physx::PxRaycastHit[my::Max(MaxNbHits, 1u)]);
 	if (self->m_PxShape)
 	{
-		my::Bone localPose = self->GetShapeLocalPose();
+		physx::PxTransform local_pose = self->m_PxShape->getLocalPose();
 		physx::PxU32 hitCount = physx::PxGeometryQuery::raycast(
 			(physx::PxVec3&)origin,
 			(physx::PxVec3&)unitDir,
 			self->m_PxShape->getGeometry().any(),
-			(physx::PxTransform&)self->m_Actor->GetAttachPose(-1, localPose.m_position, localPose.m_rotation),
+			(physx::PxTransform&)self->m_Actor->GetAttachPose(-1, (my::Vector3&)local_pose.p, (my::Quaternion&)local_pose.q),
 			maxDist,
 			physx::PxHitFlag::ePOSITION | physx::PxHitFlag::eNORMAL | physx::PxHitFlag::eDISTANCE | physx::PxHitFlag::eFACE_INDEX,
 			MaxNbHits,
@@ -3431,7 +3431,6 @@ void LuaContext::Init(void)
 				value("eINVALID", physx::PxGeometryType::eINVALID)
 			]
 			.property("GeometryType", &Component::GetGeometryType)
-			.property("ShapeLocalPose", &Component::GetShapeLocalPose, &Component::SetShapeLocalPose)
 			.def("ClearShape", &Component::ClearShape)
 			.def("Raycast", &component_raycast, return_stl_iterator)
 			.property("SiblingId", &Component::GetSiblingId, &Component::SetSiblingId)

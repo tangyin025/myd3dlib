@@ -247,10 +247,6 @@ public:
 
 	physx::PxGeometryType::Enum GetGeometryType(void) const;
 
-	void SetShapeLocalPose(const my::Bone & pose);
-
-	my::Bone GetShapeLocalPose(void) const;
-
 	virtual void ClearShape(void);
 
 	unsigned int GetSiblingId(void) const;
