@@ -96,14 +96,14 @@ client:LoadSceneAsync("scene01.xml", "scene01_", function(res)
 	function actor1Behavior:RequestResource()
 		Component.RequestResource(self)
 		self.Actor:PlayAction(SAction.act_pose)
-		self.hobstacle=client:AddBoxObstacle(self.Actor.Position,self.Actor.Rotation,self.Actor.Scale*0.5)
+		self.hobstacle=client:AddBoxObstacle(self.Actor.Position,self.Actor.Rotation,self.Actor.Scale.x*0.5,self.Actor.Scale.y*0.5,self.Actor.Scale.z*0.5)
 	end
 	function actor1Behavior:ReleaseResource()
 		client:RemoveObstacle(self.hobstacle)
 		Component.ReleaseResource(self)
 	end
 	function actor1Behavior:Update(elapsedTime)
-		client:UpdateBoxObstacle(self.hobstacle,self.Actor.Position,self.Actor.Rotation,self.Actor.Scale*0.5)
+		client:UpdateBoxObstacle(self.hobstacle,self.Actor.Position,self.Actor.Rotation,self.Actor.Scale.x*0.5,self.Actor.Scale.y*0.5,self.Actor.Scale.z*0.5)
 	end
 	-- function actor1Behavior:OnPxThreadSubstep(dtime)
 		-- self.Actor:SetPxPoseOrbyPxThread(Vector3(-3,1,math.sin(client.TotalTime)*3-5),Quaternion.Identity(),nil)

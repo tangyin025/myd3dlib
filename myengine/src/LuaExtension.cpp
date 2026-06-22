@@ -1590,21 +1590,21 @@ static boost::iterator_range<SweepHitIterator> physxscene_capsule_sweep(PhysxSce
 		SweepHitIterator(buff, buff.get()), SweepHitIterator(buff, buff.get()));
 }
 
-static physx::ObstacleHandle physxscene_add_box_obstacle(PhysxScene* self, const my::Vector3& Position, const my::Quaternion& Rotation, const my::Vector3& HalfBox)
+static physx::ObstacleHandle physxscene_add_box_obstacle(PhysxScene* self, const my::Vector3& Position, const my::Quaternion& Rotation, float hx, float hy, float hz)
 {
 	physx::PxBoxObstacle box;
 	box.mPos.set(Position.x, Position.y, Position.z);
 	box.mRot = (physx::PxQuat&)Rotation;
-	box.mHalfExtents = (physx::PxVec3&)HalfBox;
+	box.mHalfExtents = physx::PxVec3(hx, hy, hz);
 	return self->m_ObstacleContext->addObstacle(box);
 }
 
-static bool physxscene_update_box_obstacle(PhysxScene* self, physx::ObstacleHandle handle, const my::Vector3& Position, const my::Quaternion& Rotation, const my::Vector3& HalfBox)
+static bool physxscene_update_box_obstacle(PhysxScene* self, physx::ObstacleHandle handle, const my::Vector3& Position, const my::Quaternion& Rotation, float hx, float hy, float hz)
 {
 	physx::PxBoxObstacle box;
 	box.mPos.set(Position.x, Position.y, Position.z);
 	box.mRot = (physx::PxQuat&)Rotation;
-	box.mHalfExtents = (physx::PxVec3&)HalfBox;
+	box.mHalfExtents = physx::PxVec3(hx, hy, hz);
 	return self->m_ObstacleContext->updateObstacle(handle, box);
 }
 
