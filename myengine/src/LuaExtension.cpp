@@ -1222,11 +1222,11 @@ public:
 		//ptr->ActionTrackInst::UpdateTime(LastTime, Time);
 	}
 
-	virtual void Stop(void)
+	virtual void OnStop(void)
 	{
 		try
 		{
-			luabind::wrap_base::call<void>("Stop");
+			luabind::wrap_base::call<void>("OnStop");
 		}
 		catch (const luabind::error& e)
 		{
@@ -1234,9 +1234,9 @@ public:
 		}
 	}
 
-	static void default_Stop(ScriptActionTrackInst* ptr)
+	static void default_OnStop(ScriptActionTrackInst* ptr)
 	{
-		//ptr->ActionTrackInst::Stop();
+		//ptr->ActionTrackInst::OnStop();
 	}
 };
 //
@@ -3921,7 +3921,7 @@ void LuaContext::Init(void)
 			.def(constructor<Actor*>())
 			.def_readonly("Actor", &ActionTrackInst::m_Actor)
 			.def("UpdateTime", &ActionTrackInst::UpdateTime, &ScriptActionTrackInst::default_UpdateTime)
-			.def("Stop", &ActionTrackInst::Stop, &ScriptActionTrackInst::default_Stop)
+			.def("OnStop", &ActionTrackInst::OnStop, &ScriptActionTrackInst::default_OnStop)
 
 		, class_<RenderPipeline>("RenderPipeline")
 			//.enum_("MeshType")

@@ -60,7 +60,7 @@ void ActionInst::StopAllTrack(void)
 	ActionTrackInstPtrList::iterator track_inst_iter = m_TrackInstList.begin();
 	for (; track_inst_iter != m_TrackInstList.end(); track_inst_iter++)
 	{
-		(*track_inst_iter)->Stop();
+		(*track_inst_iter)->OnStop();
 	}
 }
 
@@ -113,7 +113,7 @@ void ActionTrackAnimationInst::UpdateTime(float LastTime, float Time)
 	}
 }
 
-void ActionTrackAnimationInst::Stop(void)
+void ActionTrackAnimationInst::OnStop(void)
 {
 	Animator* animator = m_Actor->GetFirstComponent<Animator>();
 	if (animator)
@@ -256,7 +256,7 @@ void ActionTrackSoundInst::UpdateTime(float LastTime, float Time)
 	}
 }
 
-void ActionTrackSoundInst::Stop(void)
+void ActionTrackSoundInst::OnStop(void)
 {
 	SoundEventList::iterator event_iter = m_Events.begin();
 	for (; event_iter != m_Events.end(); event_iter++)
@@ -325,7 +325,7 @@ void ActionTrackEmitterInst::UpdateTime(float LastTime, float Time)
 	}
 }
 
-void ActionTrackEmitterInst::Stop(void)
+void ActionTrackEmitterInst::OnStop(void)
 {
 	_ASSERT(GetCurrentThreadId() == D3DContext::getSingleton().m_d3dThreadId || PhysxSdk::getSingleton().m_RenderTickMuted);
 
@@ -388,6 +388,6 @@ void ActionTrackPoseInst::UpdateTime(float LastTime, float Time)
 	}
 }
 
-void ActionTrackPoseInst::Stop(void)
+void ActionTrackPoseInst::OnStop(void)
 {
 }

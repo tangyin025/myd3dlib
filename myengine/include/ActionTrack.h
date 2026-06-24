@@ -109,7 +109,7 @@ public:
 
 	virtual void UpdateTime(float LastTime, float Time) = 0;
 
-	virtual void Stop(void) = 0;
+	virtual void OnStop(void) = 0;
 };
 
 class ActionTrackAnimation : public ActionTrack
@@ -155,7 +155,7 @@ public:
 
 	virtual void UpdateTime(float LastTime, float Time);
 
-	virtual void Stop(void);
+	virtual void OnStop(void);
 };
 
 namespace my
@@ -219,7 +219,7 @@ public:
 
 	virtual void UpdateTime(float LastTime, float Time);
 
-	virtual void Stop(void);
+	virtual void OnStop(void);
 };
 
 class Material;
@@ -290,7 +290,7 @@ public:
 
 	virtual void UpdateTime(float LastTime, float Time);
 
-	virtual void Stop(void);
+	virtual void OnStop(void);
 };
 
 class ActionTrackPose : public ActionTrack
@@ -354,5 +354,5 @@ public:
 
 	virtual void UpdateTime(float LastTime, float Time);
 
-	virtual void Stop(void);
+	virtual void OnStop(void);
 };
