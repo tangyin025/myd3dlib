@@ -307,14 +307,10 @@ public:
 
 	my::Bone m_ParamPose;
 
-	my::Spline m_Interpolation;
-
 public:
 	ActionTrackPose(void)
 		: m_ParamPose(my::Vector3(0, 0, 0), my::Quaternion::Identity())
 	{
-		m_Interpolation.AddNode(0, 0, 0, 0);
-		m_Interpolation.AddNode(1, 1, 0, 0);
 	}
 
 	virtual ActionTrackInstPtr CreateInstance(Actor * _Actor) const;
@@ -353,6 +349,68 @@ public:
 	ActionTrackPoseInst(Actor * _Actor, boost::shared_ptr<const ActionTrackPose> Template);
 
 	virtual void UpdateTime(float LastTime, float Time);
+
+	virtual void OnStop(void);
+};
+
+class ActionTrackKinematicPose : public ActionTrack
+{
+public:
+	struct KeyFrame
+	{
+		float Length;
+	};
+
+	typedef std::multimap<float, KeyFrame> KeyFrameMap;
+
+	KeyFrameMap m_Keys;
+
+	my::Bone m_ParamPose;
+
+public:
+	ActionTrackKinematicPose(void)
+		: m_ParamPose(my::Vector3(0, 0, 0), my::Quaternion::Identity())
+	{
+	}
+
+	virtual ActionTrackInstPtr CreateInstance(Actor* _Actor) const;
+
+	void AddKeyFrame(float Time, float Length);
+};
+
+class ActionTrackKinematicPoseInst : public ActionTrackInst
+{
+protected:
+	boost::shared_ptr<const ActionTrackKinematicPose> m_Template;
+
+	struct KeyFrameInst
+	{
+		float m_Time;
+
+		float m_Length;
+
+		my::Bone m_StartPose;
+
+		KeyFrameInst(float Length, const my::Bone& StartPose)
+			: m_Time(0)
+			, m_Length(Length)
+			, m_StartPose(StartPose)
+		{
+		}
+	};
+
+	typedef std::vector<KeyFrameInst> KeyFrameInstList;
+
+	KeyFrameInstList m_KeyInsts;
+
+	my::Bone m_Pose;
+
+public:
+	ActionTrackKinematicPoseInst(Actor* _Actor, boost::shared_ptr<const ActionTrackKinematicPose> Template);
+
+	virtual void UpdateTime(float LastTime, float Time);
+
+	void OnPxThreadSubstep(float dtime);
 
 	virtual void OnStop(void);
 };

@@ -366,12 +366,12 @@ void ActionTrackPoseInst::UpdateTime(float LastTime, float Time)
 		m_KeyInsts.push_back(KeyFrameInst(key_iter->second.Length, Bone(m_Actor->m_Position, m_Actor->m_Rotation)));
 	}
 
-	KeyFrameInstList::reverse_iterator key_inst_iter = m_KeyInsts.rbegin();
-	if (key_inst_iter != m_KeyInsts.rend())
+	KeyFrameInstList::iterator key_inst_iter = m_KeyInsts.begin();
+	if (key_inst_iter != m_KeyInsts.end())
 	{
 		key_inst_iter->m_Time += my::D3DContext::getSingleton().m_fElapsedTime;
 
-		const Bone pose = key_inst_iter->m_StartPose.Lerp(m_Pose, m_Template->m_Interpolation.Interpolate(key_inst_iter->m_Time / key_inst_iter->m_Length));
+		const Bone pose = key_inst_iter->m_StartPose.Lerp(m_Pose, key_inst_iter->m_Time / key_inst_iter->m_Length);
 
 		m_Actor->SetPose(pose);
 
@@ -383,11 +383,84 @@ void ActionTrackPoseInst::UpdateTime(float LastTime, float Time)
 
 		if (key_inst_iter->m_Time >= key_inst_iter->m_Length)
 		{
-			m_KeyInsts.erase(m_KeyInsts.begin(), key_inst_iter.base());
+			key_inst_iter = m_KeyInsts.erase(key_inst_iter);
+		}
+		else
+			key_inst_iter++;
+
+		for (; key_inst_iter != m_KeyInsts.end(); key_inst_iter++)
+		{
+			key_inst_iter->m_Time += my::D3DContext::getSingleton().m_fElapsedTime;
 		}
 	}
 }
 
 void ActionTrackPoseInst::OnStop(void)
 {
+}
+
+ActionTrackInstPtr ActionTrackKinematicPose::CreateInstance(Actor* _Actor) const
+{
+	return ActionTrackInstPtr(new ActionTrackKinematicPoseInst(_Actor, boost::static_pointer_cast<const ActionTrackKinematicPose>(shared_from_this())));
+}
+
+void ActionTrackKinematicPose::AddKeyFrame(float Time, float Length)
+{
+	KeyFrameMap::iterator key_iter = m_Keys.insert(std::make_pair(Time, KeyFrame()));
+	_ASSERT(key_iter != m_Keys.end());
+	key_iter->second.Length = Length;
+}
+
+ActionTrackKinematicPoseInst::ActionTrackKinematicPoseInst(Actor* _Actor, boost::shared_ptr<const ActionTrackKinematicPose> Template)
+	: ActionTrackInst(_Actor)
+	, m_Template(Template)
+	, m_Pose(Template->m_ParamPose)
+{
+	PhysxScene* scene = dynamic_cast<PhysxScene*>(m_Actor->m_Node->GetTopNode());
+
+	scene->m_EventPxThreadSubstep.connect(boost::bind(&ActionTrackKinematicPoseInst::OnPxThreadSubstep, this, boost::placeholders::_1));
+}
+
+void ActionTrackKinematicPoseInst::UpdateTime(float LastTime, float Time)
+{
+	ActionTrackKinematicPose::KeyFrameMap::const_iterator key_iter = m_Template->m_Keys.lower_bound(LastTime);
+	ActionTrackKinematicPose::KeyFrameMap::const_iterator key_end = m_Template->m_Keys.lower_bound(Time);
+	for (; key_iter != key_end; key_iter++)
+	{
+		m_KeyInsts.push_back(KeyFrameInst(key_iter->second.Length, Bone(m_Actor->m_Position, m_Actor->m_Rotation)));
+	}
+}
+
+void ActionTrackKinematicPoseInst::OnPxThreadSubstep(float dtime)
+{
+	KeyFrameInstList::iterator key_inst_iter = m_KeyInsts.begin();
+	if (key_inst_iter != m_KeyInsts.end())
+	{
+		key_inst_iter->m_Time += dtime;
+
+		const Bone pose = key_inst_iter->m_StartPose.Lerp(m_Pose, key_inst_iter->m_Time / key_inst_iter->m_Length);
+
+		_ASSERT(m_Actor->m_PxActor);
+
+		m_Actor->m_PxActor->is<physx::PxRigidDynamic>()->setKinematicTarget((physx::PxTransform&)pose);
+
+		if (key_inst_iter->m_Time >= key_inst_iter->m_Length)
+		{
+			key_inst_iter = m_KeyInsts.erase(key_inst_iter);
+		}
+		else
+			key_inst_iter++;
+
+		for (; key_inst_iter != m_KeyInsts.end(); key_inst_iter++)
+		{
+			key_inst_iter->m_Time += dtime;
+		}
+	}
+}
+
+void ActionTrackKinematicPoseInst::OnStop(void)
+{
+	PhysxScene* scene = dynamic_cast<PhysxScene*>(m_Actor->m_Node->GetTopNode());
+
+	scene->m_EventPxThreadSubstep.disconnect(boost::bind(&ActionTrackKinematicPoseInst::OnPxThreadSubstep, this, boost::placeholders::_1));
 }

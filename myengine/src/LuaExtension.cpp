@@ -3911,8 +3911,12 @@ void LuaContext::Init(void)
 		, class_<ActionTrackPose, ActionTrack, boost::shared_ptr<ActionTrack> >("ActionTrackPose")
 			.def(constructor<>())
 			.def_readwrite("ParamPose", &ActionTrackPose::m_ParamPose)
-			.def_readwrite("Interpolation", &ActionTrackPose::m_Interpolation)
 			.def("AddKeyFrame", &ActionTrackPose::AddKeyFrame)
+
+		, class_<ActionTrackKinematicPose, ActionTrack, boost::shared_ptr<ActionTrack> >("ActionTrackKinematicPose")
+			.def(constructor<>())
+			.def_readwrite("ParamPose", &ActionTrackKinematicPose::m_ParamPose)
+			.def("AddKeyFrame", &ActionTrackKinematicPose::AddKeyFrame)
 
 		, class_<ScriptActionTrack, ActionTrack, boost::shared_ptr<ActionTrack> >("ScriptActionTrack")
 			.def(constructor<const luabind::object &>())
