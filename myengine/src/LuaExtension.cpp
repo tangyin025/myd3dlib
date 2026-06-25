@@ -3812,6 +3812,8 @@ void LuaContext::Init(void)
 			.def("AddRevoluteJoint", &Actor::AddRevoluteJoint)
 			.def("AddD6Joint", &Actor::AddD6Joint)
 			.def("PlayAction", &Actor::PlayAction)
+			.def("PlayAction", luabind::tag_function<boost::shared_ptr<ActionInst>(Actor*, Action*)>(
+				boost::bind(&Actor::PlayAction, boost::placeholders::_1, boost::placeholders::_2, false)))
 			.def("StopActionInst", &Actor::StopActionInst)
 			.def("StopAllActionInst", &Actor::StopAllActionInst)
 			.def("GetFirstComponent", (Component * (Actor::*)(DWORD, unsigned int))&Actor::GetFirstComponent)

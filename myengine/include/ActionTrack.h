@@ -48,8 +48,6 @@ public:
 	void AddTrack(ActionTrackPtr track);
 
 	void RemoveTrack(ActionTrackPtr track);
-
-	ActionInstPtr CreateInstance(Actor * _Actor);
 };
 
 class ActionTrackInst;
@@ -61,6 +59,8 @@ class ActionInst
 public:
 	boost::shared_ptr<const Action> m_Template;
 
+	bool m_Loop;
+
 	float m_LastTime;
 
 	typedef std::vector<ActionTrackInstPtr> ActionTrackInstPtrList;
@@ -68,7 +68,7 @@ public:
 	ActionTrackInstPtrList m_TrackInstList;
 
 public:
-	ActionInst(Actor * _Actor, boost::shared_ptr<const Action> Template);
+	ActionInst(Actor * _Actor, boost::shared_ptr<const Action> Template, bool Loop);
 
 	void Update(float fElapsedTime);
 

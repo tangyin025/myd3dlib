@@ -409,7 +409,7 @@ public:
 
 	void CreateAggregate(bool enableSelfCollision);
 
-	boost::shared_ptr<ActionInst> PlayAction(Action * action);
+	boost::shared_ptr<ActionInst> PlayAction(Action * action, bool Loop);
 
 	ActionInstPtrList::iterator StopActionInstIter(ActionInstPtrList::iterator action_inst_iter);
 

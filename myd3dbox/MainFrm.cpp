@@ -3180,7 +3180,7 @@ void CMainFrame::OnToolsPlaying()
 		{
 			boost::dynamic_pointer_cast<ActionTrackPose>(ActionTbl::getSingleton().Climb->m_TrackList[0])->m_ParamPose =
 				my::Bone((my::Vector3&)hit.block.position, m_Player->m_Rotation);
-			m_Player->PlayAction(ActionTbl::getSingleton().Climb.get());
+			m_Player->PlayAction(ActionTbl::getSingleton().Climb.get(), false);
 		}
 	}
 	else

@@ -27,13 +27,9 @@ void Action::RemoveTrack(ActionTrackPtr track)
 	}
 }
 
-ActionInstPtr Action::CreateInstance(Actor * _Actor)
-{
-	return ActionInstPtr(new ActionInst(_Actor, shared_from_this()));
-}
-
-ActionInst::ActionInst(Actor * _Actor, boost::shared_ptr<const Action> Template)
+ActionInst::ActionInst(Actor * _Actor, boost::shared_ptr<const Action> Template, bool Loop)
 	: m_Template(Template)
+	, m_Loop(Loop)
 	, m_LastTime(0.0f)
 {
 	Action::ActionTrackPtrList::const_iterator track_iter = m_Template->m_TrackList.begin();
@@ -45,7 +41,13 @@ ActionInst::ActionInst(Actor * _Actor, boost::shared_ptr<const Action> Template)
 
 void ActionInst::Update(float fElapsedTime)
 {
-	const float Time = m_LastTime + fElapsedTime;
+	float Time = m_LastTime + fElapsedTime;
+	if (Time > m_Template->m_Length && m_Loop)
+	{
+		Time = fmod(Time, m_Template->m_Length);
+		m_LastTime -= m_Template->m_Length;
+	}
+
 	ActionTrackInstPtrList::iterator track_inst_iter = m_TrackInstList.begin();
 	for (; track_inst_iter != m_TrackInstList.end(); track_inst_iter++)
 	{

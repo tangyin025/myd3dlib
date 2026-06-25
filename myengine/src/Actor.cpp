@@ -399,7 +399,7 @@ void Actor::Update(float fElapsedTime)
 	for (; action_inst_iter != m_ActionInstList.end(); )
 	{
 		// ! ActionTrack length needs to exceed 1/60th of a second to prevent the loss of physics frames
-		if ((*action_inst_iter)->m_LastTime < (*action_inst_iter)->m_Template->m_Length)
+		if ((*action_inst_iter)->m_LastTime < (*action_inst_iter)->m_Template->m_Length || (*action_inst_iter)->m_Loop)
 		{
 			(*action_inst_iter)->Update(fElapsedTime);
 
@@ -1063,9 +1063,9 @@ void Actor::CreateAggregate(bool enableSelfCollision)
 	}
 }
 
-boost::shared_ptr<ActionInst> Actor::PlayAction(Action * action)
+boost::shared_ptr<ActionInst> Actor::PlayAction(Action * action, bool Loop)
 {
-	ActionInstPtr action_inst = action->CreateInstance(this);
+	ActionInstPtr action_inst(new ActionInst(this, action->shared_from_this(), Loop));
 	m_ActionInstList.push_back(action_inst);
 	return action_inst;
 }

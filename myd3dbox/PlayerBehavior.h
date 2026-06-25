@@ -10,9 +10,9 @@ class Action;
 class ActionTbl : public my::Singleton<ActionTbl>
 {
 public:
-	boost::shared_ptr<Action> Jump;
-
 	boost::shared_ptr<Action> Climb;
+
+	//boost::shared_ptr<Action> Jump;
 
 	ActionTbl(void);
 };
