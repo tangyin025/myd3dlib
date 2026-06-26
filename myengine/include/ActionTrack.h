@@ -329,12 +329,9 @@ protected:
 
 		float m_Length;
 
-		my::Bone m_StartPose;
-
-		KeyFrameInst(float Length, const my::Bone& StartPose)
+		KeyFrameInst(float Length)
 			: m_Time(0)
 			, m_Length(Length)
-			, m_StartPose(StartPose)
 		{
 		}
 	};
@@ -389,12 +386,9 @@ protected:
 
 		float m_Length;
 
-		my::Bone m_StartPose;
-
-		KeyFrameInst(float Length, const my::Bone& StartPose)
+		KeyFrameInst(float Length)
 			: m_Time(0)
 			, m_Length(Length)
-			, m_StartPose(StartPose)
 		{
 		}
 	};

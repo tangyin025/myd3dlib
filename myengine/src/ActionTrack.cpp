@@ -365,15 +365,13 @@ void ActionTrackPoseInst::UpdateTime(float LastTime, float Time)
 	ActionTrackPose::KeyFrameMap::const_iterator key_end = m_Template->m_Keys.lower_bound(Time);
 	for (; key_iter != key_end; key_iter++)
 	{
-		m_KeyInsts.push_back(KeyFrameInst(key_iter->second.Length, Bone(m_Actor->m_Position, m_Actor->m_Rotation)));
+		m_KeyInsts.push_back(KeyFrameInst(key_iter->second.Length));
 	}
 
 	KeyFrameInstList::iterator key_inst_iter = m_KeyInsts.begin();
 	if (key_inst_iter != m_KeyInsts.end())
 	{
-		key_inst_iter->m_Time += my::D3DContext::getSingleton().m_fElapsedTime;
-
-		const Bone pose = key_inst_iter->m_StartPose.Lerp(m_Pose, key_inst_iter->m_Time / key_inst_iter->m_Length);
+		const Bone pose = Bone(m_Actor->m_Position, m_Actor->m_Rotation).Lerp(m_Pose, my::D3DContext::getSingleton().m_fElapsedTime / (key_inst_iter->m_Length - key_inst_iter->m_Time));
 
 		m_Actor->SetPose(pose);
 
@@ -382,6 +380,8 @@ void ActionTrackPoseInst::UpdateTime(float LastTime, float Time)
 		//{
 		//	m_Actor->SetPxPoseOrbyPxThread(pose.m_position, pose.m_rotation, NULL);
 		//}
+
+		key_inst_iter->m_Time += my::D3DContext::getSingleton().m_fElapsedTime;
 
 		if (key_inst_iter->m_Time >= key_inst_iter->m_Length)
 		{
@@ -429,7 +429,7 @@ void ActionTrackKinematicPoseInst::UpdateTime(float LastTime, float Time)
 	ActionTrackKinematicPose::KeyFrameMap::const_iterator key_end = m_Template->m_Keys.lower_bound(Time);
 	for (; key_iter != key_end; key_iter++)
 	{
-		m_KeyInsts.push_back(KeyFrameInst(key_iter->second.Length, Bone(m_Actor->m_Position, m_Actor->m_Rotation)));
+		m_KeyInsts.push_back(KeyFrameInst(key_iter->second.Length));
 	}
 }
 
@@ -438,13 +438,15 @@ void ActionTrackKinematicPoseInst::OnPxThreadSubstep(float dtime)
 	KeyFrameInstList::iterator key_inst_iter = m_KeyInsts.begin();
 	if (key_inst_iter != m_KeyInsts.end())
 	{
-		key_inst_iter->m_Time += dtime;
-
-		const Bone pose = key_inst_iter->m_StartPose.Lerp(m_Pose, key_inst_iter->m_Time / key_inst_iter->m_Length);
-
 		_ASSERT(m_Actor->m_PxActor);
 
+		physx::PxRigidDynamic* body = m_Actor->m_PxActor->is<physx::PxRigidDynamic>();
+
+		const Bone pose = ((Bone&)body->getGlobalPose()).Lerp(m_Pose, dtime / (key_inst_iter->m_Length - key_inst_iter->m_Time));
+
 		m_Actor->m_PxActor->is<physx::PxRigidDynamic>()->setKinematicTarget((physx::PxTransform&)pose);
+
+		key_inst_iter->m_Time += dtime;
 
 		if (key_inst_iter->m_Time >= key_inst_iter->m_Length)
 		{
