@@ -3863,7 +3863,7 @@ void LuaContext::Init(void)
 			.def("SetTargetWeight", (void (AnimationNodeBlendList::*)(int, float))&AnimationNodeBlendList::SetTargetWeight)
 			.def("SetTargetWeight", (void (AnimationNodeBlendList::*)(int, float, bool))&AnimationNodeBlendList::SetTargetWeight)
 			.def("GetTargetWeight", &AnimationNodeBlendList::GetTargetWeight)
-			.def("GetWeight", luabind::tag_function<float(const AnimationNodeBlendList*, int)>(
+			.def("GetWeight", luabind::tag_function<float(const AnimationNodeBlendList*, unsigned int)>(
 				boost::bind((const float& (std::vector<float>::*)(size_t) const)& std::vector<float>::at, boost::bind(&AnimationNodeBlendList::m_Weight, boost::placeholders::_1), boost::placeholders::_2)))
 			.def("SetActiveChild", &AnimationNodeBlendList::SetActiveChild)
 			.def("GetActiveChild", &AnimationNodeBlendList::GetActiveChild)
@@ -3886,6 +3886,8 @@ void LuaContext::Init(void)
 			.def(const_self == other<const Action&>())
 			.def_readwrite("Length", &Action::m_Length)
 			.def("AddTrack", &Action::AddTrack)
+			.def("GetTrack", luabind::tag_function<boost::shared_ptr<ActionTrack>(Action*, unsigned int)>(
+				boost::bind((const boost::shared_ptr<ActionTrack>& (Action::ActionTrackPtrList::*)(size_t)const)& Action::ActionTrackPtrList::at, boost::bind(&Action::m_TrackList, boost::placeholders::_1), boost::placeholders::_2)))
 			.def("RemoveTrack", &Action::RemoveTrack)
 
 		, class_<ActionInst, boost::shared_ptr<ActionInst> >("ActionInst")
