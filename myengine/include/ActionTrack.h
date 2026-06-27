@@ -144,10 +144,10 @@ public:
 class ActionTrackAnimationInst : public ActionTrackInst
 {
 protected:
-	boost::shared_ptr<const ActionTrackAnimation> m_Template;
+	const ActionTrackAnimation * m_Template;
 
 public:
-	ActionTrackAnimationInst(Actor * _Actor, boost::shared_ptr<const ActionTrackAnimation> Template)
+	ActionTrackAnimationInst(Actor * _Actor, const ActionTrackAnimation * Template)
 		: ActionTrackInst(_Actor)
 		, m_Template(Template)
 	{
@@ -202,14 +202,14 @@ public:
 class ActionTrackSoundInst : public ActionTrackInst
 {
 protected:
-	boost::shared_ptr<const ActionTrackSound> m_Template;
+	const ActionTrackSound * m_Template;
 
 	typedef std::list<boost::shared_ptr<SoundEvent> > SoundEventList;
 	
 	SoundEventList m_Events;
 
 public:
-	ActionTrackSoundInst(Actor * _Actor, boost::shared_ptr<const ActionTrackSound> Template)
+	ActionTrackSoundInst(Actor * _Actor, const ActionTrackSound * Template)
 		: ActionTrackInst(_Actor)
 		, m_Template(Template)
 	{
@@ -253,7 +253,7 @@ public:
 class ActionTrackEmitterInst : public ActionTrackInst
 {
 protected:
-	boost::shared_ptr<const ActionTrackEmitter> m_Template;
+	const ActionTrackEmitter * m_Template;
 
 	struct KeyFrameInst
 	{
@@ -284,7 +284,7 @@ protected:
 	KeyFrameInstList m_KeyInsts;
 
 public:
-	ActionTrackEmitterInst(Actor * _Actor, boost::shared_ptr<const ActionTrackEmitter> Template);
+	ActionTrackEmitterInst(Actor * _Actor, const ActionTrackEmitter * Template);
 
 	virtual ~ActionTrackEmitterInst(void);
 
@@ -321,7 +321,7 @@ public:
 class ActionTrackPoseInst : public ActionTrackInst
 {
 protected:
-	boost::shared_ptr<const ActionTrackPose> m_Template;
+	const ActionTrackPose * m_Template;
 
 	struct KeyFrameInst
 	{
@@ -343,7 +343,7 @@ protected:
 	my::Bone m_Pose;
 
 public:
-	ActionTrackPoseInst(Actor * _Actor, boost::shared_ptr<const ActionTrackPose> Template);
+	ActionTrackPoseInst(Actor * _Actor, const ActionTrackPose * Template);
 
 	virtual void UpdateTime(float LastTime, float Time);
 
@@ -378,7 +378,7 @@ public:
 class ActionTrackKinematicPoseInst : public ActionTrackInst
 {
 protected:
-	boost::shared_ptr<const ActionTrackKinematicPose> m_Template;
+	const ActionTrackKinematicPose * m_Template;
 
 	struct KeyFrameInst
 	{
@@ -400,7 +400,7 @@ protected:
 	my::Bone m_Pose;
 
 public:
-	ActionTrackKinematicPoseInst(Actor* _Actor, boost::shared_ptr<const ActionTrackKinematicPose> Template);
+	ActionTrackKinematicPoseInst(Actor* _Actor, const ActionTrackKinematicPose * Template);
 
 	virtual void UpdateTime(float LastTime, float Time);
 
