@@ -420,6 +420,11 @@ IStreamPtr StreamDirMgr::OpenIStream(const char * path)
 	return FileIStream::Open(ms2ts(path).c_str());
 }
 
+IORequest::~IORequest(void)
+{
+	_ASSERT(AsynchronousIOMgr::IsMainThread());
+}
+
 bool AsynchronousIOMgr::IsMainThread(void)
 {
 	return GetCurrentThreadId() == D3DContext::getSingleton().m_d3dThreadId;
@@ -436,22 +441,21 @@ DWORD AsynchronousIOMgr::IORequestProc(void)
 	while(!m_bStopped)
 	{
 		int Priority = INT_MIN;
-		IORequestPtr priority_req;
+		IORequest* priority_req = NULL;
 		IORequestPtrPairList::iterator req_iter = m_IORequestList.begin();
 		for(; req_iter != m_IORequestList.end(); req_iter++)
 		{
-			if(!req_iter->second->m_PreLoadEvent.Wait(0) && req_iter->second->m_Priority > Priority)
+			if(!req_iter->second->m_LoadEvent.Wait(0) && req_iter->second->m_Priority > Priority)
 			{
 				_ASSERT(!req_iter->second->m_callbacks.empty());
 				Priority = req_iter->second->m_Priority;
-				priority_req = req_iter->second;
+				priority_req = req_iter->second.get();
 			}
 		}
 
 		if(priority_req)
 		{
-			// ! req_iter will be invalid after release mutex
-			priority_req->m_PreLoadEvent.SetEvent();
+			priority_req->m_LoadEvent.SetEvent();
 
 			m_IORequestListMutex.Release();
 
@@ -469,15 +473,8 @@ DWORD AsynchronousIOMgr::IORequestProc(void)
 				D3DContext::getSingleton().m_EventLog(e.what());
 			}
 
-			// ! request list will be modified when set event, shared_ptr must be thread safe
+			// ! req_iter will be invalid after m_PostLoadEvent
 			priority_req->m_PostLoadEvent.SetEvent();
-
-			D3DContext::getSingleton().m_d3dDeviceSec.Enter();
-
-			// ! discarded request may also destroy d3d object in no-main thread
-			priority_req.reset();
-
-			D3DContext::getSingleton().m_d3dDeviceSec.Leave();
 
 			m_IORequestListMutex.Wait(INFINITE);
 		}
@@ -502,7 +499,7 @@ DWORD AsynchronousIOMgr::IORequestProc(void)
 //	IORequestPtrPairList::iterator req_iter = m_IORequestList.begin();
 //	for (; req_iter != m_IORequestList.end(); req_iter++)
 //	{
-//		if (req_iter->second->m_PreLoadEvent.Wait(0))
+//		if (req_iter->second->m_LoadEvent.Wait(0))
 //		{
 //			req_iter->second->m_PostLoadEvent.Wait(INFINITE);
 //		}

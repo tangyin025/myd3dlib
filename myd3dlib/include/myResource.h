@@ -167,7 +167,7 @@ namespace my
 
 		int m_Priority;
 
-		Event m_PreLoadEvent;
+		Event m_LoadEvent;
 
 		Event m_PostLoadEvent;
 
@@ -182,14 +182,12 @@ namespace my
 	public:
 		IORequest(int Priority)
 			: m_Priority(Priority)
-			, m_PreLoadEvent(NULL, TRUE, FALSE, NULL)
+			, m_LoadEvent(NULL, TRUE, FALSE, NULL)
 			, m_PostLoadEvent(NULL, TRUE, FALSE, NULL)
 		{
 		}
 
-		virtual ~IORequest(void)
-		{
-		}
+		virtual ~IORequest(void);
 
 		virtual void LoadResource(void) = 0;
 
@@ -201,6 +199,8 @@ namespace my
 	class AsynchronousIOMgr
 	{
 	protected:
+		friend IORequest;
+
 		typedef std::map<std::string, IORequestPtr> IORequestPtrPairList;
 
 		IORequestPtrPairList m_IORequestList;
@@ -253,8 +253,6 @@ namespace my
 		{
 			_ASSERT(IsMainThread());
 
-			MutexLock lock(m_IORequestListMutex);
-
 			IORequestPtrPairList::iterator req_iter = m_IORequestList.find(key);
 			if (req_iter != m_IORequestList.end())
 			{
@@ -264,7 +262,12 @@ namespace my
 					req_iter->second->m_callbacks.erase(callback_iter);
 					if (req_iter->second->m_callbacks.empty())
 					{
-						m_IORequestList.erase(req_iter);
+						MutexLock lock(m_IORequestListMutex);
+
+						if (!req_iter->second->m_LoadEvent.Wait(0))
+						{
+							m_IORequestList.erase(req_iter);
+						}
 					}
 				}
 			}
