@@ -764,10 +764,10 @@ void Animator::UpdateHierarchyBoneList(const int node_i, const my::Bone& parent)
 {
 	const Bone& src = anim_pose_hier[node_i];
 	Bone& dst = anim_pose[node_i];
-	Actor::AttachList::iterator act_iter = boost::find_if(m_Actor->m_Attaches, boost::bind(std::equal_to<int>(), node_i, boost::bind(&Actor::m_BaseBoneId, boost::placeholders::_1)));
-	if (act_iter != m_Actor->m_Attaches.end() && (*act_iter)->m_PxActor && !(*act_iter)->GetRigidBodyFlag(physx::PxRigidBodyFlag::eKINEMATIC))
+	Actor* actor = m_Actor->GetAttacherByBoneId(node_i);
+	if (actor && actor->m_PxActor && !actor->GetRigidBodyFlag(physx::PxRigidBodyFlag::eKINEMATIC))
 	{
-		physx::PxRigidBody* body = (*act_iter)->m_PxActor->is<physx::PxRigidBody>();
+		physx::PxRigidBody* body = actor->m_PxActor->is<physx::PxRigidBody>();
 		_ASSERT(body);
 		physx::PxTransform pose = body->getGlobalPose();
 		dst.m_rotation = (my::Quaternion&)pose.q * m_Actor->m_Rotation.conjugate();

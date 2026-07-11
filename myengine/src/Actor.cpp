@@ -1006,6 +1006,13 @@ Actor * Actor::GetAttacher(unsigned int i)
 	return i < m_Attaches.size() ? m_Attaches[i] : NULL;
 }
 
+Actor * Actor::GetAttacherByBoneId(int BoneId)
+{
+	Actor::AttachList::iterator act_iter = boost::find_if(m_Attaches,
+		boost::bind(std::equal_to<int>(), BoneId, boost::bind(&Actor::m_BaseBoneId, boost::placeholders::_1)));
+	return act_iter != m_Attaches.end() ? *act_iter : NULL;
+}
+
 my::Bone Actor::GetAttachPose(int BoneId, const my::Vector3 & LocalPosition, const my::Quaternion & LocalRotation) const
 {
 	Quaternion RootRotation; Vector3 RootPosition, RootScale;

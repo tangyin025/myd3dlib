@@ -399,6 +399,8 @@ public:
 
 	Actor * GetAttacher(unsigned int i);
 
+	Actor * GetAttacherByBoneId(int BoneId);
+
 	my::Bone GetAttachPose(int BoneId, const my::Vector3 & LocalPosition, const my::Quaternion & LocalRotation) const;
 
 	void ClearAllAttach(void);

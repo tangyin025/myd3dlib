@@ -3804,6 +3804,7 @@ void LuaContext::Init(void)
 				boost::bind(&Actor::AttachList::size,
 					boost::bind(&Actor::m_Attaches, boost::placeholders::_1))))
 			.def("GetAttacher", &Actor::GetAttacher)
+			.def("GetAttacherByBoneId", &Actor::GetAttacherByBoneId)
 			.def("GetAttachPose", &Actor::GetAttachPose)
 			.def("ClearAllAttach", &Actor::ClearAllAttach)
 			.def("AddRevoluteJoint", &Actor::AddRevoluteJoint)
