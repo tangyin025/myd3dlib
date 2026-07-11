@@ -4087,6 +4087,9 @@ void LuaContext::Init(void)
 			.def_readonly("SsaoRadius", &SceneContext::m_SsaoRadius)
 			.def_readonly("SsaoScale", &SceneContext::m_SsaoScale)
 			.def_readonly("ActorList", &SceneContext::m_ActorList, return_stl_iterator)
+			.def("AddActor", luabind::tag_function<void(SceneContext*,boost::shared_ptr<Actor>)>(
+				boost::bind((void(SceneContext::ActorPtrList::*)(const boost::shared_ptr<Actor>&))&SceneContext::ActorPtrList::push_back,
+					boost::bind<SceneContext::ActorPtrList&>(&SceneContext::m_ActorList, boost::placeholders::_1), boost::placeholders::_2)))
 			.def_readonly("DialogList", &SceneContext::m_DialogList, return_stl_iterator)
 	];
 
