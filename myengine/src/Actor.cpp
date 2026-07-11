@@ -1001,9 +1001,9 @@ void Actor::Detach(Actor * other)
 	_ASSERT(false);
 }
 
-unsigned int Actor::GetAttachNum(void) const
+Actor * Actor::GetAttacher(unsigned int i)
 {
-	return m_Attaches.size();
+	return i < m_Attaches.size() ? m_Attaches[i] : NULL;
 }
 
 my::Bone Actor::GetAttachPose(int BoneId, const my::Vector3 & LocalPosition, const my::Quaternion & LocalRotation) const
