@@ -397,7 +397,7 @@ public:
 
 	void Detach(Actor * other);
 
-	unsigned int GetAttachNum(void) const;
+	Actor * GetAttacher(unsigned int i);
 
 	my::Bone GetAttachPose(int BoneId, const my::Vector3 & LocalPosition, const my::Quaternion & LocalRotation) const;
 

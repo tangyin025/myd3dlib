@@ -528,11 +528,6 @@ static void actor_insert_component_adopt(Actor* self, unsigned int i, ScriptComp
 	self->InsertComponent(i, ComponentPtr(cmp));
 }
 
-static Actor* actor_get_attacher(const Actor* self, unsigned int i)
-{
-	return i < self->m_Attaches.size() ? self->m_Attaches[i] : NULL;
-}
-
 struct ScriptAnimationNodeBlendList;
 
 static AnimationNode* animation_node_get_child(AnimationNode* self, unsigned int i)
@@ -3805,8 +3800,10 @@ void LuaContext::Init(void)
 			.def("ClearAllComponent", &Actor::ClearAllComponent)
 			.def("Attach", &Actor::Attach)
 			.def("Detach", &Actor::Detach)
-			.property("AttachNum", &Actor::GetAttachNum)
-			.def("GetAttacher", &actor_get_attacher)
+			.property("AttachNum", luabind::tag_function<size_t(Actor*)>(
+				boost::bind(&Actor::AttachList::size,
+					boost::bind(&Actor::m_Attaches, boost::placeholders::_1))))
+			.def("GetAttacher", &Actor::GetAttacher)
 			.def("GetAttachPose", &Actor::GetAttachPose)
 			.def("ClearAllAttach", &Actor::ClearAllAttach)
 			.def("AddRevoluteJoint", &Actor::AddRevoluteJoint)
