@@ -153,16 +153,6 @@ static void ogremesh_save_ogre_mesh(my::OgreMesh* self, const char* u8_path, boo
 	self->SaveOgreMesh(u8tots(u8_path).c_str(), useSharedGeom);
 }
 
-static unsigned int ogreskeletonanimation_get_bone_num(my::OgreSkeletonAnimation* self)
-{
-	return (unsigned int)self->m_boneBindPose.size();
-}
-
-static const my::Bone & ogreskeletonanimation_get_bind_pose_bone(const my::OgreSkeletonAnimation* self, int i)
-{
-	return self->m_boneBindPose[i];
-}
-
 static const std::string resourcemgr_get_relative_path(my::ResourceMgr* self, const char* u8_path)
 {
 	return self->GetRelativePath(u8tots(u8_path).c_str());
@@ -538,11 +528,6 @@ static AnimationNode* animation_node_get_child(AnimationNode* self, unsigned int
 static void animation_node_set_child_adopt(AnimationNode* self, int i, ScriptAnimationNodeBlendList* node)
 {
 	self->SetChild(i, AnimationNodePtr(node));
-}
-
-static int animation_node_get_child_num(AnimationNode* self)
-{
-	return self->m_Childs.size();
 }
 
 static bool navigation_find_nearest_poly(const Navigation* self, const my::Vector3& center, const my::Vector3& halfext, const dtQueryFilter* filter, unsigned int& nearestRef, my::Vector3& nearestPt)
@@ -2357,9 +2342,10 @@ void LuaContext::Init(void)
 		, class_<my::OgreSkeletonAnimation, my::DeviceResourceBase, boost::shared_ptr<my::DeviceResourceBase> >("OgreSkeletonAnimation")
 			.def_readonly("boneHierarchy", &my::OgreSkeletonAnimation::m_boneHierarchy)
 			.def("GetBoneIndex", &my::OgreSkeletonAnimation::GetBoneIndex)
-			.def("GetBoneName", &my::OgreSkeletonAnimation::FindBoneName)
-			.property("BoneNum", &ogreskeletonanimation_get_bone_num)
-			.def("GetBindPoseBone", &ogreskeletonanimation_get_bind_pose_bone)
+			.def("FindBoneName", &my::OgreSkeletonAnimation::FindBoneName)
+			.property("BoneNum", luabind::tag_function<size_t(my::OgreSkeletonAnimation*)>(
+				boost::bind(&my::BoneList::size,
+					boost::bind(&my::OgreSkeletonAnimation::m_boneBindPose, boost::placeholders::_1))))
 			.def("AddOgreSkeletonAnimationFromFile", &my::OgreSkeletonAnimation::AddOgreSkeletonAnimationFromFile)
 			.def("SaveOgreSkeletonAnimation", &my::OgreSkeletonAnimation::SaveOgreSkeletonAnimation)
 			//.def("AdjustAnimationRoot", &my::OgreSkeletonAnimation::AdjustAnimationRoot)
@@ -3826,7 +3812,9 @@ void LuaContext::Init(void)
 			.def("GetChild", &animation_node_get_child)
 			.def("SetChild", &AnimationNode::SetChild)
 			.def("SetChildAdopt", &animation_node_set_child_adopt, adopt(boost::placeholders::_3))
-			.property("ChildNum", &animation_node_get_child_num)
+			.property("ChildNum", luabind::tag_function<size_t(AnimationNode*)>(
+				boost::bind(&AnimationNode::AnimationNodePtrList::size,
+					boost::bind(&AnimationNode::m_Childs, boost::placeholders::_1))))
 			.property("TopNode", (AnimationNode* (AnimationNode::*)(void))& AnimationNode::GetTopNode)
 			.def("FindSubNode", (AnimationNode* (AnimationNode::*)(const std::string&))& AnimationNode::FindSubNode)
 
