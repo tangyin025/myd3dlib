@@ -219,7 +219,7 @@ public:
 
 	boost::shared_ptr<physx::PxControllerManager> m_ControllerMgr;
 
-	boost::shared_ptr<physx::PxObstacleContext> m_ObstacleContext;
+	std::vector<boost::shared_ptr<physx::PxObstacleContext> > m_ObstacleContexts;
 
 	std::vector<physx::PxActiveTransform> mBufferedActiveTransforms;
 
@@ -267,6 +267,8 @@ public:
 	void SetGravity(const my::Vector3 & vec);
 
 	my::Vector3 GetGravity(void) const;
+
+	physx::PxObstacleContext* AddObstacleContext(void);
 
 	void Shutdown(void);
 

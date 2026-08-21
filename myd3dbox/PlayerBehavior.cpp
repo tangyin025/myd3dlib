@@ -277,7 +277,7 @@ void PlayerBehavior::OnPxThreadSubstep(float dtime)
 		disp = vel * dtime;
 	}
 
-	unsigned int moveFlags = m_Controller->Move(disp, 0.001f, dtime, theApp.default_physx_shape_filterword0);
+	unsigned int moveFlags = m_Controller->Move(disp, 0.001f, dtime, theApp.default_physx_shape_filterword0, NULL);
 	if (moveFlags & physx::PxControllerCollisionFlag::eCOLLISION_DOWN)
 	{
 		m_VerticalSpeed = Lerp(m_VerticalSpeed, 0.0f, 1.0f - pow(0.5f, 30 * dtime));

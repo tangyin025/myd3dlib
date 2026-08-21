@@ -11,6 +11,9 @@ require "Action.lua"
 	-- Vector3(0.1,0.25,0.1), Quaternion.RotationYawPitchRoll(0,0,math.rad(90)),Vector3(0.25,0,0)))
 -- mesh2:SaveOgreMesh("Media/mesh/Cylinder.mesh.xml")
 
+-- 创建阻碍物s
+obstacles=client:AddObstacleContext()
+
 -- 创建Player主体
 player=Actor("local_player",Vector3(0,3,0),Quaternion.Identity(),Vector3(0.1),AABB(-100,100))
 local controller_cmp=Controller(NamedObject.MakeUniqueName("controller_cmp"),1.5,0.1,0.1,0.5,0)
@@ -143,7 +146,7 @@ function PlayerBehavior:Update(elapsedTime)
 end
 function PlayerBehavior:OnPxThreadSubstep(dtime)
 	local disp=self.velocity*dtime
-	local moveFlag=controller_cmp:Move(disp,0.001,dtime,1)
+	local moveFlag=controller_cmp:Move(disp,0.001,dtime,1,obstacles)
 	if ret or bit.band(moveFlag,Controller.eCOLLISION_DOWN) ~= 0 then
 		self.velocity.y=0
 	end
