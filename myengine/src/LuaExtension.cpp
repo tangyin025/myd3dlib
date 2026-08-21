@@ -3591,11 +3591,12 @@ void LuaContext::Init(void)
 				value("eCOLLISION_DOWN", physx::PxControllerCollisionFlag::eCOLLISION_DOWN),
 				value("STF_HIT_NON_WALKABLE", physx::Cct::SweepTestFlag::STF_HIT_NON_WALKABLE),
 				value("STF_VALIDATE_TRIANGLE_DOWN", physx::Cct::SweepTestFlag::STF_VALIDATE_TRIANGLE_DOWN),
-				value("STF_VALIDATE_TRIANGLE_SIDE", physx::Cct::SweepTestFlag::STF_VALIDATE_TRIANGLE_SIDE)
+				value("STF_VALIDATE_TRIANGLE_SIDE", physx::Cct::SweepTestFlag::STF_VALIDATE_TRIANGLE_SIDE),
+				value("STF_TOUCH_OBSTACLE", physx::Cct::SweepTestFlag::STF_TOUCH_OBSTACLE)
 			]
 			.def("Move", &Controller::Move)
-			.def("Move", luabind::tag_function<unsigned int(Controller*, const my::Vector3&, float, float, unsigned int)>(
-				boost::bind(&Controller::Move, boost::placeholders::_1, boost::placeholders::_2, boost::placeholders::_3, boost::placeholders::_4, boost::placeholders::_5, (physx::PxObstacleContext* )NULL)))
+			//.def("Move", luabind::tag_function<unsigned int(Controller*, const my::Vector3&, float, float, unsigned int)>(
+			//	boost::bind(&Controller::Move, boost::placeholders::_1, boost::placeholders::_2, boost::placeholders::_3, boost::placeholders::_4, boost::placeholders::_5, (physx::PxObstacleContext* )NULL)))
 			.property("Height", &Controller::GetHeight, &Controller::SetHeight)
 			.property("Radius", &Controller::GetRadius, &Controller::SetRadius)
 			.property("StepOffset", &Controller::GetStepOffset, &Controller::SetStepOffset)
@@ -3611,7 +3612,7 @@ void LuaContext::Init(void)
 			.property("TouchedComponent", &Controller::GetTouchedComponent)
 			.property("TouchedPosWorld", &Controller::GetTouchedPosWorld)
 			.property("TouchedPosLocal", &Controller::GetTouchedPosLocal)
-			.property("TouchedFlags", &Controller::GetTouchedFlags)
+			.property("TouchedFlags", &Controller::GetTouchedFlags, &Controller::SetTouchedFlags)
 
 		, class_<Navigation, Component, boost::shared_ptr<Component> >("Navigation")
 			.enum_("SamplePolyAreas")
@@ -3696,7 +3697,6 @@ void LuaContext::Init(void)
 			.def_readonly("worldNormal", &ControllerEventArg::worldNormal)
 			.def_readonly("dir", &ControllerEventArg::dir)
 			.def_readonly("length", &ControllerEventArg::length)
-			.def_readonly("flags", &ControllerEventArg::flags)
 
 		, class_<ShapeHitEventArg, ControllerEventArg>("ShapeHitEventArg")
 			.def_readonly("other", &ShapeHitEventArg::other)
@@ -3706,6 +3706,8 @@ void LuaContext::Init(void)
 		, class_<ControllerHitEventArg, ControllerEventArg>("ControllerHitEventArg")
 			.def_readonly("other", &ControllerHitEventArg::other)
 			.def_readonly("other_cmp", &ControllerHitEventArg::other_cmp)
+
+		, class_< ObstacleHitEventArg, ControllerEventArg>("ObstacleHitEventArg")
 
 		, class_< AnimationEventArg, ActorEventArg>("AnimationEventArg")
 			.def_readonly("seq", &AnimationEventArg::seq)
@@ -4133,6 +4135,7 @@ void LuaContext::Init(void)
 			.def("AddBoxObstacle", &obstaclecontext_add_box_obstacle)
 			.def("UpdateBoxObstacle", &obstaclecontext_update_box_obstacle)
 			.def("RemoveObstacle", &physx::PxObstacleContext::removeObstacle)
+			.property("NbObstacles", &physx::PxObstacleContext::getNbObstacles)
 
 		, class_<my::BilinearFiltering<unsigned short> >("BilinearFilteringL16")
 			.def(constructor<const D3DLOCKED_RECT&, int, int>())

@@ -235,6 +235,8 @@ void PhysxScene::Shutdown(void)
 	//m_EventPxThreadSubstep.disconnect_all_slots();
 	_ASSERT(m_EventPxThreadSubstep.empty());
 	//_ASSERT(!m_PxScene || 0 == m_PxScene->getNbActors(PxActorTypeSelectionFlags(0xff)));
+	_ASSERT(m_ObstacleContexts.end() == std::find_if(m_ObstacleContexts.begin(), m_ObstacleContexts.end(),
+		boost::bind(std::greater<physx::PxU32>(), boost::bind(&physx::PxObstacleContext::getNbObstacles, boost::bind(&boost::shared_ptr<physx::PxObstacleContext>::get, boost::placeholders::_1)), 0)));
 	m_ObstacleContexts.clear();
 	m_ControllerMgr.reset();
 	m_PxScene.reset();

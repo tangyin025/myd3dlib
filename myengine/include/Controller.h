@@ -153,6 +153,8 @@ public:
 
 	my::Vector3 & GetTouchedPosLocal(void) const;
 
+	void SetTouchedFlags(unsigned int Flags);
+
 	unsigned int GetTouchedFlags(void) const;
 
 	virtual void onShapeHit(const physx::PxControllerShapeHit & hit);
