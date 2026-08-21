@@ -288,7 +288,7 @@ void PlayerBehavior::OnPxThreadSubstep(float dtime)
 void PlayerBehavior::OnPxThreadShapeHit(my::EventArg* arg)
 {
 	ShapeHitEventArg* hit = static_cast<ShapeHitEventArg*>(arg);
-	if (hit->flags & physx::Cct::SweepTestFlag::STF_VALIDATE_TRIANGLE_DOWN)
+	if (m_Controller->GetTouchedFlags() & physx::Cct::SweepTestFlag::STF_VALIDATE_TRIANGLE_DOWN)
 	{
 	}
 }
