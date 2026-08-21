@@ -171,7 +171,7 @@ unsigned int Controller::GetShapeFlags(void) const
 	return m_DescShapeFlags;
 }
 
-unsigned int Controller::Move(const my::Vector3 & disp, float minDist, float elapsedTime, unsigned int filterWord0)
+unsigned int Controller::Move(const my::Vector3 & disp, float minDist, float elapsedTime, unsigned int filterWord0, physx::PxObstacleContext* context)
 {
 #ifdef _DEBUG
 	m_PxControllerMoveMuted = true;
@@ -188,7 +188,7 @@ unsigned int Controller::Move(const my::Vector3 & disp, float minDist, float ela
 	{
 		PhysxScene* scene = dynamic_cast<PhysxScene*>(m_Actor->m_Node->GetTopNode());
 
-		moveFlags = m_PxController->move((physx::PxVec3&)disp, minDist, elapsedTime, physx::PxControllerFilters(&physx::PxFilterData(filterWord0, 0, 0, 0), NULL, &scene->m_ControllerFilter), scene->m_ObstacleContext.get());
+		moveFlags = m_PxController->move((physx::PxVec3&)disp, minDist, elapsedTime, physx::PxControllerFilters(&physx::PxFilterData(filterWord0, 0, 0, 0), NULL, &scene->m_ControllerFilter), context);
 
 		//// ! recursively call other Component::SetPxPoseOrbyPxThread
 		//m_Actor->SetPxPoseOrbyPxThread(GetFootPosition(), m_Actor->m_Rotation, this);

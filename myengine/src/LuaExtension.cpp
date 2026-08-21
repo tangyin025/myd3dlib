@@ -1570,27 +1570,22 @@ static boost::iterator_range<SweepHitIterator> physxscene_capsule_sweep(PhysxSce
 		SweepHitIterator(buff, buff.get()), SweepHitIterator(buff, buff.get()));
 }
 
-static physx::ObstacleHandle physxscene_add_box_obstacle(PhysxScene* self, const my::Vector3& Position, const my::Quaternion& Rotation, float hx, float hy, float hz)
+static physx::ObstacleHandle obstaclecontext_add_box_obstacle(physx::PxObstacleContext* self, const my::Vector3& Position, const my::Quaternion& Rotation, float hx, float hy, float hz)
 {
 	physx::PxBoxObstacle box;
 	box.mPos.set(Position.x, Position.y, Position.z);
 	box.mRot = (physx::PxQuat&)Rotation;
 	box.mHalfExtents = physx::PxVec3(hx, hy, hz);
-	return self->m_ObstacleContext->addObstacle(box);
+	return self->addObstacle(box);
 }
 
-static bool physxscene_update_box_obstacle(PhysxScene* self, physx::ObstacleHandle handle, const my::Vector3& Position, const my::Quaternion& Rotation, float hx, float hy, float hz)
+static bool obstaclecontext_update_box_obstacle(physx::PxObstacleContext* self, physx::ObstacleHandle handle, const my::Vector3& Position, const my::Quaternion& Rotation, float hx, float hy, float hz)
 {
 	physx::PxBoxObstacle box;
 	box.mPos.set(Position.x, Position.y, Position.z);
 	box.mRot = (physx::PxQuat&)Rotation;
 	box.mHalfExtents = physx::PxVec3(hx, hy, hz);
-	return self->m_ObstacleContext->updateObstacle(handle, box);
-}
-
-static bool physxscene_remove_obstacle(PhysxScene* self, physx::ObstacleHandle handle)
-{
-	return self->m_ObstacleContext->removeObstacle(handle);
+	return self->updateObstacle(handle, box);
 }
 
 static void indexedbitmap_save_indexed_bitmap(my::IndexedBitmap * self, const char * path, const luabind::object & get_color)
@@ -3599,6 +3594,8 @@ void LuaContext::Init(void)
 				value("STF_VALIDATE_TRIANGLE_SIDE", physx::Cct::SweepTestFlag::STF_VALIDATE_TRIANGLE_SIDE)
 			]
 			.def("Move", &Controller::Move)
+			.def("Move", luabind::tag_function<unsigned int(Controller*, const my::Vector3&, float, float, unsigned int)>(
+				boost::bind(&Controller::Move, boost::placeholders::_1, boost::placeholders::_2, boost::placeholders::_3, boost::placeholders::_4, boost::placeholders::_5, (physx::PxObstacleContext* )NULL)))
 			.property("Height", &Controller::GetHeight, &Controller::SetHeight)
 			.property("Radius", &Controller::GetRadius, &Controller::SetRadius)
 			.property("StepOffset", &Controller::GetStepOffset, &Controller::SetStepOffset)
@@ -4040,9 +4037,7 @@ void LuaContext::Init(void)
 			.def("BoxSweep", &physxscene_box_sweep, return_stl_iterator)
 			.def("SphereSweep", &physxscene_sphere_sweep, return_stl_iterator)
 			.def("CapsuleSweep", &physxscene_capsule_sweep, return_stl_iterator)
-			.def("AddBoxObstacle", &physxscene_add_box_obstacle)
-			.def("UpdateBoxObstacle", &physxscene_update_box_obstacle)
-			.def("RemoveObstacle", &physxscene_remove_obstacle)
+			.def("AddObstacleContext", &PhysxScene::AddObstacleContext)
 
 		, class_<SoundEvent, boost::shared_ptr<SoundEvent> >("SoundEvent")
 			.def_readonly("sbuffer", &SoundEvent::m_sbuffer)
@@ -4133,6 +4128,11 @@ void LuaContext::Init(void)
 				boost::bind(&physx::PxD6Joint::setTwistLimit, boost::placeholders::_1, boost::bind(boost::value_factory<physx::PxJointAngularLimitPair>(), boost::placeholders::_2, boost::placeholders::_3, -1.0f))))
 			.def("setSwingLimit", luabind::tag_function<void(physx::PxD6Joint*,float,float)>(
 				boost::bind(&physx::PxD6Joint::setSwingLimit, boost::placeholders::_1, boost::bind(boost::value_factory<physx::PxJointLimitCone>(), boost::placeholders::_2, boost::placeholders::_3, -1.0f))))
+
+		, class_<physx::PxObstacleContext>("ObstacleContext")
+			.def("AddBoxObstacle", &obstaclecontext_add_box_obstacle)
+			.def("UpdateBoxObstacle", &obstaclecontext_update_box_obstacle)
+			.def("RemoveObstacle", &physx::PxObstacleContext::removeObstacle)
 
 		, class_<my::BilinearFiltering<unsigned short> >("BilinearFilteringL16")
 			.def(constructor<const D3DLOCKED_RECT&, int, int>())

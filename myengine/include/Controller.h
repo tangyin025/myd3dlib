@@ -107,7 +107,7 @@ public:
 
 	virtual unsigned int GetShapeFlags(void) const;
 
-	unsigned int Move(const my::Vector3 & disp, float minDist, float elapsedTime, unsigned int filterWord0);
+	unsigned int Move(const my::Vector3 & disp, float minDist, float elapsedTime, unsigned int filterWord0, physx::PxObstacleContext * context);
 
 	void SetHeight(float Height);
 
