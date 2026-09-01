@@ -3150,6 +3150,7 @@ void LuaContext::Init(void)
 			[
 				def("TranslatePov", &my::Joystick::TranslatePov)
 			]
+			.def("Capture", &my::Joystick::Capture)
 			.property("X", &my::Joystick::GetX)
 			.property("Y", &my::Joystick::GetY)
 			.property("Z", &my::Joystick::GetZ)
