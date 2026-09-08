@@ -348,6 +348,12 @@ void CPropertiesWnd::UpdatePropertiesActor(Actor * actor)
 	pActor->GetSubItem(1)->GetSubItem(3)->SetValue((_variant_t)actor->m_aabb.m_max.x);
 	pActor->GetSubItem(1)->GetSubItem(4)->SetValue((_variant_t)actor->m_aabb.m_max.y);
 	pActor->GetSubItem(1)->GetSubItem(5)->SetValue((_variant_t)actor->m_aabb.m_max.z);
+	pActor->GetSubItem(1)->GetSubItem(6)->SetValue((_variant_t)actor->m_OctAabb->m_min.x);
+	pActor->GetSubItem(1)->GetSubItem(7)->SetValue((_variant_t)actor->m_OctAabb->m_min.y);
+	pActor->GetSubItem(1)->GetSubItem(8)->SetValue((_variant_t)actor->m_OctAabb->m_min.z);
+	pActor->GetSubItem(1)->GetSubItem(9)->SetValue((_variant_t)actor->m_OctAabb->m_max.x);
+	pActor->GetSubItem(1)->GetSubItem(10)->SetValue((_variant_t)actor->m_OctAabb->m_max.y);
+	pActor->GetSubItem(1)->GetSubItem(11)->SetValue((_variant_t)actor->m_OctAabb->m_max.z);
 	pActor->GetSubItem(2)->GetSubItem(0)->SetValue((_variant_t)actor->m_Position.x);
 	pActor->GetSubItem(2)->GetSubItem(1)->SetValue((_variant_t)actor->m_Position.y);
 	pActor->GetSubItem(2)->GetSubItem(2)->SetValue((_variant_t)actor->m_Position.z);
@@ -1421,6 +1427,25 @@ void CPropertiesWnd::CreatePropertiesActor(Actor * actor)
 	pProp = new CSimpleProp(_T("maxy"), (_variant_t)actor->m_aabb.m_max.y, NULL, PropertyActorMaxY);
 	pAABB->AddSubItem(pProp);
 	pProp = new CSimpleProp(_T("maxz"), (_variant_t)actor->m_aabb.m_max.z, NULL, PropertyActorMaxZ);
+	pAABB->AddSubItem(pProp);
+
+	pProp = new CSimpleProp(_T("octminx"), (_variant_t)actor->m_OctAabb->m_min.x, NULL, PropertyActorOctMinX);
+	pProp->Enable(FALSE);
+	pAABB->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("octminy"), (_variant_t)actor->m_OctAabb->m_min.y, NULL, PropertyActorOctMinY);
+	pProp->Enable(FALSE);
+	pAABB->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("octminz"), (_variant_t)actor->m_OctAabb->m_min.z, NULL, PropertyActorOctMinZ);
+	pProp->Enable(FALSE);
+	pAABB->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("octmaxx"), (_variant_t)actor->m_OctAabb->m_max.x, NULL, PropertyActorOctMaxX);
+	pProp->Enable(FALSE);
+	pAABB->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("octmaxy"), (_variant_t)actor->m_OctAabb->m_max.y, NULL, PropertyActorOctMaxY);
+	pProp->Enable(FALSE);
+	pAABB->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("octmaxz"), (_variant_t)actor->m_OctAabb->m_max.z, NULL, PropertyActorOctMaxZ);
+	pProp->Enable(FALSE);
 	pAABB->AddSubItem(pProp);
 
 	CMFCPropertyGridProperty * pPosition = new CSimpleProp(_T("Position"), PropertyActorPos, TRUE);
@@ -3526,6 +3551,13 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
 	}
+	case PropertyActorOctMinX:
+	case PropertyActorOctMinY:
+	case PropertyActorOctMinZ:
+	case PropertyActorOctMaxX:
+	case PropertyActorOctMaxY:
+	case PropertyActorOctMaxZ:
+		break;
 	case PropertyActorPos:
 	case PropertyActorPosX:
 	case PropertyActorPosY:
