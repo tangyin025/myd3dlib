@@ -16,24 +16,10 @@ using namespace my;
 
 BOOST_CLASS_EXPORT(Spline)
 
-template <>
-float LinearNodes<float>::Lerp(LinearNodes<float>::const_iterator lhs, LinearNodes<float>::const_iterator rhs, float s) const
-{
-	_ASSERT(s >= lhs->x && s < rhs->x);
-
-	float t = (s - lhs->x) / (rhs->x - lhs->x);
-
-	float a = lhs->k * (rhs->x - lhs->x) - (rhs->y - lhs->y);
-
-	float b = -rhs->k0 * (rhs->x - lhs->x) + (rhs->y - lhs->y);
-
-	return (1 - t) * lhs->y + t * rhs->y + t * (1 - t) * (a * (1 - t) + b * t);
-}
-
-namespace boost { 
+namespace boost {
 	namespace serialization {
 		template<class Archive>
-		inline void serialize(Archive & ar, LinearNode<float> & t, const unsigned int file_version)
+		inline void serialize(Archive & ar, SplineNode & t, const unsigned int file_version)
 		{
 			ar & BOOST_SERIALIZATION_NVP(t.x);
 			ar & BOOST_SERIALIZATION_NVP(t.y);
@@ -46,23 +32,62 @@ namespace boost {
 template<class Archive>
 void Spline::save(Archive& ar, const unsigned int version) const
 {
-	ar << boost::serialization::make_nvp("SplineNodeList", boost::serialization::base_object<std::vector<LinearNode<float> > >(*this));
+	ar << boost::serialization::make_nvp("SplineNodeList", boost::serialization::base_object<std::vector<SplineNode> >(*this));
 }
 
 template<class Archive>
 void Spline::load(Archive& ar, const unsigned int version)
 {
-	ar >> boost::serialization::make_nvp("SplineNodeList", boost::serialization::base_object<std::vector<LinearNode<float> > >(*this));
+	ar >> boost::serialization::make_nvp("SplineNodeList", boost::serialization::base_object<std::vector<SplineNode> >(*this));
 }
 
 void Spline::AddNode(float x, float y, float k0, float k)
 {
-	LinearNodes::AddNode(x, y, k0, k);
+	iterator iter = std::lower_bound(begin(), end(), x,
+		boost::bind(std::less<float>(), boost::bind(&SplineNode::x, boost::placeholders::_1), boost::placeholders::_2));
+	if (iter != end() && iter->x == x)
+	{
+		iter->y = y;
+		iter->k0 = k0;
+		iter->k = k;
+	}
+	else
+	{
+		insert(iter, SplineNode(x, y, k0, k));
+	}
+}
+
+float Spline::Interpolate(Spline::const_iterator lhs, Spline::const_iterator rhs, float s) const
+{
+	_ASSERT(s >= lhs->x && s < rhs->x);
+
+	// ! Cubic Hermite interpolation
+	float t = (s - lhs->x) / (rhs->x - lhs->x);
+
+	float a = lhs->k * (rhs->x - lhs->x) - (rhs->y - lhs->y);
+
+	float b = -rhs->k0 * (rhs->x - lhs->x) + (rhs->y - lhs->y);
+
+	return (1 - t) * lhs->y + t * rhs->y + t * (1 - t) * (a * (1 - t) + b * t);
 }
 
 float Spline::Interpolate(float s) const
 {
-	return LinearNodes::Interpolate(s, 1.0f);
+	const_iterator iter = std::upper_bound(begin(), end(), s,
+		boost::bind(std::less<float>(), boost::placeholders::_1, boost::bind(&SplineNode::x, boost::placeholders::_2)));
+	if (iter != begin())
+	{
+		if (iter != end())
+		{
+			return Interpolate(iter - 1, iter, s);
+		}
+		return (iter - 1)->y;
+	}
+	else if (iter != end())
+	{
+		return iter->y;
+	}
+	return 0;
 }
 
 Shake::Shake(float Duration, float Strength, int Vibrato, float StartMagnitude)
