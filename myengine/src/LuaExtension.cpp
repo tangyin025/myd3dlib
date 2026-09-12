@@ -2094,7 +2094,7 @@ void LuaContext::Init(void)
 			.def("AddNode", (void (my::Spline::*)(float, float, float, float))&my::Spline::AddNode)
 			.def("AddNode", luabind::tag_function<void(my::Spline*,float,float)>(
 				boost::bind(&my::Spline::AddNode, boost::placeholders::_1, boost::placeholders::_2, boost::placeholders::_3, 0.0f, 0.0f)))
-			.def("Interpolate", &my::Spline::Interpolate)
+			.def("Interpolate", (float (my::Spline::*)(float) const)&my::Spline::Interpolate)
 			.property("Length", &my::Spline::GetLength)
 
 		, class_<my::Shake, my::Spline>("Shake")
