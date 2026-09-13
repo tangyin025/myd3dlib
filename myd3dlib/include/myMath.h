@@ -823,8 +823,6 @@ namespace my
 		static const Vector3 unitY;
 
 		static const Vector3 unitZ;
-
-		static const Vector3 Gravity;
 	};
 
 	class Vector4
