@@ -46,8 +46,6 @@ const Vector3 Vector3::unitY(0, 1, 0);
 
 const Vector3 Vector3::unitZ(0, 0, 1);
 
-const Vector3 Vector3::Gravity(0.0f, -9.81f, 0.0f);
-
 const Vector4 Vector4::zero(0, 0, 0, 0);
 
 const Vector4 Vector4::one(1, 1, 1, 1);

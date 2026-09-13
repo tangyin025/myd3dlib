@@ -889,7 +889,7 @@ void Animator::AddDynamicBone(int node_i, float mass, float damping, float sprin
 	_ASSERT(res.first->second.parent_i == -1);
 	_ASSERT(res.first->second.springConstant == springConstant);
 	res.first->second.m_ParticleList.push_back(Particle(
-		Vector3(0, 0, 0), Vector3(0, 0, 0), Vector3(0, 0, 0), Vector3(0, 0, 0), 1 / mass, damping));
+		Vector3(0, 0, 0), Vector3(0, 0, 0), Vector3(0, -9.81f, 0), Vector3(0, 0, 0), 1 / mass, damping));
 }
 
 void Animator::UpdateDynamicBone(DynamicBoneContext & context, const my::Bone & parent, const my::Vector3& parent_world_pos, int node_i, int & particle_i, float fElapsedTime)
@@ -910,7 +910,6 @@ void Animator::UpdateDynamicBone(DynamicBoneContext & context, const my::Bone & 
 
 	Particle & particle = context.m_ParticleList[particle_i];
 	particle.clearAccumulator();
-	particle.setAcceleration(Vector3::Gravity);
 	Vector3 distance = target_world_pos - particle.getPosition();
 	float length = distance.magnitude();
 	Vector3 force = fabs(length) > EPSILON_E6 ? distance.normalize() * (-context.springConstant * length) : Vector3(0, 0, 0);
