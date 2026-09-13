@@ -46,8 +46,7 @@ public:
 	int default_io_thread_num;
 	int default_remaining_actor_max;
 	float default_grid_length;
-	float default_grid_lines_every;
-	unsigned int default_grid_subdivisions;
+	unsigned int default_grid_divisions;
 	D3DCOLOR default_grid_color;
 	D3DCOLOR default_grid_axis_color;
 	float default_ui_grid_size;

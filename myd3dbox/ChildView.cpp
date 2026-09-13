@@ -1458,10 +1458,16 @@ void CChildView::OnPaint()
 	// Do not call CView::OnPaint() for painting messages
 	if (theApp.m_DeviceObjectsReset)
 	{
+		my::ModelViewerCamera* model_view_camera = dynamic_cast<my::ModelViewerCamera*>(m_Camera.get());
 		if (m_bShowGrid)
 		{
-			PushLineGrid(theApp.default_grid_length, theApp.default_grid_lines_every, theApp.default_grid_subdivisions,
-				theApp.default_grid_color, theApp.default_grid_axis_color, my::Matrix4::RotationX(D3DXToRadian(-90)));
+			float idealScale = model_view_camera->m_Distance / 25.980762f;
+			PushLineGrid(
+				theApp.default_grid_length * powf(10.0f, roundf(log10f(idealScale))),
+				theApp.default_grid_divisions,
+				theApp.default_grid_color,
+				theApp.default_grid_axis_color,
+				my::Matrix4::RotationX(D3DXToRadian(-90)));
 		}
 
 		CMainFrame* pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
@@ -1546,7 +1552,6 @@ void CChildView::OnPaint()
 				};
 
 				begin(DU_DRAW_LINES, 2.0f);
-				my::ModelViewerCamera* model_view_camera = dynamic_cast<my::ModelViewerCamera*>(m_Camera.get());
 				my::AABB viewbox(model_view_camera->m_LookAt, 33.0f);
 				Callback cb(this);
 				pFrame->m_offMeshConRoot.QueryEntity(viewbox, &cb);
@@ -2487,33 +2492,33 @@ void CChildView::OnMouseMove(UINT nFlags, CPoint point)
 					{
 					case Pivot::PivotDragAxisX:
 						(*sel_iter)->m_Position.x = pose.m_position.x + pFrame->m_Pivot.m_Pos.x - pFrame->m_Pivot.m_DragRot.x;
-						ALIGN_TO_VALUE((*sel_iter)->m_Position.x, theApp.default_grid_lines_every / theApp.default_grid_subdivisions);
+						ALIGN_TO_VALUE((*sel_iter)->m_Position.x, theApp.default_grid_length / theApp.default_grid_divisions);
 						break;
 					case Pivot::PivotDragAxisY:
 						(*sel_iter)->m_Position.y = pose.m_position.y + pFrame->m_Pivot.m_Pos.y - pFrame->m_Pivot.m_DragRot.y;
-						ALIGN_TO_VALUE((*sel_iter)->m_Position.y, theApp.default_grid_lines_every / theApp.default_grid_subdivisions);
+						ALIGN_TO_VALUE((*sel_iter)->m_Position.y, theApp.default_grid_length / theApp.default_grid_divisions);
 						break;
 					case Pivot::PivotDragAxisZ:
 						(*sel_iter)->m_Position.z = pose.m_position.z + pFrame->m_Pivot.m_Pos.z - pFrame->m_Pivot.m_DragRot.z;
-						ALIGN_TO_VALUE((*sel_iter)->m_Position.z, theApp.default_grid_lines_every / theApp.default_grid_subdivisions);
+						ALIGN_TO_VALUE((*sel_iter)->m_Position.z, theApp.default_grid_length / theApp.default_grid_divisions);
 						break;
 					case Pivot::PivotDragPlanX:
 						(*sel_iter)->m_Position.y = pose.m_position.y + pFrame->m_Pivot.m_Pos.y - pFrame->m_Pivot.m_DragRot.y;
 						(*sel_iter)->m_Position.z = pose.m_position.z + pFrame->m_Pivot.m_Pos.z - pFrame->m_Pivot.m_DragRot.z;
-						ALIGN_TO_VALUE((*sel_iter)->m_Position.y, theApp.default_grid_lines_every / theApp.default_grid_subdivisions);
-						ALIGN_TO_VALUE((*sel_iter)->m_Position.z, theApp.default_grid_lines_every / theApp.default_grid_subdivisions);
+						ALIGN_TO_VALUE((*sel_iter)->m_Position.y, theApp.default_grid_length / theApp.default_grid_divisions);
+						ALIGN_TO_VALUE((*sel_iter)->m_Position.z, theApp.default_grid_length / theApp.default_grid_divisions);
 						break;
 					case Pivot::PivotDragPlanY:
 						(*sel_iter)->m_Position.x = pose.m_position.x + pFrame->m_Pivot.m_Pos.x - pFrame->m_Pivot.m_DragRot.x;
 						(*sel_iter)->m_Position.z = pose.m_position.z + pFrame->m_Pivot.m_Pos.z - pFrame->m_Pivot.m_DragRot.z;
-						ALIGN_TO_VALUE((*sel_iter)->m_Position.x, theApp.default_grid_lines_every / theApp.default_grid_subdivisions);
-						ALIGN_TO_VALUE((*sel_iter)->m_Position.z, theApp.default_grid_lines_every / theApp.default_grid_subdivisions);
+						ALIGN_TO_VALUE((*sel_iter)->m_Position.x, theApp.default_grid_length / theApp.default_grid_divisions);
+						ALIGN_TO_VALUE((*sel_iter)->m_Position.z, theApp.default_grid_length / theApp.default_grid_divisions);
 						break;
 					case Pivot::PivotDragPlanZ:
 						(*sel_iter)->m_Position.x = pose.m_position.x + pFrame->m_Pivot.m_Pos.x - pFrame->m_Pivot.m_DragRot.x;
 						(*sel_iter)->m_Position.y = pose.m_position.y + pFrame->m_Pivot.m_Pos.y - pFrame->m_Pivot.m_DragRot.y;
-						ALIGN_TO_VALUE((*sel_iter)->m_Position.x, theApp.default_grid_lines_every / theApp.default_grid_subdivisions);
-						ALIGN_TO_VALUE((*sel_iter)->m_Position.y, theApp.default_grid_lines_every / theApp.default_grid_subdivisions);
+						ALIGN_TO_VALUE((*sel_iter)->m_Position.x, theApp.default_grid_length / theApp.default_grid_divisions);
+						ALIGN_TO_VALUE((*sel_iter)->m_Position.y, theApp.default_grid_length / theApp.default_grid_divisions);
 						break;
 					}
 					(*sel_iter)->UpdateWorld();
