@@ -1563,11 +1563,14 @@ void OgreMesh::CreateMeshFromOther(OgreMesh* other, DWORD AttribId, const Matrix
 void OgreMesh::AppendMesh(OgreMesh* other, DWORD AttribId, const Matrix4& trans, const Matrix4& uv_trans)
 {
 	D3DXATTRIBUTERANGE rang = { m_AttribTable.size(), 0, 0, 0, 0 };
-	for (int i = 0; i < m_AttribTable.size(); i++)
+	if (!m_AttribTable.empty())
 	{
-		rang.VertexStart = Max(rang.VertexStart, m_AttribTable[i].VertexStart + m_AttribTable[i].VertexCount);
-		rang.FaceStart = Max(rang.FaceStart, m_AttribTable[i].FaceStart + m_AttribTable[i].FaceCount);
+		// ! m_AttribTable should be sorted in ascending order.
+		rang.VertexStart = m_AttribTable.back().VertexStart + m_AttribTable.back().VertexCount;
+		rang.FaceStart = m_AttribTable.back().FaceStart + m_AttribTable.back().FaceCount;
 	}
+	_ASSERT(m_AttribTable.end() == std::find_if(m_AttribTable.begin(), m_AttribTable.end(),
+		boost::bind(std::greater_equal<int>(), boost::bind(&D3DXATTRIBUTERANGE::VertexStart, boost::placeholders::_1), rang.VertexStart)));
 	AppendToAttrib(rang, other, AttribId, trans, uv_trans);
 
 	rang.FaceCount = other->m_AttribTable[AttribId].FaceCount;
