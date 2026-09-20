@@ -860,14 +860,14 @@ void CPropertiesWnd::UpdatePropertiesTerrain(CMFCPropertyGridProperty * pCompone
 {
 	unsigned int PropId = GetComponentPropCount(Component::ComponentTypeComponent);
 	CMFCPropertyGridProperty * pProp = pComponent->GetSubItem(PropId);
-	if (!pProp || pProp->GetData() != PropertyTerrainRowChunks)
+	if (!pProp || pProp->GetData() != PropertyTerrainRowNum)
 	{
 		RemovePropertiesFrom(pComponent, PropId);
 		CreatePropertiesTerrain(pComponent, terrain);
 		return;
 	}
-	pComponent->GetSubItem(PropId + 0)->SetValue((_variant_t)terrain->m_RowChunks);
-	pComponent->GetSubItem(PropId + 1)->SetValue((_variant_t)terrain->m_ColChunks);
+	pComponent->GetSubItem(PropId + 0)->SetValue((_variant_t)(terrain->m_RowChunks * terrain->m_ChunkSize + 1));
+	pComponent->GetSubItem(PropId + 1)->SetValue((_variant_t)(terrain->m_ColChunks * terrain->m_ChunkSize + 1));
 	pComponent->GetSubItem(PropId + 2)->SetValue((_variant_t)terrain->m_ChunkSize);
 	pComponent->GetSubItem(PropId + 3)->SetValue((_variant_t)ms2ts(terrain->m_ChunkPath.c_str()).c_str());
 	pComponent->GetSubItem(PropId + 4)->SetValue((_variant_t)terrain->m_ChunkLodScale);
@@ -2188,10 +2188,10 @@ void CPropertiesWnd::CreatePropertiesTerrain(CMFCPropertyGridProperty * pCompone
 {
 	ASSERT(pComponent->GetSubItemsCount() == GetComponentPropCount(Component::ComponentTypeComponent));
 
-	CMFCPropertyGridProperty * pProp = new CSimpleProp(_T("RowChunks"), (_variant_t)terrain->m_RowChunks, NULL, PropertyTerrainRowChunks);
+	CMFCPropertyGridProperty * pProp = new CSimpleProp(_T("RowChunks"), (_variant_t)(terrain->m_RowChunks * terrain->m_ChunkSize + 1), NULL, PropertyTerrainRowNum);
 	pProp->Enable(FALSE);
 	pComponent->AddSubItem(pProp);
-	pProp = new CSimpleProp(_T("ColChunks"), (_variant_t)terrain->m_ColChunks, NULL, PropertyTerrainColChunks);
+	pProp = new CSimpleProp(_T("ColChunks"), (_variant_t)(terrain->m_ColChunks * terrain->m_ChunkSize + 1), NULL, PropertyTerrainColNum);
 	pProp->Enable(FALSE);
 	pComponent->AddSubItem(pProp);
 	pProp = new CSimpleProp(_T("ChunkSize"), (_variant_t)terrain->m_ChunkSize, NULL, PropertyTerrainChunkSize);
@@ -4724,8 +4724,8 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		SoundContext::getSingleton().m_listener->CommitDeferredSettings();
 		break;
 	}
-	case PropertyTerrainRowChunks:
-	case PropertyTerrainColChunks:
+	case PropertyTerrainRowNum:
+	case PropertyTerrainColNum:
 	case PropertyTerrainChunkSize:
 	case PropertyTerrainChunkPath:
 		break;
