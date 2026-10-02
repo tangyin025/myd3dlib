@@ -730,17 +730,6 @@ void CChildView::RenderSelectedControl(IDirect3DDevice9 * pd3dDevice, my::Contro
 	}
 }
 
-void CChildView::StartPerformanceCount(void)
-{
-	QueryPerformanceCounter(&m_qwTime[0]);
-}
-
-double CChildView::EndPerformanceCount(void)
-{
-	QueryPerformanceCounter(&m_qwTime[1]);
-	return (double)(m_qwTime[1].QuadPart - m_qwTime[0].QuadPart) / theApp.m_llQPFTicksPerSec;
-}
-
 my::Matrix4 CChildView::GetParticleTransform(DWORD EmitterFaceType, const my::Emitter::Particle & particle, const my::Matrix4 & World, const my::Vector3 & Scale, const my::Matrix4 & View)
 {
 	my::Vector3 polar = View.getColumn<2>().xyz.cartesianToPolar();
@@ -1484,6 +1473,20 @@ void CChildView::OnPaint()
 		}
 		BOOST_SCOPE_EXIT_END;
 
+		LARGE_INTEGER qwTime;
+		QueryPerformanceCounter(&qwTime);
+		LONGLONG llLastElapsedTime = qwTime.QuadPart - m_qwTime.QuadPart;
+		if (!pFrame->m_ctlcaptured
+			&& !pFrame->m_Pivot.m_Captured
+			&& model_view_camera->m_DragMode == my::ModelViewerCamera::DragModeNone
+			&& llLastElapsedTime < theApp.m_llQPFTicksPerSec / 30)
+		{
+			::Sleep((theApp.m_llQPFTicksPerSec * 1000 / 30 - llLastElapsedTime * 1000) / theApp.m_llQPFTicksPerSec);
+			QueryPerformanceCounter(&qwTime);
+			llLastElapsedTime = qwTime.QuadPart - m_qwTime.QuadPart;
+		}
+		m_qwTime = qwTime;
+
 		if (SUCCEEDED(hr = theApp.m_d3dDevice->BeginScene()))
 		{
 			//m_BgColor = D3DCOLOR_ARGB(0,161,161,161);
@@ -1495,7 +1498,7 @@ void CChildView::OnPaint()
 			V(theApp.m_d3dDevice->GetRenderTargetData(m_PositionRT->GetSurfaceLevel(0), m_OffscreenPositionRT->m_ptr));
 			V(theApp.m_d3dDevice->SetRenderTarget(0, m_SwapChainBuffer->m_ptr));
 
-			swprintf_s(&m_ScrInfo[0][0], m_ScrInfo[0].size(), L"PerformanceSec: %.3f", EndPerformanceCount());
+			swprintf_s(&m_ScrInfo[0][0], m_ScrInfo[0].size(), L"PerformanceSec: %.3f", (double)llLastElapsedTime / theApp.m_llQPFTicksPerSec);
 			for (unsigned int PassID = 0; PassID < RenderPipeline::PassTypeNum; PassID++)
 			{
 				swprintf_s(&m_ScrInfo[1 + PassID][0], m_ScrInfo[1 + PassID].size(), L"%S: %d, %d", RenderPipeline::PassTypeToStr(PassID), theApp.m_PassDrawCall[PassID], theApp.m_PassBatchDrawCall[PassID]);
@@ -1693,7 +1696,6 @@ void CChildView::OnSize(UINT nType, int cx, int cy)
 	if(cx > 0 && cy > 0 && (cx != m_SwapChainBufferDesc.Width || cy != m_SwapChainBufferDesc.Height))
 	{
 		// ! 在初始化窗口时，会被反复创建多次
-		StartPerformanceCount();
 		OnLostDevice();
 		OnResetDevice();
 		ASSERT(m_Camera);
@@ -1816,7 +1818,6 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 
 	if (!pFrame->m_selactors.empty() && pFrame->m_Pivot.OnLButtonDown(ray, m_PivotScale))
 	{
-		StartPerformanceCount();
 		CMainFrame::ActorList::iterator sel_iter = pFrame->m_selactors.begin();
 		for (; sel_iter != pFrame->m_selactors.end(); sel_iter++)
 		{
@@ -2038,7 +2039,6 @@ ctrl_handle_end:
 	tracker.TrackRubberBand(this, point, TRUE);
 	tracker.m_rect.NormalizeRect();
 
-	StartPerformanceCount();
 	if (!(nFlags & MK_SHIFT) && !(nFlags & MK_CONTROL) && (!pFrame->m_selactors.empty() || !pFrame->m_selctls.empty()))
 	{
 		pFrame->m_selactors.clear();
@@ -2287,7 +2287,6 @@ void CChildView::OnLButtonUp(UINT nFlags, CPoint point)
 	if (pFrame->m_Pivot.m_Captured && pFrame->m_Pivot.OnLButtonUp(
 		m_Camera->CalculateRay(my::Vector2((float)point.x, (float)point.y), CSize(m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height))))
 	{
-		StartPerformanceCount();
 		CMainFrame::ActorList::iterator sel_iter = pFrame->m_selactors.begin();
 		for (; sel_iter != pFrame->m_selactors.end(); sel_iter++)
 		{
@@ -2481,8 +2480,6 @@ void CChildView::OnMouseMove(UINT nFlags, CPoint point)
 			}
 		}
 
-		StartPerformanceCount();
-
 		CMainFrame::ActorList::iterator sel_iter = pFrame->m_selactors.begin();
 		for (; sel_iter != pFrame->m_selactors.end(); sel_iter++)
 		{
@@ -2597,7 +2594,6 @@ BOOL CChildView::PreTranslateMessage(MSG* pMsg)
 			theApp.m_listener->SetVelocity(my::Vector3(0), DS3D_DEFERRED);
 			theApp.m_listener->SetOrientation(m_Camera->m_View.getColumn<2>().xyz, m_Camera->m_View.getColumn<1>().xyz, DS3D_DEFERRED);
 			theApp.m_listener->CommitDeferredSettings();
-			StartPerformanceCount();
 			Invalidate();
 			break;
 		}
@@ -2735,7 +2731,6 @@ void CChildView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 			theApp.m_listener->SetVelocity(my::Vector3(0), DS3D_DEFERRED);
 			theApp.m_listener->SetOrientation(m_Camera->m_View.getColumn<2>().xyz, m_Camera->m_View.getColumn<1>().xyz, DS3D_DEFERRED);
 			theApp.m_listener->CommitDeferredSettings();
-			StartPerformanceCount();
 			Invalidate();
 			CEnvironmentWnd::CameraPropEventArgs arg(this);
 			pFrame->m_EventCameraPropChanged(&arg);
