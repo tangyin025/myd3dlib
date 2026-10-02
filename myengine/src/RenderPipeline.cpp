@@ -522,6 +522,8 @@ void RenderPipeline::OnRender(
 		V(pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, 0, 0.0f, 0));
 		RenderAllObjects(pd3dDevice, PassTypeShadow, pRC, fTime, fElapsedTime);
 		ShadowSurf.Release();
+		if (false)
+			D3DXSaveTextureToFileA("aaa.bmp", D3DXIFF_BMP, m_ShadowRT[i]->m_ptr, NULL);
 
 		ClearAllObjects(PassTypeShadow);
 	}

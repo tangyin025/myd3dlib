@@ -237,7 +237,6 @@ namespace my
 			DragModeNone = 0,
 			DragModeRotate,
 			DragModeTrake,
-			DragModeMove,
 			DragModeZoom,
 		};
 

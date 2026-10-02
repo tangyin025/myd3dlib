@@ -54,7 +54,7 @@ public: D3DSURFACE_DESC m_SwapChainBufferDesc; protected:
 public: my::SurfacePtr m_OffscreenPositionRT; protected:
 	typedef std::map<int, boost::array<wchar_t, 256> > ScrInfoMap;
 	ScrInfoMap m_ScrInfo;
-	LARGE_INTEGER m_qwTime[2];
+	LARGE_INTEGER m_qwTime;
 	Component * m_raycmp;
 	CPoint m_raychunkid;
 	int m_rayinstid;
@@ -77,8 +77,6 @@ public: my::SurfacePtr m_OffscreenPositionRT; protected:
 	void RenderSelectedActor(IDirect3DDevice9 * pd3dDevice, Actor * actor, D3DCOLOR color);
 	void RenderSelectedComponent(IDirect3DDevice9 * pd3dDevice, Component * cmp, D3DCOLOR color);
 	void RenderSelectedControl(IDirect3DDevice9 * pd3dDevice, my::Control * ctl, D3DCOLOR color, bool subhandle);
-	void StartPerformanceCount(void);
-	double EndPerformanceCount(void);
 	static my::Matrix4 GetParticleTransform(DWORD EmitterFaceType, const my::Emitter::Particle & particle, const my::Matrix4 & World, const my::Vector3 & Scale, const my::Matrix4 & View);
 	bool OverlapTestFrustumAndActor(const my::Frustum & frustum, Actor * actor);
 	bool OverlapTestFrustumAndComponent(const my::Frustum & frustum, const my::Frustum & local_ftm, Component * cmp);
