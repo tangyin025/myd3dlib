@@ -310,27 +310,6 @@ LRESULT ModelViewerCamera::MsgProc(
 		}
 		break;
 
-	case WM_MBUTTONDOWN:
-		if ((GetKeyState(VK_MENU) & 0x8000) && m_DragMode == DragModeNone)
-		{
-			m_DragMode = DragModeTrake;
-			m_DragPt.SetPoint((short)LOWORD(lParam), (short)HIWORD(lParam));
-			::SetCapture(hWnd);
-			*pbNoFurtherProcessing = true;
-			return 0;
-		}
-		break;
-
-	case WM_MBUTTONUP:
-		if (m_DragMode == DragModeTrake)
-		{
-			m_DragMode = DragModeNone;
-			::ReleaseCapture();
-			*pbNoFurtherProcessing = true;
-			return 0;
-		}
-		break;
-
 	case WM_RBUTTONDOWN:
 		if ((GetKeyState(VK_MENU) & 0x8000) && m_DragMode == DragModeNone)
 		{
@@ -344,6 +323,29 @@ LRESULT ModelViewerCamera::MsgProc(
 
 	case WM_RBUTTONUP:
 		if (m_DragMode == DragModeZoom)
+		{
+			m_DragMode = DragModeNone;
+			::ReleaseCapture();
+			*pbNoFurtherProcessing = true;
+			return 0;
+		}
+		break;
+
+	case WM_MBUTTONDOWN:
+	case WM_XBUTTONDOWN:
+		if ((GetKeyState(VK_MENU) & 0x8000) && m_DragMode == DragModeNone)
+		{
+			m_DragMode = DragModeTrake;
+			m_DragPt.SetPoint((short)LOWORD(lParam), (short)HIWORD(lParam));
+			::SetCapture(hWnd);
+			*pbNoFurtherProcessing = true;
+			return 0;
+		}
+		break;
+
+	case WM_MBUTTONUP:
+	case WM_XBUTTONUP:
+		if (m_DragMode == DragModeTrake)
 		{
 			m_DragMode = DragModeNone;
 			::ReleaseCapture();
