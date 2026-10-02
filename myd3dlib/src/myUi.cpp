@@ -4656,15 +4656,15 @@ bool DialogMgr::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	case WM_MOUSEMOVE:
 	case WM_LBUTTONDOWN:
 	case WM_LBUTTONUP:
-	case WM_MBUTTONDOWN:
-	case WM_MBUTTONUP:
 	case WM_RBUTTONDOWN:
 	case WM_RBUTTONUP:
+	case WM_MBUTTONDOWN:
+	case WM_MBUTTONUP:
 	case WM_XBUTTONDOWN:
 	case WM_XBUTTONUP:
 	case WM_LBUTTONDBLCLK:
-	case WM_MBUTTONDBLCLK:
 	case WM_RBUTTONDBLCLK:
+	case WM_MBUTTONDBLCLK:
 	case WM_XBUTTONDBLCLK:
 	case WM_MOUSEWHEEL:
 		{
@@ -4723,7 +4723,7 @@ bool DialogMgr::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			}
 
 			// ! WM_RBUTTONDOWN + Mouse::Unacquire may cause Visual Studio IDE input issue
-			if ((uMsg == WM_LBUTTONDOWN || uMsg == WM_MBUTTONDOWN /*|| uMsg == WM_RBUTTONDOWN */|| uMsg == WM_XBUTTONDOWN) && !bFindMouseOver && Control::s_FocusControl)
+			if ((uMsg == WM_LBUTTONDOWN /*|| uMsg == WM_RBUTTONDOWN */ || uMsg == WM_MBUTTONDOWN || uMsg == WM_XBUTTONDOWN) && !bFindMouseOver && Control::s_FocusControl)
 			{
 				Control::SetFocusControl(NULL);
 			}

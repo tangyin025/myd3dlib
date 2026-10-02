@@ -2573,15 +2573,17 @@ BOOL CChildView::PreTranslateMessage(MSG* pMsg)
 		switch (pMsg->message)
 		{
 		case WM_LBUTTONDOWN:
-		case WM_MBUTTONDOWN:
 		case WM_RBUTTONDOWN:
+		case WM_MBUTTONDOWN:
+		case WM_XBUTTONDOWN:
 		{
 			pFrame->m_bEatAltUp = TRUE;
 			break;
 		}
 		case WM_LBUTTONUP:
-		case WM_MBUTTONUP:
 		case WM_RBUTTONUP:
+		case WM_MBUTTONUP:
+		case WM_XBUTTONUP:
 		{
 			CEnvironmentWnd::CameraPropEventArgs arg(this);
 			pFrame->m_EventCameraPropChanged(&arg);

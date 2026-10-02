@@ -989,22 +989,6 @@ bool InputMgr::Capture(double fTime, float fElapsedTime)
 //			return arg.handled;
 //		}
 //		break;
-//	case WM_MBUTTONDOWN:
-//		if (m_MousePressedEvent)
-//		{
-//			MouseBtnEventArg arg(2);
-//			m_MousePressedEvent(&arg);
-//			return arg.handled;
-//		}
-//		break;
-//	case WM_MBUTTONUP:
-//		if (m_MouseReleasedEvent)
-//		{
-//			MouseBtnEventArg arg(2);
-//			m_MouseReleasedEvent(&arg);
-//			return arg.handled;
-//		}
-//		break;
 //	case WM_RBUTTONDOWN:
 //		if (m_MousePressedEvent)
 //		{
@@ -1017,6 +1001,22 @@ bool InputMgr::Capture(double fTime, float fElapsedTime)
 //		if (m_MouseReleasedEvent)
 //		{
 //			MouseBtnEventArg arg(1);
+//			m_MouseReleasedEvent(&arg);
+//			return arg.handled;
+//		}
+//		break;
+//	case WM_MBUTTONDOWN:
+//		if (m_MousePressedEvent)
+//		{
+//			MouseBtnEventArg arg(2);
+//			m_MousePressedEvent(&arg);
+//			return arg.handled;
+//		}
+//		break;
+//	case WM_MBUTTONUP:
+//		if (m_MouseReleasedEvent)
+//		{
+//			MouseBtnEventArg arg(2);
 //			m_MouseReleasedEvent(&arg);
 //			return arg.handled;
 //		}
