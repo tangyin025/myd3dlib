@@ -626,7 +626,6 @@ void Animator::save(Archive & ar, const unsigned int version) const
 	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(Component);
 	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(AnimationNode);
 	ar << BOOST_SERIALIZATION_NVP(m_SkeletonPath);
-	ar << BOOST_SERIALIZATION_NVP(m_RootBone);
 	ar << BOOST_SERIALIZATION_NVP(m_DynamicBones);
 }
 
@@ -636,7 +635,6 @@ void Animator::load(Archive & ar, const unsigned int version)
 	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(Component);
 	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(AnimationNode);
 	ar >> BOOST_SERIALIZATION_NVP(m_SkeletonPath);
-	ar >> BOOST_SERIALIZATION_NVP(m_RootBone);
 	ar >> BOOST_SERIALIZATION_NVP(m_DynamicBones);
 	ReloadSequenceGroup();
 }
@@ -717,7 +715,7 @@ void Animator::Tick(float fElapsedTime, float fTotalWeight)
 			{
 				GetPose(anim_pose_hier, *root_iter, m_Skeleton->m_boneHierarchy);
 
-				UpdateHierarchyBoneList(*root_iter, m_RootBone);
+				UpdateHierarchyBoneList(*root_iter, Bone(Vector3(0, 0, 0)));
 			}
 
 			DynamicBoneContextMap::iterator db_iter = m_DynamicBones.begin();
