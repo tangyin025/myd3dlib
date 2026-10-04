@@ -323,8 +323,6 @@ public:
 
 	my::OgreSkeletonAnimationPtr m_Skeleton;
 
-	my::Bone m_RootBone;
-
 	my::BoneList anim_pose_hier;
 
 	my::BoneList bind_pose;
@@ -390,7 +388,6 @@ public:
 	Animator(const char * Name)
 		: Component(Name)
 		, AnimationNode(Name ? Name : "unknown", 1)
-		, m_RootBone(my::Vector3(0, 0, 0))
 	{
 	}
 
