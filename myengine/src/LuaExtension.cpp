@@ -158,6 +158,36 @@ static const std::string resourcemgr_get_relative_path(my::ResourceMgr* self, co
 	return self->GetRelativePath(u8tots(u8_path).c_str());
 }
 
+static void resourcemgr_load_texture_async(my::ResourceMgr* self, const char* path, const luabind::object& callback, int Priority)
+{
+	self->LoadTextureAsync(path, boost::bind(&luabind::call_function<void, my::DeviceResourceBasePtr>, callback, boost::placeholders::_1), Priority);
+}
+
+static void resourcemgr_load_mesh_async(my::ResourceMgr* self, const char* path, const luabind::object& callback, int Priority)
+{
+	self->LoadMeshAsync(path, boost::bind(&luabind::call_function<void, my::DeviceResourceBasePtr>, callback, boost::placeholders::_1), Priority);
+}
+
+static void resourcemgr_load_skeleton_async(my::ResourceMgr* self, const char* path, const luabind::object& callback, int Priority)
+{
+	self->LoadSkeletonAsync(path, boost::bind(&luabind::call_function<void, my::DeviceResourceBasePtr>, callback, boost::placeholders::_1), Priority);
+}
+//
+//static void resourcemgr_load_effect_async(my::ResourceMgr* self, const char* path, const char* macros, const luabind::object& callback, int Priority)
+//{
+//	self->LoadEffectAsync(path, macros, boost::bind(&luabind::call_function<void, my::DeviceResourceBasePtr>, callback, boost::placeholders::_1), Priority);
+//}
+
+static void resourcemgr_load_font_async(my::ResourceMgr* self, const char* path, int height, int face_index, const luabind::object& callback, int Priority)
+{
+	self->LoadFontAsync(path, height, face_index, boost::bind(&luabind::call_function<void, my::DeviceResourceBasePtr>, callback, boost::placeholders::_1), Priority);
+}
+
+static void resourcemgr_load_wav_async(my::ResourceMgr* self, const char* path, const luabind::object& callback, int Priority)
+{
+	self->LoadWavAsync(path, boost::bind(&luabind::call_function<void, my::DeviceResourceBasePtr>, callback, boost::placeholders::_1), Priority);
+}
+
 static DWORD ARGB(int a, int r, int g, int b)
 {
 	return D3DCOLOR_ARGB(a,r,g,b);
@@ -2484,17 +2514,17 @@ void LuaContext::Init(void)
 			//.def("OpenIStream", &my::ResourceMgr::OpenIStream)
 			.def("CheckIORequests", &my::ResourceMgr::CheckIORequests)
 			.def("LoadTexture", &my::ResourceMgr::LoadTexture)
-			.def("LoadTextureAsync", &my::ResourceMgr::LoadTextureAsync<luabind::object>)
+			.def("LoadTextureAsync", &resourcemgr_load_texture_async)
 			.def("LoadMesh", &my::ResourceMgr::LoadMesh)
-			.def("LoadMeshAsync", &my::ResourceMgr::LoadMeshAsync<luabind::object>)
+			.def("LoadMeshAsync", &resourcemgr_load_mesh_async)
 			.def("LoadSkeleton", &my::ResourceMgr::LoadSkeleton)
-			.def("LoadSkeletonAsync", &my::ResourceMgr::LoadSkeletonAsync<luabind::object>)
+			.def("LoadSkeletonAsync", &resourcemgr_load_skeleton_async)
 			//.def("LoadEffect", &my::ResourceMgr::LoadEffect)
-			//.def("LoadEffectAsync", &my::ResourceMgr::LoadEffectAsync<luabind::object>)
+			//.def("LoadEffectAsync", &resourcemgr_load_effect_async)
 			.def("LoadFont", &my::ResourceMgr::LoadFont)
-			.def("LoadFontAsync", &my::ResourceMgr::LoadFontAsync<luabind::object>)
+			.def("LoadFontAsync", &resourcemgr_load_font_async)
 			.def("LoadWav", &my::ResourceMgr::LoadWav)
-			.def("LoadWavAsync", &my::ResourceMgr::LoadWavAsync<luabind::object>)
+			.def("LoadWavAsync", &resourcemgr_load_wav_async)
 
 		//, def("res2texture", (boost::shared_ptr<my::BaseTexture>(*)(const boost::shared_ptr<my::DeviceResourceBase>&))& boost::dynamic_pointer_cast<my::BaseTexture, my::DeviceResourceBase>)
 		//, def("res2mesh", (boost::shared_ptr<my::Mesh>(*)(const boost::shared_ptr<my::DeviceResourceBase>&))& boost::dynamic_pointer_cast<my::Mesh, my::DeviceResourceBase>)

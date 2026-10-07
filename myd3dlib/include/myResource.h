@@ -234,6 +234,7 @@ namespace my
 			std::pair<IORequestPtrPairList::iterator, bool> res = m_IORequestList.insert(std::make_pair(key, request));
 			if (!res.second)
 			{
+				// ! boost::bind_t::function_equal, https://www.boost.org/doc/libs/1_75_0/doc/html/function/faq.html
 				_ASSERT(std::find(res.first->second->m_callbacks.begin(), res.first->second->m_callbacks.end(), callback) == res.first->second->m_callbacks.end());
 				res.first->second->m_callbacks.push_back(callback);
 				return res.first;
