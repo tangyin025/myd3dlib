@@ -354,6 +354,10 @@ void CPropertiesWnd::UpdatePropertiesActor(Actor * actor)
 	pActor->GetSubItem(1)->GetSubItem(9)->SetValue((_variant_t)actor->m_OctAabb->m_max.x);
 	pActor->GetSubItem(1)->GetSubItem(10)->SetValue((_variant_t)actor->m_OctAabb->m_max.y);
 	pActor->GetSubItem(1)->GetSubItem(11)->SetValue((_variant_t)actor->m_OctAabb->m_max.z);
+	my::Vector3 ext = actor->m_OctAabb->Extent();
+	pActor->GetSubItem(1)->GetSubItem(12)->SetValue((_variant_t)ext.x);
+	pActor->GetSubItem(1)->GetSubItem(13)->SetValue((_variant_t)ext.y);
+	pActor->GetSubItem(1)->GetSubItem(14)->SetValue((_variant_t)ext.z);
 	pActor->GetSubItem(2)->GetSubItem(0)->SetValue((_variant_t)actor->m_Position.x);
 	pActor->GetSubItem(2)->GetSubItem(1)->SetValue((_variant_t)actor->m_Position.y);
 	pActor->GetSubItem(2)->GetSubItem(2)->SetValue((_variant_t)actor->m_Position.z);
@@ -1422,6 +1426,7 @@ void CPropertiesWnd::CreatePropertiesActor(Actor * actor)
 	pProp = new CSimpleProp(_T("maxz"), (_variant_t)actor->m_aabb.m_max.z, NULL, PropertyActorMaxZ);
 	pAABB->AddSubItem(pProp);
 
+	my::Vector3 ext = actor->m_OctAabb->Extent();
 	pProp = new CSimpleProp(_T("octminx"), (_variant_t)actor->m_OctAabb->m_min.x, NULL, PropertyActorOctMinX);
 	pProp->Enable(FALSE);
 	pAABB->AddSubItem(pProp);
@@ -1438,6 +1443,15 @@ void CPropertiesWnd::CreatePropertiesActor(Actor * actor)
 	pProp->Enable(FALSE);
 	pAABB->AddSubItem(pProp);
 	pProp = new CSimpleProp(_T("octmaxz"), (_variant_t)actor->m_OctAabb->m_max.z, NULL, PropertyActorOctMaxZ);
+	pProp->Enable(FALSE);
+	pAABB->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("octextx"), (_variant_t)ext.x, NULL, PropertyActorOctExtX);
+	pProp->Enable(FALSE);
+	pAABB->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("octexty"), (_variant_t)ext.y, NULL, PropertyActorOctExtY);
+	pProp->Enable(FALSE);
+	pAABB->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("octextz"), (_variant_t)ext.z, NULL, PropertyActorOctExtZ);
 	pProp->Enable(FALSE);
 	pAABB->AddSubItem(pProp);
 
@@ -3533,6 +3547,9 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	case PropertyActorOctMaxX:
 	case PropertyActorOctMaxY:
 	case PropertyActorOctMaxZ:
+	case PropertyActorOctExtX:
+	case PropertyActorOctExtY:
+	case PropertyActorOctExtZ:
 		break;
 	case PropertyActorPos:
 	case PropertyActorPosX:
