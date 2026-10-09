@@ -1001,7 +1001,7 @@ void Actor::Detach(Actor * other)
 	_ASSERT(false);
 }
 
-Actor * Actor::GetAttacher(unsigned int i)
+Actor * Actor::GetAttacher(unsigned int i) const
 {
 	return i < m_Attaches.size() ? m_Attaches[i] : NULL;
 }
@@ -1104,21 +1104,9 @@ void Actor::StopAllActionInst(void)
 	}
 }
 
-Component * Actor::GetFirstComponent(DWORD Type, unsigned int startid)
+Component * Actor::GetFirstComponent(DWORD Type, unsigned int startpos) const
 {
-	for (unsigned int i = startid; i < m_Cmps.size(); i++)
-	{
-		if (m_Cmps[i]->GetComponentType() == Type)
-		{
-			return m_Cmps[i].get();
-		}
-	}
-	return NULL;
-}
-
-const Component * Actor::GetFirstComponent(DWORD Type, unsigned int startid) const
-{
-	for (unsigned int i = startid; i < m_Cmps.size(); i++)
+	for (unsigned int i = startpos; i < m_Cmps.size(); i++)
 	{
 		if (m_Cmps[i]->GetComponentType() == Type)
 		{

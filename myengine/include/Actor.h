@@ -395,7 +395,7 @@ public:
 
 	void Detach(Actor * other);
 
-	Actor * GetAttacher(unsigned int i);
+	Actor * GetAttacher(unsigned int i) const;
 
 	my::Bone GetAttachPose(int BoneId, const my::Vector3 & LocalPosition, const my::Quaternion & LocalRotation) const;
 
@@ -415,19 +415,11 @@ public:
 
 	void StopAllActionInst(void);
 
-	Component * GetFirstComponent(DWORD Type, unsigned int startid);
-
-	const Component * GetFirstComponent(DWORD Type, unsigned int startid) const;
+	Component * GetFirstComponent(DWORD Type, unsigned int startpos) const;
 
 	template <typename ComponentType>
-	ComponentType * GetFirstComponent(void)
+	ComponentType * GetFirstComponent(void) const
 	{
 		return dynamic_cast<ComponentType*>(GetFirstComponent(ComponentType::TypeID, 0));
-	}
-
-	template <typename ComponentType>
-	const ComponentType * GetFirstComponent(void) const
-	{
-		return dynamic_cast<const ComponentType*>(GetFirstComponent(ComponentType::TypeID, 0));
 	}
 };
