@@ -3849,9 +3849,9 @@ void LuaContext::Init(void)
 				boost::bind(&Actor::PlayAction, boost::placeholders::_1, boost::placeholders::_2, false)))
 			.def("StopActionInst", &Actor::StopActionInst)
 			.def("StopAllActionInst", &Actor::StopAllActionInst)
-			.def("GetFirstComponent", (Component * (Actor::*)(DWORD, unsigned int))&Actor::GetFirstComponent)
+			.def("GetFirstComponent", (Component* (Actor::*)(DWORD, unsigned int) const)&Actor::GetFirstComponent)
 			.def("GetFirstComponent", luabind::tag_function<Component* (Actor*, DWORD)>(
-				boost::bind<Component*>((Component* (Actor::*)(DWORD, unsigned int))&Actor::GetFirstComponent, boost::placeholders::_1, boost::placeholders::_2, 0)))
+				boost::bind<Component*>((Component* (Actor::*)(DWORD, unsigned int) const)&Actor::GetFirstComponent, boost::placeholders::_1, boost::placeholders::_2, 0)))
 
 		//, def("act2entity", (boost::shared_ptr<my::OctEntity>(*)(const boost::shared_ptr<Actor>&))& boost::static_pointer_cast<my::OctEntity, Actor>)
 
@@ -3865,7 +3865,7 @@ void LuaContext::Init(void)
 				boost::bind(&AnimationNode::AnimationNodePtrList::size,
 					boost::bind(&AnimationNode::m_Childs, boost::placeholders::_1))))
 			.property("TopNode", (AnimationNode* (AnimationNode::*)(void))& AnimationNode::GetTopNode)
-			.def("FindSubNode", (AnimationNode* (AnimationNode::*)(const std::string&))& AnimationNode::FindSubNode)
+			.def("FindSubNode", &AnimationNode::FindSubNode)
 
 		, class_<AnimationNodeSequence, AnimationNode, boost::shared_ptr<AnimationNode> >("AnimationNodeSequence")
 			.def(constructor<const char*>())

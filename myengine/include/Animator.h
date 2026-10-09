@@ -57,9 +57,7 @@ public:
 
 	AnimationNode * GetTopNode(void);
 
-	const AnimationNode * FindSubNode(const std::string & Name) const;
-
-	AnimationNode * FindSubNode(const std::string & Name);
+	AnimationNode * FindSubNode(const std::string & Name) const;
 
 	virtual void Tick(float fElapsedTime, float fTotalWeight) = 0;
 

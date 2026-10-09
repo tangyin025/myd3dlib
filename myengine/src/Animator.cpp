@@ -98,36 +98,10 @@ const AnimationNode * AnimationNode::GetTopNode(void) const
 
 AnimationNode * AnimationNode::GetTopNode(void)
 {
-	if (m_Parent)
-	{
-		return m_Parent->GetTopNode();
-	}
-	return this;
+	return const_cast<AnimationNode*>(static_cast<const AnimationNode&>(*this).GetTopNode());
 }
 
-const AnimationNode * AnimationNode::FindSubNode(const std::string & Name) const
-{
-	for (unsigned int i = 0; i < m_Childs.size(); i++)
-	{
-		if (m_Childs[i])
-		{
-			if (m_Childs[i]->m_Name == Name)
-			{
-				return m_Childs[i].get();
-			}
-
-			AnimationNode* node = m_Childs[i]->FindSubNode(Name);
-			if (node)
-			{
-				return node;
-			}
-		}
-	}
-
-	return NULL;
-}
-
-AnimationNode * AnimationNode::FindSubNode(const std::string & Name)
+AnimationNode * AnimationNode::FindSubNode(const std::string & Name) const
 {
 	for (unsigned int i = 0; i < m_Childs.size(); i++)
 	{
@@ -276,7 +250,6 @@ my::BoneList & AnimationNodeSequence::GetPose(my::BoneList & pose, int root_i, c
 
 void AnimationNodeSlot::Tick(float fElapsedTime, float fTotalWeight)
 {
-	Animator * Root = dynamic_cast<Animator *>(GetTopNode());
 	SequenceList::iterator seq_iter = m_SequenceSlot.begin();
 	for (; seq_iter != m_SequenceSlot.end();)
 	{
