@@ -69,9 +69,9 @@ void Controller::RequestResource(void)
 
 	m_PxShape->userData = this; // ! trigger_iter->otherShape->userData
 
-	SetSimulationFilterWord0(m_DescSimulationFilterWord0);
+	SetSimulationFilter(m_DescSimulationFilter.word0, m_DescSimulationFilter.word1, m_DescSimulationFilter.word2, m_DescSimulationFilter.word3);
 
-	SetQueryFilterWord0(m_DescQueryFilterWord0);
+	SetQueryFilter(m_DescQueryFilter.word0, m_DescQueryFilter.word1, m_DescQueryFilter.word2, m_DescQueryFilter.word3);
 
 	SetShapeFlags(m_DescShapeFlags);
 }
@@ -109,46 +109,62 @@ void Controller::SetPxPoseOrbyPxThread(const my::Vector3 & Pos, const my::Quater
 	SetFootPosition(Pos);
 }
 
-void Controller::SetSimulationFilterWord0(unsigned int filterWord0)
+void Controller::SetSimulationFilter(unsigned int word0, unsigned int word1, unsigned int word2, unsigned int word3)
 {
-	m_DescSimulationFilterWord0 = filterWord0;
+	m_DescSimulationFilter = physx::PxFilterData(word0, word1, word2, word3);
 
 	if (m_PxShape)
 	{
-		physx::PxFilterData filter_data(filterWord0, 0, 0, 0);
-		m_PxShape->setSimulationFilterData(filter_data);
+		m_PxShape->setSimulationFilterData(m_DescSimulationFilter);
 	}
 }
 
-unsigned int Controller::GetSimulationFilterWord0(void) const
+void Controller::GetSimulationFilter(unsigned int & word0, unsigned int & word1, unsigned int & word2, unsigned int & word3) const
 {
 	if (m_PxShape)
 	{
-		return m_PxShape->getSimulationFilterData().word0;
+		physx::PxFilterData filter_data = m_PxShape->getSimulationFilterData();
+		word0 = filter_data.word0;
+		word1 = filter_data.word1;
+		word2 = filter_data.word2;
+		word3 = filter_data.word3;
 	}
-
-	return m_DescSimulationFilterWord0;
-}
-
-void Controller::SetQueryFilterWord0(unsigned int filterWord0)
-{
-	m_DescQueryFilterWord0 = filterWord0;
-
-	if (m_PxShape)
+	else
 	{
-		physx::PxFilterData filter_data(filterWord0, 0, 0, 0);
-		m_PxShape->setQueryFilterData(filter_data);
+		word0 = m_DescSimulationFilter.word0;
+		word1 = m_DescSimulationFilter.word1;
+		word2 = m_DescSimulationFilter.word2;
+		word3 = m_DescSimulationFilter.word3;
 	}
 }
 
-unsigned int Controller::GetQueryFilterWord0(void) const
+void Controller::SetQueryFilter(unsigned int word0, unsigned int word1, unsigned int word2, unsigned int word3)
+{
+	m_DescQueryFilter = physx::PxFilterData(word0, word1, word2, word3);
+
+	if (m_PxShape)
+	{
+		m_PxShape->setQueryFilterData(m_DescQueryFilter);
+	}
+}
+
+void Controller::GetQueryFilter(unsigned int & word0, unsigned int & word1, unsigned int & word2, unsigned int & word3) const
 {
 	if (m_PxShape)
 	{
-		return m_PxShape->getQueryFilterData().word0;
+		physx::PxFilterData filter_data = m_PxShape->getQueryFilterData();
+		word0 = filter_data.word0;
+		word1 = filter_data.word1;
+		word2 = filter_data.word2;
+		word3 = filter_data.word3;
 	}
-
-	return m_DescQueryFilterWord0;
+	else
+	{
+		word0 = m_DescQueryFilter.word0;
+		word1 = m_DescQueryFilter.word1;
+		word2 = m_DescQueryFilter.word2;
+		word3 = m_DescQueryFilter.word3;
+	}
 }
 
 void Controller::SetShapeFlags(unsigned int Flags)

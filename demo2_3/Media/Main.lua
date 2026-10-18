@@ -17,8 +17,8 @@ cmp2.Material=lambert2
 actor2:InsertComponent(cmp2)
 actor2:CreateRigidActor(Actor.eRIGID_DYNAMIC)
 cmp2:CreateSphereShape(Vector3(0,0,0),Quaternion.Identity(),1,0.5,0.5,0.5)
-cmp2.SimulationFilterWord0=1
-cmp2.QueryFilterWord0=1
+cmp2:SetSimulationFilter(1,0,0,0)
+cmp2:SetQueryFilter(1,0,0,0)
 class 'Actor2Behavior'(Component)
 function Actor2Behavior:__init(name)
 	Component.__init(self,name)
@@ -38,8 +38,8 @@ cmp3.Material=lambert2:Clone()
 actor3:InsertComponent(cmp3)
 actor3:CreateRigidActor(Actor.eRIGID_DYNAMIC)
 cmp3:CreateCapsuleShape(Vector3(0,0,0),Quaternion.RotationYawPitchRoll(0,0,math.rad(-90)),0.1,0.25,0.5,0.5,0.5)
-cmp3.SimulationFilterWord0=1
-cmp3.QueryFilterWord0=1
+cmp3:SetSimulationFilter(1,0,0,0)
+cmp3:SetQueryFilter(1,0,0,0)
 
 -- 在角色手部绑定物体
 actor4=Actor(NamedObject.MakeUniqueName("actor"),Vector3(0,0,0),Quaternion.Identity(),Vector3(0.1,0.25,0.1),AABB(-1,1))
@@ -49,8 +49,8 @@ cmp4.Material=lambert2:Clone()
 actor4:InsertComponent(cmp4)
 actor4:CreateRigidActor(Actor.eRIGID_DYNAMIC)
 cmp4:CreateCapsuleShape(Vector3(0,0,0),Quaternion.RotationYawPitchRoll(0,0,math.rad(-90)),0.1,0.25,0.5,0.5,0.5)
-cmp4.SimulationFilterWord0=1
-cmp4.QueryFilterWord0=1
+cmp4:SetSimulationFilter(1,0,0,0)
+cmp4:SetQueryFilter(1,0,0,0)
 
 -- 搞一个trigger
 actor5=Actor(NamedObject.MakeUniqueName("actor"),Vector3(3,1,0),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1))
@@ -58,8 +58,8 @@ local cmp5=StaticEmitter(NamedObject.MakeUniqueName("mesh_cmp"),actor5.aabb,3,Em
 actor5:InsertComponent(cmp5)
 actor5:CreateRigidActor(Actor.eRIGID_STATIC)
 cmp5:CreateBoxShape(Vector3(0,0,0),Quaternion(0,0,0,1),1,1,1,0.5,0.5,0.5)
-cmp5.SimulationFilterWord0=2
-cmp5.QueryFilterWord0=2
+cmp5:SetSimulationFilter(2,0,0,0)
+cmp5:SetQueryFilter(2,0,0,0)
 cmp5.ShapeFlags=bit.bor(Component.eSCENE_QUERY_SHAPE,Component.eTRIGGER_SHAPE,Component.eVISUALIZATION)
 
 -- 加载场景资源
@@ -113,8 +113,8 @@ client:LoadSceneAsync("scene01.xml", "scene01_", function(res)
 
 	actor3:SetRigidBodyFlag(Actor.eKINEMATIC,true)
 	for cmp in actor3.Cmps do
-		cmp.SimulationFilterWord0 = 2
-		cmp.QueryFilterWord0 = 2
+		cmp:SetSimulationFilter(2,0,0,0)
+		cmp:SetQueryFilter(2,0,0,0)
 	end
 	client:AddEntity(actor3)
 	SPlayer.player:Attach(actor3, SAction.skel:GetBoneIndex("joint13"))
@@ -123,8 +123,8 @@ client:LoadSceneAsync("scene01.xml", "scene01_", function(res)
 
 	actor4:SetRigidBodyFlag(Actor.eKINEMATIC,true)
 	for cmp in actor4.Cmps do
-		cmp.SimulationFilterWord0 = 2
-		cmp.QueryFilterWord0 = 2
+		cmp:SetSimulationFilter(2,0,0,0)
+		cmp:SetQueryFilter(2,0,0,0)
 	end
 	client:AddEntity(actor4)
 	SPlayer.player:Attach(actor4, SAction.skel:GetBoneIndex("joint59"))
@@ -137,7 +137,7 @@ client:LoadSceneAsync("scene01.xml", "scene01_", function(res)
 	actor5:UpdateWorld()
 	client:AddEntity(actor5)
 
-	-- SPlayer.player:Detach(actor3);actor3:SetRigidBodyFlag(Actor.eKINEMATIC,false);for cmp in actor3.Cmps do cmp.SimulationFilterWord0=1;cmp.QueryFilterWord0=1 end;SPlayer.player:Detach(actor4);actor4:SetRigidBodyFlag(Actor.eKINEMATIC,false);for cmp in actor4.Cmps do cmp.SimulationFilterWord0=1;cmp.QueryFilterWord0=1 end
+	-- SPlayer.player:Detach(actor3);actor3:SetRigidBodyFlag(Actor.eKINEMATIC,false);for cmp in actor3.Cmps do cmp:SetSimulationFilter(1,0,0,0);cmp:SetQueryFilter(1,0,0,0) end;SPlayer.player:Detach(actor4);actor4:SetRigidBodyFlag(Actor.eKINEMATIC,false);for cmp in actor4.Cmps do cmp:SetSimulationFilter(1,0,0,0);cmp:SetQueryFilter(1,0,0,0) end
 
 end, 0)
 	

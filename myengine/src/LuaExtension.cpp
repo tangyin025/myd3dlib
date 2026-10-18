@@ -1687,10 +1687,10 @@ void LuaContext::Init(void)
 	luaL_openlibs(m_State);
 	luabind::open(m_State);
 
-	// ! »áµ¼ÖÂÄÚ´æĞ¹Â©£¬µ«¿ÉÒÔÖØĞ´ handle_exception_aux£¬¼ÓÈë my::ExceptionµÄÖ§³Ö
+	// ! ä¼šå¯¼è‡´å†…å­˜æ³„æ¼ï¼Œä½†å¯ä»¥é‡å†™ handle_exception_auxï¼ŒåŠ å…¥ my::Exceptionçš„æ”¯æŒ
 	luabind::register_exception_handler<my::Exception>(&translate_my_exception);
 
-	//// ! ÎªÊ²Ã´²»Æğ×÷ÓÃ
+	//// ! ä¸ºä»€ä¹ˆä¸èµ·ä½œç”¨
 	//set_pcall_callback(add_file_and_line);
 
 	using namespace luabind;
@@ -3435,8 +3435,10 @@ void LuaContext::Init(void)
 			.def("CreateCapsuleShape", &Component::CreateCapsuleShape)
 			.def("CreatePlaneShape", &Component::CreatePlaneShape)
 			.def("CreateSphereShape", &Component::CreateSphereShape)
-			.property("SimulationFilterWord0", &Component::GetSimulationFilterWord0, &Component::SetSimulationFilterWord0)
-			.property("QueryFilterWord0", &Component::GetQueryFilterWord0, &Component::SetQueryFilterWord0)
+			.def("SetSimulationFilter", &Component::SetSimulationFilter)
+			.def("GetSimulationFilter", &Component::GetSimulationFilter, pure_out_value(boost::placeholders::_2) + pure_out_value(boost::placeholders::_3) + pure_out_value(boost::placeholders::_4) + pure_out_value(boost::placeholders::_5))
+			.def("SetQueryFilter", &Component::SetQueryFilter)
+			.def("GetQueryFilter", &Component::GetQueryFilter, pure_out_value(boost::placeholders::_2) + pure_out_value(boost::placeholders::_3) + pure_out_value(boost::placeholders::_4) + pure_out_value(boost::placeholders::_5))
 			.enum_("PxShapeFlag")
 			[
 				value("eSIMULATION_SHAPE", physx::PxShapeFlag::eSIMULATION_SHAPE),

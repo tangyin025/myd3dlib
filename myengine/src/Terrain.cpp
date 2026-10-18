@@ -521,10 +521,18 @@ void Terrain::save(Archive & ar, const unsigned int version) const
 		ar << BOOST_SERIALIZATION_NVP(m_PxHeightFieldPath);
 		_ASSERT(m_Actor);
 		ar << boost::serialization::make_nvp("ActorScale", m_Actor->m_Scale);
-		unsigned int SimulationFilterWord0 = GetSimulationFilterWord0();
+		unsigned int SimulationFilterWord0, SimulationFilterWord1, SimulationFilterWord2, SimulationFilterWord3;
+		GetSimulationFilter(SimulationFilterWord0, SimulationFilterWord1, SimulationFilterWord2, SimulationFilterWord3);
 		ar << BOOST_SERIALIZATION_NVP(SimulationFilterWord0);
-		unsigned int QueryFilterWord0 = GetQueryFilterWord0();
+		ar << BOOST_SERIALIZATION_NVP(SimulationFilterWord1);
+		ar << BOOST_SERIALIZATION_NVP(SimulationFilterWord2);
+		ar << BOOST_SERIALIZATION_NVP(SimulationFilterWord3);
+		unsigned int QueryFilterWord0, QueryFilterWord1, QueryFilterWord2, QueryFilterWord3;
+		GetQueryFilter(QueryFilterWord0, QueryFilterWord1, QueryFilterWord2, QueryFilterWord3);
 		ar << BOOST_SERIALIZATION_NVP(QueryFilterWord0);
+		ar << BOOST_SERIALIZATION_NVP(QueryFilterWord1);
+		ar << BOOST_SERIALIZATION_NVP(QueryFilterWord2);
+		ar << BOOST_SERIALIZATION_NVP(QueryFilterWord3);
 		unsigned int ShapeFlags = GetShapeFlags();
 		ar << BOOST_SERIALIZATION_NVP(ShapeFlags);
 		break;
@@ -584,12 +592,18 @@ void Terrain::load(Archive & ar, const unsigned int version)
 		my::Vector3 ActorScale;
 		ar >> BOOST_SERIALIZATION_NVP(ActorScale);
 		CreateHeightFieldShape(NULL, PxHeightFieldPath.c_str(), ActorScale);
-		unsigned int SimulationFilterWord0;
+		unsigned int SimulationFilterWord0, SimulationFilterWord1, SimulationFilterWord2, SimulationFilterWord3;
 		ar >> BOOST_SERIALIZATION_NVP(SimulationFilterWord0);
-		SetSimulationFilterWord0(SimulationFilterWord0);
-		unsigned int QueryFilterWord0;
+		ar >> BOOST_SERIALIZATION_NVP(SimulationFilterWord1);
+		ar >> BOOST_SERIALIZATION_NVP(SimulationFilterWord2);
+		ar >> BOOST_SERIALIZATION_NVP(SimulationFilterWord3);
+		SetSimulationFilter(SimulationFilterWord0, SimulationFilterWord1, SimulationFilterWord2, SimulationFilterWord3);
+		unsigned int QueryFilterWord0, QueryFilterWord1, QueryFilterWord2, QueryFilterWord3;
 		ar >> BOOST_SERIALIZATION_NVP(QueryFilterWord0);
-		SetQueryFilterWord0(QueryFilterWord0);
+		ar >> BOOST_SERIALIZATION_NVP(QueryFilterWord1);
+		ar >> BOOST_SERIALIZATION_NVP(QueryFilterWord2);
+		ar >> BOOST_SERIALIZATION_NVP(QueryFilterWord3);
+		SetQueryFilter(QueryFilterWord0, QueryFilterWord1, QueryFilterWord2, QueryFilterWord3);
 		unsigned int ShapeFlags;
 		ar >> BOOST_SERIALIZATION_NVP(ShapeFlags);
 		SetShapeFlags(ShapeFlags);
@@ -1230,7 +1244,7 @@ my::VertexBuffer * TerrainStream::GetVB(int k, int l)
 			}
 		}
 
-		// ! BuildTileMeshTask::DoTask需要在多线程环境下读取地形
+		// ! BuildTileMeshTask::DoTask闇�瑕佸湪澶氱嚎绋嬬幆澧冧笅璇诲彇鍦板舰
 		IORequestPtr request(new TerrainChunkIORequest(path.c_str(), m_terrain->m_ColChunks, k, l, m_terrain->m_ChunkSize, m_terrain->m_VertexStride, INT_MAX));
 		request->LoadResource();
 		request->CreateResource(NULL);

@@ -73,10 +73,18 @@ void Component::save(Archive & ar, const unsigned int version) const
 		BOOST_VERIFY(m_PxShape->getSphereGeometry(sphere));
 		float SphereRadius = sphere.radius;
 		ar << BOOST_SERIALIZATION_NVP(SphereRadius);
-		unsigned int SimulationFilterWord0 = GetSimulationFilterWord0();
+		unsigned int SimulationFilterWord0, SimulationFilterWord1, SimulationFilterWord2, SimulationFilterWord3;
+		GetSimulationFilter(SimulationFilterWord0, SimulationFilterWord1, SimulationFilterWord2, SimulationFilterWord3);
 		ar << BOOST_SERIALIZATION_NVP(SimulationFilterWord0);
-		unsigned int QueryFilterWord0 = GetQueryFilterWord0();
+		ar << BOOST_SERIALIZATION_NVP(SimulationFilterWord1);
+		ar << BOOST_SERIALIZATION_NVP(SimulationFilterWord2);
+		ar << BOOST_SERIALIZATION_NVP(SimulationFilterWord3);
+		unsigned int QueryFilterWord0, QueryFilterWord1, QueryFilterWord2, QueryFilterWord3;
+		GetQueryFilter(QueryFilterWord0, QueryFilterWord1, QueryFilterWord2, QueryFilterWord3);
 		ar << BOOST_SERIALIZATION_NVP(QueryFilterWord0);
+		ar << BOOST_SERIALIZATION_NVP(QueryFilterWord1);
+		ar << BOOST_SERIALIZATION_NVP(QueryFilterWord2);
+		ar << BOOST_SERIALIZATION_NVP(QueryFilterWord3);
 		unsigned int ShapeFlags = GetShapeFlags();
 		ar << BOOST_SERIALIZATION_NVP(ShapeFlags);
 		break;
@@ -88,10 +96,18 @@ void Component::save(Archive & ar, const unsigned int version) const
 		ar << BOOST_SERIALIZATION_NVP(ShapePos);
 		my::Quaternion ShapeRot = (my::Quaternion&)m_PxShape->getLocalPose().q;
 		ar << BOOST_SERIALIZATION_NVP(ShapeRot);
-		unsigned int SimulationFilterWord0 = GetSimulationFilterWord0();
+		unsigned int SimulationFilterWord0, SimulationFilterWord1, SimulationFilterWord2, SimulationFilterWord3;
+		GetSimulationFilter(SimulationFilterWord0, SimulationFilterWord1, SimulationFilterWord2, SimulationFilterWord3);
 		ar << BOOST_SERIALIZATION_NVP(SimulationFilterWord0);
-		unsigned int QueryFilterWord0 = GetQueryFilterWord0();
+		ar << BOOST_SERIALIZATION_NVP(SimulationFilterWord1);
+		ar << BOOST_SERIALIZATION_NVP(SimulationFilterWord2);
+		ar << BOOST_SERIALIZATION_NVP(SimulationFilterWord3);
+		unsigned int QueryFilterWord0, QueryFilterWord1, QueryFilterWord2, QueryFilterWord3;
+		GetQueryFilter(QueryFilterWord0, QueryFilterWord1, QueryFilterWord2, QueryFilterWord3);
 		ar << BOOST_SERIALIZATION_NVP(QueryFilterWord0);
+		ar << BOOST_SERIALIZATION_NVP(QueryFilterWord1);
+		ar << BOOST_SERIALIZATION_NVP(QueryFilterWord2);
+		ar << BOOST_SERIALIZATION_NVP(QueryFilterWord3);
 		unsigned int ShapeFlags = GetShapeFlags();
 		ar << BOOST_SERIALIZATION_NVP(ShapeFlags);
 		break;
@@ -109,10 +125,18 @@ void Component::save(Archive & ar, const unsigned int version) const
 		ar << BOOST_SERIALIZATION_NVP(CapsuleRadius);
 		float CapsuleHalfHeight = capsule.halfHeight;
 		ar << BOOST_SERIALIZATION_NVP(CapsuleHalfHeight);
-		unsigned int SimulationFilterWord0 = GetSimulationFilterWord0();
+		unsigned int SimulationFilterWord0, SimulationFilterWord1, SimulationFilterWord2, SimulationFilterWord3;
+		GetSimulationFilter(SimulationFilterWord0, SimulationFilterWord1, SimulationFilterWord2, SimulationFilterWord3);
 		ar << BOOST_SERIALIZATION_NVP(SimulationFilterWord0);
-		unsigned int QueryFilterWord0 = GetQueryFilterWord0();
+		ar << BOOST_SERIALIZATION_NVP(SimulationFilterWord1);
+		ar << BOOST_SERIALIZATION_NVP(SimulationFilterWord2);
+		ar << BOOST_SERIALIZATION_NVP(SimulationFilterWord3);
+		unsigned int QueryFilterWord0, QueryFilterWord1, QueryFilterWord2, QueryFilterWord3;
+		GetQueryFilter(QueryFilterWord0, QueryFilterWord1, QueryFilterWord2, QueryFilterWord3);
 		ar << BOOST_SERIALIZATION_NVP(QueryFilterWord0);
+		ar << BOOST_SERIALIZATION_NVP(QueryFilterWord1);
+		ar << BOOST_SERIALIZATION_NVP(QueryFilterWord2);
+		ar << BOOST_SERIALIZATION_NVP(QueryFilterWord3);
 		unsigned int ShapeFlags = GetShapeFlags();
 		ar << BOOST_SERIALIZATION_NVP(ShapeFlags);
 		break;
@@ -128,10 +152,18 @@ void Component::save(Archive & ar, const unsigned int version) const
 		BOOST_VERIFY(m_PxShape->getBoxGeometry(box));
 		my::Vector3 BoxHalfExtents = (my::Vector3&)box.halfExtents;
 		ar << BOOST_SERIALIZATION_NVP(BoxHalfExtents);
-		unsigned int SimulationFilterWord0 = GetSimulationFilterWord0();
+		unsigned int SimulationFilterWord0, SimulationFilterWord1, SimulationFilterWord2, SimulationFilterWord3;
+		GetSimulationFilter(SimulationFilterWord0, SimulationFilterWord1, SimulationFilterWord2, SimulationFilterWord3);
 		ar << BOOST_SERIALIZATION_NVP(SimulationFilterWord0);
-		unsigned int QueryFilterWord0 = GetQueryFilterWord0();
+		ar << BOOST_SERIALIZATION_NVP(SimulationFilterWord1);
+		ar << BOOST_SERIALIZATION_NVP(SimulationFilterWord2);
+		ar << BOOST_SERIALIZATION_NVP(SimulationFilterWord3);
+		unsigned int QueryFilterWord0, QueryFilterWord1, QueryFilterWord2, QueryFilterWord3;
+		GetQueryFilter(QueryFilterWord0, QueryFilterWord1, QueryFilterWord2, QueryFilterWord3);
 		ar << BOOST_SERIALIZATION_NVP(QueryFilterWord0);
+		ar << BOOST_SERIALIZATION_NVP(QueryFilterWord1);
+		ar << BOOST_SERIALIZATION_NVP(QueryFilterWord2);
+		ar << BOOST_SERIALIZATION_NVP(QueryFilterWord3);
 		unsigned int ShapeFlags = GetShapeFlags();
 		ar << BOOST_SERIALIZATION_NVP(ShapeFlags);
 		break;
@@ -162,12 +194,18 @@ void Component::load(Archive & ar, const unsigned int version)
 		float SphereRadius;
 		ar >> BOOST_SERIALIZATION_NVP(SphereRadius);
 		CreateSphereShape(ShapePos, ShapeRot, SphereRadius, MeshComponent::DefaultCollisionMaterial.x, MeshComponent::DefaultCollisionMaterial.y, MeshComponent::DefaultCollisionMaterial.z);
-		unsigned int SimulationFilterWord0;
+		unsigned int SimulationFilterWord0, SimulationFilterWord1, SimulationFilterWord2, SimulationFilterWord3;
 		ar >> BOOST_SERIALIZATION_NVP(SimulationFilterWord0);
-		SetSimulationFilterWord0(SimulationFilterWord0);
-		unsigned int QueryFilterWord0;
+		ar >> BOOST_SERIALIZATION_NVP(SimulationFilterWord1);
+		ar >> BOOST_SERIALIZATION_NVP(SimulationFilterWord2);
+		ar >> BOOST_SERIALIZATION_NVP(SimulationFilterWord3);
+		SetSimulationFilter(SimulationFilterWord0, SimulationFilterWord1, SimulationFilterWord2, SimulationFilterWord3);
+		unsigned int QueryFilterWord0, QueryFilterWord1, QueryFilterWord2, QueryFilterWord3;
 		ar >> BOOST_SERIALIZATION_NVP(QueryFilterWord0);
-		SetQueryFilterWord0(QueryFilterWord0);
+		ar >> BOOST_SERIALIZATION_NVP(QueryFilterWord1);
+		ar >> BOOST_SERIALIZATION_NVP(QueryFilterWord2);
+		ar >> BOOST_SERIALIZATION_NVP(QueryFilterWord3);
+		SetQueryFilter(QueryFilterWord0, QueryFilterWord1, QueryFilterWord2, QueryFilterWord3);
 		unsigned int ShapeFlags;
 		ar >> BOOST_SERIALIZATION_NVP(ShapeFlags);
 		SetShapeFlags(ShapeFlags);
@@ -180,12 +218,18 @@ void Component::load(Archive & ar, const unsigned int version)
 		my::Quaternion ShapeRot;
 		ar >> BOOST_SERIALIZATION_NVP(ShapeRot);
 		CreatePlaneShape(ShapePos, ShapeRot, MeshComponent::DefaultCollisionMaterial.x, MeshComponent::DefaultCollisionMaterial.y, MeshComponent::DefaultCollisionMaterial.z);
-		unsigned int SimulationFilterWord0;
+		unsigned int SimulationFilterWord0, SimulationFilterWord1, SimulationFilterWord2, SimulationFilterWord3;
 		ar >> BOOST_SERIALIZATION_NVP(SimulationFilterWord0);
-		SetSimulationFilterWord0(SimulationFilterWord0);
-		unsigned int QueryFilterWord0;
+		ar >> BOOST_SERIALIZATION_NVP(SimulationFilterWord1);
+		ar >> BOOST_SERIALIZATION_NVP(SimulationFilterWord2);
+		ar >> BOOST_SERIALIZATION_NVP(SimulationFilterWord3);
+		SetSimulationFilter(SimulationFilterWord0, SimulationFilterWord1, SimulationFilterWord2, SimulationFilterWord3);
+		unsigned int QueryFilterWord0, QueryFilterWord1, QueryFilterWord2, QueryFilterWord3;
 		ar >> BOOST_SERIALIZATION_NVP(QueryFilterWord0);
-		SetQueryFilterWord0(QueryFilterWord0);
+		ar >> BOOST_SERIALIZATION_NVP(QueryFilterWord1);
+		ar >> BOOST_SERIALIZATION_NVP(QueryFilterWord2);
+		ar >> BOOST_SERIALIZATION_NVP(QueryFilterWord3);
+		SetQueryFilter(QueryFilterWord0, QueryFilterWord1, QueryFilterWord2, QueryFilterWord3);
 		unsigned int ShapeFlags;
 		ar >> BOOST_SERIALIZATION_NVP(ShapeFlags);
 		SetShapeFlags(ShapeFlags);
@@ -202,12 +246,18 @@ void Component::load(Archive & ar, const unsigned int version)
 		float CapsuleHalfHeight;
 		ar >> BOOST_SERIALIZATION_NVP(CapsuleHalfHeight);
 		CreateCapsuleShape(ShapePos, ShapeRot, CapsuleRadius, CapsuleHalfHeight, MeshComponent::DefaultCollisionMaterial.x, MeshComponent::DefaultCollisionMaterial.y, MeshComponent::DefaultCollisionMaterial.z);
-		unsigned int SimulationFilterWord0;
+		unsigned int SimulationFilterWord0, SimulationFilterWord1, SimulationFilterWord2, SimulationFilterWord3;
 		ar >> BOOST_SERIALIZATION_NVP(SimulationFilterWord0);
-		SetSimulationFilterWord0(SimulationFilterWord0);
-		unsigned int QueryFilterWord0;
+		ar >> BOOST_SERIALIZATION_NVP(SimulationFilterWord1);
+		ar >> BOOST_SERIALIZATION_NVP(SimulationFilterWord2);
+		ar >> BOOST_SERIALIZATION_NVP(SimulationFilterWord3);
+		SetSimulationFilter(SimulationFilterWord0, SimulationFilterWord1, SimulationFilterWord2, SimulationFilterWord3);
+		unsigned int QueryFilterWord0, QueryFilterWord1, QueryFilterWord2, QueryFilterWord3;
 		ar >> BOOST_SERIALIZATION_NVP(QueryFilterWord0);
-		SetQueryFilterWord0(QueryFilterWord0);
+		ar >> BOOST_SERIALIZATION_NVP(QueryFilterWord1);
+		ar >> BOOST_SERIALIZATION_NVP(QueryFilterWord2);
+		ar >> BOOST_SERIALIZATION_NVP(QueryFilterWord3);
+		SetQueryFilter(QueryFilterWord0, QueryFilterWord1, QueryFilterWord2, QueryFilterWord3);
 		unsigned int ShapeFlags;
 		ar >> BOOST_SERIALIZATION_NVP(ShapeFlags);
 		SetShapeFlags(ShapeFlags);
@@ -222,12 +272,18 @@ void Component::load(Archive & ar, const unsigned int version)
 		my::Vector3 BoxHalfExtents;
 		ar >> BOOST_SERIALIZATION_NVP(BoxHalfExtents);
 		CreateBoxShape(ShapePos, ShapeRot, BoxHalfExtents.x, BoxHalfExtents.y, BoxHalfExtents.z, MeshComponent::DefaultCollisionMaterial.x, MeshComponent::DefaultCollisionMaterial.y, MeshComponent::DefaultCollisionMaterial.z);
-		unsigned int SimulationFilterWord0;
+		unsigned int SimulationFilterWord0, SimulationFilterWord1, SimulationFilterWord2, SimulationFilterWord3;
 		ar >> BOOST_SERIALIZATION_NVP(SimulationFilterWord0);
-		SetSimulationFilterWord0(SimulationFilterWord0);
-		unsigned int QueryFilterWord0;
+		ar >> BOOST_SERIALIZATION_NVP(SimulationFilterWord1);
+		ar >> BOOST_SERIALIZATION_NVP(SimulationFilterWord2);
+		ar >> BOOST_SERIALIZATION_NVP(SimulationFilterWord3);
+		SetSimulationFilter(SimulationFilterWord0, SimulationFilterWord1, SimulationFilterWord2, SimulationFilterWord3);
+		unsigned int QueryFilterWord0, QueryFilterWord1, QueryFilterWord2, QueryFilterWord3;
 		ar >> BOOST_SERIALIZATION_NVP(QueryFilterWord0);
-		SetQueryFilterWord0(QueryFilterWord0);
+		ar >> BOOST_SERIALIZATION_NVP(QueryFilterWord1);
+		ar >> BOOST_SERIALIZATION_NVP(QueryFilterWord2);
+		ar >> BOOST_SERIALIZATION_NVP(QueryFilterWord3);
+		SetQueryFilter(QueryFilterWord0, QueryFilterWord1, QueryFilterWord2, QueryFilterWord3);
 		unsigned int ShapeFlags;
 		ar >> BOOST_SERIALIZATION_NVP(ShapeFlags);
 		SetShapeFlags(ShapeFlags);
@@ -393,28 +449,56 @@ void Component::CreateSphereShape(const my::Vector3 & pos, const my::Quaternion 
 	}
 }
 
-void Component::SetSimulationFilterWord0(unsigned int filterWord0)
+void Component::SetSimulationFilter(unsigned int word0, unsigned int word1, unsigned int word2, unsigned int word3)
 {
 	_ASSERT(m_PxShape);
-	physx::PxFilterData filter_data(filterWord0, 0, 0, 0);
+	physx::PxFilterData filter_data(word0, word1, word2, word3);
 	m_PxShape->setSimulationFilterData(filter_data);
 }
 
-unsigned int Component::GetSimulationFilterWord0(void) const
+void Component::GetSimulationFilter(unsigned int & word0, unsigned int & word1, unsigned int & word2, unsigned int & word3) const
 {
-	return m_PxShape ? m_PxShape->getSimulationFilterData().word0 : 0;
+	if (m_PxShape)
+	{
+		physx::PxFilterData filter_data = m_PxShape->getSimulationFilterData();
+		word0 = filter_data.word0;
+		word1 = filter_data.word1;
+		word2 = filter_data.word2;
+		word3 = filter_data.word3;
+	}
+	else
+	{
+		word0 = 0;
+		word1 = 0;
+		word2 = 0;
+		word3 = 0;
+	}
 }
 
-void Component::SetQueryFilterWord0(unsigned int filterWord0)
+void Component::SetQueryFilter(unsigned int word0, unsigned int word1, unsigned int word2, unsigned int word3)
 {
 	_ASSERT(m_PxShape);
-	physx::PxFilterData filter_data(filterWord0, 0, 0, 0);
+	physx::PxFilterData filter_data(word0, word1, word2, word3);
 	m_PxShape->setQueryFilterData(filter_data);
 }
 
-unsigned int Component::GetQueryFilterWord0(void) const
+void Component::GetQueryFilter(unsigned int & word0, unsigned int & word1, unsigned int & word2, unsigned int & word3) const
 {
-	return m_PxShape ? m_PxShape->getQueryFilterData().word0 : 0;
+	if (m_PxShape)
+	{
+		physx::PxFilterData filter_data = m_PxShape->getQueryFilterData();
+		word0 = filter_data.word0;
+		word1 = filter_data.word1;
+		word2 = filter_data.word2;
+		word3 = filter_data.word3;
+	}
+	else
+	{
+		word0 = 0;
+		word1 = 0;
+		word2 = 0;
+		word3 = 0;
+	}
 }
 
 void Component::SetShapeFlags(unsigned int Flags)
@@ -502,10 +586,18 @@ void MeshComponent::save(Archive & ar, const unsigned int version) const
 	case physx::PxGeometryType::eTRIANGLEMESH:
 	{
 		ar << BOOST_SERIALIZATION_NVP(m_PxMeshPath);
-		unsigned int SimulationFilterWord0 = GetSimulationFilterWord0();
+		unsigned int SimulationFilterWord0, SimulationFilterWord1, SimulationFilterWord2, SimulationFilterWord3;
+		GetSimulationFilter(SimulationFilterWord0, SimulationFilterWord1, SimulationFilterWord2, SimulationFilterWord3);
 		ar << BOOST_SERIALIZATION_NVP(SimulationFilterWord0);
-		unsigned int QueryFilterWord0 = GetQueryFilterWord0();
+		ar << BOOST_SERIALIZATION_NVP(SimulationFilterWord1);
+		ar << BOOST_SERIALIZATION_NVP(SimulationFilterWord2);
+		ar << BOOST_SERIALIZATION_NVP(SimulationFilterWord3);
+		unsigned int QueryFilterWord0, QueryFilterWord1, QueryFilterWord2, QueryFilterWord3;
+		GetQueryFilter(QueryFilterWord0, QueryFilterWord1, QueryFilterWord2, QueryFilterWord3);
 		ar << BOOST_SERIALIZATION_NVP(QueryFilterWord0);
+		ar << BOOST_SERIALIZATION_NVP(QueryFilterWord1);
+		ar << BOOST_SERIALIZATION_NVP(QueryFilterWord2);
+		ar << BOOST_SERIALIZATION_NVP(QueryFilterWord3);
 		unsigned int ShapeFlags = GetShapeFlags();
 		ar << BOOST_SERIALIZATION_NVP(ShapeFlags);
 		break;
@@ -513,10 +605,18 @@ void MeshComponent::save(Archive & ar, const unsigned int version) const
 	case physx::PxGeometryType::eCONVEXMESH:
 	{
 		ar << BOOST_SERIALIZATION_NVP(m_PxMeshPath);
-		unsigned int SimulationFilterWord0 = GetSimulationFilterWord0();
+		unsigned int SimulationFilterWord0, SimulationFilterWord1, SimulationFilterWord2, SimulationFilterWord3;
+		GetSimulationFilter(SimulationFilterWord0, SimulationFilterWord1, SimulationFilterWord2, SimulationFilterWord3);
 		ar << BOOST_SERIALIZATION_NVP(SimulationFilterWord0);
-		unsigned int QueryFilterWord0 = GetQueryFilterWord0();
+		ar << BOOST_SERIALIZATION_NVP(SimulationFilterWord1);
+		ar << BOOST_SERIALIZATION_NVP(SimulationFilterWord2);
+		ar << BOOST_SERIALIZATION_NVP(SimulationFilterWord3);
+		unsigned int QueryFilterWord0, QueryFilterWord1, QueryFilterWord2, QueryFilterWord3;
+		GetQueryFilter(QueryFilterWord0, QueryFilterWord1, QueryFilterWord2, QueryFilterWord3);
 		ar << BOOST_SERIALIZATION_NVP(QueryFilterWord0);
+		ar << BOOST_SERIALIZATION_NVP(QueryFilterWord1);
+		ar << BOOST_SERIALIZATION_NVP(QueryFilterWord2);
+		ar << BOOST_SERIALIZATION_NVP(QueryFilterWord3);
 		unsigned int ShapeFlags = GetShapeFlags();
 		ar << BOOST_SERIALIZATION_NVP(ShapeFlags);
 		break;
@@ -542,12 +642,18 @@ void MeshComponent::load(Archive & ar, const unsigned int version)
 		std::string PxMeshPath;
 		ar >> boost::serialization::make_nvp("m_PxMeshPath", PxMeshPath);
 		CreateTriangleMeshShape(NULL, PxMeshPath.c_str());
-		unsigned int SimulationFilterWord0;
+		unsigned int SimulationFilterWord0, SimulationFilterWord1, SimulationFilterWord2, SimulationFilterWord3;
 		ar >> BOOST_SERIALIZATION_NVP(SimulationFilterWord0);
-		SetSimulationFilterWord0(SimulationFilterWord0);
-		unsigned int QueryFilterWord0;
+		ar >> BOOST_SERIALIZATION_NVP(SimulationFilterWord1);
+		ar >> BOOST_SERIALIZATION_NVP(SimulationFilterWord2);
+		ar >> BOOST_SERIALIZATION_NVP(SimulationFilterWord3);
+		SetSimulationFilter(SimulationFilterWord0, SimulationFilterWord1, SimulationFilterWord2, SimulationFilterWord3);
+		unsigned int QueryFilterWord0, QueryFilterWord1, QueryFilterWord2, QueryFilterWord3;
 		ar >> BOOST_SERIALIZATION_NVP(QueryFilterWord0);
-		SetQueryFilterWord0(QueryFilterWord0);
+		ar >> BOOST_SERIALIZATION_NVP(QueryFilterWord1);
+		ar >> BOOST_SERIALIZATION_NVP(QueryFilterWord2);
+		ar >> BOOST_SERIALIZATION_NVP(QueryFilterWord3);
+		SetQueryFilter(QueryFilterWord0, QueryFilterWord1, QueryFilterWord2, QueryFilterWord3);
 		unsigned int ShapeFlags;
 		ar >> BOOST_SERIALIZATION_NVP(ShapeFlags);
 		SetShapeFlags(ShapeFlags);
@@ -558,12 +664,18 @@ void MeshComponent::load(Archive & ar, const unsigned int version)
 		std::string PxMeshPath;
 		ar >> boost::serialization::make_nvp("m_PxMeshPath", PxMeshPath);
 		CreateConvexMeshShape(NULL, PxMeshPath.c_str(), true);
-		unsigned int SimulationFilterWord0;
+		unsigned int SimulationFilterWord0, SimulationFilterWord1, SimulationFilterWord2, SimulationFilterWord3;
 		ar >> BOOST_SERIALIZATION_NVP(SimulationFilterWord0);
-		SetSimulationFilterWord0(SimulationFilterWord0);
-		unsigned int QueryFilterWord0;
+		ar >> BOOST_SERIALIZATION_NVP(SimulationFilterWord1);
+		ar >> BOOST_SERIALIZATION_NVP(SimulationFilterWord2);
+		ar >> BOOST_SERIALIZATION_NVP(SimulationFilterWord3);
+		SetSimulationFilter(SimulationFilterWord0, SimulationFilterWord1, SimulationFilterWord2, SimulationFilterWord3);
+		unsigned int QueryFilterWord0, QueryFilterWord1, QueryFilterWord2, QueryFilterWord3;
 		ar >> BOOST_SERIALIZATION_NVP(QueryFilterWord0);
-		SetQueryFilterWord0(QueryFilterWord0);
+		ar >> BOOST_SERIALIZATION_NVP(QueryFilterWord1);
+		ar >> BOOST_SERIALIZATION_NVP(QueryFilterWord2);
+		ar >> BOOST_SERIALIZATION_NVP(QueryFilterWord3);
+		SetQueryFilter(QueryFilterWord0, QueryFilterWord1, QueryFilterWord2, QueryFilterWord3);
 		unsigned int ShapeFlags;
 		ar >> BOOST_SERIALIZATION_NVP(ShapeFlags);
 		SetShapeFlags(ShapeFlags);
@@ -704,8 +816,8 @@ void MeshComponent::OnPxMeshReady(my::DeviceResourceBasePtr res, physx::PxGeomet
 		m_PxShape.reset(PhysxSdk::getSingleton().m_sdk->createShape(physx::PxTriangleMeshGeometry(m_PxMesh->m_ptr->is<physx::PxTriangleMesh>(), mesh_scaling, physx::PxMeshGeometryFlags()),
 			*material, true, physx::PxShapeFlags(m_DescShapeFlags)), PhysxDeleter<physx::PxShape>());
 		m_PxShape->userData = this;
-		SetSimulationFilterWord0(m_DescSimulationFilterWord0);
-		SetQueryFilterWord0(m_DescQueryFilterWord0);
+		SetSimulationFilter(m_DescSimulationFilter.word0, m_DescSimulationFilter.word1, m_DescSimulationFilter.word2, m_DescSimulationFilter.word3);
+		SetQueryFilter(m_DescQueryFilter.word0, m_DescQueryFilter.word1, m_DescQueryFilter.word2, m_DescQueryFilter.word3);
 		if (m_Actor && m_Actor->m_PxActor)
 		{
 			m_Actor->m_PxActor->attachShape(*m_PxShape);
@@ -718,8 +830,8 @@ void MeshComponent::OnPxMeshReady(my::DeviceResourceBasePtr res, physx::PxGeomet
 		m_PxShape.reset(PhysxSdk::getSingleton().m_sdk->createShape(physx::PxConvexMeshGeometry(m_PxMesh->m_ptr->is<physx::PxConvexMesh>(), mesh_scaling, physx::PxConvexMeshGeometryFlags()),
 			*material, true, physx::PxShapeFlags(m_DescShapeFlags)), PhysxDeleter<physx::PxShape>());
 		m_PxShape->userData = this;
-		SetSimulationFilterWord0(m_DescSimulationFilterWord0);
-		SetQueryFilterWord0(m_DescQueryFilterWord0);
+		SetSimulationFilter(m_DescSimulationFilter.word0, m_DescSimulationFilter.word1, m_DescSimulationFilter.word2, m_DescSimulationFilter.word3);
+		SetQueryFilter(m_DescQueryFilter.word0, m_DescQueryFilter.word1, m_DescQueryFilter.word2, m_DescQueryFilter.word3);
 		if (m_Actor && m_Actor->m_PxActor)
 		{
 			m_Actor->m_PxActor->attachShape(*m_PxShape);
@@ -981,46 +1093,62 @@ void MeshComponent::CreateConvexMeshShape(my::OgreMesh * mesh, const char * Conv
 	}
 }
 
-void MeshComponent::SetSimulationFilterWord0(unsigned int filterWord0)
+void MeshComponent::SetSimulationFilter(unsigned int word0, unsigned int word1, unsigned int word2, unsigned int word3)
 {
-	m_DescSimulationFilterWord0 = filterWord0;
+	m_DescSimulationFilter = physx::PxFilterData(word0, word1, word2, word3);
 
 	if (m_PxShape)
 	{
-		physx::PxFilterData filter_data(filterWord0, 0, 0, 0);
-		m_PxShape->setSimulationFilterData(filter_data);
+		m_PxShape->setSimulationFilterData(m_DescSimulationFilter);
 	}
 }
 
-unsigned int MeshComponent::GetSimulationFilterWord0(void) const
+void MeshComponent::GetSimulationFilter(unsigned int & word0, unsigned int & word1, unsigned int & word2, unsigned int & word3) const
 {
 	if (m_PxShape)
 	{
-		return m_PxShape->getSimulationFilterData().word0;
+		physx::PxFilterData filter_data = m_PxShape->getSimulationFilterData();
+		word0 = filter_data.word0;
+		word1 = filter_data.word1;
+		word2 = filter_data.word2;
+		word3 = filter_data.word3;
 	}
-
-	return m_DescSimulationFilterWord0;
-}
-
-void MeshComponent::SetQueryFilterWord0(unsigned int filterWord0)
-{
-	m_DescQueryFilterWord0 = filterWord0;
-
-	if (m_PxShape)
+	else
 	{
-		physx::PxFilterData filter_data(filterWord0, 0, 0, 0);
-		m_PxShape->setQueryFilterData(filter_data);
+		word0 = m_DescSimulationFilter.word0;
+		word1 = m_DescSimulationFilter.word1;
+		word2 = m_DescSimulationFilter.word2;
+		word3 = m_DescSimulationFilter.word3;
 	}
 }
 
-unsigned int MeshComponent::GetQueryFilterWord0(void) const
+void MeshComponent::SetQueryFilter(unsigned int word0, unsigned int word1, unsigned int word2, unsigned int word3)
+{
+	m_DescQueryFilter = physx::PxFilterData(word0, word1, word2, word3);
+
+	if (m_PxShape)
+	{
+		m_PxShape->setQueryFilterData(m_DescQueryFilter);
+	}
+}
+
+void MeshComponent::GetQueryFilter(unsigned int & word0, unsigned int & word1, unsigned int & word2, unsigned int & word3) const
 {
 	if (m_PxShape)
 	{
-		return m_PxShape->getQueryFilterData().word0;
+		physx::PxFilterData filter_data = m_PxShape->getQueryFilterData();
+		word0 = filter_data.word0;
+		word1 = filter_data.word1;
+		word2 = filter_data.word2;
+		word3 = filter_data.word3;
 	}
-
-	return m_DescQueryFilterWord0;
+	else
+	{
+		word0 = m_DescQueryFilter.word0;
+		word1 = m_DescQueryFilter.word1;
+		word2 = m_DescQueryFilter.word2;
+		word3 = m_DescQueryFilter.word3;
+	}
 }
 
 void MeshComponent::SetShapeFlags(unsigned int Flags)

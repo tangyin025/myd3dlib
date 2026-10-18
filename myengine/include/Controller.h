@@ -14,9 +14,9 @@ public:
 
 	physx::PxCapsuleControllerDesc m_desc;
 
-	unsigned int m_DescSimulationFilterWord0;
+	physx::PxFilterData m_DescSimulationFilter;
 
-	unsigned int m_DescQueryFilterWord0;
+	physx::PxFilterData m_DescQueryFilter;
 
 	unsigned int m_DescShapeFlags;
 
@@ -30,8 +30,8 @@ public:
 
 protected:
 	Controller(void)
-		: m_DescSimulationFilterWord0(0)
-		, m_DescQueryFilterWord0(0)
+		: m_DescSimulationFilter(0, 0, 0, 0)
+		, m_DescQueryFilter(0, 0, 0, 0)
 		, m_DescShapeFlags(physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSIMULATION_SHAPE | physx::PxShapeFlag::eSCENE_QUERY_SHAPE)
 #ifdef _DEBUG
 		, m_PxControllerMoveMuted(false)
@@ -46,8 +46,8 @@ protected:
 public:
 	Controller(const char * Name, float Height, float Radius, float ContactOffset, float StepOffset, float SlopeLimit)
 		: Component(Name)
-		, m_DescSimulationFilterWord0(0)
-		, m_DescQueryFilterWord0(0)
+		, m_DescSimulationFilter(0, 0, 0, 0)
+		, m_DescQueryFilter(0, 0, 0, 0)
 		, m_DescShapeFlags(physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSIMULATION_SHAPE | physx::PxShapeFlag::eSCENE_QUERY_SHAPE)
 #ifdef _DEBUG
 		, m_PxControllerMoveMuted(false)
@@ -95,13 +95,13 @@ public:
 
 	virtual void Update(float fElapsedTime);
 
-	virtual void SetSimulationFilterWord0(unsigned int filterWord0);
+	virtual void SetSimulationFilter(unsigned int word0, unsigned int word1, unsigned int word2, unsigned int word3);
 
-	virtual unsigned int GetSimulationFilterWord0(void) const;
+	virtual void GetSimulationFilter(unsigned int & word0, unsigned int & word1, unsigned int & word2, unsigned int & word3) const;
 
-	virtual void SetQueryFilterWord0(unsigned int filterWord0);
+	virtual void SetQueryFilter(unsigned int word0, unsigned int word1, unsigned int word2, unsigned int word3);
 
-	virtual unsigned int GetQueryFilterWord0(void) const;
+	virtual void GetQueryFilter(unsigned int & word0, unsigned int & word1, unsigned int & word2, unsigned int & word3) const;
 
 	virtual void SetShapeFlags(unsigned int Flags);
 

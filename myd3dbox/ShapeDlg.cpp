@@ -98,23 +98,23 @@ void CShapeDlg::OnOK()
 	{
 	case physx::PxGeometryType::eSPHERE:
 		m_cmp->CreateSphereShape(m_pos, rot, m_param.x, MeshComponent::DefaultCollisionMaterial.x, MeshComponent::DefaultCollisionMaterial.y, MeshComponent::DefaultCollisionMaterial.z);
-		m_cmp->SetSimulationFilterWord0(theApp.default_physx_shape_filterword0);
-		m_cmp->SetQueryFilterWord0(theApp.default_physx_shape_filterword0);
+		m_cmp->SetSimulationFilter(theApp.default_physx_shape_filterword0, 0, 0, 0);
+		m_cmp->SetQueryFilter(theApp.default_physx_shape_filterword0, 0, 0, 0);
 		break;
 	case physx::PxGeometryType::ePLANE:
 		m_cmp->CreatePlaneShape(m_pos, rot, MeshComponent::DefaultCollisionMaterial.x, MeshComponent::DefaultCollisionMaterial.y, MeshComponent::DefaultCollisionMaterial.z);
-		m_cmp->SetSimulationFilterWord0(theApp.default_physx_shape_filterword0);
-		m_cmp->SetQueryFilterWord0(theApp.default_physx_shape_filterword0);
+		m_cmp->SetSimulationFilter(theApp.default_physx_shape_filterword0, 0, 0, 0);
+		m_cmp->SetQueryFilter(theApp.default_physx_shape_filterword0, 0, 0, 0);
 		break;
 	case physx::PxGeometryType::eCAPSULE:
 		m_cmp->CreateCapsuleShape(m_pos, rot, m_param.x, m_param.y, MeshComponent::DefaultCollisionMaterial.x, MeshComponent::DefaultCollisionMaterial.y, MeshComponent::DefaultCollisionMaterial.z);
-		m_cmp->SetSimulationFilterWord0(theApp.default_physx_shape_filterword0);
-		m_cmp->SetQueryFilterWord0(theApp.default_physx_shape_filterword0);
+		m_cmp->SetSimulationFilter(theApp.default_physx_shape_filterword0, 0, 0, 0);
+		m_cmp->SetQueryFilter(theApp.default_physx_shape_filterword0, 0, 0, 0);
 		break;
 	case physx::PxGeometryType::eBOX:
 		m_cmp->CreateBoxShape(m_pos, rot, m_param.x, m_param.y, m_param.z, MeshComponent::DefaultCollisionMaterial.x, MeshComponent::DefaultCollisionMaterial.y, MeshComponent::DefaultCollisionMaterial.z);
-		m_cmp->SetSimulationFilterWord0(theApp.default_physx_shape_filterword0);
-		m_cmp->SetQueryFilterWord0(theApp.default_physx_shape_filterword0);
+		m_cmp->SetSimulationFilter(theApp.default_physx_shape_filterword0, 0, 0, 0);
+		m_cmp->SetQueryFilter(theApp.default_physx_shape_filterword0, 0, 0, 0);
 		break;
 	case physx::PxGeometryType::eCONVEXMESH:
 		if (m_cmp->GetComponentType() == Component::ComponentTypeMesh)
@@ -122,8 +122,8 @@ void CShapeDlg::OnOK()
 			MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>(m_cmp);
 			mesh_cmp->CreateConvexMeshShape(
 				theApp.LoadMesh(mesh_cmp->m_MeshPath.c_str()).get(), ts2ms((LPCTSTR)m_AssetPath).c_str(), m_InflateConvex != FALSE);
-			mesh_cmp->SetSimulationFilterWord0(theApp.default_physx_shape_filterword0);
-			mesh_cmp->SetQueryFilterWord0(theApp.default_physx_shape_filterword0);
+			mesh_cmp->SetSimulationFilter(theApp.default_physx_shape_filterword0, 0, 0, 0);
+			mesh_cmp->SetQueryFilter(theApp.default_physx_shape_filterword0, 0, 0, 0);
 		}
 		break;
 	case physx::PxGeometryType::eTRIANGLEMESH:
@@ -132,8 +132,8 @@ void CShapeDlg::OnOK()
 			MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>(m_cmp);
 			mesh_cmp->CreateTriangleMeshShape(
 				theApp.LoadMesh(mesh_cmp->m_MeshPath.c_str()).get(), ts2ms((LPCTSTR)m_AssetPath).c_str());
-			mesh_cmp->SetSimulationFilterWord0(theApp.default_physx_shape_filterword0);
-			mesh_cmp->SetQueryFilterWord0(theApp.default_physx_shape_filterword0);
+			mesh_cmp->SetSimulationFilter(theApp.default_physx_shape_filterword0, 0, 0, 0);
+			mesh_cmp->SetQueryFilter(theApp.default_physx_shape_filterword0, 0, 0, 0);
 		}
 		break;
 	case physx::PxGeometryType::eHEIGHTFIELD:
@@ -142,8 +142,8 @@ void CShapeDlg::OnOK()
 			Terrain * terrain = dynamic_cast<Terrain *>(m_cmp);
 			terrain->CreateHeightFieldShape(
 				&TerrainStream(terrain), ts2ms((LPCTSTR)m_AssetPath).c_str(), terrain->m_Actor->m_Scale);
-			terrain->SetSimulationFilterWord0(theApp.default_physx_shape_filterword0);
-			terrain->SetQueryFilterWord0(theApp.default_physx_shape_filterword0);
+			terrain->SetSimulationFilter(theApp.default_physx_shape_filterword0, 0, 0, 0);
+			terrain->SetQueryFilter(theApp.default_physx_shape_filterword0, 0, 0, 0);
 		}
 		break;
 	}

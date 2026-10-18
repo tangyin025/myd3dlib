@@ -314,7 +314,9 @@ public:
 				for (; cmp_iter != actor->m_Cmps.end(); cmp_iter++)
 				{
 					const Component* cmp = cmp_iter->get();
-					if (!(cmp->GetQueryFilterWord0() & (theApp.default_physx_shape_filterword0 | theApp.default_player_water_filterword0)))
+					unsigned int QueryFilterWord0, QueryFilterWord1, QueryFilterWord2, QueryFilterWord3;
+					cmp->GetQueryFilter(QueryFilterWord0, QueryFilterWord1, QueryFilterWord2, QueryFilterWord3);
+					if (!(QueryFilterWord0 & (theApp.default_physx_shape_filterword0 | theApp.default_player_water_filterword0)))
 					{
 						continue;
 					}
@@ -448,7 +450,7 @@ public:
 							}
 							my::Vector3 Normal = (v1 - v0).cross(v2 - v0).normalize(my::Vector3(0));
 							rcRasterizeTriangle(m_ctx, &v0.x, &v1.x, &v2.x, Normal.y <= walkableThr ? 0
-								: (cmp->GetQueryFilterWord0() & theApp.default_player_water_filterword0 ? Navigation::SAMPLE_POLYAREA_WATER : Navigation::SAMPLE_POLYAREA_DOOR), * ptask->m_solid, ptask->m_cfg.walkableClimb);
+								: (QueryFilterWord0 & theApp.default_player_water_filterword0 ? Navigation::SAMPLE_POLYAREA_WATER : Navigation::SAMPLE_POLYAREA_DOOR), * ptask->m_solid, ptask->m_cfg.walkableClimb);
 						}
 						break;
 					}
