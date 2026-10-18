@@ -247,7 +247,9 @@
 							<w>7.071068287e-01</w>
 						</ShapeRot>
 						<SimulationFilterWord0>1</SimulationFilterWord0>
+						<SimulationFilterWord1>0</SimulationFilterWord1>
 						<QueryFilterWord0>1</QueryFilterWord0>
+						<QueryFilterWord1>0</QueryFilterWord1>
 						<ShapeFlags>11</ShapeFlags>
 					</Component>
 					<OctRoot class_id="20" tracking_level="0" version="0">
