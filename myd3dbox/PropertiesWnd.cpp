@@ -507,8 +507,14 @@ void CPropertiesWnd::UpdatePropertiesShape(CMFCPropertyGridProperty * pShape, Co
 	pShape->GetSubItem(2)->GetSubItem(0)->SetValue((_variant_t)D3DXToDegree(angle.x));
 	pShape->GetSubItem(2)->GetSubItem(1)->SetValue((_variant_t)D3DXToDegree(angle.y));
 	pShape->GetSubItem(2)->GetSubItem(2)->SetValue((_variant_t)D3DXToDegree(angle.z));
-	pShape->GetSubItem(3)->SetValue((_variant_t)simulFilterData.word0);
-	pShape->GetSubItem(4)->SetValue((_variant_t)queryFilterData.word0);
+	pShape->GetSubItem(3)->GetSubItem(0)->SetValue((_variant_t)simulFilterData.word0);
+	pShape->GetSubItem(3)->GetSubItem(1)->SetValue((_variant_t)simulFilterData.word1);
+	pShape->GetSubItem(3)->GetSubItem(2)->SetValue((_variant_t)simulFilterData.word2);
+	pShape->GetSubItem(3)->GetSubItem(3)->SetValue((_variant_t)simulFilterData.word3);
+	pShape->GetSubItem(4)->GetSubItem(0)->SetValue((_variant_t)queryFilterData.word0);
+	pShape->GetSubItem(4)->GetSubItem(1)->SetValue((_variant_t)queryFilterData.word1);
+	pShape->GetSubItem(4)->GetSubItem(2)->SetValue((_variant_t)queryFilterData.word2);
+	pShape->GetSubItem(4)->GetSubItem(3)->SetValue((_variant_t)queryFilterData.word3);
 	pShape->GetSubItem(5)->SetValue((_variant_t)(VARIANT_BOOL)shapeFlags.isSet(physx::PxShapeFlag::eSIMULATION_SHAPE));
 	pShape->GetSubItem(6)->SetValue((_variant_t)(VARIANT_BOOL)shapeFlags.isSet(physx::PxShapeFlag::eSCENE_QUERY_SHAPE));
 	pShape->GetSubItem(7)->SetValue((_variant_t)(VARIANT_BOOL)shapeFlags.isSet(physx::PxShapeFlag::eTRIGGER_SHAPE));
@@ -1679,10 +1685,28 @@ void CPropertiesWnd::CreatePropertiesShape(CMFCPropertyGridProperty * pParentCtr
 	pProp = new CSimpleProp(_T("z"), (_variant_t)D3DXToDegree(angle.z), NULL, PropertyShapeLocalRotZ);
 	pLocalRot->AddSubItem(pProp);
 
-	pProp = new CSimpleProp(_T("SimulationFilterData"), (_variant_t)simulFilterData.word0, NULL, PropertyShapeSimulationFilterData);
-	pShape->AddSubItem(pProp);
-	pProp = new CSimpleProp(_T("QueryFilterData"), (_variant_t)queryFilterData.word0, NULL, PropertyShapeQueryFilterData);
-	pShape->AddSubItem(pProp);
+	CMFCPropertyGridProperty * pSimulationFilterData = new CSimpleProp(_T("SimulationFilterData"), PropertyShapeSimulationFilterData, TRUE);
+	pShape->AddSubItem(pSimulationFilterData);
+	pProp = new CSimpleProp(_T("word0"), (_variant_t)simulFilterData.word0, NULL, PropertyShapeSimulationFilterData0);
+	pSimulationFilterData->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("word1"), (_variant_t)simulFilterData.word1, NULL, PropertyShapeSimulationFilterData1);
+	pSimulationFilterData->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("word2"), (_variant_t)simulFilterData.word2, NULL, PropertyShapeSimulationFilterData2);
+	pSimulationFilterData->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("word3"), (_variant_t)simulFilterData.word3, NULL, PropertyShapeSimulationFilterData3);
+	pSimulationFilterData->AddSubItem(pProp);
+
+	CMFCPropertyGridProperty* pQueryFilterData = new CSimpleProp(_T("QueryFilterData"), PropertyShapeQueryFilterData, TRUE);
+	pShape->AddSubItem(pQueryFilterData);
+	pProp = new CSimpleProp(_T("word0"), (_variant_t)queryFilterData.word0, NULL, PropertyShapeQueryFilterData0);
+	pQueryFilterData->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("word1"), (_variant_t)queryFilterData.word1, NULL, PropertyShapeQueryFilterData1);
+	pQueryFilterData->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("word2"), (_variant_t)queryFilterData.word2, NULL, PropertyShapeQueryFilterData2);
+	pQueryFilterData->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("word3"), (_variant_t)queryFilterData.word3, NULL, PropertyShapeQueryFilterData3);
+	pQueryFilterData->AddSubItem(pProp);
+
 	pProp = new CCheckBoxProp(_T("Simulation"), shapeFlags.isSet(physx::PxShapeFlag::eSIMULATION_SHAPE), NULL, PropertyShapeSimulation);
 	pShape->AddSubItem(pProp);
 	pProp = new CCheckBoxProp(_T("SceneQuery"), shapeFlags.isSet(physx::PxShapeFlag::eSCENE_QUERY_SHAPE), NULL, PropertyShapeSceneQuery);
@@ -3904,19 +3928,63 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		break;
 	}
 	case PropertyShapeSimulationFilterData:
+	case PropertyShapeSimulationFilterData0:
+	case PropertyShapeSimulationFilterData1:
+	case PropertyShapeSimulationFilterData2:
+	case PropertyShapeSimulationFilterData3:
 	{
-		Component * cmp = (Component *)pProp->GetParent()->GetParent()->GetValue().pulVal;
+		CMFCPropertyGridProperty* pShape = NULL;
+		switch (PropertyId)
+		{
+		case PropertyShapeSimulationFilterData:
+			pShape = pProp->GetParent();
+			break;
+		case PropertyShapeSimulationFilterData0:
+		case PropertyShapeSimulationFilterData1:
+		case PropertyShapeSimulationFilterData2:
+		case PropertyShapeSimulationFilterData3:
+			pShape = pProp->GetParent()->GetParent();
+			break;
+		}
+		Component* cmp = (Component*)pShape->GetParent()->GetValue().pulVal;
 		ASSERT(cmp->m_PxShape);
-		cmp->SetSimulationFilterWord0(pProp->GetValue().uintVal);
+		physx::PxFilterData simulFilterData(
+			pShape->GetSubItem(3)->GetSubItem(0)->GetValue().uintVal,
+			pShape->GetSubItem(3)->GetSubItem(1)->GetValue().uintVal,
+			pShape->GetSubItem(3)->GetSubItem(2)->GetValue().uintVal,
+			pShape->GetSubItem(3)->GetSubItem(3)->GetValue().uintVal);
+		cmp->m_PxShape->setSimulationFilterData(simulFilterData);
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
 	}
 	case PropertyShapeQueryFilterData:
+	case PropertyShapeQueryFilterData0:
+	case PropertyShapeQueryFilterData1:
+	case PropertyShapeQueryFilterData2:
+	case PropertyShapeQueryFilterData3:
 	{
-		Component * cmp = (Component *)pProp->GetParent()->GetParent()->GetValue().pulVal;
+		CMFCPropertyGridProperty* pShape = NULL;
+		switch (PropertyId)
+		{
+		case PropertyShapeQueryFilterData:
+			pShape = pProp->GetParent();
+			break;
+		case PropertyShapeQueryFilterData0:
+		case PropertyShapeQueryFilterData1:
+		case PropertyShapeQueryFilterData2:
+		case PropertyShapeQueryFilterData3:
+			pShape = pProp->GetParent()->GetParent();
+			break;
+		}
+		Component* cmp = (Component*)pShape->GetParent()->GetValue().pulVal;
 		ASSERT(cmp->m_PxShape);
-		cmp->SetQueryFilterWord0(pProp->GetValue().uintVal);
+		physx::PxFilterData queryFilterData(
+			pShape->GetSubItem(4)->GetSubItem(0)->GetValue().uintVal,
+			pShape->GetSubItem(4)->GetSubItem(1)->GetValue().uintVal,
+			pShape->GetSubItem(4)->GetSubItem(2)->GetValue().uintVal,
+			pShape->GetSubItem(4)->GetSubItem(3)->GetValue().uintVal);
+		cmp->m_PxShape->setQueryFilterData(queryFilterData);
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
