@@ -350,18 +350,8 @@ void AnimationNodeSlot::Play(const std::string & Name, float Rate, float Weight,
 	// ! prevent infinite seqs for unactive slot
 	if (m_SequenceSlot.size() >= 4)
 	{
-		SequenceList::reverse_iterator seq_riter = m_SequenceSlot.rbegin();
-		for (; seq_riter != m_SequenceSlot.rend(); seq_riter++)
-		{
-			if (seq_riter->m_TargetWeight <= 0 && seq_riter->m_Weight <= 0)
-			{
-				RemoveSlotIter((++seq_riter).base());
-				goto after_remove_seq;
-			}
-		}
 		RemoveSlotIter((++m_SequenceSlot.rbegin()).base());
 	}
-after_remove_seq:
 
 	SequenceList::iterator seq_iter = m_SequenceSlot.insert(std::lower_bound(m_SequenceSlot.begin(), m_SequenceSlot.end(), Priority,
 		boost::bind(std::greater<float>(), boost::bind(&Sequence::m_Priority, boost::placeholders::_1), boost::placeholders::_2)), Sequence());

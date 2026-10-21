@@ -3859,6 +3859,7 @@ void LuaContext::Init(void)
 
 		, class_<AnimationNode, boost::shared_ptr<AnimationNode> >("AnimationNode")
 			.def_readonly("Parent", &AnimationNode::m_Parent)
+			.def_readonly("Childs", &AnimationNode::m_Childs, return_stl_iterator)
 			.def_readonly("Name", &AnimationNode::m_Name)
 			.def("GetChild", &animation_node_get_child)
 			.def("SetChild", &AnimationNode::SetChild)
