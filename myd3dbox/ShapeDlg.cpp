@@ -139,9 +139,12 @@ void CShapeDlg::OnOK()
 	case physx::PxGeometryType::eHEIGHTFIELD:
 		if (m_cmp->GetComponentType() == Component::ComponentTypeTerrain)
 		{
+			struct AlwaysFalse {
+				static bool foo(int, int) { return false; }
+			};
 			Terrain * terrain = dynamic_cast<Terrain *>(m_cmp);
 			terrain->CreateHeightFieldShape(
-				&TerrainStream(terrain), ts2ms((LPCTSTR)m_AssetPath).c_str(), terrain->m_Actor->m_Scale);
+				&TerrainStream(terrain), ts2ms((LPCTSTR)m_AssetPath).c_str(), terrain->m_Actor->m_Scale, boost::bind(&AlwaysFalse::foo, boost::placeholders::_1, boost::placeholders::_2));
 			terrain->SetSimulationFilter(theApp.default_physx_shape_filterword0, 0, 0, 0);
 			terrain->SetQueryFilter(theApp.default_physx_shape_filterword0, 0, 0, 0);
 		}

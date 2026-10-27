@@ -519,6 +519,11 @@ static bool spherical_emitter_wait_task(SphericalEmitter* self, DWORD sec)
 	return self->m_PostTaskEvent.Wait(sec);
 }
 
+static void terrain_create_heightfield_shape(Terrain* self, TerrainStream* tstr, const char* HeightFieldPath, const my::Vector3& ActorScale, const luabind::object& get_hole)
+{
+	self->CreateHeightFieldShape(tstr, HeightFieldPath, ActorScale, boost::bind(&luabind::call_function<bool, int, int>, get_hole, boost::placeholders::_1, boost::placeholders::_2));
+}
+
 static my::Bone animator_get_bone(Animator* self, int i)
 {
 	return self->anim_pose[i];
@@ -3617,7 +3622,7 @@ void LuaContext::Init(void)
 			.def_readwrite("ChunkPath", &Terrain::m_ChunkPath)
 			.def_readwrite("ChunkLodScale", &Terrain::m_ChunkLodScale)
 			//.def_readonly("Chunks", &Terrain::m_Chunks, return_stl_iterator)
-			.def("CreateHeightFieldShape", &Terrain::CreateHeightFieldShape)
+			.def("CreateHeightFieldShape", &terrain_create_heightfield_shape)
 			.def("RayTest", &Terrain::RayTest, pure_out_value(boost::placeholders::_4))
 			.def("RayTest2D", &Terrain::RayTest2D)
 			.def("GetIndices", &TerrainStream::GetIndices, pure_out_value(boost::placeholders::_4) + pure_out_value(boost::placeholders::_5) + pure_out_value(boost::placeholders::_6) + pure_out_value(boost::placeholders::_7) + pure_out_value(boost::placeholders::_8) + pure_out_value(boost::placeholders::_9))

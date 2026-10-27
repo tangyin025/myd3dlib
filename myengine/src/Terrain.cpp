@@ -587,11 +587,14 @@ void Terrain::load(Archive & ar, const unsigned int version)
 	{
 	case physx::PxGeometryType::eHEIGHTFIELD:
 	{
+		struct AlwaysFalse {
+			static bool foo(int, int) { return false; }
+		};
 		std::string PxHeightFieldPath;
 		ar >> boost::serialization::make_nvp("m_PxHeightFieldPath", PxHeightFieldPath);
 		my::Vector3 ActorScale;
 		ar >> BOOST_SERIALIZATION_NVP(ActorScale);
-		CreateHeightFieldShape(NULL, PxHeightFieldPath.c_str(), ActorScale);
+		CreateHeightFieldShape(NULL, PxHeightFieldPath.c_str(), ActorScale, boost::bind(&AlwaysFalse::foo, boost::placeholders::_1, boost::placeholders::_2));
 		unsigned int SimulationFilterWord0, SimulationFilterWord1, SimulationFilterWord2 = 0, SimulationFilterWord3 = 0;
 		ar >> BOOST_SERIALIZATION_NVP(SimulationFilterWord0);
 		ar >> BOOST_SERIALIZATION_NVP(SimulationFilterWord1);
@@ -867,7 +870,7 @@ float Terrain::CalculateHeightScale(void) const
 	return Max(fabs(aabb.m_max.y), fabs(aabb.m_min.y)) / SHRT_MAX;
 }
 
-void Terrain::CreateHeightFieldShape(TerrainStream * tstr, const char * HeightFieldPath, const my::Vector3 & ActorScale)
+void Terrain::CreateHeightFieldShape(TerrainStream * tstr, const char * HeightFieldPath, const my::Vector3 & ActorScale, const boost::function<bool(int, int)> & get_hole)
 {
 	_ASSERT(!m_PxShape);
 
@@ -881,8 +884,9 @@ void Terrain::CreateHeightFieldShape(TerrainStream * tstr, const char * HeightFi
 			for (int j = 0; j < m_ColChunks * m_ChunkSize + 1; j++)
 			{
 				Samples[j][i].height = (short)Clamp<int>((int)roundf(tstr->GetPos(i, j).y / HeightScale), SHRT_MIN, SHRT_MAX);
-				Samples[j][i].materialIndex0 = physx::PxBitAndByte(0, false);
-				Samples[j][i].materialIndex1 = physx::PxBitAndByte(0, false);
+				bool hole = get_hole(i, j);
+				Samples[j][i].materialIndex0 = physx::PxBitAndByte(hole ? physx::PxHeightFieldMaterial::eHOLE : 0, false);
+				Samples[j][i].materialIndex1 = physx::PxBitAndByte(hole ? physx::PxHeightFieldMaterial::eHOLE : 0, false);
 			}
 		}
 

@@ -175,7 +175,7 @@ public:
 
 	float CalculateHeightScale(void) const;
 
-	void CreateHeightFieldShape(TerrainStream * tstr, const char * HeightFieldPath, const my::Vector3 & ActorScale);
+	void CreateHeightFieldShape(TerrainStream * tstr, const char * HeightFieldPath, const my::Vector3 & ActorScale, const boost::function<bool(int, int)> & get_hole);
 
 	virtual void ClearShape(void);
 
