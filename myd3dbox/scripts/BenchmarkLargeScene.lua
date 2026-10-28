@@ -11,7 +11,7 @@ local tbox=terrain:CalculateAABB()
 local act=Actor("actor0",Vector3(-tbox.Center.x*8,0,-tbox.Center.z*8),Quaternion.Identity(),Vector3(8,8,8),tbox)
 act:InsertComponent(terrain)
 act:CreateRigidActor(Actor.eRIGID_STATIC)
-terrain:CreateHeightFieldShape(tstr,"terrain/chunk_123456.pxheightfield",act.Scale)
+terrain:CreateHeightFieldShape(tstr,"terrain/chunk_123456.pxheightfield",act.Scale,function() return false end)
 terrain.SimulationFilterWord0=1
 terrain.QueryFilterWord0=1
 terrain.ChunkLodScale=1/act.Scale.x

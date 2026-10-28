@@ -371,11 +371,11 @@ public:
 						my::Matrix4 World = my::Matrix4::Compose(
 							my::Vector3::one, (my::Quaternion&)localPose.q, (my::Vector3&)localPose.p) * my::Matrix4::Compose(my::Vector3::one, actor->m_Rotation, actor->m_Position);
 						const my::BoxPrimitive box(geom.halfExtents.x, geom.halfExtents.y, geom.halfExtents.z, World);
-						for (int i = 0; i < _countof(my::BoxPrimitive::i); i += 3)
+						for (int i = 0; i < _countof(my::BoxPrimitive::tris); i += 3)
 						{
-							const my::Vector3& v0 = box.v[box.i[i + 0]];
-							const my::Vector3& v1 = box.v[box.i[i + 1]];
-							const my::Vector3& v2 = box.v[box.i[i + 2]];
+							const my::Vector3& v0 = box.v[box.tris[i + 0]];
+							const my::Vector3& v1 = box.v[box.tris[i + 1]];
+							const my::Vector3& v2 = box.v[box.tris[i + 2]];
 							my::Vector3 Normal = (v1 - v0).cross(v2 - v0).normalize();
 							rcRasterizeTriangle(m_ctx, &v0.x, &v1.x, &v2.x, Normal.y <= walkableThr ? 0 : Navigation::SAMPLE_POLYAREA_DOOR, *ptask->m_solid, ptask->m_cfg.walkableClimb);
 						}

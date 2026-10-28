@@ -7,13 +7,13 @@
 
 using namespace my;
 
-const int BoxPrimitive::i[36] = {
+const int BoxPrimitive::tris[36] = {
 	0, 1, 2, 2, 3, 0,
 	1, 5, 6, 6, 2, 1,
 	5, 4, 7, 7, 6, 5,
 	4, 0, 3, 3, 7, 4,
 	2, 6, 7, 7, 3, 2,
-	0, 4, 5, 5, 1, 0};
+	0, 4, 5, 5, 1, 0 };
 
 BoxPrimitive::BoxPrimitive(const AABB& aabb)
 	: _1(aabb.m_min.x, aabb.m_min.y, aabb.m_min.z)
@@ -86,25 +86,35 @@ void DrawHelper::PushLine(const Vector3 & v0, const Vector3 & v1, D3DCOLOR color
 void DrawHelper::PushLineAABB(const AABB & aabb, D3DCOLOR color)
 {
 	const BoxPrimitive box(aabb);
-	for (int i = 0; i < _countof(BoxPrimitive::i); i += 6)
-	{
-		PushLine(box.v[box.i[i + 0]], box.v[box.i[i + 1]], color);
-		PushLine(box.v[box.i[i + 1]], box.v[box.i[i + 2]], color);
-		PushLine(box.v[box.i[i + 3]], box.v[box.i[i + 4]], color);
-		PushLine(box.v[box.i[i + 4]], box.v[box.i[i + 5]], color);
-	}
+	PushLine(box.v[0], box.v[1], color);
+	PushLine(box.v[1], box.v[2], color);
+	PushLine(box.v[2], box.v[3], color);
+	PushLine(box.v[3], box.v[0], color);
+	PushLine(box.v[4], box.v[5], color);
+	PushLine(box.v[5], box.v[6], color);
+	PushLine(box.v[6], box.v[7], color);
+	PushLine(box.v[7], box.v[4], color);
+	PushLine(box.v[0], box.v[4], color);
+	PushLine(box.v[1], box.v[5], color);
+	PushLine(box.v[2], box.v[6], color);
+	PushLine(box.v[3], box.v[7], color);
 }
 
 void DrawHelper::PushLineBox(float hx, float hy, float hz, const Matrix4 & world, D3DCOLOR color)
 {
 	const BoxPrimitive box(hx, hy, hz, world);
-	for (int i = 0; i < _countof(BoxPrimitive::i); i += 6)
-	{
-		PushLine(box.v[box.i[i + 0]], box.v[box.i[i + 1]], color);
-		PushLine(box.v[box.i[i + 1]], box.v[box.i[i + 2]], color);
-		PushLine(box.v[box.i[i + 3]], box.v[box.i[i + 4]], color);
-		PushLine(box.v[box.i[i + 4]], box.v[box.i[i + 5]], color);
-	}
+	PushLine(box.v[0], box.v[1], color);
+	PushLine(box.v[1], box.v[2], color);
+	PushLine(box.v[2], box.v[3], color);
+	PushLine(box.v[3], box.v[0], color);
+	PushLine(box.v[4], box.v[5], color);
+	PushLine(box.v[5], box.v[6], color);
+	PushLine(box.v[6], box.v[7], color);
+	PushLine(box.v[7], box.v[4], color);
+	PushLine(box.v[0], box.v[4], color);
+	PushLine(box.v[1], box.v[5], color);
+	PushLine(box.v[2], box.v[6], color);
+	PushLine(box.v[3], box.v[7], color);
 }
 
 void DrawHelper::PushLineGrid(float length, unsigned subLines, D3DCOLOR GridColor, D3DCOLOR AxisColor, const Matrix4 & Transform)

@@ -141,7 +141,7 @@ function EditorBehavior:AddToPipeline(frustum,pipeline,PassMask,ViewPos,TargetPo
 	end
 	for pass=RenderPipeline.PassTypeShadow,RenderPipeline.PassTypeTransparent do
 		if bit.band(bit.lshift(1,pass),self.Material.PassMask,PassMask)~=0 then
-			local shader=pipeline:QueryShader({MESH_TYPE="0"},"shader/mtl_BlinnPhong.fx",pass)
+			local shader=pipeline:QueryShader("shader/mtl_BlinnPhong.fx","<MESH_TYPE>0</MESH_TYPE>",pass)
 			if shader then
 				-- 渲染cubes
 				for k,cube in pairs(self.cubes) do

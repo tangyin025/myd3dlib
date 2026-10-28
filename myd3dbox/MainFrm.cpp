@@ -47,8 +47,8 @@
 #include "rapidxml.hpp"
 #include <lualib.h>
 #include "TerrainToObjDlg.h"
-//#include "../FastNoiseLite/Cpp/FastNoiseLite.h"
-//#include "clipper.hpp"
+#include "../FastNoiseLite/Cpp/FastNoiseLite.h"
+#include "../clipper/include/clipper.hpp"
 #include "../HdriToCubemap/HdriToCubemap/HdriToCubemap.hpp"
 
 #ifdef _DEBUG
@@ -1172,7 +1172,44 @@ void CMainFrame::InitFileContext()
 			.def("AssignRect", &my::RectAssignmentNode::AssignRect, luabind::pure_out_value(boost::placeholders::_3))
 			.def("LoadFromFile", &RectAssignmentNodeLoadFromFile)
 			.def("Save", &RectAssignmentNodeSave)
-		
+
+		, luabind::class_<my::CollisionPrimitive>("CollisionPrimitive")
+			.property("Offset", &my::CollisionPrimitive::getOffset, &my::CollisionPrimitive::setOffset)
+			.property("Friction", &my::CollisionPrimitive::getFriction, &my::CollisionPrimitive::setFriction)
+			.property("Restitution", &my::CollisionPrimitive::getRestitution, &my::CollisionPrimitive::setRestitution)
+			.property("Transform", &my::CollisionPrimitive::getTransform, &my::CollisionPrimitive::setTransform)
+			.enum_("PrimitiveType")
+			[
+				luabind::value("PrimitiveTypeShere", my::CollisionPrimitive::PrimitiveTypeShere),
+				luabind::value("PrimitiveTypeBox", my::CollisionPrimitive::PrimitiveTypeBox)
+			]
+			.property("PrimitiveType", &my::CollisionPrimitive::getPrimitiveType)
+
+		, luabind::class_<my::CollisionSphere, my::CollisionPrimitive>("CollisionSphere")
+			.def(luabind::constructor<float, const my::Matrix4&, float, float>())
+			.property("Radius", &my::CollisionSphere::getRadius, &my::CollisionSphere::setRadius)
+
+		, luabind::class_<my::CollisionBox, my::CollisionPrimitive>("CollisionBox")
+			.def(luabind::constructor<const my::Vector3&, const my::Matrix4&, float, float>())
+			.property("HalfSize", &my::CollisionBox::getHalfSize, &my::CollisionBox::setHalfSize)
+
+		, luabind::class_<my::IntersectionTests>("IntersectionTests")
+			.scope
+			[
+				luabind::def("sphereAndHalfSpace", &my::IntersectionTests::sphereAndHalfSpace),
+				luabind::def("sphereAndSphere", &my::IntersectionTests::sphereAndSphere),
+				luabind::def("boxAndHalfSpace", &my::IntersectionTests::boxAndHalfSpace),
+				luabind::def("boxAndBox", &my::IntersectionTests::boxAndBox),
+				luabind::def("rayAndParallelPlane", &my::IntersectionTests::rayAndParallelPlane),
+				luabind::def("rayAndAABB", &my::IntersectionTests::rayAndAABB),
+				luabind::def("rayAndHalfSpace", &my::IntersectionTests::rayAndHalfSpace),
+				luabind::def("rayAndSphere", &my::IntersectionTests::rayAndSphere),
+				luabind::def("rayAndCylinder", &my::IntersectionTests::rayAndCylinder),
+				luabind::def("rayAndTriangle", &my::IntersectionTests::rayAndTriangle),
+				luabind::def("rayAndBox", &my::IntersectionTests::rayAndBox),
+				luabind::def("IntersectSegments2D", &my::IntersectionTests::IntersectSegments2D, luabind::pure_out_value(boost::placeholders::_5))
+			]
+
 		, luabind::class_<PhysxSpatialIndex>("PhysxSpatialIndex")
 			.def(luabind::constructor<>())
 			.def("AddTriangle", &PhysxSpatialIndex::AddTriangle)
@@ -1210,147 +1247,147 @@ void CMainFrame::InitFileContext()
 			.def_readwrite("UseOrthoCamera", &CSnapshotDlg::m_UseOrthoCamera)
 			.def("DoSnapshot", &CSnapshotDlg::DoSnapshot)
 
-		//, luabind::class_<FastNoiseLite>("FastNoiseLite")
-		//	.def(luabind::constructor<int>())
-		//	.enum_("NoiseType")
-		//	[
-		//		luabind::value("NoiseType_OpenSimplex2", FastNoiseLite::NoiseType_OpenSimplex2),
-		//		luabind::value("NoiseType_OpenSimplex2S", FastNoiseLite::NoiseType_OpenSimplex2S),
-		//		luabind::value("NoiseType_Cellular", FastNoiseLite::NoiseType_Cellular),
-		//		luabind::value("NoiseType_Perlin", FastNoiseLite::NoiseType_Perlin),
-		//		luabind::value("NoiseType_ValueCubic", FastNoiseLite::NoiseType_ValueCubic),
-		//		luabind::value("NoiseType_Value", FastNoiseLite::NoiseType_Value)
-		//	]
-		//	.enum_("RotationType3D")
-		//	[
-		//		luabind::value("RotationType3D_None", FastNoiseLite::RotationType3D_None),
-		//		luabind::value("RotationType3D_ImproveXYPlanes", FastNoiseLite::RotationType3D_ImproveXYPlanes),
-		//		luabind::value("RotationType3D_ImproveXZPlanes", FastNoiseLite::RotationType3D_ImproveXZPlanes)
-		//	]
-		//	.enum_("FractalType")
-		//	[
-		//		luabind::value("FractalType_None", FastNoiseLite::FractalType_None),
-		//		luabind::value("FractalType_FBm", FastNoiseLite::FractalType_FBm),
-		//		luabind::value("FractalType_Ridged", FastNoiseLite::FractalType_Ridged),
-		//		luabind::value("FractalType_PingPong", FastNoiseLite::FractalType_PingPong),
-		//		luabind::value("FractalType_DomainWarpProgressive", FastNoiseLite::FractalType_DomainWarpProgressive),
-		//		luabind::value("FractalType_DomainWarpIndependent", FastNoiseLite::FractalType_DomainWarpIndependent)
-		//	]
-		//	.enum_("CellularDistanceFunction")
-		//	[
-		//		luabind::value("CellularDistanceFunction_Euclidean", FastNoiseLite::CellularDistanceFunction_Euclidean),
-		//		luabind::value("CellularDistanceFunction_EuclideanSq", FastNoiseLite::CellularDistanceFunction_EuclideanSq),
-		//		luabind::value("CellularDistanceFunction_Manhattan", FastNoiseLite::CellularDistanceFunction_Manhattan),
-		//		luabind::value("CellularDistanceFunction_Hybrid", FastNoiseLite::CellularDistanceFunction_Hybrid)
-		//	]
-		//	.enum_("CellularReturnType")
-		//	[
-		//		luabind::value("CellularReturnType_CellValue", FastNoiseLite::CellularReturnType_CellValue),
-		//		luabind::value("CellularReturnType_Distance", FastNoiseLite::CellularReturnType_Distance),
-		//		luabind::value("CellularReturnType_Distance2", FastNoiseLite::CellularReturnType_Distance2),
-		//		luabind::value("CellularReturnType_Distance2Add", FastNoiseLite::CellularReturnType_Distance2Add),
-		//		luabind::value("CellularReturnType_Distance2Sub", FastNoiseLite::CellularReturnType_Distance2Sub),
-		//		luabind::value("CellularReturnType_Distance2Mul", FastNoiseLite::CellularReturnType_Distance2Mul),
-		//		luabind::value("CellularReturnType_Distance2Div", FastNoiseLite::CellularReturnType_Distance2Div)
-		//	]
-		//	.enum_("DomainWarpType")
-		//	[
-		//		luabind::value("DomainWarpType_OpenSimplex2", FastNoiseLite::DomainWarpType_OpenSimplex2),
-		//		luabind::value("DomainWarpType_OpenSimplex2Reduced", FastNoiseLite::DomainWarpType_OpenSimplex2Reduced),
-		//		luabind::value("DomainWarpType_BasicGrid", FastNoiseLite::DomainWarpType_BasicGrid)
-		//	]
-		//	.def("SetSeed", &FastNoiseLite::SetSeed)
-		//	.def("SetFrequency", &FastNoiseLite::SetFrequency)
-		//	.def("SetNoiseType", &FastNoiseLite::SetNoiseType)
-		//	.def("SetRotationType3D", &FastNoiseLite::SetRotationType3D)
-		//	.def("SetFractalType", &FastNoiseLite::SetFractalType)
-		//	.def("SetFractalOctaves", &FastNoiseLite::SetFractalOctaves)
-		//	.def("SetFractalLacunarity", &FastNoiseLite::SetFractalLacunarity)
-		//	.def("SetFractalGain", &FastNoiseLite::SetFractalGain)
-		//	.def("SetFractalWeightedStrength", &FastNoiseLite::SetFractalWeightedStrength)
-		//	.def("SetFractalPingPongStrength", &FastNoiseLite::SetFractalPingPongStrength)
-		//	.def("SetCellularDistanceFunction", &FastNoiseLite::SetCellularDistanceFunction)
-		//	.def("SetCellularReturnType", &FastNoiseLite::SetCellularReturnType)
-		//	.def("SetCellularJitter", &FastNoiseLite::SetCellularJitter)
-		//	.def("SetDomainWarpType", &FastNoiseLite::SetDomainWarpType)
-		//	.def("SetDomainWarpAmp", &FastNoiseLite::SetDomainWarpAmp)
-		//	.def("GetNoise", (float (FastNoiseLite::*)(LUA_NUMBER, LUA_NUMBER)const)& FastNoiseLite::GetNoise)
-		//	.def("GetNoise", (float (FastNoiseLite::*)(LUA_NUMBER, LUA_NUMBER, LUA_NUMBER)const)& FastNoiseLite::GetNoise)
-		//	.def("DomainWarp", (void (FastNoiseLite::*)(LUA_NUMBER&, LUA_NUMBER&)const)& FastNoiseLite::DomainWarp)
-		//	.def("DomainWarp", (void (FastNoiseLite::*)(LUA_NUMBER&, LUA_NUMBER&, LUA_NUMBER&)const)& FastNoiseLite::DomainWarp)
+		, luabind::class_<FastNoiseLite>("FastNoiseLite")
+			.def(luabind::constructor<int>())
+			.enum_("NoiseType")
+			[
+				luabind::value("NoiseType_OpenSimplex2", FastNoiseLite::NoiseType_OpenSimplex2),
+				luabind::value("NoiseType_OpenSimplex2S", FastNoiseLite::NoiseType_OpenSimplex2S),
+				luabind::value("NoiseType_Cellular", FastNoiseLite::NoiseType_Cellular),
+				luabind::value("NoiseType_Perlin", FastNoiseLite::NoiseType_Perlin),
+				luabind::value("NoiseType_ValueCubic", FastNoiseLite::NoiseType_ValueCubic),
+				luabind::value("NoiseType_Value", FastNoiseLite::NoiseType_Value)
+			]
+			.enum_("RotationType3D")
+			[
+				luabind::value("RotationType3D_None", FastNoiseLite::RotationType3D_None),
+				luabind::value("RotationType3D_ImproveXYPlanes", FastNoiseLite::RotationType3D_ImproveXYPlanes),
+				luabind::value("RotationType3D_ImproveXZPlanes", FastNoiseLite::RotationType3D_ImproveXZPlanes)
+			]
+			.enum_("FractalType")
+			[
+				luabind::value("FractalType_None", FastNoiseLite::FractalType_None),
+				luabind::value("FractalType_FBm", FastNoiseLite::FractalType_FBm),
+				luabind::value("FractalType_Ridged", FastNoiseLite::FractalType_Ridged),
+				luabind::value("FractalType_PingPong", FastNoiseLite::FractalType_PingPong),
+				luabind::value("FractalType_DomainWarpProgressive", FastNoiseLite::FractalType_DomainWarpProgressive),
+				luabind::value("FractalType_DomainWarpIndependent", FastNoiseLite::FractalType_DomainWarpIndependent)
+			]
+			.enum_("CellularDistanceFunction")
+			[
+				luabind::value("CellularDistanceFunction_Euclidean", FastNoiseLite::CellularDistanceFunction_Euclidean),
+				luabind::value("CellularDistanceFunction_EuclideanSq", FastNoiseLite::CellularDistanceFunction_EuclideanSq),
+				luabind::value("CellularDistanceFunction_Manhattan", FastNoiseLite::CellularDistanceFunction_Manhattan),
+				luabind::value("CellularDistanceFunction_Hybrid", FastNoiseLite::CellularDistanceFunction_Hybrid)
+			]
+			.enum_("CellularReturnType")
+			[
+				luabind::value("CellularReturnType_CellValue", FastNoiseLite::CellularReturnType_CellValue),
+				luabind::value("CellularReturnType_Distance", FastNoiseLite::CellularReturnType_Distance),
+				luabind::value("CellularReturnType_Distance2", FastNoiseLite::CellularReturnType_Distance2),
+				luabind::value("CellularReturnType_Distance2Add", FastNoiseLite::CellularReturnType_Distance2Add),
+				luabind::value("CellularReturnType_Distance2Sub", FastNoiseLite::CellularReturnType_Distance2Sub),
+				luabind::value("CellularReturnType_Distance2Mul", FastNoiseLite::CellularReturnType_Distance2Mul),
+				luabind::value("CellularReturnType_Distance2Div", FastNoiseLite::CellularReturnType_Distance2Div)
+			]
+			.enum_("DomainWarpType")
+			[
+				luabind::value("DomainWarpType_OpenSimplex2", FastNoiseLite::DomainWarpType_OpenSimplex2),
+				luabind::value("DomainWarpType_OpenSimplex2Reduced", FastNoiseLite::DomainWarpType_OpenSimplex2Reduced),
+				luabind::value("DomainWarpType_BasicGrid", FastNoiseLite::DomainWarpType_BasicGrid)
+			]
+			.def("SetSeed", &FastNoiseLite::SetSeed)
+			.def("SetFrequency", &FastNoiseLite::SetFrequency)
+			.def("SetNoiseType", &FastNoiseLite::SetNoiseType)
+			.def("SetRotationType3D", &FastNoiseLite::SetRotationType3D)
+			.def("SetFractalType", &FastNoiseLite::SetFractalType)
+			.def("SetFractalOctaves", &FastNoiseLite::SetFractalOctaves)
+			.def("SetFractalLacunarity", &FastNoiseLite::SetFractalLacunarity)
+			.def("SetFractalGain", &FastNoiseLite::SetFractalGain)
+			.def("SetFractalWeightedStrength", &FastNoiseLite::SetFractalWeightedStrength)
+			.def("SetFractalPingPongStrength", &FastNoiseLite::SetFractalPingPongStrength)
+			.def("SetCellularDistanceFunction", &FastNoiseLite::SetCellularDistanceFunction)
+			.def("SetCellularReturnType", &FastNoiseLite::SetCellularReturnType)
+			.def("SetCellularJitter", &FastNoiseLite::SetCellularJitter)
+			.def("SetDomainWarpType", &FastNoiseLite::SetDomainWarpType)
+			.def("SetDomainWarpAmp", &FastNoiseLite::SetDomainWarpAmp)
+			.def("GetNoise", (float (FastNoiseLite::*)(LUA_NUMBER, LUA_NUMBER)const)& FastNoiseLite::GetNoise)
+			.def("GetNoise", (float (FastNoiseLite::*)(LUA_NUMBER, LUA_NUMBER, LUA_NUMBER)const)& FastNoiseLite::GetNoise)
+			.def("DomainWarp", (void (FastNoiseLite::*)(LUA_NUMBER&, LUA_NUMBER&)const)& FastNoiseLite::DomainWarp)
+			.def("DomainWarp", (void (FastNoiseLite::*)(LUA_NUMBER&, LUA_NUMBER&, LUA_NUMBER&)const)& FastNoiseLite::DomainWarp)
 
-		//, luabind::class_<ClipperLib::IntPoint>("IntPoint")
-		//	.def(luabind::constructor<int, int>())
-		//	.def_readwrite("x", &ClipperLib::IntPoint::X)
-		//	.def_readwrite("y", &ClipperLib::IntPoint::Y)
-		//	.def(luabind::const_self == luabind::other<const ClipperLib::IntPoint&>())
+		, luabind::class_<ClipperLib::IntPoint>("IntPoint")
+			.def(luabind::constructor<int, int>())
+			.def_readwrite("x", &ClipperLib::IntPoint::X)
+			.def_readwrite("y", &ClipperLib::IntPoint::Y)
+			.def(luabind::const_self == luabind::other<const ClipperLib::IntPoint&>())
 
-		//, luabind::class_<ClipperLib::Path>("Path")
-		//	.def(luabind::constructor<>())
-		//	.def("AddPoint", (void (ClipperLib::Path::*)(const ClipperLib::IntPoint&))& ClipperLib::Path::push_back)
-		//	.property("PointNum", &ClipperLib::Path::size)
-		//	.def("GetPoint", (ClipperLib::IntPoint& (ClipperLib::Path::*)(size_t))& ClipperLib::Path::at)
-		//	.property("Orientation", &ClipperLib::Orientation)
-		//	.property("Area", &ClipperLib::Area)
-		//	.def("PointInPolygon", luabind::tag_function<int(const ClipperLib::Path&, const ClipperLib::IntPoint&)>(
-		//		boost::bind(ClipperLib::PointInPolygon, boost::placeholders::_2, boost::placeholders::_1)))
-		//	.def("ReversePath", &ClipperLib::ReversePath)
+		, luabind::class_<ClipperLib::Path>("Path")
+			.def(luabind::constructor<>())
+			.def("AddPoint", (void (ClipperLib::Path::*)(const ClipperLib::IntPoint&))& ClipperLib::Path::push_back)
+			.property("PointNum", &ClipperLib::Path::size)
+			.def("GetPoint", (ClipperLib::IntPoint& (ClipperLib::Path::*)(size_t))& ClipperLib::Path::at)
+			.property("Orientation", &ClipperLib::Orientation)
+			.property("Area", &ClipperLib::Area)
+			.def("PointInPolygon", luabind::tag_function<int(const ClipperLib::Path&, const ClipperLib::IntPoint&)>(
+				boost::bind(ClipperLib::PointInPolygon, boost::placeholders::_2, boost::placeholders::_1)))
+			.def("ReversePath", &ClipperLib::ReversePath)
 
-		//, luabind::class_<ClipperLib::Paths>("Paths")
-		//	.def(luabind::constructor<>())
-		//	.def("AddPath", (void (ClipperLib::Paths::*)(const ClipperLib::Path&))& ClipperLib::Paths::push_back)
-		//	.property("PathNum", &ClipperLib::Paths::size)
-		//	.def("GetPath", (ClipperLib::Path& (ClipperLib::Paths::*)(size_t))& ClipperLib::Paths::at)
+		, luabind::class_<ClipperLib::Paths>("Paths")
+			.def(luabind::constructor<>())
+			.def("AddPath", (void (ClipperLib::Paths::*)(const ClipperLib::Path&))& ClipperLib::Paths::push_back)
+			.property("PathNum", &ClipperLib::Paths::size)
+			.def("GetPath", (ClipperLib::Path& (ClipperLib::Paths::*)(size_t))& ClipperLib::Paths::at)
 
-		//, luabind::class_<ClipperLib::Clipper>("Clipper")
-		//	.enum_("InitOptions")
-		//	[
-		//		luabind::value("ioReverseSolution", ClipperLib::InitOptions::ioReverseSolution),
-		//		luabind::value("ioStrictlySimple", ClipperLib::InitOptions::ioStrictlySimple),
-		//		luabind::value("ioPreserveCollinear", ClipperLib::InitOptions::ioPreserveCollinear)
-		//	]
-		//	.enum_("ClipType")
-		//	[
-		//		luabind::value("ctIntersection", ClipperLib::ClipType::ctIntersection),
-		//		luabind::value("ctUnion", ClipperLib::ClipType::ctUnion),
-		//		luabind::value("ctDifference", ClipperLib::ClipType::ctDifference),
-		//		luabind::value("ctXor", ClipperLib::ClipType::ctXor)
-		//	]
-		//	.enum_("PolyType")
-		//	[
-		//		luabind::value("ptSubject", ClipperLib::PolyType::ptSubject),
-		//		luabind::value("ptClip", ClipperLib::PolyType::ptClip)
-		//	]
-		//	.enum_("PolyFillType")
-		//	[
-		//		luabind::value("pftEvenOdd", ClipperLib::PolyFillType::pftEvenOdd),
-		//		luabind::value("pftNonZero", ClipperLib::PolyFillType::pftNonZero),
-		//		luabind::value("pftPositive", ClipperLib::PolyFillType::pftPositive),
-		//		luabind::value("pftNegative", ClipperLib::PolyFillType::pftNegative)
-		//	]
-		//	.def(luabind::constructor<int>())
-		//	.def("AddPath", &ClipperLib::Clipper::AddPath)
-		//	.def("Execute", (bool (ClipperLib::Clipper::*)(ClipperLib::ClipType, ClipperLib::Paths&, ClipperLib::PolyFillType))&ClipperLib::Clipper::Execute, luabind::pure_out_value(boost::placeholders::_3))
+		, luabind::class_<ClipperLib::Clipper>("Clipper")
+			.enum_("InitOptions")
+			[
+				luabind::value("ioReverseSolution", ClipperLib::InitOptions::ioReverseSolution),
+				luabind::value("ioStrictlySimple", ClipperLib::InitOptions::ioStrictlySimple),
+				luabind::value("ioPreserveCollinear", ClipperLib::InitOptions::ioPreserveCollinear)
+			]
+			.enum_("ClipType")
+			[
+				luabind::value("ctIntersection", ClipperLib::ClipType::ctIntersection),
+				luabind::value("ctUnion", ClipperLib::ClipType::ctUnion),
+				luabind::value("ctDifference", ClipperLib::ClipType::ctDifference),
+				luabind::value("ctXor", ClipperLib::ClipType::ctXor)
+			]
+			.enum_("PolyType")
+			[
+				luabind::value("ptSubject", ClipperLib::PolyType::ptSubject),
+				luabind::value("ptClip", ClipperLib::PolyType::ptClip)
+			]
+			.enum_("PolyFillType")
+			[
+				luabind::value("pftEvenOdd", ClipperLib::PolyFillType::pftEvenOdd),
+				luabind::value("pftNonZero", ClipperLib::PolyFillType::pftNonZero),
+				luabind::value("pftPositive", ClipperLib::PolyFillType::pftPositive),
+				luabind::value("pftNegative", ClipperLib::PolyFillType::pftNegative)
+			]
+			.def(luabind::constructor<int>())
+			.def("AddPath", &ClipperLib::Clipper::AddPath)
+			.def("Execute", (bool (ClipperLib::Clipper::*)(ClipperLib::ClipType, ClipperLib::Paths&, ClipperLib::PolyFillType))&ClipperLib::Clipper::Execute, luabind::pure_out_value(boost::placeholders::_3))
 
-		//, luabind::class_<ClipperLib::ClipperOffset>("ClipperOffset")
-		//	.enum_("JoinType")
-		//	[
-		//		luabind::value("jtSquare", ClipperLib::JoinType::jtSquare),
-		//		luabind::value("jtRound", ClipperLib::JoinType::jtRound),
-		//		luabind::value("jtMiter", ClipperLib::JoinType::jtMiter)
-		//	]
-		//	.enum_("EndType")
-		//	[
-		//		luabind::value("etClosedPolygon", ClipperLib::EndType::etClosedPolygon),
-		//		luabind::value("etClosedLine", ClipperLib::EndType::etClosedLine),
-		//		luabind::value("etOpenButt", ClipperLib::EndType::etOpenButt),
-		//		luabind::value("etOpenSquare", ClipperLib::EndType::etOpenSquare),
-		//		luabind::value("etOpenRound", ClipperLib::EndType::etOpenRound)
-		//	]
-		//	.def(luabind::constructor<double,double>())
-		//	.def("AddPath", &ClipperLib::ClipperOffset::AddPath)
-		//	.def("AddPaths", &ClipperLib::ClipperOffset::AddPaths)
-		//	.def("Execute", (void (ClipperLib::ClipperOffset::*)(ClipperLib::Paths&, double))& ClipperLib::ClipperOffset::Execute, luabind::pure_out_value(boost::placeholders::_2))
+		, luabind::class_<ClipperLib::ClipperOffset>("ClipperOffset")
+			.enum_("JoinType")
+			[
+				luabind::value("jtSquare", ClipperLib::JoinType::jtSquare),
+				luabind::value("jtRound", ClipperLib::JoinType::jtRound),
+				luabind::value("jtMiter", ClipperLib::JoinType::jtMiter)
+			]
+			.enum_("EndType")
+			[
+				luabind::value("etClosedPolygon", ClipperLib::EndType::etClosedPolygon),
+				luabind::value("etClosedLine", ClipperLib::EndType::etClosedLine),
+				luabind::value("etOpenButt", ClipperLib::EndType::etOpenButt),
+				luabind::value("etOpenSquare", ClipperLib::EndType::etOpenSquare),
+				luabind::value("etOpenRound", ClipperLib::EndType::etOpenRound)
+			]
+			.def(luabind::constructor<double,double>())
+			.def("AddPath", &ClipperLib::ClipperOffset::AddPath)
+			.def("AddPaths", &ClipperLib::ClipperOffset::AddPaths)
+			.def("Execute", (void (ClipperLib::ClipperOffset::*)(ClipperLib::Paths&, double))& ClipperLib::ClipperOffset::Execute, luabind::pure_out_value(boost::placeholders::_2))
 
 		, luabind::class_<HdriToCubemap<float> >("HdriToCubemapFloat")
 			.def(luabind::constructor<const std::string&, int, bool>())

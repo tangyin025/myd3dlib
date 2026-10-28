@@ -27,6 +27,8 @@ Luabind 0.9.1<br>
 minimp3<br>
 libogg 1.3.5<br>
 libvorbis 1.3.7<br>
+FastNoiseLite 1.0.3<br>
+clipper 6.4.2<br>
 stb_image 2.27<br>
 HdriToCubemap<br>
 

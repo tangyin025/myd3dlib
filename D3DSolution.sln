@@ -81,6 +81,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libvorbis", "libvorbis\libv
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ImgRegion", "ImgRegion\ImgRegion.vcxproj", "{1A350FC9-BBE6-454A-9D01-EE69ADB76F7C}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "clipper", "clipper\clipper.vcxproj", "{F6E2AB08-8A89-4DDC-9968-4343F1955F82}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -273,6 +275,14 @@ Global
 		{1A350FC9-BBE6-454A-9D01-EE69ADB76F7C}.Release|Win32.Build.0 = Release|Win32
 		{1A350FC9-BBE6-454A-9D01-EE69ADB76F7C}.Release|x64.ActiveCfg = Release|x64
 		{1A350FC9-BBE6-454A-9D01-EE69ADB76F7C}.Release|x64.Build.0 = Release|x64
+		{F6E2AB08-8A89-4DDC-9968-4343F1955F82}.Debug|Win32.ActiveCfg = Debug|Win32
+		{F6E2AB08-8A89-4DDC-9968-4343F1955F82}.Debug|Win32.Build.0 = Debug|Win32
+		{F6E2AB08-8A89-4DDC-9968-4343F1955F82}.Debug|x64.ActiveCfg = Debug|x64
+		{F6E2AB08-8A89-4DDC-9968-4343F1955F82}.Debug|x64.Build.0 = Debug|x64
+		{F6E2AB08-8A89-4DDC-9968-4343F1955F82}.Release|Win32.ActiveCfg = Release|Win32
+		{F6E2AB08-8A89-4DDC-9968-4343F1955F82}.Release|Win32.Build.0 = Release|Win32
+		{F6E2AB08-8A89-4DDC-9968-4343F1955F82}.Release|x64.ActiveCfg = Release|x64
+		{F6E2AB08-8A89-4DDC-9968-4343F1955F82}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

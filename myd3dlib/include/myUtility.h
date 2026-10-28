@@ -23,7 +23,7 @@ namespace my
 			const Vector3 v[8];
 		};
 
-		static const int i[36];
+		static const int tris[36];
 
 		BoxPrimitive(const AABB& aabb);
 

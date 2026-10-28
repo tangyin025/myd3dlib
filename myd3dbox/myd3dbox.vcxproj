@@ -228,7 +228,12 @@
     <ClCompile Include="EnvironmentWnd.cpp" />
     <ClCompile Include="ImportHeightDlg.cpp" />
     <ClCompile Include="MainApp.cpp" />
-    <ClCompile Include="MainFrm.cpp" />
+    <ClCompile Include="MainFrm.cpp">
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">/bigobj %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">/bigobj %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">/bigobj %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">/bigobj %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
     <ClCompile Include="NavigationDlg.cpp" />
     <ClCompile Include="OutlinerWnd.cpp" />
     <ClCompile Include="OutputWnd.cpp" />
@@ -296,6 +301,9 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\clipper\clipper.vcxproj">
+      <Project>{f6e2ab08-8a89-4ddc-9968-4343f1955f82}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\DebugUtils\DebugUtils.vcxproj">
       <Project>{1b6cc677-1d1e-4bab-9943-d4f0fc8c8e4f}</Project>
     </ProjectReference>
