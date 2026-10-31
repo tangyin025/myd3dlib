@@ -4,6 +4,45 @@
 
 using namespace my;
 
+//--------------------------------------------------------------------------------------
+CD3D11EnumAdapterInfo::~CD3D11EnumAdapterInfo(void)
+{
+	for (int i = 0; i < outputInfoList.GetSize(); i++)
+	{
+		CD3D11EnumOutputInfo* pOutputInfo = outputInfoList.GetAt(i);
+		delete pOutputInfo;
+	}
+	outputInfoList.RemoveAll();
+
+	for (int i = 0; i < deviceInfoList.GetSize(); ++i)
+	{
+		CD3D11EnumDeviceInfo* pDeviceInfo = deviceInfoList.GetAt(i);
+		delete pDeviceInfo;
+	}
+	deviceInfoList.RemoveAll();
+
+	for (int i = 0; i < deviceSettingsComboList.GetSize(); ++i)
+	{
+		CD3D11EnumDeviceSettingsCombo* pDeviceCombo = deviceSettingsComboList.GetAt(i);
+		delete pDeviceCombo;
+	}
+	deviceSettingsComboList.RemoveAll();
+
+	SAFE_RELEASE(m_pAdapter);
+}
+
+//--------------------------------------------------------------------------------------
+CD3D11EnumOutputInfo::~CD3D11EnumOutputInfo(void)
+{
+	SAFE_RELEASE(m_pOutput);
+	displayModeList.RemoveAll();
+}
+
+//--------------------------------------------------------------------------------------
+CD3D11EnumDeviceInfo::~CD3D11EnumDeviceInfo()
+{
+}
+
 BOOL DxutWindow11::ProcessWindowMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, LRESULT& lResult, DWORD dwMsgMapID)
 {
 	switch (dwMsgMapID)
