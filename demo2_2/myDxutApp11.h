@@ -8,6 +8,7 @@
 #include <d3d11.h>
 #include <assert.h>
 #include <new.h>      // for placement new
+#include <atlbase.h>
 
 #ifndef SAFE_DELETE
 #define SAFE_DELETE(p)       { if (p) { delete (p);     (p)=NULL; } }
@@ -436,8 +437,29 @@ namespace my
 	public:
 		boost::shared_ptr<DxutWindow11> m_wnd;
 
+        DXUTD3D11DeviceSettings m_DeviceSettings;
+
+        CComPtr<IDXGIFactory> m_DXGIFactory;
+
+        CComPtr<IDXGIAdapter> m_Adapter;
+
+        CComPtr<ID3D11Device> m_d3d11Device;
+
+        CComPtr<ID3D11DeviceContext> m_d3dImmediateContext;
+
+        D3D_FEATURE_LEVEL m_FeatureLevel;
+
+        //UINT m_FullScreenBackBufferWidthAtModeChange;
+
+        //UINT m_FullScreenBackBufferHeightAtModeChange;
+
+        //UINT m_WindowBackBufferWidthAtModeChange;
+
+        //UINT m_WindowBackBufferHeightAtModeChange;
+
 	public:
 		DxutApp11(void)
+            : m_FeatureLevel(D3D_FEATURE_LEVEL_11_0)
 		{
 		}
 
@@ -495,5 +517,15 @@ namespace my
 		}
 
 		int Run(void);
-	};
+
+        void CreateDevice(D3D_FEATURE_LEVEL reqFL, bool bWindowed = true, int nSuggestedWidth = 0, int nSuggestedHeight = 0);
+
+        void ChangeDevice(DXUTD3D11DeviceSettings* pNewDeviceSettings, bool bForceRecreate, bool bClipWindowToSingleAdapter);
+
+        void Cleanup3DEnvironment11(bool bReleaseSettings);
+
+        HRESULT Create3DEnvironment(DXUTD3D11DeviceSettings* pNewDeviceSettings);
+
+        //HRESULT DXUTSnapDeviceSettingsToEnumDevice(DXUTD3D11DeviceSettings* pDeviceSettings, bool forceEnum, D3D_FEATURE_LEVEL forceFL);
+    };
 }
