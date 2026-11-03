@@ -509,7 +509,7 @@ void RenderPipeline::OnRender(
 		const Matrix4 View = (Rotation * Matrix4::Translation(eye)).inverse();
 		SkyLightViewProj[i] = { View * Proj };
 
-		pRC->QueryRenderComponent(Frustum::ExtractMatrix(SkyLightViewProj[i]), this, PassTypeToMask(PassTypeShadow));
+		pRC->QueryRenderComponent(eye, Frustum::ExtractMatrix(SkyLightViewProj[i]), this, PassTypeToMask(PassTypeShadow));
 
 		CComPtr<IDirect3DSurface9> ShadowSurf = m_ShadowRT[i]->GetSurfaceLevel(0);
 		m_SimpleSample->SetVector(handle_ShadowLayer, m_CascadeLayer);
@@ -528,7 +528,7 @@ void RenderPipeline::OnRender(
 		ClearAllObjects(PassTypeShadow);
 	}
 
-	pRC->QueryRenderComponent(Frustum::ExtractMatrix(pRC->m_Camera->m_ViewProj), this, PassTypeToMask(PassTypeNormal) | PassTypeToMask(PassTypeLight) | PassTypeToMask(PassTypeBackground) | PassTypeToMask(PassTypeOpaque) | PassTypeToMask(PassTypeTransparent));
+	pRC->QueryRenderComponent(pRC->m_Camera->m_Eye, Frustum::ExtractMatrix(pRC->m_Camera->m_ViewProj), this, PassTypeToMask(PassTypeNormal) | PassTypeToMask(PassTypeLight) | PassTypeToMask(PassTypeBackground) | PassTypeToMask(PassTypeOpaque) | PassTypeToMask(PassTypeTransparent));
 
 	CComPtr<IDirect3DSurface9> NormalSurf = pRC->m_NormalRT->GetSurfaceLevel(0);
 	CComPtr<IDirect3DSurface9> SpecularSurf = pRC->m_SpecularRT->GetSurfaceLevel(0);

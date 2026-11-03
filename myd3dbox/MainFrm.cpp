@@ -254,7 +254,7 @@ static boost::iterator_range<shared_actor_list_iter> cmainframe_query_entity(con
 		{
 		}
 
-		virtual bool OnQueryEntity(my::OctEntity* oct_entity, const my::AABB& aabb)
+		virtual bool OnQueryEntity(my::OctEntity* oct_entity, const my::AABB& aabb, DWORD intersect_type)
 		{
 			acts->push_back(dynamic_cast<Actor*>(oct_entity));
 			return true;
@@ -277,7 +277,7 @@ static boost::iterator_range<shared_actor_list_iter> cmainframe_get_all_acts(con
 		{
 		}
 
-		virtual bool OnQueryEntity(my::OctEntity* oct_entity, const my::AABB& aabb)
+		virtual bool OnQueryEntity(my::OctEntity* oct_entity, const my::AABB& aabb, DWORD intersect_type)
 		{
 			acts->push_back(dynamic_cast<Actor*>(oct_entity));
 			return true;
@@ -1474,7 +1474,7 @@ BOOL CMainFrame::SaveFileContext(LPCTSTR lpszPathName)
 		{
 		}
 
-		virtual bool OnQueryEntity(my::OctEntity* oct_entity, const my::AABB& aabb)
+		virtual bool OnQueryEntity(my::OctEntity* oct_entity, const my::AABB& aabb, DWORD intersect_type)
 		{
 			Actor* actor = dynamic_cast<Actor*>(oct_entity);
 			if (Component* cmp = actor->GetFirstComponent(Component::ComponentTypeScript, 0))

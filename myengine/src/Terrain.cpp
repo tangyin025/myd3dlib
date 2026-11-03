@@ -707,7 +707,7 @@ void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 			, insert_chunk_iter(_terrain->m_ViewedChunks.begin())
 		{
 		}
-		virtual bool OnQueryEntity(my::OctEntity * oct_entity, const my::AABB & aabb)
+		virtual bool OnQueryEntity(my::OctEntity * oct_entity, const my::AABB & aabb, DWORD intersect_type)
 		{
 			TerrainChunk * chunk = dynamic_cast<TerrainChunk *>(oct_entity);
 			if (PassMask & RenderPipeline::PassTypeToMask(RenderPipeline::PassTypeNormal))
@@ -952,7 +952,7 @@ my::RayResult Terrain::RayTest(const my::Ray& local_ray, const my::Vector3& Loca
 			, ret(false, FLT_MAX)
 		{
 		}
-		virtual bool OnQueryEntity(my::OctEntity* oct_entity, const my::AABB& aabb)
+		virtual bool OnQueryEntity(my::OctEntity* oct_entity, const my::AABB& aabb, DWORD intersect_type)
 		{
 			TerrainChunk* chunk = dynamic_cast<TerrainChunk*>(oct_entity);
 			my::RayResult result;
@@ -1479,7 +1479,7 @@ void TerrainStream::UpdateNormal(void)
 //			, ret(false, FLT_MAX)
 //		{
 //		}
-//		virtual bool OnQueryEntity(my::OctEntity* oct_entity, const my::AABB& aabb)
+//		virtual bool OnQueryEntity(my::OctEntity* oct_entity, const my::AABB& aabb, DWORD intersect_type)
 //		{
 //			my::RayResult result;
 //			TerrainChunk* chunk = dynamic_cast<TerrainChunk*>(oct_entity);

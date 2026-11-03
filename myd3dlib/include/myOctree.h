@@ -37,7 +37,7 @@ namespace my
 		struct QueryCallback
 		{
 		public:
-			virtual bool OnQueryEntity(my::OctEntity * oct_entity, const my::AABB & aabb) = 0;
+			virtual bool OnQueryEntity(my::OctEntity * oct_entity, const my::AABB & aabb, DWORD intersect_type) = 0;
 		};
 
 		OctNode * const m_Parent;

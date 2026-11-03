@@ -302,7 +302,7 @@ public:
 				, walkableThr(_walkableThr)
 			{
 			}
-			virtual bool OnQueryEntity(my::OctEntity* oct_entity, const my::AABB& aabb)
+			virtual bool OnQueryEntity(my::OctEntity* oct_entity, const my::AABB& aabb, DWORD intersect_type)
 			{
 				const Actor* actor = dynamic_cast<Actor*>(oct_entity);
 				ASSERT(actor);
@@ -709,7 +709,7 @@ public:
 				Callback(void)
 				{
 				}
-				virtual bool OnQueryEntity(my::OctEntity* oct_entity, const my::AABB& aabb)
+				virtual bool OnQueryEntity(my::OctEntity* oct_entity, const my::AABB& aabb, DWORD intersect_type)
 				{
 					OffmeshConnectionChunk* chunk = dynamic_cast<OffmeshConnectionChunk*>(oct_entity);
 					m_offMeshConVerts.insert(m_offMeshConVerts.end(), &chunk->m_Verts[0], &chunk->m_Verts[3 * 2]);

@@ -275,10 +275,11 @@ void CSnapshotDlg::DoSnapshot()
 		{
 		}
 
-		virtual void QueryRenderComponent(const my::Frustum& frustum, RenderPipeline* pipeline, unsigned int PassMask)
+		virtual void QueryRenderComponent(const my::Vector3& eye, const my::Frustum& frustum, RenderPipeline* pipeline, unsigned int PassMask)
 		{
 			struct Callback : public my::OctNode::QueryCallback
 			{
+				const my::Vector3& eye;
 				const my::Frustum& frustum;
 				RenderPipeline* pipeline;
 				unsigned int PassMask;
@@ -287,8 +288,9 @@ void CSnapshotDlg::DoSnapshot()
 				CSnapshotDlg* pDlg;
 				RenderContext* rc;
 
-				Callback(const my::Frustum& _frustum, RenderPipeline* _pipeline, unsigned int _PassMask, CMainFrame* _pFrame, CChildView* _pView, CSnapshotDlg* _pDlg, RenderContext* _rc)
-					: frustum(_frustum)
+				Callback(const my::Vector3& _eye, const my::Frustum& _frustum, RenderPipeline* _pipeline, unsigned int _PassMask, CMainFrame* _pFrame, CChildView* _pView, CSnapshotDlg* _pDlg, RenderContext* _rc)
+					: eye(_eye)
+					, frustum(_frustum)
 					, pipeline(_pipeline)
 					, PassMask(_PassMask)
 					, pFrame(_pFrame)
@@ -298,7 +300,7 @@ void CSnapshotDlg::DoSnapshot()
 				{
 				}
 
-				virtual bool OnQueryEntity(my::OctEntity* oct_entity, const my::AABB& aabb)
+				virtual bool OnQueryEntity(my::OctEntity* oct_entity, const my::AABB& aabb, DWORD intersect_type)
 				{
 					ASSERT(dynamic_cast<Actor*>(oct_entity));
 
@@ -339,11 +341,11 @@ void CSnapshotDlg::DoSnapshot()
 								&& PassMask & RenderPipeline::PassTypeToMask(RenderPipeline::PassTypeNormal))
 							{
 								Navigation* navi = dynamic_cast<Navigation*>(cmp_iter->get());
-								navi->DebugDraw(pDlg, frustum, rc->m_Camera->m_Eye, model_view_camera->m_LookAt);
+								navi->DebugDraw(pDlg, frustum, eye, model_view_camera->m_LookAt);
 							}
 							else
 							{
-								(*cmp_iter)->AddToPipeline(frustum, pipeline, PassMask, rc->m_Camera->m_Eye, model_view_camera->m_LookAt);
+								(*cmp_iter)->AddToPipeline(frustum, pipeline, PassMask, eye, model_view_camera->m_LookAt);
 							}
 						}
 					}
@@ -355,7 +357,7 @@ void CSnapshotDlg::DoSnapshot()
 			ASSERT_VALID(pFrame);
 			CChildView* pView = DYNAMIC_DOWNCAST(CChildView, pFrame->GetActiveView());
 			ASSERT_VALID(pView);
-			Callback cb(frustum, pipeline, PassMask, pFrame, pView, pDlg, this);
+			Callback cb(eye, frustum, pipeline, PassMask, pFrame, pView, pDlg, this);
 			pFrame->QueryEntity(frustum, &cb);
 		}
 	};

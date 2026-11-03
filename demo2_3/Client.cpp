@@ -351,7 +351,7 @@ static boost::iterator_range<shared_actor_list_iter> client_query_entity(Client*
 		{
 		}
 
-		virtual bool OnQueryEntity(my::OctEntity* oct_entity, const my::AABB& aabb)
+		virtual bool OnQueryEntity(my::OctEntity* oct_entity, const my::AABB& aabb, DWORD intersect_type)
 		{
 			acts->push_back(dynamic_cast<Actor*>(oct_entity));
 			return true;
@@ -828,7 +828,7 @@ void Client::OnFrameTick(
 		{
 		}
 
-		virtual bool OnQueryEntity(my::OctEntity* oct_entity, const my::AABB& aabb)
+		virtual bool OnQueryEntity(my::OctEntity* oct_entity, const my::AABB& aabb, DWORD intersect_type)
 		{
 			Actor* actor = dynamic_cast<Actor*>(oct_entity);
 
@@ -1096,7 +1096,7 @@ bool Client::ExecuteCode(const char * code) throw()
 
 #define DUCOLOR_TO_D3DCOLOR(col) ((col & 0xff00ff00) | (col & 0x00ff0000) >> 16 | (col & 0x000000ff) << 16)
 
-void Client::QueryRenderComponent(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask)
+void Client::QueryRenderComponent(const my::Vector3 & eye, const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask)
 {
 	struct Callback : public my::OctNode::QueryCallback
 		, public duDebugDraw
@@ -1191,7 +1191,7 @@ void Client::QueryRenderComponent(const my::Frustum & frustum, RenderPipeline * 
 			return duDebugDraw::areaToCol(area);
 		}
 
-		virtual bool OnQueryEntity(my::OctEntity * oct_entity, const my::AABB & aabb)
+		virtual bool OnQueryEntity(my::OctEntity * oct_entity, const my::AABB & aabb, DWORD intersect_type)
 		{
 			_ASSERT(dynamic_cast<Actor *>(oct_entity));
 
@@ -1221,7 +1221,7 @@ void Client::QueryRenderComponent(const my::Frustum & frustum, RenderPipeline * 
 	my::Frustum dummy_ftm(frustum);
 	dummy_ftm.Near.normalizeSelf();
 	dummy_ftm.Near.d = Min(dummy_ftm.Near.d, m_ViewedDist - m_ViewedCenter.dot(dummy_ftm.Near.normal));
-	QueryEntity(dummy_ftm, &Callback(frustum, pipeline, PassMask, m_Camera->m_Eye, m_ViewedCenter, this));
+	QueryEntity(dummy_ftm, &Callback(frustum, pipeline, PassMask, eye, m_ViewedCenter, this));
 }
 
 void Client::AddEntity(my::OctEntity * entity, const my::AABB & aabb, float minblock, float threshold)

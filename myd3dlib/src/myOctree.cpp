@@ -147,7 +147,7 @@ bool OctNode::QueryEntity(const Ray & ray, QueryCallback * callback) const
 	{
 		if (IntersectionTests::rayAndAABB(ray.p, ray.d, entity_iter->second).first)
 		{
-			if (!callback->OnQueryEntity(entity_iter->first, entity_iter->second))
+			if (!callback->OnQueryEntity(entity_iter->first, entity_iter->second, IntersectionTests::IntersectionTypeRay))
 			{
 				return false;
 			}
@@ -190,7 +190,7 @@ bool OctNode::QueryEntity(const AABB & aabb, QueryCallback * callback) const
 		{
 		case IntersectionTests::IntersectionTypeInside:
 		case IntersectionTests::IntersectionTypeIntersect:
-			if (!callback->OnQueryEntity(entity_iter->first, entity_iter->second))
+			if (!callback->OnQueryEntity(entity_iter->first, entity_iter->second, intersect_type))
 			{
 				return false;
 			}
@@ -243,7 +243,7 @@ bool OctNode::QueryEntity(const Frustum & frustum, QueryCallback * callback) con
 		{
 		case IntersectionTests::IntersectionTypeInside:
 		case IntersectionTests::IntersectionTypeIntersect:
-			if (!callback->OnQueryEntity(entity_iter->first, entity_iter->second))
+			if (!callback->OnQueryEntity(entity_iter->first, entity_iter->second, intersect_type))
 			{
 				return false;
 			}
@@ -291,7 +291,7 @@ bool OctNode::QueryAllEntity(QueryCallback * callback) const
 	OctEntityMap::const_iterator entity_iter = m_Entities.begin();
 	for(; entity_iter != m_Entities.end(); entity_iter++)
 	{
-		if (!callback->OnQueryEntity(entity_iter->first, entity_iter->second))
+		if (!callback->OnQueryEntity(entity_iter->first, entity_iter->second, IntersectionTests::IntersectionTypeInside))
 		{
 			return false;
 		}

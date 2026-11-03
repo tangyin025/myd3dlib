@@ -299,7 +299,7 @@ public:
 		{
 		}
 
-		virtual void QueryRenderComponent(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask) = 0;
+		virtual void QueryRenderComponent(const my::Vector3 & eye, const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask) = 0;
 	};
 
 	struct IndexedPrimitiveAtom

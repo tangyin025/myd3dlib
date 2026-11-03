@@ -291,7 +291,7 @@ void CChildView::OnDestroyDevice(void)
 	ASSERT(!m_OffscreenPositionRT->m_ptr);
 }
 
-void CChildView::QueryRenderComponent(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask)
+void CChildView::QueryRenderComponent(const my::Vector3 & eye, const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask)
 {
 	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
@@ -321,7 +321,7 @@ void CChildView::QueryRenderComponent(const my::Frustum & frustum, RenderPipelin
 		{
 		}
 
-		virtual bool OnQueryEntity(my::OctEntity * oct_entity, const my::AABB & aabb)
+		virtual bool OnQueryEntity(my::OctEntity * oct_entity, const my::AABB & aabb, DWORD intersect_type)
 		{
 			ASSERT(dynamic_cast<Actor *>(oct_entity));
 
@@ -386,7 +386,7 @@ void CChildView::QueryRenderComponent(const my::Frustum & frustum, RenderPipelin
 	//pFrame->m_emitter->m_Emitter->m_ParticleList.clear();
 	my::ModelViewerCamera* model_view_camera = dynamic_cast<my::ModelViewerCamera*>(
 		(pFrame->GetActiveView() ? DYNAMIC_DOWNCAST(CChildView, pFrame->GetActiveView()) : this)->m_Camera.get());
-	Callback cb(frustum, pipeline, PassMask, m_Camera->m_Eye, model_view_camera->m_LookAt, pFrame, this);
+	Callback cb(frustum, pipeline, PassMask, eye, model_view_camera->m_LookAt, pFrame, this);
 	pFrame->QueryEntity(frustum, &cb);
 	//pFrame->m_emitter->AddToPipeline(frustum, pipeline, PassMask);
 
@@ -885,7 +885,7 @@ bool CChildView::OverlapTestFrustumAndComponent(const my::Frustum & frustum, con
 		//			, ret(false)
 		//		{
 		//		}
-		//		virtual bool OnQueryEntity(my::OctEntity * oct_entity, const my::AABB & aabb)
+		//		virtual bool OnQueryEntity(my::OctEntity * oct_entity, const my::AABB & aabb, DWORD intersect_type)
 		//		{
 		//			StaticEmitterChunk* chunk = dynamic_cast<StaticEmitterChunk*>(oct_entity);
 		//			if (chunk->m_buff && chunk->m_Lod >= 0 && chunk->m_Lod < StaticEmitter::LastLod)
@@ -1129,7 +1129,7 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, const 
 					, rayinstid(0)
 				{
 				}
-				virtual bool OnQueryEntity(my::OctEntity* oct_entity, const my::AABB& aabb)
+				virtual bool OnQueryEntity(my::OctEntity* oct_entity, const my::AABB& aabb, DWORD intersect_type)
 				{
 					StaticMeshChunk* chunk = dynamic_cast<StaticMeshChunk*>(oct_entity);
 					if (chunk->m_Mesh && chunk->m_Lod >= 0 && chunk->m_Lod < StaticMesh::LastLod)
@@ -1191,7 +1191,7 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, const 
 					, rayinstid(0)
 				{
 				}
-				virtual bool OnQueryEntity(my::OctEntity * oct_entity, const my::AABB & aabb)
+				virtual bool OnQueryEntity(my::OctEntity * oct_entity, const my::AABB & aabb, DWORD intersect_type)
 				{
 					StaticEmitterChunk* chunk = dynamic_cast<StaticEmitterChunk*>(oct_entity);
 					if (chunk->m_buff && chunk->m_Lod >= 0 && chunk->m_Lod < StaticEmitter::LastLod)
@@ -1532,7 +1532,7 @@ void CChildView::OnPaint()
 						: dd(_dd)
 					{
 					}
-					virtual bool OnQueryEntity(my::OctEntity* oct_entity, const my::AABB& aabb)
+					virtual bool OnQueryEntity(my::OctEntity* oct_entity, const my::AABB& aabb, DWORD intersect_type)
 					{
 						unsigned int conColor = duRGBA(192, 0, 128, 192);
 						unsigned int baseColor = duRGBA(0, 0, 0, 64);
@@ -2093,7 +2093,7 @@ ctrl_handle_end:
 				, pView(_pView)
 			{
 			}
-			virtual bool OnQueryEntity(my::OctEntity* oct_entity, const my::AABB& aabb)
+			virtual bool OnQueryEntity(my::OctEntity* oct_entity, const my::AABB& aabb, DWORD intersect_type)
 			{
 				Actor* actor = dynamic_cast<Actor*>(oct_entity);
 				ASSERT(actor);
@@ -2194,7 +2194,7 @@ ctrl_handle_end:
 				, selinstid(0)
 			{
 			}
-			virtual bool OnQueryEntity(my::OctEntity * oct_entity, const my::AABB & aabb)
+			virtual bool OnQueryEntity(my::OctEntity * oct_entity, const my::AABB & aabb, DWORD intersect_type)
 			{
 				Actor * actor = dynamic_cast<Actor *>(oct_entity);
 				ASSERT(actor);

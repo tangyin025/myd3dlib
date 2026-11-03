@@ -125,7 +125,7 @@ public:
 
 	bool ExecuteCode(const char * code) throw();
 
-	virtual void QueryRenderComponent(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask);
+	virtual void QueryRenderComponent(const my::Vector3 & eye, const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask);
 
 	virtual void AddEntity(my::OctEntity * entity, const my::AABB & aabb, float minblock, float threshold);
 
