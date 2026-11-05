@@ -17,13 +17,15 @@ namespace my
 		{
 			struct
 			{
-				const Vector3 _1, _2, _3, _4, _5, _6, _7, _8;
+				Vector3 _1, _2, _3, _4, _5, _6, _7, _8;
 			};
 
-			const Vector3 v[8];
+			Vector3 v[8];
 		};
 
 		static const int tris[36];
+
+		BoxPrimitive(void);
 
 		BoxPrimitive(const AABB& aabb);
 
@@ -62,9 +64,15 @@ namespace my
 
 		void PushLine(const Vector3 & v0, const Vector3 & v1, D3DCOLOR color);
 
+		void PushLine(const BoxPrimitive & box, D3DCOLOR color);
+
 		void PushLineAABB(const AABB & aabb, D3DCOLOR color);
 
 		void PushLineBox(float hx, float hy, float hz, const Matrix4 & world, D3DCOLOR color);
+
+		void PushLineSphere(const Vector3 & pos, float radius, const Matrix4 & world, D3DCOLOR color);
+
+		void PushLineFrustum(const Frustum & frustum, D3DCOLOR color);
 
 		void PushLineGrid(float length, unsigned subLines, D3DCOLOR GridColor, D3DCOLOR AxisColor, const Matrix4 & Transform);
 

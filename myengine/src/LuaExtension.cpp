@@ -2093,6 +2093,10 @@ void LuaContext::Init(void)
 			.def_readonly("Right", &my::Frustum::Right)
 			.def_readonly("Near", &my::Frustum::Near)
 			.def_readonly("Far", &my::Frustum::Far)
+			.scope
+			[
+				def("ExtractMatrix", &my::Frustum::ExtractMatrix)
+			]
 
 		, class_<my::AABB>("AABB")
 			.def(constructor<float, float>())

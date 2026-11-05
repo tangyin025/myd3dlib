@@ -3077,6 +3077,7 @@ namespace my
 
 		float DistanceToPoint(const Vector3 & pt) const
 		{
+			// ! unnormalized
 			return normal.dot(pt) + d;
 		}
 

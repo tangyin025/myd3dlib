@@ -15,6 +15,11 @@ const int BoxPrimitive::tris[36] = {
 	2, 6, 7, 7, 3, 2,
 	0, 4, 5, 5, 1, 0 };
 
+BoxPrimitive::BoxPrimitive(void)
+{
+
+}
+
 BoxPrimitive::BoxPrimitive(const AABB& aabb)
 	: _1(aabb.m_min.x, aabb.m_min.y, aabb.m_min.z)
 	, _2(aabb.m_min.x, aabb.m_min.y, aabb.m_max.z)
@@ -83,9 +88,8 @@ void DrawHelper::PushLine(const Vector3 & v0, const Vector3 & v1, D3DCOLOR color
 	PushLineVertex(v1.x, v1.y, v1.z, color);
 }
 
-void DrawHelper::PushLineAABB(const AABB & aabb, D3DCOLOR color)
+void DrawHelper::PushLine(const BoxPrimitive & box, D3DCOLOR color)
 {
-	const BoxPrimitive box(aabb);
 	PushLine(box.v[0], box.v[1], color);
 	PushLine(box.v[1], box.v[2], color);
 	PushLine(box.v[2], box.v[3], color);
@@ -100,21 +104,97 @@ void DrawHelper::PushLineAABB(const AABB & aabb, D3DCOLOR color)
 	PushLine(box.v[3], box.v[7], color);
 }
 
+void DrawHelper::PushLineAABB(const AABB & aabb, D3DCOLOR color)
+{
+	PushLine(BoxPrimitive(aabb), color);
+}
+
 void DrawHelper::PushLineBox(float hx, float hy, float hz, const Matrix4 & world, D3DCOLOR color)
 {
-	const BoxPrimitive box(hx, hy, hz, world);
-	PushLine(box.v[0], box.v[1], color);
-	PushLine(box.v[1], box.v[2], color);
-	PushLine(box.v[2], box.v[3], color);
-	PushLine(box.v[3], box.v[0], color);
-	PushLine(box.v[4], box.v[5], color);
-	PushLine(box.v[5], box.v[6], color);
-	PushLine(box.v[6], box.v[7], color);
-	PushLine(box.v[7], box.v[4], color);
-	PushLine(box.v[0], box.v[4], color);
-	PushLine(box.v[1], box.v[5], color);
-	PushLine(box.v[2], box.v[6], color);
-	PushLine(box.v[3], box.v[7], color);
+	PushLine(BoxPrimitive(hx, hy, hz, world), color);
+}
+
+void DrawHelper::PushLineSphere(const Vector3 & pos, float radius, const Matrix4 & world, D3DCOLOR color)
+{
+	static const float cs[] = {
+		1.000000f,
+		0.866025f,
+		0.500000f,
+		0.000000f,
+		-0.500000f,
+		-0.866025f,
+		-1.000000f,
+		-0.866025f,
+		-0.500000f,
+		-0.000000f,
+		0.500000f,
+		0.866025f };
+
+	static const float sn[] = {
+		0.000000f,
+		0.500000f,
+		0.866025f,
+		1.000000f,
+		0.866025f,
+		0.500000f,
+		0.000000f,
+		-0.500000f,
+		-0.866025f,
+		-1.000000f,
+		-0.866025f,
+		-0.500000f };
+
+	static const int idx[3][3] = {
+		{ 0, 1, 2 }, { 1, 2, 0 }, { 2, 0, 1 },
+	};
+
+	for (int i = 0; i < 3; i++)
+	{
+		Vector3 v[_countof(cs)];
+		for (int j = 0; j < _countof(cs); j++)
+		{
+			Vector3 dummy;
+			dummy[idx[i][0]] = pos[idx[i][0]] + cs[j] * radius;
+			dummy[idx[i][1]] = pos[idx[i][1]] + sn[j] * radius;
+			dummy[idx[i][2]] = pos[idx[i][2]];
+			v[j] = dummy.transformCoord(world);
+		}
+
+		for (int j = 0; j < _countof(cs); j++)
+		{
+			PushLine(v[j], v[(j + 1) % _countof(cs)], color);
+		}
+	}
+}
+
+void DrawHelper::PushLineFrustum(const Frustum & frustum, D3DCOLOR color)
+{
+	static const int idx[8][3] = {
+		{ 4, 2, 0 }, { 4, 3, 0 }, { 4, 3, 1 }, { 4, 2, 1 },  // near LT RT RB LB
+		{ 5, 2, 0 }, { 5, 3, 0 }, { 5, 3, 1 }, { 5, 2, 1 },  // far
+	};
+
+	BoxPrimitive box;
+	for (int i = 0; i < 8; i++)
+	{
+		const Plane & p0 = frustum[idx[i][0]];
+		const Plane & p1 = frustum[idx[i][1]];
+		const Plane & p2 = frustum[idx[i][2]];
+
+		const Vector3 c0 = p1.normal.cross(p2.normal);
+		const Vector3 c1 = p2.normal.cross(p0.normal);
+		const Vector3 c2 = p0.normal.cross(p1.normal);
+
+		const float denom = p0.normal.dot(c0);
+		if (fabsf(denom) < EPSILON_E6)
+		{
+			return;
+		}
+
+		box.v[i] = (c0 * -p0.d + c1 * -p1.d + c2 * -p2.d) / denom;
+	}
+
+	PushLine(box, color);
 }
 
 void DrawHelper::PushLineGrid(float length, unsigned subLines, D3DCOLOR GridColor, D3DCOLOR AxisColor, const Matrix4 & Transform)
