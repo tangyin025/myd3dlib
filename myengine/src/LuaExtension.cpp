@@ -2072,6 +2072,8 @@ void LuaContext::Init(void)
 			.def_readwrite("b", &my::Plane::b)
 			.def_readwrite("c", &my::Plane::c)
 			.def_readwrite("d", &my::Plane::d)
+			.def("tangentUpper", &my::Plane::tangentUpper)
+			.def("tangentLower", &my::Plane::tangentLower)
 
 		, class_<my::Ray>("Ray")
 			.def(constructor<const my::Vector3 &, const my::Vector3 &>())

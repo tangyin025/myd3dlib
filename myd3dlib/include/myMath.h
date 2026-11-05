@@ -3081,6 +3081,20 @@ namespace my
 			return normal.dot(pt) + d;
 		}
 
+		float tangentUpper(const Vector3 & pt, float radius) const
+		{
+			float length = magnitude();
+
+			return -pt.dot(normal) - radius * length;
+		}
+
+		float tangentLower(const Vector3 & pt, float radius) const
+		{
+			float length = magnitude();
+
+			return -pt.dot(normal) + radius * length;
+		}
+
 		Plane transform(const Matrix4 & InverseTranspose) const;
 
 		Plane & transformSelf(const Matrix4 & InverseTranspose);

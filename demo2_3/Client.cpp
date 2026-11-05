@@ -1218,9 +1218,9 @@ void Client::QueryRenderComponent(const my::Vector3 & eye, const my::Frustum & f
 		}
 	};
 
+	// ! only valid when the camera eye is close to the viewed center, without considering shadow
 	my::Frustum dummy_ftm(frustum);
-	dummy_ftm.Near.normalizeSelf();
-	dummy_ftm.Near.d = Min(dummy_ftm.Near.d, m_ViewedDist - m_ViewedCenter.dot(dummy_ftm.Near.normal));
+	dummy_ftm.Near.d = Min(dummy_ftm.Near.d, dummy_ftm.Near.tangentLower(m_ViewedCenter, m_ViewedDist));
 	QueryEntity(dummy_ftm, &Callback(frustum, pipeline, PassMask, eye, m_ViewedCenter, this));
 }
 
