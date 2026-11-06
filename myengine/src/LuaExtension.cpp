@@ -3505,6 +3505,7 @@ void LuaContext::Init(void)
 			.def(constructor<const char *, const my::AABB &, float>())
 			.def_readonly("ChunkWidth", &StaticMesh::m_ChunkWidth)
 			.def_readwrite("ChunkPath", &StaticMesh::m_ChunkPath)
+			.def_readwrite("PxChunkPath", &StaticMesh::m_PxChunkPath)
 			.def_readwrite("ChunkLodScale", &StaticMesh::m_ChunkLodScale)
 			.def("GetChunk", &StaticMesh::GetChunk)
 

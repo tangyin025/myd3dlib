@@ -1,9 +1,9 @@
 #include "StaticMesh.h"
 #include "Actor.h"
 #include "myEffect.h"
-#include "myResource.h"
 #include "myDxutApp.h"
 #include "Material.h"
+#include "PhysxContext.h"
 #include "libc.h"
 #include <boost/archive/polymorphic_xml_iarchive.hpp>
 #include <boost/archive/polymorphic_xml_oarchive.hpp>
@@ -48,6 +48,17 @@ void StaticMeshChunk::RequestResource(void)
 		my::ResourceMgr::getSingleton().LoadIORequestAsync(
 			path, request, boost::bind(&StaticMeshChunk::OnChunkMeshReady, this, boost::placeholders::_1));
 	}
+
+	if (!mesh_cmp->m_PxChunkPath.empty())
+	{
+		_ASSERT(!m_PxMesh);
+
+		std::string path = StaticMeshChunk::MakeChunkPath(mesh_cmp->m_PxChunkPath, m_Row, m_Col);
+		IORequestPtr request(new MeshComponent::PhysxTriangleMeshIORequest(path.c_str(),
+			m_Lod <= 0 ? Component::ResPriorityLod0 : m_Lod <= 1 ? Component::ResPriorityLod1 : Component::ResPriorityLod2));
+		my::ResourceMgr::getSingleton().LoadIORequestAsync(
+			path, request, boost::bind(&StaticMeshChunk::OnChunkPxMeshReady, this, boost::placeholders::_1));
+	}
 }
 
 void StaticMeshChunk::ReleaseResource(void)
@@ -60,6 +71,29 @@ void StaticMeshChunk::ReleaseResource(void)
 			boost::bind(&StaticMeshChunk::OnChunkMeshReady, this, boost::placeholders::_1));
 
 		m_Mesh.reset();
+	}
+
+	if (!mesh_cmp->m_PxChunkPath.empty())
+	{
+		std::string path = StaticMeshChunk::MakeChunkPath(mesh_cmp->m_PxChunkPath, m_Row, m_Col);
+		my::ResourceMgr::getSingleton().RemoveIORequestCallback(path.c_str(),
+			boost::bind(&StaticMeshChunk::OnChunkPxMeshReady, this, boost::placeholders::_1));
+
+		if (m_PxMesh)
+		{
+			_ASSERT(m_PxShape);
+
+			if (mesh_cmp->m_Actor->m_PxActor)
+			{
+				_ASSERT(m_PxShape->getActor() == mesh_cmp->m_Actor->m_PxActor.get());
+
+				mesh_cmp->m_Actor->m_PxActor->detachShape(*m_PxShape);
+			}
+
+			m_PxShape.reset();
+
+			m_PxMesh.reset();
+		}
 	}
 
 	m_Requested = false;
@@ -75,6 +109,30 @@ void StaticMeshChunk::OnChunkMeshReady(my::DeviceResourceBasePtr res)
 	m_Mesh = boost::dynamic_pointer_cast<OgreMesh>(res);
 }
 
+void StaticMeshChunk::OnChunkPxMeshReady(my::DeviceResourceBasePtr res)
+{
+	_ASSERT(!m_PxMesh);
+
+	m_PxMesh = boost::dynamic_pointer_cast<MeshComponent::PhysxBaseResource>(res);
+
+	StaticMesh* mesh_cmp = dynamic_cast<StaticMesh*>(m_Node->GetTopNode());
+
+	_ASSERT(mesh_cmp->m_Actor && !m_PxShape);
+
+	physx::PxMaterial* material = Component::CreatePhysxMaterial(MeshComponent::DefaultCollisionMaterial.x, MeshComponent::DefaultCollisionMaterial.y, MeshComponent::DefaultCollisionMaterial.z);
+
+	physx::PxMeshScale mesh_scaling((physx::PxVec3&)mesh_cmp->m_Actor->m_Scale, physx::PxQuat(physx::PxIdentity));
+	m_PxShape.reset(PhysxSdk::getSingleton().m_sdk->createShape(physx::PxTriangleMeshGeometry(m_PxMesh->m_ptr->is<physx::PxTriangleMesh>(), mesh_scaling, physx::PxMeshGeometryFlags()),
+		*material, true, physx::PxShapeFlags(mesh_cmp->m_DescShapeFlags)), PhysxDeleter<physx::PxShape>());
+	m_PxShape->userData = this;
+	m_PxShape->setSimulationFilterData(mesh_cmp->m_DescSimulationFilter);
+	m_PxShape->setQueryFilterData(mesh_cmp->m_DescQueryFilter);
+	if (mesh_cmp->m_Actor && mesh_cmp->m_Actor->m_PxActor)
+	{
+		mesh_cmp->m_Actor->m_PxActor->attachShape(*m_PxShape);
+	}
+}
+
 template<class Archive>
 void StaticMesh::save(Archive& ar, const unsigned int version) const
 {
@@ -82,7 +140,22 @@ void StaticMesh::save(Archive& ar, const unsigned int version) const
 	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(OctRoot);
 	ar << BOOST_SERIALIZATION_NVP(m_ChunkWidth);
 	ar << BOOST_SERIALIZATION_NVP(m_ChunkPath);
+	ar << BOOST_SERIALIZATION_NVP(m_PxChunkPath);
 	ar << BOOST_SERIALIZATION_NVP(m_ChunkLodScale);
+	unsigned int SimulationFilterWord0, SimulationFilterWord1, SimulationFilterWord2, SimulationFilterWord3;
+	GetSimulationFilter(SimulationFilterWord0, SimulationFilterWord1, SimulationFilterWord2, SimulationFilterWord3);
+	ar << BOOST_SERIALIZATION_NVP(SimulationFilterWord0);
+	ar << BOOST_SERIALIZATION_NVP(SimulationFilterWord1);
+	//ar << BOOST_SERIALIZATION_NVP(SimulationFilterWord2);
+	//ar << BOOST_SERIALIZATION_NVP(SimulationFilterWord3);
+	unsigned int QueryFilterWord0, QueryFilterWord1, QueryFilterWord2, QueryFilterWord3;
+	GetQueryFilter(QueryFilterWord0, QueryFilterWord1, QueryFilterWord2, QueryFilterWord3);
+	ar << BOOST_SERIALIZATION_NVP(QueryFilterWord0);
+	ar << BOOST_SERIALIZATION_NVP(QueryFilterWord1);
+	//ar << BOOST_SERIALIZATION_NVP(QueryFilterWord2);
+	//ar << BOOST_SERIALIZATION_NVP(QueryFilterWord3);
+	unsigned int ShapeFlags = GetShapeFlags();
+	ar << BOOST_SERIALIZATION_NVP(ShapeFlags);
 	DWORD ChunkSize = m_Chunks.size();
 	ar << BOOST_SERIALIZATION_NVP(ChunkSize);
 	ChunkMap::const_iterator chunk_iter = m_Chunks.begin();
@@ -103,7 +176,23 @@ void StaticMesh::load(Archive& ar, const unsigned int version)
 	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(OctRoot);
 	ar >> BOOST_SERIALIZATION_NVP(m_ChunkWidth);
 	ar >> BOOST_SERIALIZATION_NVP(m_ChunkPath);
+	ar >> BOOST_SERIALIZATION_NVP(m_PxChunkPath);
 	ar >> BOOST_SERIALIZATION_NVP(m_ChunkLodScale);
+	unsigned int SimulationFilterWord0, SimulationFilterWord1, SimulationFilterWord2 = 0, SimulationFilterWord3 = 0;
+	ar >> BOOST_SERIALIZATION_NVP(SimulationFilterWord0);
+	ar >> BOOST_SERIALIZATION_NVP(SimulationFilterWord1);
+	//ar >> BOOST_SERIALIZATION_NVP(SimulationFilterWord2);
+	//ar >> BOOST_SERIALIZATION_NVP(SimulationFilterWord3);
+	SetSimulationFilter(SimulationFilterWord0, SimulationFilterWord1, SimulationFilterWord2, SimulationFilterWord3);
+	unsigned int QueryFilterWord0, QueryFilterWord1, QueryFilterWord2 = 0, QueryFilterWord3 = 0;
+	ar >> BOOST_SERIALIZATION_NVP(QueryFilterWord0);
+	ar >> BOOST_SERIALIZATION_NVP(QueryFilterWord1);
+	//ar >> BOOST_SERIALIZATION_NVP(QueryFilterWord2);
+	//ar >> BOOST_SERIALIZATION_NVP(QueryFilterWord3);
+	SetQueryFilter(QueryFilterWord0, QueryFilterWord1, QueryFilterWord2, QueryFilterWord3);
+	unsigned int ShapeFlags;
+	ar >> BOOST_SERIALIZATION_NVP(ShapeFlags);
+	SetShapeFlags(ShapeFlags);
 	DWORD ChunkSize;
 	ar >> BOOST_SERIALIZATION_NVP(ChunkSize);
 	for (int i = 0; i < (int)ChunkSize; i++)
@@ -280,4 +369,119 @@ StaticMeshChunk* StaticMesh::GetChunk(int i, int j)
 			(j + 1) * m_ChunkWidth,  0.5f, (i + 1) * m_ChunkWidth), m_ChunkWidth, 0.01f);
 	}
 	return &chunk_res.first->second;
+}
+
+void StaticMesh::SetSimulationFilter(unsigned int word0, unsigned int word1, unsigned int word2, unsigned int word3)
+{
+	m_DescSimulationFilter = physx::PxFilterData(word0, word1, word2, word3);
+
+	ChunkMap::iterator chunk_iter = m_Chunks.begin();
+	for (; chunk_iter != m_Chunks.end(); chunk_iter++)
+	{
+		if (chunk_iter->second.m_PxShape)
+		{
+			chunk_iter->second.m_PxShape->setSimulationFilterData(m_DescSimulationFilter);
+		}
+	}
+}
+
+void StaticMesh::GetSimulationFilter(unsigned int& word0, unsigned int& word1, unsigned int& word2, unsigned int& word3) const
+{
+	ChunkMap::const_iterator chunk_iter = m_Chunks.begin();
+	for (; chunk_iter != m_Chunks.end(); chunk_iter++)
+	{
+		if (chunk_iter->second.m_PxShape)
+		{
+			physx::PxFilterData filter_data = chunk_iter->second.m_PxShape->getSimulationFilterData();
+			word0 = filter_data.word0;
+			word1 = filter_data.word1;
+			word2 = filter_data.word2;
+			word3 = filter_data.word3;
+			return;
+		}
+	}
+
+	word0 = m_DescSimulationFilter.word0;
+	word1 = m_DescSimulationFilter.word1;
+	word2 = m_DescSimulationFilter.word2;
+	word3 = m_DescSimulationFilter.word3;
+}
+
+void StaticMesh::SetQueryFilter(unsigned int word0, unsigned int word1, unsigned int word2, unsigned int word3)
+{
+	m_DescQueryFilter = physx::PxFilterData(word0, word1, word2, word3);
+
+	ChunkMap::iterator chunk_iter = m_Chunks.begin();
+	for (; chunk_iter != m_Chunks.end(); chunk_iter++)
+	{
+		if (chunk_iter->second.m_PxShape)
+		{
+			chunk_iter->second.m_PxShape->setQueryFilterData(m_DescQueryFilter);
+		}
+	}
+}
+
+void StaticMesh::GetQueryFilter(unsigned int& word0, unsigned int& word1, unsigned int& word2, unsigned int& word3) const
+{
+	ChunkMap::const_iterator chunk_iter = m_Chunks.begin();
+	for (; chunk_iter != m_Chunks.end(); chunk_iter++)
+	{
+		if (chunk_iter->second.m_PxShape)
+		{
+			physx::PxFilterData filter_data = chunk_iter->second.m_PxShape->getQueryFilterData();
+			word0 = filter_data.word0;
+			word1 = filter_data.word1;
+			word2 = filter_data.word2;
+			word3 = filter_data.word3;
+			return;
+		}
+	}
+
+	word0 = m_DescQueryFilter.word0;
+	word1 = m_DescQueryFilter.word1;
+	word2 = m_DescQueryFilter.word2;
+	word3 = m_DescQueryFilter.word3;
+}
+
+void StaticMesh::SetShapeFlags(unsigned int Flags)
+{
+	m_DescShapeFlags = Flags;
+
+	ChunkMap::iterator chunk_iter = m_Chunks.begin();
+	for (; chunk_iter != m_Chunks.end(); chunk_iter++)
+	{
+		if (chunk_iter->second.m_PxShape)
+		{
+			chunk_iter->second.m_PxShape->setFlags(physx::PxShapeFlags(Flags));
+		}
+	}
+}
+
+unsigned int StaticMesh::GetShapeFlags(void) const
+{
+	ChunkMap::const_iterator chunk_iter = m_Chunks.begin();
+	for (; chunk_iter != m_Chunks.end(); chunk_iter++)
+	{
+		if (chunk_iter->second.m_PxShape)
+		{
+			return chunk_iter->second.m_PxShape->getFlags();
+		}
+	}
+
+	return m_DescShapeFlags;
+}
+
+void StaticMesh::ClearShape(void)
+{
+	Component::ClearShape();
+
+	ChunkMap::iterator chunk_iter = m_Chunks.begin();
+	for (; chunk_iter != m_Chunks.end(); chunk_iter++)
+	{
+		chunk_iter->second.m_PxMesh.reset();
+
+		chunk_iter->second.m_PxShape.reset();
+	}
+
+	m_PxChunkPath.clear();
 }

@@ -4,7 +4,6 @@
 #include "Actor.h"
 #include "myDxutApp.h"
 #include "myEffect.h"
-#include "myResource.h"
 #include "Animator.h"
 #include "Material.h"
 #include "PhysxContext.h"
@@ -727,76 +726,43 @@ MeshComponent::PhysxBaseResource::~PhysxBaseResource(void)
 	}
 }
 
-void MeshComponent::PhysxBaseResource::Create(physx::PxBase* ptr)
+void MeshComponent::PhysxTriangleMeshIORequest::LoadResource(void)
 {
-	_ASSERT(NULL == m_ptr);
-
-	m_ptr = ptr;
+	if (my::ResourceMgr::getSingleton().CheckPath(m_path.c_str()))
+	{
+		PhysxInputData readBuffer(my::ResourceMgr::getSingleton().OpenIStream(m_path.c_str()));
+		MeshComponent::PhysxBaseResourcePtr res(new MeshComponent::PhysxBaseResource());
+		res->Create(PhysxSdk::getSingleton().m_sdk->createTriangleMesh(readBuffer));
+		m_res = res;
+	}
 }
 
-class PhysxTriangleMeshIORequest : public my::IORequest
+void MeshComponent::PhysxTriangleMeshIORequest::CreateResource(LPDIRECT3DDEVICE9 pd3dDevice)
 {
-protected:
-	std::string m_path;
-
-public:
-	PhysxTriangleMeshIORequest(const char * path, int Priority)
-		: IORequest(Priority)
-		, m_path(path)
+	if (!m_res)
 	{
+		THROW_CUSEXCEPTION(str_printf("failed open %s", m_path.c_str()));
 	}
+}
 
-	virtual void PhysxTriangleMeshIORequest::LoadResource(void)
-	{
-		if (my::ResourceMgr::getSingleton().CheckPath(m_path.c_str()))
-		{
-			PhysxInputData readBuffer(my::ResourceMgr::getSingleton().OpenIStream(m_path.c_str()));
-			MeshComponent::PhysxBaseResourcePtr res(new MeshComponent::PhysxBaseResource());
-			res->Create(PhysxSdk::getSingleton().m_sdk->createTriangleMesh(readBuffer));
-			m_res = res;
-		}
-	}
-
-	virtual void PhysxTriangleMeshIORequest::CreateResource(LPDIRECT3DDEVICE9 pd3dDevice)
-	{
-		if (!m_res)
-		{
-			THROW_CUSEXCEPTION(str_printf("failed open %s", m_path.c_str()));
-		}
-	}
-};
-
-class PhysxConvexMeshIORequest : public my::IORequest
+void MeshComponent::PhysxConvexMeshIORequest::LoadResource(void)
 {
-protected:
-	std::string m_path;
-
-public:
-	PhysxConvexMeshIORequest(const char* path, int Priority)
-		: IORequest(Priority)
-		, m_path(path)
+	if (my::ResourceMgr::getSingleton().CheckPath(m_path.c_str()))
 	{
+		PhysxInputData readBuffer(my::ResourceMgr::getSingleton().OpenIStream(m_path.c_str()));
+		MeshComponent::PhysxBaseResourcePtr res(new MeshComponent::PhysxBaseResource());
+		res->Create(PhysxSdk::getSingleton().m_sdk->createConvexMesh(readBuffer));
+		m_res = res;
 	}
+}
 
-	virtual void PhysxConvexMeshIORequest::LoadResource(void)
+void MeshComponent::PhysxConvexMeshIORequest::CreateResource(LPDIRECT3DDEVICE9 pd3dDevice)
+{
+	if (!m_res)
 	{
-		if (my::ResourceMgr::getSingleton().CheckPath(m_path.c_str()))
-		{
-			PhysxInputData readBuffer(my::ResourceMgr::getSingleton().OpenIStream(m_path.c_str()));
-			MeshComponent::PhysxBaseResourcePtr res(new MeshComponent::PhysxBaseResource());
-			res->Create(PhysxSdk::getSingleton().m_sdk->createConvexMesh(readBuffer));
-			m_res = res;
-		}
+		THROW_CUSEXCEPTION(str_printf("failed open %s", m_path.c_str()));
 	}
-
-	virtual void PhysxConvexMeshIORequest::CreateResource(LPDIRECT3DDEVICE9 pd3dDevice)
-	{
-		if (!m_res)
-		{
-			THROW_CUSEXCEPTION(str_printf("failed open %s", m_path.c_str()));
-		}
-	}
-};
+}
 
 void MeshComponent::OnPxMeshReady(my::DeviceResourceBasePtr res, physx::PxGeometryType::Enum type)
 {

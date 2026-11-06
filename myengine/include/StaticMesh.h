@@ -20,6 +20,10 @@ public:
 
 	my::OgreMeshPtr m_Mesh;
 
+	MeshComponent::PhysxBaseResourcePtr m_PxMesh;
+
+	boost::shared_ptr<physx::PxShape> m_PxShape;
+
 public:
 	StaticMeshChunk(int Row, int Col)
 		: m_Row(Row)
@@ -50,6 +54,8 @@ public:
 	static std::string MakeChunkPath(const std::string& ChunkPath, int Row, int Col);
 
 	void OnChunkMeshReady(my::DeviceResourceBasePtr res);
+
+	void OnChunkPxMeshReady(my::DeviceResourceBasePtr res);
 };
 
 class StaticMesh
@@ -63,9 +69,17 @@ public:
 
 	std::string m_ChunkPath;
 
+	std::string m_PxChunkPath;
+
 	static const int LastLod = 1;
 
 	float m_ChunkLodScale;
+
+	physx::PxFilterData m_DescSimulationFilter;
+
+	physx::PxFilterData m_DescQueryFilter;
+
+	unsigned int m_DescShapeFlags;
 
 	typedef std::map<std::pair<int, int>, StaticMeshChunk> ChunkMap;
 
@@ -83,6 +97,9 @@ protected:
 	StaticMesh(void)
 		: m_ChunkWidth(1.0f)
 		, m_ChunkLodScale(1.0f)
+		, m_DescSimulationFilter(0, 0, 0, 0)
+		, m_DescQueryFilter(0, 0, 0, 0)
+		, m_DescShapeFlags(physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSIMULATION_SHAPE | physx::PxShapeFlag::eSCENE_QUERY_SHAPE)
 		, handle_World(NULL)
 		, handle_MeshColor(NULL)
 	{
@@ -94,6 +111,9 @@ public:
 		, OctRoot(LocalRootAabb.m_min, LocalRootAabb.m_max)
 		, m_ChunkWidth(ChunkWidth)
 		, m_ChunkLodScale(1.0f)
+		, m_DescSimulationFilter(0, 0, 0, 0)
+		, m_DescQueryFilter(0, 0, 0, 0)
+		, m_DescShapeFlags(physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSIMULATION_SHAPE | physx::PxShapeFlag::eSCENE_QUERY_SHAPE)
 		, handle_World(NULL)
 		, handle_MeshColor(NULL)
 	{
@@ -136,6 +156,20 @@ public:
 	virtual void AddToPipeline(const my::Frustum& frustum, RenderPipeline* pipeline, unsigned int PassMask, const my::Vector3& ViewPos, const my::Vector3& TargetPos);
 
 	StaticMeshChunk * GetChunk(int i, int j);
+
+	virtual void SetSimulationFilter(unsigned int word0, unsigned int word1, unsigned int word2, unsigned int word3);
+
+	virtual void GetSimulationFilter(unsigned int& word0, unsigned int& word1, unsigned int& word2, unsigned int& word3) const;
+
+	virtual void SetQueryFilter(unsigned int word0, unsigned int word1, unsigned int word2, unsigned int word3);
+
+	virtual void GetQueryFilter(unsigned int& word0, unsigned int& word1, unsigned int& word2, unsigned int& word3) const;
+
+	virtual void SetShapeFlags(unsigned int Flags);
+
+	virtual unsigned int GetShapeFlags(void) const;
+
+	virtual void ClearShape(void);
 };
 
 typedef boost::shared_ptr<StaticMesh> StaticMeshPtr;

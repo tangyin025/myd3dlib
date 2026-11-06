@@ -8,6 +8,7 @@
 #include "mySpline.h"
 #include "myMesh.h"
 #include "myTask.h"
+#include "myResource.h"
 #include <atlbase.h>
 #include <boost/smart_ptr/enable_shared_from_this.hpp>
 
@@ -223,7 +224,7 @@ public:
 		return m_Material;
 	}
 
-	physx::PxMaterial * CreatePhysxMaterial(float staticFriction, float dynamicFriction, float restitution);
+	static physx::PxMaterial * CreatePhysxMaterial(float staticFriction, float dynamicFriction, float restitution);
 
 	void CreateBoxShape(const my::Vector3 & pos, const my::Quaternion & rot, float hx, float hy, float hz, float staticFriction, float dynamicFriction, float restitution);
 
@@ -303,10 +304,48 @@ public:
 		{
 		}
 
-		void Create(physx::PxBase* ptr);
+		void Create(physx::PxBase* ptr)
+		{
+			_ASSERT(NULL == m_ptr);
+			m_ptr = ptr;
+		}
 	};
 
 	typedef boost::shared_ptr<PhysxBaseResource> PhysxBaseResourcePtr;
+
+	class PhysxTriangleMeshIORequest : public my::IORequest
+	{
+	protected:
+		std::string m_path;
+
+	public:
+		PhysxTriangleMeshIORequest(const char* path, int Priority)
+			: IORequest(Priority)
+			, m_path(path)
+		{
+		}
+
+		virtual void PhysxTriangleMeshIORequest::LoadResource(void);
+
+		virtual void PhysxTriangleMeshIORequest::CreateResource(LPDIRECT3DDEVICE9 pd3dDevice);
+	};
+
+	class PhysxConvexMeshIORequest : public my::IORequest
+	{
+	protected:
+		std::string m_path;
+
+	public:
+		PhysxConvexMeshIORequest(const char* path, int Priority)
+			: IORequest(Priority)
+			, m_path(path)
+		{
+		}
+
+		virtual void PhysxConvexMeshIORequest::LoadResource(void);
+
+		virtual void PhysxConvexMeshIORequest::CreateResource(LPDIRECT3DDEVICE9 pd3dDevice);
+	};
 
 	PhysxBaseResourcePtr m_PxMesh;
 
