@@ -194,6 +194,7 @@ public:
 		PropertyMaterialParameterTexture,
 		PropertyStaticMeshChunkWidth,
 		PropertyStaticMeshChunkPath,
+		PropertyStaticMeshPxChunkPath,
 		PropertyStaticMeshChunkLodScale,
 		PropertyClothColor,
 		PropertyClothAlpha,

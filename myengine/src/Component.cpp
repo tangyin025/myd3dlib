@@ -979,7 +979,16 @@ void MeshComponent::CreateTriangleMeshShape(my::OgreMesh * mesh, const char * Tr
 
 	if (mesh)
 	{
-		D3DXATTRIBUTERANGE rang = { 0, 0, mesh->GetNumFaces(), 0, mesh->GetNumVertices() };
+		D3DXATTRIBUTERANGE rang = { 0, 0, 0, 0, 0 };
+		std::vector<D3DXATTRIBUTERANGE>::iterator attr_iter = mesh->m_AttribTable.begin();
+		for (; attr_iter != mesh->m_AttribTable.end(); attr_iter++)
+		{
+			rang.VertexCount = Max(rang.VertexCount, attr_iter->VertexStart + attr_iter->VertexCount);
+			rang.FaceStart = Min(rang.FaceStart, attr_iter->FaceStart);
+			rang.FaceCount = Max(rang.FaceCount, attr_iter->FaceStart + attr_iter->FaceCount);
+		}
+		rang.FaceCount -= rang.FaceStart;
+
 		physx::PxTriangleMeshDesc desc;
 		desc.points.count = rang.VertexStart + rang.VertexCount;
 		desc.points.stride = mesh->GetNumBytesPerVertex();

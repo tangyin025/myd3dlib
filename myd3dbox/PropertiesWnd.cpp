@@ -651,7 +651,8 @@ void CPropertiesWnd::UpdatePropertiesStaticMesh(CMFCPropertyGridProperty * pComp
 	}
 	pComponent->GetSubItem(PropId + 0)->SetValue((_variant_t)static_mesh_cmp->m_ChunkWidth);
 	pComponent->GetSubItem(PropId + 1)->SetValue((_variant_t)ms2ts(static_mesh_cmp->m_ChunkPath.c_str()).c_str());
-	pComponent->GetSubItem(PropId + 2)->SetValue((_variant_t)static_mesh_cmp->m_ChunkLodScale);
+	pComponent->GetSubItem(PropId + 2)->SetValue((_variant_t)ms2ts(static_mesh_cmp->m_PxChunkPath.c_str()).c_str());
+	pComponent->GetSubItem(PropId + 3)->SetValue((_variant_t)static_mesh_cmp->m_ChunkLodScale);
 	UpdatePropertiesMaterial(pComponent->GetSubItem(PropId + 3), static_mesh_cmp->m_Material.get());
 }
 
@@ -1896,6 +1897,9 @@ void CPropertiesWnd::CreatePropertiesStaticMesh(CMFCPropertyGridProperty* pCompo
 	CMFCPropertyGridProperty* pChunkPath = new CSimpleProp(_T("ChunkPath"), (_variant_t)ms2ts(static_mesh_cmp->m_ChunkPath.c_str()).c_str(), NULL, PropertyStaticMeshChunkPath);
 	pChunkPath->Enable(FALSE);
 	pComponent->AddSubItem(pChunkPath);
+	CMFCPropertyGridProperty* pPxChunkPath = new CSimpleProp(_T("PxChunkPath"), (_variant_t)ms2ts(static_mesh_cmp->m_PxChunkPath.c_str()).c_str(), NULL, PropertyStaticMeshPxChunkPath);
+	pPxChunkPath->Enable(FALSE);
+	pComponent->AddSubItem(pPxChunkPath);
 	CMFCPropertyGridProperty* pChunkLodScale = new CSimpleProp(_T("ChunkLodScale"), (_variant_t)static_mesh_cmp->m_ChunkLodScale, NULL, PropertyStaticMeshChunkLodScale);
 	pComponent->AddSubItem(pChunkLodScale);
 	CreatePropertiesMaterial(pComponent, _T("Material"), static_mesh_cmp->m_Material.get());
@@ -3095,7 +3099,7 @@ unsigned int CPropertiesWnd::GetComponentPropCount(DWORD type)
 	case Component::ComponentTypeMesh:
 		return GetComponentPropCount(Component::ComponentTypeComponent) + 8;
 	case Component::ComponentTypeStaticMesh:
-		return GetComponentPropCount(Component::ComponentTypeComponent) + 4;
+		return GetComponentPropCount(Component::ComponentTypeComponent) + 5;
 	case Component::ComponentTypeCloth:
 		return GetComponentPropCount(Component::ComponentTypeComponent) + 14;
 	case Component::ComponentTypeEmitter:
@@ -4305,6 +4309,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	}
 	case PropertyStaticMeshChunkWidth:
 	case PropertyStaticMeshChunkPath:
+	case PropertyStaticMeshPxChunkPath:
 		break;
 	case PropertyStaticMeshChunkLodScale:
 	{
