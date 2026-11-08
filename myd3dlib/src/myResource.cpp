@@ -125,7 +125,7 @@ IStreamPtr FileIStream::Open(LPCTSTR pFilename)
 	errno_t err = _tsopen_s(&fp, pFilename, _O_RDONLY | _O_BINARY, _SH_DENYNO, 0);
 	if (0 != err)
 	{
-		THROW_CUSEXCEPTION(str_printf("cannot open file archive: %S", pFilename));
+		THROW_CUSEXCEPTION(str_printf("cannot open file archive: %s", ts2ms(pFilename).c_str()));
 	}
 	return IStreamPtr(new FileIStream(fp));
 }

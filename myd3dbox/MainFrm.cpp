@@ -142,13 +142,17 @@ static int luaL_loadfile(lua_State *L, const char *filename)
 	//ungetc(c, lf.f);
 	try
 	{
-		CMainFrame* pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
-		ASSERT_VALID(pFrame);
-		std::string dir = theApp.default_script_pattern.c_str();
-		// ! c++11 contains a null-terminated, https://cplusplus.com/reference/string/string/data/
-		PathRemoveFileSpecA(const_cast<char*>(dir.data()));
-		dir.resize(strlen(dir.c_str()));
-		lf.stream = theApp.OpenIStream((dir + "\\" + filename).c_str());
+		std::basic_string<TCHAR> fn = u8tots(filename);
+		if (PathIsRelative(fn.c_str()))
+		{
+			std::basic_string<TCHAR> dir = ms2ts(theApp.default_script_pattern.c_str());
+			// ! c++11 contains a null-terminated, https://cplusplus.com/reference/string/string/data/
+			PathRemoveFileSpec(const_cast<TCHAR*>(dir.data()));
+			dir.resize(_tcslen(dir.c_str()));
+			lf.stream = my::FileIStream::Open((dir + _T("\\") + fn).c_str());
+		}
+		else
+			lf.stream = my::FileIStream::Open(fn.c_str());
 	}
 	catch (const my::Exception & e)
 	{
@@ -1546,7 +1550,7 @@ bool CMainFrame::ExecuteCode(const char * code)
 			msg = "error object is not a string";
 		lua_pop(m_State, 1);
 
-		theApp.m_EventLog(msg.c_str());
+		m_wndOutput.m_wndOutputDebug.ReplaceSel(u8tots(msg.c_str()).c_str());
 
 		return false;
 	}
@@ -3083,9 +3087,9 @@ BOOL CMainFrame::OnShowPopupMenu(CMFCPopupMenu* pMenuPopup)
 			if (pMenuBar->GetItemID(i) == ID_TOOLS_SCRIPT1)
 			{
 				const int first_script_index = i;
-				WIN32_FIND_DATAA ffd;
+				WIN32_FIND_DATA ffd;
 				HANDLE hFind = INVALID_HANDLE_VALUE;
-				hFind = FindFirstFileA(theApp.default_script_pattern.c_str(), &ffd);
+				hFind = FindFirstFile(ms2ts(theApp.default_script_pattern.c_str()).c_str(), &ffd);
 				if (hFind == INVALID_HANDLE_VALUE)
 				{
 					break;
@@ -3096,21 +3100,21 @@ BOOL CMainFrame::OnShowPopupMenu(CMFCPopupMenu* pMenuPopup)
 					{
 						m_ToolScripts[i - first_script_index] = ffd.cFileName;
 						static const TCHAR* pref[] = { _T("&1 "), _T("&2 "), _T("&3 "), _T("&4 "), _T("&5 "), _T("&6 "), _T("&7 "), _T("&8 "), _T("&9 "), _T("1&0 ") };
-						std::basic_string<TCHAR> strText(i - first_script_index < _countof(pref) ? pref[i - first_script_index] : _T(""));
-						strText.append(ms2ts(m_ToolScripts[i - first_script_index].c_str()));
+						CString strText(i - first_script_index < _countof(pref) ? pref[i - first_script_index] : _T(""));
+						strText += m_ToolScripts[i - first_script_index];
 						if (i < pMenuBar->GetCount() && pMenuBar->GetButtonStyle(i) != TBBS_SEPARATOR && pMenuBar->GetItemID(i) < ID_TOOLS_SCRIPT_LAST)
 						{
-							pMenuBar->SetButtonText(i, strText.c_str());
+							pMenuBar->SetButtonText(i, strText);
 							i++;
 						}
 						else
 						{
-							pMenuBar->InsertButton(CMFCToolBarMenuButton(ID_TOOLS_SCRIPT1 + i - first_script_index, NULL, -1, strText.c_str()), i);
+							pMenuBar->InsertButton(CMFCToolBarMenuButton(ID_TOOLS_SCRIPT1 + i - first_script_index, NULL, -1, strText), i);
 							i++;
 						}
 					}
 				}
-				while (FindNextFileA(hFind, &ffd) && i - first_script_index < ID_TOOLS_SCRIPT_LAST - ID_TOOLS_SCRIPT1);
+				while (FindNextFile(hFind, &ffd) && i - first_script_index < ID_TOOLS_SCRIPT_LAST - ID_TOOLS_SCRIPT1);
 				FindClose(hFind);
 				break;
 			}
@@ -3124,7 +3128,7 @@ BOOL CMainFrame::OnShowPopupMenu(CMFCPopupMenu* pMenuPopup)
 void CMainFrame::OnToolsScript1(UINT id)
 {
 	// TODO: Add your command handler code here
-	if (luaL_loadfile(m_State, m_ToolScripts[id - ID_TOOLS_SCRIPT1].c_str()) || docall(0, 1))
+	if (luaL_loadfile(m_State, tstou8(m_ToolScripts[id - ID_TOOLS_SCRIPT1]).c_str()) || docall(0, 1))
 	{
 		if (!lua_isnil(m_State, -1))
 		{
@@ -3133,7 +3137,7 @@ void CMainFrame::OnToolsScript1(UINT id)
 				msg = "error object is not a string";
 			lua_pop(m_State, 1);
 
-			theApp.m_EventLog(msg.c_str());
+			m_wndOutput.m_wndOutputDebug.ReplaceSel(u8tots(msg.c_str()).c_str());
 		}
 	}
 }
@@ -3142,7 +3146,7 @@ void CMainFrame::OnToolsScript1(UINT id)
 void CMainFrame::OnUpdateToolsScript1(CCmdUI* pCmdUI)
 {
 	// TODO: Add your command update UI handler code here
-	pCmdUI->Enable(!m_ToolScripts[pCmdUI->m_nID - ID_TOOLS_SCRIPT1].empty());
+	pCmdUI->Enable(!m_ToolScripts[pCmdUI->m_nID - ID_TOOLS_SCRIPT1].IsEmpty());
 }
 
 
