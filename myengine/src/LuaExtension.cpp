@@ -1690,6 +1690,8 @@ void LuaContext::Init(void)
 			.def("transformNormalTranspose", &my::Vector2::transformNormalTranspose)
 			.def("transform", &my::Vector2::transform)
 			.property("Polar", &my::Vector2::cartesianToPolar)
+			.property("perpCCW", &my::Vector2::perpCCW)
+			.property("perpCW", &my::Vector2::perpCW)
 			.scope
 			[
 				def("PolarToCartesian", &my::Vector2::PolarToCartesian),

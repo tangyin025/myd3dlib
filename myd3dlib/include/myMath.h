@@ -377,6 +377,16 @@ namespace my
 
 		static Vector2 RandomUnitCircle(void);
 
+		Vector2 perpCCW(void) const
+		{
+			return Vector2(-y, x);
+		}
+
+		Vector2 perpCW(void) const
+		{
+			return Vector2(y, -x);
+		}
+
 		static const Vector2 zero;
 
 		static const Vector2 one;
@@ -766,7 +776,7 @@ namespace my
 
 			if (determinantSq > 0)
 			{
-				return Min(dot(rhs) / sqrtf(determinantSq), 1.0f);
+				return Clamp(dot(rhs) / sqrtf(determinantSq), -1.0f, 1.0f);
 			}
 			return 0;
 		}
@@ -777,7 +787,7 @@ namespace my
 
 			if (determinantSq > 0)
 			{
-				return Min(dot2D(rhs) / sqrtf(determinantSq), 1.0f);
+				return Clamp(dot2D(rhs) / sqrtf(determinantSq), -1.0f, 1.0f);
 			}
 			return 0;
 		}
