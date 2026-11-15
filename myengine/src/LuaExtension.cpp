@@ -49,10 +49,6 @@ extern "C" {
 #include <boost/regex.hpp>
 #include <boost/functional/value_factory.hpp>
 #include <boost/lexical_cast.hpp>
-#include <boost/property_tree/ptree.hpp>
-#include <boost/property_tree/xml_parser.hpp>
-#include <boost/property_tree/info_parser.hpp>
-#include <random>
 
 static int add_file_and_line(lua_State * L)
 {
@@ -1626,59 +1622,6 @@ static bool obstaclecontext_update_box_obstacle(physx::PxObstacleContext* self, 
 static void indexedbitmap_save_indexed_bitmap(my::IndexedBitmap * self, const char * path, const luabind::object & get_color)
 {
 	self->SaveIndexedBitmap(path, boost::bind(&luabind::call_function<DWORD, unsigned char>, boost::ref(get_color), boost::placeholders::_1));
-}
-
-static bool regex_search(boost::regex* self, const char* s, boost::cmatch & match)
-{
-	return boost::regex_search(s, match, *self, boost::match_default);
-}
-
-typedef std::vector<boost::cmatch> sub_match_list;
-
-typedef boost::shared_container_iterator<sub_match_list> shared_sub_match_list_iter;
-
-static boost::iterator_range<shared_sub_match_list_iter> regex_search_all(boost::regex* self, const char* s)
-{
-	boost::cmatch match;
-	boost::shared_ptr<sub_match_list> matchs(new sub_match_list());
-	for (; boost::regex_search(s, match, *self, boost::match_default); s = match[0].second)
-	{
-		matchs->push_back(match);
-	}
-	return boost::make_iterator_range(shared_sub_match_list_iter(matchs->begin(), matchs), shared_sub_match_list_iter(matchs->end(), matchs));
-}
-
-static bool cmatch_is_matched(boost::cmatch* self, int i)
-{
-	return self->operator[](i).matched;
-}
-
-static std::string cmatch_sub_match(boost::cmatch* self, int i)
-{
-	return self->operator[](i);
-}
-
-static void xml_document_parse(rapidxml::xml_document<char>* self, const char* u8_path, my::CachePtr& cache)
-{
-	_ASSERT(!cache);
-	cache = my::FileIStream::Open(u8tows(u8_path).c_str())->GetWholeCache();
-	cache->push_back(0);
-	self->parse<0>((char*)&(*cache)[0]);
-}
-
-static LUA_NUMBER mt19937_random(std::mt19937* self)
-{
-	return self->operator()() / (LUA_NUMBER)UINT_MAX;
-}
-
-static unsigned int mt19937_random(std::mt19937* self, unsigned int m)
-{
-	return self->operator()() % m + 1;
-}
-
-static unsigned int mt19937_random(std::mt19937* self, unsigned int m, unsigned int n)
-{
-	return self->operator()() % (n - m + 1) + m;
 }
 
 LuaContext::LuaContext(void)
@@ -4220,63 +4163,6 @@ void LuaContext::Init(void)
 			.def("SetPixel", &my::IndexedBitmap::SetPixel)
 			.def("LoadFromFile", &my::IndexedBitmap::LoadFromFile)
 			.def("SaveIndexedBitmap", &indexedbitmap_save_indexed_bitmap)
-
-		, class_<boost::regex>("regex")
-			.def(constructor<const char *>())
-			.def("search", &regex_search, pure_out_value(boost::placeholders::_3) /*+ dependency(boost::placeholders::_3, boost::placeholders::_2)*/) // ! dependency not worked
-			.def("search_all", &regex_search_all, return_stl_iterator /*+ dependency(result, boost::placeholders::_2)*/)
-
-		, class_<boost::cmatch>("cmatch")
-			.def(constructor<>())
-			.def("is_matched", &cmatch_is_matched)
-			.def("sub_match", &cmatch_sub_match)
-
-		, class_<rapidxml::xml_base<char> >("xml_base")
-			.property("name", (char* (rapidxml::xml_base<char>::*)()const)& rapidxml::xml_base<char>::name)
-			.property("value", (char* (rapidxml::xml_base<char>::*)()const)& rapidxml::xml_base<char>::value)
-			.property("parent", &rapidxml::xml_base<char>::parent)
-
-		, class_<rapidxml::xml_node<char>, rapidxml::xml_base<char> >("xml_node")
-			.property("type", (rapidxml::node_type(rapidxml::xml_node<char>::*)() const)& rapidxml::xml_node<char>::type)
-			.def("first_node", luabind::tag_function<rapidxml::xml_node<char>* (const rapidxml::xml_node<char>*)>(
-				boost::bind(&rapidxml::xml_node<char>::first_node, boost::placeholders::_1, (char*)0, 0, true)))
-			.def("first_node", luabind::tag_function<rapidxml::xml_node<char>* (const rapidxml::xml_node<char>*, const std::string&)>(
-				boost::bind(&rapidxml::xml_node<char>::first_node, boost::placeholders::_1, boost::bind(&std::string::c_str, boost::placeholders::_2), boost::bind(&std::string::length, boost::placeholders::_2), true)))
-			.def("first_attribute", luabind::tag_function<rapidxml::xml_node<char>* (const rapidxml::xml_node<char>*)>(
-				boost::bind(&rapidxml::xml_node<char>::first_attribute, boost::placeholders::_1, (char*)0, 0, true)))
-			.def("first_attribute", luabind::tag_function<rapidxml::xml_node<char>* (const rapidxml::xml_node<char>*, const std::string&)>(
-				boost::bind(&rapidxml::xml_node<char>::first_attribute, boost::placeholders::_1, boost::bind(&std::string::c_str, boost::placeholders::_2), boost::bind(&std::string::length, boost::placeholders::_2), true)))
-			.def("next_sibling", luabind::tag_function<rapidxml::xml_node<char>* (const rapidxml::xml_node<char>*)>(
-				boost::bind(&rapidxml::xml_node<char>::next_sibling, boost::placeholders::_1, (char*)0, 0, true)))
-			.def("next_sibling", luabind::tag_function<rapidxml::xml_node<char>* (const rapidxml::xml_node<char>*, const std::string&)>(
-				boost::bind(&rapidxml::xml_node<char>::next_sibling, boost::placeholders::_1, boost::bind(&std::string::c_str, boost::placeholders::_2), boost::bind(&std::string::length, boost::placeholders::_2), true)))
-
-		, class_<rapidxml::xml_attribute<char>, rapidxml::xml_base<char> >("xml_attribute")
-			.def("next_attribute", luabind::tag_function<rapidxml::xml_attribute<char>* (const rapidxml::xml_attribute<char>*)>(
-				boost::bind(&rapidxml::xml_attribute<char>::next_attribute, boost::placeholders::_1, (char*)0, 0, true)))
-			.def("next_attribute", luabind::tag_function<rapidxml::xml_attribute<char>* (const rapidxml::xml_attribute<char>*, const std::string&)>(
-				boost::bind(&rapidxml::xml_attribute<char>::next_attribute, boost::placeholders::_1, boost::bind(&std::string::c_str, boost::placeholders::_2), boost::bind(&std::string::length, boost::placeholders::_2), true)))
-
-		, class_<rapidxml::xml_document<char>, rapidxml::xml_node<char> >("xml_document")
-			.def(constructor<>())
-			.def("parse", &xml_document_parse, pure_out_value(boost::placeholders::_3) + dependency(boost::placeholders::_1, boost::placeholders::_3))
-
-		, class_<boost::property_tree::ptree>("ptree")
-			.def(constructor<>())
-			.def("read_xml", luabind::tag_function<void(boost::property_tree::ptree&, const std::string&)>(
-				boost::bind((void (*)(const std::string&, boost::property_tree::ptree&, int, const std::locale&))boost::property_tree::read_xml, boost::placeholders::_2, boost::placeholders::_1, 0, std::locale())))
-			.def("read_info", luabind::tag_function<void(boost::property_tree::ptree&, const std::string&)>(
-				boost::bind((void (*)(const std::string&, boost::property_tree::ptree&, const std::locale&))boost::property_tree::read_info, boost::placeholders::_2, boost::placeholders::_1, std::locale())))
-			.property("data", (const std::string& (boost::property_tree::ptree::*)()const)& boost::property_tree::ptree::data)
-			.def("get", luabind::tag_function<std::string(boost::property_tree::ptree*,const char*,const std::string&)>(
-				boost::bind(&boost::property_tree::ptree::get<std::string>, boost::placeholders::_1, boost::bind(boost::value_factory<boost::property_tree::path>(), boost::placeholders::_2, '/'), boost::placeholders::_3)))
-
-		, class_<std::mt19937>("mt19937")
-			.def(constructor<>())
-			.def(constructor<unsigned int>())
-			.def("random", (LUA_NUMBER(*)(std::mt19937*))& mt19937_random)
-			.def("random", (unsigned int(*)(std::mt19937*, unsigned int))& mt19937_random)
-			.def("random", (unsigned int(*)(std::mt19937*, unsigned int, unsigned int))& mt19937_random)
 	];
 }
 
