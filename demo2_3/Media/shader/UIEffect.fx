@@ -11,6 +11,7 @@ sampler MeshTextureSampler = sampler_state
     MagFilter = LINEAR;
     ADDRESSU = CLAMP;
     ADDRESSV = CLAMP;
+	SRGBTEXTURE = FALSE;
 };
 
 //--------------------------------------------------------------------------------------

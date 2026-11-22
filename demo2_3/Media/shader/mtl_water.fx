@@ -18,6 +18,7 @@ sampler NormalTextureSampler = sampler_state
 	MagFilter = LINEAR;
     ADDRESSU = WRAP;
     ADDRESSV = WRAP;
+	SRGBTEXTURE = FALSE;
 };
 
 sampler ReflectTextureSampler = sampler_state
@@ -28,6 +29,7 @@ sampler ReflectTextureSampler = sampler_state
     MagFilter = LINEAR;
     ADDRESSU = CLAMP;
     ADDRESSV = CLAMP;
+	SRGBTEXTURE = FALSE;
 };
 
 struct TRANSPARENT_VS_OUTPUT

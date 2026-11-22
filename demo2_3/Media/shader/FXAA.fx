@@ -2084,6 +2084,7 @@ SamplerState InputSampler = sampler_state
 	MipFilter = NONE;
 	MinFilter = LINEAR;
 	MagFilter = LINEAR;
+	SRGBTEXTURE = FALSE;
 };
 
 float4 FxaaPS(VS_OUTPUT Input) : COLOR0 {

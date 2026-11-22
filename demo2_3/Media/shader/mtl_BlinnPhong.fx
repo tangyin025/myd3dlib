@@ -13,6 +13,7 @@ sampler DiffuseTextureSampler = sampler_state
     MagFilter = LINEAR;
     ADDRESSU = WRAP;
     ADDRESSV = WRAP;
+	SRGBTEXTURE = TRUE;
 };
 
 sampler NormalTextureSampler = sampler_state
@@ -23,6 +24,7 @@ sampler NormalTextureSampler = sampler_state
 	MagFilter = LINEAR;
     ADDRESSU = WRAP;
     ADDRESSV = WRAP;
+	SRGBTEXTURE = FALSE;
 };
 
 sampler SpecularTextureSampler = sampler_state
@@ -33,6 +35,7 @@ sampler SpecularTextureSampler = sampler_state
 	MagFilter = LINEAR;
     ADDRESSU = WRAP;
     ADDRESSV = WRAP;
+	SRGBTEXTURE = FALSE;
 };
 
 struct SHADOW_VS_OUTPUT

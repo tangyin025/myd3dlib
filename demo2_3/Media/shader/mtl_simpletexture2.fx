@@ -10,6 +10,7 @@ sampler DiffuseTextureSampler = sampler_state
     MagFilter = LINEAR;
     ADDRESSU = CLAMP;
     ADDRESSV = CLAMP;
+	SRGBTEXTURE = FALSE;
 };
 
 struct TRANSPARENT_VS_OUTPUT

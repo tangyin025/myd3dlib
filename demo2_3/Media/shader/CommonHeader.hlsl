@@ -67,6 +67,7 @@ sampler ShadowRTSampler0 = sampler_state
 	MipFilter = NONE;
 	MinFilter = POINT;
 	MagFilter = POINT;
+	SRGBTEXTURE = FALSE;
 };
 #if CASCADE_LAYER_NUM > 1
 sampler ShadowRTSampler1 = sampler_state
@@ -75,6 +76,7 @@ sampler ShadowRTSampler1 = sampler_state
 	MipFilter = NONE;
 	MinFilter = POINT;
 	MagFilter = POINT;
+	SRGBTEXTURE = FALSE;
 };
 #endif
 #if CASCADE_LAYER_NUM > 2
@@ -84,6 +86,7 @@ sampler ShadowRTSampler2 = sampler_state
 	MipFilter = NONE;
 	MinFilter = POINT;
 	MagFilter = POINT;
+	SRGBTEXTURE = FALSE;
 };
 #endif
 #if CASCADE_LAYER_NUM > 3
@@ -93,6 +96,7 @@ sampler ShadowRTSampler3 = sampler_state
 	MipFilter = NONE;
 	MinFilter = POINT;
 	MagFilter = POINT;
+	SRGBTEXTURE = FALSE;
 };
 #endif
 
@@ -104,6 +108,7 @@ sampler NormalRTSampler = sampler_state
 	MagFilter = POINT;
     ADDRESSU = CLAMP;
     ADDRESSV = CLAMP;
+	SRGBTEXTURE = FALSE;
 };
 
 sampler PositionRTSampler = sampler_state
@@ -114,6 +119,7 @@ sampler PositionRTSampler = sampler_state
 	MagFilter = POINT;
     ADDRESSU = CLAMP;
     ADDRESSV = CLAMP;
+	SRGBTEXTURE = FALSE;
 };
 
 sampler SpecularRTSampler = sampler_state
@@ -124,6 +130,7 @@ sampler SpecularRTSampler = sampler_state
 	MagFilter = POINT;
     ADDRESSU = CLAMP;
     ADDRESSV = CLAMP;
+	SRGBTEXTURE = FALSE;
 };
 
 sampler LightRTSampler = sampler_state
@@ -134,6 +141,7 @@ sampler LightRTSampler = sampler_state
 	MagFilter = POINT;
     ADDRESSU = CLAMP;
     ADDRESSV = CLAMP;
+	SRGBTEXTURE = FALSE;
 };
 
 sampler OpaqueRTSampler = sampler_state
@@ -144,6 +152,7 @@ sampler OpaqueRTSampler = sampler_state
     MagFilter = Linear;
     ADDRESSU = CLAMP;
     ADDRESSV = CLAMP;
+	SRGBTEXTURE = FALSE;
 };
 
 sampler DownFilterRTSampler = sampler_state
@@ -154,6 +163,7 @@ sampler DownFilterRTSampler = sampler_state
 	MagFilter = Linear;
     ADDRESSU = CLAMP;
     ADDRESSV = CLAMP;
+	SRGBTEXTURE = FALSE;
 };
 
 float DistributionGGX(float3 N, float3 H, float roughness)
@@ -208,10 +218,10 @@ float GetLigthAmountLayer(float4 ShadowCoord, sampler TexSamp, float bias)
 	
 	//read in bilerp stamp, doing the shadow checks
 	float sourcevals[4];
-	sourcevals[0] = (tex2Dlod( TexSamp, float4(ShadowTex,0,0) ).r - bias > ShadowCoord.z / ShadowCoord.w)? 0.0f: 1.0f;  
-	sourcevals[1] = (tex2Dlod( TexSamp, float4(ShadowTex + float2(1.0/g_ShadowMapSize, 0),0,0) ).r - bias > ShadowCoord.z / ShadowCoord.w)? 0.0f: 1.0f;  
-	sourcevals[2] = (tex2Dlod( TexSamp, float4(ShadowTex + float2(0, 1.0/g_ShadowMapSize),0,0) ).r - bias > ShadowCoord.z / ShadowCoord.w)? 0.0f: 1.0f;  
-	sourcevals[3] = (tex2Dlod( TexSamp, float4(ShadowTex + float2(1.0/g_ShadowMapSize, 1.0/g_ShadowMapSize),0,0) ).r - bias > ShadowCoord.z / ShadowCoord.w)? 0.0f: 1.0f;  
+	sourcevals[0] = (tex2D( TexSamp, ShadowTex ).r - bias > ShadowCoord.z / ShadowCoord.w)? 0.0f: 1.0f;  
+	sourcevals[1] = (tex2D( TexSamp, ShadowTex + float2(1.0/g_ShadowMapSize, 0) ).r - bias > ShadowCoord.z / ShadowCoord.w)? 0.0f: 1.0f;  
+	sourcevals[2] = (tex2D( TexSamp, ShadowTex + float2(0, 1.0/g_ShadowMapSize) ).r - bias > ShadowCoord.z / ShadowCoord.w)? 0.0f: 1.0f;  
+	sourcevals[3] = (tex2D( TexSamp, ShadowTex + float2(1.0/g_ShadowMapSize, 1.0/g_ShadowMapSize) ).r - bias > ShadowCoord.z / ShadowCoord.w)? 0.0f: 1.0f;  
 		
 	// lerp between the shadow values to calculate our light amount
 	float LightAmount = lerp( lerp( sourcevals[0], sourcevals[1], lerps.x ),

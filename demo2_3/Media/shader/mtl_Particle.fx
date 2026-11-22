@@ -8,6 +8,7 @@ sampler TextureSampler = sampler_state
     MipFilter = LINEAR;
     MinFilter = LINEAR;
     MagFilter = LINEAR;
+	SRGBTEXTURE = FALSE;
 };
 
 struct TRANSPARENT_VS_OUTPUT

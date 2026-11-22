@@ -617,11 +617,12 @@ void RenderPipeline::OnRender(
 	}
 
 	V(pd3dDevice->SetRenderState(D3DRS_FILLMODE, !pRC->m_WireFrame ? D3DFILL_SOLID : D3DFILL_WIREFRAME));
-
+	V(pd3dDevice->SetRenderState(D3DRS_SRGBWRITEENABLE, TRUE));
 	RenderAllObjects(pd3dDevice, PassTypeOpaque, pRC, fTime, fElapsedTime);
 
 	V(pd3dDevice->StretchRect(pRC->m_OpaqueRT.GetNextTarget()->GetSurfaceLevel(0), NULL, pRC->m_OpaqueRT.GetNextSource()->GetSurfaceLevel(0), NULL, D3DTEXF_NONE));
 	m_SimpleSample->SetTexture(handle_OpaqueRT, pRC->m_OpaqueRT.GetNextSource().get());
+	V(pd3dDevice->SetRenderState(D3DRS_SRGBWRITEENABLE, FALSE));
 	RenderAllObjects(pd3dDevice, PassTypeTransparent, pRC, fTime, fElapsedTime);
 
 	pRC->m_OpaqueRT.Flip();

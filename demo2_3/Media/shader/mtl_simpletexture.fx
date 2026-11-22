@@ -8,6 +8,7 @@ sampler DiffuseTextureSampler = sampler_state
     MipFilter = LINEAR;
     MinFilter = LINEAR;
     MagFilter = LINEAR;
+	SRGBTEXTURE = TRUE;
 };
 
 struct TRANSPARENT_VS_OUTPUT

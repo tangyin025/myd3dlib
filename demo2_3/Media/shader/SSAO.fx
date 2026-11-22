@@ -14,6 +14,7 @@ sampler OcclusionRTSampler = sampler_state
 	MagFilter = POINT;
     ADDRESSU = CLAMP;
     ADDRESSV = CLAMP;
+	SRGBTEXTURE = FALSE;
 };
 
 float2 ssaoKernel[16] =

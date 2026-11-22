@@ -23,6 +23,7 @@ sampler DiffuseTextureSampler0 = sampler_state
     MagFilter = LINEAR;
     ADDRESSU = WRAP;
     ADDRESSV = WRAP;
+	SRGBTEXTURE = TRUE;
 };
 
 sampler NormalTextureSampler0 = sampler_state
@@ -33,6 +34,7 @@ sampler NormalTextureSampler0 = sampler_state
 	MagFilter = LINEAR;
     ADDRESSU = WRAP;
     ADDRESSV = WRAP;
+	SRGBTEXTURE = FALSE;
 };
 
 sampler SpecularTextureSampler0 = sampler_state
@@ -43,6 +45,7 @@ sampler SpecularTextureSampler0 = sampler_state
 	MagFilter = LINEAR;
     ADDRESSU = WRAP;
     ADDRESSV = WRAP;
+	SRGBTEXTURE = FALSE;
 };
 
 sampler DiffuseTextureSampler1 = sampler_state
@@ -53,6 +56,7 @@ sampler DiffuseTextureSampler1 = sampler_state
     MagFilter = LINEAR;
     ADDRESSU = WRAP;
     ADDRESSV = WRAP;
+	SRGBTEXTURE = TRUE;
 };
 
 sampler NormalTextureSampler1 = sampler_state
@@ -63,6 +67,7 @@ sampler NormalTextureSampler1 = sampler_state
 	MagFilter = LINEAR;
     ADDRESSU = WRAP;
     ADDRESSV = WRAP;
+	SRGBTEXTURE = FALSE;
 };
 
 sampler SpecularTextureSampler1 = sampler_state
@@ -73,6 +78,7 @@ sampler SpecularTextureSampler1 = sampler_state
 	MagFilter = LINEAR;
     ADDRESSU = WRAP;
     ADDRESSV = WRAP;
+	SRGBTEXTURE = FALSE;
 };
 
 sampler DiffuseTextureSampler2 = sampler_state
@@ -83,6 +89,7 @@ sampler DiffuseTextureSampler2 = sampler_state
     MagFilter = LINEAR;
     ADDRESSU = WRAP;
     ADDRESSV = WRAP;
+	SRGBTEXTURE = TRUE;
 };
 
 sampler NormalTextureSampler2 = sampler_state
@@ -93,6 +100,7 @@ sampler NormalTextureSampler2 = sampler_state
 	MagFilter = LINEAR;
     ADDRESSU = WRAP;
     ADDRESSV = WRAP;
+	SRGBTEXTURE = FALSE;
 };
 
 sampler SpecularTextureSampler2 = sampler_state
@@ -103,6 +111,7 @@ sampler SpecularTextureSampler2 = sampler_state
 	MagFilter = LINEAR;
     ADDRESSU = WRAP;
     ADDRESSV = WRAP;
+	SRGBTEXTURE = FALSE;
 };
 
 sampler DiffuseTextureSampler3 = sampler_state
@@ -113,6 +122,7 @@ sampler DiffuseTextureSampler3 = sampler_state
     MagFilter = LINEAR;
     ADDRESSU = WRAP;
     ADDRESSV = WRAP;
+	SRGBTEXTURE = TRUE;
 };
 
 sampler NormalTextureSampler3 = sampler_state
@@ -123,6 +133,7 @@ sampler NormalTextureSampler3 = sampler_state
 	MagFilter = LINEAR;
     ADDRESSU = WRAP;
     ADDRESSV = WRAP;
+	SRGBTEXTURE = FALSE;
 };
 
 sampler SpecularTextureSampler3 = sampler_state
@@ -133,6 +144,7 @@ sampler SpecularTextureSampler3 = sampler_state
 	MagFilter = LINEAR;
     ADDRESSU = WRAP;
     ADDRESSV = WRAP;
+	SRGBTEXTURE = FALSE;
 };
 
 struct SHADOW_VS_OUTPUT
