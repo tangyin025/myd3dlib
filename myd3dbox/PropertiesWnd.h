@@ -192,6 +192,7 @@ public:
 		PropertyMaterialParameterFloatValueW,
 		PropertyMaterialParameterColor,
 		PropertyMaterialParameterTexture,
+		PropertyMaterialParameterUnknown,
 		PropertyStaticMeshChunkWidth,
 		PropertyStaticMeshChunkPath,
 		PropertyStaticMeshPxChunkPath,

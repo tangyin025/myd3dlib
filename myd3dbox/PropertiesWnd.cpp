@@ -1884,6 +1884,11 @@ void CPropertiesWnd::CreatePropertiesMaterialParameter(CMFCPropertyGridProperty 
 		pProp = new CFileProp(name.c_str(), TRUE, (_variant_t)theApp.GetFullPath(dynamic_cast<MaterialParameterTexture *>(mtl_param)->m_TexturePath.c_str()).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyMaterialParameterTexture);
 		pParentCtrl->AddSubItem(pProp);
 		break;
+	default:
+		pProp = new CSimpleProp(name.c_str(), (_variant_t)_T("unknown parameter type"), NULL, PropertyMaterialParameterUnknown);
+		pProp->Enable(FALSE);
+		pParentCtrl->AddSubItem(pProp);
+		break;
 	}
 }
 
@@ -3184,8 +3189,8 @@ CPropertiesWnd::Property CPropertiesWnd::GetMaterialParameterTypeProp(MaterialPa
 	case MaterialParameter::ParameterTypeTexture:
 		return PropertyMaterialParameterTexture;
 	}
-	ASSERT(FALSE);
-	return PropertyUnknown;
+	//ASSERT(FALSE);
+	return PropertyMaterialParameterUnknown;
 }
 
 unsigned int CPropertiesWnd::GetControlPropCount(DWORD type)
@@ -4307,6 +4312,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
 	}
+	case PropertyMaterialParameterUnknown:
 	case PropertyStaticMeshChunkWidth:
 	case PropertyStaticMeshChunkPath:
 	case PropertyStaticMeshPxChunkPath:
