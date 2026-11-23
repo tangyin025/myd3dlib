@@ -264,7 +264,15 @@ float GetLigthAmount(float4 PosWS, float InvScreenDepth)
 
 float GetFogFactor(float depth)
 {
-	return 1 - 1 / exp(depth * g_FogColor.a);
+	float f = g_FogColor.a * depth;
+	return 1.0 - exp(-f * f);
+}
+
+float3 LinearToSRGB(float3 c)
+{
+	// ! This instruction could be expanded as exp(src1 * log(src0)), log(0) == -INF
+	// https://stackoverflow.com/questions/7486842/pow0-2-2-gives-1-in-a-hlsl-pixel-shader
+	return pow(c, 1.0 / 2.2);
 }
 
 float ScreenDoorTransparency(float Alpha, float2 SPos)

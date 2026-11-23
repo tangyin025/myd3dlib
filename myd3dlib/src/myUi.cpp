@@ -140,6 +140,7 @@ void UIRender::Flush(void)
 	V(m_Device->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR));
 	V(m_Device->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_LINEAR));
 	V(m_Device->SetSamplerState(0, D3DSAMP_MIPFILTER, D3DTEXF_NONE));
+	V(m_Device->SetSamplerState(0, D3DSAMP_SRGBTEXTURE, FALSE));
 	V(m_Device->SetTextureStageState(0, D3DTSS_TEXCOORDINDEX, 0));
 	V(m_Device->SetTextureStageState(0, D3DTSS_COLOROP, D3DTOP_MODULATE));
 	V(m_Device->SetTextureStageState(0, D3DTSS_COLORARG1, D3DTA_TEXTURE));

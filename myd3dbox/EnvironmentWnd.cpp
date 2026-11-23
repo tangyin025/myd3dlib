@@ -232,17 +232,17 @@ void CEnvironmentWnd::OnCameraPropChanged(my::EventArg * arg)
 	pSkyLight->GetSubItem(SkyLightPropertyEuler)->GetSubItem(Vector3PropertyY)->SetValue((_variant_t)D3DXToDegree(theApp.m_SkyLightCam->m_Euler.y));
 	pSkyLight->GetSubItem(SkyLightPropertyEuler)->GetSubItem(Vector3PropertyZ)->SetValue((_variant_t)D3DXToDegree(theApp.m_SkyLightCam->m_Euler.z));
 
-	color = RGB(theApp.m_SkyLightColor.x * 255, theApp.m_SkyLightColor.y * 255, theApp.m_SkyLightColor.z * 255);
+	color = RGB(my::LinearToSRGB8(theApp.m_SkyLightColor.x), my::LinearToSRGB8(theApp.m_SkyLightColor.y), my::LinearToSRGB8(theApp.m_SkyLightColor.z));
 	(DYNAMIC_DOWNCAST(CColorProp, pSkyLight->GetSubItem(SkyLightPropertyDiffuse)))->SetColor((_variant_t)color);
 
 	pSkyLight->GetSubItem(SkyLightPropertySpecular)->SetValue((_variant_t)theApp.m_SkyLightColor.w);
 
-	color = RGB(theApp.m_AmbientColor.x * 255, theApp.m_AmbientColor.y * 255, theApp.m_AmbientColor.z * 255);
+	color = RGB(my::LinearToSRGB8(theApp.m_AmbientColor.x), my::LinearToSRGB8(theApp.m_AmbientColor.y), my::LinearToSRGB8(theApp.m_AmbientColor.z));
 	(DYNAMIC_DOWNCAST(CColorProp, pSkyLight->GetSubItem(SkyLightPropertyAmbientColor)))->SetColor((_variant_t)color);
 
 	pSkyLight->GetSubItem(SkyLightPropertyAmbientSpecular)->SetValue((_variant_t)theApp.m_AmbientColor.w);
 
-	color = RGB(theApp.m_FogColor.x * 255, theApp.m_FogColor.y * 255, theApp.m_FogColor.z * 255);
+	color = RGB(my::LinearToSRGB8(theApp.m_FogColor.x), my::LinearToSRGB8(theApp.m_FogColor.y), my::LinearToSRGB8(theApp.m_FogColor.z));
 	(DYNAMIC_DOWNCAST(CColorProp, pSkyLight->GetSubItem(SkyLightPropertyFogColor)))->SetColor((_variant_t)color);
 
 	pSkyLight->GetSubItem(SkyLightPropertyFogDensity)->SetValue((_variant_t)theApp.m_FogColor.w);
@@ -382,24 +382,24 @@ LRESULT CEnvironmentWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			D3DXToRadian(pTopProp->GetSubItem(SkyLightPropertyEuler)->GetSubItem(Vector3PropertyZ)->GetValue().fltVal));
 
 		COLORREF color = (DYNAMIC_DOWNCAST(CColorProp, pTopProp->GetSubItem(SkyLightPropertyDiffuse)))->GetColor();
-		theApp.m_SkyLightColor.xyz = my::Vector3(GetRValue(color) / 255.0f, GetGValue(color) / 255.0f, GetBValue(color) / 255.0f);
+		theApp.m_SkyLightColor.xyz = my::Vector3(my::sRGB8ToLinear(GetRValue(color)), my::sRGB8ToLinear(GetGValue(color)), my::sRGB8ToLinear(GetBValue(color)));
 
 		theApp.m_SkyLightColor.w = pTopProp->GetSubItem(SkyLightPropertySpecular)->GetValue().fltVal;
 
 		color = (DYNAMIC_DOWNCAST(CColorProp, pTopProp->GetSubItem(SkyLightPropertyAmbientColor)))->GetColor();
-		theApp.m_AmbientColor.xyz = my::Vector3(GetRValue(color) / 255.0f, GetGValue(color) / 255.0f, GetBValue(color) / 255.0f);
+		theApp.m_AmbientColor.xyz = my::Vector3(my::sRGB8ToLinear(GetRValue(color)), my::sRGB8ToLinear(GetGValue(color)), my::sRGB8ToLinear(GetBValue(color)));
 
 		theApp.m_AmbientColor.w = pTopProp->GetSubItem(SkyLightPropertyAmbientSpecular)->GetValue().fltVal;
 
 		color = (DYNAMIC_DOWNCAST(CColorProp, pTopProp->GetSubItem(SkyLightPropertyFogColor)))->GetColor();
-		theApp.m_FogColor.xyz = my::Vector3(GetRValue(color) / 255.0f, GetGValue(color) / 255.0f, GetBValue(color) / 255.0f);
+		theApp.m_FogColor.xyz = my::Vector3(my::sRGB8ToLinear(GetRValue(color)), my::sRGB8ToLinear(GetGValue(color)), my::sRGB8ToLinear(GetBValue(color)));
 
 		theApp.m_FogColor.w = pTopProp->GetSubItem(SkyLightPropertyFogDensity)->GetValue().fltVal;
 
 		theApp.m_CascadeLayerBias = my::Vector4(
 			pTopProp->GetSubItem(SkyLightPropertyShadowBias)->GetSubItem(Vector3PropertyX)->GetValue().fltVal,
 			pTopProp->GetSubItem(SkyLightPropertyShadowBias)->GetSubItem(Vector3PropertyY)->GetValue().fltVal,
-			pTopProp->GetSubItem(SkyLightPropertyShadowBias)->GetSubItem(Vector3PropertyZ)->GetValue().fltVal, 0.0f);
+			pTopProp->GetSubItem(SkyLightPropertyShadowBias)->GetSubItem(Vector3PropertyZ)->GetValue().fltVal, theApp.m_CascadeLayerBias.w);
 	}
 	break;
 	case PropertyDepthOfField:

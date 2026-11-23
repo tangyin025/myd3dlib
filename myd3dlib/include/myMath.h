@@ -121,6 +121,16 @@ namespace my
 		return rng;
 	}
 
+	inline float sRGB8ToLinear(unsigned char v)
+	{
+		return powf(v / 255.0f, 2.2f);
+	}
+
+	inline unsigned char LinearToSRGB8(float x)
+	{
+		return (unsigned char)(powf(x, 1.0f / 2.2f) * 255.0f + 0.5f);
+	}
+
 	class Vector4;
 
 	class Matrix4;

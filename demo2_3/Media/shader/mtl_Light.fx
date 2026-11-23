@@ -55,7 +55,7 @@ technique RenderScene
     pass PassTypeOpaque
     {          
     }
-    pass PassTypeLight
+    pass PassTypeTransparent
     {          
     }
 }

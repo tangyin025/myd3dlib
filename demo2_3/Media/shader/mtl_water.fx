@@ -83,7 +83,7 @@ float4 TransparentPS(TRANSPARENT_VS_OUTPUT In)
 
     // 菲涅尔
     float fresnel = saturate(fresnelBias + fresnelScale * pow(1 + dot(i, Normal), fresnelPower));
-    return float4(lerp(lerp(refrcolor, reflcolor, fresnel), g_FogColor.xyz, In.fogFactor), 1);
+    return float4(lerp(lerp(refrcolor, reflcolor, fresnel), LinearToSRGB(g_FogColor.xyz), In.fogFactor), 1);
 }
 
 technique RenderScene
