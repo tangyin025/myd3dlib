@@ -34,8 +34,7 @@ public:
 		ParameterTypeFloat3,
 		ParameterTypeFloat4,
 		ParameterTypeTexture,
-		ParameterTypeInvWorldView,
-		ParameterTypeFarZ
+		ParameterTypeProjParams
 	};
 
 	std::string m_Name;
@@ -340,16 +339,16 @@ public:
 	virtual void Set(my::Effect * shader, LPARAM lparam, RenderPipeline::IRenderContext * pRC);
 };
 
-class MaterialParameterFarZ : public MaterialParameter
+class MaterialParameterProjParams : public MaterialParameter
 {
 protected:
 	friend class Material;
 
-	MaterialParameterFarZ(void)
+	MaterialParameterProjParams(void)
 	{
 	}
 
-	MaterialParameterFarZ(Material* Owner, const std::string& Name)
+	MaterialParameterProjParams(Material* Owner, const std::string& Name)
 		: MaterialParameter(Owner, Name)
 	{
 	}
@@ -365,8 +364,10 @@ public:
 
 	virtual ParameterType GetParameterType(void) const
 	{
-		return ParameterTypeFarZ;
+		return ParameterTypeProjParams;
 	}
+	
+	static my::Vector4 GetProjParams(const my::Camera * cam);
 
 	virtual void Set(my::Effect* shader, LPARAM lparam, RenderPipeline::IRenderContext* pRC);
 };

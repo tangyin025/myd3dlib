@@ -202,6 +202,8 @@ public:
 
 	D3DXHANDLE handle_Kernel2Texel;
 
+	D3DXHANDLE handle_ProjParams;
+
 	D3DXHANDLE handle_OcclusionRT;
 
 	float m_SsaoBias;

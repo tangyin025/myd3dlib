@@ -72,6 +72,7 @@ RenderPipeline::RenderPipeline(void)
 	//, handle_sample_rad(NULL)
 	, handle_scale(NULL)
 	, handle_Kernel2Texel(NULL)
+	, handle_ProjParams(NULL)
 	, handle_OcclusionRT(NULL)
 	, m_SsaoBias(0.2f)
 	, m_SsaoIntensity(5.0f)
@@ -571,6 +572,7 @@ void RenderPipeline::OnRender(
 				//BOOST_VERIFY(handle_sample_rad = SsaoEffect->GetParameterByName(NULL, "g_sample_rad"));
 				BOOST_VERIFY(handle_scale = SsaoEffect->GetParameterByName(NULL, "g_scale"));
 				BOOST_VERIFY(handle_Kernel2Texel = SsaoEffect->GetParameterByName(NULL, "_Kernel2Texel"));
+				BOOST_VERIFY(handle_ProjParams = SsaoEffect->GetParameterByName(NULL, "g_ProjParams"));
 				BOOST_VERIFY(handle_OcclusionRT = SsaoEffect->GetParameterByName(NULL, "g_OcclusionRT"));
 			}
 
@@ -584,6 +586,7 @@ void RenderPipeline::OnRender(
 			//SsaoEffect->SetFloat(handle_sample_rad, m_SsaoRadius);
 			SsaoEffect->SetFloat(handle_scale, m_SsaoScale);
 			SsaoEffect->SetVector(handle_Kernel2Texel, Vector2(0.001388888888888889f * ScreenSurfDesc->Height / ScreenSurfDesc->Width * m_SsaoRadius, 0.001388888888888889f * m_SsaoRadius));
+			SsaoEffect->SetVector(handle_ProjParams, MaterialParameterProjParams::GetProjParams(pRC->m_Camera.get()));
 			SsaoEffect->Begin(D3DXFX_DONOTSAVESTATE | D3DXFX_DONOTSAVESAMPLERSTATE | D3DXFX_DONOTSAVESHADERSTATE);
 			SsaoEffect->BeginPass(0);
 			_UpdateQuad(quad, Vector2((float)ScreenSurfDesc->Width, (float)ScreenSurfDesc->Height), Vector2(-0.5f), Vector2(1), Vector2(1));

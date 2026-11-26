@@ -42,7 +42,7 @@ BOOST_CLASS_EXPORT(MaterialParameterFloat4)
 
 BOOST_CLASS_EXPORT(MaterialParameterTexture)
 
-BOOST_CLASS_EXPORT(MaterialParameterFarZ)
+BOOST_CLASS_EXPORT(MaterialParameterProjParams)
 
 BOOST_CLASS_EXPORT(Material)
 
@@ -66,7 +66,7 @@ bool MaterialParameter::operator == (const MaterialParameter & rhs) const
 			return static_cast<const MaterialParameterFloat4 &>(*this).m_Value == static_cast<const MaterialParameterFloat4 &>(rhs).m_Value;
 		case ParameterTypeTexture:
 			return static_cast<const MaterialParameterTexture &>(*this).m_TexturePath == static_cast<const MaterialParameterTexture &>(rhs).m_TexturePath;
-		case ParameterTypeInvWorldView:
+		case ParameterTypeProjParams:
 			return true;
 		}
 		_ASSERT(false);
@@ -172,10 +172,18 @@ void MaterialParameterTexture::Set(my::Effect * shader, LPARAM lparam, RenderPip
 	shader->SetTexture(m_Handle, m_Texture ? m_Texture.get() : my::D3DContext::getSingleton().OnTextureFallback(m_TexturePath));
 }
 
-void MaterialParameterFarZ::Set(my::Effect* shader, LPARAM lparam, RenderPipeline::IRenderContext* pRC)
+my::Vector4 MaterialParameterProjParams::GetProjParams(const my::Camera * cam)
+{
+	return Vector4(
+		1.0f / cam->m_Proj._11,
+		1.0f / cam->m_Proj._22,
+		cam->m_Proj._43 / cam->m_Proj._33, 0.0f);
+}
+
+void MaterialParameterProjParams::Set(my::Effect* shader, LPARAM lparam, RenderPipeline::IRenderContext* pRC)
 {
 	_ASSERT(m_Handle);
-	shader->SetFloat(m_Handle, pRC->m_Camera->m_Proj._43 / pRC->m_Camera->m_Proj._33);
+	shader->SetVector(m_Handle, GetProjParams(pRC->m_Camera.get()));
 }
 
 template<class Archive>
@@ -362,9 +370,9 @@ void Material::ParseShaderParameters(void)
 			boost::bind(std::equal_to<std::string>(), boost::bind(&MaterialParameter::m_Name, boost::bind(&MaterialParameterPtr::get, boost::placeholders::_1)), Name));
 
 		boost::match_results<std::string::const_iterator> what2;
-		if (boost::regex_search(Annotations, what2, boost::regex("bool\\s+UseFarZ\\s*=\\s*true"), boost::match_default))
+		if (boost::regex_search(Annotations, what2, boost::regex("bool\\s+ProjParams\\s*=\\s*true"), boost::match_default))
 		{
-			m_ParameterList.push_back(MaterialParameterPtr(new MaterialParameterFarZ(this, Name)));
+			m_ParameterList.push_back(MaterialParameterPtr(new MaterialParameterProjParams(this, Name)));
 		}
 		else if (what[2].matched)
 		{

@@ -3300,8 +3300,7 @@ void LuaContext::Init(void)
 				value("ParameterTypeFloat2", MaterialParameter::ParameterTypeFloat2),
 				value("ParameterTypeFloat3", MaterialParameter::ParameterTypeFloat3),
 				value("ParameterTypeFloat4", MaterialParameter::ParameterTypeFloat4),
-				value("ParameterTypeTexture", MaterialParameter::ParameterTypeTexture),
-				value("ParameterTypeInvWorldView", MaterialParameter::ParameterTypeInvWorldView)
+				value("ParameterTypeTexture", MaterialParameter::ParameterTypeTexture)
 			]
 			.property("ParameterType", &MaterialParameter::GetParameterType)
 			.property("Requested", &MaterialParameter::IsRequested)

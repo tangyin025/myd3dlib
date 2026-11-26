@@ -275,6 +275,12 @@ float3 LinearToSRGB(float3 c)
 	return pow(c, 1.0 / 2.2);
 }
 
+float3 ReconstructPosVS(float2 TanHalfFov, float2 uv, float d)
+{
+	float2 ndc = float2(uv.x * 2.0 - 1.0, 1.0 - uv.y * 2.0);  // VPOS 的 y 是自上而下
+    return float3(ndc * TanHalfFov * -d, d);
+}
+
 float ScreenDoorTransparency(float Alpha, float2 SPos)
 {
 	float4x4 thresholdMatrix =
