@@ -221,7 +221,7 @@ void NormalPS( 	NORMAL_VS_OUTPUT In,
     }
     oNormal = float4(mul(normalize(NormalTS), m), 1);
 	oSpecular = float4(Specular, 1);
-	oPos = In.PosVS;
+	oPos = float4(In.PosVS.z, 0, 0, 0);
 }
 
 struct OPAQUE_VS_OUTPUT

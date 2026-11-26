@@ -112,7 +112,7 @@ float4 DofCombine( VS_OUTPUT In ) : COLOR0
 
     float3 ColorBlur = tex2D( DownFilterRTSampler, In.TextureUV );
 
-    float Blur = ComputeDepthBlur(-tex2D( PositionRTSampler, In.TextureUV2 ).z);
+    float Blur = ComputeDepthBlur(-tex2D( PositionRTSampler, In.TextureUV2 ).r);
 
     return float4( lerp( ColorOrig, ColorBlur, saturate(Blur) ), 1.0f );
 }

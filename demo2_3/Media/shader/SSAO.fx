@@ -98,7 +98,7 @@ float4 OcclusionPS(VS_OUTPUT In) : COLOR0
 	// 	occlusion += (sampleDepth >= sample.z + g_bias ? 1.0 : 0.0) * rangeCheck;
 	// }
 
-	float3 fragPos = ReconstructPosVS(g_ProjParams.xy, AlignTexel(In.TextureUV), tex2D(PositionRTSampler, In.TextureUV).z);
+	float3 fragPos = ReconstructPosVS(g_ProjParams.xy, AlignTexel(In.TextureUV), tex2D(PositionRTSampler, In.TextureUV).r);
 	float3 normal = tex2D(NormalRTSampler, In.TextureUV).xyz;
 	float2 noise = ssaoNoise[In.TextureUV.y * g_ScreenDim.y % 4 * 4 + In.TextureUV.x * g_ScreenDim.x % 4];
 
@@ -107,7 +107,7 @@ float4 OcclusionPS(VS_OUTPUT In) : COLOR0
 	{
 		float2 kernel = ssaoKernel[i] + noise;
 		kernel *= _Kernel2Texel / fragPos.z;
-		float3 offset = ReconstructPosVS(g_ProjParams.xy, AlignTexel(In.TextureUV + kernel), tex2D(PositionRTSampler, In.TextureUV + kernel).z) - fragPos;
+		float3 offset = ReconstructPosVS(g_ProjParams.xy, AlignTexel(In.TextureUV + kernel), tex2D(PositionRTSampler, In.TextureUV + kernel).r) - fragPos;
 
 		const float3 v = normalize(offset);
 		const float d = length(offset) * g_scale;

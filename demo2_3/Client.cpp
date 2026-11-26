@@ -702,6 +702,7 @@ HRESULT Client::OnResetDevice(
 		return hr;
 	}
 
+	// ! MRT must have the same bit depth unless D3DPMISCCAPS_MRTINDEPENDENTBITDEPTHS, https://learn.microsoft.com/en-us/windows/win32/direct3d9/multiple-render-targets
 	m_NormalRT->CreateTexture(
 		pBackBufferSurfaceDesc->Width, pBackBufferSurfaceDesc->Height, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A16B16G16R16F, D3DPOOL_DEFAULT);
 
@@ -709,7 +710,7 @@ HRESULT Client::OnResetDevice(
 		pBackBufferSurfaceDesc->Width, pBackBufferSurfaceDesc->Height, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT);
 
 	m_PositionRT->CreateTexture(
-		pBackBufferSurfaceDesc->Width, pBackBufferSurfaceDesc->Height, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A32B32G32R32F, D3DPOOL_DEFAULT);
+		pBackBufferSurfaceDesc->Width, pBackBufferSurfaceDesc->Height, 1, D3DUSAGE_RENDERTARGET, D3DFMT_R32F, D3DPOOL_DEFAULT);
 
 	m_LightRT->CreateTexture(
 		pBackBufferSurfaceDesc->Width, pBackBufferSurfaceDesc->Height, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A16B16G16R16F, D3DPOOL_DEFAULT);

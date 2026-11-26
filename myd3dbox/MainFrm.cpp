@@ -1950,10 +1950,13 @@ void CMainFrame::OnCreateActor()
 		pView->GetClientRect(&rc);
 		rc.SetRect(rc.Width() / 2, rc.Height() / 2, rc.Width() / 2 + 1, rc.Height() / 2 + 1);
 		D3DLOCKED_RECT lrc = pView->m_OffscreenPositionRT->LockRect(&rc, D3DLOCK_READONLY);
-		my::Vector3 posVS = (*(my::Vector4*)lrc.pBits).xyz;
+		float d = *(float*)lrc.pBits;
 		pView->m_OffscreenPositionRT->UnlockRect();
-		if (posVS.z < 0 && posVS.z > -boost::dynamic_pointer_cast<my::ModelViewerCamera>(pView->m_Camera)->m_Distance)
+		if (d < 0 && d > -boost::dynamic_pointer_cast<my::ModelViewerCamera>(pView->m_Camera)->m_Distance)
 		{
+			my::Vector3 posVS(
+				my::Lerp(-1.0f, 1.0f, rc.left / (float)pView->m_SwapChainBufferDesc.Width) * -d / pView->m_Camera->m_Proj._11,
+				my::Lerp(1.0f, -1.0f, rc.top / (float)pView->m_SwapChainBufferDesc.Height) * -d / pView->m_Camera->m_Proj._22, d);
 			Pos = posVS.transformCoord(pView->m_Camera->m_View.inverse());
 		}
 		else
@@ -3291,12 +3294,15 @@ void CMainFrame::OnUpdateIndicatorCoord(CCmdUI* pCmdUI)
 		pView->ScreenToClient(&pt);
 		CRect rc(pt, CSize(1,1));
 		D3DLOCKED_RECT lrc = pView->m_OffscreenPositionRT->LockRect(&rc, D3DLOCK_READONLY);
-		my::Vector3 pos = (*(my::Vector4*)lrc.pBits).xyz;
+		float d = *(float*)lrc.pBits;
 		pView->m_OffscreenPositionRT->UnlockRect();
 
 		CString text;
-		if (pos != my::Vector3::zero)
+		if (d < 0)
 		{
+			my::Vector3 pos(
+				my::Lerp(-1.0f, 1.0f, pt.x / (float)pView->m_SwapChainBufferDesc.Width) * -d / pView->m_Camera->m_Proj._11,
+				my::Lerp(1.0f, -1.0f, pt.y / (float)pView->m_SwapChainBufferDesc.Height) * -d / pView->m_Camera->m_Proj._22, d);
 			m_IndicatorCoord = pos.transformCoord(pView->m_Camera->m_View.inverse());
 			text.Format(_T("%f, %f, %f"), m_IndicatorCoord.x, m_IndicatorCoord.y, m_IndicatorCoord.z);
 		}

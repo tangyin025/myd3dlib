@@ -27,7 +27,7 @@ float4 LightPS( LIGHT_VS_OUTPUT In ) : COLOR0
 { 
 	float3 NormalVS = tex2D(NormalRTSampler, (In.Pos.xy + 0.5f) / g_ScreenDim).xyz;
 	float3 SpecularVS = tex2D(SpecularRTSampler, (In.Pos.xy + 0.5f) / g_ScreenDim).xyz;
-	float3 PosVS = ReconstructPosVS(g_ProjParams.xy, (In.Pos.xy + 0.5f) / g_ScreenDim, tex2D(PositionRTSampler, (In.Pos.xy + 0.5f) / g_ScreenDim).z);
+	float3 PosVS = ReconstructPosVS(g_ProjParams.xy, (In.Pos.xy + 0.5f) / g_ScreenDim, tex2D(PositionRTSampler, (In.Pos.xy + 0.5f) / g_ScreenDim).r);
 	float3 LightDir = In.LightVS.xyz - PosVS;
 	float LightDist = length(LightDir);
 	LightDir = LightDir / LightDist;

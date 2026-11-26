@@ -93,7 +93,7 @@ void NormalPS( 	NORMAL_VS_OUTPUT In,
 	oNormal = float4(mul(NormalTS, m), 1);
 	float3 Specular = tex2D(SpecularTextureSampler, In.Tex0).xyz;
 	oSpecular = float4(Specular, 1);
-	oPos = In.PosVS;
+	oPos = float4(In.PosVS.z, 0, 0, 0);
 }
 
 struct OPAQUE_VS_OUTPUT

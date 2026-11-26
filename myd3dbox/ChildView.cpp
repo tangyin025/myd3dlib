@@ -242,7 +242,7 @@ void CChildView::OnResetDevice(void)
 
 	ASSERT(!m_PositionRT->m_ptr);
 	m_PositionRT->CreateTexture(
-		m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A32B32G32R32F, D3DPOOL_DEFAULT);
+		m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height, 1, D3DUSAGE_RENDERTARGET, D3DFMT_R32F, D3DPOOL_DEFAULT);
 
 	ASSERT(!m_LightRT->m_ptr);
 	m_LightRT->CreateTexture(
@@ -265,7 +265,7 @@ void CChildView::OnResetDevice(void)
 
 	ASSERT(!m_OffscreenPositionRT->m_ptr);
 	m_OffscreenPositionRT->CreateOffscreenPlainSurface(
-		m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height, D3DFMT_A32B32G32R32F, D3DPOOL_SYSTEMMEM);
+		m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height, D3DFMT_R32F, D3DPOOL_SYSTEMMEM);
 }
 
 void CChildView::OnLostDevice(void)
@@ -1790,11 +1790,14 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 		// OffMeshConnectionTool::handleClick
 		CRect rc(point, CSize(1, 1));
 		D3DLOCKED_RECT lrc = m_OffscreenPositionRT->LockRect(&rc, D3DLOCK_READONLY);
-		my::Vector3 pos = (*(my::Vector4*)lrc.pBits).xyz;
+		float d = *(float*)lrc.pBits;
 		m_OffscreenPositionRT->UnlockRect();
 
-		if (pos != my::Vector3::zero)
+		if (d < 0)
 		{
+			my::Vector3 pos(
+				my::Lerp(-1.0f, 1.0f, point.x / (float)m_SwapChainBufferDesc.Width) * -d / m_Camera->m_Proj._11,
+				my::Lerp(1.0f, -1.0f, point.y / (float)m_SwapChainBufferDesc.Height) * -d / m_Camera->m_Proj._22, d);
 			pos = pos.transformCoord(m_Camera->m_View.inverse());
 
 			// Create offmesh connections
