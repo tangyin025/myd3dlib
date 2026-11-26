@@ -796,34 +796,6 @@ void RenderPipeline::OnRender(
 		}
 	}
 
-	if (pRC->m_FxaaEnable)
-	{
-		D3DXMACRO macros[] = { { 0 } };
-		my::Effect* FxaaEffect = QueryShader("shader/FXAA.fx", macros, PassTypeShadow);
-		if (FxaaEffect)
-		{
-			if (!handle_InputTexture)
-			{
-				BOOST_VERIFY(handle_InputTexture = FxaaEffect->GetParameterByName(NULL, "InputTexture"));
-				BOOST_VERIFY(handle_RCPFrame = FxaaEffect->GetParameterByName(NULL, "RCPFrame"));
-			}
-			V(pd3dDevice->SetRenderTarget(0, pRC->m_OpaqueRT.GetNextTarget()->GetSurfaceLevel(0)));
-			V(pd3dDevice->SetFVF(D3DFVF_XYZRHW | D3DFVF_TEX2));
-			V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE));
-			V(pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE));
-			FxaaEffect->SetTexture(handle_InputTexture, pRC->m_OpaqueRT.GetNextSource().get());
-			Vector4 RCPFrame(1.0f / ScreenSurfDesc->Width, 1.0f / ScreenSurfDesc->Height, 0.0f, 0.0f);
-			FxaaEffect->SetFloatArray(handle_RCPFrame, &RCPFrame.x, sizeof(RCPFrame) / sizeof(float));
-			FxaaEffect->Begin(D3DXFX_DONOTSAVESTATE | D3DXFX_DONOTSAVESAMPLERSTATE | D3DXFX_DONOTSAVESHADERSTATE);
-			FxaaEffect->BeginPass(0);
-			_UpdateQuad(quad, Vector2((float)ScreenSurfDesc->Width, (float)ScreenSurfDesc->Height), Vector2(-0.5f), Vector2(1), Vector2(1));
-			V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, quad, sizeof(quad[0])));
-			FxaaEffect->EndPass();
-			FxaaEffect->End();
-			pRC->m_OpaqueRT.Flip();
-		}
-	}
-
 	switch (pRC->m_RTType)
 	{
 	case RenderTargetNormal:
@@ -857,7 +829,37 @@ void RenderPipeline::OnRender(
 		V(pd3dDevice->StretchRect(LightSurf, NULL, ScreenSurf, NULL, D3DTEXF_NONE));
 		break;
 	case RenderTargetOpaque:
-		V(pd3dDevice->StretchRect(pRC->m_OpaqueRT.GetNextSource()->GetSurfaceLevel(0), NULL, ScreenSurf, NULL, D3DTEXF_NONE));
+		if (pRC->m_FxaaEnable)
+		{
+			// In an HDR pipeline, apply bloom before tonemapping, tonemap to LDR before FXAA, feed FXAA
+			// perceptual luma (FXAA_GREEN_AS_LUMA=0), linear RGB with sqrt(dot(rgb, lumaWeights))
+			// stored in alpha and avoid double sRGB encoding when writing the final RT.
+			D3DXMACRO macros[] = { { "FXAA_GREEN_AS_LUMA", "1" }, { 0 } };
+			my::Effect* FxaaEffect = QueryShader("shader/FXAA.fx", macros, PassTypeShadow);
+			if (FxaaEffect)
+			{
+				if (!handle_InputTexture)
+				{
+					BOOST_VERIFY(handle_InputTexture = FxaaEffect->GetParameterByName(NULL, "InputTexture"));
+					BOOST_VERIFY(handle_RCPFrame = FxaaEffect->GetParameterByName(NULL, "RCPFrame"));
+				}
+				V(pd3dDevice->SetRenderTarget(0, ScreenSurf));
+				V(pd3dDevice->SetFVF(D3DFVF_XYZRHW | D3DFVF_TEX2));
+				V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE));
+				V(pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE));
+				FxaaEffect->SetTexture(handle_InputTexture, pRC->m_OpaqueRT.GetNextSource().get());
+				Vector4 RCPFrame(1.0f / ScreenSurfDesc->Width, 1.0f / ScreenSurfDesc->Height, 0.0f, 0.0f);
+				FxaaEffect->SetFloatArray(handle_RCPFrame, &RCPFrame.x, sizeof(RCPFrame) / sizeof(float));
+				FxaaEffect->Begin(D3DXFX_DONOTSAVESTATE | D3DXFX_DONOTSAVESAMPLERSTATE | D3DXFX_DONOTSAVESHADERSTATE);
+				FxaaEffect->BeginPass(0);
+				_UpdateQuad(quad, Vector2((float)ScreenSurfDesc->Width, (float)ScreenSurfDesc->Height), Vector2(-0.5f), Vector2(1), Vector2(1));
+				V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, quad, sizeof(quad[0])));
+				FxaaEffect->EndPass();
+				FxaaEffect->End();
+			}
+		}
+		else
+			V(pd3dDevice->StretchRect(pRC->m_OpaqueRT.GetNextSource()->GetSurfaceLevel(0), NULL, ScreenSurf, NULL, D3DTEXF_NONE));
 		break;
 	case RenderTargetDownFilter:
 		V(pd3dDevice->StretchRect(
